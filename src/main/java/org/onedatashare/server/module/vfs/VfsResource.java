@@ -143,7 +143,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             }
                             sink.next(new Slice(b));
                             b = new byte[Math.toIntExact(sliceSize) + 1024];
-
                             sink.complete();
                         }
                         return state + sliceSize;
