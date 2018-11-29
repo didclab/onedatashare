@@ -12,6 +12,12 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Tooltip from '@material-ui/core/Tooltip';
+import Zoom from '@material-ui/core/Zoom';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
+import Refresh from '@material-ui/icons/Refresh';
+import Info from '@material-ui/icons/Info';
+import Cancel from '@material-ui/icons/Cancel';
 
 import './QueueComponent.css';
 
@@ -109,22 +115,43 @@ export default class QueueComponent extends Component {
 	}
 
 	renderActions(jobID, status){
-		var disabledFlag = true;
-		if(status === 'processing')
-			disabledFlag = false;
 		return(
-			<div>
-				<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
-					style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', 
-					fontWeight: 'bold', width: '50%', textTransform: 'none', 
-					minWidth: '0px', minHeigth: '0px'}}>
-	          		i
-	        	</Button>
-	        	<Button onClick={() => {this.cancelButtonOnClick(jobID)}} disabled={{disabledFlag}} variant="contained" size="small" color="primary" 
-	        		style={{backgroundColor: '#EEEEEE', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '50%', 
-	        		textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
-	          		x
-	        	</Button>
+			<div >
+				<Tooltip TransitionComponent={Zoom} style={{fontSize: 91}} placement="top" title="Detailed Information">
+					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
+						fontWeight: 'bold', width: '20%', textTransform: 'none', 
+						minWidth: '0px', minHeigth: '0px'}}>
+						<Info />
+					</Button>
+				</Tooltip>
+				{status == 'processing' && 
+					<Tooltip TransitionComponent={Zoom} title="Cancel">
+						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<Cancel />
+						</Button>
+					</Tooltip>
+				}
+				{status != 'processing' &&
+					<Tooltip TransitionComponent={Zoom} title="Restart">
+						<Button  variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<Refresh />
+						</Button>
+					</Tooltip>
+				}
+				{status != 'processing' &&
+					<Tooltip TransitionComponent={Zoom} title="Delete">
+						<Button  variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<DeleteOutline />
+						</Button>
+					</Tooltip>
+				}
         	</div>
 		);
 	}
@@ -208,16 +235,16 @@ export default class QueueComponent extends Component {
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
 		              {resp.job_id}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '1rem'}}>
 		            	{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px"}}>
-		            	{decodeURI(resp.src.uri)}
+		            <TableCell style={{...tbcellStyle, width: '25%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px"}}>
+		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
 		            	{this.renderActions(resp.job_id, resp.status)}
 		            </TableCell>
 	          	</TableRow>
@@ -242,15 +269,15 @@ export default class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+		<Paper id="jobHistory" style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
 	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Job ID</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '2rem', color: '#31708f'}}>Progress</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>Progress</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Average Speed</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%',  fontSize: '2rem', color: '#31708f'}}>Source/Destination</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>Source/Destination</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
 		        <TableBody>

@@ -36,8 +36,9 @@
 .homepage_section{
   width: 100%;
   height: 800px;
-  background-size: contain;
   margin: 0px !important;
+  background-size: auto 100%;
+  background-position: right top;
 }
 
 .homepage_section1 {
@@ -45,11 +46,11 @@
 }
 
 .homepage_section2 {
-  background-image: url("/assets/s1.png");
+  background-image: url("./assets/s2.png");
 }
 
 .homepage_section3 {
-  background-image: url("./assets/s1.png");
+  background-image: url("./assets/s3.png");
 }
 
 .homepage_section4 {

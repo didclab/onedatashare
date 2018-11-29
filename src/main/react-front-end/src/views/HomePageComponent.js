@@ -85,7 +85,7 @@ export default class HomePageComponent extends Component {
 					</Jumbotron>
         		</div>
 	        	<div>
-		    		<Jumbotron className="homepage_section homepage_section1">
+		    		<Jumbotron className="homepage_section homepage_section2">
 						<Col style={cardStyle}>
 				            <h1 style={headerStyle}>Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
 				            <p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
@@ -96,7 +96,7 @@ export default class HomePageComponent extends Component {
 					</Jumbotron>
 		        </div>
 		        <div>
-		    		<Jumbotron className="homepage_section homepage_section1">
+		    		<Jumbotron className="homepage_section homepage_section3">
 						<Col style={cardStyle}>
 				            <h1 style={headerStyle}>Reduced Time to the Delivery of Data</h1>
 				            <p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
@@ -107,7 +107,7 @@ export default class HomePageComponent extends Component {
 					</Jumbotron>
 		        </div>
 		    	<div >
-					<Jumbotron className="homepage_section homepage_section1">
+					<Jumbotron className="homepage_section homepage_section4">
 						<Col style={cardStyle}>
 			            <h1 style={headerStyle}>Interoperation Across Heterogeneous Data Resources</h1>
 			            <p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
@@ -119,7 +119,7 @@ export default class HomePageComponent extends Component {
 					</Jumbotron>
 		        </div>
 		        <div>
-		    		<Jumbotron className="homepage_section homepage_section1">
+		    		<Jumbotron className="homepage_section homepage_section5">
 						<Col style={cardStyle}>
 			            <h1 style={headerStyle}>Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
 			            <p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
@@ -128,7 +128,7 @@ export default class HomePageComponent extends Component {
 					</Jumbotron>
 		        </div>
 		        <div>
-	        		<Jumbotron className="homepage_section homepage_section1">
+	        		<Jumbotron className="homepage_section homepage_section6">
 						<Col style={cardStyle}>
 			            <h1 style={headerStyle}>End-to-end Data Sharing Solution</h1>
 			            <p style={sideStyle}>Anything that requires high-volume data transfer, 

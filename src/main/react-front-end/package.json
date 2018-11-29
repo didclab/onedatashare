@@ -25,6 +25,7 @@
     "react-router-dom": "^4.3.1",
     "react-scripts": "1.1.5",
     "react-slick": "^0.23.1",
+    "react-snap": "^1.21.0",
     "react-treebeard": "^2.1.0",
     "react-virtualized": "^9.20.1",
     "redux": "^4.0.0",
@@ -33,9 +34,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && rm -rf ../resources/static && cp build ../resources/static",
+    "build": "react-scripts build && rm -rf ../resources/static && cp -r build ../resources/static",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject" 
   },
   "proxy": "http://localhost:8080/"
 }

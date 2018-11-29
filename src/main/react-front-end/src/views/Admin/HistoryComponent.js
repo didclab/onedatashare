@@ -228,7 +228,7 @@ export default class QueueComponent extends Component {
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-		            	{this.decodeURIComponent(resp.src.uri)} -> {this.decodeURIComponent(resp.dest.uri)}
+		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
                     		            	{this.renderActions(resp.job_id)}

@@ -45,7 +45,7 @@ export default class ClientsInfoComponent extends Component{
 
 		return(
 			<div>
-				<Paper style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
+				<Paper id="clientsInfo" style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>
@@ -85,7 +85,7 @@ export default class ClientsInfoComponent extends Component{
 					</Table>   
 				</Paper>
 
-				<Paper style={{marginLeft: '10%', marginRight: '10%', marginTop: '2%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+				<Paper id="adminsInfo" style={{marginLeft: '10%', marginRight: '10%', marginTop: '2%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>
