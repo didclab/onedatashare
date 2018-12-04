@@ -74,7 +74,7 @@ export default class AccountControlComponent extends Component {
 					}}
 				/>;
 	this.state = {
-    	isSmall: window.innerWidth <= 760,
+    	isSmall: window.innerWidth <= 640,
     	password: "",
     	loading: true,
     	accounts: accounts,
@@ -85,7 +85,6 @@ export default class AccountControlComponent extends Component {
     	signIn: false,
     	forgotPasswordPressed: false,
     	validateEmailPressed: false
-
     }
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
@@ -99,9 +98,12 @@ export default class AccountControlComponent extends Component {
 		this.resize();
 	}
 	resize() {
-	    this.setState({isSmall: window.innerWidth <= 640});
+		if(this.state.isSmall && window.innerWidth > 640){
+			this.setState({isSmall: false});
+		}else if(!this.state.isSmall && window.innerWidth <= 640){
+			this.setState({isSmall: true});
+		}
 	}
-
 	getInnerCard() {
 		return(
 		<Switch>

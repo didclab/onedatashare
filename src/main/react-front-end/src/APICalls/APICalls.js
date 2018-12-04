@@ -120,11 +120,13 @@ export async function history(uri, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
       statusHandle(error, fail);
     });
 }
 
+/*
+	Desc: List credentials for dropbox and googledrive
+*/
 export async function dropboxCredList(accept, fail){
 	var callback = accept;
 	axios.get(url+'cred?action=list')
@@ -310,6 +312,28 @@ export async function getUsers(type, accept, fail){
 
 	axios.post(url+'user', {
 	    action: "getUsers"
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
+    });
+}
+
+/*
+	Desc: Change Password
+*/
+export async function changePassword(oldPassword, newPassword, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+		action: "password",
+	    oldPassword: oldPassword, 
+	    newPassword: newPassword
 	})
 	.then((response) => {
 		if(!(response.status === 200))

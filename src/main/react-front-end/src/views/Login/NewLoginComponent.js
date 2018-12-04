@@ -139,7 +139,6 @@ export default class NewLoginComponent extends Component {
 	        <ValidatorForm
                 ref="password"
                 onSubmit={this.onSignInClicked}>
-
             <TextValidator
             		error = {error}
             		helperText = {errorMessage}
