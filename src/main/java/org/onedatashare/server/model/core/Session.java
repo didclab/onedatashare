@@ -24,7 +24,7 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
 
   public abstract Mono<R> select(String path);
 
-  protected abstract Mono<S> initialize();
+  public abstract Mono<S> initialize();
 
   protected void finalize() {
     close().subscribe();

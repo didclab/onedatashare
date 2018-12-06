@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.util.*;
@@ -38,6 +37,21 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid username or password")));
   }
 
+  public Object register(String email, String password, String passwordConfirm) {
+    User user = new User(email, password);
+    if(password.equals(passwordConfirm)) {
+      user.setValidationToken(user.validationToken());
+      return createUser(user).map(this::sendVerificationEmail);
+    }
+    else return Mono.error(new RuntimeException("Passwords do not match"));
+  }
+
+  public Object sendVerificationEmail(User user) {
+
+    //TODO
+    return null;
+  }
+
   public Mono<User> getUser(String email) {
     return userRepository.findById(email)
             .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
@@ -49,12 +63,12 @@ public class UserService {
 
   public Mono<LinkedList<URI>> saveHistory(String uri, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
-                URI historyItem = URI.create(uri);
-                if(!user.getHistory().contains(historyItem)) {
-                  user.getHistory().add(historyItem);
-                }
-                return user;
-            })
+      URI historyItem = URI.create(uri);
+      if(!user.getHistory().contains(historyItem)) {
+        user.getHistory().add(historyItem);
+      }
+      return user;
+    })
             .flatMap(userRepository::save).map(User::getHistory);
   }
 
@@ -84,11 +98,11 @@ public class UserService {
   public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
     final UUID uuid = UUID.randomUUID();
     return getLoggedInUser(cookie).map(user -> {
-                          user.getCredentials().put(uuid, credential);
-                          return user;
-                        })
-                    .flatMap(userRepository::save)
-                    .map(user -> {return uuid;});
+      user.getCredentials().put(uuid, credential);
+      return user;
+    })
+            .flatMap(userRepository::save)
+            .map(user -> {return uuid;});
   }
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {

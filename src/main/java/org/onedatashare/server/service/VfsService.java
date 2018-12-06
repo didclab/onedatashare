@@ -8,11 +8,13 @@ import org.onedatashare.server.module.vfs.VfsResource;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.HashMap;
 
 @Service
 public class VfsService implements ResourceService<VfsResource> {

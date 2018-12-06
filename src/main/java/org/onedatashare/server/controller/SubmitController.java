@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -17,9 +18,12 @@ public class SubmitController {
   @Autowired
   private VfsService vfsService;
 
+  @Autowired
+  private ResourceServiceImpl resourceService;
+
   @PostMapping
   public Object submit(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
     String cookie = headers.getFirst("cookie");
-    return vfsService.submit(cookie, userAction);
+    return resourceService.submit(cookie, userAction);
   }
 }

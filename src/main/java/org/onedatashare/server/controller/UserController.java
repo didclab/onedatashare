@@ -17,6 +17,9 @@ public class UserController {
     if(userAction.action.equals("login")) {
       return userService.login(userAction.email, userAction.password);
     }
+    else if(userAction.action.equals("register")) {
+      return null;
+    }
     else {
       return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
     }
