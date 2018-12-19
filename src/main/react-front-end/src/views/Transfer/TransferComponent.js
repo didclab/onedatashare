@@ -34,7 +34,7 @@ import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
 import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide} from "./initialize_dnd.js";
 
-import {eventEmitter} from "../../MainComponent";
+import {eventEmitter} from "../../App.js";
 
 export default class TransferComponent extends Component {
   static propTypes = {

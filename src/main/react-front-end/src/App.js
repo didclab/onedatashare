@@ -9,23 +9,64 @@ import  { Route, Switch, Redirect } from 'react-router-dom';
 import Favicon from 'react-favicon';
 //import './lightTheme.css';
 
+import Snackbar from '@material-ui/core/Snackbar';
+import Button from '@material-ui/core/Button';
+import EventEmitter from 'eventemitter3';
+export const eventEmitter = new EventEmitter();
+
+
 export const store = createStore(onedatashareModel);
 class App extends Component {
 
   constructor(){
     super();
-    this.state={loaded: false};
+    this.state={
+      loaded: false,
+      open: false, 
+      vertical: 'top', 
+      horizontal: 'center',
+      error: "null"
+    };
   }
+
+
+  handleOpen = (errormsg) => {
+    console.log("asdasd");
+    this.setState({ open: true, vertical: 'top', horizontal: 'center', error: errormsg });
+    setTimeout(this.handleClose, 4000);
+  };
+
+  handleClose = () => {
+    this.setState({ open: false });
+  };
 
   componentDidMount(){
     document.title = "OneDataShare - Home";
     this.setState({loaded: true});
+    eventEmitter.on("errorOccured", this.handleOpen); 
   }
 
   render() {
-    const { loggedIn } = this.state;
+    const { loggedIn,vertical,horizontal, error, open } = this.state;
     return (
       <div>
+
+        <Snackbar
+          anchorOrigin={{ vertical, horizontal }}
+          style={{marginTop: "20px"}}
+          open={open}
+          onClose={this.handleClose}
+          ContentProps={{
+            'aria-describedby': 'message-id',
+          }}
+          action={
+            <Button onClick={this.handleClose} color="secondary" size="small">
+              Close
+            </Button>
+          }
+          message={<span id="message-id">{error}</span>}
+        />
+
         <Favicon url="http://oflisback.github.io/react-favicon/public/img/github.ico"/>
         <Switch>
           <Route path='/account' component={AccountControlComponent}/>

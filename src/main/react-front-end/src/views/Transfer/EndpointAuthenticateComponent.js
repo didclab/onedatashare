@@ -16,7 +16,7 @@ import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import {getCred} from "./initialize_dnd.js";
 
-import {eventEmitter} from "../../MainComponent";
+import {eventEmitter} from "../../App";
 
 const showText={
 	dropbox: "DropBox",

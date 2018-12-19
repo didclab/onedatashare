@@ -1,6 +1,6 @@
 
 import {store} from "../../App.js";
-import {eventEmitter} from "../../MainComponent";
+import {eventEmitter} from "../../App";
 
 //left
 var column1 = {

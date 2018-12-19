@@ -31,9 +31,9 @@ export default class NewLoginComponent extends Component {
 	constructor(props){
 	    super(props);
 	    this.state = {
-	    	email: "vanditsa@buffalo.edu",
+	    	email: "",
 	    	password: "",
-	    	emailChecked: true,
+	    	emailChecked: false,
 	    	error: false,
 	    	errorMessage: null,
 	    	remember: false,
@@ -63,7 +63,7 @@ export default class NewLoginComponent extends Component {
 	    	},
 	    	(error)=>{
 	    		isLoading(false);
-	    		this.setState({error: true, errorMessage: error});
+	    		this.setState({error: true, errorMessage: "Email not found or server error."});
 	    	}
 	    );
 	}
@@ -76,7 +76,7 @@ export default class NewLoginComponent extends Component {
 		userLoggedIn(email, password, remember, (error)=>{
     		isLoading(false);
     		console.log("error message", error);
-			this.setState({error: true, errorMessage: error});
+			this.setState({error: true, errorMessage: "Wrong password or server error."});
 		});
 	}
 

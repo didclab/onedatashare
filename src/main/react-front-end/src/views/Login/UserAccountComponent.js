@@ -75,7 +75,7 @@ export default class UserAccountComponent extends Component{
 			    <CardActions style={{marginBottom: '0px'}}>
 			        
 			        <Button size="small" color="primary" style={{width: '100%'}}
-			        	onClick={()=>this.onPasswordUpdate()>
+			        	onClick={()=>this.onPasswordUpdate()}>
 			          Proceed with password Change
 			        </Button>
 			    </CardActions>
