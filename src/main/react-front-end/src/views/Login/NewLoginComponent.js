@@ -57,13 +57,12 @@ export default class NewLoginComponent extends Component {
 
 	    checkLogin(this.state.email, 
 	    	(success)=>{
-	    		console.log("success",success);
 	    		isLoading(false);
 	    		this.setState({emailChecked: true});
 	    	},
 	    	(error)=>{
 	    		isLoading(false);
-	    		this.setState({error: true, errorMessage: "Email not found or server error."});
+	    		this.setState({emailChecked: true, error: true, errorMessage: "Email not found or server error."});
 	    	}
 	    );
 	}
