@@ -6,7 +6,6 @@ import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';
 import  { Route, Switch, Redirect } from 'react-router-dom';
-import Favicon from 'react-favicon';
 //import './lightTheme.css';
 
 import Snackbar from '@material-ui/core/Snackbar';
@@ -67,7 +66,6 @@ class App extends Component {
           message={<span id="message-id">{error}</span>}
         />
 
-        <Favicon url="http://oflisback.github.io/react-favicon/public/img/github.ico"/>
         <Switch>
           <Route path='/account' component={AccountControlComponent}/>
           <Route path='/oauth/:id' component={OauthProcessComponent}/>

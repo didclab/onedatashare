@@ -1,9 +1,0 @@
-a)
-kernel B = [[1,1,1],[1,1,1], [1,1,1]] with origin point at 2,2
-lets say width and height of this kernel = offset in the image
-use erosion on A - B
-
-
-b)
-kerbel B = [[1,1,1], [1,1,1],[1,1,1],[1,1,1],[1,1,1],[1,1,1]] where original point is at 4, 1
-where left margin is equals to margin between left of left square to left line, and right margin of this matrix is equals to right side of right square to right line. and top margin of matrix is equals to distance between top of square to ceiling of original shape, bottom margin of matrix is equals to distance between bottom of square to floor of original shape. 
