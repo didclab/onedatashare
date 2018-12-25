@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue, cancelJob } from '../../APICalls/APICalls';
+import { queue, cancelJob, restartJob } from '../../APICalls/APICalls';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -103,6 +103,16 @@ export default class QueueComponent extends Component {
 		});
 	}
 
+	restartButtonOnClick(jobID){
+		restartJob(jobID, (resp) => {
+			//success
+			//this.queueFunc();
+		}, (resp) => {
+			//failed
+			console.log('Error in restart job request to API layer');
+		});
+	}
+
 	getFormattedDate(d){
 		return (d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
 	}
@@ -117,7 +127,7 @@ export default class QueueComponent extends Component {
 	renderActions(jobID, status){
 		return(
 			<div >
-				<Tooltip TransitionComponent={Zoom} style={{fontSize: 91}} placement="top" title="Detailed Information">
+				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
 					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
 						fontWeight: 'bold', width: '20%', textTransform: 'none', 
@@ -136,7 +146,7 @@ export default class QueueComponent extends Component {
 				}
 				{status != 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Restart">
-						<Button  variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.restartButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<Refresh />

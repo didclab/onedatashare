@@ -14,7 +14,7 @@ const axios = Axios.create({
 });
 
 function statusHandle(response, callback){
-	console.log(response)
+	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status/100);
 	if(statusFirstDigit < 3){
 		// 100-200 success code=
@@ -436,6 +436,22 @@ export async function cancelJob(jobID, accept, fail){
 	})
 	.catch((error) => {
       fail(error);
+    });
+}
+
+export async function restartJob(jobID, accept, fail){
+	var callback = accept;
+	axios.post(url+'restart',{
+		job_id: jobID
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
     });
 }
 

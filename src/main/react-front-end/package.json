@@ -35,8 +35,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm -rf ../resources/static && cp -r build ../resources/static",
+    "build-win": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject" 
+    "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:8080/"
 }
