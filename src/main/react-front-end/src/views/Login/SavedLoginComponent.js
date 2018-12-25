@@ -64,7 +64,6 @@ export default class SavedLoginComponent extends Component {
 		              onClick={()=>handleLogin(email)}
 		            >
 		            	<ListItemText primary={email} secondary="Signed out" />
-		            	
 		            	<ListItemSecondaryAction>
 			                <IconButton 
 			                 onClick={()=>removeAccount(email)}
