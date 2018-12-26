@@ -95,12 +95,15 @@ public class UserService {
             });
   }
 
-  public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
+  public Mono<UUID> saveCredential(String cookie, Mono<OAuthCredential> credential) {
     final UUID uuid = UUID.randomUUID();
-    return getLoggedInUser(cookie).map(user -> {
-      user.getCredentials().put(uuid, credential);
-      return user;
-    })
+    return getLoggedInUser(cookie)
+            .flatMap(user -> {
+              return credential.map(credential1 -> {
+                user.getCredentials().put(uuid, credential1);
+                return user;
+              });
+            })
             .flatMap(userRepository::save)
             .map(user -> {return uuid;});
   }
