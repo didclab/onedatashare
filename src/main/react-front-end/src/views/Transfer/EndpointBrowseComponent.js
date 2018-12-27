@@ -38,7 +38,7 @@ import {getFilesFromMemory, setFilesWithPathList, getPathFromMemory,
 		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
 		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask} from "./initialize_dnd";
 
-import {eventEmitter} from "../../MainComponent";
+import {eventEmitter} from "../../App";
 
 
 

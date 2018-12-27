@@ -14,7 +14,7 @@ const axios = Axios.create({
 });
 
 function statusHandle(response, callback){
-	console.log(response)
+	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status/100);
 	if(statusFirstDigit < 3){
 		// 100-200 success code=
@@ -53,7 +53,7 @@ export async function checkLogin(email, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
-	    action: 'findPassword',
+	    action: 'verifyUser',
 	    email: email
 	}).then((response) => {
 		console.log("login response", response)
@@ -63,7 +63,78 @@ export async function checkLogin(email, accept, fail){
 	}).catch((error) => {
       statusHandle(error, fail);
     });
-	
+}
+
+
+/*
+	Desc: Send a code to the user
+	input: Email
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function resetPasswordSendCode(email, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+	    action: 'sendVerificationCode',
+	    email: email
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+
+/*
+	Desc: Verify Code for the user
+	input: Email
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function resetPasswordVerifyCode(email,code, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+	    action: 'verifyCode',
+	    email: email,
+	    code: code
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+/*
+	Desc: Send a code to the user
+	input: Email
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function resetPassword(email,code,password, cpassword, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+	    action: 'setPassword',
+	    email: email,
+	    code: code,
+	    password: password,
+	    confirmPassword: cpassword
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+      statusHandle(error, fail);
+    });
 }
 
 
@@ -365,6 +436,39 @@ export async function cancelJob(jobID, accept, fail){
 	})
 	.catch((error) => {
       fail(error);
+    });
+}
+export async function deleteCredential(uri, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+		action: "deleteCredential",
+	    deleteUri: uri
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
+    });
+}
+
+export async function restartJob(jobID, accept, fail){
+	var callback = accept;
+	axios.post(url+'restart',{
+		job_id: jobID
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
     });
 }
 

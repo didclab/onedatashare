@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, listFiles} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, listFiles, deleteCredential} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
@@ -16,7 +16,11 @@ import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import {getCred} from "./initialize_dnd.js";
 
-import {eventEmitter} from "../../MainComponent";
+import {eventEmitter} from "../../App";
+
+import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 const showText={
 	dropbox: "DropBox",
@@ -119,6 +123,18 @@ export default class EndpointAuthenticateComponent extends Component {
 		        <DataIcon/>
 		      </ListItemIcon>
 	          <ListItemText primary={v} />
+	          <ListItemSecondaryAction>
+	            <IconButton aria-label="Delete" onClick={()=>{
+	            	console.log("?")
+	            	deleteCredential(v, (accept)=>{
+	            		this.forceUpdate();
+	            	}, (error)=>{
+	            		eventEmitter.emit("errorOccured", "Delete Credential Failed");
+	            	});
+	            }}>
+	              <DeleteIcon />
+	            </IconButton>
+	          </ListItemSecondaryAction>
 	        </ListItem>
 		);
 		
@@ -135,11 +151,23 @@ export default class EndpointAuthenticateComponent extends Component {
 				}
 				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
+
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
 		      </ListItemIcon>
 	          <ListItemText primary={credList[v].name} />
+	          <ListItemSecondaryAction>
+	            <IconButton aria-label="Delete" onClick={()=>{
+	            	deleteCredential(v, (accept)=>{
+	            		this.forceUpdate();
+	            	}, (error)=>{
+	            		eventEmitter.emit("errorOccured", "Delete Credential Failed");
+	            	});
+	            }}>
+	              <DeleteIcon />
+	            </IconButton>
+	          </ListItemSecondaryAction>
 	        </ListItem>
 		);
 
