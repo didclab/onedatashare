@@ -27,24 +27,26 @@ export default class QueueComponent extends Component {
 		super();
 		this.state = {response:[],
 					  selectedTab: 0 };
-		let queueFunc = () => {queue((resp) => {
-			//success
-			resp.sort((a, b) => { return b.job_id - a.job_id});
-			this.setState({response:resp});
-		}, (resp) => {
-			//failed
-			console.log('Error in queue request to API layer');
-		})};
-		queueFunc();
-		this.interval = setInterval(queueFunc, 2000);    //making a queue request every 2 seconds
+		this.queueFunc();
+		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 		var infoRowsIds= [];
 		var selectedJobInfo = 0;
 		this.toggleTabs = this.toggleTabs.bind(this);
+		this.queueFunc = this.queueFunc.bind(this);
 	}
 
 	componentWillUnmount(){
 		clearInterval(this.interval);
 	}
+
+	queueFunc = () => {queue((resp) => {
+		//success
+		resp.sort((a, b) => { return b.job_id - a.job_id});
+		this.setState({response:resp});
+	}, (resp) => {
+		//failed
+		console.log('Error in queue request to API layer');
+	})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -106,7 +108,7 @@ export default class QueueComponent extends Component {
 	restartButtonOnClick(jobID){
 		restartJob(jobID, (resp) => {
 			//success
-			//this.queueFunc();
+			this.queueFunc();
 		}, (resp) => {
 			//failed
 			console.log('Error in restart job request to API layer');
