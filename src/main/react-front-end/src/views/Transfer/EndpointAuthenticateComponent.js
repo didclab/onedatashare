@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, listFiles, deleteCredential} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
@@ -64,6 +64,12 @@ export default class EndpointAuthenticateComponent extends Component {
 			username: "",
 			password: "",
 		};
+		this.credentialListUpdateFromBackend();
+		this.handleChange = this.handleChange.bind(this);
+		this._handleError = this._handleError.bind(this);
+	}
+
+	credentialListUpdateFromBackend = () => {
 		this.props.setLoading(true);
 
 		dropboxCredList((data) =>{
@@ -73,8 +79,18 @@ export default class EndpointAuthenticateComponent extends Component {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
-		this.handleChange = this.handleChange.bind(this);
-		this._handleError = this._handleError.bind(this);
+	}
+
+	historyListUpdateFromBackend = () => {
+		this.props.setLoading(true);
+
+		history("", (data) =>{
+			this.setState({history: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) == 0 })});
+			this.props.setLoading(false);
+		}, (error) =>{
+			this._handleError(error);
+			this.props.setLoading(false);
+		});
 	}
 
 	_handleError = (msg) =>{
@@ -82,13 +98,14 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	handleChange = name => event => {
-	    this.setState({
-	      [name]: event.target.value,
-	    });
-	  };
-	endpointCheckin=(url, credential, callback)=>{
+      this.setState({
+        [name]: event.target.value,
+      });
+    };
+
+	endpointCheckin=(url, credential, callback) => {
 		this.props.setLoading(true);
-		listFiles(url, credential, (response)=>{
+		listFiles(url, credential, (response) => {
 			const endpointSet = {
 					uri: url,
 					login: true,
@@ -96,14 +113,14 @@ export default class EndpointAuthenticateComponent extends Component {
 					credential: credential
 				}
 			this.props.setLoading(true);
-			history(url, (suc)=>{
+			history(url, (suc) => {
 				console.log(suc)
-			}, (error)=>{
+			}, (error) => {
 				this._handleError(error);
 				this.props.setLoading(false);
 			})
 			this.props.loginSuccess(endpointSet);
-		}, (error)=>{
+		}, (error) => {
 			this.props.setLoading(false);
 			callback(error);
 		})
@@ -113,8 +130,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		const { back, loginSuccess, setLoading} = this.props;
 		const {uri} = endpoint;
 		const histList = history.map((v) =>
-			<ListItem button key={v} onClick={()=>{
-				this.endpointCheckin(v, {}, (error)=>{
+			<ListItem button key={v} onClick={() => {
+				this.endpointCheckin(v, {}, (error) => {
 					this._handleError(error);
 					this.setState({url: v, settingAuth: true, needPassword: true});
 				})
@@ -124,12 +141,11 @@ export default class EndpointAuthenticateComponent extends Component {
 		      </ListItemIcon>
 	          <ListItemText primary={v} />
 	          <ListItemSecondaryAction>
-	            <IconButton aria-label="Delete" onClick={()=>{
-	            	console.log("?")
-	            	deleteCredential(v, (accept)=>{
-	            		this.forceUpdate();
-	            	}, (error)=>{
-	            		eventEmitter.emit("errorOccured", "Delete Credential Failed");
+	            <IconButton aria-label="Delete" onClick={() => {
+	            	deleteHistory(v, (accept) => {
+	            		this.historyListUpdateFromBackend();
+	            	}, (error) => {
+	            		eventEmitter.emit("errorOccured", "Delete History Failed");
 	            	});
 	            }}>
 	              <DeleteIcon />
@@ -140,8 +156,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 		const type = showText[endpoint.uri.split(":")[0]];
 		const loginType = showType[endpoint.uri.split(":")[0]];
-		console.log(type);
-		const cloudList = Object.keys(credList).filter(id => {return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 && !getCred().includes(id))}).map((v) =>
+		const cloudList = Object.keys(credList).filter(id => {
+			return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
+						&& !getCred().includes(id))})
+			.map((v) =>
 			<ListItem button key={v} onClick={() => {
 				const endpointSet = {
 					uri: endpoint.uri,
@@ -158,10 +176,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		      </ListItemIcon>
 	          <ListItemText primary={credList[v].name} />
 	          <ListItemSecondaryAction>
-	            <IconButton aria-label="Delete" onClick={()=>{
-	            	deleteCredential(v, (accept)=>{
-	            		this.forceUpdate();
-	            	}, (error)=>{
+	            <IconButton aria-label="Delete" onClick={() => {
+	            	deleteCredential(v, (accept) => {
+	            		this.credentialListUpdateFromBackend();
+	            	}, (error) => {
 	            		eventEmitter.emit("errorOccured", "Delete Credential Failed");
 	            	});
 	            }}>
@@ -211,7 +229,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		    {settingAuth &&
 		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={()=>{
+		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		this.setState({settingAuth: false})}
 		    	}><BackIcon/>Back</Button>
 		    	<Divider />
@@ -250,13 +268,13 @@ export default class EndpointAuthenticateComponent extends Component {
 			        </div>
 		    	}
 
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={()=>{
+		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		if(!needPassword){
-			    		this.endpointCheckin(this.state.url, {}, ()=>{
+			    		this.endpointCheckin(this.state.url, {}, () => {
 			    			this.setState({needPassword: true});
 			    		});
 			    	}else{
-			    		this.endpointCheckin(this.state.url, {type: "userinfo", username: this.state.username, password: this.state.password}, (msg)=>{
+			    		this.endpointCheckin(this.state.url, {type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
 			    			this._handleError("Authentication Failed");
 			    		});
 			    	}

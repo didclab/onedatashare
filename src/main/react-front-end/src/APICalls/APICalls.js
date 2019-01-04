@@ -438,12 +438,13 @@ export async function cancelJob(jobID, accept, fail){
       fail(error);
     });
 }
+
 export async function deleteCredential(uri, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
 		action: "deleteCredential",
-	    deleteUri: uri
+	    uuid: uri
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -451,7 +452,23 @@ export async function deleteCredential(uri, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteHistory(uri, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'user', {
+		action: "deleteHistory",
+	    uri: uri
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
       statusHandle(error, fail);
     });
 }

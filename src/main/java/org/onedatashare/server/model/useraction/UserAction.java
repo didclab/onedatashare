@@ -10,6 +10,7 @@ public class UserAction {
   public String email;
   public String password;
   public String uri;
+  public String uuid;
   public int depth;
   public UserActionResource src;
   public UserActionResource dest;

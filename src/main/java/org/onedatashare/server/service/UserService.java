@@ -6,6 +6,7 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -107,6 +108,27 @@ public class UserService {
             .flatMap(userRepository::save)
             .map(user -> {return uuid;});
   }
+
+  public Mono<Void> deleteCredential(String cookie, String uuid) {
+    return getLoggedInUser(cookie)
+      .map(user -> {
+          if(user.getCredentials().remove(UUID.fromString(uuid))== null) {
+            return Mono.error(new NotFound());
+          }
+        return userRepository.save(user).subscribe();
+      }).then();
+  }
+
+  public Mono<Void> deleteHistory(String cookie, String uri) {
+    return getLoggedInUser(cookie)
+      .map(user -> {
+        if(user.getHistory().remove(URI.create(uri))) {
+          return userRepository.save(user).subscribe();
+        }
+        return Mono.error(new NotFound());
+      }).then();
+  }
+
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials);

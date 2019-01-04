@@ -1,9 +1,12 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,15 +17,34 @@ public class UserController {
 
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-    if(userAction.action.equals("login")) {
-      return userService.login(userAction.email, userAction.password);
+
+    switch(userAction.action) {
+      case "login":
+        return userService.login(userAction.email, userAction.password);
+      case "register":
+        return null;
+      case "history":
+        return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
+      case "verifyEmail":
+        return null;
+      case "sendVerificationCode":
+        return null;
+      case "verifyCode":
+        return null;
+      case "resetPassword":
+        return null;
+      case "deleteCredential":
+        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
+      case "deleteHistory":
+        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
+      default:
+        return null;
     }
-    else if(userAction.action.equals("register")) {
-      return null;
-    }
-    else {
-      return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
-    }
+  }
+
+  @ExceptionHandler(NotFound.class)
+  public ResponseEntity<NotFound> handle(NotFound notfound) {
+    return new ResponseEntity<>(notfound, notfound.status);
   }
 
   @GetMapping
