@@ -105,7 +105,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, credential, callback) => {
 		this.props.setLoading(true);
-		listFiles(url, credential, (response) => {
+		listFiles(url, credential,null, (response) => {
 			const endpointSet = {
 					uri: url,
 					login: true,

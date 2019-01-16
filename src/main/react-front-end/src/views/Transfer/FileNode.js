@@ -229,7 +229,7 @@ export default class FileNode extends Component {
 				return (
 					<FileDiv
 						onDoubleClick={() => {
-							if(dir){onDoubleClick(this.props.file.name)}
+							if(dir){onDoubleClick(this.props.file.name, this.props.file.id)}
 						}}
 						{...provided.draggableProps}
 						{...provided.dragHandleProps}

@@ -8,6 +8,7 @@ var column1 = {
 	title: "",
 	path: [],
 	tasks: [],
+	ids: [],
 	selectedTasks : [],
 };
 //right
@@ -16,6 +17,7 @@ var column2 = {
 	title: "",
 	path: [],
 	tasks: [],
+	ids: [],
 	selectedTasks :[],
 };
 export var draggingTask = null;
@@ -64,6 +66,29 @@ export function setFilesWithPathList(files, path, endpoint){
 	}
 }
 
+export function setFilesWithPathListAndId(files, path, ids, endpoint){
+	if(endpoint.side == "left"){
+		column1.tasks = files;
+		column1.title = endpoint.uri;
+		column1.path = path;
+		column1.ids = ids;
+	}else{
+		column2.tasks = files;
+		column2.title = endpoint.uri;
+		column2.path = path;
+		column2.ids = ids;
+	}
+}
+
+
+export function getCurrentFolderId(endpoint){
+	if(endpoint.side == "left"){
+		return column1.ids[column1.ids.length-1];
+	}else{
+		return column2.ids[column2.ids.length-1];
+	}
+}
+
 export function getFilesFromMemory(endpoint){
 	if(endpoint.side == "left"){
 		return column1.tasks;
@@ -87,6 +112,7 @@ export function emptyFileNodesData(endpoint){
 			title: "",
 			path: [],
 			tasks: [],
+			ids:[],
 			previousTasks: [],
 			selectedTasks : [],
 
@@ -97,6 +123,7 @@ export function emptyFileNodesData(endpoint){
 			title: "",
 			path: [],
 			tasks: [],
+			ids:[],
 			previousTasks: [],
 			selectedTasks : [],
 		};

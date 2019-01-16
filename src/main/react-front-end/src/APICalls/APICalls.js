@@ -25,7 +25,6 @@ function statusHandle(response, callback){
 		callback(`${response.status} ${response.statusText}`);
 	}else{
 		// 500 error code
-
 		if(response.name == "PermissionDenied" && store.getState().login){
 			if (window.confirm('You have been logged out. Login again?'))
 			{
@@ -51,7 +50,6 @@ function statusHandle(response, callback){
 
 export async function checkLogin(email, accept, fail){
 	var callback = accept;
-
 	axios.post(url+'user', {
 	    action: 'verifyUser',
 	    email: email
@@ -225,8 +223,8 @@ export async function submit(src, dest, options,accept, fail){
 	}
 
 	axios.post(url+'submit', {
-	    src: src0 ,
-	    dest: dest0 ,
+	    src: src0,
+	    dest: dest0,
 	    options:options
 	}).then((response) => {
 		if(!(response.status === 200))
@@ -239,29 +237,30 @@ export async function submit(src, dest, options,accept, fail){
     });
 }
 
-export async function listFiles(uri, credential, accept, fail){
+export async function listFiles(uri, credential, id, accept, fail){
 	var body = JSON.stringify({
 	    uri: uri,
-	    depth: 1
+	    depth: 1,
+	    id: id
 	  });
 	if(Object.keys(credential).length > 0){
 	  body = JSON.stringify({
 	    uri: uri,
 	    credential: credential,
-	    depth: 1
+	    depth: 1,
+	    id: id
 	  })
 	}
 
 	var callback = accept;
-
 	axios.post(url+'ls', body)
 	.then((response) => {
 		if(!(response.status === 200))
 			callback = fail;
+		console.log("AHHHHH")
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
       statusHandle(error, fail);
     });
 }
@@ -303,12 +302,13 @@ export async function share(uri, credential, accept, fail){
     });
 }
 
-export async function mkdir(uri, credential, accept, fail){
+export async function mkdir(id, uri, credential,  accept, fail){
 	var callback = accept;
 	
 	axios.post(url+'mkdir', {
 	    credential: credential,
-	    uri: encodeURI(uri)
+	    uri: encodeURI(uri),
+	    id: id
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -316,17 +316,17 @@ export async function mkdir(uri, credential, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
       statusHandle(error, fail);
     });
 }
 
-export async function deleteCall(uri, credential, accept, fail){
+export async function deleteCall(id, uri, credential, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'delete', {
 	    credential: credential,
-	    uri: encodeURI(uri)
+	    uri: encodeURI(uri),
+	    id: id
 	})
 	.then((response) => {
 		if(!(response.status === 200))

@@ -36,11 +36,9 @@ import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {getFilesFromMemory, setFilesWithPathList, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
-		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask} from "./initialize_dnd";
+		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId} from "./initialize_dnd";
 
 import {eventEmitter} from "../../App";
-
-
 
 const uploader = new FineUploaderTraditional({
    options: {
@@ -73,6 +71,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.state={
 			route: "",
 			directoryPath : getPathFromMemory(props.endpoint),
+			ids: [null],
 			openShare: false,
 			shareUrl: "",
 			openAFolder: false,
@@ -163,7 +162,6 @@ export default class EndpointBrowseComponent extends Component {
 	    if (updated == null) {
 	      return;
 	    }
-
 	    setSelectedTasksForSide(updated, endpoint);
 	};
 
@@ -199,31 +197,32 @@ export default class EndpointBrowseComponent extends Component {
 		console.log(filename);
 	}
 
-	fileNodeDoubleClicked(filename){
+	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
-		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename]);
+		this.state.ids.push(id);
+		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], id);
 		this.unselectAll();
 	}
 
 	breadcrumbClicked(index){
 		this.props.setLoading(true);
 		this.state.directoryPath.length = index;
-		this.getFilesFromBackendWithPath(this.props.endpoint, this.state.directoryPath);
+		this.state.ids.length = index+1;
+		this.getFilesFromBackendWithPath(this.props.endpoint, this.state.directoryPath, index === 0 ? null : this.state.ids[index]);
 	}
 
 	getFilesFromBackend(endpoint){
-		this.getFilesFromBackendWithPath(endpoint, []);
+		this.getFilesFromBackendWithPath(endpoint, [], null);
 	}
 
-	getFilesFromBackendWithPath(endpoint, path){
+	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
-		//console.log(uri)
-		listFiles(uri, endpoint.credential, (data) =>{
-			setFilesWithPathList(data.files, path, endpoint);
-			this.props.setLoading(false);
+
+		listFiles(uri, endpoint.credential,id, (data) =>{
+			setFilesWithPathListAndId(data.files, path, this.state.ids, endpoint);
 			this.setState({directoryPath: path});
 			setLoading(false);
 		}, (error) =>{
@@ -242,13 +241,13 @@ export default class EndpointBrowseComponent extends Component {
 	};
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
-		const {directoryPath, addFolderName} = this.state;
+		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
 		const dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		//make api call
-		mkdir(dirName, endpoint.credential, (response)=>{
+		mkdir(ids[ids.length-1], dirName, endpoint.credential, (response)=>{
 			setLoading(true);
-			this.getFilesFromBackendWithPath(endpoint, directoryPath);
+			this.getFilesFromBackendWithPath(endpoint, directoryPath, response.id);
 		}, (error)=>{
 			this._handleError(error);
 		})
@@ -277,10 +276,10 @@ export default class EndpointBrowseComponent extends Component {
     		files.map((file) => {
     			const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
     			console.log(file.name);
-    			deleteCall(fileName, endpoint.credential, (response) => {
+    			deleteCall(file.id, fileName, endpoint.credential, (response) => {
     				i++;
     				if(i == len){
-    					this.getFilesFromBackendWithPath(endpoint, directoryPath);
+    					this.getFilesFromBackendWithPath(endpoint, directoryPath, file.id);
     				}
     			}, (error) => {
     				this._handleError(error);
@@ -414,7 +413,7 @@ export default class EndpointBrowseComponent extends Component {
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
 				  		<BootStrapButton style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
-				  			this.getFilesFromBackendWithPath(endpoint, directoryPath);
+				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids[this.state.ids.length-1]);
 				  		}}>
 				  			<RefreshButton style={iconStyle}/>
 				  		</BootStrapButton>
