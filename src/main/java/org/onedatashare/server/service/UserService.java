@@ -129,6 +129,15 @@ public class UserService {
       }).then();
   }
 
+  public Mono<Object> isAdmin(String cookie){
+    return getLoggedInUser(cookie).map(user ->{
+       if(user.isAdmin())
+         return Mono.just(true);
+       else
+         return Mono.error(new Exception("Invalid Administrator"));
+    });
+  }
+
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials);

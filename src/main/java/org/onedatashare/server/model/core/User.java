@@ -29,6 +29,8 @@ public class User {
   /** The validation token we're expecting. */
   private String validationToken;
 
+  /** Set to true if user is administrator. */
+  public boolean isAdmin = false;
   /** Token for reset password. */
   public String authToken;
 
@@ -114,6 +116,9 @@ public class User {
     return cookie;
   }
 
+  public boolean isAdmin(){
+    return isAdmin;
+  }
   /** Check if a user is anonymous. */
   public boolean isAnonymous() { return email == null; }
 

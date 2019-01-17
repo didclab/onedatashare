@@ -37,6 +37,8 @@ public class UserController {
         return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
       case "deleteHistory":
         return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
+      case "isAdmin":
+        return userService.isAdmin(headers.getFirst("cookie"));
       default:
         return null;
     }
@@ -51,4 +53,6 @@ public class UserController {
   public Object getHistory(@RequestHeader HttpHeaders headers) {
     return userService.getHistory(headers.getFirst("Cookie"));
   }
+
+  //Exception not Admin to be added
 }
