@@ -22,17 +22,21 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return null;
+        return userService.register(userAction.email, userAction.password, userAction.confirmPassword);
+      case "validate":
+        return userService.validate(userAction.email, userAction.code);
       case "history":
         return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
       case "verifyEmail":
-        return null;
+        return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
-        return null;
+        return userService.sendVerificationCode(userAction.email);
       case "verifyCode":
-        return null;
+        return userService.verifyCode(userAction.email, userAction.code);
+      case "setPassword":
+        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.newPassword);
       case "resetPassword":
-        return null;
+        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
         return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
       case "deleteHistory":

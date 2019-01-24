@@ -22,25 +22,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-const showText={
-	dropbox: "DropBox",
-	googledrive: "GoogleDrive",
-	ftp : "FTP",
-	sftp : "SFTP",
-	http : "HTTP",
-	gsiftp : "GridFTP",
-	scp : "SCP"
-}
-
-const showType={
-	dropbox: DROPBOX_TYPE,
-	googledrive: GOOGLEDRIVE_TYPE,
-	ftp : FTP_TYPE,
-	sftp : SFTP_TYPE,
-	http : HTTP_TYPE,
-	gsiftp : GRIDFTP_TYPE,
-	scp : SCP_TYPE
-}
+import {getType, getName} from '../../constants.js';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -105,14 +87,14 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, credential, callback) => {
 		this.props.setLoading(true);
-		listFiles(url, credential,null, (response) => {
-			const endpointSet = {
-					uri: url,
-					login: true,
-					side: this.props.endpoint.side,
-					credential: credential
-				}
-			this.props.setLoading(true);
+		const endpointSet = {
+			uri: url,
+			login: true,
+			side: this.props.endpoint.side,
+			credential: credential
+		}
+		listFiles(url, endpointSet,null, (response) => {
+			
 			history(url, (suc) => {
 				console.log(suc)
 			}, (error) => {
@@ -154,8 +136,8 @@ export default class EndpointAuthenticateComponent extends Component {
 	        </ListItem>
 		);
 		
-		const type = showText[endpoint.uri.split(":")[0]];
-		const loginType = showType[endpoint.uri.split(":")[0]];
+		const type = getName(endpoint);
+		const loginType = getType(endpoint);
 		const cloudList = Object.keys(credList).filter(id => {
 			return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
 						&& !getCred().includes(id))})

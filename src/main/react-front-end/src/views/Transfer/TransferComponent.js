@@ -126,7 +126,7 @@ export default class TransferComponent extends Component {
       optionParsed[v] = value
     })
 
-    submit(src, dest, optionParsed, (response)=>{
+    submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
       setBeforeTransferReorder(processed);
       eventEmitter.emit("errorOccured", "Transfer Scheduled!")
     }, (error)=>{

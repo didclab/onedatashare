@@ -17,7 +17,6 @@ import {spaceBetweenStyle} from '../../constants.js';
 
 export default class NewLoginComponent extends Component {
 
-
 	static propTypes = {
 	  	email : PropTypes.string,
 	  	createAccountPressed: PropTypes.func,

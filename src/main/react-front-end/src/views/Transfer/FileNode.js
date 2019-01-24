@@ -7,7 +7,7 @@ import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
 import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "./initialize_dnd";
-import {screenIsSmall } from "./utils.js";
+import { screenIsSmall } from "./utils.js";
 
 /**
 	Component for file and directory

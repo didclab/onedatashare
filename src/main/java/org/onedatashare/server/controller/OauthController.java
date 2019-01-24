@@ -38,7 +38,6 @@ public class OauthController {
     String cookie = headers.getFirst("cookie");
 
     if(queryParameters.containsKey("state")) {
-
       return userService.saveCredential(cookie, oauthService.finish(queryParameters.get("code"), cookie))
               .map(uuid -> Rendering.redirectTo("/oauth" + uuid).build());
     }

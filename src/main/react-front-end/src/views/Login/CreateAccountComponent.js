@@ -12,7 +12,7 @@ export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
 	  	backToSignin: PropTypes.func,
-	  	
+	  	 
 	}
 	constructor(props){
 	    super(props);

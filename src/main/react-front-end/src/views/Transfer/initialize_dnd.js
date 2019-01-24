@@ -8,7 +8,7 @@ var column1 = {
 	title: "",
 	path: [],
 	tasks: [],
-	ids: [],
+	ids: [null],
 	selectedTasks : [],
 };
 //right
@@ -17,11 +17,48 @@ var column2 = {
 	title: "",
 	path: [],
 	tasks: [],
-	ids: [],
+	ids: [null],
 	selectedTasks :[],
 };
 export var draggingTask = null;
 
+export function getMapFromEndpoint(endpoint){
+
+	if(endpoint.side == "left"){
+		console.log(column1.ids);
+		console.log(column1.path);
+		return column1.ids.map(function(e, i) {
+		  return {id: column1.ids[i], path: buildPathToIndex(endpoint.uri, column1.path, i)};
+		});
+	}else{
+
+		console.log(column2.ids);
+		console.log(column2.path);
+		return column2.ids.map(function(e, i) {
+		  return {id: column2.ids[i], path: buildPathToIndex(endpoint.uri, column2.path, i)};
+		});
+	}
+}
+
+export function getIdsFromEndpoint(endpoint){
+	if(endpoint.side == "left"){
+		return column1.ids[column1.ids.length-1];
+	}else{
+		return column2.ids[column2.ids.length-1];
+	}
+}
+
+function buildPathToIndex(edpuri, idsArray, index){
+	if(index === 0 || idsArray.length === 0){
+		return edpuri;
+	}
+	
+	let tempArray = idsArray.slice(0, index);
+
+	return makeFileNameFromPath(edpuri, tempArray, "");
+}
+
+ 
 export function setDraggingTask(task){
 	draggingTask = task;
 }
@@ -112,7 +149,7 @@ export function emptyFileNodesData(endpoint){
 			title: "",
 			path: [],
 			tasks: [],
-			ids:[],
+			ids:[null],
 			previousTasks: [],
 			selectedTasks : [],
 
@@ -123,7 +160,7 @@ export function emptyFileNodesData(endpoint){
 			title: "",
 			path: [],
 			tasks: [],
-			ids:[],
+			ids:[null],
 			previousTasks: [],
 			selectedTasks : [],
 		};

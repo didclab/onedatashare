@@ -40,6 +40,9 @@ import {getFilesFromMemory, setFilesWithPathList, getPathFromMemory,
 
 import {eventEmitter} from "../../App";
 
+import {getType} from '../../constants.js';
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+
 const uploader = new FineUploaderTraditional({
    options: {
    	  chunking: {
@@ -71,7 +74,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.state={
 			route: "",
 			directoryPath : getPathFromMemory(props.endpoint),
-			ids: [null],
+			ids: getIdsFromEndpoint(props.endpoint),
 			openShare: false,
 			shareUrl: "",
 			openAFolder: false,
@@ -112,6 +115,8 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 	    window.removeEventListener('touchend', this.onWindowTouchEnd);
 	}
+
+
 
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
@@ -199,8 +204,7 @@ export default class EndpointBrowseComponent extends Component {
 
 	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
-		this.state.ids.push(id);
-		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], id);
+		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);
 		this.unselectAll();
 	}
 
@@ -208,22 +212,24 @@ export default class EndpointBrowseComponent extends Component {
 		this.props.setLoading(true);
 		this.state.directoryPath.length = index;
 		this.state.ids.length = index+1;
-		this.getFilesFromBackendWithPath(this.props.endpoint, this.state.directoryPath, index === 0 ? null : this.state.ids[index]);
+		this.getFilesFromBackendWithPath(this.props.endpoint, this.state.directoryPath, this.state.ids);
 	}
 
 	getFilesFromBackend(endpoint){
-		this.getFilesFromBackendWithPath(endpoint, [], null);
+		this.getFilesFromBackendWithPath(endpoint, [], [null]);
 	}
 
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
+		console.log("list before finish ", this.state.path, this.state.id);
+		console.log("list after finish ", path, id);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
 
-		listFiles(uri, endpoint.credential,id, (data) =>{
-			setFilesWithPathListAndId(data.files, path, this.state.ids, endpoint);
-			this.setState({directoryPath: path});
+		listFiles(uri, endpoint, id[id.length-1], (data) =>{
+			setFilesWithPathListAndId(data.files, path, id, endpoint);
+			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
 			this._handleError(error);
@@ -243,11 +249,16 @@ export default class EndpointBrowseComponent extends Component {
 		const {endpoint, setLoading} = this.props;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
-		const dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
+
+		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
+		const dirType = getType(endpoint);
+		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
+			dirName =  addFolderName;
+		}
 		//make api call
-		mkdir(ids[ids.length-1], dirName, endpoint.credential, (response)=>{
+		mkdir(dirName,dirType, endpoint, (response)=>{
 			setLoading(true);
-			this.getFilesFromBackendWithPath(endpoint, directoryPath, response.id);
+			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
 		}, (error)=>{
 			this._handleError(error);
 		})
@@ -256,7 +267,7 @@ export default class EndpointBrowseComponent extends Component {
 		eventEmitter.emit("errorOccured", error);
 	}
 
-	_handleConfirmation = (query) =>{
+	_handleConfirmation = (query) => {
 		return window.confirm(query);
 	}
 
@@ -268,18 +279,20 @@ export default class EndpointBrowseComponent extends Component {
 
     handleCloseWithFileDeleted = (files) => {
     	const {endpoint, setLoading} = this.props;
-    	const {directoryPath} = this.state;
+    	const {directoryPath, ids} = this.state;
     	const len = files.length;
     	var i = 0;
     	if(this._handleConfirmation("Are you sure you want to delete" + files.reduce((a, v) => a+"\n"+v.name, ""))){
     		setLoading(true);
     		files.map((file) => {
     			const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-    			console.log(file.name);
-    			deleteCall(file.id, fileName, endpoint.credential, (response) => {
+    			
+				console.log("delete before success", directoryPath, ids)
+    			deleteCall( fileName, endpoint,  file.id, (response) => {
+    				console.log("delete after success", directoryPath, ids)
     				i++;
     				if(i == len){
-    					this.getFilesFromBackendWithPath(endpoint, directoryPath, file.id);
+    					this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
     				}
     			}, (error) => {
     				this._handleError(error);
@@ -399,8 +412,7 @@ export default class EndpointBrowseComponent extends Component {
 				  			const sid = getSelectedTasksFromSide(endpoint)[0].name;
 
 				  			const uri = makeFileNameFromPath(endpoint.uri,directoryPath, sid);
-				  			const credential = endpoint.credential;
-				  			share(uri, credential, (response) => {
+				  			share(uri, endpoint, (response) => {
 				  				const shareUri = "https://storkcloud.org/api/stork/get?uuid="+response.uuid;
 				  				this.handleClickOpen(shareUri);
 				  			}, (error) => {
@@ -413,7 +425,7 @@ export default class EndpointBrowseComponent extends Component {
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
 				  		<BootStrapButton style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
-				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids[this.state.ids.length-1]);
+				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 				  		}}>
 				  			<RefreshButton style={iconStyle}/>
 				  		</BootStrapButton>
