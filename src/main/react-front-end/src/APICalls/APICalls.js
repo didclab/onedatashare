@@ -500,3 +500,67 @@ export async function openGoogleDriveOAuth(){
 export async function openOAuth(url){
 	window.open(url, 'oAuthWindow');
 }
+
+
+
+export async function registerUser(emailId) {
+
+    return axios.post(url+'user', {
+    	    action: "register",
+    	    email : emailId
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to register user")
+    		else {
+    		    return response
+    		}
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          console.error("Error while registering user");
+          return {status : 500}
+        });
+
+}
+
+export async function verifyRegistraionCode(emailId, code) {
+
+    return axios.post(url+'user', {
+    	    action: "verifyCode",
+    	    email : emailId,
+    	    code : code
+    	})
+    	.then((response) => {
+            return response;
+    		//statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          console.error("Error while verifying the registration code")
+          return {status : 500}
+        });
+}
+
+export async function setPassword(emailId, code, password, confirmPassword) {
+
+    return axios.post(url+'user', {
+    	    action: "setPassword",
+    	    email : emailId,
+    	    code : code,
+    	    password : password,
+    	    confirmPassword : confirmPassword
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to set password for users account")
+    		else {
+                    return response;
+                }
+            //statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          return {status : 500}
+        });
+}
