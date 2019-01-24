@@ -1,6 +1,8 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.ForbiddenAction;
+import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
@@ -54,5 +56,18 @@ public class UserController {
     return userService.getHistory(headers.getFirst("Cookie"));
   }
 
-  //Exception not Admin to be added
+  @ExceptionHandler(InvalidField.class)
+  public ResponseEntity<InvalidField> handle(InvalidField invf){
+    System.out.println(invf.getMessage());
+    return new ResponseEntity<>(invf, invf.status);
+
+  }
+
+  @ExceptionHandler(ForbiddenAction.class)
+  public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
+    System.out.println(fa.getMessage());
+    return new ResponseEntity<>(fa, fa.status);
+
+  }
+
 }

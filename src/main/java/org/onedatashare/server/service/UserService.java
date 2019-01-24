@@ -6,6 +6,8 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.ForbiddenAction;
+import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +37,7 @@ public class UserService {
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
-            .switchIfEmpty(Mono.error(new Exception("Invalid username or password")));
+            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
   }
 
   public Object register(String email, String password, String passwordConfirm) {
@@ -44,7 +46,7 @@ public class UserService {
       user.setValidationToken(user.validationToken());
       return createUser(user).map(this::sendVerificationEmail);
     }
-    else return Mono.error(new RuntimeException("Passwords do not match"));
+    else return Mono.error(new InvalidField("Passwords do not match")); //RuntimeException
   }
 
   public Object sendVerificationEmail(User user) {
@@ -134,7 +136,7 @@ public class UserService {
        if(user.isAdmin())
          return Mono.just(true);
        else
-         return Mono.error(new Exception("Invalid Administrator"));
+         return Mono.error(new ForbiddenAction("Invalid Administrator"));
     });
   }
 
