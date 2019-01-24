@@ -9,6 +9,10 @@ import java.net.IDN;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Data
@@ -22,6 +26,9 @@ public class User {
   public String hash;
   /** Salt used for hash. */
   public String salt;
+
+  /** Temp code and expire date **/
+  public VerifyCode code;
 
   /** Set to true once the user has validated registration. */
   public boolean validated = false;
@@ -269,6 +276,9 @@ public class User {
    * This is thrown when a user is trying to perform an action but is not
    * validated.
    */
+  public void setVerifyCode(String code){
+    this.code = new VerifyCode(code);
+  }
   public static class NotValidatedException extends RuntimeException {
     public NotValidatedException() {
       super("This account has not been validated.");
@@ -284,4 +294,22 @@ public class User {
       this.hash = hash;
     }
   }
+  public class VerifyCode {
+    public String code;
+    public Date expireDate;
+    static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
+
+    public VerifyCode(String code) {
+      int secondsAfter = 300000; // 5 minutes in milli seconds
+      this.code = code;
+      Calendar date = Calendar.getInstance();
+      long t= date.getTimeInMillis();
+      this.expireDate = new Date(t + 5 * ONE_MINUTE_IN_MILLIS);
+
+//      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+//      System.out.println("expired date "+ dateFormat.format(this.expireDate));
+    }
+  }
 }
+
+

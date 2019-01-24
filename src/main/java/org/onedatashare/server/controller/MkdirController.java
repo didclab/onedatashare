@@ -28,8 +28,8 @@ public class MkdirController {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return dbxService.mkdir(cookie, userAction);
-    }
-    else return vfsService.mkdir(cookie, userAction);
+    }else return vfsService.mkdir(cookie, userAction);
+    
   }
 
   @ExceptionHandler(AuthenticationRequired.class)

@@ -31,7 +31,7 @@ import {endpointUpdate} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
-import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide} from "./initialize_dnd.js";
+import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId} from "./initialize_dnd.js";
 
 import {eventEmitter} from "../../App.js";
 import Slider from '@material-ui/lab/Slider';
@@ -95,22 +95,26 @@ export default class TransferComponent extends Component {
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
     const srcUrls = [] 
+    const fileIds = [] 
     const destUrls = []
-
     processed.selectedTasks.map((task)=>{
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
+      fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
     const destUrl = destUrls.reduce((a, v) => a+","+v)
     const srcUrl = srcUrls.reduce((a, v) => a+","+v)
-
+    const fileId = fileIds.reduce((a, v) => a+","+v)
+    
     const src = {
       credential:endpointSrc.credential,
+      id: fileId,
       uri: encodeURI(srcUrl)
     }
     const dest = {
       credential:endpointDest.credential,
+      id: getCurrentFolderId(endpointDest),
       uri: encodeURI(destUrl)
     }
     var optionParsed = {}
@@ -122,7 +126,7 @@ export default class TransferComponent extends Component {
       optionParsed[v] = value
     })
 
-    submit(src, dest, optionParsed, (response)=>{
+    submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
       setBeforeTransferReorder(processed);
       eventEmitter.emit("errorOccured", "Transfer Scheduled!")
     }, (error)=>{
