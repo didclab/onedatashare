@@ -34,7 +34,7 @@ import React, { Component } from 'react';
 import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import {getFilesFromMemory, setFilesWithPathList, getPathFromMemory, 
+import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
 		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId} from "./initialize_dnd";
 
