@@ -6,7 +6,8 @@ import { Redirect, Link} from 'react-router-dom';
 import {transferPageUrl,queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, managementPageUrl, dataPageUrl} from '../constants';
 import {store} from '../App';
 import {logoutAction, isAdminAction} from '../model/actions';
-import {isAdmin} from '../APICalls/APICalls'
+import {isAdmin} from '../APICalls/APICalls';
+
 class NavbarComponent extends Component {
 	
 	constructor(props){NavbarComponent

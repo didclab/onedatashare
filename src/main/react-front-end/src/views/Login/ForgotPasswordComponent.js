@@ -46,9 +46,10 @@ export default class ForgotPasswordComponent extends Component {
 	}
 
 	VerifyCode = ()=>{
-		resetPasswordVerifyCode(this.props.email,this.state.code, ()=>{
-			this.setState({state: codeVerified})
-		}, ()=>{
+		resetPasswordVerifyCode(this.props.email,this.state.code, (response)=>{
+			console.log(response)
+			this.setState({state: codeVerified, code: response})
+		}, (fail)=>{
 			//this.setState({state: codeVerified})
 			eventEmitter.emit("errorOccured", "Verify Code Failed.");
 		});

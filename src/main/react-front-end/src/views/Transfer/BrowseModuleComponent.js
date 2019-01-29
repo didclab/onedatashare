@@ -58,7 +58,6 @@ export default class BrowseModuleComponent extends Component {
 		}
 
 		const backHome = (uri, type) => {
-
 			this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
