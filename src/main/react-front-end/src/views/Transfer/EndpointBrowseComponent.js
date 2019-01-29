@@ -43,19 +43,20 @@ import {eventEmitter} from "../../App";
 
 
 const uploader = new FineUploaderTraditional({
+	// debug: true,
    options: {
    	  chunking: {
         enabled: true,
         concurrent: {
 	        enabled: true
-	    },
+	    }
       },
       request: {
-         endpoint: '/api/stork/upload',
-	      params: {
-	        file: function () {
-	            return 5;
-	        }
+        endpoint: '/api/stork/upload',
+	      // params: {
+	      //   file: function () {
+	      //     return 5;
+	      //   }
 	      }
       },
 
@@ -374,8 +375,10 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-				  			<BootStrapButton style={buttonStyle} disabled={true}>
-						  		<UploadButton style={iconStyle}/>
+				  			<BootStrapButton style={buttonStyle} disabled={false}>
+									<FileInput uploader={uploader}>
+										<UploadButton style={iconStyle}/>
+									</FileInput>
 				  			</BootStrapButton>
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
