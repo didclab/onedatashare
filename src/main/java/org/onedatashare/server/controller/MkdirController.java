@@ -29,7 +29,7 @@ public class MkdirController {
       }
       else return dbxService.mkdir(cookie, userAction);
     }else return vfsService.mkdir(cookie, userAction);
-    
+
   }
 
   @ExceptionHandler(AuthenticationRequired.class)

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
@@ -192,7 +192,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == SFTP_TYPE){
 		        		this.setState({settingAuth: true, needPassword: false, url: "sftp://"});
 		        	}else if(loginType == GRIDFTP_TYPE){
-		        		this.setState({settingAuth: true, needPassword: false, url: "gsiftp://"});
+		        		openGridFtpOAuth();
+		        		//this.setState({settingAuth: true, needPassword: false, url: "gsiftp://"});
 		        	}else if(loginType == HTTP_TYPE){
 		        		this.setState({settingAuth: true, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){

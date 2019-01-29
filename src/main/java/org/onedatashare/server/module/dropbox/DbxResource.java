@@ -149,32 +149,32 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
     public Flux<Slice> tap(long sliceSize) {
       return Flux.generate(
-              () -> 0L,
-              (state, sink) -> {
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                if (state + sliceSize < size) {
-                  try {
-                    downloadBuilder.range(state, sliceSize).start().download(outputStream);
-                  } catch (DbxException | IOException e) {
-                    e.printStackTrace();
-                  }
-                  sink.next(new Slice(outputStream.toByteArray()));
-                  try {
-                    outputStream.close();
-                  } catch (IOException e) {
-                    e.printStackTrace();
-                  }
-                } else {
-                  try {
-                    downloadBuilder.range(state, size - state).start().download(outputStream);
-                  } catch (DbxException | IOException e) {
-                    e.printStackTrace();
-                  }
-                  sink.next(new Slice(outputStream.toByteArray()));
-                  sink.complete();
-                }
-                return state + sliceSize;
-              });
+      () -> 0L,
+      (state, sink) -> {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        if (state + sliceSize < size) {
+          try {
+            downloadBuilder.range(state, sliceSize).start().download(outputStream);
+          } catch (DbxException | IOException e) {
+            e.printStackTrace();
+          }
+          sink.next(new Slice(outputStream.toByteArray()));
+          try {
+            outputStream.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        } else {
+          try {
+            downloadBuilder.range(state, size - state).start().download(outputStream);
+          } catch (DbxException | IOException e) {
+            e.printStackTrace();
+          }
+          sink.next(new Slice(outputStream.toByteArray()));
+          sink.complete();
+        }
+        return state + sliceSize;
+      });
     }
   }
 

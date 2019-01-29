@@ -504,6 +504,10 @@ export async function openGoogleDriveOAuth(){
 	openOAuth("/api/stork/oauth?type=googledrive");
 }
 
+export async function openGridFtpOAuth(){
+	openOAuth("/api/stork/oauth?type=gridftp");
+}
+
 export async function openOAuth(url){
 	window.open(url, 'oAuthWindow');
 }

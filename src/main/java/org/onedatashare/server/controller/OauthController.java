@@ -37,14 +37,17 @@ public class OauthController {
   @GetMapping
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
     String cookie = headers.getFirst("cookie");
-
     if(queryParameters.containsKey("state")) {
       return userService.saveCredential(cookie, oauthService.finish(queryParameters.get("code"), cookie))
               .map(uuid -> Rendering.redirectTo("/credentialSuccess").build());
     }
     else {
-      return userService.userLoggedIn(cookie)
+      if(queryParameters.get("type") == "dropbox")
+        return userService.userLoggedIn(cookie)
               .map(bool -> Rendering.redirectTo(oauthService.start()).build());
+      else
+        return userService.userLoggedIn(cookie)
+                .map(bool -> Rendering.redirectTo(oauthService.start()).build());
     }
   }
 
@@ -54,7 +57,6 @@ public class OauthController {
     return Rendering.redirectTo("/404").build();
     //return new ResponseEntity<>(notfound, notfound.status);
   }
-
 }
 
 
