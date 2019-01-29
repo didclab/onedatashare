@@ -4,6 +4,7 @@ import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -23,6 +24,9 @@ public class ListController {
   @Autowired
   private VfsService vfsService;
 
+  @Autowired
+  private ResourceServiceImpl resourceService;
+
 //  @PostMapping
 //  public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
 //    String cookie = headers.getFirst("cookie");
@@ -38,8 +42,13 @@ public class ListController {
     if(userAction.uri.contains("dropbox://")) {
       if(userAction.credential == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+      }
       else return dbxService.list(cookie, userAction);
+    }else if("googledrive:/".equals(userAction.type)) {
+      if(userAction.credential == null) {
+        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      else return resourceService.list(cookie, userAction);
     }
     else return vfsService.list(cookie, userAction);
   }

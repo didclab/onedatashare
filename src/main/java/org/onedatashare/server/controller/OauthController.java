@@ -1,5 +1,7 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.service.DbxOauthService;
+import org.onedatashare.server.service.GoogleDriveOauthService;
 import org.onedatashare.server.service.OauthService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,13 @@ public class OauthController {
   @Autowired
   private OauthService oauthService;
 
+  @Autowired
+  private GoogleDriveOauthService googleDriveOauthService;
+
+  @Autowired
+  private DbxOauthService dbxOauthService;
+
+  String instance ="";
 //  @GetMapping
 //  public Mono<RedirectView> handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
 //    if(queryParameters.containsKey("state")) {
@@ -36,13 +45,28 @@ public class OauthController {
   @GetMapping
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
     String cookie = headers.getFirst("cookie");
-    if(queryParameters.containsKey("state")) {
-      return userService.saveCredential(cookie, oauthService.finish(queryParameters.get("code")))
-              .map(uuid -> Rendering.redirectTo("/oauth" + uuid).build());
+      if(queryParameters.containsKey("state")) {
+      if(instance.equals("googledrive")){
+        instance = "";
+        return userService.saveCredential(cookie, googleDriveOauthService.finish(queryParameters.get("code")))
+                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+      }else if(instance.equals("dropbox")){
+        instance = "";
+        return userService.saveCredential(cookie, dbxOauthService.finish(queryParameters.get("code")))
+                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+      }else return null;
     }
     else {
-      return userService.userLoggedIn(cookie)
-              .map(bool -> Rendering.redirectTo(oauthService.start()).build());
+      if(queryParameters.containsValue("googledrive")){
+        instance = "googledrive";
+        return userService.userLoggedIn(cookie)
+                .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
+
+      }else{
+        instance = "dropbox";
+        return userService.userLoggedIn(cookie)
+                .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
+      }
     }
   }
 }
