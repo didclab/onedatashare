@@ -4,6 +4,7 @@ import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.ResourceServiceImpl;
 //import org.onedatashare.server.service.GridftpService;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ListController {
   @Autowired
   private VfsService vfsService;
 
+  @Autowired
+  private ResourceServiceImpl resourceService;
+  
 //  @Autowired
 //  private GridftpService gridSevice;
 
@@ -43,12 +47,16 @@ public class ListController {
       if(userAction.credential == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else
-      return dbxService.list(cookie, userAction);
-   // }
-  //  else if(userAction.uri.contains("gsiftp:/")) {
-   //   return gridSevice.list(cookie, userAction);
-   }else return vfsService.list(cookie, userAction);
+      else return dbxService.list(cookie, userAction);
+    }else if("googledrive:/".equals(userAction.type)) {
+      if(userAction.credential == null) {
+        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      else return resourceService.list(cookie, userAction);
+    //}
+    //else if(userAction.uri.contains("gsiftp:/")) {
+    //    return gridSevice.list(cookie, userAction);
+    }else return vfsService.list(cookie, userAction);
   }
 
   @ExceptionHandler(AuthenticationRequired.class)

@@ -11,7 +11,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     return initialize().flux().flatMap(resource -> {
       ListFolderResult listing = null;
       try {
-        listing = session.client.files().listFolder(path.toString());
+        listing = session.client.files().listFolder(path);
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -42,7 +41,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public Mono<DbxResource> mkdir() {
     return initialize().doOnSuccess(resource -> {
       try {
-        resource.session.client.files().createFolderV2(path.toString());
+        resource.session.client.files().createFolderV2(path);
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -52,7 +51,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public Mono<DbxResource> delete() {
     return initialize().map(resource -> {
       try {
-        resource.session.client.files().deleteV2(path.toString());
+        resource.session.client.files().deleteV2(path);
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -151,6 +150,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       return Flux.generate(
               () -> 0L,
               (state, sink) -> {
+                //System.out.println("size: "+size);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 if (state + sliceSize < size) {
                   try {
@@ -173,6 +173,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
                   sink.next(new Slice(outputStream.toByteArray()));
                   sink.complete();
                 }
+                //System.out.println("size1: " +state + sliceSize);
                 return state + sliceSize;
               });
     }

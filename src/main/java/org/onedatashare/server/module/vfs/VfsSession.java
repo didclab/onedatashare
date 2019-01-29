@@ -7,10 +7,11 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class VfsSession extends Session<VfsSession, VfsResource> {
 
@@ -23,6 +24,27 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
 
   @Override
   public Mono<VfsResource> select(String path) {
+    FileObject fo = null;
+    try {
+      fo = fileSystemManager.resolveFile(path, fileSystemOptions);
+    } catch (FileSystemException e) {
+      e.printStackTrace();
+    }
+    return initialize().then(Mono.just(new VfsResource(this, path, fo)));
+  }
+
+  @Override
+  public Mono<VfsResource> select(String path, String id) {
+    FileObject fo = null;
+    try {
+      fo = fileSystemManager.resolveFile(path, fileSystemOptions);
+    } catch (FileSystemException e) {
+      e.printStackTrace();
+    }
+    return initialize().then(Mono.just(new VfsResource(this, path, fo)));
+  }
+  @Override
+  public Mono<VfsResource> select(String path, String id, ArrayList<IdMap> idMap) {
     FileObject fo = null;
     try {
       fo = fileSystemManager.resolveFile(path, fileSystemOptions);
