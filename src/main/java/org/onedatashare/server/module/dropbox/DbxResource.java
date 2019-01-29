@@ -223,4 +223,18 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       }
     }
   }
+
+  public Mono<String> generateDownloadLink(){
+    String downloadLink="";
+    try {
+//      downloadLink = session.client.sharing().createSharedLinkWithSettings(path).getUrl();    // throws an exception if a shared link already exists
+      downloadLink = session.client.files().getTemporaryLink(path).getLink();
+
+    }
+    catch(DbxException dbxe){
+      System.out.println("Error encountered while generating shared link for " + path);
+      System.out.println(dbxe);
+    }
+    return Mono.just(downloadLink);
+  }
 }

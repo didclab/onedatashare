@@ -14,6 +14,7 @@ import CardActions from '@material-ui/core/CardActions';
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {changePassword} from '../../APICalls/APICalls';
+import {eventEmitter} from '../../App.js';
 export default class UserAccountComponent extends Component{
 
 	constructor(){
@@ -23,17 +24,22 @@ export default class UserAccountComponent extends Component{
     		loading: true,
     		oldPassword: "",
     		newPassword: "",
-    		conformNewPassword: ""
-    	};
+    		conformNewPassword: "",
 
+    	};
    		this.getInnerCard = this.getInnerCard.bind(this);
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
 	}
-	onPasswordUpdate(oldPass, newPass){
-		changePassword(oldPass, newPass, (response)=>{
+
+	onPasswordUpdate(oldPass, newPass, confPass){
+		changePassword(oldPass, newPass,confPass, (response)=>{
 			console.log(response);
 		}, (error)=>{
-			console.log(error);
+			if(error && error.response && error.response.data && error.response.data.message){
+				eventEmitter.emit("errorOccured", error.response.data.message); 
+			}else{
+				eventEmitter.emit("errorOccured", "Unknown Error"); 
+			}
 		})
 	}
 	getInnerCard() {
@@ -42,6 +48,7 @@ export default class UserAccountComponent extends Component{
 		      [name]: event.target.value,
 		    });
 		};
+		let confirmed = (this.state.newPassword !== this.state.conformNewPassword);
 		return(
 			<div>
 				<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
@@ -65,6 +72,7 @@ export default class UserAccountComponent extends Component{
 			          onChange={ handleChange('newPassword') }
 			        />
 			        <TextField
+			          error={confirmed}
 			          id="Cpassword"
 			          type="password"
 			          label="Confirm Your New Password"
@@ -75,7 +83,7 @@ export default class UserAccountComponent extends Component{
 			    <CardActions style={{marginBottom: '0px'}}>
 			        
 			        <Button size="small" color="primary" style={{width: '100%'}}
-			        	onClick={()=>this.onPasswordUpdate()}>
+			        	onClick={()=>this.onPasswordUpdate(this.state.oldPassword, this.state.newPassword, this.state.conformNewPassword)}>
 			          Proceed with password Change
 			        </Button>
 			    </CardActions>

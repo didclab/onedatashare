@@ -124,6 +124,23 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 .subscribeOn(Schedulers.elastic());
     }
 
+    public Mono<Job> restartJob(String cookie, UserAction userAction){
+        return userService.getLoggedInUser(cookie)
+                .flatMap(user ->{
+                    return jobService.findJobByJobId(cookie, userAction.job_id)
+                            .map(job -> {
+                                Job restartedJob = new Job(job.src, job.dest);
+                                restartedJob.setStatus(JobStatus.scheduled);
+                                restartedJob = user.saveJob(restartedJob);
+                                userService.saveUser(user).subscribe();
+                                return restartedJob;
+                            })
+                            .flatMap(jobService::saveJob)
+                            .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
+                })
+                .subscribeOn(Schedulers.elastic());
+    }
+
     public Mono<Job> cancel(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
                 .flatMap(user -> {

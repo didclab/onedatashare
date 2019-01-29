@@ -2,15 +2,16 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.service.DbxOauthService;
 import org.onedatashare.server.service.GoogleDriveOauthService;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.UnsupportedOperation;
 import org.onedatashare.server.service.OauthService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 
 import java.util.Map;
@@ -46,15 +47,15 @@ public class OauthController {
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
     String cookie = headers.getFirst("cookie");
       if(queryParameters.containsKey("state")) {
-      if(instance.equals("googledrive")){
-        instance = "";
-        return userService.saveCredential(cookie, googleDriveOauthService.finish(queryParameters.get("code")))
-                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-      }else if(instance.equals("dropbox")){
+        if(instance.equals("googledrive")){
+          instance = "";
+          return userService.saveCredential(cookie, googleDriveOauthService.finish(queryParameters.get("code")))
+                  .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+        }else if(instance.equals("dropbox")){
         instance = "";
         return userService.saveCredential(cookie, dbxOauthService.finish(queryParameters.get("code")))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-      }else return null;
+        }else return null;
     }
     else {
       if(queryParameters.containsValue("googledrive")){
@@ -69,4 +70,14 @@ public class OauthController {
       }
     }
   }
+
+  @ExceptionHandler(NotFound.class)
+  public Object handle(NotFound notfound) {
+    System.out.println(notfound.status);
+    return Rendering.redirectTo("/404").build();
+    //return new ResponseEntity<>(notfound, notfound.status);
+  }
+
 }
+
+

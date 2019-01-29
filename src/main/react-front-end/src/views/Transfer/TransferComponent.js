@@ -23,7 +23,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import FormControl from '@material-ui/core/FormControl';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
-import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
@@ -32,9 +31,10 @@ import {endpointUpdate} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
-import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide} from "./initialize_dnd.js";
+import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId} from "./initialize_dnd.js";
 
 import {eventEmitter} from "../../App.js";
+import Slider from '@material-ui/lab/Slider';
 
 export default class TransferComponent extends Component {
   static propTypes = {
@@ -57,6 +57,7 @@ export default class TransferComponent extends Component {
         verify: "true",
         encrypt: "true",
         compress: "true",
+        retry: 5
       }
     }
 
@@ -94,22 +95,26 @@ export default class TransferComponent extends Component {
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
     const srcUrls = [] 
+    const fileIds = [] 
     const destUrls = []
-
     processed.selectedTasks.map((task)=>{
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
+      fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
     const destUrl = destUrls.reduce((a, v) => a+","+v)
     const srcUrl = srcUrls.reduce((a, v) => a+","+v)
-
+    const fileId = fileIds.reduce((a, v) => a+","+v)
+    
     const src = {
       credential:endpointSrc.credential,
+      id: fileId,
       uri: encodeURI(srcUrl)
     }
     const dest = {
       credential:endpointDest.credential,
+      id: getCurrentFolderId(endpointDest),
       uri: encodeURI(destUrl)
     }
     var optionParsed = {}
@@ -121,7 +126,7 @@ export default class TransferComponent extends Component {
       optionParsed[v] = value
     })
 
-    submit(src, dest, optionParsed, (response)=>{
+    submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
       setBeforeTransferReorder(processed);
       eventEmitter.emit("errorOccured", "Transfer Scheduled!")
     }, (error)=>{
@@ -275,6 +280,9 @@ export default class TransferComponent extends Component {
       var value = event.target.value;
       this.setState({settings:{ ...this.state.settings, [name]: value }});
     };
+    const handleChangeRetry = (event, value)=>{
+      this.setState({settings:{ ...this.state.settings, retry: value }});
+    }
     const formlabelstyle = {fontSize: "15px"}
     const formStyle = {marginLeft: "5%", marginRight: "5%"}
     return (
@@ -330,7 +338,7 @@ export default class TransferComponent extends Component {
 
             <Panel bsStyle="primary">
               <Panel.Heading>Transfer Setting</Panel.Heading>
-              <Panel.Body key={isSmall}>
+              <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
               <FormControl component="fieldset" style={formStyle}>
                 <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
                 <RadioGroup
@@ -390,6 +398,20 @@ export default class TransferComponent extends Component {
                   <FormControlLabel value="false" control={<Radio />} label="False"/>
                 </RadioGroup>
               </FormControl>
+
+              <FormControl component="fieldset">
+                <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
+                <Slider
+
+                  value={this.state.settings.retry}
+                  min={0}
+                  max={10}
+                  step={1}
+                  onChange={handleChangeRetry}
+                />
+                <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
+              </FormControl>
+              
             </Panel.Body>
           </Panel>
         </Col>

@@ -103,4 +103,8 @@ public class DbxService implements ResourceService<DbxResource>{
             .flatMap(jobService::saveJob)
             .subscribe();
   }
+
+  public Mono<String> getDownloadURL(String cookie, UserAction userAction){
+    return getDbxResourceWithUserActionUri(cookie,userAction).flatMap(DbxResource::generateDownloadLink);
+  }
 }

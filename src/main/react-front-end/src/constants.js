@@ -25,6 +25,43 @@ export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const SCP_TYPE = "scp://";
 
+
 //side
 export const sideLeft = "left";
 export const sideRight = "right";
+
+export const showText={
+	dropbox: "DropBox",
+	googledrive: "GoogleDrive",
+	ftp : "FTP",
+	sftp : "SFTP",
+	http : "HTTP",
+	gsiftp : "GridFTP",
+	scp : "SCP"
+}
+
+export const showType={
+	dropbox: DROPBOX_TYPE,
+	googledrive: GOOGLEDRIVE_TYPE,
+	ftp : FTP_TYPE,
+	sftp : SFTP_TYPE,
+	http : HTTP_TYPE,
+	gsiftp : GRIDFTP_TYPE,
+	scp : SCP_TYPE
+}
+
+export function getType(endpoint){
+	return showType[endpoint.uri.split(":")[0].toLowerCase()]
+}
+
+export function getTypeFromUri(uri){
+	return showType[uri.split(":")[0].toLowerCase()]
+}
+
+export function getName(endpoint){
+	return showText[endpoint.uri.split(":")[0].toLowerCase()]
+}
+
+export function getNameFromUri(uri){
+	return showText[uri.split(":")[0].toLowerCase()]
+}

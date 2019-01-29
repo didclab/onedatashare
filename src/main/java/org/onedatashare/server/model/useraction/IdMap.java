@@ -8,5 +8,4 @@ import lombok.Data;
 public class IdMap {
     String id;
     String path;
-
 }
