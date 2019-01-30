@@ -19,8 +19,6 @@ public class UserAction {
   public String code;
   public String confirmPassword;
   public String newPassword;
-  public String type;
-  public ArrayList<IdMap> map;
   public int depth;
   public UserActionResource src;
   public UserActionResource dest;

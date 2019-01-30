@@ -63,11 +63,15 @@ public class OauthController {
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
 
-      }else{
+      }else if(queryParameters.containsValue("dropbox")){
         instance = "dropbox";
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
-      }
+      }else if(queryParameters.containsValue("dropbox")){
+        instance = "gsiftp";
+        return userService.userLoggedIn(cookie)
+                .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
+      }else return null;
     }
   }
 

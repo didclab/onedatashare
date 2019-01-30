@@ -363,31 +363,19 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 
 export async function download(uri, credential){
 	console.log(uri)
+	var form = document.createElement('form');
+	form.action = url+"get";
+	form.method = 'POST';
+	form.target = '_blank';
 
-	axios.post(url+'download', {
-	    credential: credential,
-	    uri: encodeURI(uri)
-	})
-	.then((response) => {
-		if(!(response.status === 200))
-			console.log("Error in download API call");
-		else{
-			console.log(JSON.stringify(response));
-			var form = document.createElement('form');
-			form.action = response.data;
-			form.target = '_blank';
+	var input = document.createElement('textarea');
+	input.name = '$json';
+	input.value = JSON.stringify({uri: encodeURI(uri), credential: credential});
+	form.appendChild(input);
 
-			// console.log("Value contained in "+input.name+" : "+input.value);
-			// console.log("Form method :" + form.method);
-
-			form.style.display = 'none';
-			document.body.appendChild(form);
-			form.submit();
-		}
-	})
-	.catch((error) => {
-      console.log("Error encountered while generating download link");
-    });
+	form.style.display = 'none';
+	document.body.appendChild(form);
+	form.submit();
 
 }
 
@@ -516,6 +504,10 @@ export async function openGoogleDriveOAuth(){
 	openOAuth("/api/stork/oauth?type=googledrive");
 }
 
+export async function openGridFtpOAuth(){
+	openOAuth("/api/stork/oauth?type=gridftp");
+}
+
 export async function openOAuth(url){
 	window.open(url, 'oAuthWindow');
 }
@@ -540,8 +532,8 @@ export async function registerUser(emailId) {
           console.error("Error while registering user");
           return {status : 500}
         });
-
 }
+
 
 export async function verifyRegistraionCode(emailId, code) {
 
