@@ -19,7 +19,8 @@ public class IndexFilter implements WebFilter {
             exchange.getRequest().getURI().getPath().equals("/clientsInfo") ||
             exchange.getRequest().getURI().getPath().equals("/history") ||
             exchange.getRequest().getURI().getPath().startsWith("/account") ||
-            exchange.getRequest().getURI().getPath().startsWith("/credentialSucceed")) {
+            exchange.getRequest().getURI().getPath().startsWith("/oauth")
+      ) {
       return chain.filter(exchange.mutate().request(exchange.getRequest().mutate().path("/index.html").build()).build());
     }
     return chain.filter(exchange);

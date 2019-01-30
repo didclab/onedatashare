@@ -532,8 +532,8 @@ export async function registerUser(emailId) {
           console.error("Error while registering user");
           return {status : 500}
         });
-
 }
+
 
 export async function verifyRegistraionCode(emailId, code) {
 

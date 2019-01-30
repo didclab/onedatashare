@@ -37,8 +37,8 @@ public class UserService {
   }
 
   public Mono<User.UserLogin> login(String email, String password) {
-    //User user = new User("yifuyin@buffalo.edu", "asdasd");
-    //createUser(user).subscribe(System.out::println);
+  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
+  //  createUser(user).subscribe(System.out::println);
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
@@ -243,14 +243,11 @@ public class UserService {
       });
   }
 
-  public Mono<UUID> saveCredential(String cookie, Mono<OAuthCredential> credential) {
+  public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
     final UUID uuid = UUID.randomUUID();
-    return getLoggedInUser(cookie)
-            .flatMap(user -> {
-              return credential.map(credential1 -> {
-                user.getCredentials().put(uuid, credential1);
-                return user;
-              });
+    return  getLoggedInUser(cookie).map(user -> {
+              user.getCredentials().put(uuid, credential);
+              return user;
             })
             .flatMap(userRepository::save)
             .map(user -> {return uuid;});
