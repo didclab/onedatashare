@@ -86,7 +86,6 @@ public class UserService {
   }
 
   public Object sendVerificationEmail(User user) {
-
     //TODO
     return null;
   }

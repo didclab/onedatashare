@@ -81,7 +81,6 @@ export default class EndpointBrowseComponent extends Component {
 			openAFolder: false,
 			addFolderName: ""
 		};
-
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);

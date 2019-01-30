@@ -81,7 +81,6 @@ public class OauthController {
     return Rendering.redirectTo("/404").build();
     //return new ResponseEntity<>(notfound, notfound.status);
   }
-
 }
 
 
