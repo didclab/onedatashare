@@ -25,19 +25,33 @@ export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const SCP_TYPE = "scp://";
 
+export const DROPBOX_NAME = "DropBox";
+export const GOOGLEDRIVE_NAME = "GoogleDrive";
+export const FTP_NAME = "FTP";
+export const SFTP_NAME = "SFTP";
+export const HTTP_NAME = "HTTP";
+export const GRIDFTP_NAME = "GridFTP";
+export const SCP_NAME = "SCP";
 
+export const DROPBOX = "dropbox";
+export const GOOGLEDRIVE = "googledrive";
+export const FTP = "ftp";
+export const SFTP = "sftp";
+export const HTTP = "http";
+export const GRIDFTP = "gsiftp";
+export const SCP = "scp";
 //side
 export const sideLeft = "left";
 export const sideRight = "right";
 
 export const showText={
-	dropbox: "DropBox",
-	googledrive: "GoogleDrive",
-	ftp : "FTP",
-	sftp : "SFTP",
-	http : "HTTP",
-	gsiftp : "GridFTP",
-	scp : "SCP"
+	dropbox: DROPBOX_NAME,
+	googledrive: GOOGLEDRIVE_NAME,
+	ftp : FTP_NAME,
+	sftp : SFTP_NAME,
+	http : HTTP_NAME,
+	gsiftp : GRIDFTP_NAME,
+	scp : SCP_NAME
 }
 
 export const showType={

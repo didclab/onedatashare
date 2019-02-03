@@ -58,7 +58,7 @@ const uploader = new FineUploaderTraditional({
 	      //   file: function () {
 	      //     return 5;
 	      //   }
-	      }
+	      //}
       },
 
       retry: {

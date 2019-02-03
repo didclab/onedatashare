@@ -331,9 +331,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
 
                 }
 
-
-
-
                /* long chunkSize = chunk.size();
                 //size = 1257197;//slice.length();
                 System.out.println("chunk: "+chunkSize+" slice: "+slice.length());

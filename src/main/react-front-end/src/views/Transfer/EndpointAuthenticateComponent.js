@@ -151,7 +151,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				}
 				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
-
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
@@ -191,9 +190,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		this.setState({settingAuth: true, needPassword: false, url: "ftp://"});
 		        	}else if(loginType == SFTP_TYPE){
 		        		this.setState({settingAuth: true, needPassword: false, url: "sftp://"});
-		        	}else if(loginType == GRIDFTP_TYPE){
-		        		openGridFtpOAuth();
-		        		//this.setState({settingAuth: true, needPassword: false, url: "gsiftp://"});
 		        	}else if(loginType == HTTP_TYPE){
 		        		this.setState({settingAuth: true, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){
