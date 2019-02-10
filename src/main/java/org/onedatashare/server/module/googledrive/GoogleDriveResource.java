@@ -258,7 +258,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 if( parentid != null ) {
                     id = session.idMap.get(session.idMap.size()-1).getId();
                 }else {
-                    id = null;
+                    id= null;
                 }
 
                 System.out.println("path: "+path+" Id: "+id);
@@ -271,7 +271,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 //request.setRequestProperty("X-Upload-Content-Type", "application/pdf");
                 //request.setRequestProperty("X-Upload-Content-Length", Long.toString(size));
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                String body = "{\"name\": \"" + name[name.length-1] + "\"}";
+                String body;
+                if(id !=null){
+                     body = "{\"name\": \"" + name[name.length-1] + "\", \"parents\": [\"" + id + "\"]}";
+                }else{
+                     body = "{\"name\": \"" + name[name.length-1] + "\"}";
+                }
                 System.out.println("name:"+name[name.length-1]);
                 request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
                 request.setDoOutput(true);
