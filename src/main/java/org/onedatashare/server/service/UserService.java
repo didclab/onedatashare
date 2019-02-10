@@ -220,8 +220,6 @@ public class UserService {
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
       }else{
-        System.out.println("old code "+expectedCode.code);
-        System.out.println("new code "+code);
         return Mono.error(new Exception("Code not match"));
       }
     });
@@ -284,7 +282,31 @@ public class UserService {
 
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
-    return getLoggedInUser(cookie).map(User::getCredentials);
+    return getLoggedInUser(cookie).map(User::getCredentials).map(
+            credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
+  }
+
+
+  public Map<UUID, Credential> removeIfExpired(Map<UUID, Credential> creds){
+    ArrayList<UUID> removingThese = new ArrayList<UUID>();
+    for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
+      if(entry.getValue().type == Credential.CredentialType.OAUTH &&
+        ((OAuthCredential)entry.getValue()).expiredTime != null &&
+        Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime)){
+        removingThese.add(entry.getKey());
+      }
+    }
+    for(UUID id : removingThese){
+      creds.remove(id);
+    }
+    return creds;
+  }
+
+  public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
+    return getLoggedInUser(cookie).map(user -> {
+      user.setCredentials(creds);
+      return userRepository.save(user);
+    }).map(repo -> creds);
   }
 
   public Flux<UUID> getJobs(String cookie) {

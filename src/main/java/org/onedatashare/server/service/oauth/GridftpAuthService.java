@@ -38,7 +38,8 @@ public class GridftpAuthService {
         try {
             return globusclient.getAccessToken(token).map(
                     acctoken -> {
-                        OAuthCredential oa = new OAuthCredential(acctoken);
+                        OAuthCredential oa = new OAuthCredential(acctoken.getAccessToken());
+                        oa.expiredTime = acctoken.getExpiredTime();
                         oa.name = "GridFTP Client";
                         return oa;
                     }

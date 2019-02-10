@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
-
     private Boolean showHidden = true;
     private Integer limit = Integer.MAX_VALUE;
     private Integer offset = 0;
@@ -31,7 +30,6 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     private String filter = null;
 
     private String endpointId = null;
-
 
     GridftpResource(GridftpSession session, String path) {
         super(session, path);
@@ -50,9 +48,9 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                 e.printStackTrace();
             }
             return listing
-                    .map(fileList -> fileList.getData())
-                    .flatMapMany(Flux::fromIterable)
-                    .map(file -> file.toString());
+                .map(fileList -> fileList.getData())
+                .flatMapMany(Flux::fromIterable)
+                .map(file -> file.toString());
         });
     }
 
@@ -88,7 +86,6 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
 
     public Stat onStat() {
         Stat stat = new Stat();
-
         return stat;
     }
 //    ListFolderResult data = null;

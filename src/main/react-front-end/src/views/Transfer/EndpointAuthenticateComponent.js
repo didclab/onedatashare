@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory, listEndpoints} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
@@ -45,6 +45,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			needPassword: false,
 			username: "",
 			password: "",
+
+			selectingEndpoint: false,
 		};
 		this.credentialListUpdateFromBackend();
 		this.handleChange = this.handleChange.bind(this);
@@ -107,6 +109,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			callback(error);
 		})
 	}
+	
 	render(){
 		const {history, endpoint, credList, settingAuth, needPassword} = this.state;
 		const { back, loginSuccess, setLoading} = this.props;
@@ -194,6 +197,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		this.setState({settingAuth: true, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){
 		        		this.setState({settingAuth: true, needPassword: false, url: "scp://"});
+		        	}else if(loginType == GRIDFTP_TYPE){
+		        		listEndpoints("OneDataShare", (response)=>{
+		        			
+		        		}, (error)=>{
+		        			console.log(error);
+		        		});
 		        	}
 		        }}>
 		          <ListItemIcon>
@@ -205,12 +214,14 @@ export default class EndpointAuthenticateComponent extends Component {
 		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE) && cloudList}
 		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && histList}
 		    </List>}
-
+		    {selectingEndpoint &&
+		    	<View/>
+		    }
 		    {settingAuth &&
 		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		this.setState({settingAuth: false})}
-		    	}><BackIcon/>Back</Button>
+		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	<TextField
 		    	  style={{width: "80%"}}
@@ -246,7 +257,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        </div>
 		    	}
-
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		if(!needPassword){
 			    		this.endpointCheckin(this.state.url, {}, () => {

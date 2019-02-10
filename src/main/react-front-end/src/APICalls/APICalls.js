@@ -536,7 +536,6 @@ export async function registerUser(emailId) {
 
 
 export async function verifyRegistraionCode(emailId, code) {
-
     return axios.post(url+'user', {
     	    action: "verifyCode",
     	    email : emailId,
@@ -551,6 +550,23 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
+}
+
+export async function listEndpoints( filter_fulltext, accept, fail) {
+    var callback = accept;
+    return axios.post(url+'globus', {
+	    action : "endpoint_list",
+	    filter_fulltext : filter_fulltext
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
+    });
 }
 
 export async function setPassword(emailId, code, password, confirmPassword) {

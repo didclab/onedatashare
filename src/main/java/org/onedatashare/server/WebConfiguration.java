@@ -37,8 +37,6 @@ public class WebConfiguration implements WebFluxConfigurer {
             }
         };
     }
-
-
     /*
         Below methods are used for redirecting port 8080 to 8443
      */

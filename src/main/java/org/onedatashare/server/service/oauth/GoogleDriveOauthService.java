@@ -12,10 +12,15 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +45,9 @@ public class GoogleDriveOauthService{
     private String authProvider;
     @Value("${drive_redirect_uris}")
     private String ruri[];
+
+    @Autowired
+    private UserService userService;
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static final FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -142,15 +150,23 @@ public class GoogleDriveOauthService{
         return accessToken;
     }
 
-    public synchronized OAuthCredential finish(String token) {
+    public synchronized Mono<OAuthCredential> finish( String token, String cookie) {
         String accessToken = storeCredential(token);
         try {
             Drive service = GoogleDriveSession.getDriveService(accessToken);
             String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
             OAuthCredential cred = new OAuthCredential(accessToken);
             cred.name = "GoogleDrive: " + userId;
-//            cred.token = userId;
-            return cred;
+
+            return userService.getCredentials(cookie).flatMap(val -> {
+                for (Credential value : val.values()) {
+                    OAuthCredential oauthVal = ((OAuthCredential) value);
+                    if ((oauthVal.name != null && oauthVal.name.equals(cred.name))) { //Checks if the ID already matches
+                        return Mono.error(new DuplicateCredentialException());           //Account already exists
+                    }
+                }
+                return Mono.just(cred);
+            });
         } catch (Exception e) {
             System.out.println("Runtime exception occurred while finishing initializing Google drive oauth session");
             throw new RuntimeException(e);

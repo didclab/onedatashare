@@ -54,11 +54,11 @@ public class OauthController {
       if(queryParameters.containsKey("state")) {
         if(instance.equals(googledrive)){
           instance = "";
-          return userService.saveCredential(cookie, googleDriveOauthService.finish(queryParameters.get("code")))
+          return googleDriveOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                   .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
         }else if(instance.equals(dropbox)){
           instance = "";
-        return dbxOauthService.finish(queryParameters.get("code"), cookie).flatMap( oauthCred -> userService.saveCredential(cookie, oauthCred))
+        return dbxOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
         }else if(instance.equals(gridftp)){
           instance = "";

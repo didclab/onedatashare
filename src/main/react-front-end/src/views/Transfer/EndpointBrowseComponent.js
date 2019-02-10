@@ -27,8 +27,6 @@ import FileInput from 'react-fine-uploader/file-input';
 
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 
-     // 
-
 import React, { Component } from 'react';
 
 import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
