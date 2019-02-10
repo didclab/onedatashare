@@ -36,7 +36,7 @@ public class UserController {
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
-        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.newPassword);
+        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
         return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
