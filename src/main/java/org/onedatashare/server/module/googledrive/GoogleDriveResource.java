@@ -257,15 +257,13 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 String parentid = session.idMap.get(session.idMap.size()-1).getId();
                 if( parentid != null ) {
                     id = session.idMap.get(session.idMap.size()-1).getId();
-                    System.out.println("File: " + path+" Id: "+id);
                 }else {
-                    //System.out.println(stat.name + "has no parent");
-                    System.out.println(path);
-                    System.out.println(session.pathToParentIdMap.toString());
+                    id = null;
                 }
-                //size = stat.size;
-                String name[] = path.split("/");
 
+                System.out.println("path: "+path+" Id: "+id);
+
+                String name[] = path.split("/");
                 URL url = new URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
                 request.setRequestMethod("POST");
@@ -273,7 +271,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 //request.setRequestProperty("X-Upload-Content-Type", "application/pdf");
                 //request.setRequestProperty("X-Upload-Content-Length", Long.toString(size));
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                String body = "{\"name\": \"" + name[name.length-1] + "\", \"parents\": [\"" + id + "\"]}";
+                String body = "{\"name\": \"" + name[name.length-1] + "\"}";
                 System.out.println("name:"+name[name.length-1]);
                 request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
                 request.setDoOutput(true);
