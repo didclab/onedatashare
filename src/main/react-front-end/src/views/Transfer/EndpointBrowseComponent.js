@@ -279,7 +279,6 @@ export default class EndpointBrowseComponent extends Component {
 	render(){
 		const {endpoint, back, setLoading, getLoading} = this.props;
 		const {directoryPath} = this.state;
-
 		const uploader = new FineUploaderTraditional({
 			debug: true,
 			 options: {

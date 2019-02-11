@@ -142,21 +142,21 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     public void processTransferFromJob(Job job, String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
         Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.src)
-                .map(transfer::setSource)
-                .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
-                .map(transfer::setDestination)
-                .flux()
-                .flatMap(transfer1 -> transfer1.start(1L << 20))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
-                .doOnCancel(new RunnableCanceler(job))
-                .doFinally(s -> {
-                    if (job.getStatus() != JobStatus.removed)
-                        job.setStatus(JobStatus.complete);
-                    jobService.saveJob(job).subscribe();
-                })
-                .map(job::updateJobWithTransferInfo)
-                .flatMap(jobService::saveJob)
-                .subscribe();
+            .map(transfer::setSource)
+            .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
+            .map(transfer::setDestination)
+            .flux()
+            .flatMap(transfer1 -> transfer1.start(1L << 20))
+            .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+            .doOnCancel(new RunnableCanceler(job))
+            .doFinally(s -> {
+                if (job.getStatus() != JobStatus.removed)
+                    job.setStatus(JobStatus.complete);
+                jobService.saveJob(job).subscribe();
+            })
+            .map(job::updateJobWithTransferInfo)
+            .flatMap(jobService::saveJob)
+            .subscribe();
         ongoingJobs.put(job.uuid, ongoingJob);
     }
 
