@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,43 +22,34 @@ public class UploadController {
 
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<Object> upload(@RequestHeader HttpHeaders headers,
-                             @RequestPart("directoryPath") String directoryPath,
-                             @RequestPart("qqfilename") String fileName,
-                             @RequestPart("credential") String credential,
-                             @RequestPart("qquuid") String fileUUID,
+         @RequestPart("directoryPath") String directoryPath,
+         @RequestPart("qqfilename") String fileName,
+         @RequestPart("credential") String credential,
+         @RequestPart("qquuid") String fileUUID,
 //                             @RequestPart("qqpartindex") Integer partIndex,
 //                             @RequestPart("qqchunksize") Integer chunkSize,
-                             @RequestPart("qqtotalfilesize") String totalFileSize,
-                             @RequestPart("qqfile") Mono<FilePart> filePart){
+         @RequestPart("qqtotalfilesize") String totalFileSize,
+         @RequestPart("qqfile") Mono<FilePart> filePart){
         String cookie = headers.getFirst("cookie");
-//
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
-                            filePart, credential,
-                            directoryPath, fileName, Long.parseLong(totalFileSize))
-                .map(job -> {
-                    FineUploaderResponse resp = new FineUploaderResponse();
-                    resp.success = true;
-                    return resp;
-                });
+            filePart, credential, directoryPath, fileName,
+            Long.parseLong(totalFileSize)).map(job -> {
+                FineUploaderResponse resp = new FineUploaderResponse();
+                resp.success = true;
+                return resp;
+            });
     }
 
     @PostMapping(value="/uploadComplete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public Mono<Object> uploadComplete(@RequestHeader HttpHeaders headers,
-//                                     @ModelAttribute("directoryPath") String directoryPath,
-//                                     @ModelAttribute("qqfilename") String fileName,
-//                                     @ModelAttribute("qqtotalfilesize")String totalFileSize,
-//                                     @ModelAttribute("credential") String credential,
-                                     @ModelAttribute("qquuid") String fileUUID
+                                       @RequestPart("qquuid") String fileUUID
     ){
         return uploadService.finishUpload(UUID.fromString(fileUUID))
-                .map(job_id -> {
-                    FineUploaderResponse resp = new FineUploaderResponse();
-                    if(job_id != -1)
-                        resp.success = true;
-                    else
-                        resp.error = true;
-                    return resp;
-                });
+            .map(job_id -> {
+                FineUploaderResponse resp = new FineUploaderResponse();
+                resp.success = true;
+                return resp;
+            });
     }
 
     @Data
@@ -66,5 +58,5 @@ public class UploadController {
         public boolean success;
         public boolean error;
     }
-
 }
+

@@ -1,9 +1,11 @@
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.controller.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +64,8 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
+        }else if(userActionResource.uri.contains("Upload")){
+            return userActionResource.uploader;
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
@@ -69,6 +73,9 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     public Session createSession(String uri, Credential credential) {
         if(uri.contains("dropbox://")){
             return new DbxSession(URI.create(uri), credential);
+        }else if(uri.contains("Upload")){
+            UploadCredential upc = (UploadCredential)credential;
+            return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         }
         else return new VfsSession(URI.create(uri), credential);
     }
@@ -90,33 +97,33 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
-                .map(user -> {
-                    Job job = new Job(userAction.src, userAction.dest);
-                    job.setStatus(JobStatus.scheduled);
-                    job = user.saveJob(job);
-                    userService.saveUser(user).subscribe();
-                    return job;
-                })
-                .flatMap(jobService::saveJob)
-                .doOnSuccess(job -> processTransferFromJob(job, cookie))
-                .subscribeOn(Schedulers.elastic());
+            .map(user -> {
+                Job job = new Job(userAction.src, userAction.dest);
+                job.setStatus(JobStatus.scheduled);
+                job = user.saveJob(job);
+                userService.saveUser(user).subscribe();
+                return job;
+            })
+            .flatMap(jobService::saveJob)
+            .doOnSuccess(job -> processTransferFromJob(job, cookie))
+            .subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> restartJob(String cookie, UserAction userAction){
         return userService.getLoggedInUser(cookie)
-                .flatMap(user ->{
-                    return jobService.findJobByJobId(cookie, userAction.job_id)
-                            .map(job -> {
-                                Job restartedJob = new Job(job.src, job.dest);
-                                restartedJob.setStatus(JobStatus.scheduled);
-                                restartedJob = user.saveJob(restartedJob);
-                                userService.saveUser(user).subscribe();
-                                return restartedJob;
-                            })
-                            .flatMap(jobService::saveJob)
-                            .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
-                })
-                .subscribeOn(Schedulers.elastic());
+            .flatMap(user ->{
+                return jobService.findJobByJobId(cookie, userAction.job_id)
+                    .map(job -> {
+                        Job restartedJob = new Job(job.src, job.dest);
+                        restartedJob.setStatus(JobStatus.scheduled);
+                        restartedJob = user.saveJob(restartedJob);
+                        userService.saveUser(user).subscribe();
+                        return restartedJob;
+                    })
+                    .flatMap(jobService::saveJob)
+                    .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
+            })
+            .subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {
@@ -143,7 +150,8 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
                 .doOnCancel(new RunnableCanceler(job))
                 .doFinally(s -> {
-                    if (job.getStatus() != JobStatus.removed) job.setStatus(JobStatus.complete);
+                    if (job.getStatus() != JobStatus.removed)
+                        job.setStatus(JobStatus.complete);
                     jobService.saveJob(job).subscribe();
                 })
                 .map(job::updateJobWithTransferInfo)
