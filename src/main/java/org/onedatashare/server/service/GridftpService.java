@@ -2,6 +2,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -23,13 +24,13 @@ public class GridftpService {
 
 
     public Mono<Stat> list(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(GridftpResource::stat);
+        return getResourceWithUserUserAction(cookie, userAction).flatMap(GridftpResource::stat);
     }
 
-    public Mono<GridftpResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+    public Mono<GridftpResource> getResourceWithUserUserAction(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userAction.credential))
+                .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().globusEndpoint, client)))
                 .map(credential -> new GridftpSession(URI.create(userAction.uri), credential))
                 .flatMap(GridftpSession::initialize)
                 .flatMap(GridftpSession -> GridftpSession.select(path));

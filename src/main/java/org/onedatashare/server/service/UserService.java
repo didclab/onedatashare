@@ -3,6 +3,8 @@ package org.onedatashare.server.service;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.onedatashare.module.globusapi.EndPoint;
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
@@ -17,8 +19,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -52,6 +52,21 @@ public class UserService {
       return createUser(user).map(this::sendVerificationEmail);
     }
     else return Mono.error(new InvalidField("Passwords do not match")); //RuntimeException
+  }
+
+  public Mono<GlobusClient> getGlobusClient(String cookie){
+    return getLoggedInUser(cookie)
+      .map(user -> {
+        for (Credential credential : user.getCredentials().values()) {
+          if (credential.type == Credential.CredentialType.OAUTH) {
+            OAuthCredential oaucr = (OAuthCredential) credential;
+            if (oaucr.name.contains("GridFTP")) {
+              return new GlobusClient(oaucr.token);
+            }
+          }
+        }
+        return new GlobusClient();
+      });
   }
 
   public Mono<Boolean> resetPassword(String email, String password, String passwordConfirm, String authToken){
@@ -108,6 +123,28 @@ public class UserService {
       return user;
     })
     .flatMap(userRepository::save).map(User::getHistory);
+  }
+
+  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+    return getLoggedInUser(cookie).map(user -> {
+      if(!user.getGlobusEndpoints().containsKey(enp)) {
+        user.getGlobusEndpoints().put(id, enp);
+      }
+      return user;
+    }).flatMap(userRepository::save).map(User::getGlobusEndpoints);
+  }
+  public Mono<Map<UUID,EndPoint>> getEndpointId(String cookie) {
+    return getLoggedInUser(cookie).map(User::getGlobusEndpoints);
+  }
+
+  public Mono<Void> deleteEndpointId(String cookie, UUID enpid) {
+    return getLoggedInUser(cookie)
+      .map(user -> {
+        if(user.getGlobusEndpoints().remove(enpid) != null) {
+          return userRepository.save(user).subscribe();
+        }
+        return Mono.error(new NotFound());
+      }).then();
   }
 
   public Mono<LinkedList<URI>> getHistory(String cookie) {

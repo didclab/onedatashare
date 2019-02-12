@@ -71,7 +71,6 @@ public class OauthController {
         instance = googledrive;
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
-
       }else if(queryParameters.get("type").equals(dropbox) ){
         instance = dropbox;
         return userService.userLoggedIn(cookie)

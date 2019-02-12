@@ -1,6 +1,5 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;

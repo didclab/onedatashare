@@ -195,6 +195,54 @@ export async function history(uri, accept, fail){
     });
 }
 
+export async function globusEndpointIds(gep,  accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointId',
+
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointDetail(gep, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpoint',
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointActivate(gep,_username, _password, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointActivate',
+	    globusEndpoint: gep,
+	    username: _username,
+	    password: _password
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
 
 export async function deleteHistory(uri, accept, fail){
 	var callback = accept;
@@ -202,6 +250,23 @@ export async function deleteHistory(uri, accept, fail){
 	axios.post(url+'user', {
 		action: "deleteHistory",
 	    uri: encodeURI(uri)
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteEndpointId(ged, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'globus', {
+		action: "deleteEndpointId",
+	    globusEndpoint: ged,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -552,7 +617,7 @@ export async function verifyRegistraionCode(emailId, code) {
         });
 }
 
-export async function listEndpoints( filter_fulltext, accept, fail) {
+export async function globusListEndpoints( filter_fulltext, accept, fail) {
     var callback = accept;
     return axios.post(url+'globus', {
 	    action : "endpoint_list",

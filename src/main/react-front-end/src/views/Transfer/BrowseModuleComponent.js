@@ -26,7 +26,6 @@ export default class BrowseModuleComponent extends Component {
 		mode : PropTypes.number,
 		update : PropTypes.func,
 		type: PropTypes.string,
-		gridFTPCredentialExists: false
 	}
 
 	constructor(props){
@@ -35,7 +34,7 @@ export default class BrowseModuleComponent extends Component {
 			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) == 0 }),
 			endpoint: props.endpoint, 
 			mode: props.mode,
-			loading: false,
+			loading: false
 		};
 		this.setLoading = this.setLoading.bind(this);
 		this.getLoading = this.getLoading.bind(this);
@@ -77,7 +76,7 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, gridFTPCredentialExists} = this.state;
+		const {endpoint, mode, history, type, loading} = this.state;
 		const {update} = this.props;
 		const loginPrep = (uri) => () => {
 

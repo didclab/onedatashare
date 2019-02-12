@@ -2,6 +2,9 @@ package org.onedatashare.server.module.gridftp;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
+import com.google.api.client.util.DateTime;
+import org.apache.commons.net.ntp.TimeStamp;
+import org.onedatashare.module.globusapi.File;
 import org.onedatashare.module.globusapi.FileList;
 import org.onedatashare.module.globusapi.TaskSubmissionRequest;
 import org.onedatashare.server.model.core.*;
@@ -12,14 +15,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import sun.rmi.transport.Endpoint;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
@@ -29,8 +34,6 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     private String orderedBy = "Name";
     private String filter = null;
 
-    private String endpointId = null;
-
     GridftpResource(GridftpSession session, String path) {
         super(session, path);
     }
@@ -39,26 +42,12 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return session.select(name);
     }
 
-    public Flux<String> list() {
-        return initialize().flux().flatMap(resource -> {
-            Mono<FileList> listing = null;
-            try {
-                listing = session.client.list(path, showHidden, limit, offset, orderedBy,filter);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return listing
-                .map(fileList -> fileList.getData())
-                .flatMapMany(Flux::fromIterable)
-                .map(file -> file.toString());
-        });
-    }
 
     public Mono<GridftpResource> mkdir() {
         return initialize().doOnSuccess(resource -> {
             try {
                 TaskSubmissionRequest tsr = new TaskSubmissionRequest();
-                tsr.setEndpoint(endpointId);
+                tsr.setEndpoint(session.endpoint.getId());
                 resource.session.client.mkdir(tsr, null);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -70,7 +59,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return initialize().map(resource -> {
             try {
                 TaskSubmissionRequest tsr = new TaskSubmissionRequest();
-                tsr.setEndpoint(endpointId);
+                tsr.setEndpoint(session.endpoint.getId());
 
                 resource.session.client.submitTask(tsr);
             } catch (Exception e) {
@@ -81,12 +70,35 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
 
     public Mono<Stat> stat() {
-        return initialize().map(GridftpResource::onStat);
+        return initialize().flatMap(GridftpResource::onStat);
     }
 
-    public Stat onStat() {
-        Stat stat = new Stat();
-        return stat;
+    public Mono<Stat> onStat() {
+        return session.client.listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter).map(
+                fileList -> {
+                    Stat st = new Stat();
+                    Stat files[] = new Stat[fileList.getData().size()];
+                    for(int i = 0; i < fileList.getData().size(); i++){
+                        Stat temps = new Stat();
+                        File file = fileList.getData().get(i);
+                        temps.file = file.getType().equals("file");
+                        temps.size = file.getSize();
+                        temps.name = file.getName();
+                        temps.dir = file.getType().equals("dir");
+                        SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
+                        try {
+                            temps.time = fromUser.parse(file.getLastModified()).getTime()/1000;
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+                        temps.perm = file.getPermissions();
+                        temps.link = file.getLinkTarget();
+                        files[i] = temps;
+                    }
+                    st.setFiles(files);
+                    return st;
+                }
+        );
     }
 //    ListFolderResult data = null;
 //    Metadata mData = null;
