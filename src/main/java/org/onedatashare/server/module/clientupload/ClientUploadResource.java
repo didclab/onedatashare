@@ -17,10 +17,8 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 //    public Mono<ClientUploadResource> select(String path) {
 //        return Mono.just(new ClientUploadResource());
 //    }
-    private Flux<Slice> useThis;
-    public ClientUploadResource(ClientUploadSession session ,Flux<Slice> init){
+    public ClientUploadResource(ClientUploadSession session){
         super(session, null);
-        useThis = init;
     }
 
     @Override
@@ -32,6 +30,7 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
         s.name = session.filename;
         return Mono.just(s);
     }
+
     @Override
     public Mono<ClientUploadResource> select(String path) {
         return null;
@@ -46,11 +45,12 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
             System.out.println("Inside tap()");
             return Flux.generate(() -> 0L,
                 (state, sink) -> {
-                    Slice s = session.flux.blockFirst();
-                    if(state + s.length() < session.filesize){
-                        sink.next(s);
-                    }else{
-                        sink.next(s);
+                    if(session.flux.isEmpty()){
+                        return state;
+                    }
+                    Slice s = session.flux.poll();
+                    sink.next(s);
+                    if(state + s.length() == session.filesize){
                         sink.complete();
                     }
                     return state + s.length();

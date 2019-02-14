@@ -376,10 +376,6 @@ export async function download(uri, credential){
 			var form = document.createElement('form');
 			form.action = response.data;
 			form.target = '_blank';
-
-			// console.log("Value contained in "+input.name+" : "+input.value);
-			// console.log("Form method :" + form.method);
-
 			form.style.display = 'none';
 			document.body.appendChild(form);
 			form.submit();
@@ -388,7 +384,6 @@ export async function download(uri, credential){
 	.catch((error) => {
       console.log("Error encountered while generating download link");
     });
-
 }
 
 export async function upload(uri, credential, accept, fail){

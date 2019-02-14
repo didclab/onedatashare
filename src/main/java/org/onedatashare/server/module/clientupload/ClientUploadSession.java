@@ -9,18 +9,20 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.module.dropbox.DbxResource;
 import org.onedatashare.server.module.dropbox.DbxSession;
+import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.Queue;
 
 public class ClientUploadSession extends Session<ClientUploadSession,ClientUploadResource> {
 
     DbxClientV2 client;
-    Flux<Slice> flux;
+    Queue<Slice> flux;
     Long filesize;
     String filename;
-    public ClientUploadSession(Flux<Slice> ud, long _filesize, String _filename) {
+    public ClientUploadSession(Queue<Slice> ud, long _filesize, String _filename) {
         super(null, null);
         flux = ud;
         filesize = _filesize;
@@ -29,7 +31,7 @@ public class ClientUploadSession extends Session<ClientUploadSession,ClientUploa
 
     @Override
     public Mono<ClientUploadResource> select(String path) {
-        return Mono.just(new ClientUploadResource(this, flux));
+        return Mono.just(new ClientUploadResource(this));
     }
 
     @Override

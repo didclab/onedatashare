@@ -52,7 +52,7 @@ public class OauthController {
   public Object handle(NotFound notfound) {
     System.out.println(notfound.status);
     return Rendering.redirectTo("/404").build();
-    //return new ResponseEntity<>(notfound, notfound.status);
+
   }
 
 }

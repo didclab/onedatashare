@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -22,14 +23,14 @@ public class UploadController {
 
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<Object> upload(@RequestHeader HttpHeaders headers,
-         @RequestPart("directoryPath") String directoryPath,
-         @RequestPart("qqfilename") String fileName,
-         @RequestPart("credential") String credential,
-         @RequestPart("qquuid") String fileUUID,
+                               @RequestPart("directoryPath") String directoryPath,
+                               @RequestPart("qqfilename") String fileName,
+                               @RequestPart("credential") String credential,
+                               @RequestPart("qquuid") String fileUUID,
 //                             @RequestPart("qqpartindex") Integer partIndex,
 //                             @RequestPart("qqchunksize") Integer chunkSize,
-         @RequestPart("qqtotalfilesize") String totalFileSize,
-         @RequestPart("qqfile") Mono<FilePart> filePart){
+                               @RequestPart("qqtotalfilesize") String totalFileSize,
+                               @RequestPart("qqfile") Mono<FilePart> filePart){
         String cookie = headers.getFirst("cookie");
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
