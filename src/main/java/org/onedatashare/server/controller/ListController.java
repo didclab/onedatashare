@@ -57,7 +57,7 @@ public class ListController {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return resourceService.list(cookie, userAction);
-    }else if("gsiftp:///".equals(userAction.type)) {
+    }else if("gsiftp://".equals(userAction.type)) {
       if (userAction.credential == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return gridService.list(cookie, userAction);
