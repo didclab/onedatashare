@@ -2,9 +2,7 @@ package org.onedatashare.server.model.useraction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import org.onedatashare.server.controller.UploadCredential;
-import org.onedatashare.server.model.core.Slice;
-import reactor.core.publisher.Flux;
+import org.onedatashare.server.model.credential.UploadCredential;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

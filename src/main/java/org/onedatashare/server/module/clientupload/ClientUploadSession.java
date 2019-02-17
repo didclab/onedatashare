@@ -15,14 +15,15 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class ClientUploadSession extends Session<ClientUploadSession,ClientUploadResource> {
 
     DbxClientV2 client;
-    Queue<Slice> flux;
+    LinkedBlockingQueue<Slice> flux;
     Long filesize;
     String filename;
-    public ClientUploadSession(Queue<Slice> ud, long _filesize, String _filename) {
+    public ClientUploadSession(LinkedBlockingQueue<Slice> ud, long _filesize, String _filename) {
         super(null, null);
         flux = ud;
         filesize = _filesize;

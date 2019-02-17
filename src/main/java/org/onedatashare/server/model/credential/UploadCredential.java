@@ -1,4 +1,4 @@
-package org.onedatashare.server.controller;
+package org.onedatashare.server.model.credential;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
@@ -11,12 +11,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Data
 @Document
 public class UploadCredential extends Credential {
     @Transient
-    private Queue<Slice> fux;
+    private LinkedBlockingQueue<Slice> fux;
     @Transient
     private String name;
     @Transient
@@ -24,7 +25,7 @@ public class UploadCredential extends Credential {
     @Transient
     private Mono<FilePart> _no1;
 
-    public UploadCredential(Queue<Slice> fax, Long _size, String _name){
+    public UploadCredential(LinkedBlockingQueue<Slice> fax, Long _size, String _name){
         fux = fax;
         name = _name;
         size = _size;

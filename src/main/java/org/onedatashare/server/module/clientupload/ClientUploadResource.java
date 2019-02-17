@@ -48,12 +48,16 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
                     if(session.flux.isEmpty()){
                         return state;
                     }
-                    Slice s = session.flux.poll();
-                    sink.next(s);
-                    if(state + s.length() == session.filesize){
-                        sink.complete();
+                    try{
+                        Slice s = session.flux.take();
+                        sink.next(s);
+                        if(state + s.length() == session.filesize){
+                            sink.complete();
+                        }
+                        return state + s.length();
+                    }catch(Exception e){
+                        return state;
                     }
-                    return state + s.length();
                 });
         }
     }

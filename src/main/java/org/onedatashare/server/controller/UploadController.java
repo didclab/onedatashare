@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -41,16 +42,27 @@ public class UploadController {
             });
     }
 
-    @PostMapping(value="/uploadComplete", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    @PostMapping(value="/uploadComplete")
     public Mono<Object> uploadComplete(@RequestHeader HttpHeaders headers,
-                                       @RequestPart("qquuid") String fileUUID
+                                       @RequestBody FineComplete fc
     ){
-        return uploadService.finishUpload(UUID.fromString(fileUUID))
+        return uploadService.finishUpload(fc.getQquuid())
             .map(job_id -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
                 resp.success = true;
                 return resp;
             });
+    }
+
+    @Data
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private class FineComplete{
+        public String directoryPath;
+        public String credential;
+        public UUID qquuid;
+        public String qqfilename;
+        public String qqtotalfilesize;
+        public String qqtotalparts;
     }
 
     @Data
