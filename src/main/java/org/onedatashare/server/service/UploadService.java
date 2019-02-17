@@ -1,6 +1,6 @@
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.controller.UploadCredential;
+import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
@@ -25,10 +25,9 @@ public class UploadService {
     @Autowired
     ResourceServiceImpl resourceService;
 
-    private static Map<UUID, Queue<Slice>> ongoingUploads = new HashMap<UUID, Queue<Slice>>();
+    private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
-    public Mono<Integer> uploadChunk(String cookie, UUID uuid,
-                                 Mono<FilePart> filePart, String credential,
+    public Mono<Integer> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
                                  String directoryPath, String fileName, Long totalFileSize) {
         if (ongoingUploads.containsKey(uuid)) {
             return sendFilePart(filePart, ongoingUploads.get(uuid));
@@ -36,13 +35,13 @@ public class UploadService {
             UserAction ua = new UserAction();
             ua.src = new UserActionResource();
             ua.src.uri = "Upload";
-            Queue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
+            LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
             ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
 
             ua.dest = new UserActionResource();
-            if(directoryPath.endsWith("/")){
+            if(directoryPath.endsWith("/")) {
                 ua.dest.uri = directoryPath+fileName;
-            }else{
+            } else {
                 ua.dest.uri = directoryPath+"/"+fileName;
             }
 
@@ -59,7 +58,7 @@ public class UploadService {
         }
     }
 
-    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, Queue<Slice> qugue){
+    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue){
 
         //ongoingUploads.get(uuid).onNext(pfr);
 

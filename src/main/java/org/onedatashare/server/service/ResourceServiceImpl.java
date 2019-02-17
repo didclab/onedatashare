@@ -1,6 +1,6 @@
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.controller.UploadCredential;
+import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
