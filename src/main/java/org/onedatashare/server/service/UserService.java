@@ -79,6 +79,10 @@ public class UserService {
         return Mono.error(new Exception("Old Password is incorrect."));
       }else{
         user.setPassword(newpassword);
+        System.out.println(user.checkPassword(newpassword));
+        //cookieToUserLogin(cookie).hash = user.hash;
+        //or
+        cookieToUserLogin(cookie).hash = user.hash(newpassword);
         userRepository.save(user).subscribe();
         return Mono.just(true);
       }
