@@ -363,20 +363,30 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 
 export async function download(uri, credential){
 	console.log(uri)
-	var form = document.createElement('form');
-	form.action = url+"get";
-	form.method = 'POST';
-	form.target = '_blank';
+	axios.post(url+'download', {
+		credential: credential,
+		uri: encodeURI(uri)
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			console.log("Error in download API call");
+		else{
+			console.log(JSON.stringify(response));
+			var form = document.createElement('form');
+			form.action = response.data;
+			form.target = '_blank';
 
-	var input = document.createElement('textarea');
-	input.name = '$json';
-	input.value = JSON.stringify({uri: encodeURI(uri), credential: credential});
-	form.appendChild(input);
+			// console.log("Value contained in "+input.name+" : "+input.value);
+			// console.log("Form method :" + form.method);
 
-	form.style.display = 'none';
-	document.body.appendChild(form);
-	form.submit();
-
+			form.style.display = 'none';
+			document.body.appendChild(form);
+			form.submit();
+		}
+	})
+	.catch((error) => {
+			console.log("Error encountered while generating download link");
+	});
 }
 
 export async function upload(uri, credential, accept, fail){
