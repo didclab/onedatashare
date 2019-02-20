@@ -10,7 +10,7 @@ import org.springframework.web.server.adapter.WebHttpHandlerBuilder;
 import static org.springframework.web.reactive.function.server.RouterFunctions.toHttpHandler;
 
 @SpringBootApplication
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 public class ServerApplication {
 
   public static void main(String[] args) {
