@@ -1,11 +1,13 @@
 
 package org.onedatashare.server.service;
 
+import org.onedatashare.module.globusapi.Result;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.dropbox.DbxResource;
 import org.onedatashare.server.module.gridftp.GridftpResource;
 import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -30,13 +32,24 @@ public class GridftpService {
     public Mono<GridftpResource> getResourceWithUserUserAction(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
         return userService.getLoggedInUser(cookie)
-                .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().globusEndpoint, client)))
-                .map(credential -> new GridftpSession(URI.create(userAction.uri), credential))
-                .flatMap(GridftpSession::initialize)
-                .flatMap(GridftpSession -> GridftpSession.select(path));
+            .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().globusEndpoint, client)))
+            .map(credential -> new GridftpSession(URI.create(userAction.uri), credential))
+            .flatMap(GridftpSession::initialize)
+            .flatMap(GridftpSession -> GridftpSession.select(path));
     }
 
-    public String pathFromUri(String uri) {
+    public Mono<Result> delete(String cookie, UserAction userAction) {
+        return getResourceWithUserUserAction(cookie, userAction)
+                .flatMap(GridftpResource::deleteV2);
+    }
+
+    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+        return getResourceWithUserUserAction(cookie, userAction)
+                .flatMap(GridftpResource::mkdir)
+                .flatMap(GridftpResource::stat);
+    }
+
+    public static String pathFromUri(String uri) {
         String path;
         if(uri.contains("gsiftp://")){
             path = uri.split("gsiftp://")[1];

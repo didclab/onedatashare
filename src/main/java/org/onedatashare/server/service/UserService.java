@@ -54,19 +54,36 @@ public class UserService {
     else return Mono.error(new InvalidField("Passwords do not match")); //RuntimeException
   }
 
+  public GlobusClient getGlobusClientFromUser(User user){
+    for (Credential credential : user.getCredentials().values()) {
+      if (credential.type == Credential.CredentialType.OAUTH) {
+        OAuthCredential oaucr = (OAuthCredential) credential;
+        if (oaucr.name.contains("GridFTP")) {
+          return new GlobusClient(oaucr.token);
+        }
+      }
+    }
+    return new GlobusClient();
+  }
+
   public Mono<GlobusClient> getGlobusClient(String cookie){
     return getLoggedInUser(cookie)
-      .map(user -> {
-        for (Credential credential : user.getCredentials().values()) {
-          if (credential.type == Credential.CredentialType.OAUTH) {
-            OAuthCredential oaucr = (OAuthCredential) credential;
-            if (oaucr.name.contains("GridFTP")) {
-              return new GlobusClient(oaucr.token);
-            }
-          }
-        }
-        return new GlobusClient();
-      });
+      .map(user -> getGlobusClientFromUser(user));
+  }
+
+  public Mono<GlobusClient> getClient(String cookie){
+    return getLoggedInUser(cookie)
+            .map(user -> {
+              for (Credential credential : user.getCredentials().values()) {
+                if (credential.type == Credential.CredentialType.OAUTH) {
+                  OAuthCredential oaucr = (OAuthCredential) credential;
+                  if (oaucr.name.contains("GridFTP")) {
+                    return new GlobusClient(oaucr.token);
+                  }
+                }
+              }
+              return new GlobusClient();
+            });
   }
 
   public Mono<Boolean> resetPassword(String email, String password, String passwordConfirm, String authToken){

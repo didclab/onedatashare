@@ -24,7 +24,6 @@ export default class OauthProcessComponent extends Component{
 	render(){
 		const {id} = this.state;
 		return <div>
-			
 			<Redirect from={oauthPreUrl+id} to={transferPageUrl}></Redirect>
 			<h1> 
 				Wait a second, You will be redirected.

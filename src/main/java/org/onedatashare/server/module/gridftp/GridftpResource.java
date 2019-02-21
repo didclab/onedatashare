@@ -4,13 +4,14 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
 import com.google.api.client.util.DateTime;
 import org.apache.commons.net.ntp.TimeStamp;
-import org.onedatashare.module.globusapi.File;
-import org.onedatashare.module.globusapi.FileList;
-import org.onedatashare.module.globusapi.TaskSubmissionRequest;
+import org.onedatashare.module.globusapi.*;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.util.TransferInfo;
 import org.onedatashare.server.module.dropbox.DbxResource;
 import org.onedatashare.server.module.dropbox.DbxSession;
+import org.onedatashare.server.service.GridftpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import sun.rmi.transport.Endpoint;
@@ -44,29 +45,50 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
 
 
     public Mono<GridftpResource> mkdir() {
-        return initialize().doOnSuccess(resource -> {
-            try {
-                TaskSubmissionRequest tsr = new TaskSubmissionRequest();
-                tsr.setEndpoint(session.endpoint.getId());
-                resource.session.client.mkdir(tsr, null);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        return initialize().flatMap(
+                resource -> resource.session.client.mkdir( session.endpoint.getId(), this.path))
+                .map(u -> this);
+    }
+
+    public Mono<Result> transferTo(GridftpResource grsf){
+        return session.client.getJobSubmissionId()
+        .flatMap(response -> {
+            TaskSubmissionRequest request = new TaskSubmissionRequest();
+            request.setDataType("transfer");
+            request.setSubmissionId(response.getValue());
+            request.setSourceEndpoint(session.endpoint.getId());
+            request.setDestinationEndpoint(grsf.session.endpoint.getId());
+            List<TaskItem> data = new ArrayList<>();
+            TaskItem item = new TaskItem();
+            item.setDataType("transfer_item");
+            item.setRecursive(false);
+            item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
+            item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
+            data.add(item);
+            request.setData(data);
+            return session.client.submitTask(request);
         });
     }
 
-    public Mono<GridftpResource> delete() {
-        return initialize().map(resource -> {
-            try {
-                TaskSubmissionRequest tsr = new TaskSubmissionRequest();
-                tsr.setEndpoint(session.endpoint.getId());
-
-                resource.session.client.submitTask(tsr);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return resource;
-        });
+    public Mono<Result> deleteV2() {
+        return initialize()
+            .flatMap(resource -> session.client.getJobSubmissionId())
+            .flatMap(result -> {
+                TaskSubmissionRequest tr = new TaskSubmissionRequest();
+                tr.setSubmissionId(result.getValue());
+                tr.setEndpoint(session.endpoint.getId());
+                tr.setDataType("delete");
+                tr.setLabel("delete kabrl");
+                tr.setRecursive(true);
+                tr.setIgnoreMissing(true);
+                List<TaskItem> tsl = new ArrayList<TaskItem>();
+                TaskItem ti = new TaskItem();
+                ti.setPath(this.getPath());
+                ti.setDataType("delete_item");
+                tsl.add(ti);
+                tr.setData(tsl);
+                return session.client.submitTask(tr);
+            });
     }
 
     public Mono<Stat> stat() {
@@ -74,8 +96,10 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
 
     public Mono<Stat> onStat() {
-        return session.client.listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter).map(
-                fileList -> {
+        return session.client
+                .listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter)
+                .map(
+                    fileList -> {
                     Stat st = new Stat();
                     Stat files[] = new Stat[fileList.getData().size()];
                     for(int i = 0; i < fileList.getData().size(); i++){

@@ -33,7 +33,6 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     ArrayList<IdMap> idMap = null;
     transient LinkedBlockingQueue<String> mkdirQueue = new LinkedBlockingQueue<>();
-    //transient final Integer Lock = new Integer(0);
 
     static String APPLICATION_NAME = "OneDataShare";
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
