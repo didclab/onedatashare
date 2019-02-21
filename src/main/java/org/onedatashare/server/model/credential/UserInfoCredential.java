@@ -3,10 +3,12 @@ package org.onedatashare.server.model.credential;
 import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.useraction.UserActionCredential;
+import org.springframework.data.annotation.Transient;
 
 @Data
 public class UserInfoCredential extends Credential {
   private String username;
+  @Transient
   private String password;
 
   public UserInfoCredential(String username, String password) {
