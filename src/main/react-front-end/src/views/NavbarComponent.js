@@ -10,7 +10,7 @@ import {isAdmin} from '../APICalls/APICalls';
 
 class NavbarComponent extends Component {
 	
-	constructor(props){NavbarComponent
+	constructor(props){
 		super(props);
 		this.state={
 		  login: store.getState().login,
