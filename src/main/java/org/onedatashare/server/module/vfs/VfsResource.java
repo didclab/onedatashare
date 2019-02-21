@@ -121,30 +121,39 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     final long size = stat().block().size;
 
     public Flux<Slice> tap(long sliceSize) {
+      int sliceSizeInt = Math.toIntExact(sliceSize);
+      int sizeInt = Math.toIntExact(size);
+      InputStream inputStream = null;
+      try {
+        inputStream = fileContent.getInputStream();
+      } catch (FileSystemException e) {
+        e.printStackTrace();
+      }
+      InputStream finalInputStream = inputStream;
       return Flux.generate(
-              () -> 0L,
+              () -> 0,
               (state, sink) -> {
-                if (state + sliceSize < size) {
-                  byte[] b = new byte[Math.toIntExact(sliceSize)];
+                if (state + sliceSizeInt < sizeInt) {
+                  byte[] b = new byte[sliceSizeInt];
                   try {
-                    fileContent.getInputStream()
-                            .read(b, state.intValue(), Math.toIntExact(sliceSize));
+                    finalInputStream.read(b, state, sliceSizeInt);
                   } catch (IOException e) {
                     e.printStackTrace();
                   }
                   sink.next(new Slice(b));
                 } else {
-                  int remaining = (int) (size - state);
+                  int remaining = sizeInt - state;
                   byte[] b = new byte[remaining];
                   try {
-                    fileContent.getInputStream().read(b, state.intValue(), remaining);
+                    finalInputStream.read(b, state, remaining);
+                    finalInputStream.close();
                   } catch (IOException e) {
                     e.printStackTrace();
                   }
                   sink.next(new Slice(b));
                   sink.complete();
                 }
-                return state + sliceSize;
+                return state + sliceSizeInt;
               });
     }
   }

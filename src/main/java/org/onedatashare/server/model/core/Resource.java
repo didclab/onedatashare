@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>> {
   public final String path;
   public final S session;
+  public String id;
 
   protected Resource(S session, String path) {
     if (path == null)
@@ -21,8 +22,16 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
     this.session = session;
   }
 
+  protected Resource(S session, String path, String id) {
+    if (path == null)
+      path = "/";
+    this.path = path;
+    this.session = session;
+    this.id = id;
+  }
+
   protected Resource(S session) {
-    this(session, null);
+    this(session, null,null);
   }
 
   public abstract Mono<R> select(String path);
@@ -71,6 +80,6 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
       return Mono.just((R)this);
     if (!session.equals(this.session))
       throw new IllegalArgumentException();
-    return session.select(path);
+    return session.select(path,id);
   }
 }

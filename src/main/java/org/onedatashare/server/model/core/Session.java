@@ -1,11 +1,13 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 @Data
 public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>> {
@@ -22,9 +24,13 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
     this.credential = credential;
   }
 
-  public abstract Mono<R> select(String path);
+  public Mono<R> select(String path){return select(path, null,null);}
 
-  protected abstract Mono<S> initialize();
+  public Mono<R> select(String path, String id){return select(path, id,null);}
+
+  public abstract Mono<R> select(String path, String id, ArrayList<IdMap> idMap);
+
+  public abstract Mono<S> initialize();
 
   protected void finalize() {
     close().subscribe();
