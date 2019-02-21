@@ -480,7 +480,7 @@ export async function getUsers(type, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
-	    action: "getUsers"
+	    action: type
 	})
 	.then((response) => {
 		if(!(response.status === 200))
