@@ -8,7 +8,8 @@ public abstract class Credential {
 
   public enum CredentialType {
     OAUTH("oauth"),
-    USERINFO("userinfo");
+    USERINFO("userinfo"),
+    GLOBUS("globus");
 
     private final String text;
 
