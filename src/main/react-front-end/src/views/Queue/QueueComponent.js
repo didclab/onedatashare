@@ -20,7 +20,7 @@ import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
 import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from './TablePaginationActions'
+import TablePaginationActions from '../TablePaginationActions'
 
 import './QueueComponent.css';
 import { withStyles } from '@material-ui/core';
