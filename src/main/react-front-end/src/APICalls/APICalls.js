@@ -453,7 +453,6 @@ export async function download(uri, credential, _id){
 	.catch((error) => {
 			console.log("Error encountered while generating download link");
 	});
-
 }
 
 export async function upload(uri, credential, accept, fail){
