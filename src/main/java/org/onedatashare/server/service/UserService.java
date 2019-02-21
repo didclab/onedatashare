@@ -168,6 +168,14 @@ public class UserService {
     });
   }
 
+  public Flux<User> getAllUsers(){
+    return userRepository.findAll();
+  }
+
+  public Flux<User> getAdministrators(){
+    return userRepository.findAllAdministrators();
+  }
+
   public Mono<Boolean> userLoggedIn(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash);
