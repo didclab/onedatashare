@@ -36,9 +36,16 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm -rf ../resources/static && cp -r build ../resources/static",
-    "build-win": "react-scripts build",
+    "build-win": "react-scripts build && rmdir /S /Q ..\\resources\\static && xcopy build ..\\resources\\static /E /I",
+    "plain-build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:8080/"
+  "proxy": "http://localhost:8080/",
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }
