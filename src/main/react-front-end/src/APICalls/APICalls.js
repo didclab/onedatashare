@@ -376,7 +376,6 @@ export async function download(uri, credential){
 	form.style.display = 'none';
 	document.body.appendChild(form);
 	form.submit();
-
 }
 
 export async function upload(uri, credential, accept, fail){

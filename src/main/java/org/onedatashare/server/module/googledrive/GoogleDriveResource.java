@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,12 +62,40 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                resource.session.service.files().delete(id).execute();
                id = session.idMap.get(session.idMap.size()-1).getId();
                System.out.println(id+"**"+session.idMap.get(session.idMap.size()-1).getPath());
+               //download();
            } catch (Exception e) {
                e.printStackTrace();
            }
            return resource;
        });
    }
+
+    public Mono<String> download(){
+        //InputStream is = null;
+        String downloadUrl ="";
+        try {
+            //OutputStream outputStream = new ByteArrayOutputStream();
+            //session.service.files().get(id).executeMediaAndDownloadTo(outputStream);
+            File file  = session.service.files().get(id).execute();
+            //downloadUrl = "https://www.googleapis.com/drive/v3/files/"+id+"?alt=media";
+            downloadUrl = "https://drive.google.com/uc?id="+id+"&export=download";
+            System.out.println("downloadUrl: "+downloadUrl);
+            /*com.google.api.client.http.HttpRequest httpRequestGet;
+            System.out.println("url: "+downloadUrl);
+            httpRequestGet = session.service.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
+            com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
+            is = response.getContent();
+            //IOUtils.copy(is , outputStream);
+            String home = System.getProperty("user.home");
+            java.io.File targetFile = new java.io.File(home+"/Downloads/"+file.getName());
+            java.nio.file.Files.copy(is, targetFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            IOUtils.closeQuietly(is);*/
+        }catch(Exception exp){
+            System.out.println("Error encountered while generating shared link for " + path);
+            System.out.println(exp);
+        }
+        return Mono.just(downloadUrl);
+    }
 
     public Mono<Stat> stat() {
         return initialize().map(GoogleDriveResource::onStat);

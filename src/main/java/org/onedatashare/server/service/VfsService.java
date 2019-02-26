@@ -26,6 +26,8 @@ public class VfsService implements ResourceService<VfsResource> {
 
   public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
     final String path = pathFromUri(userAction.uri);
+    System.out.println(userAction.credential);
+    userAction.credential = null;
     return userService.getLoggedInUser(cookie)
             .map(user -> new UserInfoCredential(userAction.credential))
             .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
@@ -85,6 +87,11 @@ public class VfsService implements ResourceService<VfsResource> {
             .subscribeOn(Schedulers.elastic());
   }
 
+  @Override
+  public Mono<String> download(String cookie, UserAction userAction) {
+    return null;
+  }
+
   public void processTransferFromJob(Job job, String cookie) {
     Transfer<Resource, Resource> transfer = new Transfer<>();
     getResourceWithUserActionResource(cookie, job.src)
@@ -102,4 +109,5 @@ public class VfsService implements ResourceService<VfsResource> {
             .flatMap(jobService::saveJob)
             .subscribe();
   }
+
 }
