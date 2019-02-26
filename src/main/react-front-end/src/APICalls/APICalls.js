@@ -3,6 +3,8 @@ import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
 
+import * as React from 'react';
+
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
 const FETCH_TIMEOUT = 10000;
@@ -425,29 +427,23 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-
+const FileDownload = require('js-file-download');
 export async function download(uri, credential, _id){
 	console.log(uri)
 	axios.post(url+'download', {
+		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
-		id: _id
+		id: _id,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-			console.log(JSON.stringify(response));
-			var form = document.createElement('form');
-			form.action = response.data;
-			form.target = '_blank';
+			console.log(response.data, encodeURI(response.data));
+			
 
-			// console.log("Value contained in "+input.name+" : "+input.value);
-			// console.log("Form method :" + form.method);
-
-			form.style.display = 'none';
-			document.body.appendChild(form);
-			form.submit();
+			window.open(response.data)
 		}
 	})
 	.catch((error) => {
