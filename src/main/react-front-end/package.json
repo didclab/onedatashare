@@ -36,7 +36,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm -rf ../resources/static && cp -r build ../resources/static",
-    "build-win": "react-scripts build",
+    "build-win": "react-scripts build && rmdir /S /Q ..\\resources\\static && xcopy build ..\\resources\\static /E /I",
+    "plain-build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
