@@ -4,6 +4,8 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.onedatashare.module.globusapi.EndPoint;
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
@@ -19,9 +21,12 @@ import reactor.core.publisher.Mono;
 import org.onedatashare.server.model.util.Response;
 
 import java.net.URI;
+<<<<<<< HEAD
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+=======
+>>>>>>> d45412f6c5f799f5a615c4e71b4d5c79138d41eb
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -93,6 +98,38 @@ public class UserService {
     });
   }
 
+  public GlobusClient getGlobusClientFromUser(User user){
+    for (Credential credential : user.getCredentials().values()) {
+      if (credential.type == Credential.CredentialType.OAUTH) {
+        OAuthCredential oaucr = (OAuthCredential) credential;
+        if (oaucr.name.contains("GridFTP")) {
+          return new GlobusClient(oaucr.token);
+        }
+      }
+    }
+    return new GlobusClient();
+  }
+
+  public Mono<GlobusClient> getGlobusClient(String cookie){
+    return getLoggedInUser(cookie)
+      .map(user -> getGlobusClientFromUser(user));
+  }
+
+  public Mono<GlobusClient> getClient(String cookie){
+    return getLoggedInUser(cookie)
+            .map(user -> {
+              for (Credential credential : user.getCredentials().values()) {
+                if (credential.type == Credential.CredentialType.OAUTH) {
+                  OAuthCredential oaucr = (OAuthCredential) credential;
+                  if (oaucr.name.contains("GridFTP")) {
+                    return new GlobusClient(oaucr.token);
+                  }
+                }
+              }
+              return new GlobusClient();
+            });
+  }
+
   public Mono<Boolean> resetPassword(String email, String password, String passwordConfirm, String authToken){
     return getUser(email).flatMap(user-> {
       if(!password.equals(passwordConfirm)){
@@ -118,6 +155,10 @@ public class UserService {
         return Mono.error(new Exception("Old Password is incorrect."));
       }else{
         user.setPassword(newpassword);
+        System.out.println(user.checkPassword(newpassword));
+        //cookieToUserLogin(cookie).hash = user.hash;
+        //or
+        cookieToUserLogin(cookie).hash = user.hash(newpassword);
         userRepository.save(user).subscribe();
         return Mono.just(true);
       }
@@ -163,6 +204,28 @@ public class UserService {
       return user;
     })
     .flatMap(userRepository::save).map(User::getHistory);
+  }
+
+  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+    return getLoggedInUser(cookie).map(user -> {
+      if(!user.getGlobusEndpoints().containsKey(enp)) {
+        user.getGlobusEndpoints().put(id, enp);
+      }
+      return user;
+    }).flatMap(userRepository::save).map(User::getGlobusEndpoints);
+  }
+  public Mono<Map<UUID,EndPoint>> getEndpointId(String cookie) {
+    return getLoggedInUser(cookie).map(User::getGlobusEndpoints);
+  }
+
+  public Mono<Void> deleteEndpointId(String cookie, UUID enpid) {
+    return getLoggedInUser(cookie)
+      .map(user -> {
+        if(user.getGlobusEndpoints().remove(enpid) != null) {
+          return userRepository.save(user).subscribe();
+        }
+        return Mono.error(new NotFound());
+      }).then();
   }
 
   public Mono<LinkedList<URI>> getHistory(String cookie) {
@@ -272,6 +335,14 @@ public class UserService {
     });
   }
 
+  public Flux<User> getAllUsers(){
+    return userRepository.findAll();
+  }
+
+  public Flux<User> getAdministrators(){
+    return userRepository.findAllAdministrators();
+  }
+
   public Mono<Boolean> userLoggedIn(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash);
@@ -324,8 +395,6 @@ public class UserService {
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
       }else{
-        System.out.println("old code "+expectedCode.code);
-        System.out.println("new code "+code);
         return Mono.error(new Exception("Code not match"));
       }
     });
@@ -388,7 +457,31 @@ public class UserService {
 
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
-    return getLoggedInUser(cookie).map(User::getCredentials);
+    return getLoggedInUser(cookie).map(User::getCredentials).map(
+            credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
+  }
+
+
+  public Map<UUID, Credential> removeIfExpired(Map<UUID, Credential> creds){
+    ArrayList<UUID> removingThese = new ArrayList<UUID>();
+    for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
+      if(entry.getValue().type == Credential.CredentialType.OAUTH &&
+        ((OAuthCredential)entry.getValue()).expiredTime != null &&
+        Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime)){
+        removingThese.add(entry.getKey());
+      }
+    }
+    for(UUID id : removingThese){
+      creds.remove(id);
+    }
+    return creds;
+  }
+
+  public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
+    return getLoggedInUser(cookie).map(user -> {
+      user.setCredentials(creds);
+      return userRepository.save(user);
+    }).map(repo -> creds);
   }
 
   public Flux<UUID> getJobs(String cookie) {
