@@ -21,12 +21,9 @@ import reactor.core.publisher.Mono;
 import org.onedatashare.server.model.util.Response;
 
 import java.net.URI;
-<<<<<<< HEAD
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-=======
->>>>>>> d45412f6c5f799f5a615c4e71b4d5c79138d41eb
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
@@ -165,25 +162,18 @@ public class UserService {
     });
   }
 
-//  public Object sendVerificationEmail(User user) {
-//    //TODO
-//    return null;
-//  }
 
   public Mono<Object> sendVerificationEmail(String email, String verificationCode) {
     return sendVerificationCode1(email, verificationCode);
   }
 
+  /*
+      check if user exists already in db
+   */
   public Mono<User> doesUserExists(String email) {
     User user = new User();
     return userRepository.findById(email)
             .switchIfEmpty(Mono.just(user));
-//    return userRepository.findById(email).map(user -> user.email.equals(email))
-//            .filter(Boolean::booleanValue);
-//    return userRepository.findById(email).flatMap(user -> {
-//      return Mono.just(true);
-//    });
-    //return false;
   }
 
   public Mono<User> getUser(String email) {
