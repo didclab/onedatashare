@@ -121,7 +121,6 @@ public class GoogleDriveOauthService{
 
     private static String storeCredential(String code) {
         String accessToken;
-        //String userId = "user";
         try {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow =
@@ -149,7 +148,6 @@ public class GoogleDriveOauthService{
             String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
             OAuthCredential cred = new OAuthCredential(accessToken);
             cred.name = "GoogleDrive: " + userId;
-//            cred.token = userId;
             return cred;
         } catch (Exception e) {
             System.out.println("Runtime exception occurred while finishing initializing Google drive oauth session");

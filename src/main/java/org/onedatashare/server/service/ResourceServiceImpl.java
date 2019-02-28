@@ -36,7 +36,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         final String path = pathFromUri(userAction.uri);
         String id = userAction.id;
         ArrayList<IdMap> idMap = userAction.map;
-        if(userAction.uri.contains("googledrive:/")){
+        if("googledrive:/".equals(userAction.type)){
             return userService.getLoggedInUser(cookie)
                     .map(User::getCredentials)
                     .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))

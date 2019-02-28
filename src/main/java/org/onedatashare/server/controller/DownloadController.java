@@ -30,7 +30,7 @@ public class DownloadController {
 
         if(userAction.uri.startsWith("dropbox://")){
             return dbxService.getDownloadURL(cookie, userAction);
-        }else if(userAction.uri.contains("googledrive:/")) {
+        }else if("googledrive:/".equals(userAction.type)) {
             if(userAction.credential == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
