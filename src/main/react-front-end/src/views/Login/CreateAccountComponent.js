@@ -47,9 +47,14 @@ export default class CreateAccountComponent extends Component {
                 if(response.status == 200 ){
                     let state = self.state;
                     state.screen = "verifyCode";
+                    state.verificationError = "";   // clear any verification code
                     self.setState({state});
                 }
-
+                else if(response.status == 302) {
+                    let state = self.state;
+                    state.verificationError = "User with same Email Id already exists";
+                    self.setState({state});
+                }
             })
         }
     }
@@ -62,8 +67,8 @@ export default class CreateAccountComponent extends Component {
             let state = self.state;
             if(response.status == 200 ) {
                 state.screen = "setPassword";
+                state.verificationError = "";
                 self.setState({state});
-                console.log("Helleo");
             }
             else {
                 state.verificationError = "Please Enter Valid Verification Code";
@@ -129,11 +134,11 @@ export default class CreateAccountComponent extends Component {
                     	        </Typography>
                     	        <TextField
                     	          id="Email"
-                    	          label={this.state.emaildError === "Please Enter EmailId" ? "Please Enter EmailId": "Enter Your Email"}
+                    	          label={this.state.verificationError === "User with same Email Id already exists" ? "User with same Email Id already exists" : "Enter your email id"}
                     	          value={this.state.email}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('email') }
-                    	          error = {this.state.emaildError === "Please Enter EmailId"}
+                    	          error = {this.state.verificationError === "User with same Email Id already exists"}
                     	        />
                     	        {/*<TextField
                     	          id="Password"
