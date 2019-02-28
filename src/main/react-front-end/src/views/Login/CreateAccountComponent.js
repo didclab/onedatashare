@@ -102,7 +102,7 @@ export default class CreateAccountComponent extends Component {
 
 	shouldComponentUpdate(nextProps, nextState) {
 		console.log("next ", nextState);
-		if(nextState.email === "") return false;
+		//if(nextState.email === "") return false;
     	//if (this.props.create === nextProps.create && this.props.backToSignin === nextProps.backToSignin) return false;
     	return true;
   	}
