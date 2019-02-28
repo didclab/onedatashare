@@ -24,6 +24,7 @@ class NavbarComponent extends Component {
 				console.log(error);
 			});
 		}
+
 		this.unsubscribe = store.subscribe(()=>{
     		this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin != false});
 		});
@@ -55,6 +56,7 @@ class NavbarComponent extends Component {
 			        		Clients Information
 			        	</NavItem>
 			        	<NavItem componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
+			        	{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
 			        	<NavItem componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 			    	</NavDropdown>
 		    	}

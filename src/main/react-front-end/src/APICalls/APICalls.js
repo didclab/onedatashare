@@ -3,8 +3,6 @@ import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
 
-import * as React from 'react';
-
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
 const FETCH_TIMEOUT = 10000;
@@ -427,9 +425,8 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-const FileDownload = require('js-file-download');
 export async function download(uri, credential, _id){
-	console.log(uri)
+	
 	axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
@@ -441,8 +438,6 @@ export async function download(uri, credential, _id){
 			console.log("Error in download API call");
 		else{
 			console.log(response.data, encodeURI(response.data));
-			
-
 			window.open(response.data)
 		}
 	})
