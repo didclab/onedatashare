@@ -195,7 +195,7 @@ export default class AccountControlComponent extends Component {
 		    <div style={{width: '450px', marginTop: '30px', marginLeft: '30px',marginRight: '30px', alignSelf:  isSmall ? 'flex-start': 'center'}}>
 		    
 		    {store.getState().login && <Redirect to={transferPageUrl}/>}
-		    {creatingAccount && <Redirect push to={"/account/register"}/>}
+		    {creatingAccount && <Redirect to={"/account/register"}/>}
 		    {loggingAccount && <Redirect to={"/account"}/>}
 		    {signIn && <Redirect to={"/account/signIn"}/>}
 		    {loading && <LinearProgress  />}

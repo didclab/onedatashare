@@ -372,7 +372,7 @@ public class UserService {
     return getLoggedInUser(cookie).map(user -> {
       user.setCredentials(creds);
       return userRepository.save(user);
-    }).map(repo -> creds);
+    }).flatMap(repo -> repo.map(user -> user.getCredentials()));
   }
 
   public Flux<UUID> getJobs(String cookie) {
