@@ -71,10 +71,7 @@ public class UserService {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code);
       user.registerMoment = new Date().getTime();
-      return createUser(user).flatMap(createdUser-> {
-        System.out.println("IN");
-        return sendVerificationEmail(createdUser.email, code);
-      });
+      return createUser(user).flatMap(createdUser-> sendVerificationEmail(createdUser.email, code));
     });
 
   }
