@@ -14,6 +14,7 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
   public final String path;
   public final S session;
   public String id;
+  public boolean fileResource;    // flag to identify if the current resource is a file
 
   protected Resource(S session, String path) {
     if (path == null)
@@ -66,6 +67,10 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
 
   public Drain sink() {
     throw unsupported("sink");
+  }
+
+  public Drain sink(Stat stat) {
+    throw unsupported("sink(stat)");
   }
 
   private UnsupportedOperationException unsupported(String op) {

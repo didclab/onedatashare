@@ -6,6 +6,7 @@ import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
+import org.onedatashare.server.module.dropbox.DbxResource;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -27,20 +28,44 @@ public class Transfer<S extends Resource, D extends Resource> {
     this.destination = destination;
   }
 
-  public Flux<TransferInfo> start(Long sliceSize) {
-    sliceSize = (sliceSize == null) ? 1024L : sliceSize;
-    initialize();
+  public Flux<TransferInfo> start(final Long sliceSize) {
+//    sliceSize = (sliceSize == null) ? 1024L : sliceSize;
+//    initialize();
     Tap tap = source.tap();
-    Drain drain = destination.sink();
+    Stat tapStat = tap.getTransferStat();
+    info.setTotal(tapStat.size);
+    //Drain drain = destination.sink();
 
-    return tap.tap(sliceSize)
-            .subscribeOn(Schedulers.elastic())
-            .doOnNext(drain::drain)
-            .subscribeOn(Schedulers.elastic())
+    if(tapStat == null) {
+      System.out.println("Error occurred while generating tap stat object");
+      return null;
+    }
+
+    return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
-            .map(this::addProgress)
-            .doOnComplete(drain::finish)
-            .doFinally(s -> done());
+            .flatMap(fileStat -> {
+              final Drain drain;
+              if(tapStat.isDir())
+                drain = destination.sink(fileStat);
+              else
+                drain = destination.sink();
+              return tap.tap(fileStat, sliceSize)
+                      .subscribeOn(Schedulers.elastic())
+                      .doOnNext(drain::drain)
+                      .subscribeOn(Schedulers.elastic())
+                      .map(this::addProgress)
+                      .doOnComplete(drain::finish);
+            }).doFinally(s -> done());
+
+
+//    return tap.tap(sliceSize)
+//            .subscribeOn(Schedulers.elastic())
+//            .doOnNext(drain::drain)
+//            .subscribeOn(Schedulers.elastic())
+//            .doOnSubscribe(s -> startTimer())
+//            .map(this::addProgress)
+//            .doOnComplete(drain::finish)
+//            .doFinally(s -> done());
   }
 
   public void initialize() {

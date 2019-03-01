@@ -202,6 +202,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         }
 
         @Override
+        public Stat getTransferStat() {
+            return null;
+        }
+
+        @Override
         public Flux<Slice> tap(long sliceSize) {
             return Flux.generate(
                     () -> 0L,
@@ -236,6 +241,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         }
                         return state + sliceSize;
                     });
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            return null;
         }
 
     }
@@ -293,6 +303,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 e.printStackTrace();
             }
             return this;
+        }
+
+        @Override
+        public Drain start(String drainPath) {
+            return null;
         }
 
         @Override

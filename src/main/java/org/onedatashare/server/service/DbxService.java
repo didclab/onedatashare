@@ -105,6 +105,7 @@ public class DbxService implements ResourceService<DbxResource>{
   }
 
   public Mono<String> getDownloadURL(String cookie, UserAction userAction){
-    return getDbxResourceWithUserActionUri(cookie,userAction).flatMap(DbxResource::generateDownloadLink);
+    return getDbxResourceWithUserActionUri(cookie,userAction)
+            .flatMap(DbxResource::generateDownloadLink);
   }
 }

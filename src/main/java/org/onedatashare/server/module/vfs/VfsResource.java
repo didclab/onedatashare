@@ -120,6 +120,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     final long size = stat().block().size;
 
+    @Override
+    public Stat getTransferStat() {
+      return null;
+    }
+
     public Flux<Slice> tap(long sliceSize) {
       int sliceSizeInt = Math.toIntExact(sliceSize);
       int sizeInt = Math.toIntExact(size);
@@ -156,6 +161,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 return state + sliceSizeInt;
               });
     }
+
+    @Override
+    public Flux<Slice> tap(Stat stat, long sliceSize) {
+      return null;
+    }
   }
 
   class VfsDrain implements Drain {
@@ -171,6 +181,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
       return this;
+    }
+
+    @Override
+    public Drain start(String drainPath) {
+      return null;
     }
 
     @Override
@@ -191,5 +206,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
     }
+
   }
 }

@@ -19,7 +19,7 @@ export default class ClientsInfoComponent extends Component{
 
 	constructor(){
 		super();
-		this.state = {users:[], admins: []};
+		this.state = {users:[], admins:[]};
 		getUsers('getUsers', (resp) => {
 			//success
 			this.setState({users:resp});
@@ -102,7 +102,7 @@ export default class ClientsInfoComponent extends Component{
 							{
 								admins.map(resp =>(
 									<TableRow>
-										<TableCell style={{fontSize: '1rem'}}><Person />{resp}</TableCell>
+										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
