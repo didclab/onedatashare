@@ -588,10 +588,6 @@ export async function registerUser(emailId) {
     	    email : emailId
     	})
     	.then((response) => {
-    	    if(response.data && response.data.status && response.data.status == 302) {
-    	        console.log("User already exists");
-    	        return {status : 302}
-    	    }
     		if(!(response.status === 200))
     			throw new Error("Failed to register user")
     		else {
