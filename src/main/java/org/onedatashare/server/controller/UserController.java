@@ -23,7 +23,7 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return userService.register(userAction.email, userAction.password, userAction.confirmPassword);
+        return userService.register(userAction.email);
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
@@ -39,7 +39,7 @@ public class UserController {
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
-        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.newPassword);
+        return userService.setPassword(userAction.email, userAction.password, userAction.confirmPassword);
       case "resetPassword":
         return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":

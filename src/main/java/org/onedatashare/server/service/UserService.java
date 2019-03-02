@@ -1,5 +1,6 @@
 package org.onedatashare.server.service;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
@@ -17,11 +18,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.onedatashare.server.model.util.Response;
 
 import java.net.URI;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
+
 
 @Service
 public class UserService {
@@ -45,13 +51,45 @@ public class UserService {
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
   }
 
-  public Object register(String email, String password, String passwordConfirm) {
-    User user = new User(email, password);
-    if(password.equals(passwordConfirm)) {
-      user.setValidationToken(user.validationToken());
-      return createUser(user).map(this::sendVerificationEmail);
-    }
-    else return Mono.error(new InvalidField("Passwords do not match")); //RuntimeException
+  public Object register(String email) {
+
+    return doesUserExists(email).flatMap(admin -> {
+
+      // Means admin user exists in the DB
+      if(admin.email!=null && admin.email.equals(email)) {
+        return Mono.just(new Response("User with email id already exists", 302));
+      }
+
+      String password = "e0bf258e-8814-46d5-875a-c060255f6664";
+    /*
+      This would be a same temporary password for each user while creating,
+      once the user goes through the whole User creation workflow, he/she can change the password.
+     */
+      User user = new User(email, password);
+      String token = user.validationToken();
+      user.setValidationToken(token);
+      String code = RandomStringUtils.randomAlphanumeric(6);
+      user.setVerifyCode(code);
+      user.registerMoment = new Date().getTime();
+      return createUser(user).flatMap(createdUser-> sendVerificationEmail(createdUser.email, code));
+    });
+
+  }
+
+  public Mono<Boolean> setPassword(String email, String password, String passwordConfirm){
+    return getUser(email).flatMap(user-> {
+      if(!password.equals(passwordConfirm)){
+        return Mono.error(new Exception("Password is not confirmed."));
+      }else if(user.getAuthToken() == null){
+        return Mono.error(new Exception("Does not have Auth Token"));
+      }else {
+        user.setPassword(password);
+        user.setAuthToken(null);
+        user.registerMoment = 0;
+        userRepository.save(user).subscribe();
+        return Mono.just(true);
+      }
+    });
   }
 
   public GlobusClient getGlobusClientFromUser(User user){
@@ -121,9 +159,18 @@ public class UserService {
     });
   }
 
-  public Object sendVerificationEmail(User user) {
-    //TODO
-    return null;
+
+  public Mono<Object> sendVerificationEmail(String email, String verificationCode) {
+    return sendVerificationCode1(email, verificationCode);
+  }
+
+  /*
+      check if user exists already in db
+   */
+  public Mono<User> doesUserExists(String email) {
+    User user = new User();
+    return userRepository.findById(email)
+            .switchIfEmpty(Mono.just(user));
   }
 
   public Mono<User> getUser(String email) {
@@ -178,6 +225,54 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
+
+  public Mono<Object> sendVerificationCode1(String email, String verificationCode) {
+    // Recipient's email ID needs to be mentioned.
+    String to = email;
+
+
+    final String username = "yifuyin7@gmail.com";
+    final String password = "canada332211";
+
+    // Get system properties
+    Properties properties = System.getProperties();
+    properties.put("mail.smtp.auth", "true");
+    properties.put("mail.smtp.starttls.enable", "true");
+    properties.put("mail.smtp.host", "smtp.gmail.com");
+    properties.put("mail.smtp.port", "587");
+
+    // Get the default Session object.
+    Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
+      protected PasswordAuthentication getPasswordAuthentication() {
+        return new PasswordAuthentication(username, password);
+      }
+    });
+
+
+    String code = verificationCode;
+    try {
+      // Create a default MimeMessage object.
+      MimeMessage message = new MimeMessage(session);
+      // Set From: header field of the header.
+      message.setFrom(new InternetAddress(username));
+      // Set To: header field of the header.
+      message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+      // Set Subject: header field
+      message.setSubject("Auth Code");
+      // Now set the actual message
+      message.setText(code);
+      // Send message
+      Transport.send(message);
+      System.out.println("Sent message successfully....");
+
+      return Mono.just(new Response("Success", 200));
+    } catch (MessagingException mex) {
+      mex.printStackTrace();
+      return Mono.error(new Exception("Email Sending Failed."));
+    }
+    //return Mono.just(true);
+  }
+
   public Mono<Boolean> sendVerificationCode(String email) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
@@ -220,7 +315,8 @@ public class UserService {
         System.out.println("Sent message successfully....");
       } catch (MessagingException mex) {
         mex.printStackTrace();
-        return Mono.error(new Exception("Email Sending Failed."));
+        //return Mono.error(new Exception("Email Sending Failed."));
+        return Mono.just(false);
       }
       return Mono.just(true);
     });
