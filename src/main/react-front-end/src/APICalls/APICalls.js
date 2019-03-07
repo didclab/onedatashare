@@ -427,7 +427,6 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 }
 
 export async function download(uri, credential, _id){
-	
 	axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,

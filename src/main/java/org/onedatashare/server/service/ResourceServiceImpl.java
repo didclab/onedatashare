@@ -18,6 +18,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -131,6 +132,12 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 .flatMap(jobService::saveJob)
                 .doOnSuccess(job -> processTransferFromJob(job, cookie))
                 .subscribeOn(Schedulers.elastic());
+    }
+
+    //@Override
+    public Mono<String> download(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction)
+                .flatMap(Resource::download);
     }
 
     public Mono<Job> restartJob(String cookie, UserAction userAction){

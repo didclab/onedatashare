@@ -5,6 +5,7 @@ import lombok.Data;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,6 +57,10 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
     throw unsupported("mkdir");
   }
 
+  public Mono<String> download() {
+    throw unsupported("download");
+  }
+
   public Mono<R> delete() {
     throw unsupported("delete");
   }
@@ -82,4 +87,5 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
       throw new IllegalArgumentException();
     return session.select(path,id);
   }
+
 }
