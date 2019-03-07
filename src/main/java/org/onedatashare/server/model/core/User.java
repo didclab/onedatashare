@@ -9,10 +9,7 @@ import java.net.IDN;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.onedatashare.module.globusapi.EndPoint;
 import java.util.*;
 
 @Data
@@ -46,6 +43,9 @@ public class User {
 
   /** Previously visited URIs. */
   public LinkedList<URI> history = new LinkedList<>();
+
+  /** Previously visited URIs. */
+  public Map<UUID,EndPoint> globusEndpoints = new HashMap<>();
 
   /** Stored credentials. */
   public Map<UUID,Credential> credentials = new HashMap<>();

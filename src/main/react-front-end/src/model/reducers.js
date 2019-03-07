@@ -18,7 +18,6 @@ export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
 const initialState = {
-
 	login: cookies.get('email') ? true : false,
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
@@ -53,7 +52,6 @@ const initialState = {
 export function onedatashareModel(state = initialState, action) {
   // For now, don't handle any actions
   // and just return the state given to us.
-
   switch (action.type) {
     case LOGIN:
     	console.log('logging in')

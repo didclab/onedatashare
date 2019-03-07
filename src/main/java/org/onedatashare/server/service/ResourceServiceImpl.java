@@ -1,6 +1,8 @@
 package org.onedatashare.server.service;
 
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -8,6 +10,7 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GoogleDriveResource;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,6 +86,10 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
+        }if(userActionResource.type.equals("gsiftp://")){
+
+            GlobusClient gc = userService.getGlobusClientFromUser(user);
+            return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
@@ -92,6 +99,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             return new DbxSession(URI.create(uri), credential);
         }else if(uri.contains("googledrive:/")){
             return new GoogleDriveSession(URI.create(uri), credential);
+        }else if(credential instanceof GlobusWebClientCredential){
+            return new GridftpSession(URI.create(uri), credential);
         }
         else return new VfsSession(URI.create(uri), credential);
     }
