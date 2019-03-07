@@ -27,8 +27,6 @@ import FileInput from 'react-fine-uploader/file-input';
 
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 
-     // 
-
 import React, { Component } from 'react';
 
 import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
@@ -58,7 +56,7 @@ const uploader = new FineUploaderTraditional({
 	      //   file: function () {
 	      //     return 5;
 	      //   }
-	      
+	      //}
       },
 
       retry: {
@@ -403,7 +401,8 @@ export default class EndpointBrowseComponent extends Component {
 					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-					  			download(downloadUrl, endpoint.credential)
+					  			const taskList = getSelectedTasksFromSide(endpoint);
+					  			download(downloadUrl, endpoint.credential, taskList[0].id)
 					  		}}
 					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
 						</OverlayTrigger>

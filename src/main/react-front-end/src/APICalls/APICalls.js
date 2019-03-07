@@ -195,6 +195,54 @@ export async function history(uri, accept, fail){
     });
 }
 
+export async function globusEndpointIds(gep,  accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointId',
+
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointDetail(gep, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpoint',
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointActivate(gep,_username, _password, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointActivate',
+	    globusEndpoint: gep,
+	    username: _username,
+	    password: _password
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
 
 export async function deleteHistory(uri, accept, fail){
 	var callback = accept;
@@ -202,6 +250,23 @@ export async function deleteHistory(uri, accept, fail){
 	axios.post(url+'user', {
 		action: "deleteHistory",
 	    uri: encodeURI(uri)
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteEndpointId(ged, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'globus', {
+		action: "deleteEndpointId",
+	    globusEndpoint: ged,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -360,28 +425,20 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-
-export async function download(uri, credential){
-	console.log(uri)
+export async function download(uri, credential, _id){
+	
 	axios.post(url+'download', {
+		type: getTypeFromUri(uri),
 		credential: credential,
-		uri: encodeURI(uri)
+		uri: encodeURI(uri),
+		id: _id,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-			console.log(JSON.stringify(response));
-			var form = document.createElement('form');
-			form.action = response.data;
-			form.target = '_blank';
-
-			// console.log("Value contained in "+input.name+" : "+input.value);
-			// console.log("Form method :" + form.method);
-
-			form.style.display = 'none';
-			document.body.appendChild(form);
-			form.submit();
+			console.log(response.data, encodeURI(response.data));
+			window.open(response.data)
 		}
 	})
 	.catch((error) => {
@@ -546,7 +603,6 @@ export async function registerUser(emailId) {
 
 
 export async function verifyRegistraionCode(emailId, code) {
-
     return axios.post(url+'user', {
     	    action: "verifyCode",
     	    email : emailId,
@@ -561,6 +617,23 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
+}
+
+export async function globusListEndpoints( filter_fulltext, accept, fail) {
+    var callback = accept;
+    return axios.post(url+'globus', {
+	    action : "endpoint_list",
+	    filter_fulltext : filter_fulltext
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
+    });
 }
 
 export async function setPassword(emailId, code, password, confirmPassword) {
