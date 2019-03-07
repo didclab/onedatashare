@@ -23,6 +23,8 @@ import java.util.List;
 
 public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriveResource> {
 
+    public static final String ROOT_DIR_ID = "root";
+
     protected GoogleDriveResource(GoogleDriveSession session, String path, String id) {
         super(session, path, id);
     }
@@ -266,6 +268,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     //System.out.println(stat.name + "has no parent");
                     System.out.println(path);
                     System.out.println(session.pathToParentIdMap.toString());
+                    id = ROOT_DIR_ID;
                 }
                 //size = stat.size;
                 String name[] = path.split("/");
