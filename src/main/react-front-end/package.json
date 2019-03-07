@@ -6,8 +6,8 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.14",
     "@fortawesome/free-solid-svg-icons": "^5.7.1",
     "@fortawesome/react-fontawesome": "0.1.0-11",
-    "@material-ui/core": "^3.9.2",
-    "@material-ui/icons": "^3.0.2",
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "axios": "^0.18.0",
     "fine-uploader": "^5.16.2",
@@ -36,7 +36,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build && rm -rf ../resources/static && cp -r build ../resources/static",
-    "build-win": "react-scripts build",
+    "build-win": "react-scripts build && rmdir /S /Q ..\\resources\\static && xcopy build ..\\resources\\static /E /I",
+    "plain-build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },

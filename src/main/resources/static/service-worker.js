@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /**
  * Welcome to your Workbox-powered service worker!
  *
@@ -14,7 +15,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.9d4d283f570b9adca91e4f85d9f876a9.js"
+  "/precache-manifest.15e5874f613c2b3f648985aab29b106a.js"
 );
 
 workbox.clientsClaim();

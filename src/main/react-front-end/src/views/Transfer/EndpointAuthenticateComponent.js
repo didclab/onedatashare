@@ -47,15 +47,13 @@ export default class EndpointAuthenticateComponent extends Component {
 			settingAuth: false,
 			settingAuthType: "", 
 			url: "",
-			
 			needPassword: false,
 			username: "",
 			password: "",
-
 			endpointSelected: {},
-
 			selectingEndpoint: false,
 		};
+
 		let loginType = getType(props.endpoint);
 		if(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE){
 			this.credentialListUpdateFromBackend();
@@ -102,7 +100,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		});
 	}
 
-	_handleError = (msg) =>{
+	_handleError = (msg) => {
     	eventEmitter.emit("errorOccured", msg);
 	}
 
@@ -120,13 +118,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			side: this.props.endpoint.side,
 			credential: credential
 		}
-		listFiles(url, endpointSet,null, (response) => {
-			history(url, (suc) => {
-				console.log(suc)
-			}, (error) => {
-				this._handleError(error);
-				this.props.setLoading(false);
-			})
+		listFiles(url, endpointSet, null, (response) => {
 			this.props.loginSuccess(endpointSet);
 		}, (error) => {
 			this.props.setLoading(false);
@@ -204,8 +196,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		return historyList.map((v) =>
 			<ListItem button key={v} onClick={() => {
 				this.endpointCheckin(v, {}, (error) => {
-					this._handleError(error);
-					this.setState({url: v, settingAuth: true, needPassword: true});
+					this._handleError("Please enter your credential.");
+					this.setState({url: v, authFunction : this.regularSignIn, settingAuth: true, needPassword: true});
 				})
 			}}>
 			  <ListItemIcon>
@@ -308,7 +300,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == FTP_TYPE){
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://"});
 		        	}else if(loginType == SFTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "sftp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "sftp://"});
 		        	}else if(loginType == HTTP_TYPE){
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){

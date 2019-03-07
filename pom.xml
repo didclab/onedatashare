@@ -132,6 +132,14 @@
             <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
+        <!-- Lombok Plugin -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.6</version>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
