@@ -338,7 +338,7 @@ public class UserService {
   }
 
   public Mono<Object> isAdmin(String cookie){
-    return getLoggedInUser(cookie).map(user ->{
+    return getLoggedInUser(cookie).flatMap(user ->{
        if(user.isAdmin())
          return Mono.just(true);
        else
