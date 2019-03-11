@@ -197,9 +197,8 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     long size;
     Stat transferStat;
 
-    public Stat tapStat(){
+    public void tapStat(){
       transferStat =  transferStat().block();
-      return transferStat;
     }
 
     @Override
