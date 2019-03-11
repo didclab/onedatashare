@@ -202,8 +202,18 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     class GridftpTap implements Tap {
         final long size = stat().block().size;
 
+        @Override
+        public Stat getTransferStat() {
+            return null;
+        }
+
         public Flux<Slice> tap(long sliceSize) {
             return Flux.empty();
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            return null;
         }
     }
 //            return Flux.generate(
@@ -245,6 +255,11 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         public GridftpResource.GridftpDrain start() {
               return this;
         }
+
+    @Override
+    public Drain start(String drainPath) {
+        return null;
+    }
 
 //            try { ^
 //                sessionId = session.client.files().uploadSessionStart()
