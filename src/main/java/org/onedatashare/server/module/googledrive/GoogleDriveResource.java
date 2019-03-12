@@ -121,7 +121,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
            try {
                resource.session.service.files().delete(id).execute();
                id = session.idMap.get(session.idMap.size()-1).getId();
-               System.out.println(id+"**"+session.idMap.get(session.idMap.size()-1).getPath());
+//               System.out.println(id+"**"+session.idMap.get(session.idMap.size()-1).getPath());
            } catch (Exception e) {
                e.printStackTrace();
            }
@@ -226,6 +226,63 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
+    public Mono<Stat>transferStat(){
+        return initialize()
+                .map(GoogleDriveResource::onStat)
+                .map(s ->{
+                    List<Stat> sub = new LinkedList<>();
+                    long directorySize = 0L;
+
+                    if(s.isDir()){
+                        directorySize = buildDirectoryTree(sub, id, "/");
+                    }
+                    else{
+                        sub.add(s);
+                        directorySize = s.getSize();
+                    }
+                    s.setFilesList(sub);
+                    s.setSize(directorySize);
+                    return s;
+                });
+    }
+
+    public Long buildDirectoryTree(List<Stat> sub, String curId, String relativePath){
+        Long directorySize = 0L;
+        try {
+            String query = new StringBuilder().append("trashed=false and ").append("'" + curId + "'")
+                    .append(" in parents").toString();
+
+            Drive.Files.List request = session.service.files().list()
+                    .setOrderBy("name").setQ(query)
+                    .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
+            FileList fileSet = null;
+            List<File> fileList = null;
+
+            do{
+                fileSet = request.execute();
+                fileList = fileSet.getFiles();
+
+                for(File file : fileList){
+                    if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
+                        directorySize += buildDirectoryTree(sub, file.getId(), relativePath + file.getName() + "/");
+                    }
+                    else{
+                        Stat fileStat = mDataToStat(file);
+                        fileStat.setName( relativePath + file.getName());
+                        directorySize += fileStat.size;
+                        sub.add(fileStat);
+                    }
+                }
+                request.setPageToken(fileSet.getNextPageToken());
+            }while(request.getPageToken() != null);
+        }
+        catch (IOException ioe){
+            System.out.println("Exception encountered while building directory tree");
+            ioe.printStackTrace();
+        }
+        return directorySize;
+    }
+
     private Stat mDataToStat(File file) {
         Stat stat = new Stat(file.getName());
 
@@ -248,28 +305,38 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public GoogleDriveTap tap() {
-        return new GoogleDriveTap();
+        GoogleDriveTap gDriveTap = new GoogleDriveTap();
+        gDriveTap.tapStat();
+        return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
-        Drive.Files.Get downloadBuilder;
-        final long size = stat().block().size;
+//        Drive.Files.Get downloadBuilder;
+        long size;
         Drive drive = session.service;
-
-        String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+id+"?alt=media";
+        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
-        {
-            try {
-                httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
-                downloadBuilder = session.service.files().get(id);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+        public void tapStat(){
+            transferStat =  transferStat().block();
         }
 
         @Override
         public Stat getTransferStat() {
-            return null;
+            return transferStat;
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+
+            String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+stat.getId()+"?alt=media";
+            try {
+                httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
+//                downloadBuilder = session.service.files().get(id);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return tap(sliceSize);
         }
 
         @Override
@@ -283,7 +350,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                 httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + sliceSize - 1));
                                 com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
                                 InputStream is = response.getContent();
-                                IOUtils.copy((InputStream)is, (OutputStream)outputStream);
+                                IOUtils.copy(is, outputStream);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -309,10 +376,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     });
         }
 
-        @Override
-        public Flux<Slice> tap(Stat stat, long sliceSize) {
-            return null;
-        }
 
     }
 
@@ -350,8 +413,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     System.out.println("File: " + path+" Id: "+id);
                 }else {
                     //System.out.println(stat.name + "has no parent");
-                    System.out.println(path);
-                    System.out.println(session.pathToParentIdMap.toString());
+//                    System.out.println(path);
+//                    System.out.println(session.pathToParentIdMap.toString());
                     id = ROOT_DIR_ID;
                 }
                 //size = stat.size;
