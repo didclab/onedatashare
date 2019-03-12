@@ -581,11 +581,14 @@ export async function openOAuth(url){
 
 
 
-export async function registerUser(emailId) {
+export async function registerUser(emailId, firstName, lastName, organization) {
 
     return axios.post(url+'user', {
     	    action: "register",
-    	    email : emailId
+					email : emailId,
+					firstName : firstName,
+					lastName : lastName,
+					organization : organization
     	})
     	.then((response) => {
     		if(!(response.status === 200))

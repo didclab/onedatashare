@@ -13,8 +13,7 @@ import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/API
 export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
-	  	backToSignin: PropTypes.func,
-	  	 
+	  	backToSignin: PropTypes.func,	  	 
 	}
 	constructor(props){
 	    super(props);
@@ -23,9 +22,12 @@ export default class CreateAccountComponent extends Component {
 	    	password: "",
 	    	cpassword: "",
 	    	code : "",
-            screen : "registration",
-            verificationError : "",
-            passwordError : ""
+        screen : "registration",
+        verificationError : "",
+        passwordError : "",
+        firstName:"",
+        lastName:"",
+        organization:""
 	    }
 
 	    this.onNextClicked = this.onNextClicked.bind(this);
@@ -36,6 +38,9 @@ export default class CreateAccountComponent extends Component {
 
 	registerAccount() {
         let email = this.state.email;
+        let firstName = this.state.firstName;
+        let lastName = this.state.lastName;
+        let organization = this.state.organization;
         let self = this;
         if(email.trim().length == 0) {
             let state = self.state;
@@ -43,7 +48,7 @@ export default class CreateAccountComponent extends Component {
             self.setState({state});
         }
         else {
-            registerUser(email).then((response)=>{
+            registerUser(email, firstName, lastName, organization).then((response)=>{
                 if(response.status == 200 ){
                     let state = self.state;
                     state.screen = "verifyCode";
@@ -135,6 +140,30 @@ export default class CreateAccountComponent extends Component {
                     	          onChange={ handleChange('email') }
                     	          error = {this.state.emaildError === "Please Enter EmailId"}
                     	        />
+                              <TextField
+                    	          id="FirstName"
+                    	          label={"Enter your First Name"}
+                    	          value={this.state.firstName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('firstName') }
+                    	          //error = {this.state.firstNameError === "Please Enter FirstName"}
+                    	        />
+                              <TextField
+                    	          id="LastName"
+                    	          label={"Enter your Last Name"}
+                    	          value={this.state.lastName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('lastName') }
+                    	          //error = {this.state.emaildError === "Please Enter LastName"}
+                    	        />
+                              <TextField
+                    	          id="Organization"
+                    	          label={"Enter your Organization"}
+                    	          value={this.state.organization}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('organization') }
+                    	          //error = {this.state.emaildError === "Please Enter LastName"}
+                    	        />
                     	        {/*<TextField
                     	          id="Password"
                     	          label="Password"
@@ -175,12 +204,30 @@ export default class CreateAccountComponent extends Component {
                               onChange={ handleChange('email') }
                             />
                             <TextField
-                                  id="code"
-                                  label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
-                                  value={this.state.code}
-                                  style={{width: '100%', marginBottom: '50px'}}
-                                  onChange={ handleChange('code') }
-                                  error = {this.state.verificationError=="Please Enter Valid Verification Code"}
+                    	          id="FirstName"
+                    	          value={this.state.firstName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('firstName') }
+                    	        />
+                              <TextField
+                    	          id="LastName"
+                    	          value={this.state.lastName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('lastName') }
+                    	        />
+                              <TextField
+                    	          id="Organization"
+                    	          value={this.state.organization}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('organization') }
+                    	        />
+                            <TextField
+                                id="code"
+                                label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
+                                value={this.state.code}
+                                style={{width: '100%', marginBottom: '50px'}}
+                                onChange={ handleChange('code') }
+                                error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
                             {/*<TextField
                               id="Password"
