@@ -42,17 +42,6 @@ public class UploadController {
 
     @Data
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private class FineComplete{
-        public String directoryPath;
-        public String credential;
-        public UUID qquuid;
-        public String qqfilename;
-        public String qqtotalfilesize;
-        public String qqtotalparts;
-    }
-
-    @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private class FineUploaderResponse {
         public boolean success;
         public boolean error;
