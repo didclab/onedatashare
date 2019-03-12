@@ -1,5 +1,6 @@
 package org.onedatashare.server.service;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -10,6 +11,8 @@ import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -37,17 +40,23 @@ public class UploadService {
             ua.src.uri = "Upload";
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
             ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
-
+            System.out.println("total "+totalFileSize);
             ua.dest = new UserActionResource();
-            if(directoryPath.endsWith("/")) {
-                ua.dest.uri = directoryPath+fileName;
-            } else {
-                ua.dest.uri = directoryPath+"/"+fileName;
-            }
 
-            UserActionCredential uao = new UserActionCredential();
-            uao.uuid = credential;
-            ua.dest.credential = uao;
+            try {
+                if(directoryPath.endsWith("/")) {
+                    ua.dest.uri = directoryPath+URLEncoder.encode(fileName,"UTF-8");
+                } else {
+                    ua.dest.uri = directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8");
+                }
+
+                ObjectMapper mapper = new ObjectMapper();
+                ua.dest.credential = mapper.readValue(credential, UserActionCredential.class);
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            System.out.println(ua.dest.uri);
+            System.out.println(ua.dest.credential);
             resourceService.submit(cookie, ua).subscribe();
             return sendFilePart(filePart, uploadQueue).map(size -> {
                 if (size < totalFileSize) {
@@ -62,13 +71,21 @@ public class UploadService {
 
         //ongoingUploads.get(uuid).onNext(pfr);
 
+
         return pfr.flatMapMany(fp -> fp.content())
-        .map(content ->  {
-                Slice slc = new Slice(content.asByteBuffer());
-                qugue.add(slc);
-                return slc.length();
-            }
-        ).reduce(0, (x1, x2) -> x1 + x2);
+                .reduce(new ByteArrayOutputStream(), (acc, newbuf)->{
+                    try
+                    {
+                        Slice slc = new Slice(newbuf.asByteBuffer());
+                        acc.write(slc.asBytes(), 0, slc.length());
+                    }catch(Exception e){}
+                    return acc;
+        }).map(content ->  {
+            System.out.println("uploading"+content.size());
+            Slice slc = new Slice(content.toByteArray());
+            qugue.add(slc);
+            return slc.length();
+        });
     }
 
     public Mono<Void> finishUpload(UUID uuid) {

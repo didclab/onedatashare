@@ -286,17 +286,14 @@ export default class EndpointBrowseComponent extends Component {
 						enabled: true,
 						partSize: 500000,
 						concurrent: {
-							enabled: false
+							enabled: true
 						},
-						success: {
-							endpoint: '/api/stork/uploadComplete'
-						}
 					},
 					request: {
 						endpoint: '/api/stork/upload',
 						params: {
-							directoryPath: makeFileNameFromPath(endpoint.uri,directoryPath,''),
-							credential: endpoint.credential.uuid
+							directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+							credential: JSON.stringify(endpoint.credential)
 						}
 					},
 					retry: {

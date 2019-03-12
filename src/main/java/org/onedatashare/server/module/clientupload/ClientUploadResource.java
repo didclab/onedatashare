@@ -11,6 +11,8 @@ import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayOutputStream;
+
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
 
@@ -41,20 +43,21 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
     }
 
     public class ClientUploadTap implements Tap{
+        ByteArrayOutputStream chunk = new ByteArrayOutputStream();
+
         public Flux<Slice> tap(long size) {
             System.out.println("Inside tap()");
-            return Flux.generate(() -> 0L,
+            return Flux.generate(() -> session.filesize,
                 (state, sink) -> {
-                    if(session.flux.isEmpty()){
-                        return state;
-                    }
                     try{
                         Slice s = session.flux.take();
                         sink.next(s);
-                        if(state + s.length() == session.filesize){
+
+                        System.out.println("uploading" + s.length() + " " + state);
+                        if(state - s.length() == 0){
                             sink.complete();
                         }
-                        return state + s.length();
+                        return state -  s.length();
                     }catch(Exception e){
                         return state;
                     }

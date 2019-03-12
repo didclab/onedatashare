@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(value="/api/stork")
+@RequestMapping("/api/stork")
 public class UploadController {
 
     @Autowired
@@ -28,26 +28,12 @@ public class UploadController {
                                @RequestPart("qqfilename") String fileName,
                                @RequestPart("credential") String credential,
                                @RequestPart("qquuid") String fileUUID,
-//                             @RequestPart("qqpartindex") Integer partIndex,
-//                             @RequestPart("qqchunksize") Integer chunkSize,
                                @RequestPart("qqtotalfilesize") String totalFileSize,
                                @RequestPart("qqfile") Mono<FilePart> filePart){
         String cookie = headers.getFirst("cookie");
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
             Long.parseLong(totalFileSize)).map(job -> {
-                FineUploaderResponse resp = new FineUploaderResponse();
-                resp.success = true;
-                return resp;
-            });
-    }
-
-    @PostMapping(value="/uploadComplete")
-    public Mono<Object> uploadComplete(@RequestHeader HttpHeaders headers,
-                                       @RequestBody FineComplete fc
-    ){
-        return uploadService.finishUpload(fc.getQquuid())
-            .map(job_id -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
                 resp.success = true;
                 return resp;

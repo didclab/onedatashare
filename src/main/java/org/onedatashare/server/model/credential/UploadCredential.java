@@ -14,7 +14,6 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Data
-@Document
 public class UploadCredential extends Credential {
     @Transient
     private LinkedBlockingQueue<Slice> fux;
