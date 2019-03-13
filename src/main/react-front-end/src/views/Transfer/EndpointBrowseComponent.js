@@ -307,7 +307,7 @@ export default class EndpointBrowseComponent extends Component {
 
 		const list = getFilesFromMemory(endpoint) || [];
 		//console.log(list);
-		const iconStyle = {fontSize: "15px"};
+		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
@@ -387,11 +387,12 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-				  			<BootStrapButton style={buttonStyle} disabled={false}>
-									<FileInput uploader={uploader}>
-										<UploadButton style={iconStyle}/>
-									</FileInput>
+						<FileInput uploader={uploader} style={buttonStyle}>
+				  			<BootStrapButton disabled={false}>
+								<UploadButton style={iconStyle}/>
 				  			</BootStrapButton>
+			  			</FileInput>
+				  			
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
 				  	overlay={tooltip("Delete")}>
