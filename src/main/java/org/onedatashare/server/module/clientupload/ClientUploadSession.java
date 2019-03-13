@@ -7,6 +7,7 @@ import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.module.dropbox.DbxResource;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.springframework.http.codec.multipart.FilePart;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -31,7 +33,7 @@ public class ClientUploadSession extends Session<ClientUploadSession,ClientUploa
     }
 
     @Override
-    public Mono<ClientUploadResource> select(String path) {
+    public Mono<ClientUploadResource> select(String path, String id, ArrayList<IdMap> idMap){
         return Mono.just(new ClientUploadResource(this));
     }
 

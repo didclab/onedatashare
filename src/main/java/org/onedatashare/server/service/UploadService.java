@@ -55,8 +55,6 @@ public class UploadService {
             }catch(Exception e){
                 e.printStackTrace();
             }
-            System.out.println(ua.dest.uri);
-            System.out.println(ua.dest.credential);
             resourceService.submit(cookie, ua).subscribe();
             return sendFilePart(filePart, uploadQueue).map(size -> {
                 if (size < totalFileSize) {
