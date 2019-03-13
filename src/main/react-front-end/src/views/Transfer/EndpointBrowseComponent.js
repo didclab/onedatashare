@@ -283,7 +283,7 @@ export default class EndpointBrowseComponent extends Component {
 						enabled: true,
 						partSize: 500000,
 						concurrent: {
-							enabled: true
+							enabled: false
 						},
 					},
 					request: {

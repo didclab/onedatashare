@@ -21,9 +21,9 @@ import java.net.URI;
 
 @Service
 public class GridftpService {
+
     @Autowired
     private UserService userService;
-
 
     public Mono<Stat> list(String cookie, UserAction userAction) {
         return getResourceWithUserUserAction(cookie, userAction).flatMap(GridftpResource::stat);
