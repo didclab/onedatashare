@@ -1,12 +1,18 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.credential.UploadCredential;
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
+import org.onedatashare.server.module.googledrive.GoogleDriveResource;
+import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,11 +22,12 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 @Service
-public class ResourceServiceImpl implements ResourceService<Resource> {
+public class ResourceServiceImpl implements ResourceService<Resource>  {
     @Autowired
     private UserService userService;
 
@@ -31,28 +38,44 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
     public Mono<Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
-        return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userAction.credential))
-                .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
-                .flatMap(VfsSession::initialize)
-                .flatMap(vfsSession -> vfsSession.select(path));
+        String id = userAction.id;
+        ArrayList<IdMap> idMap = userAction.map;
+        if("googledrive:/".equals(userAction.type)){
+            return userService.getLoggedInUser(cookie)
+                    .map(User::getCredentials)
+                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                    .flatMap(GoogleDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path,id, idMap));
+        }else{
+            return userService.getLoggedInUser(cookie)
+                    .map(user -> new UserInfoCredential(userAction.credential))
+                    .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
+                    .flatMap(VfsSession::initialize)
+                    .flatMap(vfsSession -> vfsSession.select(path));
+        }
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.uri);
+        String id = userActionResource.id;
+        ArrayList<IdMap> idMap = userActionResource.map;
+
         return userService.getLoggedInUser(cookie)
                 .map(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.uri, credential))
                 .flatMap(session -> session.initialize())
-                .flatMap(session -> ((Session)session).select(path));
+                .flatMap(session -> ((Session)session).select(path,id,idMap));
     }
 
     public String pathFromUri(String uri) {
         String path = "";
         if(uri.contains("dropbox://")){
             path = uri.split("dropbox://")[1];
-        }
-        else path = uri;
+        }else if(uri.contains("googledrive:/")){
+            path = uri.split("googledrive:")[1];
+        }else path = uri;
+
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -62,10 +85,14 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.uri.contains("dropbox://")){
+        if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
         }else if(userActionResource.uri.contains("Upload")){
             return userActionResource.uploader;
+        }else if(userActionResource.type.equals("gsiftp://")){
+
+            GlobusClient gc = userService.getGlobusClientFromUser(user);
+            return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
@@ -76,6 +103,10 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         }else if(uri.contains("Upload")){
             UploadCredential upc = (UploadCredential)credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
+        }else if(uri.contains("googledrive:/")){
+            return new GoogleDriveSession(URI.create(uri), credential);
+        }else if(credential instanceof GlobusWebClientCredential){
+            return new GridftpSession(URI.create(uri), credential);
         }
         else return new VfsSession(URI.create(uri), credential);
     }

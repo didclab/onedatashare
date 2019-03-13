@@ -1,6 +1,5 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stork/user")
 public class UserController {
+
   @Autowired
   private UserService userService;
 
@@ -24,7 +24,7 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return userService.register(userAction.email, userAction.password, userAction.confirmPassword);
+        return userService.register(userAction.email);
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
@@ -33,6 +33,10 @@ public class UserController {
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.email);
+      case "getUsers":
+        return userService.getAllUsers();
+      case "getAdministrators":
+        return userService.getAdministrators();
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
@@ -64,14 +68,11 @@ public class UserController {
   public ResponseEntity<InvalidField> handle(InvalidField invf){
     System.out.println(invf.getMessage());
     return new ResponseEntity<>(invf, invf.status);
-
   }
 
   @ExceptionHandler(ForbiddenAction.class)
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
     System.out.println(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
-
   }
-
 }

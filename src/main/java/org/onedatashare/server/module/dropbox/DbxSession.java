@@ -6,10 +6,12 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 public class DbxSession extends Session<DbxSession, DbxResource> {
   DbxClientV2 client;
@@ -22,7 +24,14 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
   public Mono<DbxResource> select(String path) {
     return Mono.just(new DbxResource(this, path));
   }
-
+  @Override
+  public Mono<DbxResource> select(String path, String id) {
+    return Mono.just(new DbxResource(this, path));
+  }
+  @Override
+  public Mono<DbxResource> select(String path, String id, ArrayList<IdMap> idMap) {
+    return Mono.just(new DbxResource(this, path));
+  }
   @Override
   public Mono<DbxSession> initialize() {
     return Mono.create(s -> {

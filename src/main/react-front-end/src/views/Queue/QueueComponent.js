@@ -19,14 +19,35 @@ import Refresh from '@material-ui/icons/Refresh';
 import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
 
+import TablePagination from '@material-ui/core/TablePagination'
+import TableFooter from '@material-ui/core/TableFooter'
+import TablePaginationActions from '../TablePaginationActions'
+
 import './QueueComponent.css';
 
-export default class QueueComponent extends Component {
+import { withStyles } from '@material-ui/core';
+const styles = theme => ({
+		toolbar:{
+			paddingLeft:'300px'
+		},
+	tablePaginationCaption: {
+			fontSize: '15px'
+		},
+	tablePaginationSelect: {
+			fontSize: '15px',
+			lineHeight:'20px'
+		}
+	})
+
+class QueueComponent extends Component {
 
 	constructor(){
 		super();
 		this.state = {response:[],
-					  selectedTab: 0 };
+						selectedTab: 0,
+						page: 0,
+						rowsPerPage: 10,
+						rowsPerPageOptions : [10, 20, 50, 100],};
 		this.queueFunc();
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 		var infoRowsIds= [];
@@ -233,18 +254,26 @@ export default class QueueComponent extends Component {
 			);
 		}
 	}
+	handleChangePage = (event, page) => {
+		this.setState({ page });
+	};
 
+	handleChangeRowsPerPage = event => {
+		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+	};
 	render(){
 		const height = window.innerHeight+"px";
 		const {response} = this.state;
+		const {rowsPerPage, rowsPerPageOptions, page } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
+		const {classes} = this.props;
 
 
 		var tableRows = [];
-		response.map(resp => {
+		response.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
-		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
+		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
 		              {resp.job_id}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '1rem'}}>
@@ -295,8 +324,32 @@ export default class QueueComponent extends Component {
 		        <TableBody>
 		            {tableRows}
 		        </TableBody>
+						<TableFooter style={{textAlign:'center'}}>
+							<TableRow>
+								<TablePagination 
+									rowsPerPageOptions={rowsPerPageOptions}
+									colSpan={3}
+									count={response.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										native: true,
+									}}
+									onChangePage={this.handleChangePage}
+									onChangeRowsPerPage={this.handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+									classes={{
+										caption: classes.tablePaginationCaption,
+										select: classes.tablePaginationSelect,
+										toolbar: classes.toolbar
+									}}
+								/>
+							</TableRow>
+						</TableFooter>
 	      	</Table>  
       	</Paper>
 		);
 	}
 }
+
+export default withStyles(styles)(QueueComponent) 

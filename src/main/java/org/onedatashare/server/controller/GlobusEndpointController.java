@@ -10,12 +10,9 @@ import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -25,28 +22,30 @@ public class GlobusEndpointController {
     @Autowired
     private UserService userService;
     @PostMapping
-    public Mono<EndPointList> globusRequest(@RequestHeader HttpHeaders headers, @RequestBody GlobusEndpointAction gea) {
-        if(gea.action.equals("endpoint_list")) {
-            String cookie = headers.getFirst("cookie");
-            gc = getGlobusClient(cookie);
-            return gc.flatMap(gc ->
-                gc.getEndPointList("all", "0", "100", gea.filter_fulltext));
-        }
-        return Mono.error(new NotFound());
-    }
-
-    public Mono<GlobusClient> getGlobusClient(String cookie){
-        return userService.getLoggedInUser(cookie)
-            .map(user -> {
-                for (Credential credential : user.getCredentials().values()) {
-                    if (credential.type == Credential.CredentialType.OAUTH) {
-                        OAuthCredential oaucr = (OAuthCredential) credential;
-                        if (oaucr.name.contains("GridFTP")) {
-                            return new GlobusClient(oaucr.token);
-                        }
-                    }
+    public Object globusRequest(@RequestHeader HttpHeaders headers, @RequestBody UserAction gea) {
+        switch(gea.action) {
+            case "endpoint_list":
+                return userService.getGlobusClient(headers.getFirst("cookie")).flatMap(gc ->
+                        gc.getEndPointList("all", "0", "100", gea.filter_fulltext));
+            case "endpoint":
+                return userService.getGlobusClient(headers.getFirst("cookie")).flatMap(gc ->
+                        gc.getEndPoint(gea.globusEndpoint.getId()));
+            case "endpointId":
+                if(gea.globusEndpoint.getId() == null){
+                    return userService.getEndpointId(headers.getFirst("Cookie"));
                 }
-                return new GlobusClient();
-            });
+                return userService.saveEndpointId(
+                        UUID.fromString(gea.globusEndpoint.getId()),
+                        gea.globusEndpoint,
+                        headers.getFirst("Cookie")
+                );
+            case "deleteEndpointId":
+                return userService.deleteEndpointId(headers.getFirst("Cookie"), UUID.fromString(gea.getGlobusEndpoint().getId()));
+            case "endpointActivate":
+                return userService.getGlobusClient(headers.getFirst("cookie")).flatMap(gc ->
+                    gc.activateEndPoint(gea.getGlobusEndpoint().getId(), gea.globusEndpoint.getMyProxyServer(), gea.globusEndpoint.getMyProxyDomainName(), gea.username, gea.password));
+            default:
+                return Mono.error(new NotFound());
+        }
     }
 }

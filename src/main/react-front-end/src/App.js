@@ -30,8 +30,8 @@ class App extends Component {
 
 
   handleOpen = (errormsg) => {
-    console.log("asdasd");
-    this.setState({ open: true, vertical: 'top', horizontal: 'center', error: errormsg });
+    console.log(errormsg);
+    this.setState({ open: true, vertical: 'top', horizontal: 'center', error: JSON.stringify(errormsg) });
     setTimeout(this.handleClose, 4000);
   };
 

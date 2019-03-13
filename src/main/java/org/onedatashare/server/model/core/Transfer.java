@@ -2,10 +2,12 @@ package org.onedatashare.server.model.core;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.onedatashare.module.globusapi.Result;
 import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
+import org.onedatashare.server.module.gridftp.GridftpResource;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -28,7 +30,16 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
   public Flux<TransferInfo> start(Long sliceSize) {
+
+    if (source instanceof GridftpResource && destination instanceof GridftpResource){
+        ((GridftpResource) source).transferTo(((GridftpResource) destination)).subscribe();
+        return Flux.empty();
+    }else if (source instanceof GridftpResource || destination instanceof GridftpResource){
+        return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
+    }
+
     sliceSize = (sliceSize == null) ? 1024L : sliceSize;
+
     initialize();
     Tap tap = source.tap();
     Drain drain = destination.sink();
