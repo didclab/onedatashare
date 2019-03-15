@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
@@ -18,16 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import org.onedatashare.server.model.util.Response;
 
 import java.net.URI;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.*;
-
 
 @Service
 public class UserService {
@@ -219,7 +213,6 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
-
   public Mono<Object> sendVerificationCode(String email) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
@@ -264,6 +257,7 @@ public class UserService {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
 //        return Mono.just(false);
+
       }
 //      return Mono.just(true);
       return Mono.just(new Response("Success", 200));
@@ -379,13 +373,8 @@ public class UserService {
       }).then();
   }
 
-  public Mono<Object> isAdmin(String cookie){
-    return getLoggedInUser(cookie).map(user ->{
-       if(user.isAdmin())
-         return Mono.just(true);
-       else
-         return Mono.error(new ForbiddenAction("Invalid Administrator"));
-    });
+  public Mono<Boolean> isAdmin(String cookie){
+    return getLoggedInUser(cookie).map(user ->user.isAdmin());
   }
 
 
@@ -414,7 +403,7 @@ public class UserService {
     return getLoggedInUser(cookie).map(user -> {
       user.setCredentials(creds);
       return userRepository.save(user);
-    }).map(repo -> creds);
+    }).flatMap(repo -> repo.map(user -> user.getCredentials()));
   }
 
   public Flux<UUID> getJobs(String cookie) {
@@ -435,5 +424,4 @@ public class UserService {
     user.setHash(map.get("hash"));
     return user.new UserLogin(user.getEmail(), user.getHash());
   }
-
 }

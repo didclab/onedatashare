@@ -42,9 +42,9 @@ export function getMapFromEndpoint(endpoint){
 
 export function getIdsFromEndpoint(endpoint){
 	if(endpoint.side == "left"){
-		return column1.ids[column1.ids.length-1];
+		return column1.ids;
 	}else{
-		return column2.ids[column2.ids.length-1];
+		return column2.ids;
 	}
 }
 

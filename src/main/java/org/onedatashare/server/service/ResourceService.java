@@ -11,4 +11,5 @@ public interface ResourceService<R extends Resource> {
   Mono<Stat> mkdir(String cookie, UserAction userAction);
   Mono<R> delete(String cookie, UserAction userAction);
   Mono<Job> submit(String cookie, UserAction userAction);
+  Mono<String> download(String cookie, UserAction userAction);
 }

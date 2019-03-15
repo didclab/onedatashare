@@ -386,7 +386,8 @@ export async function share(uri, endpoint, accept, fail){
 
 export async function mkdir(uri,type, endpoint,  accept, fail){
 	var callback = accept;
-	const id = getIdsFromEndpoint(endpoint);
+	const ids = getIdsFromEndpoint(endpoint);
+	const id = ids[ids.length - 1];
 	axios.post(url+'mkdir', {
 	    credential: endpoint.credential,
 	    uri: encodeURI(uri),
@@ -425,29 +426,19 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-
 export async function download(uri, credential, _id){
-	console.log(uri)
 	axios.post(url+'download', {
+		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
-		id: _id
+		id: _id,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-			console.log(JSON.stringify(response));
-			var form = document.createElement('form');
-			form.action = response.data;
-			form.target = '_blank';
-
-			// console.log("Value contained in "+input.name+" : "+input.value);
-			// console.log("Form method :" + form.method);
-
-			form.style.display = 'none';
-			document.body.appendChild(form);
-			form.submit();
+		//	console.log(response.data, encodeURI(response.data));
+			window.open(response.data)
 		}
 	})
 	.catch((error) => {
@@ -597,10 +588,6 @@ export async function registerUser(emailId) {
     	    email : emailId
     	})
     	.then((response) => {
-    	    if(response.data && response.data.status && response.data.status == 302) {
-    	        console.log("User already exists");
-    	        return {status : 302}
-    	    }
     		if(!(response.status === 200))
     			throw new Error("Failed to register user")
     		else {

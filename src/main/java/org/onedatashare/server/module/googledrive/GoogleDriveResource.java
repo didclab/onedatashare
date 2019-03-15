@@ -23,6 +23,8 @@ import java.util.List;
 
 public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriveResource> {
 
+    public static final String ROOT_DIR_ID = "root";
+
     protected GoogleDriveResource(GoogleDriveSession session, String path, String id) {
         super(session, path, id);
     }
@@ -34,7 +36,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return initialize().doOnSuccess(resource -> {
             try {
                 String[] currpath = path.split("/");
-
                 for(int i =0; i<currpath.length; i++){
                     System.out.println("Parent ID: " + id);
                     File fileMetadata = new File();
@@ -59,12 +60,23 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
            try {
                resource.session.service.files().delete(id).execute();
                id = session.idMap.get(session.idMap.size()-1).getId();
-               System.out.println(id+"**"+session.idMap.get(session.idMap.size()-1).getPath());
            } catch (Exception e) {
                e.printStackTrace();
            }
            return resource;
        });
+    }
+
+    public Mono<String> download(){
+        String downloadUrl ="";
+        try {
+            downloadUrl = "https://drive.google.com/uc?id="+id+"&export=download";
+
+        }catch(Exception exp){
+            System.out.println("Error encountered while generating shared link for " + path);
+            System.out.println(exp);
+        }
+        return Mono.just(downloadUrl);
     }
 
     public Mono<Stat> stat() {
@@ -89,7 +101,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     throw new NotFound();
 
                 FileList fileSet = null;
-
                 List<Stat> sub = new LinkedList<>();
                 do {
                     try {
@@ -103,8 +114,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     } catch (NullPointerException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
-                        fileSet.setNextPageToken(null);
                         e.printStackTrace();
+                        fileSet.setNextPageToken(null);
                     }
                 }
                 while (result.getPageToken() != null);
@@ -261,15 +272,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 String parentid = session.idMap.get(session.idMap.size()-1).getId();
                 if( parentid != null ) {
                     id = session.idMap.get(session.idMap.size()-1).getId();
-                    System.out.println("File: " + path+" Id: "+id);
                 }else {
-                    //System.out.println(stat.name + "has no parent");
-                    System.out.println(path);
-                    System.out.println(session.pathToParentIdMap.toString());
+                    id = ROOT_DIR_ID;
                 }
-                //size = stat.size;
-                String name[] = path.split("/");
 
+                String name[] = path.split("/");
                 URL url = new URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
                 request.setRequestMethod("POST");
@@ -277,8 +284,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 //request.setRequestProperty("X-Upload-Content-Type", "application/pdf");
                 //request.setRequestProperty("X-Upload-Content-Length", Long.toString(size));
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                String body = "{\"name\": \"" + name[name.length-1] + "\", \"parents\": [\"" + id + "\"]}";
-                System.out.println("name:"+name[name.length-1]);
+                String body;
+                if(id !=null){
+                     body = "{\"name\": \"" + name[name.length-1] + "\", \"parents\": [\"" + id + "\"]}";
+                }else{
+                     body = "{\"name\": \"" + name[name.length-1] + "\"}";
+                }
                 request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
                 request.setDoOutput(true);
                 OutputStream outputStream = request.getOutputStream();
@@ -332,124 +343,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                 ", message: " + request.getResponseMessage());
                         System.out.println("last chunk Not working");
                     }
-
                 }
-
-               /* long chunkSize = chunk.size();
-                //size = 1257197;//slice.length();
-                System.out.println("chunk: "+chunkSize+" slice: "+slice.length());
-
-                byte[] chunkContents = slice.asBytes();
-                URL url = new URL(resumableSessionURL);
-                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                request.setRequestMethod("PUT");
-                request.setConnectTimeout(10000);
-                //request.setRequestProperty("Content-Type", "application/pdf");
-                request.setRequestProperty("Content-Length", Long.toString(slice.length()));
-                *//*if(chunkSize % slice.length() ==0){
-                    request.setRequestProperty("Content-Range", "bytes " + bytesWritten + "-" + (bytesWritten + slice.length()-1) + "/" + "*");
-                }else{
-                    request.setRequestProperty("Content-Range", "bytes " + bytesWritten + "-" + (bytesWritten + slice.length()-1) + "/" + chunkSize);
-                }*//*
-                request.setRequestProperty("Content-Range", "bytes " + bytesWritten + "-" + (bytesWritten + slice.length()-1) + "/" + "*");
-                request.setDoOutput(true);
-                OutputStream outputStream = request.getOutputStream();
-                outputStream.write(chunkContents, 0, (int)slice.length());
-                outputStream.close();
-                request.connect();
-
-                //chunk = new ByteArrayOutputStream();
-                //chunk.write(chunkContents, 262144, chunkContents.length - 262144);
-
-                if(request.getResponseCode() == 308) {
-                    String range = request.getHeaderField("range");
-                    bytesWritten = Long.parseLong(range.substring(range.lastIndexOf("-") + 1)) + 1;
-                    System.out.println("Chunked upload working: "+bytesWritten);
-                }else if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
-                    System.out.println("code: " + request.getResponseCode()+
-                            ", message: "+ request.getResponseMessage());
-                }else {
-                    System.out.println("code: " + request.getResponseCode()+
-                            ", message: "+ request.getResponseMessage());
-                    System.out.println("last chunk Not working");
-                }*/
-
-               /* if(size <= chunkSize*//*262144*//*) {
-                    if(chunkSize == size) {
-                        URL url = new URL(resumableSessionURL);
-                        HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                        request.setRequestMethod("PUT");
-                        request.setConnectTimeout(10000);
-                        //request.setRequestProperty("Content-Type", "application/pdf");
-                        request.setRequestProperty("Content-Length", Integer.toString(chunk.size()));
-                        request.setRequestProperty("Content-Range", "bytes " + "0" + "-" + (size - 1) + "/" + size);
-                        request.setDoOutput(true);
-                        OutputStream outputStream = request.getOutputStream();
-                        outputStream.write(chunk.toByteArray());
-                        outputStream.close();
-                        request.connect();
-
-                        if(request.getResponseCode() == 308) {
-                            System.out.println("Less than 256 not working properly");
-                        }else if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
-                            System.out.println("Less than 256 working");
-                        }else {
-                            System.out.println("Less than 256 Not working");
-                        }
-                    }
-                }else {
-                    if(chunkSize >= chunkSize) {
-                        byte[] chunkContents = chunk.toByteArray();
-                        URL url = new URL(resumableSessionURL);
-                        HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                        request.setRequestMethod("PUT");
-                        request.setConnectTimeout(10000);
-                        //request.setRequestProperty("Content-Type", "application/pdf");
-                        request.setRequestProperty("Content-Length", Long.toString(chunkSize));
-                        request.setRequestProperty("Content-Range", "bytes " + bytesWritten + "-" + (bytesWritten + chunkSize-1) + "/" + size);
-                        request.setDoOutput(true);
-                        OutputStream outputStream = request.getOutputStream();
-                        outputStream.write(chunkContents, 0, (int)chunkSize);
-                        outputStream.close();
-                        request.connect();
-
-                        //chunk = new ByteArrayOutputStream();
-                        //chunk.write(chunkContents, 262144, chunkContents.length - 262144);
-
-                        if(request.getResponseCode() == 308) {
-                            String range = request.getHeaderField("range");
-                            bytesWritten = Long.parseLong(range.substring(range.lastIndexOf("-") + 1)) + 1;
-                            System.out.println("Chunked upload working: "+bytesWritten);
-                        }else {
-                            System.out.println("Unable to perform resumable uploads to google drive"+
-                                    ", code: " + request.getResponseCode()+
-                                    ", message: "+ request.getResponseMessage()+
-                                    ", content: "+request);
-                        }
-                    }else if(chunk.size() + bytesWritten == size) {
-                        byte[] chunkContents = chunk.toByteArray();
-                        URL url = new URL(resumableSessionURL);
-                        HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                        request.setRequestMethod("PUT");
-                        request.setConnectTimeout(10000);
-                        //request.setRequestProperty("Content-Type", "application/pdf");
-                        request.setRequestProperty("Content-Length", Integer.toString(chunk.size()));
-                        request.setRequestProperty("Content-Range", "bytes " + bytesWritten + "-" + (size - 1) + "/" + size);
-                        request.setDoOutput(true);
-                        OutputStream outputStream = request.getOutputStream();
-                        outputStream.write(chunkContents, 0, chunk.size());
-                        outputStream.close();
-                        request.connect();
-                        System.out.println("last Chunk upload: "+(chunk.size() + bytesWritten));
-                        if(request.getResponseCode() == 308) {
-                            System.out.println("last chunk not working properly");
-                        }else if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
-                            System.out.println("last chunk working");
-                        }else {
-                            System.out.println("last chunk Not working");
-                        }
-                    }
-                }*/
             }catch (Exception e) {
                 e.printStackTrace();
             }

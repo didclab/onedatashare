@@ -85,6 +85,11 @@ public class VfsService implements ResourceService<VfsResource> {
             .subscribeOn(Schedulers.elastic());
   }
 
+  @Override
+  public Mono<String> download(String cookie, UserAction userAction) {
+    return null;
+  }
+
   public void processTransferFromJob(Job job, String cookie) {
     Transfer<Resource, Resource> transfer = new Transfer<>();
     getResourceWithUserActionResource(cookie, job.src)
@@ -102,4 +107,5 @@ public class VfsService implements ResourceService<VfsResource> {
             .flatMap(jobService::saveJob)
             .subscribe();
   }
+
 }
