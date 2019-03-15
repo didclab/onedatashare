@@ -20,9 +20,9 @@ public class Transfer<S extends Resource, D extends Resource> {
   /** Periodically updated information about the ongoing transfer. */
   public final TransferInfo info = new TransferInfo();
 
-  private Time timer;
-  private Progress progress = new Progress();
-  private Throughput throughput = new Throughput();
+  protected Time timer;
+  protected Progress progress = new Progress();
+  protected Throughput throughput = new Throughput();
 
   public Transfer(S source, D destination) {
     this.source = source;
@@ -81,6 +81,10 @@ public class Transfer<S extends Resource, D extends Resource> {
   public void initialize() {
     Stat stat = (Stat) source.stat().block();
     info.setTotal(stat.size);
+  }
+
+  public void initializeUpload(int fileSize){
+    info.setTotal(fileSize);
   }
 
   public void done() {

@@ -103,7 +103,7 @@ public class GoogleDriveOauthService{
             GoogleAuthorizationCodeFlow flow =
                     new GoogleAuthorizationCodeFlow.Builder(
                             HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                            .setDataStoreFactory(DATA_STORE_FACTORY)
+                            .setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline")
                             .build();
 
             AuthorizationCodeRequestUrl authorizationUrl =
@@ -129,7 +129,6 @@ public class GoogleDriveOauthService{
 
     private static String storeCredential(String code) {
         String accessToken;
-        //String userId = "user";
         try {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow =
@@ -157,7 +156,6 @@ public class GoogleDriveOauthService{
             String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
             OAuthCredential cred = new OAuthCredential(accessToken);
             cred.name = "GoogleDrive: " + userId;
-
             return userService.getCredentials(cookie).flatMap(val -> {
                 for (Credential value : val.values()) {
                     OAuthCredential oauthVal = ((OAuthCredential) value);

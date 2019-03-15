@@ -427,7 +427,6 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 }
 
 export async function download(uri, credential, _id){
-	
 	axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
@@ -438,7 +437,7 @@ export async function download(uri, credential, _id){
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-			console.log(response.data, encodeURI(response.data));
+		//	console.log(response.data, encodeURI(response.data));
 			window.open(response.data)
 		}
 	})
