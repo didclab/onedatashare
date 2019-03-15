@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stork/user")
 public class UserController {
+
   @Autowired
   private UserService userService;
 
@@ -39,7 +40,7 @@ public class UserController {
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
-        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.newPassword);
+        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
         return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
@@ -67,14 +68,11 @@ public class UserController {
   public ResponseEntity<InvalidField> handle(InvalidField invf){
     System.out.println(invf.getMessage());
     return new ResponseEntity<>(invf, invf.status);
-
   }
 
   @ExceptionHandler(ForbiddenAction.class)
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
     System.out.println(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
-
   }
-
 }

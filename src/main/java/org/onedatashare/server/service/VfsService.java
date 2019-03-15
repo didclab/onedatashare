@@ -26,8 +26,6 @@ public class VfsService implements ResourceService<VfsResource> {
 
   public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
     final String path = pathFromUri(userAction.uri);
-    System.out.println(userAction.credential);
-    userAction.credential = null;
     return userService.getLoggedInUser(cookie)
             .map(user -> new UserInfoCredential(userAction.credential))
             .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
