@@ -386,7 +386,8 @@ export async function share(uri, endpoint, accept, fail){
 
 export async function mkdir(uri,type, endpoint,  accept, fail){
 	var callback = accept;
-	const id = getIdsFromEndpoint(endpoint);
+	const ids = getIdsFromEndpoint(endpoint);
+	const id = ids[ids.length - 1];
 	axios.post(url+'mkdir', {
 	    credential: endpoint.credential,
 	    uri: encodeURI(uri),
@@ -426,7 +427,6 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 }
 
 export async function download(uri, credential, _id){
-	
 	axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,

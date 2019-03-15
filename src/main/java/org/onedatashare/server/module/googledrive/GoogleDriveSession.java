@@ -109,7 +109,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
         GoogleAuthorizationCodeFlow flow =
                 new GoogleAuthorizationCodeFlow.Builder(
                         HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                        .setDataStoreFactory(DATA_STORE_FACTORY)
+                        .setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("online")
                         .build();
         com.google.api.client.auth.oauth2.Credential credential = flow.loadCredential(token);
         return credential;

@@ -337,13 +337,8 @@ public class UserService {
       }).then();
   }
 
-  public Mono<Object> isAdmin(String cookie){
-    return getLoggedInUser(cookie).map(user ->{
-       if(user.isAdmin())
-         return Mono.just(true);
-       else
-         return Mono.error(new ForbiddenAction("Invalid Administrator"));
-    });
+  public Mono<Boolean> isAdmin(String cookie){
+    return getLoggedInUser(cookie).map(user ->user.isAdmin());
   }
 
 
