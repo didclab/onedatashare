@@ -57,6 +57,7 @@ public class UserService {
 
       // Means admin user exists in the DB
       if(admin.email!=null && admin.email.equals(email)) {
+        System.out.println("User with email " + email + " already exists.");
         return Mono.just(new Response("User with email id already exists", 302));
       }
 
@@ -68,10 +69,8 @@ public class UserService {
       User user = new User(email, password);
       String token = user.validationToken();
       user.setValidationToken(token);
-      String code = RandomStringUtils.randomAlphanumeric(6);
-      user.setVerifyCode(code);
       user.registerMoment = new Date().getTime();
-      return createUser(user).flatMap(createdUser-> sendVerificationEmail(createdUser.email, code));
+      return createUser(user).flatMap(createdUser-> sendVerificationCode(createdUser.email));
     });
 
   }
@@ -159,11 +158,6 @@ public class UserService {
     });
   }
 
-
-  public Mono<Object> sendVerificationEmail(String email, String verificationCode) {
-    return sendVerificationCode1(email, verificationCode);
-  }
-
   /*
       check if user exists already in db
    */
@@ -226,54 +220,7 @@ public class UserService {
   }
 
 
-  public Mono<Object> sendVerificationCode1(String email, String verificationCode) {
-    // Recipient's email ID needs to be mentioned.
-    String to = email;
-
-
-    final String username = "yifuyin7@gmail.com";
-    final String password = "canada332211";
-
-    // Get system properties
-    Properties properties = System.getProperties();
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.starttls.enable", "true");
-    properties.put("mail.smtp.host", "smtp.gmail.com");
-    properties.put("mail.smtp.port", "587");
-
-    // Get the default Session object.
-    Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(username, password);
-      }
-    });
-
-
-    String code = verificationCode;
-    try {
-      // Create a default MimeMessage object.
-      MimeMessage message = new MimeMessage(session);
-      // Set From: header field of the header.
-      message.setFrom(new InternetAddress(username));
-      // Set To: header field of the header.
-      message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-      // Set Subject: header field
-      message.setSubject("Auth Code");
-      // Now set the actual message
-      message.setText(code);
-      // Send message
-      Transport.send(message);
-      System.out.println("Sent message successfully....");
-
-      return Mono.just(new Response("Success", 200));
-    } catch (MessagingException mex) {
-      mex.printStackTrace();
-      return Mono.error(new Exception("Email Sending Failed."));
-    }
-    //return Mono.just(true);
-  }
-
-  public Mono<Boolean> sendVerificationCode(String email) {
+  public Mono<Object> sendVerificationCode(String email) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
 
@@ -315,10 +262,11 @@ public class UserService {
         System.out.println("Sent message successfully....");
       } catch (MessagingException mex) {
         mex.printStackTrace();
-        //return Mono.error(new Exception("Email Sending Failed."));
-        return Mono.just(false);
+        return Mono.error(new Exception("Email Sending Failed."));
+//        return Mono.just(false);
       }
-      return Mono.just(true);
+//      return Mono.just(true);
+      return Mono.just(new Response("Success", 200));
     });
   }
 
@@ -368,8 +316,6 @@ public class UserService {
     return getUser(email).flatMap(user-> {
       User.VerifyCode expectedCode = user.getCode();
 
-//      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//      System.out.println("new date "+dateFormat.format(new Date()));
       if(expectedCode == null){
         return Mono.error(new Exception("code not set"));
       }else if(expectedCode.expireDate.before(new Date())){
