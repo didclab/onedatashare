@@ -38,6 +38,7 @@ public class Progress {
 
   /** Get the progress rate based on time. */
   public synchronized Throughput rate(Time time) {
+      // time is the value of timer from Transfer class
     return new Throughput(done(), time.elapsed()/1000);
   }
 
