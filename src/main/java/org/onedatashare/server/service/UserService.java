@@ -12,6 +12,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,8 @@ public class UserService {
     return userRepository.insert(user);
   }
 
+  final int TIMEOUT_IN_MINUTES = 1440;
+
   public Mono<User.UserLogin> login(String email, String password) {
   //  User user = new User("vanditsa@buffalo.edu", "asdasd");
   //  createUser(user).subscribe(System.out::println);
@@ -47,42 +50,32 @@ public class UserService {
 
   public Object register(String email) {
 
-    return doesUserExists(email).flatMap(admin -> {
+    return doesUserExists(email).flatMap(user -> {
 
+      String password = User.salt(20);
+      /*
+        This would be a same temporary password for each user while creating,
+        once the user goes through the whole User creation workflow, he/she can change the password.
+      */
       // Means admin user exists in the DB
-      if(admin.email!=null && admin.email.equals(email)) {
+      if(user.email!=null && user.email.equals(email)) {
         System.out.println("User with email " + email + " already exists.");
-        return Mono.just(new Response("User with email id already exists", 302));
+        if(!user.validated){
+          return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+        }else{
+          return Mono.just(new Response("Account already exists",500));
+        }
       }
-
-      String password = "e0bf258e-8814-46d5-875a-c060255f6664";
-    /*
-      This would be a same temporary password for each user while creating,
-      once the user goes through the whole User creation workflow, he/she can change the password.
-     */
-      User user = new User(email, password);
-      String token = user.validationToken();
-      user.setValidationToken(token);
-      user.registerMoment = new Date().getTime();
-      return createUser(user).flatMap(createdUser-> sendVerificationCode(createdUser.email));
+      return createUser(new User(email, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));
     });
-
   }
-
-  public Mono<Boolean> setPassword(String email, String password, String passwordConfirm){
-    return getUser(email).flatMap(user-> {
-      if(!password.equals(passwordConfirm)){
-        return Mono.error(new Exception("Password is not confirmed."));
-      }else if(user.getAuthToken() == null){
-        return Mono.error(new Exception("Does not have Auth Token"));
-      }else {
-        user.setPassword(password);
-        user.setAuthToken(null);
-        user.registerMoment = 0;
-        userRepository.save(user).subscribe();
-        return Mono.just(true);
-      }
-    });
+  public Mono<User> doesUserExists(String email) {
+    User user = new User();
+    return userRepository.findById(email)
+            .switchIfEmpty(Mono.just(user))
+            .onErrorResume(
+                    throwable -> throwable instanceof Exception,
+                    throwable -> Mono.just(user));
   }
 
   public GlobusClient getGlobusClientFromUser(User user){
@@ -126,6 +119,7 @@ public class UserService {
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
         user.setAuthToken(null);
+        user.validated = true;
         userRepository.save(user).subscribe();
         return Mono.just(true);
       }else{
@@ -150,15 +144,6 @@ public class UserService {
         return Mono.just(true);
       }
     });
-  }
-
-  /*
-      check if user exists already in db
-   */
-  public Mono<User> doesUserExists(String email) {
-    User user = new User();
-    return userRepository.findById(email)
-            .switchIfEmpty(Mono.just(user));
   }
 
   public Mono<User> getUser(String email) {
@@ -213,7 +198,7 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
-  public Mono<Object> sendVerificationCode(String email) {
+  public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
 
@@ -237,7 +222,7 @@ public class UserService {
 
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
-      user.setVerifyCode(code);
+      user.setVerifyCode(code, expire_in_minutes);
       userRepository.save(user).subscribe();
       try {
         // Create a default MimeMessage object.
@@ -316,9 +301,7 @@ public class UserService {
         return Mono.error(new Exception("code expired"));
       }else if(expectedCode.code.equals(code)){
         user.setCode(null);
-        if(user.getAuthToken() == null){
-          user.setAuthToken(code+User.salt(12));
-        }
+        user.setAuthToken(code+User.salt(12));
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
       }else{
