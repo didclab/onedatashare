@@ -241,10 +241,8 @@ public class UserService {
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
-//        return Mono.just(false);
 
       }
-//      return Mono.just(true);
       return Mono.just(new Response("Success", 200));
     });
   }
