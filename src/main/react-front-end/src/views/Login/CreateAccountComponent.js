@@ -30,7 +30,9 @@ export default class CreateAccountComponent extends Component {
         lastName:"",
         organization:"",
         loading: false
-	    }
+      }
+      this.firstNameValidationMsg = "Please Enter Your First Name"
+      this.lastNameValidationMsg = "Please Enter Your Last Name"
 
 	    this.onNextClicked = this.onNextClicked.bind(this);
 	    this.registerAccount = this.registerAccount.bind(this);
@@ -44,14 +46,22 @@ export default class CreateAccountComponent extends Component {
         let firstName = this.state.firstName;
         let lastName = this.state.lastName;
         let organization = this.state.organization;
-        let self = this;
-
-       
+        let self = this;       
 
         if(email.trim().length == 0) {
             let state = self.state;
             state.emaildError = "Please Enter EmailId";
             self.setState({state});
+        }
+        else if(firstName.trim().length == 0) {
+          let state = self.state;
+          state.firstNameValidation = this.firstNameValidationMsg;
+          self.setState({state});
+        }
+        else if(lastName.trim().length == 0) {
+          let state = self.state;
+          state.lastNameValidation = this.lastNameValidationMsg;
+          self.setState({state});
         }
         else {
           this.state.loading = true;
@@ -135,6 +145,14 @@ export default class CreateAccountComponent extends Component {
 	render(){
 		const { create, backToSignin } = this.props;
 		const handleChange = name => event => {
+      if(name === 'firstName'){
+        this.state.firstNameValidation = ""
+        this.setState(this.state)
+      }
+      if(name === 'lastName'){
+        this.state.lastNameValidation = ""
+        this.setState(this.state)
+      }
 		    this.setState({
 		      [name]: event.target.value,
 		    });
@@ -158,19 +176,19 @@ export default class CreateAccountComponent extends Component {
                     	        />
                               <TextField
                     	          id="FirstName"
-                    	          label={"Enter your First Name"}
+                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "Enter Your First Name"}
                     	          value={this.state.firstName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('firstName') }
-                    	          //error = {this.state.firstNameError === "Please Enter FirstName"}
+                    	          error = {this.state.firstNameValidation === this.firstNameValidationMsg}
                     	        />
                               <TextField
                     	          id="LastName"
-                    	          label={"Enter your Last Name"}
+                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Enter Your Last Name"}
                     	          value={this.state.lastName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('lastName') }
-                    	          //error = {this.state.emaildError === "Please Enter LastName"}
+                    	          error = {this.state.lastNameValidation === this.lastNameValidationMsg}
                     	        />
                               <TextField
                     	          id="Organization"
@@ -178,7 +196,6 @@ export default class CreateAccountComponent extends Component {
                     	          value={this.state.organization}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('organization') }
-                    	          //error = {this.state.emaildError === "Please Enter LastName"}
                     	        />
                     	        {/*<TextField
                     	          id="Password"
