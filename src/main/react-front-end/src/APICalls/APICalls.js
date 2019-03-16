@@ -590,28 +590,31 @@ export async function openOAuth(url){
 
 
 
-export async function registerUser(emailId) {
+export async function registerUser(emailId, firstName, lastName, organization) {
 
-    return axios.post(url+'user', {
-    	    action: "register",
-    	    email : emailId
-    	})
-    	.then((response) => {
-    	    if(response.data && response.data.status && response.data.status == 302) {
-    	        console.log("User already exists");
-    	        return {status : 302}
-    	    }
-    		if(!(response.status === 200))
-    			throw new Error("Failed to register user")
-    		else {
-    		    return response
-    		}
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          console.error("Error while registering user");
-          return {status : 500}
-        });
+	return axios.post(url+'user', {
+				action: "register",
+				email : emailId,
+				firstName : firstName,
+				lastName : lastName,
+				organization : organization
+		})
+		.then((response) => {
+	if(response.data && response.data.status && response.data.status == 302) {
+						console.log("User already exists");
+						return {status : 302}
+				}
+			if(!(response.status === 200))
+				throw new Error("Failed to register user")
+			else {
+					return response
+			}
+		})
+		.catch((error) => {
+				//statusHandle(error, fail);
+				console.error("Error while registering user");
+				return {status : 500}
+			});
 }
 
 

@@ -8,13 +8,13 @@ import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import {spaceBetweenStyle} from '../../constants.js';
 import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/APICalls.js'
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 
 export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
 	  	backToSignin: PropTypes.func,
-	  	 
 	}
 	constructor(props){
 	    super(props);
@@ -23,9 +23,13 @@ export default class CreateAccountComponent extends Component {
 	    	password: "",
 	    	cpassword: "",
 	    	code : "",
-            screen : "registration",
-            verificationError : "",
-            passwordError : ""
+        screen : "registration",
+        verificationError : "",
+        passwordError : "",
+        firstName:"",
+        lastName:"",
+        organization:"",
+        loading: false
 	    }
 
 	    this.onNextClicked = this.onNextClicked.bind(this);
@@ -35,15 +39,25 @@ export default class CreateAccountComponent extends Component {
 	}
 
 	registerAccount() {
+
         let email = this.state.email;
+        let firstName = this.state.firstName;
+        let lastName = this.state.lastName;
+        let organization = this.state.organization;
         let self = this;
+
+       
+
         if(email.trim().length == 0) {
             let state = self.state;
             state.emaildError = "Please Enter EmailId";
             self.setState({state});
         }
         else {
-            registerUser(email).then((response)=>{
+          this.state.loading = true;
+          self.setState(this.state)
+            registerUser(email, firstName, lastName, organization).then((response)=>{
+              self.state.loading = false;
                 if(response.status == 200 ){
                     let state = self.state;
                     state.screen = "verifyCode";
@@ -51,10 +65,10 @@ export default class CreateAccountComponent extends Component {
                     self.setState({state});
                 }
                 else if(response.status == 302) {
-                    let state = self.state;
-                    state.verificationError = "User with same Email Id already exists";
-                    self.setState({state});
-                }
+                  let state = self.state;
+                  state.verificationError = "User with same Email Id already exists";
+                  self.setState({state});
+              }
             })
         }
     }
@@ -125,20 +139,46 @@ export default class CreateAccountComponent extends Component {
 		      [name]: event.target.value,
 		    });
 		};
-		const screen = this.state.screen;
+    const screen = this.state.screen;
+    const showLoader = this.state.loading;
         		if(screen === "registration"){
         		    return (
                     		<div className="enter-from-right slide-in">
+                              <div>{showLoader && <LinearProgress></LinearProgress>}</div>
                     	      	<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
                     	          Create your OneDataShare Account
                     	        </Typography>
                     	        <TextField
                     	          id="Email"
-                    	          label={this.state.verificationError === "User with same Email Id already exists" ? "User with same Email Id already exists" : "Enter your email id"}
+                    	          label={this.state.emaildError === "Please Enter EmailId" ? "Please Enter EmailId": "Enter Your Email"}
                     	          value={this.state.email}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('email') }
-                    	          error = {this.state.verificationError === "User with same Email Id already exists"}
+                    	          error = {this.state.emaildError === "Please Enter EmailId"}
+                    	        />
+                              <TextField
+                    	          id="FirstName"
+                    	          label={"Enter your First Name"}
+                    	          value={this.state.firstName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('firstName') }
+                    	          //error = {this.state.firstNameError === "Please Enter FirstName"}
+                    	        />
+                              <TextField
+                    	          id="LastName"
+                    	          label={"Enter your Last Name"}
+                    	          value={this.state.lastName}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('lastName') }
+                    	          //error = {this.state.emaildError === "Please Enter LastName"}
+                    	        />
+                              <TextField
+                    	          id="Organization"
+                    	          label={"Enter your Organization"}
+                    	          value={this.state.organization}
+                    	          style={{width: '100%', marginBottom: '50px'}}
+                    	          onChange={ handleChange('organization') }
+                    	          //error = {this.state.emaildError === "Please Enter LastName"}
                     	        />
                     	        {/*<TextField
                     	          id="Password"
@@ -180,12 +220,12 @@ export default class CreateAccountComponent extends Component {
                               onChange={ handleChange('email') }
                             />
                             <TextField
-                                  id="code"
-                                  label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
-                                  value={this.state.code}
-                                  style={{width: '100%', marginBottom: '50px'}}
-                                  onChange={ handleChange('code') }
-                                  error = {this.state.verificationError=="Please Enter Valid Verification Code"}
+                                id="code"
+                                label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
+                                value={this.state.code}
+                                style={{width: '100%', marginBottom: '50px'}}
+                                onChange={ handleChange('code') }
+                                error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
                             {/*<TextField
                               id="Password"

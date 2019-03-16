@@ -51,7 +51,7 @@ public class UserService {
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
   }
 
-  public Object register(String email) {
+  public Object register(String email, String firstName, String lastName, String organization) {
 
     return doesUserExists(email).flatMap(admin -> {
 
@@ -65,7 +65,7 @@ public class UserService {
       This would be a same temporary password for each user while creating,
       once the user goes through the whole User creation workflow, he/she can change the password.
      */
-      User user = new User(email, password);
+      User user = new User(email, firstName, lastName, organization, password);
       String token = user.validationToken();
       user.setValidationToken(token);
       String code = RandomStringUtils.randomAlphanumeric(6);

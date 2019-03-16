@@ -23,7 +23,12 @@ public class User {
   public String hash;
   /** Salt used for hash. */
   public String salt;
-
+  /** User first name. */
+  public String firstName;
+  /** User last name */
+  public String lastName;
+  /** User Organization */
+  public String organization;
   /** Temp code and expire date **/
   public VerifyCode code;
 
@@ -95,8 +100,11 @@ public class User {
   public User() { }
 
   /** Create a user with the given email and password. */
-  public User(String email, String password) {
+  public User(String email, String firstName, String lastName, String organization, String password) {
     this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.organization = organization;
     setPassword(password);
   }
 

@@ -69,8 +69,8 @@ export default class ClientsInfoComponent extends Component{
 									return(
 									<TableRow>
 										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName}</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{
 											date.getMonth() +'/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes()
 										}</TableCell>
@@ -102,9 +102,9 @@ export default class ClientsInfoComponent extends Component{
 							{
 								admins.map(resp =>(
 									<TableRow>
-										<TableCell style={{fontSize: '1rem'}}><Person />{resp}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
+										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName}</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
 									</TableRow>))
 							}
