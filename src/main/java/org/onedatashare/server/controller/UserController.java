@@ -17,6 +17,8 @@ public class UserController {
   @Autowired
   private UserService userService;
 
+  final int TIMEOUT_IN_MINUTES = 1440;
+
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
 
@@ -24,7 +26,7 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return userService.register(userAction.email, userAction.password, userAction.confirmPassword);
+        return userService.register(userAction.email);
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
@@ -32,7 +34,7 @@ public class UserController {
       case "verifyEmail":
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
-        return userService.sendVerificationCode(userAction.email);
+        return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
       case "getUsers":
         return userService.getAllUsers();
       case "getAdministrators":

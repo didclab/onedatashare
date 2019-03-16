@@ -12,6 +12,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,8 @@ public class UserService {
     return userRepository.insert(user);
   }
 
+  final int TIMEOUT_IN_MINUTES = 1440;
+
   public Mono<User.UserLogin> login(String email, String password) {
   //  User user = new User("vanditsa@buffalo.edu", "asdasd");
   //  createUser(user).subscribe(System.out::println);
@@ -45,13 +48,34 @@ public class UserService {
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
   }
 
-  public Object register(String email, String password, String passwordConfirm) {
-    User user = new User(email, password);
-    if(password.equals(passwordConfirm)) {
-      user.setValidationToken(user.validationToken());
-      return createUser(user).map(this::sendVerificationEmail);
-    }
-    else return Mono.error(new InvalidField("Passwords do not match")); //RuntimeException
+  public Object register(String email) {
+
+    return doesUserExists(email).flatMap(user -> {
+
+      String password = User.salt(20);
+      /*
+        This would be a same temporary password for each user while creating,
+        once the user goes through the whole User creation workflow, he/she can change the password.
+      */
+      // Means admin user exists in the DB
+      if(user.email!=null && user.email.equals(email)) {
+        System.out.println("User with email " + email + " already exists.");
+        if(!user.validated){
+          return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+        }else{
+          return Mono.just(new Response("Account already exists",500));
+        }
+      }
+      return createUser(new User(email, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));
+    });
+  }
+  public Mono<User> doesUserExists(String email) {
+    User user = new User();
+    return userRepository.findById(email)
+            .switchIfEmpty(Mono.just(user))
+            .onErrorResume(
+                    throwable -> throwable instanceof Exception,
+                    throwable -> Mono.just(user));
   }
 
   public GlobusClient getGlobusClientFromUser(User user){
@@ -95,6 +119,7 @@ public class UserService {
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
         user.setAuthToken(null);
+        user.validated = true;
         userRepository.save(user).subscribe();
         return Mono.just(true);
       }else{
@@ -119,11 +144,6 @@ public class UserService {
         return Mono.just(true);
       }
     });
-  }
-
-  public Object sendVerificationEmail(User user) {
-    //TODO
-    return null;
   }
 
   public Mono<User> getUser(String email) {
@@ -178,7 +198,7 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
-  public Mono<Boolean> sendVerificationCode(String email) {
+  public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
 
@@ -202,7 +222,7 @@ public class UserService {
 
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
-      user.setVerifyCode(code);
+      user.setVerifyCode(code, expire_in_minutes);
       userRepository.save(user).subscribe();
       try {
         // Create a default MimeMessage object.
@@ -221,8 +241,11 @@ public class UserService {
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
+//        return Mono.just(false);
+
       }
-      return Mono.just(true);
+//      return Mono.just(true);
+      return Mono.just(new Response("Success", 200));
     });
   }
 
@@ -272,17 +295,13 @@ public class UserService {
     return getUser(email).flatMap(user-> {
       User.VerifyCode expectedCode = user.getCode();
 
-//      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//      System.out.println("new date "+dateFormat.format(new Date()));
       if(expectedCode == null){
         return Mono.error(new Exception("code not set"));
       }else if(expectedCode.expireDate.before(new Date())){
         return Mono.error(new Exception("code expired"));
       }else if(expectedCode.code.equals(code)){
         user.setCode(null);
-        if(user.getAuthToken() == null){
-          user.setAuthToken(code+User.salt(12));
-        }
+        user.setAuthToken(code+User.salt(12));
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
       }else{
