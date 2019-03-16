@@ -44,15 +44,13 @@ export default class CreateAccountComponent extends Component {
         }
         else {
             registerUser(email).then((response) =>{
-                if(response.data.status !== null){
+                if(response.data.status !== 200){
                   alert(response.data.response);
-                }else
-                if(response.status == 200 ){
+                }else{
                     let state = self.state;
                     state.screen = "verifyCode";
                     self.setState({state});
                 }
-
             })
         }
     }
@@ -178,15 +176,8 @@ export default class CreateAccountComponent extends Component {
                     return (
                         <div className="enter-from-right slide-in">
                             <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                              Code Verified! Enter password for your account at {this.state.email}
+                              Code Verified! Please set password for your account
                             </Typography>
-                            <TextField
-                              id="Email"
-                              label="Enter Your Email"
-                              value={this.state.email}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('email') }
-                            />
 
                             <TextField
                               id="Password"
