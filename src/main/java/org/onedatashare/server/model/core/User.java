@@ -110,6 +110,14 @@ public class User {
     setPassword(password);
   }
 
+  public User(String email, String password) {
+    this.email = email;
+    this.firstName = "";
+    this.lastName = "";
+    this.organization = "";
+    setPassword(password);
+  }
+
   /** Check if the given password is correct for this user. */
   public synchronized boolean checkPassword(String password) {
     return hash(password).equals(hash);
@@ -309,7 +317,7 @@ public class User {
       this.hash = hash;
     }
   }
-  @Data
+
   public class VerifyCode {
     public String code;
     public Date expireDate;

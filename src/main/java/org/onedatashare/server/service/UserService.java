@@ -40,8 +40,8 @@ public class UserService {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
-  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
-  //  createUser(user).subscribe(System.out::println);
+//    User user = new User("vanditsa@buffalo.edu", "asdasd");
+//    createUser(user).subscribe(System.out::println);
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
@@ -69,21 +69,7 @@ public class UserService {
       return createUser(new User(email, firstName, lastName, organization, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));
     });
   }
-  public Mono<Boolean> setPassword(String email, String password, String passwordConfirm){
-    return getUser(email).flatMap(user-> {
-      if(!password.equals(passwordConfirm)){
-        return Mono.error(new Exception("Password is not confirmed."));
-      }else if(user.getAuthToken() == null){
-        return Mono.error(new Exception("Does not have Auth Token"));
-      }else {
-        user.setPassword(password);
-        user.setAuthToken(null);
-        user.registerMoment = 0;
-        userRepository.save(user).subscribe();
-        return Mono.just(true);
-      }
-    });
-  }
+
   public Mono<User> doesUserExists(String email) {
     User user = new User();
     return userRepository.findById(email)
@@ -304,10 +290,8 @@ public class UserService {
    */
 
   public Mono<String> verifyCode(String email, String code){
-
     return getUser(email).flatMap(user-> {
       User.VerifyCode expectedCode = user.getCode();
-
       if(expectedCode == null){
         return Mono.error(new Exception("code not set"));
       }else if(expectedCode.expireDate.before(new Date())){
