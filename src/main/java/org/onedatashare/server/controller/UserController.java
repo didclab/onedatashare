@@ -26,7 +26,7 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return userService.register(userAction.email);
+        return userService.register(userAction.email, userAction.firstName, userAction.lastName, userAction.organization);
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
