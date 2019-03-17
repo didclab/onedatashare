@@ -107,6 +107,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     return new VfsDrain().start();
   }
 
+  public VfsDrain sink(Stat stat) {
+    return new VfsDrain().start(path + stat.getName());
+  }
+
   class VfsTap implements Tap {
     FileContent fileContent;
 
@@ -184,7 +188,15 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     @Override
-    public Drain start(String drainPath) {
+    public VfsDrain start(String drainPath) {
+      try {
+        fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+        return start();
+      }
+      catch(FileSystemException fse){
+        System.out.println("Exception encountered while creating file object");
+        fse.printStackTrace();
+      }
       return null;
     }
 
