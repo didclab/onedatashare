@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
@@ -100,7 +102,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
   }
 
   public VfsTap tap() {
-    return new VfsTap();
+
+    VfsTap vfsTap = new VfsTap();
+    vfsTap.tapStat();
+    return vfsTap;
   }
 
   public VfsDrain sink() {
@@ -111,22 +116,83 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     return new VfsDrain().start(path + stat.getName());
   }
 
-  class VfsTap implements Tap {
-    FileContent fileContent;
+  public Mono<Stat>transferStat() {
+    return initialize()
+            .map(VfsResource::onStat)
+            .map( s -> {
+              List<Stat> sub = new LinkedList<>();
+              long directorySize = 0L;
 
-    {
+              if(s.isDir()){
+                try {
+                  directorySize = buildDirectoryTree(sub, fileObject.getChildren(), "/");
+                }
+                catch(FileSystemException fse){
+                  System.out.println("Exception encountered while generating file objects within a folder");
+                  fse.printStackTrace();
+                }
+              }
+              else{
+                fileResource = true;
+                sub.add(s);
+                directorySize = s.getSize();
+              }
+              s.setFilesList(sub);
+              s.setSize(directorySize);
+              return s;
+            });
+  }
+
+  public Long buildDirectoryTree(List<Stat> sub, FileObject[] fileObjects, String relativeDirName){
+    long directorySize = 0L;
+
+    for(FileObject fileObject : fileObjects){
       try {
-        fileContent = fileObject.getContent();
-      } catch (FileSystemException e) {
+        if (fileObject.isFile()) {
+          Stat fileStat = fileContentToStat(fileObject);
+          fileStat.setName(relativeDirName + fileStat.getName());
+          directorySize += fileStat.getSize();
+          sub.add(fileStat);
+        } else {
+          directorySize += buildDirectoryTree(sub, fileObject.getChildren(), relativeDirName + fileObject.getName() + "/");
+        }
+      }
+      catch (FileSystemException e) {
         e.printStackTrace();
+
       }
     }
+    return directorySize;
+  }
 
-    final long size = stat().block().size;
+  class VfsTap implements Tap {
+    FileContent fileContent;
+    Stat transferStat;
+    long size;
 
     @Override
     public Stat getTransferStat() {
-      return null;
+      return transferStat;
+    }
+
+    @Override
+    public Flux<Slice> tap(Stat stat, long sliceSize) {
+      String downloadPath = path;
+      if(!fileResource)
+        downloadPath += stat.getName();
+      try {
+        fileObject = session.fileSystemManager.resolveFile(downloadPath , session.fileSystemOptions);
+        fileContent = fileObject.getContent();
+      }
+      catch (FileSystemException e) {
+        e.printStackTrace();
+      }
+      size = stat.getSize();
+      return tap(sliceSize);
+    }
+
+    public void tapStat(){
+      transferStat = transferStat().block();
     }
 
     public Flux<Slice> tap(long sliceSize) {
@@ -166,10 +232,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
               });
     }
 
-    @Override
-    public Flux<Slice> tap(Stat stat, long sliceSize) {
-      return null;
-    }
+
   }
 
   class VfsDrain implements Drain {
