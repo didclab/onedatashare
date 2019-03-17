@@ -86,6 +86,11 @@ public class DbxService implements ResourceService<DbxResource>{
             .subscribeOn(Schedulers.elastic());
   }
 
+  @Override
+  public Mono<String> download(String cookie, UserAction userAction) {
+    return null;
+  }
+
   public void processTransferFromJob(Job job, String cookie) {
     Transfer<DbxResource, DbxResource> transfer = new Transfer<>();
     getDbxResourceWithJobSourceOrDestination(cookie, job.src)
@@ -107,4 +112,5 @@ public class DbxService implements ResourceService<DbxResource>{
   public Mono<String> getDownloadURL(String cookie, UserAction userAction){
     return getDbxResourceWithUserActionUri(cookie,userAction).flatMap(DbxResource::generateDownloadLink);
   }
+
 }

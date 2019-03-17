@@ -46,7 +46,7 @@ export default class CreateAccountComponent extends Component {
         let firstName = this.state.firstName;
         let lastName = this.state.lastName;
         let organization = this.state.organization;
-        let self = this;       
+        let self = this;
 
         if(email.trim().length == 0) {
             let state = self.state;
@@ -87,11 +87,11 @@ export default class CreateAccountComponent extends Component {
         let email = this.state.email;
         let self = this;
         let code = this.state.code;
-        verifyRegistraionCode(email, code).then((response)=>{
+        verifyRegistraionCode(email, code).then((response) =>{
             let state = self.state;
             if(response.status == 200 ) {
                 state.screen = "setPassword";
-                state.verificationError = "";
+                state.code = response.data;
                 self.setState({state});
             }
             else {
@@ -114,7 +114,7 @@ export default class CreateAccountComponent extends Component {
             self.setState({state});
         }
         else{
-            setPassword(email, code, password, confirmPassword).then((response)=>{
+            setPassword(email, code, password, confirmPassword).then((response) =>{
 
                 //state.screen = "setPassword";
                 //self.setState({state});
@@ -125,9 +125,7 @@ export default class CreateAccountComponent extends Component {
     }
 
 	shouldComponentUpdate(nextProps, nextState) {
-		console.log("next ", nextState);
-		//if(nextState.email === "") return false;
-    	//if (this.props.create === nextProps.create && this.props.backToSignin === nextProps.backToSignin) return false;
+		  console.log("next ", nextState);
     	return true;
   	}
 
@@ -136,7 +134,7 @@ export default class CreateAccountComponent extends Component {
 		var { email, password, remember } = this.state;
 		isLoading(true);
 
-		userLoggedIn(email, password, remember, (error)=>{
+		userLoggedIn(email, password, remember, (error) =>{
     		isLoading(false);
 			this.setState({error: true, errorMessage: error});
 		});
@@ -197,26 +195,11 @@ export default class CreateAccountComponent extends Component {
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('organization') }
                     	        />
-                    	        {/*<TextField
-                    	          id="Password"
-                    	          label="Password"
-                    	          type="password"
-                    	          value={this.state.password}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('password') }
-                    	        />
-                    	        <TextField
-                    	          id="Cpassword"
-                    	          type="password"
-                    	          label="Confirm Password"
-                    	          value={this.state.cpassword}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('cpassword') }
-                    	        />*/}
+
                     	        <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                    		        {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
+                    		        <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                     		          Sign in Instead
-                    		        </Button>*/}
+                    		        </Button>
                     		        <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.registerAccount}>
                     		          Next
                     		        </Button>
@@ -227,15 +210,8 @@ export default class CreateAccountComponent extends Component {
                     return (
                         <div className="enter-from-right slide-in">
                             <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                              Create your OneDataShare Account
+                              Please check {this.state.email} for authorization code
                             </Typography>
-                            <TextField
-                              id="Email"
-                              label="Enter Your Email"
-                              value={this.state.email}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('email') }
-                            />
                             <TextField
                                 id="code"
                                 label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
@@ -244,26 +220,13 @@ export default class CreateAccountComponent extends Component {
                                 onChange={ handleChange('code') }
                                 error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
-                            {/*<TextField
-                              id="Password"
-                              label="Password"
-                              type="password"
-                              value={this.state.password}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('password') }
-                            />
-                            <TextField
-                              id="Cpassword"
-                              type="password"
-                              label="Confirm Password"
-                              value={this.state.cpassword}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('cpassword') }
-                            />*/}
+
                             <CardActions style={spaceBetweenStyle,{float:'right'}}>
-                                {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                                  Sign in Instead
-                                </Button>*/}
+                                <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                                  this.setState({screen: "registration"});
+                                }}>
+                                  Back
+                                </Button>
                                 <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.verifyAccount}>
                                   Next
                                 </Button>
@@ -274,16 +237,9 @@ export default class CreateAccountComponent extends Component {
                     return (
                         <div className="enter-from-right slide-in">
                             <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                              Create your OneDataShare Account
+                              Code Verified! Please set password for your account
                             </Typography>
-                            <TextField
-                              id="Email"
-                              label="Enter Your Email"
-                              value={this.state.email}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('email') }
 
-                            />
                             <TextField
                               id="Password"
                               label="Password"
@@ -291,8 +247,8 @@ export default class CreateAccountComponent extends Component {
                               value={this.state.password}
                               style={{width: '100%', marginBottom: '50px'}}
                               onChange={ handleChange('password') }
-
                             />
+
                             <TextField
                               id="Cpassword"
                               type="password"
@@ -302,17 +258,13 @@ export default class CreateAccountComponent extends Component {
                               onChange={ handleChange('cpassword') }
                               error = {this.state.passwordError === "Password Doesn't Match"}
                             />
-                            <TextField
-                              id="code"
-                              label="Enter Verification Code"
-                              value={this.state.code}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('code') }
-                            />
+
                             <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                                {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                                  Sign in Instead
-                                </Button>*/}
+                                <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                                  this.setState({screen: "verifyCode"});
+                                }}>
+                                  Back
+                                </Button>
                                 <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.login}>
                                   Next
                                 </Button>

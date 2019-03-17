@@ -22,7 +22,6 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
 import FileInput from 'react-fine-uploader/file-input';
 
 import FineUploaderTraditional from 'fine-uploader-wrappers';
@@ -40,31 +39,6 @@ import {eventEmitter} from "../../App";
 
 import {getType} from '../../constants.js';
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
-
-const uploader = new FineUploaderTraditional({
-	// debug: true,
-   options: {
-   	  chunking: {
-        enabled: true,
-        concurrent: {
-	        enabled: true
-	    }
-      },
-      request: {
-        endpoint: '/api/stork/upload',
-	      // params: {
-	      //   file: function () {
-	      //     return 5;
-	      //   }
-	      //}
-      },
-
-      retry: {
-        enableAuto: true
-      },
-      "qqchunksize": 1000000
-   }
-})
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -302,9 +276,38 @@ export default class EndpointBrowseComponent extends Component {
 	render(){
 		const {endpoint, back, setLoading, getLoading} = this.props;
 		const {directoryPath} = this.state;
+		const uploader = new FineUploaderTraditional({
+			debug: true,
+			 options: {
+					 chunking: {
+						enabled: true,
+						partSize: 500000,
+						concurrent: {
+							enabled: false
+						},
+					},
+					request: {
+						endpoint: '/api/stork/upload',
+						params: {
+							directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+							credential: JSON.stringify(endpoint.credential)
+						}
+					},
+					retry: {
+						enableAuto: true
+					},
+					callbacks :{
+						onError: function(id, name, errorReason, xhr){
+							console.log('error occurred - ' + errorReason);
+						}
+					}
+					// "qqchunksize": 1000000
+			 }
+		})
+
 		const list = getFilesFromMemory(endpoint) || [];
 		//console.log(list);
-		const iconStyle = {fontSize: "15px"};
+		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
@@ -384,11 +387,12 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-				  			<BootStrapButton style={buttonStyle} disabled={false}>
-									<FileInput uploader={uploader}>
-										<UploadButton style={iconStyle}/>
-									</FileInput>
+						<FileInput uploader={uploader} style={buttonStyle}>
+				  			<BootStrapButton disabled={false}>
+								<UploadButton style={iconStyle}/>
 				  			</BootStrapButton>
+			  			</FileInput>
+				  			
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
 				  	overlay={tooltip("Delete")}>

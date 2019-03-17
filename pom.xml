@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.14</version>
+            <version>1.18</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -130,6 +130,14 @@
             <version>1.0-SNAPSHOT</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+
+        <!-- Lombok Plugin -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.6</version>
+            <scope>provided</scope>
         </dependency>
 
     </dependencies>

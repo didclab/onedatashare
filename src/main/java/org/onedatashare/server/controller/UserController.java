@@ -13,8 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stork/user")
 public class UserController {
+
   @Autowired
   private UserService userService;
+
+  final int TIMEOUT_IN_MINUTES = 1440;
 
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -31,7 +34,7 @@ public class UserController {
       case "verifyEmail":
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
-        return userService.sendVerificationCode(userAction.email);
+        return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
       case "getUsers":
         return userService.getAllUsers();
       case "getAdministrators":
@@ -39,7 +42,7 @@ public class UserController {
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
-        return userService.setPassword(userAction.email, userAction.password, userAction.confirmPassword);
+        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
         return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
@@ -67,14 +70,11 @@ public class UserController {
   public ResponseEntity<InvalidField> handle(InvalidField invf){
     System.out.println(invf.getMessage());
     return new ResponseEntity<>(invf, invf.status);
-
   }
 
   @ExceptionHandler(ForbiddenAction.class)
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
     System.out.println(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
-
   }
-
 }

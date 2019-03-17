@@ -1,7 +1,11 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.module.globusapi.EndPointList;
 import org.onedatashare.module.globusapi.GlobusClient;
+import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.useraction.GlobusEndpointAction;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,4 @@ public class GlobusEndpointController {
                 return Mono.error(new NotFound());
         }
     }
-
-
 }
