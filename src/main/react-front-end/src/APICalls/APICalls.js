@@ -137,6 +137,29 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
     });
 }
 
+export async function setPassword(emailId, code, password, confirmPassword) {
+
+    return axios.post(url+'user', {
+    	    action: "setPassword",
+    	    email : emailId,
+    	    code : code,
+    	    password : password,
+    	    confirmPassword : confirmPassword
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to set password for users account")
+    		else {
+                    return response;
+                }
+            //statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          return {status : 500}
+        });
+}
+
 
 /*
 	Desc: Login and return a hash
@@ -581,24 +604,31 @@ export async function openOAuth(url){
 
 
 
-export async function registerUser(emailId) {
+export async function registerUser(emailId, firstName, lastName, organization) {
 
-    return axios.post(url+'user', {
-    	    action: "register",
-    	    email : emailId
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to register user")
-    		else {
-    		    return response
-    		}
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          console.error("Error while registering user");
-          return {status : 500}
-        });
+	return axios.post(url+'user', {
+				action: "register",
+				email : emailId,
+				firstName : firstName,
+				lastName : lastName,
+				organization : organization
+		})
+		.then((response) => {
+	if(response.data && response.data.status && response.data.status == 302) {
+						console.log("User already exists");
+						return {status : 302}
+				}
+			if(!(response.status === 200))
+				throw new Error("Failed to register user")
+			else {
+					return response
+			}
+		})
+		.catch((error) => {
+				//statusHandle(error, fail);
+				console.error("Error while registering user");
+				return {status : 500}
+			});
 }
 
 
@@ -636,25 +666,3 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
     });
 }
 
-export async function setPassword(emailId, code, password, confirmPassword) {
-
-    return axios.post(url+'user', {
-    	    action: "setPassword",
-    	    email : emailId,
-    	    code : code,
-    	    password : password,
-    	    confirmPassword : confirmPassword
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to set password for users account")
-    		else {
-                    return response;
-                }
-            //statusHandle(response, callback);
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          return {status : 500}
-        });
-}
