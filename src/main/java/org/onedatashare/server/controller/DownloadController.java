@@ -26,17 +26,19 @@ public class DownloadController {
 
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-        String cookie = headers.getFirst( "cookie" );
+        String cookie = headers.getFirst("cookie");
 //        System.out.println(userAction);
 
-        if (userAction.uri.startsWith( "dropbox://" )) {
-            return dbxService.getDownloadURL( cookie, userAction );
-        } else if ("googledrive:/".equals( userAction.type )) {
+        if (userAction.uri.startsWith("dropbox://")) {
+            return dbxService.getDownloadURL(cookie, userAction);
+        } else if ("googledrive:/".equals(userAction.type)) {
             if (userAction.credential == null) {
-                return new ResponseEntity<>( new AuthenticationRequired( "oauth" ), HttpStatus.INTERNAL_SERVER_ERROR );
-            } else return resourceService.download( cookie, userAction );
-        } else if (userAction.uri.startsWith( "ftp://" )) {
+                return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+            } else return resourceService.download(cookie, userAction);
+        } else if (userAction.uri.startsWith("ftp://")) {
             return vfsService.getDownloadURL(cookie, userAction);
+        } else if (userAction.uri.startsWith("sftp://")) {
+
         }
         return null;
     }
