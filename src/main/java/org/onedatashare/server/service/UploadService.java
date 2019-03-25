@@ -1,8 +1,10 @@
 package org.onedatashare.server.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -31,7 +33,7 @@ public class UploadService {
     private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
     public Mono<Integer> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
-                                 String directoryPath, String fileName, Long totalFileSize) {
+                                 String directoryPath, String fileName, Long totalFileSize, String googledriveid, String idmap) {
         if (ongoingUploads.containsKey(uuid)) {
             return sendFilePart(filePart, ongoingUploads.get(uuid));
         } else {
@@ -42,6 +44,8 @@ public class UploadService {
             ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
             System.out.println("total "+totalFileSize);
             ua.dest = new UserActionResource();
+            ua.dest.id = googledriveid;
+
 
             try {
                 if(directoryPath.endsWith("/")) {
@@ -52,6 +56,8 @@ public class UploadService {
 
                 ObjectMapper mapper = new ObjectMapper();
                 ua.dest.credential = mapper.readValue(credential, UserActionCredential.class);
+                IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
+                ua.dest.map = new ArrayList<>(Arrays.asList(idms));
             }catch(Exception e){
                 e.printStackTrace();
             }

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 public class UserAction {
   public String action;
   public String email;
+  public String firstName;
+  public String lastName;
+  public String organization;
   public String password;
   public String uri;
   public String id;
