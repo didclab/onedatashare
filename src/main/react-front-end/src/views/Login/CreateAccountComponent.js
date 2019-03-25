@@ -171,7 +171,7 @@ export default class CreateAccountComponent extends Component {
                     	        </Typography>
                     	        <TextField
                     	          id="Email"
-                    	          label={this.state.emaildError === this.emailValidationMsg ? this.emailValidationMsg: "Email"}
+                    	          label={this.state.emaildError === this.emailValidationMsg ? this.emailValidationMsg: "Email*"}
                     	          value={this.state.email}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('email') }
@@ -179,7 +179,7 @@ export default class CreateAccountComponent extends Component {
                     	        />
                               <TextField
                     	          id="FirstName"
-                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name"}
+                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name*"}
                     	          value={this.state.firstName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('firstName') }
@@ -187,7 +187,7 @@ export default class CreateAccountComponent extends Component {
                     	        />
                               <TextField
                     	          id="LastName"
-                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Last Name"}
+                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Last Name*"}
                     	          value={this.state.lastName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('lastName') }
