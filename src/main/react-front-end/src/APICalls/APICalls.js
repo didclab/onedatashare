@@ -524,6 +524,7 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
+		store.dispatch(logoutAction());
 	})
 	.catch((error) => {
       fail(error);

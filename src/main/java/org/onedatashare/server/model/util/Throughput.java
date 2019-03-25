@@ -22,10 +22,11 @@ public class Throughput {
   /** Create a {@code Throughput} from {@code bytes} and {@code time}. */
   public Throughput(double bytes, double time) {
     q = 0;
-    // The below check avoids the division by 0.0, which avoids setting of infinite value to 'th' filed
-    // Without this check the Average speed in UI appears as infinity GB/s
-    if(time > 0){
-        th = bytes/time;
+    th = bytes/time;
+    if(time == 0.0){
+      /* For very small file size, the timer ticks only 0.0.
+       So a very small value ( 0.0000001) is taken instead of 0.0*/
+      th = bytes/0.0000001;
     }
   }
 
