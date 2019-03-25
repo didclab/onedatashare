@@ -4,6 +4,7 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.UserInfoCredential;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -191,5 +192,17 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
     }
+  }
+
+  public Mono<String> getDownloadURL(){
+    String downloadLink=session.getUri().toString();
+    UserInfoCredential userInfoCredential = (UserInfoCredential) session.credential;
+    String username = userInfoCredential.getUsername(), password = userInfoCredential.getPassword();
+    StringBuilder downloadURL = new StringBuilder();
+    if(username!=null)
+      downloadURL.append("ftp://" + username + '@' + password + ':' + downloadLink.substring(6));
+    else
+      downloadURL.append(downloadLink);
+    return Mono.just(downloadURL.toString());
   }
 }

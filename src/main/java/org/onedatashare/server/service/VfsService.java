@@ -108,4 +108,7 @@ public class VfsService implements ResourceService<VfsResource> {
             .subscribe();
   }
 
+  public Mono<String> getDownloadURL(String cookie, UserAction userAction){
+    return getResourceWithUserActionUri(cookie,userAction).flatMap(VfsResource::getDownloadURL);
+  }
 }
