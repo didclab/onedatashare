@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import com.jcraft.jsch.HASH;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.*;
 import org.onedatashare.server.model.error.NotFound;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Controller
+@CrossOrigin
 @RequestMapping("/api/stork/oauth")
 public class OauthController {
   @Autowired
@@ -48,23 +50,36 @@ public class OauthController {
   static final String googledrive = "googledrive";
   static final String dropbox = "dropbox";
   static final String gridftp = "gridftp";
+
+  private static final String EMAIL_PARAM = "email";
+  private static final String HASH_PARAM = "hash";
   @GetMapping
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-    String cookie = headers.getFirst("cookie");
-      if(queryParameters.containsKey("state")) {
-        if(instance.equals(googledrive)){
-          instance = "";
-          return googleDriveOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                  .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-        }else if(instance.equals(dropbox)){
-          instance = "";
-        return dbxOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+    String temp = headers.getFirst("cookie");
+
+    if(temp == null){
+      if(queryParameters.containsKey(EMAIL_PARAM) && queryParameters.containsKey(HASH_PARAM)){
+        temp = EMAIL_PARAM + "=" + queryParameters.get(EMAIL_PARAM) + "; " +
+                HASH_PARAM + "=" + queryParameters.get(HASH_PARAM);
+      }
+    }
+
+    String cookie = temp;
+
+    if(queryParameters.containsKey("state")) {
+      if(instance.equals(googledrive)){
+        instance = "";
+        return googleDriveOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-        }else if(instance.equals(gridftp)){
-          instance = "";
-          return gridftpAuthService.finish(queryParameters.get("code")).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                  .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-        }else return Mono.error(new NotFound());
+      }else if(instance.equals(dropbox)){
+        instance = "";
+      return dbxOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+              .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+      }else if(instance.equals(gridftp)){
+        instance = "";
+        return gridftpAuthService.finish(queryParameters.get("code")).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+      }else return Mono.error(new NotFound());
     }
     else {
       if(queryParameters.get("type").equals(googledrive) ){
