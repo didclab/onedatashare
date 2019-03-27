@@ -23,7 +23,6 @@ import java.util.stream.IntStream;
 
 
 @RestController
-@RequestMapping("/api/stork/download")
 public class DownloadController {
 
     @Autowired
@@ -34,8 +33,6 @@ public class DownloadController {
 
     @Autowired
     private ResourceServiceImpl resourceService;
-
-    private static Mono<InputStream> sftpFileDownloadObj;
 
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -52,36 +49,8 @@ public class DownloadController {
         } else if (userAction.uri.startsWith("ftp://")) {
             return vfsService.getDownloadURL(cookie, userAction);
         } else if (userAction.uri.startsWith("sftp://")) {
-            sftpFileDownloadObj = vfsService.getDownloadStream(cookie, userAction);
-            return Mono.just("/api/stork/download/file");
+            return Mono.just("/api/stork/sftp_download/file");
         }
         return null;
-    }
-
-    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Mono<ResponseEntity> getAcquisition() {
-
-
-        if(sftpFileDownloadObj == null){
-            System.out.println("ERROR stream not set");
-            return null;
-        }
-        return DownloadController.sftpFileDownloadObj.map(inputstream -> {
-
-            InputStream inputStream = inputstream;
-
-//        System.out.println("Size of file is " + stream.length());
-            String filename = "Voila.txt";
-            InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=" + filename);
-            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-
-
-            return responseEntity;
-
-        });
     }
 }

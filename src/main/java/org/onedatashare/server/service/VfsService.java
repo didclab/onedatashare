@@ -118,8 +118,4 @@ public class VfsService implements ResourceService<VfsResource> {
         return Mono.just(null);
 //    return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadStream);
     }
-
-    public Mono<InputStream> getDownloadStream(String cookie, UserAction userAction){
-        return getResourceWithUserActionUri(cookie,userAction).map(VfsResource::getAcquisition);
-    }
 }

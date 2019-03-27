@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.stream.BaseStream;
 import java.util.zip.ZipOutputStream;
 
+//@RequestMapping("/api/stork/sftp_download")
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     private FileObject fileObject;
@@ -164,17 +165,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
-    public InputStream getAcquisition() {
-        InputStream inputStream = null;
-        try {
-            inputStream = fileObject.getContent().getInputStream();
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }
-
-        return inputStream;
-    }
-
     class VfsDrain implements Drain {
         OutputStream outputStream;
         long uploaded = 0L;
@@ -226,29 +216,30 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
 
-
-    public Mono<Slice> getDownloadStream() {
-
-        InputStream ois = null;
-        try {
-            ois = fileObject.getContent().getInputStream();
-        } catch (FileSystemException e) {
-//      e.printStackTrace();
-            System.out.println(("File sys exception"));
-        } catch (IOException e) {
-//      e.printStackTrace();
-            System.out.println("IOStackTrace exception");
-        }
-        byte[] b = null;
-        try {
-            b = new byte[128];
-            ois.read(b);
-            System.out.println(b);
-            System.out.println("Success");
-        } catch (IOException e) {
-            System.out.println("IOStacktrace exception in read");
-//      e.printStackTrace();
-        }
-        return Mono.just(null);
-    }
+//    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+//    public ResponseEntity getSftpFile() {
+//
+//        InputStream fileInputStream = null;
+//        try {
+//            fileInputStream = fileObject.getContent().getInputStream();
+//        } catch (FileSystemException e) {
+//            e.printStackTrace();
+//        }
+//
+//        if(fileInputStream == null){
+//            System.out.println("ERROR stream not set");
+//            return null;
+//        }
+//
+//        InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+//        HttpHeaders httpHeaders = new HttpHeaders();
+//        httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+//                "attachment; filename=" + fileObject.getName());
+//        //TODO: Add file length to the header
+//        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//        ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
+//        return responseEntity;
+//    }
 }
+
+
