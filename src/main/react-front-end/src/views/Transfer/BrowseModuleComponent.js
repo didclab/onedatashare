@@ -91,7 +91,7 @@ export default class BrowseModuleComponent extends Component {
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
 
-		const buttonStyle = {flexGrow: 1, width: "100%", fontSize: "12px",};
+		const buttonStyle = {flexGrow: 1, width: "100%", fontSize: "12px"};
 	    return (
 	    // saved credential
 	    // login manually
