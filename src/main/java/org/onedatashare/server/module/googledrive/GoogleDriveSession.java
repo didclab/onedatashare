@@ -40,7 +40,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     ArrayList<IdMap> idMap = null;
     transient LinkedBlockingQueue<String> mkdirQueue = new LinkedBlockingQueue<>();
     //transient final Integer Lock = new Integer(0);
-
+    static GoogleAuthorizationCodeFlow flow;
 
     static String APPLICATION_NAME = "OneDataShare";
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
@@ -123,14 +123,14 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     public static com.google.api.client.auth.oauth2.Credential authorize(String token) throws IOException {
         // Load client secrets.
         initGoogle();
-            GoogleAuthorizationCodeFlow flow =
+            flow =
                     new GoogleAuthorizationCodeFlow.Builder(
                             HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
                             .setDataStoreFactory(DATA_STORE_FACTORY)
                             .build();
 
             com.google.api.client.auth.oauth2.Credential credential = flow.loadCredential(token);
-            //System.out.println("Token1: "+credential.getAccessToken()+"\n Refresh Token1:"+credential.getRefreshToken());
+
             return credential;
 
     }
@@ -175,10 +175,19 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             GoogleCredential refreshTokenCredential = new GoogleCredential.Builder().setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).setClientSecrets(c.client_id, c.client_secret).build().setRefreshToken(cred.refreshToken);
             if(refreshTokenCredential.refreshToken()){
                 System.out.println("REFRESHTOKEN!");
-            }; //do not forget to call this
+            }
             String accessToken = refreshTokenCredential.getAccessToken();
-
             cred.token = accessToken;
+
+            TokenResponse tr = new TokenResponse();
+            tr.setAccessToken(refreshTokenCredential.getAccessToken());
+            tr.setRefreshToken(refreshTokenCredential.getRefreshToken());
+
+            tr.setExpiresInSeconds(refreshTokenCredential.getExpiresInSeconds());
+            tr.setScope(refreshTokenCredential.getServiceAccountScopesAsString());
+
+            flow.createAndStoreCredential(tr,accessToken);
+
 
             System.out.println("New AccessToken:"+cred.token+" RefreshToken:"+cred.refreshToken);
         }catch (IOException e){

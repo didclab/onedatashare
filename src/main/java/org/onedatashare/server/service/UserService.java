@@ -265,6 +265,7 @@ public class UserService {
 
   public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
     System.out.println("User Service token: "+credential.token);
+
 //    final User.UserLogin userLogin = cookieToUserLogin(cookie);
           getLoggedInUser(cookie)
             .doOnSuccess(user -> {
