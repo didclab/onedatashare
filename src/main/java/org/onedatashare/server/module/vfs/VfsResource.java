@@ -6,12 +6,11 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.provider.sftp.SftpFileObject;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.stream.BaseStream;
 import java.util.zip.ZipOutputStream;
 
-//@RequestMapping("/api/stork/sftp_download")
+
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     private FileObject fileObject;
@@ -215,31 +214,29 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return Mono.just(downloadLink);
     }
 
+    public Mono<ResponseEntity> getSftpDownload() {
+            InputStream fileInputStream = null;
+            System.out.println("Here");
+            try {
+                fileInputStream = fileObject.getContent().getInputStream();
+            } catch (FileSystemException e) {
+                e.printStackTrace();
+            }
 
-//    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-//    public ResponseEntity getSftpFile() {
-//
-//        InputStream fileInputStream = null;
-//        try {
-//            fileInputStream = fileObject.getContent().getInputStream();
-//        } catch (FileSystemException e) {
-//            e.printStackTrace();
-//        }
-//
-//        if(fileInputStream == null){
-//            System.out.println("ERROR stream not set");
-//            return null;
-//        }
-//
-//        InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
-//        HttpHeaders httpHeaders = new HttpHeaders();
-//        httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-//                "attachment; filename=" + fileObject.getName());
-//        //TODO: Add file length to the header
-//        httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//        ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-//        return responseEntity;
-//    }
+            if (fileInputStream == null) {
+                System.out.println("ERROR stream not set");
+                return null;
+            }
+
+            InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=" + fileObject.getName());
+            //TODO: Add file length to the header
+            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
+            return Mono.just(responseEntity);
+    }
+
 }
-
 

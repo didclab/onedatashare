@@ -23,6 +23,7 @@ import java.util.stream.IntStream;
 
 
 @RestController
+@RequestMapping("/api/stork/download")
 public class DownloadController {
 
     @Autowired
@@ -39,7 +40,6 @@ public class DownloadController {
         String cookie = headers.getFirst("cookie");
 //        System.out.println(userAction);
 
-        String stream = "anything";
         if (userAction.uri.startsWith("dropbox://")) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if ("googledrive:/".equals(userAction.type)) {
@@ -47,10 +47,18 @@ public class DownloadController {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return resourceService.download(cookie, userAction);
         } else if (userAction.uri.startsWith("ftp://")) {
+
             return vfsService.getDownloadURL(cookie, userAction);
         } else if (userAction.uri.startsWith("sftp://")) {
             return Mono.just("/api/stork/sftp_download/file");
         }
         return null;
+    }
+
+    @RequestMapping(value = "/file", method = RequestMethod.GET)//, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public Mono<ResponseEntity> test(@RequestHeader HttpHeaders httpHeaders, @RequestBody UserAction userAction){
+        String cookie = httpHeaders.getFirst("cookie");
+        System.out.println("Here");
+        return vfsService.getSftpDownload(cookie, userAction);
     }
 }

@@ -45,10 +45,9 @@ public class VfsService implements ResourceService<VfsResource> {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains("dropbox://")){
+        if (uri.contains("dropbox://")) {
             path = uri.split("dropbox://")[1];
-        }
-        else path = uri;
+        } else path = uri;
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -109,13 +108,11 @@ public class VfsService implements ResourceService<VfsResource> {
                 .subscribe();
     }
 
-    public Mono<String> getDownloadURL(String cookie, UserAction userAction){
-        return getResourceWithUserActionUri(cookie,userAction).flatMap(VfsResource::getDownloadURL);
+    public Mono<String> getDownloadURL(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
-    public Mono<VfsResource> getDownloadResponse(String cookie, UserAction userAction){
-//        getResourceWithUserActionUri(cookie,)
-        return Mono.just(null);
-//    return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadStream);
+    public Mono<ResponseEntity> getSftpDownload(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getSftpDownload);
     }
 }
