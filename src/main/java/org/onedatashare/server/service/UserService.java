@@ -263,6 +263,26 @@ public class UserService {
       }).then();
   }
 
+  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
+    System.out.println("User Service token: "+credential.token);
+//    final User.UserLogin userLogin = cookieToUserLogin(cookie);
+          getLoggedInUser(cookie)
+            .doOnSuccess(user -> {
+                Map<UUID,Credential> credsTemporary = user.getCredentials();
+                for(UUID uid : credsTemporary.keySet()){
+                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+                    credsTemporary.replace(uid, credential);
+                    user.setCredentials(credsTemporary);
+                    userRepository.save(user).subscribe();
+                  }
+                }
+            }).subscribe();
+
+    return credential;
+  }
+
+
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)
       .map(user -> {
