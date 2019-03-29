@@ -117,7 +117,7 @@ public class UserService {
         return Mono.error(new Exception("Password is not confirmed."));
       }else if(user.getAuthToken() == null){
         return Mono.error(new Exception("Does not have Auth Token"));
-      }else if(user.getAuthToken().equals(authToken)){
+      }else if(user.getAuthToken().substring(0,6).equals(authToken)){
         user.setPassword(password);
         user.setAuthToken(null);
         user.validated = true;
@@ -250,6 +250,10 @@ public class UserService {
 
   public Flux<User> getAllUsers(){
     return userRepository.findAll();
+  }
+
+  public Mono<User> getUserById(String email){
+    return userRepository.findById(email);
   }
 
   public Flux<User> getAdministrators(){

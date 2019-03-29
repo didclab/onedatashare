@@ -19,9 +19,25 @@ public class UserController {
   private UserService userService;
 
   final int TIMEOUT_IN_MINUTES = 1440;
-
+  private static final String EMAIL_PARAM = "email";
+  private static final String HASH_PARAM = "hash";
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+
+    String temp = headers.getFirst("cookie");
+
+    //System.out.println("Temp:"+temp);
+
+    if(temp == null){
+      //System.out.println("Email: "+userAction.getEmail()+" Hash: "+userAction.getPassword());
+      if(userAction.getEmail()!=null && userAction.getPassword()!=null &&
+              !userAction.getEmail().equalsIgnoreCase("") && !userAction.getPassword().equalsIgnoreCase("")){
+        temp = EMAIL_PARAM + "=" + userAction.getEmail() + "; " +
+                HASH_PARAM + "=" + userAction.getPassword();
+      }
+    }
+
+    String cookie = temp;
 
     switch(userAction.action) {
       case "login":
@@ -38,6 +54,8 @@ public class UserController {
         return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
       case "getUsers":
         return userService.getAllUsers();
+      case "getUser":
+        return userService.getUserById(userAction.getEmail());
       case "getAdministrators":
         return userService.getAdministrators();
       case "verifyCode":
@@ -45,13 +63,13 @@ public class UserController {
       case "setPassword":
         return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
-        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
+        return userService.resetPasswordWithOld(cookie, userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
         return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
       case "deleteHistory":
         return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
       case "isAdmin":
-        return userService.isAdmin(headers.getFirst("cookie"));
+        return userService.isAdmin(cookie);
       default:
         return null;
     }
