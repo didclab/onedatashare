@@ -40,8 +40,8 @@ public class UserService {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
-//    User user = new User("vanditsa@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
+    //User user = new User("vanditsa@buffalo.edu", "asdasd");
+    //createUser(user).subscribe(System.out::println);
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
