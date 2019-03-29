@@ -362,7 +362,7 @@ export default class TransferComponent extends Component {
   render() {
 
     const isSmall = screenIsSmall();
-    const panelStyle = { height: "100%", margin: isSmall? "10px": "0px"};
+    const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
 
     
     return (
@@ -371,8 +371,8 @@ export default class TransferComponent extends Component {
           
           {!isSmall && 
           <Panel bsStyle="primary">
-            <Panel.Heading>Browse and Transfer Files</Panel.Heading>
-            <Panel.Body key={isSmall}>
+          <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+            <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
               
                 <Row style={{flexDirection: 'column'}}>
                   <DragDropContext 
@@ -399,7 +399,10 @@ export default class TransferComponent extends Component {
         }
         {!isSmall && this.getSettingComponent(isSmall)}
         {isSmall &&
-            <Row>
+        <Panel bsStyle="primary">
+        <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+        <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
               <DragDropContext
                   onDragStart={this.onDragStart}
                   onDragEnd={this.onDragEnd}
@@ -420,6 +423,8 @@ export default class TransferComponent extends Component {
                 </Row>
               </DragDropContext>
             </Row>
+            </Panel.Body>
+            </Panel>
           }
 
         </Col>
