@@ -94,7 +94,3 @@ public class DownloadController {
         });
     }
 }
-
-class UriEncryptor{
-
-}
