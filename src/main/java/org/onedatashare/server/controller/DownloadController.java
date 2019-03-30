@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -35,7 +36,7 @@ public class DownloadController {
     @Autowired
     private ResourceServiceImpl resourceService;
 
-    private static Mono<InputStream> sftpFileDownloadObj;
+    private static Mono<FileObject> sftpFileDownloadObj;
 
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -58,20 +59,29 @@ public class DownloadController {
         return null;
     }
 
-    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Mono<ResponseEntity> getAcquisition() {
 
+    @RequestMapping(value = "/file/{uri}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public Mono<ResponseEntity> getAcquisition(String uri) {
+        System.out.println(uri);
 
         if(sftpFileDownloadObj == null){
             System.out.println("ERROR stream not set");
             return null;
         }
-        return DownloadController.sftpFileDownloadObj.map(inputstream -> {
+        return DownloadController.sftpFileDownloadObj.map(fileObject -> {
 
-            InputStream inputStream = inputstream;
+            InputStream inputStream = null;
+
+            try{
+                inputStream = fileObject.getContent().getInputStream();
+            } catch (FileSystemException e) {
+                e.printStackTrace();
+            }
 
 //        System.out.println("Size of file is " + stream.length());
-            String filename = "Voila.txt";
+            String[] strings = fileObject.getName().toString().split("/");
+            String filename = strings[strings.length - 1];
+            System.out.println(filename);
             InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,

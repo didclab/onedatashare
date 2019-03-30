@@ -164,15 +164,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
-    public InputStream getAcquisition() {
-        InputStream inputStream = null;
-        try {
-            inputStream = fileObject.getContent().getInputStream();
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }
-
-        return inputStream;
+    public FileObject getAcquisition() {
+        return fileObject;
     }
 
     class VfsDrain implements Drain {
@@ -223,32 +216,5 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         downloadLink = downloadURL.toString();
         System.out.println("hello " + downloadLink);
         return Mono.just(downloadLink);
-    }
-
-
-
-    public Mono<Slice> getDownloadStream() {
-
-        InputStream ois = null;
-        try {
-            ois = fileObject.getContent().getInputStream();
-        } catch (FileSystemException e) {
-//      e.printStackTrace();
-            System.out.println(("File sys exception"));
-        } catch (IOException e) {
-//      e.printStackTrace();
-            System.out.println("IOStackTrace exception");
-        }
-        byte[] b = null;
-        try {
-            b = new byte[128];
-            ois.read(b);
-            System.out.println(b);
-            System.out.println("Success");
-        } catch (IOException e) {
-            System.out.println("IOStacktrace exception in read");
-//      e.printStackTrace();
-        }
-        return Mono.just(null);
     }
 }

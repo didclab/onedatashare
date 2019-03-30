@@ -1,5 +1,6 @@
 package org.onedatashare.server.service;
 
+import org.apache.commons.vfs2.FileObject;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -119,7 +120,7 @@ public class VfsService implements ResourceService<VfsResource> {
 //    return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadStream);
     }
 
-    public Mono<InputStream> getDownloadStream(String cookie, UserAction userAction){
+    public Mono<FileObject> getDownloadStream(String cookie, UserAction userAction){
         return getResourceWithUserActionUri(cookie,userAction).map(VfsResource::getAcquisition);
     }
 }
