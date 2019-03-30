@@ -42,7 +42,6 @@ public class DownloadController {
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-//        System.out.println(userAction);
 
         if (userAction.uri.startsWith("dropbox://")) {
             return dbxService.getDownloadURL(cookie, userAction);
@@ -94,4 +93,8 @@ public class DownloadController {
 
         });
     }
+}
+
+class UriEncryptor{
+
 }

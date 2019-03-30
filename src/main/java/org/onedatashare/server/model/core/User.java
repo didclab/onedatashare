@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.IDN;
 import java.net.URI;
+import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import org.onedatashare.module.globusapi.EndPoint;
@@ -48,6 +49,8 @@ public class User {
   /** Time registered */
   public long registerMoment;
 
+
+
   /** Previously visited URIs. */
   public LinkedList<URI> history = new LinkedList<>();
 
@@ -59,6 +62,8 @@ public class User {
 
   /** Job UUIDs with indices corresponding to job IDs. */
   private HashSet<UUID> jobs = new HashSet<>();
+
+  private KeyPair keyPair;
 
   /** Used to hold session connections for reuse. */
   public transient Map<Session,Session> sessions = new HashMap<>();
