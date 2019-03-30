@@ -54,12 +54,13 @@ public class DownloadController {
 
             return vfsService.getDownloadURL(cookie, userAction);
         } else if (userAction.uri.startsWith("sftp://")) {
-            return Mono.just("/api/stork/sftp_download/file");
+            sftpFileDownloadObj = vfsService.getSftpDownload(cookie, userAction);
+            return Mono.just("/api/stork/download/file");
         }
         return null;
     }
 
-    @RequestMapping(value = "/file/{uri}", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public Mono<ResponseEntity> getAcquisition(String uri) {
         System.out.println(uri);
 

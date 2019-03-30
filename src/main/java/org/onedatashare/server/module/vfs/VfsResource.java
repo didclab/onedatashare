@@ -164,9 +164,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
-    public FileObject getAcquisition() {
-        return fileObject;
-    }
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
@@ -203,6 +200,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
+
+
     public Mono<String> getDownloadURL() {
         String downloadLink = session.getUri().toString();
         UserInfoCredential userInfoCredential = (UserInfoCredential) session.credential;
@@ -217,5 +216,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         System.out.println("hello " + downloadLink);
         return Mono.just(downloadLink);
     }
+
+    public FileObject getSftpObject() {
+        return fileObject;
+    }
+
 }
 

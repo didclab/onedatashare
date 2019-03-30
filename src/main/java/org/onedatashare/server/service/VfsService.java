@@ -113,7 +113,7 @@ public class VfsService implements ResourceService<VfsResource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
-    public Mono<ResponseEntity> getSftpDownload(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getSftpDownload);
+    public Mono<FileObject> getSftpDownload(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction).map(VfsResource::getSftpObject);
     }
 }
