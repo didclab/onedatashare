@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.DbxService;
@@ -43,6 +44,7 @@ public class DownloadController {
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
 
+        System.out.println(cookie);
         if (userAction.uri.startsWith("dropbox://")) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if ("googledrive:/".equals(userAction.type)) {
@@ -60,10 +62,12 @@ public class DownloadController {
     }
 
     @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Mono<ResponseEntity> getAcquisition(String uri) {
-        System.out.println(uri);
+    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders){//}, @RequestParam("data") String data) {
+        String cookie = clientHttpHeaders.getFirst("cookie");
 
-        if(sftpFileDownloadObj == null){
+//        cookie
+
+        if (sftpFileDownloadObj == null) {
             System.out.println("ERROR stream not set");
             return null;
         }
@@ -71,7 +75,7 @@ public class DownloadController {
 
             InputStream inputStream = null;
 
-            try{
+            try {
                 inputStream = fileObject.getContent().getInputStream();
             } catch (FileSystemException e) {
                 e.printStackTrace();

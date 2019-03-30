@@ -209,11 +209,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         StringBuilder downloadURL = new StringBuilder();
         System.out.println(session + " " + username);
         if (username != null)
-            downloadURL.append("ftp://" + username + '@' + password + ':' + downloadLink.substring(6));
+            downloadURL.append("ftp://" + username + ':' + password + '@' + downloadLink.substring(6));
         else
             downloadURL.append(downloadLink);
         downloadLink = downloadURL.toString();
-        System.out.println("hello " + downloadLink);
         return Mono.just(downloadLink);
     }
 
