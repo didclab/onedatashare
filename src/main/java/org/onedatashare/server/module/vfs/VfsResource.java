@@ -164,6 +164,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
+    public FileObject getAcquisition() {
+        return fileObject;
+    }
+
     class VfsDrain implements Drain {
         OutputStream outputStream;
         long uploaded = 0L;
@@ -213,30 +217,5 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         System.out.println("hello " + downloadLink);
         return Mono.just(downloadLink);
     }
-
-    public Mono<ResponseEntity> getSftpDownload() {
-            InputStream fileInputStream = null;
-            System.out.println("Here");
-            try {
-                fileInputStream = fileObject.getContent().getInputStream();
-            } catch (FileSystemException e) {
-                e.printStackTrace();
-            }
-
-            if (fileInputStream == null) {
-                System.out.println("ERROR stream not set");
-                return null;
-            }
-
-            InputStreamResource inputStreamResource = new InputStreamResource(fileInputStream);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=" + fileObject.getName());
-            //TODO: Add file length to the header
-            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-            return Mono.just(responseEntity);
-    }
-
 }
 
