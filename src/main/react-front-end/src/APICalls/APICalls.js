@@ -2,6 +2,7 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
+import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
@@ -135,6 +136,29 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
 	}).catch((error) => {
       statusHandle(error, fail);
     });
+}
+
+export async function setPassword(emailId, code, password, confirmPassword) {
+
+    return axios.post(url+'user', {
+    	    action: "setPassword",
+    	    email : emailId,
+    	    code : code,
+    	    password : password,
+    	    confirmPassword : confirmPassword
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to set password for users account")
+    		else {
+                    return response;
+                }
+            //statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          return {status : 500}
+        });
 }
 
 
@@ -446,6 +470,26 @@ export async function download(uri, credential, _id){
 	});
 }
 
+export async function getDownload(uri, credential, _id){
+	const publicKey = store.getState()["publicKey"];
+
+	var encrypt = new JsEncryptModule.JSEncrypt();
+	encrypt.setPublicKey(publicKey);
+	let json_to_send = {
+		credential: credential,
+		type: getTypeFromUri(uri),
+		uri: encodeURI(uri),
+		id: _id,
+	}
+	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
+	console.log(strin)
+	axios.get(url+"download/file", {
+		params: {
+	      data: strin
+	    }
+	})
+}
+
 export async function upload(uri, credential, accept, fail){
 	var callback = accept;
 
@@ -501,6 +545,7 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
+		store.dispatch(logoutAction());
 	})
 	.catch((error) => {
       fail(error);
@@ -583,25 +628,29 @@ export async function openOAuth(url){
 
 export async function registerUser(emailId, firstName, lastName, organization) {
 
-    return axios.post(url+'user', {
-    	    action: "register",
-					email : emailId,
-					firstName : firstName,
-					lastName : lastName,
-					organization : organization
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to register user")
-    		else {
-    		    return response
-    		}
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          console.error("Error while registering user");
-          return {status : 500}
-        });
+	return axios.post(url+'user', {
+				action: "register",
+				email : emailId,
+				firstName : firstName,
+				lastName : lastName,
+				organization : organization
+		})
+		.then((response) => {
+	if(response.data && response.data.status && response.data.status == 302) {
+						console.log("User already exists");
+						return {status : 302}
+				}
+			if(!(response.status === 200))
+				throw new Error("Failed to register user")
+			else {
+					return response
+			}
+		})
+		.catch((error) => {
+				//statusHandle(error, fail);
+				console.error("Error while registering user");
+				return {status : 500}
+			});
 }
 
 
@@ -639,25 +688,3 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
     });
 }
 
-export async function setPassword(emailId, code, password, confirmPassword) {
-
-    return axios.post(url+'user', {
-    	    action: "setPassword",
-    	    email : emailId,
-    	    code : code,
-    	    password : password,
-    	    confirmPassword : confirmPassword
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to set password for users account")
-    		else {
-                    return response;
-                }
-            //statusHandle(response, callback);
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          return {status : 500}
-        });
-}

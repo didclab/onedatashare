@@ -21,7 +21,8 @@ const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
-	hash: cookies.get('hash') || "",
+  publicKey: cookies.get('publicKey') || null ,
+	hash: cookies.get('hash') || null,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
@@ -55,14 +56,16 @@ export function onedatashareModel(state = initialState, action) {
   switch (action.type) {
     case LOGIN:
     	console.log('logging in')
-   		const {email, hash} = action.credential;
+   		const {email, hash, publicKey} = action.credential;
       console.log(email);
     	cookies.set('email', email, {maxAge: 7200});
 		  cookies.set('hash', hash, {maxAge: 7200});
+      cookies.set('publicKey', publicKey, {maxAge: 7200});
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
-    		hash: hash
+    		hash: hash,
+        publicKey: publicKey
     	});
     case LOGOUT:
       console.log("logging out");
@@ -71,6 +74,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
+      cookies.remove("publicKey");
       return Object.assign({}, state, {
         login: false,
         admin: false,

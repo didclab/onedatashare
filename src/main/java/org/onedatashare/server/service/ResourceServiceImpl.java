@@ -88,9 +88,9 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
-        }else if(userActionResource.uri.contains("Upload")){
+        }else if(userActionResource.uri.equals("Upload")){
             return userActionResource.uploader;
-        }else if(userActionResource.type.equals("gsiftp://")){
+        }else if(userActionResource.uri.startsWith("gsiftp://")){
 
             GlobusClient gc = userService.getGlobusClientFromUser(user);
             return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);

@@ -8,12 +8,13 @@ import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import {spaceBetweenStyle} from '../../constants.js';
 import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/APICalls.js'
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 
 export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
-	  	backToSignin: PropTypes.func,	  	 
+	  	backToSignin: PropTypes.func,
 	}
 	constructor(props){
 	    super(props);
@@ -27,8 +28,12 @@ export default class CreateAccountComponent extends Component {
         passwordError : "",
         firstName:"",
         lastName:"",
-        organization:""
-	    }
+        organization:"",
+        loading: false
+      }
+      this.firstNameValidationMsg = "Please Enter Your First Name"
+      this.lastNameValidationMsg = "Please Enter Your Last Name"
+      this.emailValidationMsg = "Please Enter EmailId"
 
 	    this.onNextClicked = this.onNextClicked.bind(this);
 	    this.registerAccount = this.registerAccount.bind(this);
@@ -37,24 +42,45 @@ export default class CreateAccountComponent extends Component {
 	}
 
 	registerAccount() {
+
         let email = this.state.email;
         let firstName = this.state.firstName;
         let lastName = this.state.lastName;
         let organization = this.state.organization;
         let self = this;
+
         if(email.trim().length == 0) {
             let state = self.state;
-            state.emaildError = "Please Enter EmailId";
+            state.emaildError = this.emailValidationMsg;
             self.setState({state});
         }
+        else if(firstName.trim().length == 0) {
+          let state = self.state;
+          state.firstNameValidation = this.firstNameValidationMsg;
+          self.setState({state});
+        }
+        else if(lastName.trim().length == 0) {
+          let state = self.state;
+          state.lastNameValidation = this.lastNameValidationMsg;
+          self.setState({state});
+        }
         else {
+          this.state.loading = true;
+          self.setState(this.state)
             registerUser(email, firstName, lastName, organization).then((response)=>{
+              self.state.loading = false;
                 if(response.status == 200 ){
                     let state = self.state;
                     state.screen = "verifyCode";
+                    state.verificationError = "";   // clear any verification code
                     self.setState({state});
                 }
-
+                else if(response.status == 302) {
+                  let state = self.state;
+                  state.emaildError = "User with same Email Id already exists";
+                  state.verificationError = "User with same Email Id already exists";
+                  self.setState({state});
+              }
             })
         }
     }
@@ -63,12 +89,12 @@ export default class CreateAccountComponent extends Component {
         let email = this.state.email;
         let self = this;
         let code = this.state.code;
-        verifyRegistraionCode(email, code).then((response)=>{
+        verifyRegistraionCode(email, code).then((response) =>{
             let state = self.state;
             if(response.status == 200 ) {
                 state.screen = "setPassword";
+                state.code = response.data;
                 self.setState({state});
-                console.log("Helleo");
             }
             else {
                 state.verificationError = "Please Enter Valid Verification Code";
@@ -90,7 +116,7 @@ export default class CreateAccountComponent extends Component {
             self.setState({state});
         }
         else{
-            setPassword(email, code, password, confirmPassword).then((response)=>{
+            setPassword(email, code, password, confirmPassword).then((response) =>{
 
                 //state.screen = "setPassword";
                 //self.setState({state});
@@ -101,9 +127,7 @@ export default class CreateAccountComponent extends Component {
     }
 
 	shouldComponentUpdate(nextProps, nextState) {
-		console.log("next ", nextState);
-		if(nextState.email === "") return false;
-    	//if (this.props.create === nextProps.create && this.props.backToSignin === nextProps.backToSignin) return false;
+		  console.log("next ", nextState);
     	return true;
   	}
 
@@ -112,7 +136,7 @@ export default class CreateAccountComponent extends Component {
 		var { email, password, remember } = this.state;
 		isLoading(true);
 
-		userLoggedIn(email, password, remember, (error)=>{
+		userLoggedIn(email, password, remember, (error) =>{
     		isLoading(false);
 			this.setState({error: true, errorMessage: error});
 		});
@@ -121,69 +145,67 @@ export default class CreateAccountComponent extends Component {
 	render(){
 		const { create, backToSignin } = this.props;
 		const handleChange = name => event => {
+      if(name === 'firstName'){
+        this.state.firstNameValidation = ""
+        this.setState(this.state)
+      }
+      if(name === 'lastName'){
+        this.state.lastNameValidation = ""
+        this.setState(this.state)
+      }
+      if(name === 'email'){
+        this.state.emaildError = ""
+        this.setState(this.state)
+      }
 		    this.setState({
 		      [name]: event.target.value,
 		    });
 		};
-		const screen = this.state.screen;
+    const screen = this.state.screen;
+    const showLoader = this.state.loading;
         		if(screen === "registration"){
         		    return (
                     		<div className="enter-from-right slide-in">
+                              <div>{showLoader && <LinearProgress></LinearProgress>}</div>
                     	      	<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
                     	          Create your OneDataShare Account
                     	        </Typography>
                     	        <TextField
-                    	          id="Email"
-                    	          label={this.state.emaildError === "Please Enter EmailId" ? "Please Enter EmailId": "Enter Your Email"}
-                    	          value={this.state.email}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('email') }
-                    	          error = {this.state.emaildError === "Please Enter EmailId"}
-                    	        />
+                                      id="Email"
+                                      label={this.state.emaildError && this.state.emaildError!="" ? this.state.emaildError: "Email"}
+                                      value={this.state.email}
+                                      style={{width: '100%', marginBottom: '50px'}}
+                                      onChange={ handleChange('email') }
+                                      error = {this.state.emaildError && this.state.emaildError != "" }
+                                />
                               <TextField
                     	          id="FirstName"
-                    	          label={"Enter your First Name"}
+                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name"}
                     	          value={this.state.firstName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('firstName') }
-                    	          //error = {this.state.firstNameError === "Please Enter FirstName"}
+                    	          error = {this.state.firstNameValidation === this.firstNameValidationMsg}
                     	        />
                               <TextField
                     	          id="LastName"
-                    	          label={"Enter your Last Name"}
+                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Last Name"}
                     	          value={this.state.lastName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('lastName') }
-                    	          //error = {this.state.emaildError === "Please Enter LastName"}
+                    	          error = {this.state.lastNameValidation === this.lastNameValidationMsg}
                     	        />
                               <TextField
                     	          id="Organization"
-                    	          label={"Enter your Organization"}
+                    	          label={"Organization"}
                     	          value={this.state.organization}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('organization') }
-                    	          //error = {this.state.emaildError === "Please Enter LastName"}
                     	        />
-                    	        {/*<TextField
-                    	          id="Password"
-                    	          label="Password"
-                    	          type="password"
-                    	          value={this.state.password}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('password') }
-                    	        />
-                    	        <TextField
-                    	          id="Cpassword"
-                    	          type="password"
-                    	          label="Confirm Password"
-                    	          value={this.state.cpassword}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('cpassword') }
-                    	        />*/}
+
                     	        <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                    		        {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
+                    		        <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                     		          Sign in Instead
-                    		        </Button>*/}
+                    		        </Button>
                     		        <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.registerAccount}>
                     		          Next
                     		        </Button>
@@ -194,33 +216,8 @@ export default class CreateAccountComponent extends Component {
                     return (
                         <div className="enter-from-right slide-in">
                             <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                              Create your OneDataShare Account
+                              Please check {this.state.email} for authorization code
                             </Typography>
-                            <TextField
-                              id="Email"
-                              label="Enter Your Email"
-                              value={this.state.email}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('email') }
-                            />
-                            <TextField
-                    	          id="FirstName"
-                    	          value={this.state.firstName}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('firstName') }
-                    	        />
-                              <TextField
-                    	          id="LastName"
-                    	          value={this.state.lastName}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('lastName') }
-                    	        />
-                              <TextField
-                    	          id="Organization"
-                    	          value={this.state.organization}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('organization') }
-                    	        />
                             <TextField
                                 id="code"
                                 label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
@@ -229,26 +226,13 @@ export default class CreateAccountComponent extends Component {
                                 onChange={ handleChange('code') }
                                 error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
-                            {/*<TextField
-                              id="Password"
-                              label="Password"
-                              type="password"
-                              value={this.state.password}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('password') }
-                            />
-                            <TextField
-                              id="Cpassword"
-                              type="password"
-                              label="Confirm Password"
-                              value={this.state.cpassword}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('cpassword') }
-                            />*/}
+
                             <CardActions style={spaceBetweenStyle,{float:'right'}}>
-                                {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                                  Sign in Instead
-                                </Button>*/}
+                                <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                                  this.setState({screen: "registration"});
+                                }}>
+                                  Back
+                                </Button>
                                 <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.verifyAccount}>
                                   Next
                                 </Button>
@@ -259,16 +243,9 @@ export default class CreateAccountComponent extends Component {
                     return (
                         <div className="enter-from-right slide-in">
                             <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                              Create your OneDataShare Account
+                              Code Verified! Please set password for your account
                             </Typography>
-                            <TextField
-                              id="Email"
-                              label="Enter Your Email"
-                              value={this.state.email}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('email') }
 
-                            />
                             <TextField
                               id="Password"
                               label="Password"
@@ -276,8 +253,8 @@ export default class CreateAccountComponent extends Component {
                               value={this.state.password}
                               style={{width: '100%', marginBottom: '50px'}}
                               onChange={ handleChange('password') }
-
                             />
+
                             <TextField
                               id="Cpassword"
                               type="password"
@@ -287,17 +264,13 @@ export default class CreateAccountComponent extends Component {
                               onChange={ handleChange('cpassword') }
                               error = {this.state.passwordError === "Password Doesn't Match"}
                             />
-                            <TextField
-                              id="code"
-                              label="Enter Verification Code"
-                              value={this.state.code}
-                              style={{width: '100%', marginBottom: '50px'}}
-                              onChange={ handleChange('code') }
-                            />
+
                             <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                                {/*<Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                                  Sign in Instead
-                                </Button>*/}
+                                <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                                  this.setState({screen: "verifyCode"});
+                                }}>
+                                  Back
+                                </Button>
                                 <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.login}>
                                   Next
                                 </Button>
