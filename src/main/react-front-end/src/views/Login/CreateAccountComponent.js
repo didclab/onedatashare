@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import {spaceBetweenStyle} from '../../constants.js';
 import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/APICalls.js'
 import LinearProgress from '@material-ui/core/LinearProgress';
+import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 
 
 export default class CreateAccountComponent extends Component {
@@ -17,19 +18,21 @@ export default class CreateAccountComponent extends Component {
 	  	backToSignin: PropTypes.func,
 	}
 	constructor(props){
-	    super(props);
+      super(props);
+      
 	    this.state = {
-	    	email: "",
+	    	email: props.email != "" ? props.email: "",
 	    	password: "",
 	    	cpassword: "",
 	    	code : "",
-        screen : "registration",
+        screen : props.loadVerifyCode ? "verifyCode":"registration",
         verificationError : "",
         passwordError : "",
         firstName:"",
         lastName:"",
         organization:"",
-        loading: false
+        loading: false,
+        isStorkAccount: props.loadVerifyCode
       }
       this.firstNameValidationMsg = "Please Enter Your First Name"
       this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -120,7 +123,7 @@ export default class CreateAccountComponent extends Component {
                 //state.screen = "setPassword";
                 //self.setState({state});
                 //console.log("Helleo");
-                self.props.history.push('/account')
+                //self.props.history.push('/account/signIn')
             });
         }
     }
@@ -142,7 +145,7 @@ export default class CreateAccountComponent extends Component {
 	}
 
 	render(){
-		const { create, backToSignin } = this.props;
+		const { create, backToSignin, loadVerifyCode } = this.props;
 		const handleChange = name => event => {
       if(name === 'firstName'){
         this.state.firstNameValidation = ""
@@ -159,9 +162,25 @@ export default class CreateAccountComponent extends Component {
 		    this.setState({
 		      [name]: event.target.value,
 		    });
-		};
-    const screen = this.state.screen;
+    };
+    
+  var screen = this.state.screen;
+  // if(loadVerifyCode){
+  //   screen =  "verifyCode";
+  // }
     const showLoader = this.state.loading;
+            // if(screen === "signIn"){
+            //   return(
+            //     <Redirect to='/account/signIn'/>
+            //   )
+            // }
+            if(screen === "validateEmail"){
+              return(
+                <div className="enter-from-right slide-in">
+                  <ValidateEmailComponent email = {this.state.email}></ValidateEmailComponent>
+                </div>
+              )
+            }
         		if(screen === "registration"){
         		    return (
                     		<div className="enter-from-right slide-in">
@@ -228,7 +247,12 @@ export default class CreateAccountComponent extends Component {
 
                             <CardActions style={spaceBetweenStyle,{float:'right'}}>
                                 <Button size="medium" variant="outlined" color="primary" onClick={() =>{
-                                  this.setState({screen: "registration"});
+                                  if(this.state.isStorkAccount){
+                                   this.setState({screen:"validateEmail"})
+                                  }
+                                  else{
+                                    this.setState({screen: "registration"});
+                                  }                                  
                                 }}>
                                   Back
                                 </Button>

@@ -137,6 +137,19 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
     });
 }
 
+export async function resendVerificationCode(emailId){
+	return axios.post(url+'user',{
+		action:'resendVerificationCode',
+		email: emailId
+	})
+	.then((response) => {
+		return response
+	})
+	.catch((error) =>{
+		
+	});
+}
+
 export async function setPassword(emailId, code, password, confirmPassword) {
 
     return axios.post(url+'user', {
