@@ -51,6 +51,7 @@ class QueueComponent extends Component {
 		let queueFunc = () => {queue((resp) => {
 			//success
 			resp.map(response => {
+					response.avgSpeed = response.bytes.avg
 					response.source = response.src !== null ? response.src.uri : ""
 			})
 			this.setState({response:resp});
