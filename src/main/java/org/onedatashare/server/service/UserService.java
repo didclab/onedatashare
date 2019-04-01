@@ -67,7 +67,7 @@ public class UserService {
         if(!user.validated){
           return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
         }else{
-          return Mono.just(new Response("Account already exists",500));
+          return Mono.just(new Response("Account already exists",302));
         }
       }
       return createUser(new User(email, firstName, lastName, organization, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));

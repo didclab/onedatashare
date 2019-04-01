@@ -26,8 +26,8 @@ export default class AccountControlComponent extends Component {
 
   static propTypes = {}
   // Called when user clicked login
-  userLogin(email, hash, remember){
-  	this.state.accounts[email] = hash;
+  userLogin(email, hash, publicKey, remember){
+  	this.state.accounts[email] = {hash: hash, publicKey: publicKey};
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
@@ -35,12 +35,11 @@ export default class AccountControlComponent extends Component {
 	isAdmin(email, hash, (status) => {
 		store.dispatch(isAdminAction());
 	}, (fail) => {
-		console.log("fail", fail);
+		console.log("Not Admin", fail);
 	})
 	
-	store.dispatch(loginAction(email, hash, remember));
+	store.dispatch(loginAction(email, hash, publicKey, remember));
 	//this.setState({authenticated : true});
-
   }
   componentWillUnmount(){
   	this.unsubscribe();
@@ -59,8 +58,8 @@ export default class AccountControlComponent extends Component {
     this.newLogin = <SavedLoginComponent 
 					accounts={accounts} 
 					login={(email) => {
-						const hash = JSON.parse(cookies.get('SavedUsers'))[email];
-						this.userLogin(email, hash, false);
+						const user = JSON.parse(cookies.get('SavedUsers'))[email];
+						this.userLogin(email, user.hash, user.publicKey, false);
 					}}
 					removedAccount={(accounts) => {
 						cookies.set('SavedUsers', JSON.stringify(accounts));
@@ -88,6 +87,7 @@ export default class AccountControlComponent extends Component {
     }
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
+   	this.userSigningIn = this.userSigningIn.bind(this);
   }
   componentWillMount(){
 
@@ -103,6 +103,15 @@ export default class AccountControlComponent extends Component {
 		}else if(!this.state.isSmall && window.innerWidth <= 640){
 			this.setState({isSmall: true});
 		}
+	}
+	userSigningIn(email, password, remember, fail){
+		login(email, password,
+	    	(success) => {
+				console.log("success account", success);
+	    		this.userLogin(email, success.hash, success.publicKey, remember);
+	    	},
+	    	(error) => {fail(error)}
+	    );
 	}
 	getInnerCard() {
 		return(
@@ -154,16 +163,7 @@ export default class AccountControlComponent extends Component {
 									});
 								}}
 								
-								userLoggedIn={(email, password, remember, fail) => {
-									login(email, password,
-								    	(success) => {
-
-		    								console.log("success account", success);
-								    		this.userLogin(email, success.hash, remember);
-								    	},
-								    	(error) => {fail(error)}
-								    );
-								}}
+								userLoggedIn={this.userSigningIn}
 							/>
 						</div>
 					}>

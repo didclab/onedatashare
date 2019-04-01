@@ -28,7 +28,7 @@ import FineUploaderTraditional from 'fine-uploader-wrappers';
 
 import React, { Component } from 'react';
 
-import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
+import {share, mkdir, deleteCall, download, getDownload} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
@@ -87,8 +87,6 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 	    window.removeEventListener('touchend', this.onWindowTouchEnd);
 	}
-
-
 
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
@@ -408,7 +406,11 @@ export default class EndpointBrowseComponent extends Component {
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 					  			const taskList = getSelectedTasksFromSide(endpoint);
-					  			download(downloadUrl, endpoint.credential, taskList[0].id)
+					  			if(getType(endpoint) === SFTP_TYPE){
+									getDownload(downloadUrl, endpoint.credential, taskList[0].id)
+								}else{
+						  			download(downloadUrl, endpoint.credential, taskList[0].id)
+						  		}
 					  		}}
 					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
 						</OverlayTrigger>
@@ -452,7 +454,7 @@ export default class EndpointBrowseComponent extends Component {
 
 
 			<Droppable droppableId={endpoint.side} > 
-				{  (provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
