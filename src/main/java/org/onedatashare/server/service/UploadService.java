@@ -72,7 +72,6 @@ public class UploadService {
 
     public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue){
 
-        //ongoingUploads.get(uuid).onNext(pfr);
 
 
         return pfr.flatMapMany(fp -> fp.content())
