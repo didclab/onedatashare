@@ -207,8 +207,6 @@ public class UserService {
     // Recipient's email ID needs to be mentioned.
     String to = email;
 
-
-
     // Get system properties
     Properties properties = System.getProperties();
     properties.put("mail.smtp.auth", "true");
@@ -238,7 +236,7 @@ public class UserService {
         // Set Subject: header field
         message.setSubject("Auth Code");
         // Now set the actual message
-        message.setText(code);
+        message.setText("The authorization code for your OneDataShare account is : " + code);
         // Send message
         Transport.send(message);
         System.out.println("Sent message successfully....");
