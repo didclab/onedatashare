@@ -8,6 +8,7 @@ import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
@@ -52,10 +53,10 @@ public class UploadService {
                     userAction.dest.uri = directoryPath + "/" + URLEncoder.encode(fileName, "UTF-8");
                 }
 
-                ObjectMapper mapper = new ObjectMapper();
-                userAction.dest.credential = mapper.readValue(credential, UserActionCredential.class);
-                IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
-                userAction.dest.map = new ArrayList<>(Arrays.asList(idms));
+                ObjectMapper objectMapper = new ObjectMapper();
+                userAction.dest.credential = objectMapper.readValue(credential, UserActionCredential.class);
+                IdMap[] idMaps = objectMapper.readValue(idmap, IdMap[].class);
+                userAction.dest.map = new ArrayList<>(Arrays.asList(idMaps));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -69,21 +70,26 @@ public class UploadService {
         }
     }
 
-    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue) {
+    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> queueOfSlices) {
         return pfr.flatMapMany(fp -> fp.content())
                 .reduce(new ByteArrayOutputStream(), (acc, newbuf) -> {
                     try {
-                        Slice slc = new Slice(newbuf.asByteBuffer());
-                        acc.write(slc.asBytes(), 0, slc.length());
+                        writeNewSliceToAcc(acc, newbuf);
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
                     return acc;
                 }).map(content -> {
                     System.out.println("uploading" + content.size());
-                    Slice slc = new Slice(content.toByteArray());
-                    qugue.add(slc);
-                    return slc.length();
+                    Slice slice = new Slice(content.toByteArray());
+                    queueOfSlices.add(slice);
+                    return slice.length();
                 });
+    }
+
+    private void writeNewSliceToAcc(ByteArrayOutputStream acc, DataBuffer newbuf) {
+        Slice slice = new Slice(newbuf.asByteBuffer());
+        acc.write(slice.asBytes(), 0, slice.length());
     }
 
     public Mono<Void> finishUpload(UUID uuid) {
