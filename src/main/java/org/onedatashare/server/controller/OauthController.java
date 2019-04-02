@@ -1,15 +1,11 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.service.*;
-import org.onedatashare.server.service.DbxOauthService;
-import org.onedatashare.server.service.GoogleDriveOauthService;
+import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.service.oauth.GridftpAuthService;
 import org.onedatashare.server.service.oauth.OauthService;
-import org.onedatashare.server.service.OauthService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;

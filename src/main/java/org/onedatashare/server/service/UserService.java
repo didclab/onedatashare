@@ -167,7 +167,7 @@ public class UserService {
     .flatMap(userRepository::save).map(User::getHistory);
   }
 
-  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+  public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
       if(!user.getGlobusEndpoints().containsKey(enp)) {
         user.getGlobusEndpoints().put(id, enp);
