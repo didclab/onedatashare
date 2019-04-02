@@ -1,9 +1,8 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.DropboxService;
 import org.onedatashare.server.service.GridftpService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 //import org.onedatashare.server.service.GridftpService;
@@ -14,14 +13,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.function.Predicate;
-
 @RestController
 @RequestMapping("/api/stork/ls")
 public class ListController {
 
   @Autowired
-  private DbxService dbxService;
+  private DropboxService dbxService;
 
   @Autowired
   private VfsService vfsService;

@@ -1,7 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.DropboxService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class SubmitController {
 
   @Autowired
-  private DbxService dbxService;
+  private DropboxService dbxService;
 
   @Autowired
   private VfsService vfsService;

@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Service
-public class DbxService implements ResourceService<DbxResource>{
+public class DropboxService implements ResourceService<DbxResource>{
 
   @Autowired
   private UserService userService;
