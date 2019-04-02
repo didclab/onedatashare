@@ -1,9 +1,12 @@
 package org.onedatashare.server.service;
 
 import org.apache.commons.vfs2.FileObject;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
 import org.onedatashare.server.module.vfs.VfsSession;
@@ -14,9 +17,23 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 @Service
 public class VfsService implements ResourceService<VfsResource> {
@@ -33,6 +50,58 @@ public class VfsService implements ResourceService<VfsResource> {
                 .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
+    }
+
+    public Mono<String> getResourceWithUserActionUri(String cookie, String userActionString) {
+        return userService.getLoggedInUser(cookie)
+                .map(user -> {
+                    byte[] encryptedString = Base64.getDecoder().decode(userActionString);
+                    byte[] privateKeyString = Base64.getDecoder().decode(user.getPrivateKey());
+                    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyString);
+                    KeyFactory fact = null;
+                    try {
+                        fact = KeyFactory.getInstance("RSA");
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Getting the private Key..." + user.getPrivateKey());
+                    PrivateKey privateKey = null;
+                    try {
+                        privateKey = fact.generatePrivate(spec);
+                    } catch (InvalidKeySpecException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println("Getting the deCipher...");
+                    Cipher decrypt = null;
+                    try {
+                        decrypt = Cipher.getInstance("RSA");
+                        decrypt.init(Cipher.DECRYPT_MODE, privateKey);
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchPaddingException e) {
+                        e.printStackTrace();
+                    } catch (InvalidKeyException e) {
+                        e.printStackTrace();
+                    }
+                    String decryptedMessage = null;
+                    try {
+                        decryptedMessage = new String(decrypt.doFinal(encryptedString), StandardCharsets.UTF_8);
+                    } catch (IllegalBlockSizeException e) {
+                        e.printStackTrace();
+                    } catch (BadPaddingException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(decryptedMessage);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    UserActionCredential userActionCredential = null;
+                    try {
+                        userActionCredential = objectMapper.readValue(decryptedMessage, UserActionCredential.class);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(userActionCredential.toString());
+                    return userActionCredential.toString();
+                });
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
@@ -113,7 +182,7 @@ public class VfsService implements ResourceService<VfsResource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
-    public Mono<FileObject> getSftpDownload(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).map(VfsResource::getSftpObject);
+    public Mono<String> getSftpDownloadStream(String cookie, String userAction) {
+        return getResourceWithUserActionUri(cookie, userAction);
     }
 }

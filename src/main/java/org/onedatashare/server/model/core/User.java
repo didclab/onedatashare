@@ -191,6 +191,7 @@ public class User {
         setPassword(password);
     }
 
+
     /**
      * Check if the given password is correct for this user.
      */
