@@ -71,20 +71,18 @@ public class UploadService {
     }
 
     public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> queueOfSlices) {
-        return pfr.flatMapMany(fp -> fp.content())
-                .reduce(new ByteArrayOutputStream(), (acc, newbuf) -> {
-                    try {
-                        writeNewSliceToAcc(acc, newbuf);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    return acc;
-                }).map(content -> {
-                    System.out.println("uploading" + content.size());
-                    Slice slice = new Slice(content.toByteArray());
-                    queueOfSlices.add(slice);
-                    return slice.length();
-                });
+        return pfr.flatMapMany(fp -> fp.content()).reduce(new ByteArrayOutputStream(), (acc, newbuf) -> {
+        try {
+                writeNewSliceToAcc(acc, newbuf);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } return acc;
+        }).map(content -> {
+            System.out.println("uploading" + content.size());
+            Slice slice = new Slice(content.toByteArray());
+            queueOfSlices.add(slice);
+            return slice.length();
+        });
     }
 
     private void writeNewSliceToAcc(ByteArrayOutputStream acc, DataBuffer newbuf) {
