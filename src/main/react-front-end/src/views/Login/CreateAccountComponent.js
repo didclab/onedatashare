@@ -77,6 +77,7 @@ export default class CreateAccountComponent extends Component {
                 }
                 else if(response.status == 302) {
                   let state = self.state;
+                  state.emaildError = "User with same Email Id already exists";
                   state.verificationError = "User with same Email Id already exists";
                   self.setState({state});
               }
@@ -170,13 +171,13 @@ export default class CreateAccountComponent extends Component {
                     	          Create your OneDataShare Account
                     	        </Typography>
                     	        <TextField
-                    	          id="Email"
-                    	          label={this.state.emaildError === this.emailValidationMsg ? this.emailValidationMsg: "Email"}
-                    	          value={this.state.email}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('email') }
-                    	          error = {this.state.emaildError === this.emailValidationMsg }
-                    	        />
+                                      id="Email"
+                                      label={this.state.emaildError && this.state.emaildError!="" ? this.state.emaildError: "Email"}
+                                      value={this.state.email}
+                                      style={{width: '100%', marginBottom: '50px'}}
+                                      onChange={ handleChange('email') }
+                                      error = {this.state.emaildError && this.state.emaildError != "" }
+                                />
                               <TextField
                     	          id="FirstName"
                     	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name"}

@@ -95,7 +95,7 @@ export default class BrowseModuleComponent extends Component {
 	    return (
 	    // saved credential
 	    // login manually
-	    <div style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: '100%', height: '100%', overflow: "hidden"}}>
+	    <div style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
 	      	{(!endpoint.login && mode == pickModule) &&
 	      	<div style={{height: "100%",display: "flex", flexDirection: "column"}}>
 		      	<Button style={buttonStyle} onClick={() => {
