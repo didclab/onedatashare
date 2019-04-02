@@ -23,8 +23,8 @@ public class DropboxService implements ResourceService<DbxResource>{
   @Autowired
   private JobService jobService;
 
-  public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
-    final String path = pathFromDbxUri(userAction.uri);
+  public Mono<DbxResource> getDropboxResourceWithUserActionUri(String cookie, UserAction userAction) {
+    final String path = pathFromDropboxUri(userAction.uri);
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
             .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
@@ -33,8 +33,8 @@ public class DropboxService implements ResourceService<DbxResource>{
             .flatMap(dbxSession -> dbxSession.select(path));
   }
 
-  public Mono<DbxResource> getDbxResourceWithJobSourceOrDestination(String cookie, UserActionResource userActionResource) {
-    final String path = pathFromDbxUri(userActionResource.uri);
+  public Mono<DbxResource> getDropboxResourceWithJobSourceOrDestination(String cookie, UserActionResource userActionResource) {
+    final String path = pathFromDropboxUri(userActionResource.uri);
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
             .map(uuidCredentialMap ->
@@ -44,7 +44,7 @@ public class DropboxService implements ResourceService<DbxResource>{
             .flatMap(dbxSession -> dbxSession.select(path));
   }
 
-  public String pathFromDbxUri(String uri) {
+  public String pathFromDropboxUri(String uri) {
     String path = "";
     if(uri.contains("dropbox://")){
       path = uri.split("dropbox://")[1];
@@ -58,17 +58,17 @@ public class DropboxService implements ResourceService<DbxResource>{
   }
 
   public Mono<Stat> list(String cookie, UserAction userAction) {
-    return getDbxResourceWithUserActionUri(cookie, userAction).flatMap(DbxResource::stat);
+    return getDropboxResourceWithUserActionUri(cookie, userAction).flatMap(DbxResource::stat);
   }
 
   public Mono<Stat> mkdir(String cookie, UserAction userAction) {
-    return getDbxResourceWithUserActionUri(cookie, userAction)
+    return getDropboxResourceWithUserActionUri(cookie, userAction)
             .flatMap(DbxResource::mkdir)
             .flatMap(DbxResource::stat);
   }
 
   public Mono<DbxResource> delete(String cookie, UserAction userAction) {
-    return getDbxResourceWithUserActionUri(cookie, userAction)
+    return getDropboxResourceWithUserActionUri(cookie, userAction)
             .flatMap(DbxResource::delete);
   }
 
@@ -93,9 +93,9 @@ public class DropboxService implements ResourceService<DbxResource>{
 
   public void processTransferFromJob(Job job, String cookie) {
     Transfer<DbxResource, DbxResource> transfer = new Transfer<>();
-    getDbxResourceWithJobSourceOrDestination(cookie, job.src)
+    getDropboxResourceWithJobSourceOrDestination(cookie, job.src)
             .map(transfer::setSource)
-            .flatMap(t -> getDbxResourceWithJobSourceOrDestination(cookie, job.dest))
+            .flatMap(t -> getDropboxResourceWithJobSourceOrDestination(cookie, job.dest))
             .map(transfer::setDestination)
             .flux()
             .flatMap(transfer1 -> transfer1.start(1L << 20))
@@ -110,7 +110,7 @@ public class DropboxService implements ResourceService<DbxResource>{
   }
 
   public Mono<String> getDownloadURL(String cookie, UserAction userAction){
-    return getDbxResourceWithUserActionUri(cookie,userAction).flatMap(DbxResource::generateDownloadLink);
+    return getDropboxResourceWithUserActionUri(cookie,userAction).flatMap(DbxResource::generateDownloadLink);
   }
 
 }
