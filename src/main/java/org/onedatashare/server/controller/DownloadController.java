@@ -41,8 +41,6 @@ public class DownloadController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private static Mono<FileObject> sftpFileDownloadObj;
 
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -62,37 +60,35 @@ public class DownloadController {
     }
 
     @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Mono<String> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders, @RequestParam String data) {
+    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders, @RequestParam String data) {
         String cookie = clientHttpHeaders.getFirst("cookie");
-        return vfsService.getSftpDownloadStream(cookie, data);
-//        if (sftpFileDownloadObj == null) {
-//            System.out.println("ERROR stream not set");
-//            return null;
-//        }
-//        return DownloadController.sftpFileDownloadObj.map(fileObject -> {
-//
-//            InputStream inputStream = null;
-//
-//            try {
-//                inputStream = fileObject.getContent().getInputStream();
-//            } catch (FileSystemException e) {
-//                e.printStackTrace();
-//            }
-//
-////        System.out.println("Size of file is " + stream.length());
-//            String[] strings = fileObject.getName().toString().split("/");
-//            String filename = strings[strings.length - 1];
-//            System.out.println(filename);
-//            InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
-//            HttpHeaders httpHeaders = new HttpHeaders();
-//            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-//                    "attachment; filename=" + filename);
-//            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-//
-//
-//            return responseEntity;
-//            return null;
-//        });
+        Mono<FileObject>  sftpFileDownloadObj = vfsService.getSftpDownloadStream(cookie, data);
+        if (sftpFileDownloadObj == null) {
+            System.out.println("ERROR stream not set");
+            return null;
+        }
+        return sftpFileDownloadObj.map(fileObject -> {
+
+            InputStream inputStream = null;
+
+            try {
+                inputStream = fileObject.getContent().getInputStream();
+            } catch (FileSystemException e) {
+                e.printStackTrace();
+            }
+
+//        System.out.println("Size of file is " + stream.length());
+            String[] strings = fileObject.getName().toString().split("/");
+            String filename = strings[strings.length - 1];
+            System.out.println(filename);
+            InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=" + filename);
+            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
+
+            return responseEntity;
+        });
     }
 }
