@@ -61,7 +61,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             List<TaskItem> data = new ArrayList<>();
             TaskItem item = new TaskItem();
             item.setDataType("transfer_item");
-            item.setRecursive(false);
+            item.setRecursive(true);
             item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
             item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
             data.add(item);
