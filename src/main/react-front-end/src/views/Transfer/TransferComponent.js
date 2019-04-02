@@ -37,8 +37,6 @@ import {eventEmitter} from "../../App.js";
 import Slider from '@material-ui/lab/Slider';
 
 export default class TransferComponent extends Component {
-  static propTypes = {
-  }
 
   constructor(){
     super();
@@ -61,14 +59,14 @@ export default class TransferComponent extends Component {
       }
     }
 
-    this.unsubcribe = store.subscribe(()=>{
-      history("", (data)=>{
+    this.unsubcribe = store.subscribe(() => {
+      history("", (data) => {
         this.setState({
           endpoint1: store.getState().endpoint1,
           endpoint2: store.getState().endpoint2,
           history: data
         });
-      }, (fail)=>{
+      }, (fail) => {
         console.log("fail", fail)
       });
     });
@@ -97,7 +95,7 @@ export default class TransferComponent extends Component {
     const srcUrls = [] 
     const fileIds = [] 
     const destUrls = []
-    processed.selectedTasks.map((task)=>{
+    processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
@@ -271,30 +269,111 @@ export default class TransferComponent extends Component {
     console.log(processed)
     this.sendFile(processed);
   }
-  render() {
 
-    const isSmall = screenIsSmall();
-    const panelStyle = { height: "100%", margin: isSmall? "10px": "0px"};
-
+  getSettingComponent(isSmall){
     const handleChange = (name) => event => {
       var value = event.target.value;
       this.setState({settings:{ ...this.state.settings, [name]: value }});
     };
-    const handleChangeRetry = (event, value)=>{
+    const handleChangeRetry = (event, value) => {
       this.setState({settings:{ ...this.state.settings, retry: value }});
     }
     const formlabelstyle = {fontSize: "15px"}
     const formStyle = {marginLeft: "5%", marginRight: "5%"}
+    return <Panel bsStyle="primary">
+              <Panel.Heading>Transfer Setting</Panel.Heading>
+              <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+                <FormControl component="fieldset" style={formStyle}>
+                  <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
+                  <RadioGroup
+                    aria-label="Optimization"
+                    value={this.state.settings.optimizer}
+                    onChange={handleChange("optimizer")}
+                  >
+                    <FormControlLabel value="None" control={<Radio />} label="None" />
+                    <FormControlLabel value="2nd Order" control={<Radio />} label="2nd Order" />
+                    <FormControlLabel value="PCP" control={<Radio />} label="PCP" />
+                  </RadioGroup>
+                </FormControl>
+
+                <FormControl component="fieldset" style={formStyle}>
+                  <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
+                  <RadioGroup
+                    aria-label="Overwrite"
+                    value={this.state.settings.overwrite}
+                    onChange={handleChange("overwrite")}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label="True" />
+                    <FormControlLabel value="false" control={<Radio />} label="False"/>
+                  </RadioGroup>
+                </FormControl>
+                <FormControl component="fieldset" style={formStyle}>
+                  <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
+                  <RadioGroup
+                    aria-label="Integrity"
+                    value={this.state.settings.verify}
+                    onChange={handleChange("verify")}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label="True" />
+                    <FormControlLabel value="false" control={<Radio />} label="False"/>
+                  </RadioGroup>
+                </FormControl>
+
+                <FormControl component="fieldset" style={formStyle}>
+                  <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
+                  <RadioGroup
+                    aria-label="Encrypt"
+                    value={this.state.settings.encrypt}
+                    onChange={handleChange("encrypt")}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label="True" />
+                    <FormControlLabel value="false" control={<Radio />} label="False"/>
+                  </RadioGroup>
+                </FormControl>
+
+                <FormControl component="fieldset" style={formStyle}>
+                  <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
+                  <RadioGroup
+                    aria-label="Compress"
+                    value={this.state.settings.compress}
+                    onChange={handleChange("compress")}
+                  >
+                    <FormControlLabel value="true" control={<Radio />} label="True" />
+                    <FormControlLabel value="false" control={<Radio />} label="False"/>
+                  </RadioGroup>
+                </FormControl>
+
+                <FormControl component="fieldset">
+                  <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
+                  <Slider
+
+                    value={this.state.settings.retry}
+                    min={0}
+                    max={10}
+                    step={1}
+                    onChange={handleChangeRetry}
+                  />
+                  <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
+                </FormControl>
+              
+              </Panel.Body>
+            </Panel>
+  }
+  render() {
+
+    const isSmall = screenIsSmall();
+    const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
+
+    
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
           
           {!isSmall && 
           <Panel bsStyle="primary">
-            <Panel.Heading>Browse and Transfer Files</Panel.Heading>
-            <Panel.Body key={isSmall}>
+          <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+            <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
               
-                <div>
                 <Row style={{flexDirection: 'column'}}>
                   <DragDropContext 
                     onDragStart={this.onDragStart}
@@ -312,13 +391,18 @@ export default class TransferComponent extends Component {
                     <Button style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
                     <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
-              </div>
             
             </Panel.Body>
           </Panel>
+
+          
         }
+        {!isSmall && this.getSettingComponent(isSmall)}
         {isSmall &&
-            <Row>
+        <Panel bsStyle="primary">
+        <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+        <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
               <DragDropContext
                   onDragStart={this.onDragStart}
                   onDragEnd={this.onDragEnd}
@@ -326,94 +410,23 @@ export default class TransferComponent extends Component {
                 <Col style={panelStyle}>
                   {this._returnBrowseComponent1()}
                 </Col>
-                <Col style={{display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                <Row style={{display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
                   <Button style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
                   <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
-                </Col>
-                <Col style={panelStyle}>
+                </Row>
+                <Row style={panelStyle}>
                   {this._returnBrowseComponent2()}  
-                </Col>
+                </Row>
+                <Row>
+          
+                  {this.getSettingComponent(isSmall)}
+                </Row>
               </DragDropContext>
-            </Row>}
-
-            <Panel bsStyle="primary">
-              <Panel.Heading>Transfer Setting</Panel.Heading>
-              <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-              <FormControl component="fieldset" style={formStyle}>
-                <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
-                <RadioGroup
-                  aria-label="Optimization"
-                  value={this.state.settings.optimizer}
-                  onChange={handleChange("optimizer")}
-                >
-                  <FormControlLabel value="None" control={<Radio />} label="None" />
-                  <FormControlLabel value="2nd Order" control={<Radio />} label="2nd Order" />
-                  <FormControlLabel value="PCP" control={<Radio />} label="PCP" />
-                </RadioGroup>
-              </FormControl>
-
-              <FormControl component="fieldset" style={formStyle}>
-                <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
-                <RadioGroup
-                  aria-label="Overwrite"
-                  value={this.state.settings.overwrite}
-                  onChange={handleChange("overwrite")}
-                >
-                  <FormControlLabel value="true" control={<Radio />} label="True" />
-                  <FormControlLabel value="false" control={<Radio />} label="False"/>
-                </RadioGroup>
-              </FormControl>
-              <FormControl component="fieldset" style={formStyle}>
-                <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
-                <RadioGroup
-                  aria-label="Integrity"
-                  value={this.state.settings.verify}
-                  onChange={handleChange("verify")}
-                >
-                  <FormControlLabel value="true" control={<Radio />} label="True" />
-                  <FormControlLabel value="false" control={<Radio />} label="False"/>
-                </RadioGroup>
-              </FormControl>
-
-              <FormControl component="fieldset" style={formStyle}>
-                <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
-                <RadioGroup
-                  aria-label="Encrypt"
-                  value={this.state.settings.encrypt}
-                  onChange={handleChange("encrypt")}
-                >
-                  <FormControlLabel value="true" control={<Radio />} label="True" />
-                  <FormControlLabel value="false" control={<Radio />} label="False"/>
-                </RadioGroup>
-              </FormControl>
-
-              <FormControl component="fieldset" style={formStyle}>
-                <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
-                <RadioGroup
-                  aria-label="Compress"
-                  value={this.state.settings.compress}
-                  onChange={handleChange("compress")}
-                >
-                  <FormControlLabel value="true" control={<Radio />} label="True" />
-                  <FormControlLabel value="false" control={<Radio />} label="False"/>
-                </RadioGroup>
-              </FormControl>
-
-              <FormControl component="fieldset">
-                <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
-                <Slider
-
-                  value={this.state.settings.retry}
-                  min={0}
-                  max={10}
-                  step={1}
-                  onChange={handleChangeRetry}
-                />
-                <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
-              </FormControl>
-              
+            </Row>
             </Panel.Body>
-          </Panel>
+            </Panel>
+          }
+
         </Col>
       </div>
         

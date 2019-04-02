@@ -1,6 +1,9 @@
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.credential.UploadCredential;
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -8,9 +11,11 @@ import org.onedatashare.server.model.error.ODSError;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GoogleDriveResource;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -93,6 +98,12 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
+        }else if(userActionResource.uri.equals("Upload")){
+            return userActionResource.uploader;
+        }else if(userActionResource.uri.startsWith("gsiftp://")){
+
+            GlobusClient gc = userService.getGlobusClientFromUser(user);
+            return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
@@ -101,8 +112,13 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Session createSession(String uri, Credential credential) {
         if(uri.contains("dropbox://")){
             return new DbxSession(URI.create(uri), credential);
+        }else if(uri.contains("Upload")){
+            UploadCredential upc = (UploadCredential)credential;
+            return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         }else if(uri.contains("googledrive:/")){
             return new GoogleDriveSession(URI.create(uri), credential);
+        }else if(credential instanceof GlobusWebClientCredential){
+            return new GridftpSession(URI.create(uri), credential);
         }
         else return new VfsSession(URI.create(uri), credential);
     }
@@ -124,16 +140,16 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
-                .map(user -> {
-                    Job job = new Job(userAction.src, userAction.dest);
-                    job.setStatus(JobStatus.scheduled);
-                    job = user.saveJob(job);
-                    userService.saveUser(user).subscribe();
-                    return job;
-                })
-                .flatMap(jobService::saveJob)
-                .doOnSuccess(job -> processTransferFromJob(job, cookie))
-                .subscribeOn(Schedulers.elastic());
+            .map(user -> {
+                Job job = new Job(userAction.src, userAction.dest);
+                job.setStatus(JobStatus.scheduled);
+                job = user.saveJob(job);
+                userService.saveUser(user).subscribe();
+                return job;
+            })
+            .flatMap(jobService::saveJob)
+            .doOnSuccess(job -> processTransferFromJob(job, cookie))
+            .subscribeOn(Schedulers.elastic());
     }
 
     //@Override
@@ -144,19 +160,19 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public Mono<Job> restartJob(String cookie, UserAction userAction){
         return userService.getLoggedInUser(cookie)
-                .flatMap(user ->{
-                    return jobService.findJobByJobId(cookie, userAction.job_id)
-                            .map(job -> {
-                                Job restartedJob = new Job(job.src, job.dest);
-                                restartedJob.setStatus(JobStatus.scheduled);
-                                restartedJob = user.saveJob(restartedJob);
-                                userService.saveUser(user).subscribe();
-                                return restartedJob;
-                            })
-                            .flatMap(jobService::saveJob)
-                            .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
-                })
-                .subscribeOn(Schedulers.elastic());
+            .flatMap(user ->{
+                return jobService.findJobByJobId(cookie, userAction.job_id)
+                    .map(job -> {
+                        Job restartedJob = new Job(job.src, job.dest);
+                        restartedJob.setStatus(JobStatus.scheduled);
+                        restartedJob = user.saveJob(restartedJob);
+                        userService.saveUser(user).subscribe();
+                        return restartedJob;
+                    })
+                    .flatMap(jobService::saveJob)
+                    .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
+            })
+            .subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {
@@ -175,20 +191,21 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public void processTransferFromJob(Job job, String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
         Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.src)
-                .map(transfer::setSource)
-                .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
-                .map(transfer::setDestination)
-                .flux()
-                .flatMap(transfer1 -> transfer1.start(1L << 20))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
-                .doOnCancel(new RunnableCanceler(job))
-                .doFinally(s -> {
-                    if (job.getStatus() != JobStatus.removed) job.setStatus(JobStatus.complete);
-                    jobService.saveJob(job).subscribe();
-                })
-                .map(job::updateJobWithTransferInfo)
-                .flatMap(jobService::saveJob)
-                .subscribe();
+            .map(transfer::setSource)
+            .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
+            .map(transfer::setDestination)
+            .flux()
+            .flatMap(transfer1 -> transfer1.start(1L << 20))
+            .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+            .doOnCancel(new RunnableCanceler(job))
+            .doFinally(s -> {
+                if (job.getStatus() != JobStatus.removed)
+                    job.setStatus(JobStatus.complete);
+                jobService.saveJob(job).subscribe();
+            })
+            .map(job::updateJobWithTransferInfo)
+            .flatMap(jobService::saveJob)
+            .subscribe();
         ongoingJobs.put(job.uuid, ongoingJob);
     }
 

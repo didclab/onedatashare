@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, listFiles, deleteCredential, deleteHistory} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, 
+		listFiles, deleteCredential, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
+		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
@@ -14,10 +16,13 @@ import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
+import Modal from '@material-ui/core/Modal';
+
 import {getCred} from "./initialize_dnd.js";
 
 import {eventEmitter} from "../../App";
 
+import GlobusEndpointListingComponent from "./GlobusEndpointListingComponent";
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -35,20 +40,30 @@ export default class EndpointAuthenticateComponent extends Component {
 	constructor(props){
 		super(props);
 		this.state={
-			history: props.history,
+			historyList: props.history,
 			endpoint: props.endpoint,
 			credList: {},
+			endpointIdsList: {},
 			settingAuth: false,
 			settingAuthType: "", 
 			url: "",
-			
 			needPassword: false,
 			username: "",
 			password: "",
+			endpointSelected: {},
+			selectingEndpoint: false,
 		};
-		this.credentialListUpdateFromBackend();
+
+		let loginType = getType(props.endpoint);
+		if(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE){
+			this.credentialListUpdateFromBackend();
+		}
+		else if(loginType === GRIDFTP_TYPE){
+			this.endpointIdsListUpdateFromBackend();
+		}
 		this.handleChange = this.handleChange.bind(this);
 		this._handleError = this._handleError.bind(this);
+		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 	}
 
 	credentialListUpdateFromBackend = () => {
@@ -63,11 +78,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		});
 	}
 
-	historyListUpdateFromBackend = () => {
+	endpointIdsListUpdateFromBackend = () => {
 		this.props.setLoading(true);
-
-		history("", (data) =>{
-			this.setState({history: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) == 0 })});
+		globusEndpointIds({},(data) =>{
+			this.setState({endpointIdsList: data});
 			this.props.setLoading(false);
 		}, (error) =>{
 			this._handleError(error);
@@ -75,7 +89,18 @@ export default class EndpointAuthenticateComponent extends Component {
 		});
 	}
 
-	_handleError = (msg) =>{
+	historyListUpdateFromBackend = () => {
+		this.props.setLoading(true);
+		history("", (data) =>{
+			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) == 0 })});
+			this.props.setLoading(false);
+		}, (error) => {
+			this._handleError(error);
+			this.props.setLoading(false);
+		});
+	}
+
+	_handleError = (msg) => {
     	eventEmitter.emit("errorOccured", msg);
 	}
 
@@ -93,13 +118,11 @@ export default class EndpointAuthenticateComponent extends Component {
 			side: this.props.endpoint.side,
 			credential: credential
 		}
-		listFiles(url, endpointSet,null, (response) => {
-			
+		listFiles(url, endpointSet, null, (response) => {
 			history(url, (suc) => {
 				console.log(suc)
 			}, (error) => {
 				this._handleError(error);
-				this.props.setLoading(false);
 			})
 			this.props.loginSuccess(endpointSet);
 		}, (error) => {
@@ -107,27 +130,29 @@ export default class EndpointAuthenticateComponent extends Component {
 			callback(error);
 		})
 	}
-	render(){
-		const {history, endpoint, credList, settingAuth, needPassword} = this.state;
-		const { back, loginSuccess, setLoading} = this.props;
-		const {uri} = endpoint;
-		const histList = history.map((v) =>
+
+	getEndpointListComponentFromList(endpointIdsList){
+		const {endpoint} = this.state;
+		const {loginSuccess} = this.props;
+		return Object.keys(endpointIdsList)
+			.map((v) =>
 			<ListItem button key={v} onClick={() => {
-				this.endpointCheckin(v, {}, (error) => {
-					this._handleError(error);
-					this.setState({url: v, settingAuth: true, needPassword: true});
+				globusEndpointDetail(endpointIdsList[v], (resp) => {
+					this.endpointModalLogin(resp);
+				}, (error) => {
+					this._handleError("Unable to get detail of this endpoint");
 				})
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
 		      </ListItemIcon>
-	          <ListItemText primary={v} />
+	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteHistory(v, (accept) => {
-	            		this.historyListUpdateFromBackend();
+	            	deleteEndpointId(endpointIdsList[v], (accept) => {
+	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
-	            		eventEmitter.emit("errorOccured", "Delete History Failed");
+	            		this._handleError("Delete Credential Failed");
 	            	});
 	            }}>
 	              <DeleteIcon />
@@ -135,10 +160,12 @@ export default class EndpointAuthenticateComponent extends Component {
 	          </ListItemSecondaryAction>
 	        </ListItem>
 		);
-		
-		const type = getName(endpoint);
-		const loginType = getType(endpoint);
-		const cloudList = Object.keys(credList).filter(id => {
+	}
+
+	getCredentialListComponentFromList(credList, type){
+		const {endpoint} = this.state;
+		const {loginSuccess} = this.props;
+		return Object.keys(credList).filter(id => {
 			return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
 						&& !getCred().includes(id))})
 			.map((v) =>
@@ -151,7 +178,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				}
 				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
-
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
@@ -162,7 +188,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	            	deleteCredential(v, (accept) => {
 	            		this.credentialListUpdateFromBackend();
 	            	}, (error) => {
-	            		eventEmitter.emit("errorOccured", "Delete Credential Failed");
+	            		this._handleError("Delete Credential Failed");
 	            	});
 	            }}>
 	              <DeleteIcon />
@@ -170,6 +196,95 @@ export default class EndpointAuthenticateComponent extends Component {
 	          </ListItemSecondaryAction>
 	        </ListItem>
 		);
+	}
+	getHistoryListComponentFromList(historyList){
+		return historyList.map((v) =>
+			<ListItem button key={v} onClick={() => {
+				this.endpointCheckin(v, {}, (error) => {
+					this._handleError("Please enter your credential.");
+					this.setState({url: v, authFunction : this.regularSignIn, settingAuth: true, needPassword: true});
+				})
+			}}>
+			  <ListItemIcon>
+		        <DataIcon/>
+		      </ListItemIcon>
+	          <ListItemText primary={v} />
+	          <ListItemSecondaryAction>
+	            <IconButton aria-label="Delete" onClick={() => {
+	            	deleteHistory(v, (accept) => {
+	            		this.historyListUpdateFromBackend();
+	            	}, (error) => {
+	            		this._handleError("Delete History Failed");
+	            	});
+	            }}>
+	              <DeleteIcon />
+	            </IconButton>
+	          </ListItemSecondaryAction>
+	        </ListItem>
+		);
+	}
+
+	regularSignIn = () => {
+		const { needPassword} = this.state;
+		
+		if(!needPassword){
+    		this.endpointCheckin(this.state.url, {}, () => {
+    			this.setState({needPassword: true});
+    		});
+    	}else{
+    		this.endpointCheckin(this.state.url, {type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
+    			this._handleError("Authentication Failed");
+    		});
+    	}
+	}
+
+    globusActivateSignin = () => {
+    	const {endpointSelected} = this.state;
+		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
+			this.endpointModalLogin(endpointSelected);
+		}, (error) => {
+			this._handleError("Authentication Failed");
+		});
+	}
+
+	endpointModalAdd = (endpoint) => {
+		this.props.setLoading(true);
+		globusEndpointIds({},(data) =>{
+			this.state.endpointIdsList = data;
+			this.endpointModalLogin(endpoint);
+			this.props.setLoading(false);
+		}, (error) =>{
+			this._handleError(error);
+			this.props.setLoading(false);
+		});
+		
+	};
+
+	endpointModalLogin = (endpoint) => {
+		if(endpoint.activated === "false"){
+
+			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
+		}else{
+			this.setState({selectingEndpoint: false});
+			this.endpointCheckin("gsiftp:///", {type: "globus", globusEndpoint: endpoint}, (msg) => {
+    			this._handleError("Authentication Failed");
+    		});
+		}
+	}
+	
+	render(){
+		const {historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint} = this.state;
+		const { back, loginSuccess, setLoading} = this.props;
+		const {uri} = endpoint;
+		
+		const type = getName(endpoint);
+		const loginType = getType(endpoint);
+		const histList = this.getHistoryListComponentFromList(historyList);
+		const cloudList = this.getCredentialListComponentFromList(credList, type)
+		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
+
+		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
+		
 
 		return(
 		<div > 
@@ -188,16 +303,15 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
 		        	}else if(loginType == FTP_TYPE){
-		        		this.setState({settingAuth: true, needPassword: false, url: "ftp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://"});
 		        	}else if(loginType == SFTP_TYPE){
-		        		this.setState({settingAuth: true, needPassword: false, url: "sftp://"});
-		        	}else if(loginType == GRIDFTP_TYPE){
-		        		openGridFtpOAuth();
-		        		//this.setState({settingAuth: true, needPassword: false, url: "gsiftp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "sftp://"});
 		        	}else if(loginType == HTTP_TYPE){
-		        		this.setState({settingAuth: true, needPassword: false, url: "http://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){
-		        		this.setState({settingAuth: true, needPassword: false, url: "scp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "scp://"});
+		        	}else if(loginType == GRIDFTP_TYPE){
+		        		this.setState({selectingEndpoint: true});
 		        	}
 		        }}>
 		          <ListItemIcon>
@@ -207,24 +321,38 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE) && cloudList}
-		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && histList}
-		    </List>}
 
+		        {loginType == GRIDFTP_TYPE && endpointsList}
+		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && loginType != GRIDFTP_TYPE && 
+		        	histList}
+		    </List>}
+	    	<Modal
+	    	  aria-labelledby="simple-modal-title"
+	          aria-describedby="To Select globus endpoints"
+	          open={selectingEndpoint}
+	          onClose={endpointModalClose}
+	          style={{display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "center"}}
+	    	>
+		    	<GlobusEndpointListingComponent close={endpointModalClose} endpointAdded={this.endpointModalAdd}/>
+        	</Modal>
 		    {settingAuth &&
+
 		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		this.setState({settingAuth: false})}
-		    	}><BackIcon/>Back</Button>
+		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
-		    	<TextField
-		    	  style={{width: "80%"}}
-		          id="outlined-name"
-		          label="Url"
-		          value={this.state.url}
-		          onChange={this.handleChange('url')}
-		          margin="normal"
-		          variant="outlined"
-		        />
+		    	{loginType !== GRIDFTP_TYPE && 
+			    	<TextField
+			    	  style={{width: "80%"}}
+			          id="outlined-name"
+			          label="Url"
+			          value={this.state.url}
+			          onChange={this.handleChange('url')}
+			          margin="normal"
+			          variant="outlined"
+			        />
+		    	}
 
 		        
 		        {needPassword &&
@@ -250,18 +378,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        </div>
 		    	}
-
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
-		    		if(!needPassword){
-			    		this.endpointCheckin(this.state.url, {}, () => {
-			    			this.setState({needPassword: true});
-			    		});
-			    	}else{
-			    		this.endpointCheckin(this.state.url, {type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
-			    			this._handleError("Authentication Failed");
-			    		});
-			    	}
-		    	}}>Next</Button>
+		    	<Button style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
 		    	</div>
 		    }
       	</div>);

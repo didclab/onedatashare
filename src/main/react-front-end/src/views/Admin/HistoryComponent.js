@@ -12,13 +12,39 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import Tooltip from '@material-ui/core/Tooltip';
+import Zoom from '@material-ui/core/Zoom';
+import Info from '@material-ui/icons/Info';
+import Cancel from '@material-ui/icons/Cancel';
+import TablePagination from '@material-ui/core/TablePagination'
+import TableFooter from '@material-ui/core/TableFooter'
+import TablePaginationActions from '../TablePaginationActions'
+import { withStyles } from '@material-ui/core';
+const styles = theme => ({
+		root:{
+			width:'fit-content'
+		},
+		toolbar:{
+			paddingLeft:'300px'
+		},
+	tablePaginationCaption: {
+			fontSize: '15px'
+		},
+	tablePaginationSelect: {
+			fontSize: '15px',
+			lineHeight:'20px'
+		}
+	})
 
-export default class QueueComponent extends Component {
+class QueueComponent extends Component {
 
 	constructor(){
 		super();
 		this.state = {response:[],
-					  selectedTab: 0 };
+					  selectedTab: 0,
+						page: 0,
+						rowsPerPage: 10,
+						rowsPerPageOptions : [10, 20, 50, 100]};
 		let queueFunc = () => {queue((resp) => {
 			//success
 			this.setState({response:resp});
@@ -99,23 +125,29 @@ export default class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID){
+	renderActions(jobID, status){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
 		return(
 			<div>
-				<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
-					style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem',
-					fontWeight: 'bold', width: '50%', textTransform: 'none',
-					minWidth: '0px', minHeigth: '0px'}}>
-	          		i
-	        	</Button>
-	        	<Button onClick={() => {this.cancelButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
-	        		style={{backgroundColor: '#EEEEEE', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '50%',
-	        		textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
-	          		x
-	        	</Button>
-        	</div>
+				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
+					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
+						fontWeight: 'bold', width: '20%', textTransform: 'none', 
+						minWidth: '0px', minHeigth: '0px'}}>
+						<Info />
+					</Button>
+				</Tooltip>
+				{status == 'processing' &&
+				<Tooltip TransitionComponent={Zoom} title="Cancel">
+						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<Cancel />
+						</Button>
+					</Tooltip>
+				}
+			</div>
 		);
 	}
 
@@ -146,7 +178,7 @@ export default class QueueComponent extends Component {
 	renderTabContent(resp){
 		if(this.state.selectedTab === 0){
 			return(
-				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%' }}>
+				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
 					<Row>
 						<Col md={6}><b>User</b></Col>
 						<Col md={6}>{resp.owner}</Col>
@@ -204,15 +236,22 @@ export default class QueueComponent extends Component {
             );
 		}
 	}
+	handleChangePage = (event, page) => {
+		this.setState({ page });
+	};
 
+	handleChangeRowsPerPage = event => {
+		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+	};
 	render(){
 		const height = window.innerHeight+"px";
 		const {response} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
-
+		const {rowsPerPage, rowsPerPageOptions, page } = this.state;
+		const {classes} = this.props;
 
 		var tableRows = [];
-		response.map(resp => {
+		response.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
@@ -231,13 +270,13 @@ export default class QueueComponent extends Component {
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-                    		            	{this.renderActions(resp.job_id)}
-                    </TableCell>
+									{this.renderActions(resp.job_id, resp.status)}
+                </TableCell>
 	          	</TableRow>
 	        );
 	      	tableRows.push(
 	      	 	<TableRow id={"info_" + resp.job_id} class="rohit" style={{ display: 'none'}}>
-	            	<TableCell colSpan={5} style={{...tbcellStyle, width: '10%',  fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
+	            	<TableCell colSpan={6} style={{...tbcellStyle, width: '10%',  fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
 	            		<div id="infoBox" style={{ marginBottom : '0.5%' }}>
 		            		<AppBar position="static" style={{ boxShadow: 'unset' }}>
 								<Tabs value={this.state.selectedTab} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
@@ -255,7 +294,7 @@ export default class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', border: 'solid 2px #d9edf7'}}>
+		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', border: 'solid 2px #d9edf7'}}>
 	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
@@ -270,8 +309,32 @@ export default class QueueComponent extends Component {
 		        <TableBody>
 		            {tableRows}
 		        </TableBody>
+						<TableFooter style={{textAlign:'center'}}>
+							<TableRow>
+								<TablePagination 
+									rowsPerPageOptions={rowsPerPageOptions}
+									colSpan={4}
+									count={response.length}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										native: true,
+									}}
+									onChangePage={this.handleChangePage}
+									onChangeRowsPerPage={this.handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+									classes={{
+										caption: classes.tablePaginationCaption,
+										select: classes.tablePaginationSelect,
+										toolbar: classes.toolbar
+									}}
+								/>
+							</TableRow>
+						</TableFooter>
 	      	</Table>
       	</Paper>
 		);
 	}
 }
+
+export default withStyles(styles)(QueueComponent) 

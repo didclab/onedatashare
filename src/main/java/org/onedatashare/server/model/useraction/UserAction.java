@@ -2,6 +2,7 @@ package org.onedatashare.server.model.useraction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.onedatashare.module.globusapi.EndPoint;
 
 import java.util.ArrayList;
 
@@ -10,6 +11,9 @@ import java.util.ArrayList;
 public class UserAction {
   public String action;
   public String email;
+  public String firstName;
+  public String lastName;
+  public String organization;
   public String password;
   public String uri;
   public String id;
@@ -25,4 +29,7 @@ public class UserAction {
   public UserActionCredential credential;
   public Integer job_id;
 
+  public String filter_fulltext;
+  public EndPoint globusEndpoint;
+  public String username;
 }

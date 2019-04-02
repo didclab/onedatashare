@@ -19,7 +19,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
-import org.onedatashare.server.service.GoogleDriveOauthService;
+import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 
 import java.io.IOException;
 import java.net.URI;

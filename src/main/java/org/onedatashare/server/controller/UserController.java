@@ -1,6 +1,5 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
@@ -14,8 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/stork/user")
 public class UserController {
+
   @Autowired
   private UserService userService;
+
+  final int TIMEOUT_IN_MINUTES = 1440;
 
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -24,7 +26,7 @@ public class UserController {
       case "login":
         return userService.login(userAction.email, userAction.password);
       case "register":
-        return userService.register(userAction.email, userAction.password, userAction.confirmPassword);
+        return userService.register(userAction.email, userAction.firstName, userAction.lastName, userAction.organization);
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
@@ -32,11 +34,17 @@ public class UserController {
       case "verifyEmail":
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
-        return userService.sendVerificationCode(userAction.email);
+        return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
+      case "getUser":
+        return userService.getUser(userAction.getEmail());
+      case "getUsers":
+        return userService.getAllUsers();
+      case "getAdministrators":
+        return userService.getAdministrators();
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
-        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.newPassword);
+        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
         return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
@@ -64,14 +72,11 @@ public class UserController {
   public ResponseEntity<InvalidField> handle(InvalidField invf){
     System.out.println(invf.getMessage());
     return new ResponseEntity<>(invf, invf.status);
-
   }
 
   @ExceptionHandler(ForbiddenAction.class)
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
     System.out.println(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
-
   }
-
 }

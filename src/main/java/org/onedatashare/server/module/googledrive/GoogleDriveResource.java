@@ -23,6 +23,8 @@ import java.util.List;
 
 public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriveResource> {
 
+    public static final String ROOT_DIR_ID = "root";
+
     protected GoogleDriveResource(GoogleDriveSession session, String path, String id) {
         super(session, path, id);
     }
@@ -53,7 +55,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         });
     }
 
-   public Mono<GoogleDriveResource> delete() {
+    public Mono<GoogleDriveResource> delete() {
        return initialize().map(resource -> {
            try {
                resource.session.service.files().delete(id).execute();
@@ -63,7 +65,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
            }
            return resource;
        });
-   }
+    }
 
     public Mono<String> download(){
         String downloadUrl ="";
@@ -91,9 +93,9 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             if (path.equals("/")) {
                 stat.dir = true;
                 result = session.service.files().list()
-                        .setOrderBy("name")
-                        .setQ("trashed=false and 'root' in parents")
-                        .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
+                    .setOrderBy("name")
+                    .setQ("trashed=false and 'root' in parents")
+                    .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
 
                 if (result == null)
                     throw new NotFound();
@@ -119,8 +121,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 while (result.getPageToken() != null);
             } else {
                 try {
-                    File googleDriveFile = session.service.files().get(id)
-                            .setFields("id, name, kind, mimeType, size, modifiedTime").execute();
+                    File googleDriveFile = session
+                            .service
+                            .files()
+                            .get(id)
+                            .setFields("id, name, kind, mimeType, size, modifiedTime")
+                            .execute();
                     if (googleDriveFile.getMimeType().equals("application/vnd.google-apps.folder")) {
                         stat.dir = true;
 
@@ -267,7 +273,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 if( parentid != null ) {
                     id = session.idMap.get(session.idMap.size()-1).getId();
                 }else {
-                    id= null;
+                    id = ROOT_DIR_ID;
                 }
 
                 String name[] = path.split("/");
@@ -310,8 +316,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 chunk.write(slice.asBytes());
                 int chunks = chunk.size() / (1<<18);
                 int sizeUploading = chunks * (1<<18);
+                URL url = new URL(resumableSessionURL);
                 if(sizeUploading > 0) {
-                    URL url = new URL(resumableSessionURL);
                     HttpURLConnection request = (HttpURLConnection) url.openConnection();
                     request.setRequestMethod("PUT");
                     request.setConnectTimeout(10000);
@@ -337,7 +343,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                 ", message: " + request.getResponseMessage());
                         System.out.println("last chunk Not working");
                     }
-
                 }
             }catch (Exception e) {
                 e.printStackTrace();

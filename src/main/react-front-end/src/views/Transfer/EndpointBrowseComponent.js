@@ -22,51 +22,23 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-
 import FileInput from 'react-fine-uploader/file-input';
 
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 
-     // 
-
 import React, { Component } from 'react';
 
-import {share, mkdir, deleteCall, download} from "../../APICalls/APICalls";
+import {share, mkdir, deleteCall, download, getDownload} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
-		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId} from "./initialize_dnd";
+		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, getMapFromEndpoint} from "./initialize_dnd";
 
 import {eventEmitter} from "../../App";
 
 import {getType} from '../../constants.js';
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
-
-const uploader = new FineUploaderTraditional({
-	// debug: true,
-   options: {
-   	  chunking: {
-        enabled: true,
-        concurrent: {
-	        enabled: true
-	    }
-      },
-      request: {
-        endpoint: '/api/stork/upload',
-	      // params: {
-	      //   file: function () {
-	      //     return 5;
-	      //   }
-	      
-      },
-
-      retry: {
-        enableAuto: true
-      },
-      "qqchunksize": 1000000
-   }
-})
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -115,8 +87,6 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 	    window.removeEventListener('touchend', this.onWindowTouchEnd);
 	}
-
-
 
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
@@ -304,9 +274,40 @@ export default class EndpointBrowseComponent extends Component {
 	render(){
 		const {endpoint, back, setLoading, getLoading} = this.props;
 		const {directoryPath} = this.state;
+		const uploader = new FineUploaderTraditional({
+			debug: true,
+			 options: {
+					 chunking: {
+						enabled: true,
+						partSize: 500000,
+						concurrent: {
+							enabled: false
+						},
+					},
+					request: {
+						endpoint: '/api/stork/upload',
+						params: {
+							directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+							credential: JSON.stringify(endpoint.credential),
+							id: this.state.ids[this.state.ids.length-1],
+							map: JSON.stringify(getMapFromEndpoint(endpoint))
+						}
+					},
+					retry: {
+						enableAuto: true
+					},
+					callbacks :{
+						onError: function(id, name, errorReason, xhr){
+							console.log('error occurred - ' + errorReason);
+						}
+					}
+					// "qqchunksize": 1000000
+			 }
+		})
+
 		const list = getFilesFromMemory(endpoint) || [];
 		//console.log(list);
-		const iconStyle = {fontSize: "15px"};
+		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
@@ -386,11 +387,12 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-				  			<BootStrapButton style={buttonStyle} disabled={false}>
-									<FileInput uploader={uploader}>
-										<UploadButton style={iconStyle}/>
-									</FileInput>
+						<FileInput uploader={uploader} style={buttonStyle}>
+				  			<BootStrapButton disabled={false}>
+								<UploadButton style={iconStyle}/>
 				  			</BootStrapButton>
+			  			</FileInput>
+				  			
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
 				  	overlay={tooltip("Delete")}>
@@ -403,7 +405,12 @@ export default class EndpointBrowseComponent extends Component {
 					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-					  			download(downloadUrl, endpoint.credential)
+					  			const taskList = getSelectedTasksFromSide(endpoint);
+					  			if(getType(endpoint) === SFTP_TYPE){
+									getDownload(downloadUrl, endpoint.credential, taskList[0].id)
+								}else{
+						  			download(downloadUrl, endpoint.credential, taskList[0].id)
+						  		}
 					  		}}
 					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
 						</OverlayTrigger>
@@ -447,7 +454,7 @@ export default class EndpointBrowseComponent extends Component {
 
 
 			<Droppable droppableId={endpoint.side} > 
-				{  (provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}

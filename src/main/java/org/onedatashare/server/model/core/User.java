@@ -1,6 +1,8 @@
 package org.onedatashare.server.model.core;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -9,10 +11,7 @@ import java.net.IDN;
 import java.net.URI;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.onedatashare.module.globusapi.EndPoint;
 import java.util.*;
 
 @Data
@@ -26,7 +25,12 @@ public class User {
   public String hash;
   /** Salt used for hash. */
   public String salt;
-
+  /** User first name. */
+  public String firstName;
+  /** User last name */
+  public String lastName;
+  /** User Organization */
+  public String organization;
   /** Temp code and expire date **/
   public VerifyCode code;
 
@@ -46,6 +50,9 @@ public class User {
 
   /** Previously visited URIs. */
   public LinkedList<URI> history = new LinkedList<>();
+
+  /** Previously visited URIs. */
+  public Map<UUID,EndPoint> globusEndpoints = new HashMap<>();
 
   /** Stored credentials. */
   public Map<UUID,Credential> credentials = new HashMap<>();
@@ -95,8 +102,19 @@ public class User {
   public User() { }
 
   /** Create a user with the given email and password. */
+  public User(String email, String firstName, String lastName, String organization, String password) {
+    this.email = email;
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.organization = organization;
+    setPassword(password);
+  }
+
   public User(String email, String password) {
     this.email = email;
+    this.firstName = "";
+    this.lastName = "";
+    this.organization = "";
     setPassword(password);
   }
 
@@ -279,6 +297,11 @@ public class User {
   public void setVerifyCode(String code){
     this.code = new VerifyCode(code);
   }
+  public void setVerifyCode(String code, int expire_in_minutes){
+    VerifyCode _code =  new VerifyCode(code);
+    _code.SetExpDate(expire_in_minutes);
+    this.code = _code;
+  }
   public static class NotValidatedException extends RuntimeException {
     public NotValidatedException() {
       super("This account has not been validated.");
@@ -294,21 +317,25 @@ public class User {
       this.hash = hash;
     }
   }
+
   public class VerifyCode {
     public String code;
     public Date expireDate;
     static final long ONE_MINUTE_IN_MILLIS=60000;//millisecs
 
     public VerifyCode(String code) {
-      int secondsAfter = 300000; // 5 minutes in milli seconds
       this.code = code;
       Calendar date = Calendar.getInstance();
       long t= date.getTimeInMillis();
       this.expireDate = new Date(t + 5 * ONE_MINUTE_IN_MILLIS);
-
-//      DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-//      System.out.println("expired date "+ dateFormat.format(this.expireDate));
     }
+
+    public void SetExpDate( int minutes) {
+      Calendar date = Calendar.getInstance();
+      long t= date.getTimeInMillis();
+      this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
+    }
+
   }
 }
 

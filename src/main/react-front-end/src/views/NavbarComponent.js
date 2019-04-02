@@ -10,7 +10,7 @@ import {isAdmin} from '../APICalls/APICalls';
 
 class NavbarComponent extends Component {
 	
-	constructor(props){NavbarComponent
+	constructor(props){
 		super(props);
 		this.state={
 		  login: store.getState().login,
@@ -18,8 +18,12 @@ class NavbarComponent extends Component {
 		  admin: store.getState().admin != false
 		};
 		if(this.state.login){
-			isAdmin(store.getState().email, store.getState().hash, ()=>{
-				store.dispatch(isAdminAction())
+			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin)=>{
+				if(userIsAdmin){
+					store.dispatch(isAdminAction())
+				}else{
+					console.log("not admin")
+				}
 			}, (error)=>{
 				console.log(error);
 			});

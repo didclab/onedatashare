@@ -2,6 +2,7 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
+import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
@@ -137,6 +138,29 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
     });
 }
 
+export async function setPassword(emailId, code, password, confirmPassword) {
+
+    return axios.post(url+'user', {
+    	    action: "setPassword",
+    	    email : emailId,
+    	    code : code,
+    	    password : password,
+    	    confirmPassword : confirmPassword
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to set password for users account")
+    		else {
+                    return response;
+                }
+            //statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          return {status : 500}
+        });
+}
+
 
 /*
 	Desc: Login and return a hash
@@ -195,6 +219,54 @@ export async function history(uri, accept, fail){
     });
 }
 
+export async function globusEndpointIds(gep,  accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointId',
+
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointDetail(gep, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpoint',
+	    globusEndpoint: gep,
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function globusEndpointActivate(gep,_username, _password, accept, fail){
+	var callback = accept;
+	axios.post(url+'globus', {
+	    action: 'endpointActivate',
+	    globusEndpoint: gep,
+	    username: _username,
+	    password: _password
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
 
 export async function deleteHistory(uri, accept, fail){
 	var callback = accept;
@@ -202,6 +274,23 @@ export async function deleteHistory(uri, accept, fail){
 	axios.post(url+'user', {
 		action: "deleteHistory",
 	    uri: encodeURI(uri)
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteEndpointId(ged, accept, fail){
+	var callback = accept;
+
+	axios.post(url+'globus', {
+		action: "deleteEndpointId",
+	    globusEndpoint: ged,
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -321,7 +410,8 @@ export async function share(uri, endpoint, accept, fail){
 
 export async function mkdir(uri,type, endpoint,  accept, fail){
 	var callback = accept;
-	const id = getIdsFromEndpoint(endpoint);
+	const ids = getIdsFromEndpoint(endpoint);
+	const id = ids[ids.length - 1];
 	axios.post(url+'mkdir', {
 	    credential: endpoint.credential,
 	    uri: encodeURI(uri),
@@ -360,22 +450,44 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
+export async function download(uri, credential, _id){
+	axios.post(url+'download', {
+		type: getTypeFromUri(uri),
+		credential: credential,
+		uri: encodeURI(uri),
+		id: _id,
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			console.log("Error in download API call");
+		else{
+		//	console.log(response.data, encodeURI(response.data));
+			window.open(response.data)
+		}
+	})
+	.catch((error) => {
+			console.log("Error encountered while generating download link");
+	});
+}
 
-export async function download(uri, credential){
-	console.log(uri)
-	var form = document.createElement('form');
-	form.action = url+"get";
-	form.method = 'POST';
-	form.target = '_blank';
+export async function getDownload(uri, credential, _id){
+	const publicKey = store.getState()["publicKey"];
 
-	var input = document.createElement('textarea');
-	input.name = '$json';
-	input.value = JSON.stringify({uri: encodeURI(uri), credential: credential});
-	form.appendChild(input);
-
-	form.style.display = 'none';
-	document.body.appendChild(form);
-	form.submit();
+	var encrypt = new JsEncryptModule.JSEncrypt();
+	encrypt.setPublicKey(publicKey);
+	let json_to_send = {
+		credential: credential,
+		type: getTypeFromUri(uri),
+		uri: encodeURI(uri),
+		id: _id,
+	}
+	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
+	console.log(strin)
+	axios.get(url+"download/file", {
+		params: {
+	      data: strin
+	    }
+	})
 }
 
 export async function upload(uri, credential, accept, fail){
@@ -403,7 +515,7 @@ export async function getUsers(type, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
-	    action: "getUsers"
+	    action: type
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -433,6 +545,7 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
+		store.dispatch(logoutAction());
 	})
 	.catch((error) => {
       fail(error);
@@ -513,29 +626,35 @@ export async function openOAuth(url){
 
 
 
-export async function registerUser(emailId) {
+export async function registerUser(emailId, firstName, lastName, organization) {
 
-    return axios.post(url+'user', {
-    	    action: "register",
-    	    email : emailId
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to register user")
-    		else {
-    		    return response
-    		}
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          console.error("Error while registering user");
-          return {status : 500}
-        });
+	return axios.post(url+'user', {
+				action: "register",
+				email : emailId,
+				firstName : firstName,
+				lastName : lastName,
+				organization : organization
+		})
+		.then((response) => {
+	if(response.data && response.data.status && response.data.status == 302) {
+						console.log("User already exists");
+						return {status : 302}
+				}
+			if(!(response.status === 200))
+				throw new Error("Failed to register user")
+			else {
+					return response
+			}
+		})
+		.catch((error) => {
+				//statusHandle(error, fail);
+				console.error("Error while registering user");
+				return {status : 500}
+			});
 }
 
 
 export async function verifyRegistraionCode(emailId, code) {
-
     return axios.post(url+'user', {
     	    action: "verifyCode",
     	    email : emailId,
@@ -552,25 +671,20 @@ export async function verifyRegistraionCode(emailId, code) {
         });
 }
 
-export async function setPassword(emailId, code, password, confirmPassword) {
-
-    return axios.post(url+'user', {
-    	    action: "setPassword",
-    	    email : emailId,
-    	    code : code,
-    	    password : password,
-    	    confirmPassword : confirmPassword
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to set password for users account")
-    		else {
-                    return response;
-                }
-            //statusHandle(response, callback);
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          return {status : 500}
-        });
+export async function globusListEndpoints( filter_fulltext, accept, fail) {
+    var callback = accept;
+    return axios.post(url+'globus', {
+	    action : "endpoint_list",
+	    filter_fulltext : filter_fulltext
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      
+      statusHandle(error, fail);
+    });
 }
+
