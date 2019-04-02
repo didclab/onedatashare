@@ -31,23 +31,10 @@ public class GoogleDriveOauthService{
     public String key;
     private static String finishURI;
     private static GoogleClientSecrets clientSecrets;
-    @Value("${drive_client_id}")
-    private String clientid;
-    @Value("${drive_client_secret}")
-    private String cSecrets;
-    @Value("${drive_project_id}")
-    private String pid;
-    @Value("${drive_auth_uri}")
-    private String authuri;
-    @Value("${drive_token_uri}")
-    private String turi;
-    @Value("${drive_auth_provider_x509_cert_url}")
-    private String authProvider;
-    @Value("${drive_redirect_uris}")
-    private String ruri[];
 
     @Autowired
     private UserService userService;
+
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static final FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -55,16 +42,16 @@ public class GoogleDriveOauthService{
     private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
 
     public static class GoogleDriveConfig {
-        public String client_id, client_secret, auth_uri, token_uri, auth_provider_x509_cert_url, project_id;
-        public String redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
+        public String client_id, client_secret, auth_uri, token_uri, auth_provider_x509_cert_url, project_id, redirect_uris;
+
         public GoogleDriveConfig() {
-            this.client_id = "1093251746493-hga9ltfasf35q9daqrf00rgcu1ocj3os.apps.googleusercontent.com";
-            this.client_secret = "8Zsk-F6iP3jyIDVvHV33CkKh";
+            this.client_id = System.getenv("ods_drive_client_id");
+            this.client_secret = System.getenv("ods_drive_client_secret");
             this.auth_uri = "https://accounts.google.com/o/oauth2/auth";
             this.token_uri = "https://accounts.google.com/o/oauth2/token";
             this.auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs";
-            this.project_id = "onedatashare-1531417250475";
-            //this.redirect_uris = ruri;
+            this.project_id = System.getenv("ods_drive_project_id");
+            this.redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
         }
     }
 
@@ -82,7 +69,7 @@ public class GoogleDriveOauthService{
         if (c == null || c.client_id == null || c.client_secret == null || c.token_uri == null || c.redirect_uris == null)
             finishURI = null;
         else {
-            redirect_uris = Arrays.asList(c.redirect_uris.replaceAll("\\[|\\]|\"|\n","")
+            redirect_uris = Arrays.asList(c.redirect_uris/*.replaceAll("\\[|\\]|\"|\n","")*/
                     .trim()
                     .split(","));
             finishURI = redirect_uris.get(0);

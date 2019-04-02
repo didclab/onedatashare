@@ -26,6 +26,10 @@ import javax.mail.internet.*;
 
 @Service
 public class UserService {
+
+  final String EMAIL_USERNAME = System.getenv("ODS_EMAIL_ADDRESS");
+  final String EMAIL_PWD = System.getenv("ODS_EMAIL_PWD");
+
   @Autowired
   private UserRepository userRepository;
 
@@ -203,8 +207,7 @@ public class UserService {
     // Recipient's email ID needs to be mentioned.
     String to = email;
 
-    final String username = "yifuyin7@gmail.com";
-    final String password = "canada332211";
+
 
     // Get system properties
     Properties properties = System.getProperties();
@@ -216,7 +219,7 @@ public class UserService {
     // Get the default Session object.
     Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
       protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(username, password);
+        return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PWD);
       }
     });
 
@@ -229,7 +232,7 @@ public class UserService {
         // Create a default MimeMessage object.
         MimeMessage message = new MimeMessage(session);
         // Set From: header field of the header.
-        message.setFrom(new InternetAddress(username));
+        message.setFrom(new InternetAddress(EMAIL_USERNAME));
         // Set To: header field of the header.
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
         // Set Subject: header field
