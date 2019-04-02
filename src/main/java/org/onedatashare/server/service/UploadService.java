@@ -33,7 +33,7 @@ public class UploadService {
     private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
     public Mono<Integer> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
-                                     String directoryPath, String fileName, Long totalFileSize, String googledriveid, String idmap) {
+                                     String directoryPath, String fileName, Long totalFileSize, String googleDriveId, String idMap) {
         if (ongoingUploads.containsKey(uuid)) {
             return sendFilePart(filePart, ongoingUploads.get(uuid));
         } else {
@@ -44,7 +44,7 @@ public class UploadService {
             userAction.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
             System.out.println("total " + totalFileSize);
             userAction.dest = new UserActionResource();
-            userAction.dest.id = googledriveid;
+            userAction.dest.id = googleDriveId;
 
             try {
                 if (directoryPath.endsWith("/")) {
@@ -55,7 +55,7 @@ public class UploadService {
 
                 ObjectMapper objectMapper = new ObjectMapper();
                 userAction.dest.credential = objectMapper.readValue(credential, UserActionCredential.class);
-                IdMap[] idMaps = objectMapper.readValue(idmap, IdMap[].class);
+                IdMap[] idMaps = objectMapper.readValue(idMap, IdMap[].class);
                 userAction.dest.map = new ArrayList<>(Arrays.asList(idMaps));
             } catch (Exception e) {
                 e.printStackTrace();
