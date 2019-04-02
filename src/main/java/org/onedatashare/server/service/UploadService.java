@@ -36,31 +36,31 @@ public class UploadService {
         if (ongoingUploads.containsKey(uuid)) {
             return sendFilePart(filePart, ongoingUploads.get(uuid));
         } else {
-            UserAction ua = new UserAction();
-            ua.src = new UserActionResource();
-            ua.src.uri = "Upload";
+            UserAction userAction = new UserAction();
+            userAction.src = new UserActionResource();
+            userAction.src.uri = "Upload";
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
-            ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
+            userAction.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
             System.out.println("total "+totalFileSize);
-            ua.dest = new UserActionResource();
-            ua.dest.id = googledriveid;
+            userAction.dest = new UserActionResource();
+            userAction.dest.id = googledriveid;
 
 
             try {
                 if(directoryPath.endsWith("/")) {
-                    ua.dest.uri = directoryPath+URLEncoder.encode(fileName,"UTF-8");
+                    userAction.dest.uri = directoryPath+URLEncoder.encode(fileName,"UTF-8");
                 } else {
-                    ua.dest.uri = directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8");
+                    userAction.dest.uri = directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8");
                 }
 
                 ObjectMapper mapper = new ObjectMapper();
-                ua.dest.credential = mapper.readValue(credential, UserActionCredential.class);
+                userAction.dest.credential = mapper.readValue(credential, UserActionCredential.class);
                 IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
-                ua.dest.map = new ArrayList<>(Arrays.asList(idms));
+                userAction.dest.map = new ArrayList<>(Arrays.asList(idms));
             }catch(Exception e){
                 e.printStackTrace();
             }
-            resourceService.submit(cookie, ua).subscribe();
+            resourceService.submit(cookie, userAction).subscribe();
             return sendFilePart(filePart, uploadQueue).map(size -> {
                 if (size < totalFileSize) {
                     ongoingUploads.put(uuid, uploadQueue);
