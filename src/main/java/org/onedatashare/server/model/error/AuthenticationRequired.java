@@ -1,6 +1,5 @@
 package org.onedatashare.server.model.error;
 
-import org.onedatashare.server.controller.OauthController;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.springframework.http.HttpStatus;
 

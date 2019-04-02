@@ -1,12 +1,10 @@
 package org.onedatashare.server.module.googledrive;
 
-import com.google.api.client.auth.oauth2.RefreshTokenRequest;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
@@ -15,13 +13,11 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import org.onedatashare.server.controller.OauthController;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 import org.onedatashare.server.service.GoogleDriveOauthService;
 
@@ -31,18 +27,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDriveResource> {
-    static GoogleClientSecrets clientSecrets;
+    private static GoogleClientSecrets clientSecrets;
     static transient Drive service;
-    transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
-    ArrayList<IdMap> idMap = null;
-    transient LinkedBlockingQueue<String> mkdirQueue = new LinkedBlockingQueue<>();
-    //transient final Integer Lock = new Integer(0);
-    static GoogleAuthorizationCodeFlow flow;
+    private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
+    protected ArrayList<IdMap> idMap = null;
+    private static GoogleAuthorizationCodeFlow flow;
 
-    static String APPLICATION_NAME = "OneDataShare";
+    private static String APPLICATION_NAME = "OneDataShare";
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -52,10 +45,6 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     public GoogleDriveSession(URI uri, Credential credential) {
         super(uri, credential);
     }
-
-    //public String redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
-    public static String finishURI = GoogleDriveOauthService.finishURI;
-
 
     @Override
     public Mono<GoogleDriveResource> select(String path) {
@@ -138,14 +127,14 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     private static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer)  {
         return new HttpRequestInitializer() {
             @Override
-            public void initialize(HttpRequest httpRequest) throws IOException {
+            public void initialize(HttpRequest httpRequest) {
                 try{
                 requestInitializer.initialize(httpRequest);
                 httpRequest.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
                 httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
                 }catch(IOException e){
                     System.out.println("******IOException********");
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }catch(NullPointerException e){
                     System.out.println("******NullPointerException********");
                     //e.printStackTrace();
@@ -167,7 +156,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     }
 
     public  OAuthCredential updateToken(){
-
+        //Updating the access token for googledrive using refresh token
         OAuthCredential cred = (OAuthCredential)credential;
         try{
             System.out.println("\nOld AccessToken: "+cred.token+"\n"+cred.refreshToken);

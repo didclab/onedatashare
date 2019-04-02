@@ -264,9 +264,7 @@ public class UserService {
   }
 
   public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
-    System.out.println("User Service token: "+credential.token);
-
-//    final User.UserLogin userLogin = cookieToUserLogin(cookie);
+    //Updating the access token for googledrive using refresh token
           getLoggedInUser(cookie)
             .doOnSuccess(user -> {
                 Map<UUID,Credential> credsTemporary = user.getCredentials();
