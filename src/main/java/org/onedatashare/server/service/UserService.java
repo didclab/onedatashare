@@ -387,12 +387,22 @@ public class UserService {
   }
 
   public Flux<UUID> getJobs(String cookie) {
-    return getLoggedInUser(cookie).map(User::getJobs).flux().flatMap(Flux::fromIterable);
+    return getLoggedInUser(cookie)
+            .map(User::getJobs)
+            .flux().flatMap(Flux::fromIterable);
   }
 
   public Mono<User> addJob(Job job, String cookie) {
     return getLoggedInUser(cookie).map(user -> user.addJob(job.uuid)).flatMap(userRepository::save);
   }
+
+//  public Mono<User> deleteJon(String jobId, String cookie){
+//    getLoggedInUser(cookie)
+//            .map(User::getJobs).map(job -> {
+//
+//    });
+//
+//  }
 
   public User.UserLogin cookieToUserLogin(String cookie) {
     Map<String,String> map = new HashMap<String,String>();

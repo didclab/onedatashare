@@ -32,7 +32,8 @@ public class JobService {
     }
 
     public Mono<List<Job>> getAllJobsForUser(String cookie) {
-        return userService.getJobs(cookie).flatMap(this::getJobByUUID).publishOn(Schedulers.parallel()).collectList();
+        return userService.getJobs(cookie).flatMap(this::getJobByUUID).publishOn(Schedulers.parallel())
+                .filter(job -> !job.deleted).collectList();
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

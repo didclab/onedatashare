@@ -30,6 +30,7 @@ public class Job {
   /** The owner of the job. */
   public String owner;
 
+  public boolean deleted = false;
   @Id
   public UUID uuid;
 
