@@ -48,34 +48,10 @@ export default class ValidateEmailComponent extends Component {
 		    });
 		};
 		
-		if(loadVerifyCode){
-			// return(
-			// 	(props) => {<CreateAccountComponent {...props} loadVerifyCode = {this.state.loadVerifyCode} email = {this.state.email} ></CreateAccountComponent>}
-			// );
+		if(loadVerifyCode){		
 			return(
 				<CreateAccountComponent {...properties} loadVerifyCode = {this.state.loadVerifyCode} email = {this.state.email} ></CreateAccountComponent>
-
-				// <BrowserRouter>
-				// 	<Route 
-				// 		path='/account/register'
-				// 		render={ (props) => <CreateAccountComponent {...props}  loadVerifyCode = {this.state.loadVerifyCode} email = {this.state.email} />}
-				// 	/>
-				// </BrowserRouter>
-      		
-				//<Redirect to={"/account/register"}/>
-				// <Route exact path={'/account/register'}  
-				// 	render={(props) => <CreateAccountComponent {...props}						
-				// 	loadVerifyCode = {this.state.loadVerifyCode} email = {this.state.email}
-				// 	/>}></Route>
 			);
-			// return(
-			// 	<div className="enter-from-right slide-in">
-					
-			// 			{console.log('entered')}
-			// 			{<CreateAccountComponent {...back} loadVerifyCode = {this.state.loadVerifyCode} email = {this.state.email} ></CreateAccountComponent>}
-					
-			// 	</div>
-			// );
 		}
 		else{
 			return (	

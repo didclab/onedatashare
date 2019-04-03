@@ -32,7 +32,7 @@ export default class CreateAccountComponent extends Component {
         lastName:"",
         organization:"",
         loading: false,
-        isStorkAccount: props.loadVerifyCode
+        isLostVerifyCode: props.loadVerifyCode
       }
       this.firstNameValidationMsg = "Please Enter Your First Name"
       this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -97,6 +97,7 @@ export default class CreateAccountComponent extends Component {
             if(response.status == 200 ) {
                 state.screen = "setPassword";
                 state.code = response.data;
+                state.verificationCode = code;
                 self.setState({state});
             }
             else {
@@ -124,7 +125,7 @@ export default class CreateAccountComponent extends Component {
                 //state.screen = "setPassword";
                 //self.setState({state});
                 //console.log("Helleo");
-                //self.props.history.push('/account/signIn')
+                self.props.history.push('/account/signIn')
             });
         }
     }
@@ -170,11 +171,6 @@ export default class CreateAccountComponent extends Component {
   //   screen =  "verifyCode";
   // }
     const showLoader = this.state.loading;
-            // if(screen === "signIn"){
-            //   return(
-            //     <Redirect to='/account/signIn'/>
-            //   )
-            // }
             if(screen === "validateEmail"){
               return(
                 <div className="enter-from-right slide-in">
@@ -240,7 +236,7 @@ export default class CreateAccountComponent extends Component {
                             <TextField
                                 id="code"
                                 label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
-                                value={this.state.code}
+                                value={this.state.verificationCode}
                                 style={{width: '100%', marginBottom: '50px'}}
                                 onChange={ handleChange('code') }
                                 error = {this.state.verificationError=="Please Enter Valid Verification Code"}
@@ -248,7 +244,7 @@ export default class CreateAccountComponent extends Component {
 
                             <CardActions style={spaceBetweenStyle,{float:'right'}}>
                                 <Button size="medium" variant="outlined" color="primary" onClick={() =>{
-                                  if(this.state.isStorkAccount){
+                                  if(this.state.isLostVerifyCode){
                                    this.setState({screen:"validateEmail"})
                                   }
                                   else{
