@@ -18,9 +18,23 @@ public class CredController {
   @Autowired
   private UserService userService;
 
+  private static final String EMAIL_PARAM = "email";
+  private static final String HASH_PARAM = "hash";
+
   @GetMapping
   public Mono<Map<UUID, Credential>> listCredentials(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-    return userService.getCredentials(headers.getFirst("cookie"));
+    String temp = headers.getFirst("cookie");
+
+    if(temp == null){
+      if(queryParameters.containsKey(EMAIL_PARAM) && queryParameters.containsKey(HASH_PARAM)){
+        temp = EMAIL_PARAM + "=" + queryParameters.get(EMAIL_PARAM) + "; " +
+                HASH_PARAM + "=" + queryParameters.get(HASH_PARAM);
+      }
+    }
+
+    String cookie = temp;
+
+    return userService.getCredentials(cookie);
   }
 
 }
