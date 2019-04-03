@@ -91,13 +91,12 @@ export default class CreateAccountComponent extends Component {
     verifyAccount() {
         let email = this.state.email;
         let self = this;
-        let code = this.state.code;
-        verifyRegistraionCode(email, code).then((response) =>{
+        let verificationCode = this.state.verificationCode;
+        verifyRegistraionCode(email, verificationCode).then((response) =>{
             let state = self.state;
             if(response.status == 200 ) {
                 state.screen = "setPassword";
-                state.code = response.data;
-                state.verificationCode = code;
+                state.code = response.data;                
                 self.setState({state});
             }
             else {
@@ -147,7 +146,8 @@ export default class CreateAccountComponent extends Component {
 	}
 
 	render(){
-		const { create, backToSignin, loadVerifyCode } = this.props;
+    const { create, backToSignin, loadVerifyCode } = this.props;
+    const properties = this.props
 		const handleChange = name => event => {
       if(name === 'firstName'){
         this.state.firstNameValidation = ""
@@ -171,7 +171,7 @@ export default class CreateAccountComponent extends Component {
             if(screen === "validateEmail"){
               return(
                 <div className="enter-from-right slide-in">
-                  <ValidateEmailComponent email = {this.state.email}></ValidateEmailComponent>
+                  <ValidateEmailComponent {...properties} email = {this.state.email}></ValidateEmailComponent>
                 </div>
               )
             }
@@ -235,7 +235,7 @@ export default class CreateAccountComponent extends Component {
                                 label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
                                 value={this.state.verificationCode}
                                 style={{width: '100%', marginBottom: '50px'}}
-                                onChange={ handleChange('code') }
+                                onChange={ handleChange('verificationCode') }
                                 error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
 
