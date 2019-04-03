@@ -167,7 +167,7 @@ public class UserService {
     .flatMap(userRepository::save).map(User::getHistory);
   }
 
-  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+  public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
       if(!user.getGlobusEndpoints().containsKey(enp)) {
         user.getGlobusEndpoints().put(id, enp);
@@ -342,6 +342,25 @@ public class UserService {
         return userRepository.save(user).subscribe();
       }).then();
   }
+
+  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
+    //Updating the access token for googledrive using refresh token
+          getLoggedInUser(cookie)
+            .doOnSuccess(user -> {
+                Map<UUID,Credential> credsTemporary = user.getCredentials();
+                for(UUID uid : credsTemporary.keySet()){
+                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+                    credsTemporary.replace(uid, credential);
+                    user.setCredentials(credsTemporary);
+                    userRepository.save(user).subscribe();
+                  }
+                }
+            }).subscribe();
+
+    return credential;
+  }
+
 
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)
