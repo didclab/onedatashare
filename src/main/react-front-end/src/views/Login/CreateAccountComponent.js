@@ -167,9 +167,6 @@ export default class CreateAccountComponent extends Component {
     };
 
   var screen = this.state.screen;
-  // if(loadVerifyCode){
-  //   screen =  "verifyCode";
-  // }
     const showLoader = this.state.loading;
             if(screen === "validateEmail"){
               return(
