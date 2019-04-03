@@ -260,27 +260,29 @@ class QueueComponent extends Component {
     }
 		this.setState({ order, orderBy });
   };
-	sortElements(a, b, orderBy) {
-		if (b[orderBy] < a[orderBy]) {
+	sortElements(rowX, rowY, orderBy) {		
+		if (rowY[orderBy] < rowX[orderBy]) {
 			return -1;
 		}
-		if (b[orderBy] > a[orderBy]) {
+		if (rowY[orderBy] > rowX[orderBy]) {
 			return 1;
 		}
 		return 0;
 	};
 
-	tableSort(data, sortOrder, orderBy) {
-		return data.sort((a, b) => {
-			var order = 0;
+	tableSort(data, sortOrder, orderBy) {		
+		return data.sort((rowX, rowY) => {
+			var order = 0;		
 			if(sortOrder === 'desc'){
-				order = this.sortElements(a, b, orderBy)
+				order = this.sortElements(rowX, rowY, orderBy)
 			}
 			else{
-				order = -this.sortElements(a, b, orderBy)
+				order = this.sortElements(rowY, rowX, orderBy)
 			}
 			if (order !== 0) return order;
-			return b.job_id - a.job_id;
+			// if the values of orderBy cell in the two rows are equal,
+			// then order them by job Id by default. Since job Id is unique for each row
+			return rowY.job_id - rowX.job_id;
 		});
 	}
 
