@@ -67,6 +67,8 @@ public class OauthController {
     String cookie = temp;
 
     if(queryParameters.containsKey("state")) {
+      if(instance.isEmpty())
+        instance = googledrive;
       if(instance.equals(googledrive)){
         instance = "";
         return googleDriveOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
