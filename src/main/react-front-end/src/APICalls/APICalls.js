@@ -2,6 +2,7 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
+import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
@@ -469,6 +470,26 @@ export async function download(uri, credential, _id){
 	});
 }
 
+export async function getDownload(uri, credential, _id){
+	const publicKey = store.getState()["publicKey"];
+
+	var encrypt = new JsEncryptModule.JSEncrypt();
+	encrypt.setPublicKey(publicKey);
+	let json_to_send = {
+		credential: credential,
+		type: getTypeFromUri(uri),
+		uri: encodeURI(uri),
+		id: _id,
+	}
+	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
+	console.log(strin)
+	axios.get(url+"download/file", {
+		params: {
+	      data: strin
+	    }
+	})
+}
+
 export async function upload(uri, credential, accept, fail){
 	var callback = accept;
 
@@ -524,6 +545,7 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
+		store.dispatch(logoutAction());
 	})
 	.catch((error) => {
       fail(error);

@@ -26,14 +26,16 @@ public class UploadController {
     public Mono<Object> upload(@RequestHeader HttpHeaders headers,
                                @RequestPart("directoryPath") String directoryPath,
                                @RequestPart("qqfilename") String fileName,
+                               @RequestPart("map") String idmap,
                                @RequestPart("credential") String credential,
+                               @RequestPart("id") String googledriveid,
                                @RequestPart("qquuid") String fileUUID,
                                @RequestPart("qqtotalfilesize") String totalFileSize,
                                @RequestPart("qqfile") Mono<FilePart> filePart){
         String cookie = headers.getFirst("cookie");
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
-            Long.parseLong(totalFileSize)).map(job -> {
+            Long.parseLong(totalFileSize), googledriveid, idmap).map(job -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
                 resp.success = true;
                 return resp;

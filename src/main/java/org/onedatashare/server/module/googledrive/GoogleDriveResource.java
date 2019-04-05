@@ -466,8 +466,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 chunk.write(slice.asBytes());
                 int chunks = chunk.size() / (1<<18);
                 int sizeUploading = chunks * (1<<18);
+                URL url = new URL(resumableSessionURL);
                 if(sizeUploading > 0) {
-                    URL url = new URL(resumableSessionURL);
                     HttpURLConnection request = (HttpURLConnection) url.openConnection();
                     request.setRequestMethod("PUT");
                     request.setConnectTimeout(10000);

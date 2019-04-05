@@ -20,6 +20,7 @@ public class Transfer<S extends Resource, D extends Resource> {
   /** Periodically updated information about the ongoing transfer. */
   public final TransferInfo info = new TransferInfo();
 
+  // Timer counts 0.0 for files with very small size
   protected Time timer;
   protected Progress progress = new Progress();
   protected Throughput throughput = new Throughput();
