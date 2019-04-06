@@ -4,7 +4,10 @@ import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.ODSError;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -20,6 +23,7 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -37,17 +41,23 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
-    public Mono<Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+    public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
         String id = userAction.id;
         ArrayList<IdMap> idMap = userAction.map;
         if("googledrive:/".equals(userAction.type)){
-            return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
-                    .flatMap(GoogleDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path,id, idMap));
+                return userService.getLoggedInUser(cookie)
+                        .map(User::getCredentials)
+                        .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
+                        .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                        .flatMap(GoogleDriveSession::initialize)
+                        .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                        .onErrorResume(throwable -> throwable instanceof AuthenticationRequired, throwable ->
+                            Mono.just(userService.updateCredential(cookie,((AuthenticationRequired)throwable).cred))
+                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                                    .flatMap(GoogleDriveSession::initialize)
+                                    .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                        );
         }else{
             return userService.getLoggedInUser(cookie)
                     .map(user -> new UserInfoCredential(userAction.credential))
@@ -97,6 +107,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
+
 
     public Session createSession(String uri, Credential credential) {
         if(uri.contains("dropbox://")){
