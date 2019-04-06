@@ -12,13 +12,14 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Tooltip from '@material-ui/core/Tooltip';
+
 import Zoom from '@material-ui/core/Zoom';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Refresh from '@material-ui/icons/Refresh';
 import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
-
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
@@ -47,7 +48,9 @@ class QueueComponent extends Component {
 						selectedTab: 0,
 						page: 0,
 						rowsPerPage: 10,
-						rowsPerPageOptions : [10, 20, 50, 100],};
+						rowsPerPageOptions : [10, 20, 50, 100],
+						order : 'desc',
+						orderBy : 'job_id'};
 		this.queueFunc();
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 		var infoRowsIds= [];
@@ -63,6 +66,12 @@ class QueueComponent extends Component {
 	queueFunc = () => {queue((resp) => {
 		//success
 		resp.sort((a, b) => { return b.job_id - a.job_id});
+		resp.map(response => {
+			if(response.bytes !== null){
+				response.avgSpeed = response.bytes.avg == "Infinity" ? Number.MAX_SAFE_INTEGER : response.bytes.avg
+			}		
+				response.source = response.src !== null ? response.src.uri : ""
+		})
 		this.setState({response:resp});
 	}, (resp) => {
 		//failed
@@ -261,16 +270,58 @@ class QueueComponent extends Component {
 	handleChangeRowsPerPage = event => {
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 	};
+	
+	handleRequestSort = (property) => {
+    const orderBy = property;
+    let order = 'desc';
+
+    if (this.state.orderBy === property && this.state.order === 'desc') {
+      order = 'asc';
+    }
+		this.setState({ order, orderBy });
+  };
+
+	sortElements(rowX, rowY, orderBy) {		
+		if (rowY[orderBy] < rowX[orderBy]) {
+			return -1;
+		}
+		if (rowY[orderBy] > rowX[orderBy]) {
+			return 1;
+		}
+		return 0;
+	};
+
+	tableSort(data, sortOrder, orderBy) {		
+		return data.sort((rowX, rowY) => {
+			var order = 0;		
+			if(sortOrder === 'desc'){
+				order = this.sortElements(rowX, rowY, orderBy)
+			}
+			else{
+				order = this.sortElements(rowY, rowX, orderBy)
+			}
+			if (order !== 0) return order;
+			// if the values of orderBy cell in the two rows are equal,
+			// then order them by job Id by default. Since job Id is unique for each row
+			return rowY.job_id - rowX.job_id;
+		});
+	}
+	
+
 	render(){
 		const height = window.innerHeight+"px";
 		const {response} = this.state;
-		const {rowsPerPage, rowsPerPageOptions, page } = this.state;
+		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
-
-
+		const sortableColumns = {
+			jobId: 'job_id',
+			status: 'status',
+			avgSpeed : "avgSpeed",
+			source : "source"
+		}
 		var tableRows = [];
-		response.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
+		this.tableSort(response, order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
@@ -310,14 +361,50 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper id="jobHistory" style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
-	  		<Table>
+		<Paper id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+	  		<Table style={{width:'90%'}}>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Job ID</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>Progress</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Average Speed</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>Source/Destination</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.jobId}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
+											Job ID
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.status}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.status)}>
+											Progress
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.avgSpeed}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
+											Average Speed
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.source)}>
+											Source/Destination
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
