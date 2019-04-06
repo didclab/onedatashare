@@ -1,8 +1,12 @@
 package org.onedatashare.server.service;
 
+import com.google.api.client.http.HttpStatusCodes;
+import com.sun.jersey.api.NotFoundException;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
@@ -197,6 +201,19 @@ public class UserService {
     return getUser(email).map(user -> user.getHash().equals(hash))
             .filter(Boolean::booleanValue)
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
+  }
+
+  public Mono<Object> resendVerificationCode(String email) {
+    return doesUserExists(email).flatMap(user -> {
+      if(user.email == null){
+        return Mono.just(new Response("User not registered",500));
+      }
+      if(!user.validated){
+        return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+      }else{
+        return Mono.just(new Response("User account is already validated.",500));
+      }
+    });
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
