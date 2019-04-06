@@ -463,8 +463,8 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-export async function download(uri, credential, _id){
-	axios.post(url+'download', {
+async function getDownloadLink(uri, credential, _id){
+	return axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
@@ -475,12 +475,29 @@ export async function download(uri, credential, _id){
 			console.log("Error in download API call");
 		else{
 		//	console.log(response.data, encodeURI(response.data));
-			window.open(response.data)
+			return response.data
 		}
 	})
 	.catch((error) => {
 			console.log("Error encountered while generating download link");
 	});
+}
+
+export async function getSharableLink(uri, credential, _id){
+		return getDownloadLink(uri, credential, _id).then((response) => {
+			return response
+		})
+}
+
+export async function download(uri, credential, _id){
+	return getDownloadLink(uri, credential, _id).then((response) => {
+		if(response !== ""){
+			window.open(response)
+		}
+		else{
+			console.log("Error encountered while generating download link");
+		}
+	})
 }
 
 export async function getDownload(uri, credential, _id){
