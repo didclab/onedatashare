@@ -24,6 +24,11 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import FileInput from 'react-fine-uploader/file-input';
 
+import IconButton from '@material-ui/core/IconButton';
+import SearchIcon from '@material-ui/icons/Search';
+
+import InputBase from '@material-ui/core/InputBase';
+
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 
 import React, { Component } from 'react';
@@ -51,7 +56,9 @@ export default class EndpointBrowseComponent extends Component {
 			openShare: false,
 			shareUrl: "",
 			openAFolder: false,
-			addFolderName: ""
+			addFolderName: "",
+			displayMode: "comfort",
+			searchText: "m"
 		};
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
@@ -226,10 +233,10 @@ export default class EndpointBrowseComponent extends Component {
 			dirName =  addFolderName;
 		}
 		//make api call
-		mkdir(dirName,dirType, endpoint, (response)=>{
+		mkdir(dirName,dirType, endpoint, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
-		}, (error)=>{
+		}, (error) => {
 			this._handleError(error);
 		})
 	}
@@ -273,40 +280,46 @@ export default class EndpointBrowseComponent extends Component {
 
 	render(){
 		const {endpoint, back, setLoading, getLoading} = this.props;
-		const {directoryPath} = this.state;
+		const {directoryPath, displayMode, searchText} = this.state;
 		const uploader = new FineUploaderTraditional({
 			debug: true,
-			 options: {
-					 chunking: {
-						enabled: true,
-						partSize: 500000,
-						concurrent: {
-							enabled: false
-						},
+			options: {
+				chunking: {
+					enabled: true,
+					partSize: 500000,
+					concurrent: {
+						enabled: false
 					},
-					request: {
-						endpoint: '/api/stork/upload',
-						params: {
-							directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
-							credential: JSON.stringify(endpoint.credential),
-							id: this.state.ids[this.state.ids.length-1],
-							map: JSON.stringify(getMapFromEndpoint(endpoint))
-						}
-					},
-					retry: {
-						enableAuto: true
-					},
-					callbacks :{
-						onError: function(id, name, errorReason, xhr){
-							console.log('error occurred - ' + errorReason);
-						}
+				},
+				request: {
+					endpoint: '/api/stork/upload',
+					params: {
+						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+						credential: JSON.stringify(endpoint.credential),
+						id: this.state.ids[this.state.ids.length-1],
+						map: JSON.stringify(getMapFromEndpoint(endpoint))
 					}
-					// "qqchunksize": 1000000
-			 }
+				},
+				retry: {
+					enableAuto: true
+				},
+				callbacks :{
+					onError: function(id, name, errorReason, xhr){
+						console.log('error occurred - ' + errorReason);
+					}
+				}
+				// "qqchunksize": 1000000
+			}
 		})
 
 		const list = getFilesFromMemory(endpoint) || [];
-		//console.log(list);
+		let displayList = Object.keys(list);
+
+
+		if(searchText.length > 0){
+			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
+		}
+
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
@@ -416,7 +429,6 @@ export default class EndpointBrowseComponent extends Component {
 						</OverlayTrigger>
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
 				  		
-
 				  		<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} style={buttonStyle} onClick={() => {
 				  			const sid = getSelectedTasksFromSide(endpoint)[0].name;
 
@@ -451,6 +463,11 @@ export default class EndpointBrowseComponent extends Component {
 				</ButtonGroup>
 			</div>
 
+			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search Files And Folders" onChange={(event) => {
+		      	this.setState({searchText: event.target.value})
+		      }}/>
+			</div>
 
 
 			<Droppable droppableId={endpoint.side} > 
@@ -471,7 +488,14 @@ export default class EndpointBrowseComponent extends Component {
 								LOADING
 							</h2>
 						}
-						{Object.keys(list).map((fileId, index) => {
+
+						{!loading && displayList.length == 0 && Object.keys(list).length > 0 &&
+							<h2>
+								No Search Result
+							</h2>
+						}
+
+						{displayList.map((fileId, index) => {
 							const file = list[fileId];
 							const isSelected: boolean = Boolean(
 			                  selectedTasks.indexOf(file)!=-1,

@@ -39,8 +39,8 @@ function statusHandle(response, callback){
 	      return;
 	    }
 		console.log(response)
-		const errorText = JSON.stringify(response.response.data);
-		callback(`500${response.response.statusText} ${errorText}`);
+		//const errorText = JSON.stringify(response.response.data);
+		callback(`500`);
 	}
 }
 
