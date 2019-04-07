@@ -27,37 +27,12 @@ import java.util.List;
 @Service
 public class GoogleDriveOauthService{
 
-<<<<<<< HEAD
     public String key;
     private static String finishURI;
     private static GoogleClientSecrets clientSecrets;
 
     @Autowired
     private UserService userService;
-
-=======
-/*    @Value("${drive_client_id}")  //getting the value from application properties
-    private static String clientid;
-    @Value("${drive_client_secret}")
-    private static String cSecrets;
-    @Value("${drive_project_id}")
-    private static String pid;
-    @Value("${drive_auth_uri}")
-    private static String authuri;
-    @Value("${drive_token_uri}")
-    private static String turi;
-    @Value("${drive_auth_provider_x509_cert_url}")
-    private static String authProvider;
-    @Value("${drive_redirect_uris}")
-    private static String ruri;*/
-
-    @Autowired
-    public UserService userService;
-
-    private String key;
-    private static String finishURI;
-    private static GoogleClientSecrets clientSecrets;
->>>>>>> master
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static final FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
