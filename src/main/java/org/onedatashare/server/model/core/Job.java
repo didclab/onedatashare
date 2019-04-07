@@ -27,6 +27,9 @@ public class Job {
   /** An ID meaningful to the user who owns the job. */
   public int job_id;
 
+  /** To mark job as deleted **/
+  public boolean deleted = false;
+
   /** The owner of the job. */
   public String owner;
 
