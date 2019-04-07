@@ -37,7 +37,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             try {
                 String[] currpath = path.split("/");
                 for(int i =0; i<currpath.length; i++){
-                    System.out.println("Parent ID: " + id);
+//                    System.out.println("Parent ID: " + id);
                     File fileMetadata = new File();
                     fileMetadata.setName(currpath[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -53,6 +53,66 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 e.printStackTrace();
             }
         });
+    }
+
+    public String mkdir(String directoryTree[]){
+        String curId = id;
+
+        for(int i=1; i< directoryTree.length-1; i++){
+            String exisitingID = folderExistsCheck(curId, directoryTree[i]);
+            if(exisitingID == null){
+                try {
+                    File fileMetadata = new File();
+                    fileMetadata.setName(directoryTree[i]);
+                    fileMetadata.setMimeType("application/vnd.google-apps.folder");
+                    fileMetadata.setParents(Collections.singletonList(curId));
+                    File file = session.service.files().create(fileMetadata)
+                            .setFields("id")
+                            .execute();
+                    curId = file.getId();
+
+                } catch (IOException ioe) {
+                    System.out.println("Exception encountered while creating directory tree");
+                    ioe.printStackTrace();
+                }
+            }
+            else{
+                curId = exisitingID;
+            }
+        }
+        return curId;
+    }
+
+    public String folderExistsCheck(String curId, String directoryName){
+
+        try {
+            String query = new StringBuilder().append("trashed=false and ").append("'" + curId + "'")
+                                              .append(" in parents").toString();
+
+            Drive.Files.List request = session.service.files().list()
+                        .setOrderBy("name").setQ(query)
+                        .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
+            FileList fileSet = null;
+            List<File> fileList = null;
+
+            do{
+                fileSet = request.execute();
+                fileList = fileSet.getFiles();
+
+                for(File file : fileList){
+                    if (file.getMimeType().equals("application/vnd.google-apps.folder")
+                            && file.getName().equals(directoryName)) {
+                        return file.getId();
+                    }
+                }
+                request.setPageToken(fileSet.getNextPageToken());
+            }while(request.getPageToken() != null);
+        }
+        catch (IOException ioe){
+            System.out.println("Exception encountered while checking if folder " + directoryName + " exists in " + curId);
+            ioe.printStackTrace();
+        }
+        return null;
     }
 
     public Mono<GoogleDriveResource> delete() {
@@ -175,6 +235,63 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
+    public Mono<Stat>transferStat(){
+        return initialize()
+                .map(GoogleDriveResource::onStat)
+                .map(s ->{
+                    List<Stat> sub = new LinkedList<>();
+                    long directorySize = 0L;
+
+                    if(s.isDir()){
+                        directorySize = buildDirectoryTree(sub, id, "/");
+                    }
+                    else{
+                        sub.add(s);
+                        directorySize = s.getSize();
+                    }
+                    s.setFilesList(sub);
+                    s.setSize(directorySize);
+                    return s;
+                });
+    }
+
+    public Long buildDirectoryTree(List<Stat> sub, String curId, String relativePath){
+        Long directorySize = 0L;
+        try {
+            String query = new StringBuilder().append("trashed=false and ").append("'" + curId + "'")
+                    .append(" in parents").toString();
+
+            Drive.Files.List request = session.service.files().list()
+                    .setOrderBy("name").setQ(query)
+                    .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
+            FileList fileSet = null;
+            List<File> fileList = null;
+
+            do{
+                fileSet = request.execute();
+                fileList = fileSet.getFiles();
+
+                for(File file : fileList){
+                    if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
+                        directorySize += buildDirectoryTree(sub, file.getId(), relativePath + file.getName() + "/");
+                    }
+                    else{
+                        Stat fileStat = mDataToStat(file);
+                        fileStat.setName( relativePath + file.getName());
+                        directorySize += fileStat.size;
+                        sub.add(fileStat);
+                    }
+                }
+                request.setPageToken(fileSet.getNextPageToken());
+            }while(request.getPageToken() != null);
+        }
+        catch (IOException ioe){
+            System.out.println("Exception encountered while building directory tree");
+            ioe.printStackTrace();
+        }
+        return directorySize;
+    }
+
     private Stat mDataToStat(File file) {
         Stat stat = new Stat(file.getName());
 
@@ -197,23 +314,38 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public GoogleDriveTap tap() {
-        return new GoogleDriveTap();
+        GoogleDriveTap gDriveTap = new GoogleDriveTap();
+        gDriveTap.tapStat();
+        return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
-        Drive.Files.Get downloadBuilder;
-        final long size = stat().block().size;
+//        Drive.Files.Get downloadBuilder;
+        long size;
         Drive drive = session.service;
-
-        String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+id+"?alt=media";
+        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
-        {
+
+        public void tapStat(){
+            transferStat =  transferStat().block();
+        }
+
+        @Override
+        public Stat getTransferStat() {
+            return transferStat;
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+
+            String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+stat.getId()+"?alt=media";
             try {
                 httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
-                downloadBuilder = session.service.files().get(id);
+//                downloadBuilder = session.service.files().get(id);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            return tap(sliceSize);
         }
 
         @Override
@@ -227,7 +359,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                 httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + sliceSize - 1));
                                 com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
                                 InputStream is = response.getContent();
-                                IOUtils.copy((InputStream)is, (OutputStream)outputStream);
+                                IOUtils.copy(is, outputStream);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -253,10 +385,15 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     });
         }
 
+
     }
 
     public GoogleDriveDrain sink() {
         return new GoogleDriveDrain().start();
+    }
+
+    public GoogleDriveDrain sink(Stat stat){
+        return new GoogleDriveDrain().start(path + stat.getName());
     }
 
     class GoogleDriveDrain implements Drain {
@@ -265,6 +402,16 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         long size = 0;
         String resumableSessionURL;
         String upload_id;
+
+        String drainPath = path;
+        Boolean isDirTransfer = false;
+
+        @Override
+        public GoogleDriveDrain start(String drainPath) {
+            this.drainPath = drainPath;
+            this.isDirTransfer = true;
+            return start();
+        }
 
         @Override
         public GoogleDriveDrain start() {
@@ -275,8 +422,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 }else {
                     id = ROOT_DIR_ID;
                 }
+                String name[] = drainPath.split("/");
 
-                String name[] = path.split("/");
+                if(isDirTransfer)
+                    id = mkdir(name);
+
                 URL url = new URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
                 request.setRequestMethod("POST");
