@@ -174,7 +174,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                                 userService.saveUser(user).subscribe();
                                 return job;
                             });
-                }).subscribeOn(Schedulers.elastic());
+                }).flatMap(jobService::saveJob)
+                .subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {
