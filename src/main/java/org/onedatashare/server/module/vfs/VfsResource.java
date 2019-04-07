@@ -154,7 +154,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
           directorySize += fileStat.getSize();
           sub.add(fileStat);
         } else {
-          directorySize += buildDirectoryTree(sub, fileObject.getChildren(), relativeDirName + fileObject.getName() + "/");
+          String dirName = fileObject.getName().toString();
+          dirName = relativeDirName + dirName.substring(dirName.lastIndexOf("/")+1) + "/";
+          directorySize += buildDirectoryTree(sub, fileObject.getChildren(), dirName);
         }
       }
       catch (FileSystemException e) {
