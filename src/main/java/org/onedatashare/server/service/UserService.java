@@ -1,8 +1,12 @@
 package org.onedatashare.server.service;
 
+import com.google.api.client.http.HttpStatusCodes;
+import com.sun.jersey.api.NotFoundException;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
@@ -171,7 +175,7 @@ public class UserService {
     .flatMap(userRepository::save).map(User::getHistory);
   }
 
-  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+  public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
       if(!user.getGlobusEndpoints().containsKey(enp)) {
         user.getGlobusEndpoints().put(id, enp);
@@ -201,6 +205,19 @@ public class UserService {
     return getUser(email).map(user -> user.getHash().equals(hash))
             .filter(Boolean::booleanValue)
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
+  }
+
+  public Mono<Object> resendVerificationCode(String email) {
+    return doesUserExists(email).flatMap(user -> {
+      if(user.email == null){
+        return Mono.just(new Response("User not registered",500));
+      }
+      if(!user.validated){
+        return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+      }else{
+        return Mono.just(new Response("User account is already validated.",500));
+      }
+    });
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
@@ -343,6 +360,25 @@ public class UserService {
         return userRepository.save(user).subscribe();
       }).then();
   }
+
+  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
+    //Updating the access token for googledrive using refresh token
+          getLoggedInUser(cookie)
+            .doOnSuccess(user -> {
+                Map<UUID,Credential> credsTemporary = user.getCredentials();
+                for(UUID uid : credsTemporary.keySet()){
+                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+                    credsTemporary.replace(uid, credential);
+                    user.setCredentials(credsTemporary);
+                    userRepository.save(user).subscribe();
+                  }
+                }
+            }).subscribe();
+
+    return credential;
+  }
+
 
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)

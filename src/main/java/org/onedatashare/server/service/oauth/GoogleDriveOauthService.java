@@ -18,7 +18,6 @@ import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +27,7 @@ import java.util.List;
 @Service
 public class GoogleDriveOauthService{
 
+<<<<<<< HEAD
     public String key;
     private static String finishURI;
     private static GoogleClientSecrets clientSecrets;
@@ -35,11 +35,35 @@ public class GoogleDriveOauthService{
     @Autowired
     private UserService userService;
 
+=======
+/*    @Value("${drive_client_id}")  //getting the value from application properties
+    private static String clientid;
+    @Value("${drive_client_secret}")
+    private static String cSecrets;
+    @Value("${drive_project_id}")
+    private static String pid;
+    @Value("${drive_auth_uri}")
+    private static String authuri;
+    @Value("${drive_token_uri}")
+    private static String turi;
+    @Value("${drive_auth_provider_x509_cert_url}")
+    private static String authProvider;
+    @Value("${drive_redirect_uris}")
+    private static String ruri;*/
+
+    @Autowired
+    public UserService userService;
+
+    private String key;
+    private static String finishURI;
+    private static GoogleClientSecrets clientSecrets;
+>>>>>>> master
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static final FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final HttpTransport HTTP_TRANSPORT;
     private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
+    private static GoogleAuthorizationCodeFlow flow;
 
     public static class GoogleDriveConfig {
         public String client_id, client_secret, auth_uri, token_uri, auth_provider_x509_cert_url, project_id, redirect_uris;
@@ -51,7 +75,9 @@ public class GoogleDriveOauthService{
             this.token_uri = "https://accounts.google.com/o/oauth2/token";
             this.auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs";
             this.project_id = System.getenv("ods_drive_project_id");
-            this.redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
+            this.redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth," +
+                                 "http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth," +
+                                 "http:///www.onedatashare.org/api/stork/oauth";
         }
     }
 
@@ -87,10 +113,10 @@ public class GoogleDriveOauthService{
         String url;
         try {
             // Build flow and trigger user authorization request.
-            GoogleAuthorizationCodeFlow flow =
+            flow =
                     new GoogleAuthorizationCodeFlow.Builder(
-                            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                            .setDataStoreFactory(DATA_STORE_FACTORY).setAccessType("offline")
+                            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setAccessType("offline").setApprovalPrompt("force")
+                            .setDataStoreFactory(DATA_STORE_FACTORY)
                             .build();
 
             AuthorizationCodeRequestUrl authorizationUrl =
@@ -114,21 +140,15 @@ public class GoogleDriveOauthService{
         return getUrl();
     }
 
-    private static String storeCredential(String code) {
-        String accessToken;
+    private static String[] storeCredential(String code) {
+        String[] accessToken ={"",""};
         try {
             // Build flow and trigger user authorization request.
-            GoogleAuthorizationCodeFlow flow =
-                    new GoogleAuthorizationCodeFlow.Builder(
-                            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                            .setDataStoreFactory(DATA_STORE_FACTORY)
-                            .build();
-
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(finishURI).execute();
-
-            accessToken = response.getAccessToken();
-
-            flow.createAndStoreCredential(response, accessToken);
+            accessToken[0] = response.getAccessToken();
+            accessToken[1] = response.getRefreshToken();
+            System.out.println("TokenStore"+accessToken[0]+"\n Refresh Token:"+accessToken[1]);
+            flow.createAndStoreCredential(response, accessToken[0]);
         }
         catch (Exception e) {
             throw new RuntimeException(e);
@@ -136,12 +156,14 @@ public class GoogleDriveOauthService{
         return accessToken;
     }
 
+
     public synchronized Mono<OAuthCredential> finish( String token, String cookie) {
-        String accessToken = storeCredential(token);
+        String[] accessToken = storeCredential(token);
         try {
-            Drive service = GoogleDriveSession.getDriveService(accessToken);
+            Drive service = GoogleDriveSession.getDriveService(accessToken[0]);
             String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
-            OAuthCredential cred = new OAuthCredential(accessToken);
+            OAuthCredential cred = new OAuthCredential(accessToken[0]);
+            cred.refreshToken = accessToken[1];
             cred.name = "GoogleDrive: " + userId;
             return userService.getCredentials(cookie).flatMap(val -> {
                 for (Credential value : val.values()) {
