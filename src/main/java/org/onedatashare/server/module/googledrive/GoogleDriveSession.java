@@ -94,7 +94,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
         List<String> redirect_uris;
 
         if (c != null && c.client_id != null && c.client_secret != null && c.redirect_uris != null) {
-            redirect_uris = Arrays.asList(c.redirect_uris.replaceAll("\\[|\\]|\"|\n","")
+            redirect_uris = Arrays.asList(c.redirect_uris/*.replaceAll("\\[|\\]|\"|\n","")*/
                     .trim()
                     .split(","));
             String finishURI = redirect_uris.get(0);

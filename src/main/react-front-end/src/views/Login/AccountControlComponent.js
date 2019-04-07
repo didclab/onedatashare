@@ -46,7 +46,7 @@ export default class AccountControlComponent extends Component {
   }
 
   constructor(props){
-    super(props);
+		super(props);
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
@@ -84,7 +84,7 @@ export default class AccountControlComponent extends Component {
     	signIn: false,
     	forgotPasswordPressed: false,
     	validateEmailPressed: false
-    }
+		}
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
@@ -147,7 +147,7 @@ export default class AccountControlComponent extends Component {
 
 								validateEmailPressed={(email) => {
 									this.setState({loading: false, screen:	
-										<ValidateEmailComponent back={() => {
+										<ValidateEmailComponent {...props} back={() => {
 											this.setState({loading: false, screen: this.newLogin, validateEmailPressed: false});
 										}} email={email}/>,
 										validateEmailPressed: true

@@ -1,8 +1,12 @@
 package org.onedatashare.server.service;
 
+import com.google.api.client.http.HttpStatusCodes;
+import com.sun.jersey.api.NotFoundException;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
@@ -26,6 +30,10 @@ import javax.mail.internet.*;
 
 @Service
 public class UserService {
+
+  final String EMAIL_USERNAME = System.getenv("ODS_EMAIL_ADDRESS");
+  final String EMAIL_PWD = System.getenv("ODS_EMAIL_PWD");
+
   @Autowired
   private UserRepository userRepository;
 
@@ -199,12 +207,22 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
+  public Mono<Object> resendVerificationCode(String email) {
+    return doesUserExists(email).flatMap(user -> {
+      if(user.email == null){
+        return Mono.just(new Response("User not registered",500));
+      }
+      if(!user.validated){
+        return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+      }else{
+        return Mono.just(new Response("User account is already validated.",500));
+      }
+    });
+  }
+
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
     // Recipient's email ID needs to be mentioned.
     String to = email;
-
-    final String username = "yifuyin7@gmail.com";
-    final String password = "canada332211";
 
     // Get system properties
     Properties properties = System.getProperties();
@@ -216,7 +234,7 @@ public class UserService {
     // Get the default Session object.
     Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
       protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(username, password);
+        return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PWD);
       }
     });
 
@@ -229,13 +247,13 @@ public class UserService {
         // Create a default MimeMessage object.
         MimeMessage message = new MimeMessage(session);
         // Set From: header field of the header.
-        message.setFrom(new InternetAddress(username));
+        message.setFrom(new InternetAddress(EMAIL_USERNAME));
         // Set To: header field of the header.
         message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
         // Set Subject: header field
         message.setSubject("Auth Code");
         // Now set the actual message
-        message.setText(code);
+        message.setText("The authorization code for your OneDataShare account is : " + code);
         // Send message
         Transport.send(message);
         System.out.println("Sent message successfully....");
