@@ -47,7 +47,7 @@ public class UserController {
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
-        return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
+        return userService.saveHistory(userAction.uri, cookie);
       case "verifyEmail":
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
@@ -65,9 +65,9 @@ public class UserController {
       case "resetPassword":
         return userService.resetPasswordWithOld(cookie, userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
-        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
+        return userService.deleteCredential(cookie, userAction.uuid);
       case "deleteHistory":
-        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
+        return userService.deleteHistory(cookie, userAction.uri);
       case "isAdmin":
         return userService.isAdmin(cookie);
       default:
