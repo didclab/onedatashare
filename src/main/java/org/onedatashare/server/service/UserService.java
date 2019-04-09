@@ -128,6 +128,9 @@ public class UserService {
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
         user.setAuthToken(null);
+        // Setting the verification code to null while resetting the password.
+        // This will allow the user to use the same validation token multiple times with in 24 hrs.
+        user.setCode(null);
         user.validated = true;
         userRepository.save(user).subscribe();
         return Mono.just(true);
@@ -315,7 +318,6 @@ public class UserService {
       }else if(expectedCode.expireDate.before(new Date())){
         return Mono.error(new Exception("code expired"));
       }else if(expectedCode.code.equals(code)){
-        user.setCode(null);
         user.setAuthToken(code+User.salt(12));
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
