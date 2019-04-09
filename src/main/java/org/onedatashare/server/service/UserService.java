@@ -128,7 +128,7 @@ public class UserService {
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
         // Setting the verification code to null while resetting the password.
-        // This will allow the user to use the same validation token multiple times with in 24 hrs.
+        // This will allow the user to use the same verification code multiple times with in 24 hrs.
         user.setCode(null);
         user.setAuthToken(null);
         user.validated = true;
