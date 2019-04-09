@@ -463,6 +463,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
+// Returns the url for file. It is used to download the file and also for display in share url popup
 async function getDownloadLink(uri, credential, _id){
 	return axios.post(url+'download', {
 		type: getTypeFromUri(uri),
