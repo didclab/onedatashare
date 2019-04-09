@@ -127,10 +127,10 @@ public class UserService {
         return Mono.error(new Exception("Does not have Auth Token"));
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
-        user.setAuthToken(null);
         // Setting the verification code to null while resetting the password.
         // This will allow the user to use the same validation token multiple times with in 24 hrs.
         user.setCode(null);
+        user.setAuthToken(null);
         user.validated = true;
         userRepository.save(user).subscribe();
         return Mono.just(true);
