@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue } from '../../APICalls/APICalls';
+import { queue, deleteJob } from '../../APICalls/APICalls';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -21,6 +21,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { withStyles } from '@material-ui/core';
+import DeleteOutline from '@material-ui/icons/DeleteOutline';
 const styles = theme => ({
 		root:{
 			width:'fit-content'
@@ -112,6 +113,16 @@ class QueueComponent extends Component {
         		}
 	}
 
+	deleteButtonOnClick(jobID){
+		deleteJob(jobID, (resp) => {
+			//success
+			this.queueFunc();
+		}, (resp) => {
+			//failed
+			console.log('Error in delete job request to API layer');
+		});
+	}
+
 	closeAllInfoRows(){
 		for(var i=0 ; i < this.infoRowsIds.length; i++){
 			var infoRow = document.getElementById(this.infoRowsIds[i]);
@@ -132,7 +143,7 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, deleted){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
 		return(
@@ -151,6 +162,15 @@ class QueueComponent extends Component {
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<Cancel />
+						</Button>
+					</Tooltip>
+				}
+				{!deleted &&
+					<Tooltip TransitionComponent={Zoom} title="Delete">
+						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<DeleteOutline />
 						</Button>
 					</Tooltip>
 				}
@@ -319,7 +339,7 @@ class QueueComponent extends Component {
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-									{this.renderActions(resp.job_id, resp.status)}
+									{this.renderActions(resp.job_id, resp.status, resp.deleted)}
                 </TableCell>
 	          	</TableRow>
 	        );

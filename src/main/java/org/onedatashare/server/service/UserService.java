@@ -441,4 +441,5 @@ public class UserService {
     user.setHash(map.get("hash"));
     return user.new UserLogin(user.getEmail(), user.getHash());
   }
+
 }

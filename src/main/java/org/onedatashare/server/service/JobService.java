@@ -1,6 +1,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class JobService {
         return jobRepository.findAll();
     }
 
+
     public Mono<Job> getJobByUUID(UUID uuid) {
         return jobRepository.findById(uuid);
     }
@@ -35,8 +37,14 @@ public class JobService {
     }
 
     public Mono<List<Job>> getAllUndeletedJobsForUser(String cookie) {
-        return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
-                .collectList();
+        return userService.isAdmin(cookie).flatMap(aBoolean -> {
+            if(aBoolean)
+                return getAllJobs().collectList();
+            else
+                return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
+                        .collectList();
+        }
+        );
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
