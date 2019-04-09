@@ -43,6 +43,7 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
     }
     return initialize().then(Mono.just(new VfsResource(this, path, fo)));
   }
+
   @Override
   public Mono<VfsResource> select(String path, String id, ArrayList<IdMap> idMap) {
     FileObject fo = null;

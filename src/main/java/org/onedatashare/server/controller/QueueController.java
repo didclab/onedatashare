@@ -23,7 +23,7 @@ public class QueueController {
   @PostMapping
   public Mono<List<Job>> queue(@RequestHeader HttpHeaders headers) {
     String cookie = headers.getFirst("cookie");
-    return jobService.getAllJobsForUser(cookie)
+    return jobService.getAllUndeletedJobsForUser(cookie)
             .subscribeOn(Schedulers.elastic());
   }
 }

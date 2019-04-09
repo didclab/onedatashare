@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
@@ -100,25 +102,100 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
   }
 
   public VfsTap tap() {
-    return new VfsTap();
+
+    VfsTap vfsTap = new VfsTap();
+    vfsTap.tapStat();
+    return vfsTap;
   }
 
   public VfsDrain sink() {
     return new VfsDrain().start();
   }
 
-  class VfsTap implements Tap {
-    FileContent fileContent;
+  public VfsDrain sink(Stat stat) {
+    return new VfsDrain().start(path + stat.getName());
+  }
 
-    {
+  public Mono<Stat>transferStat() {
+    return initialize()
+            .map(VfsResource::onStat)
+            .map( s -> {
+              List<Stat> sub = new LinkedList<>();
+              long directorySize = 0L;
+
+              if(s.isDir()){
+                try {
+                  directorySize = buildDirectoryTree(sub, fileObject.getChildren(), "/");
+                }
+                catch(FileSystemException fse){
+                  System.out.println("Exception encountered while generating file objects within a folder");
+                  fse.printStackTrace();
+                }
+              }
+              else{
+                fileResource = true;
+                sub.add(s);
+                directorySize = s.getSize();
+              }
+              s.setFilesList(sub);
+              s.setSize(directorySize);
+              return s;
+            });
+  }
+
+  public Long buildDirectoryTree(List<Stat> sub, FileObject[] fileObjects, String relativeDirName){
+    long directorySize = 0L;
+
+    for(FileObject fileObject : fileObjects){
       try {
-        fileContent = fileObject.getContent();
-      } catch (FileSystemException e) {
+        if (fileObject.isFile()) {
+          Stat fileStat = fileContentToStat(fileObject);
+          fileStat.setName(relativeDirName + fileStat.getName());
+          directorySize += fileStat.getSize();
+          sub.add(fileStat);
+        } else {
+          String dirName = fileObject.getName().toString();
+          dirName = relativeDirName + dirName.substring(dirName.lastIndexOf("/")+1) + "/";
+          directorySize += buildDirectoryTree(sub, fileObject.getChildren(), dirName);
+        }
+      }
+      catch (FileSystemException e) {
         e.printStackTrace();
+
       }
     }
+    return directorySize;
+  }
 
-    final long size = stat().block().size;
+  class VfsTap implements Tap {
+    FileContent fileContent;
+    Stat transferStat;
+    long size;
+
+    @Override
+    public Stat getTransferStat() {
+      return transferStat;
+    }
+
+    @Override
+    public Flux<Slice> tap(Stat stat, long sliceSize) {
+      String downloadPath = path;
+      if(!fileResource)
+        downloadPath += stat.getName();
+      try {
+        fileObject = session.fileSystemManager.resolveFile(downloadPath , session.fileSystemOptions);
+        fileContent = fileObject.getContent();
+      }
+      catch (FileSystemException e) {
+        e.printStackTrace();
+      }
+      size = stat.getSize();
+      return tap(sliceSize);
+    }
+
+    public void tapStat(){
+      transferStat = transferStat().block();
+    }
 
     public Flux<Slice> tap(long sliceSize) {
       int sliceSizeInt = Math.toIntExact(sliceSize);
@@ -156,6 +233,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 return state + sliceSizeInt;
               });
     }
+
+
   }
 
   class VfsDrain implements Drain {
@@ -171,6 +250,19 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
       return this;
+    }
+
+    @Override
+    public VfsDrain start(String drainPath) {
+      try {
+        fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+        return start();
+      }
+      catch(FileSystemException fse){
+        System.out.println("Exception encountered while creating file object");
+        fse.printStackTrace();
+      }
+      return null;
     }
 
     @Override
@@ -191,5 +283,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
     }
+
   }
 }

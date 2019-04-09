@@ -19,7 +19,7 @@ export default class ClientsInfoComponent extends Component{
 
 	constructor(){
 		super();
-		this.state = {users:[], admins: []};
+		this.state = {users:[], admins:[]};
 		getUsers('getUsers', (resp) => {
 			//success
 			this.setState({users:resp});
