@@ -25,9 +25,6 @@ public class UserController {
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
 
     String temp = headers.getFirst("cookie");
-
-    //System.out.println("Temp:"+temp);
-
     if(temp == null){
       //System.out.println("Email: "+userAction.getEmail()+" Hash: "+userAction.getPassword());
       if(userAction.getEmail()!=null && userAction.getPassword()!=null &&
