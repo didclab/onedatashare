@@ -621,6 +621,22 @@ export async function restartJob(jobID, accept, fail){
     });
 }
 
+export async function deleteJob(jobID, accept, fail){
+	var callback = accept;
+	axios.post(url+'deleteJob',{
+		job_id: jobID
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+
+      statusHandle(error, fail);
+    });
+}
+
 export async function openDropboxOAuth(){
 	openOAuth("/api/stork/oauth?type=dropbox");
 }
