@@ -502,23 +502,30 @@ export async function download(uri, credential, _id){
 }
 
 export async function getDownload(uri, credential, _id){
-	const publicKey = store.getState()["publicKey"];
+	// const publicKey = store.getState()["publicKey"];
 
-	var encrypt = new JsEncryptModule.JSEncrypt();
-	encrypt.setPublicKey(publicKey);
+	// var encrypt = new JsEncryptModule.JSEncrypt();
+	// encrypt.setPublicKey(publicKey);
 	let json_to_send = {
 		credential: credential,
 		type: getTypeFromUri(uri),
 		uri: encodeURI(uri),
 		id: _id,
 	}
-	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
-	console.log(strin)
-	axios.get(url+"download/file", {
-		params: {
-	      data: strin
-	    }
-	})
+	const strin = JSON.stringify(json_to_send).toString('base64');
+	
+	const axios2 = Axios.create({
+		timeout: FETCH_TIMEOUT,
+		headers: {
+			Accept: 'type/valuable',
+			ResponseType: "type/valuable",
+			Authorization: 'Basic '+strin
+		}
+	});	
+
+	 console.log(strin)
+	axios2.get(url+"download/file");
+
 }
 
 export async function upload(uri, credential, accept, fail){

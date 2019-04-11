@@ -9,6 +9,7 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -181,7 +182,7 @@ public class VfsService implements ResourceService<VfsResource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
-    public Mono<FileObject> getSftpDownloadStream(String cookie, String userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).map(VfsResource::getSftpObject);
+    public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
+        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::getSftpObject);
     }
 }

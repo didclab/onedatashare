@@ -3,15 +3,18 @@ package org.onedatashare.server.controller;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.DbxService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.UserService;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.VfsResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +24,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.Random;
 import java.util.stream.IntStream;
 
@@ -59,36 +64,22 @@ public class DownloadController {
         return null;
     }
 
-    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders, @RequestParam String data) {
+    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = "type/valuable")
+    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
         String cookie = clientHttpHeaders.getFirst("cookie");
-        Mono<FileObject>  sftpFileDownloadObj = vfsService.getSftpDownloadStream(cookie, data);
-        if (sftpFileDownloadObj == null) {
-            System.out.println("ERROR stream not set");
-            return null;
+        final String authorization = clientHttpHeaders.getFirst("Authorization");
+        String credentials = null;
+        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
+            // Authorization: Basic base64credentials
+            credentials = authorization.substring("Basic".length()).trim();
         }
-        return sftpFileDownloadObj.map(fileObject -> {
-
-            InputStream inputStream = null;
-
-            try {
-                inputStream = fileObject.getContent().getInputStream();
-            } catch (FileSystemException e) {
-                e.printStackTrace();
-            }
-
-//        System.out.println("Size of file is " + stream.length());
-            String[] strings = fileObject.getName().toString().split("/");
-            String filename = strings[strings.length - 1];
-            System.out.println(filename);
-            InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                    "attachment; filename=" + filename);
-            httpHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-            ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-
-            return responseEntity;
-        });
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserActionResource userActionResource = null;
+        try {
+            userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return vfsService.getSftpDownloadStream(cookie, userActionResource);
     }
 }

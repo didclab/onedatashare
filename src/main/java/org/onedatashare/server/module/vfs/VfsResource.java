@@ -5,6 +5,13 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.util.Response;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -301,8 +308,26 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return Mono.just(downloadLink);
     }
 
-    public FileObject getSftpObject() {
-        return fileObject;
-    }
+    public Mono<ResponseEntity> getSftpObject() {
 
+        InputStream inputStream = null;
+        try {
+            inputStream = fileObject.getContent().getInputStream();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+
+//        System.out.println("Size of file is " + stream.length());
+        String[] strings = fileObject.getName().toString().split("/");
+        String filename = strings[strings.length - 1];
+        System.out.println(filename);
+        InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=" + filename);
+        httpHeaders.setContentType(MediaType.asMediaType(MimeType.valueOf("type/valuable")));
+        ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
+
+        return Mono.just(responseEntity);
+     }
 }
