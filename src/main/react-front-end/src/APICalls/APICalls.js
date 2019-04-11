@@ -2,6 +2,7 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
+import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
@@ -135,6 +136,19 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
 	}).catch((error) => {
       statusHandle(error, fail);
     });
+}
+
+export async function resendVerificationCode(emailId){
+	return axios.post(url+'user',{
+		action:'resendVerificationCode',
+		email: emailId
+	})
+	.then((response) => {
+		return response
+	})
+	.catch((error) =>{
+		
+	});
 }
 
 export async function setPassword(emailId, code, password, confirmPassword) {
@@ -449,8 +463,9 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-export async function download(uri, credential, _id){
-	axios.post(url+'download', {
+// Returns the url for file. It is used to download the file and also to display in share url popup
+async function getDownloadLink(uri, credential, _id){
+	return axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
@@ -461,12 +476,49 @@ export async function download(uri, credential, _id){
 			console.log("Error in download API call");
 		else{
 		//	console.log(response.data, encodeURI(response.data));
-			window.open(response.data)
+			return response.data
 		}
 	})
 	.catch((error) => {
 			console.log("Error encountered while generating download link");
 	});
+}
+
+export async function getSharableLink(uri, credential, _id){
+		return getDownloadLink(uri, credential, _id).then((response) => {
+			return response
+		})
+}
+
+export async function download(uri, credential, _id){
+	return getDownloadLink(uri, credential, _id).then((response) => {
+		if(response !== ""){
+			window.open(response)
+		}
+		else{
+			console.log("Error encountered while generating download link");
+		}
+	})
+}
+
+export async function getDownload(uri, credential, _id){
+	const publicKey = store.getState()["publicKey"];
+
+	var encrypt = new JsEncryptModule.JSEncrypt();
+	encrypt.setPublicKey(publicKey);
+	let json_to_send = {
+		credential: credential,
+		type: getTypeFromUri(uri),
+		uri: encodeURI(uri),
+		id: _id,
+	}
+	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
+	console.log(strin)
+	axios.get(url+"download/file", {
+		params: {
+	      data: strin
+	    }
+	})
 }
 
 export async function upload(uri, credential, accept, fail){
@@ -583,6 +635,22 @@ export async function restartJob(jobID, accept, fail){
 	})
 	.catch((error) => {
       
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteJob(jobID, accept, fail){
+	var callback = accept;
+	axios.post(url+'deleteJob',{
+		job_id: jobID
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+
       statusHandle(error, fail);
     });
 }

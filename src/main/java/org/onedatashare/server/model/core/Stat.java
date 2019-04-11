@@ -3,6 +3,7 @@ package org.onedatashare.server.model.core;
 import lombok.Data;
 
 import java.util.Collection;
+import java.util.List;
 
 @Data
 public class Stat {
@@ -42,6 +43,8 @@ public class Stat {
    * An array of subresources, if known.
    */
   public Stat[] files;
+
+  public List<Stat> filesList;
 
   private transient long total_size = -1;
   private transient long total_num = 0;
@@ -118,6 +121,18 @@ public class Stat {
    */
   public Stat setFiles(Collection<Stat> fs) {
     return setFiles(fs.toArray(new Stat[fs.size()]));
+  }
+
+  public void setFilesList(List<Stat> fs){
+    this.filesList = fs;
+  }
+
+  public String toString(){
+    return name;
+  }
+
+  public List<Stat> getFilesList(){
+    return this.filesList;
   }
 
   /**

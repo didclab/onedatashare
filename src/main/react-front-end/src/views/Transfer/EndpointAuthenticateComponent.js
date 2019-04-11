@@ -119,6 +119,11 @@ export default class EndpointAuthenticateComponent extends Component {
 			credential: credential
 		}
 		listFiles(url, endpointSet, null, (response) => {
+			history(url, (suc) => {
+				console.log(suc)
+			}, (error) => {
+				this._handleError(error);
+			})
 			this.props.loginSuccess(endpointSet);
 		}, (error) => {
 			this.props.setLoading(false);

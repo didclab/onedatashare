@@ -35,6 +35,8 @@ public class UserController {
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
+      case "getUser":
+        return userService.getUser(userAction.getEmail());
       case "getUsers":
         return userService.getAllUsers();
       case "getAdministrators":
@@ -51,6 +53,8 @@ public class UserController {
         return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
       case "isAdmin":
         return userService.isAdmin(headers.getFirst("cookie"));
+      case "resendVerificationCode":
+        return userService.resendVerificationCode(userAction.email);
       default:
         return null;
     }

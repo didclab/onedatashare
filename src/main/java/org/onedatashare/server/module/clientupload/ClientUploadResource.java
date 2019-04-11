@@ -45,6 +45,11 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
     public class ClientUploadTap implements Tap{
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
 
+        @Override
+        public Stat getTransferStat() {
+            return null;
+        }
+
         public Flux<Slice> tap(long size) {
             System.out.println("Inside tap()");
             return Flux.generate(() -> session.filesize,
@@ -62,6 +67,11 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
                         return state;
                     }
                 });
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            return null;
         }
     }
 }

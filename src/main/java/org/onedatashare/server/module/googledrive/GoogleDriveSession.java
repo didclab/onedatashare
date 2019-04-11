@@ -1,7 +1,9 @@
 package org.onedatashare.server.module.googledrive;
 
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -25,16 +27,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDriveResource> {
-    static GoogleClientSecrets clientSecrets;
-    transient Drive service;
-    transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
-    ArrayList<IdMap> idMap = null;
-    transient LinkedBlockingQueue<String> mkdirQueue = new LinkedBlockingQueue<>();
+    private static GoogleClientSecrets clientSecrets;
+    static transient Drive service;
+    private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
+    protected ArrayList<IdMap> idMap = null;
+    private static GoogleAuthorizationCodeFlow flow;
 
-    static String APPLICATION_NAME = "OneDataShare";
+    private static String APPLICATION_NAME = "OneDataShare";
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
     private static FileDataStoreFactory DATA_STORE_FACTORY;
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
@@ -65,10 +66,16 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             if(credential instanceof OAuthCredential){
                 try{
                     service = getDriveService(((OAuthCredential) credential).token);
+                    System.out.println("Service: "+service);
                 }catch(Throwable t) {
                     throw new RuntimeException(t);
                 }
-                s.success(this);
+                if(service !=null)
+                    s.success(this);
+                else {
+                        OAuthCredential c = updateToken();
+                        s.error(new AuthenticationRequired(401,c, "Bad Request"));
+                }
             }
             else s.error(new AuthenticationRequired("oauth"));
         });
@@ -87,7 +94,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
         List<String> redirect_uris;
 
         if (c != null && c.client_id != null && c.client_secret != null && c.redirect_uris != null) {
-            redirect_uris = Arrays.asList(c.redirect_uris.replaceAll("\\[|\\]|\"|\n","")
+            redirect_uris = Arrays.asList(c.redirect_uris/*.replaceAll("\\[|\\]|\"|\n","")*/
                     .trim()
                     .split(","));
             String finishURI = redirect_uris.get(0);
@@ -105,32 +112,77 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     public static com.google.api.client.auth.oauth2.Credential authorize(String token) throws IOException {
         // Load client secrets.
         initGoogle();
+            flow =
+                    new GoogleAuthorizationCodeFlow.Builder(
+                            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                            .setDataStoreFactory(DATA_STORE_FACTORY)
+                            .build();
 
-        GoogleAuthorizationCodeFlow flow =
-                new GoogleAuthorizationCodeFlow.Builder(
-                        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
-                        .setDataStoreFactory(DATA_STORE_FACTORY)
-                        .build();
-        com.google.api.client.auth.oauth2.Credential credential = flow.loadCredential(token);
-        return credential;
+            com.google.api.client.auth.oauth2.Credential credential = flow.loadCredential(token);
+
+            return credential;
+
     }
 
-    private static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
+    private static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer)  {
         return new HttpRequestInitializer() {
             @Override
-            public void initialize(HttpRequest httpRequest) throws IOException {
+            public void initialize(HttpRequest httpRequest) {
+                try{
                 requestInitializer.initialize(httpRequest);
                 httpRequest.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
                 httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
+                }catch(IOException e){
+                    System.out.println("******IOException********");
+                    //e.printStackTrace();
+                }catch(NullPointerException e){
+                    System.out.println("******NullPointerException********");
+                    //e.printStackTrace();
+                }
             }
         };
     }
 
     public static Drive getDriveService(String token) throws IOException {
         com.google.api.client.auth.oauth2.Credential credential = authorize(token);
-        return new Drive.Builder(
-                HTTP_TRANSPORT, JSON_FACTORY, setHttpTimeout(credential))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
+        if(credential!=null){
+            return new Drive.Builder(
+                    HTTP_TRANSPORT, JSON_FACTORY, setHttpTimeout(credential))
+                    .setApplicationName(APPLICATION_NAME)
+                    .build();
+        }else {
+            return null;
+        }
+    }
+
+    public  OAuthCredential updateToken(){
+        //Updating the access token for googledrive using refresh token
+        OAuthCredential cred = (OAuthCredential)credential;
+        try{
+            System.out.println("\nOld AccessToken: "+cred.token+"\n"+cred.refreshToken);
+            GoogleDriveOauthService.GoogleDriveConfig c = new GoogleDriveOauthService.GoogleDriveConfig();
+            GoogleCredential refreshTokenCredential = new GoogleCredential.Builder().setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).setClientSecrets(c.client_id, c.client_secret).build().setRefreshToken(cred.refreshToken);
+            if(refreshTokenCredential.refreshToken()){
+                System.out.println("REFRESHTOKEN!");
+            }
+            String accessToken = refreshTokenCredential.getAccessToken();
+            cred.token = accessToken;
+
+            TokenResponse tr = new TokenResponse();
+            tr.setAccessToken(refreshTokenCredential.getAccessToken());
+            tr.setRefreshToken(refreshTokenCredential.getRefreshToken());
+
+            tr.setExpiresInSeconds(refreshTokenCredential.getExpiresInSeconds());
+            tr.setScope(refreshTokenCredential.getServiceAccountScopesAsString());
+
+            flow.createAndStoreCredential(tr,accessToken);
+
+
+            System.out.println("New AccessToken:"+cred.token+" RefreshToken:"+cred.refreshToken);
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        return cred;
     }
 }
