@@ -16,9 +16,8 @@ public class DeleteJobController {
     private ResourceServiceImpl resourceService;
 
     @PostMapping
-    public Mono<Job> restartJob(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
+    public Mono<Job> deleteJob(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
         String cookie = headers.getFirst("cookie");
-//        System.out.println("Job to delete :" + userAction.job_id);
         return resourceService.deleteJob(cookie, userAction);
     }
 }

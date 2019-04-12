@@ -36,9 +36,9 @@ public class JobService {
                 .collectList();
     }
 
-    public Mono<List<Job>> getAllUndeletedJobsForUser(String cookie) {
-        return userService.isAdmin(cookie).flatMap(aBoolean -> {
-            if(aBoolean)
+    public Mono<List<Job>> getAllUndeletedJobsForUser(String cookie, String status) {
+        return userService.isAdmin(cookie).flatMap(isAdmin -> {
+            if(isAdmin && status.equals("all"))
                 return getAllJobs().collectList();
             else
                 return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
@@ -56,6 +56,18 @@ public class JobService {
             return job;
         });
     }
+
+
+    public Mono<Job> findJobByJobIdAndOwner(Integer job_id, String owner) {
+        return getAllJobs().collectList().<Job>map(jobs -> {
+            Job job = new Job(null, null);
+            for(Job j: jobs) {
+                if(j.job_id == job_id && j.owner.equals(owner)) job = j;
+            }
+            return job;
+        });
+    }
+
 
     public Mono<Job> saveJob(Job job) {
         return jobRepository.save(job);

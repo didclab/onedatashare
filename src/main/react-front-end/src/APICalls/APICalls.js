@@ -335,20 +335,21 @@ export async function dropboxCredList(accept, fail){
 /*
 	Desc: Extract all transfers for the user
 */
-export async function queue(accept, fail){
+export async function queue(isHistory, accept, fail){
 	var callback = accept;
 
-	axios.post(url+'q', {
-	    status: 'all'
-	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      fail(error);
-    });
+			axios.post(url+'q', {
+					status: isHistory ? 'all' : 'userJob'
+			})
+		.then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+				fail(error);
+			});
+
 }
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
@@ -621,10 +622,11 @@ export async function restartJob(jobID, accept, fail){
     });
 }
 
-export async function deleteJob(jobID, accept, fail){
+export async function deleteJob(jobID, owner, accept, fail){
 	var callback = accept;
 	axios.post(url+'deleteJob',{
-		job_id: jobID
+		job_id: jobID,
+		email: owner
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -633,7 +635,7 @@ export async function deleteJob(jobID, accept, fail){
 	})
 	.catch((error) => {
 
-      statusHandle(error, fail);
+      // statusHandle(error, fail);
     });
 }
 

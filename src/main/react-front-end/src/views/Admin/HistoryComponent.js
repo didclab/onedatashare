@@ -49,7 +49,9 @@ class QueueComponent extends Component {
 						rowsPerPageOptions : [10, 20, 50, 100],
 						order : 'desc',
 						orderBy : 'job_id'};
-		let queueFunc = () => {queue((resp) => {
+		let queueFunc = () => {
+			let isHistory = true;
+			queue(isHistory, (resp) => {
 			//success
 			resp.map(response => {
 					response.avgSpeed = response.bytes.avg
@@ -113,8 +115,8 @@ class QueueComponent extends Component {
         		}
 	}
 
-	deleteButtonOnClick(jobID){
-		deleteJob(jobID, (resp) => {
+	deleteButtonOnClick(jobID, owner){
+		deleteJob(jobID, owner, (resp) => {
 			//success
 			this.queueFunc();
 		}, (resp) => {
@@ -143,10 +145,10 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status, deleted){
+	renderActions(jobID, owner, status, deleted){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
-		return(
+		return( 
 			<div>
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
 					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
@@ -165,9 +167,9 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{!deleted &&
+				{
 					<Tooltip TransitionComponent={Zoom} title="Delete">
-						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.deleteButtonOnClick(jobID, owner)}} disabled={deleted} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<DeleteOutline />
@@ -339,7 +341,7 @@ class QueueComponent extends Component {
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-									{this.renderActions(resp.job_id, resp.status, resp.deleted)}
+									{this.renderActions(resp.job_id, resp.owner, resp.status, resp.deleted)}
                 </TableCell>
 	          	</TableRow>
 	        );
