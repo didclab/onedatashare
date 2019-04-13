@@ -56,10 +56,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		};
 
 		let loginType = getType(props.endpoint);
-		if(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE){
-		//	this.credentialListUpdateFromBackend();
-		}
-		else if(loginType === GRIDFTP_TYPE){
+		if(loginType === GRIDFTP_TYPE){
 			this.endpointIdsListUpdateFromBackend();
 		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE){
 		    this.historyListUpdateFromBackend();
