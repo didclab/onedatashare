@@ -44,6 +44,7 @@ export default class ClientsInfoComponent extends Component{
 		});
 	}
 
+	// Shows the user a confirmation popup to confirm the update request.
 	enableOrDisableAdmin(event, row){
 		var popupMsg = ""
 		var isAdmin = event.target.checked;
@@ -57,6 +58,8 @@ export default class ClientsInfoComponent extends Component{
 		}		
 	}
 
+	// The actual call to update the admin information is triggered after the user selects "Yes" in the confirmation popup
+	// The user information is retrieved from the state
 	enableOrDisableAdminUsingStateInfo(email, isAdmin){
 		enableOrDisableAdmin(email, isAdmin).then((resp)=>{
 			if(resp){
