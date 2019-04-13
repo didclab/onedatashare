@@ -278,11 +278,8 @@ public class UserService {
   }
 
   public Mono<Boolean> enableOrDisableAdmin(String email, boolean isAdmin){
-    System.out.println(email);
-    System.out.println(isAdmin);
     return getUser(email).flatMap(user -> {
       user.isAdmin = isAdmin;
-      System.out.println(user.isAdmin());
       userRepository.save(user).subscribe();
       return Mono.just(true);
     });
