@@ -59,6 +59,15 @@ public class UserController {
         return null;
     }
   }
+  @PutMapping
+  public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
+    switch(userAction.action) {
+      case "enableOrDisableAdmin":
+        return userService.enableOrDisableAdmin(userAction.email, userAction.isAdmin);
+      default:
+        return null;
+    }
+  }
 
   @ExceptionHandler(NotFound.class)
   public ResponseEntity<NotFound> handle(NotFound notfound) {
