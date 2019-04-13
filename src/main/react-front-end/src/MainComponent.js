@@ -16,10 +16,8 @@ import ClientsInfoComponent from './views/Admin/ClientsInfoComponent.js';
 
 
 export default class MainComponent extends Component {
-
   constructor(props){
     super(props);
-    console.log(cookies);
     this.state={
       isLoggedIn: store.getState().login,
       admin: store.getState().admin,

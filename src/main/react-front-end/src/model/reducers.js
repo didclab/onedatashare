@@ -21,7 +21,7 @@ const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
-  publicKey: cookies.get('publicKey') || null ,
+    publicKey: cookies.get('publicKey') || null ,
 	hash: cookies.get('hash') || null,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
@@ -75,6 +75,8 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
       cookies.remove("publicKey");
+      window.location.replace('/');
+
       return Object.assign({}, state, {
         login: false,
         admin: false,
