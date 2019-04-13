@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { getUsers, enableOrDisableAdmin } from '../../APICalls/APICalls';
+import { getUsers, updateAdminRightsApiCall } from '../../APICalls/APICalls';
 
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -45,25 +45,25 @@ export default class ClientsInfoComponent extends Component{
 	}
 
 	// Shows the user a confirmation popup to confirm the update request.
-	enableOrDisableAdmin(event, row){
+	updateAdminRights(event, row){
 		var popupMsg = ""
 		var isAdmin = event.target.checked;
 		if(isAdmin){
-			popupMsg = "Do you want to enable "+ row.firstName + " " + row.lastName+ " as admin.";
+			popupMsg = "Please confirm if " + row.firstName + " " + row.lastName+ " must be granted admin privileges.";
 			this.setState({showIsAdminPopup: true, adminChangePopupMsg:popupMsg, targetUser: row.email, isAdmin: true, firstName: row.firstName, lastName: row.lastName});
 		}
 		else{
-			popupMsg = "Do you want to disable "+ row.firstName + " " + row.lastName+ " as admin.";
+			popupMsg = "Please confirm if admin privileges of "+ row.firstName + " " + row.lastName+ " must be revoked.";
 			this.setState({showIsAdminPopup: true, adminChangePopupMsg:popupMsg, targetUser: row.email, isAdmin: false, firstName: row.firstName, lastName: row.lastName});
 		}		
 	}
 
 	// The actual call to update the admin information is triggered after the user selects "Yes" in the confirmation popup
 	// The user information is retrieved from the state
-	enableOrDisableAdminUsingStateInfo(email, isAdmin){
-		enableOrDisableAdmin(email, isAdmin).then((resp)=>{
+	updateAdminRightsUsingStateInfo(email, isAdmin){
+		updateAdminRightsApiCall(email, isAdmin).then((resp)=>{
 			if(resp){
-				eventEmitter.emit("errorOccured", this.state.firstName + " " + this.state.lastName + " is " + (this.state.isAdmin ? "enabled": "disabled") + " as admin.");
+				eventEmitter.emit("errorOccured", "Admin privileges is " + (this.state.isAdmin ? "granted for ": "revoked for ") + this.state.firstName + " " + this.state.lastName);
 			}
 			else{
 				eventEmitter.emit("errorOccured", "Error while updating the user");
@@ -99,7 +99,7 @@ export default class ClientsInfoComponent extends Component{
 	            </DialogContentText>	            
 	          </DialogContent>
 	          <DialogActions>
-			  	<Button onClick={() => this.enableOrDisableAdminUsingStateInfo(this.state.targetUser, this.state.isAdmin)} color="primary">
+			  	<Button onClick={() => this.updateAdminRightsUsingStateInfo(this.state.targetUser, this.state.isAdmin)} color="primary">
 	              Yes
 	            </Button>
 	            <Button onClick={() => this.handleClose()} color="secondary">
@@ -141,7 +141,7 @@ export default class ClientsInfoComponent extends Component{
 											{(resp.validated)?<Done style={{color: 'green'}} />:<Clear style={{color: 'red'}} />}
 										</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" checked = {resp.isAdmin} onChange={(event) => this.enableOrDisableAdmin(event, resp)}></input></TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" checked = {resp.isAdmin} onChange={(event) => this.updateAdminRights(event, resp)}></input></TableCell>
 									</TableRow>)
 								})
 							}

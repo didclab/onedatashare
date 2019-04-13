@@ -62,8 +62,8 @@ public class UserController {
   @PutMapping
   public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
     switch(userAction.action) {
-      case "enableOrDisableAdmin":
-        return userService.enableOrDisableAdmin(userAction.email, userAction.isAdmin);
+      case "updateAdminRights":
+        return userService.updateAdminRights(userAction.email, userAction.isAdmin);
       default:
         return null;
     }

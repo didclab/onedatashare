@@ -559,9 +559,9 @@ export async function getUsers(type, accept, fail){
     });
 }
 
-export async function enableOrDisableAdmin(email, isAdmin){
+export async function updateAdminRightsApiCall(email, isAdmin){
 	return axios.put(url+'user', {
-		action: "enableOrDisableAdmin",
+		action: "updateAdminRights",
 		email: email,
 		isAdmin: isAdmin
 	})

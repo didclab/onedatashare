@@ -277,7 +277,7 @@ public class UserService {
     return userRepository.findAllAdministrators();
   }
 
-  public Mono<Boolean> enableOrDisableAdmin(String email, boolean isAdmin){
+  public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
     return getUser(email).flatMap(user -> {
       user.isAdmin = isAdmin;
       userRepository.save(user).subscribe();
