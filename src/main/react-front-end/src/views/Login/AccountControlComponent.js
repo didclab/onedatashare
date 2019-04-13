@@ -32,12 +32,6 @@ export default class AccountControlComponent extends Component {
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
 	
-	isAdmin(email, hash, (status) => {
-		store.dispatch(isAdminAction());
-	}, (fail) => {
-		console.log("Not Admin", fail);
-	})
-	
 	store.dispatch(loginAction(email, hash, publicKey, remember));
 	//this.setState({authenticated : true});
   }

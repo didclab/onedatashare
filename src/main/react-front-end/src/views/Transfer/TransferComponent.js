@@ -60,15 +60,15 @@ export default class TransferComponent extends Component {
     }
 
     this.unsubcribe = store.subscribe(() => {
-      history("", (data) => {
-        this.setState({
-          endpoint1: store.getState().endpoint1,
-          endpoint2: store.getState().endpoint2,
-          history: data
-        });
-      }, (fail) => {
-        console.log("fail", fail)
-      });
+    this.setState({
+      endpoint1: store.getState().endpoint1,
+      endpoint2: store.getState().endpoint2,
+    });
+//      history("", (data) => {
+//
+//      }, (fail) => {
+//        console.log("fail", fail)
+//      });
     });
 
 
