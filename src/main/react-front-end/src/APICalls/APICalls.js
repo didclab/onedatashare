@@ -559,6 +559,24 @@ export async function getUsers(type, accept, fail){
     });
 }
 
+export async function updateAdminRightsApiCall(email, isAdmin){
+	return axios.put(url+'user', {
+		action: "updateAdminRights",
+		email: email,
+		isAdmin: isAdmin
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			return false;
+		else{
+			return true;
+		}
+	})
+	.catch((error) => {
+			console.log("Error encountered while updating the user.");
+	});
+}
+
 /*
 	Desc: Change Password
 */

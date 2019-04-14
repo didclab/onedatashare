@@ -278,6 +278,14 @@ public class UserService {
     return userRepository.findAllAdministrators();
   }
 
+  public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
+    return getUser(email).flatMap(user -> {
+      user.isAdmin = isAdmin;
+      userRepository.save(user).subscribe();
+      return Mono.just(true);
+    });
+  }
+
   public Mono<Boolean> userLoggedIn(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash);
