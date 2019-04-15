@@ -64,7 +64,7 @@ public class DownloadController {
         return null;
     }
 
-    @RequestMapping(value = "/file", method = RequestMethod.GET, produces = "type/valuable")
+    @RequestMapping(value = "/file", method = RequestMethod.GET)
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
         String cookie = clientHttpHeaders.getFirst("cookie");
         final String authorization = clientHttpHeaders.getFirst("Authorization");

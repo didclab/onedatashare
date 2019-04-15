@@ -5,7 +5,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
-import org.onedatashare.server.model.util.Response;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -320,14 +319,13 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 //        System.out.println("Size of file is " + stream.length());
         String[] strings = fileObject.getName().toString().split("/");
         String filename = strings[strings.length - 1];
-        System.out.println(filename);
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=" + filename);
-        httpHeaders.setContentType(MediaType.asMediaType(MimeType.valueOf("type/valuable")));
-        ResponseEntity responseEntity = new ResponseEntity(inputStreamResource, httpHeaders, HttpStatus.OK);
-
-        return Mono.just(responseEntity);
+        return Mono.just(ResponseEntity.ok()
+                .headers(httpHeaders)
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(inputStreamResource));
      }
 }

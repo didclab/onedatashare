@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import org.apache.commons.vfs2.FileObject;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
