@@ -15,12 +15,12 @@ class NavbarComponent extends Component {
 		this.state={
 		  login: store.getState().login,
 		  email: store.getState().email,
-		  admin: store.getState().admin != false
+		  admin: store.getState().admin
 		};
 		if(this.state.login){
 			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin)=>{
 				if(userIsAdmin){
-					store.dispatch(isAdminAction())
+				    store.dispatch(isAdminAction())
 				}else{
 					console.log("not admin")
 				}
@@ -30,7 +30,7 @@ class NavbarComponent extends Component {
 		}
 
 		this.unsubscribe = store.subscribe(()=>{
-    		this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin != false});
+			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
 	}
 	componentWillUnmount(){

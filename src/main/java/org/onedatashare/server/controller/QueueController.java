@@ -38,7 +38,8 @@ public class QueueController {
     }
 
     String cookie = temp;
-    return jobService.getAllJobsForUser(cookie)
+    return jobService.getAllUndeletedJobsForUser(cookie)
             .subscribeOn(Schedulers.elastic());
+
   }
 }

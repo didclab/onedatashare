@@ -9,6 +9,7 @@ import PropTypes from 'prop-types';
 import {spaceBetweenStyle} from '../../constants.js';
 import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/APICalls.js'
 import LinearProgress from '@material-ui/core/LinearProgress';
+import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 
 
 export default class CreateAccountComponent extends Component {
@@ -17,19 +18,21 @@ export default class CreateAccountComponent extends Component {
 	  	backToSignin: PropTypes.func,
 	}
 	constructor(props){
-	    super(props);
+      super(props);
+
 	    this.state = {
-	    	email: "",
+	    	email: props.email != "" ? props.email: "",
 	    	password: "",
 	    	cpassword: "",
 	    	code : "",
-        screen : "registration",
+        screen : props.loadVerifyCode ? "verifyCode":"registration",
         verificationError : "",
         passwordError : "",
         firstName:"",
         lastName:"",
         organization:"",
-        loading: false
+        loading: false,
+        isLostVerifyCode: props.loadVerifyCode
       }
       this.firstNameValidationMsg = "Please Enter Your First Name"
       this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -77,6 +80,7 @@ export default class CreateAccountComponent extends Component {
                 }
                 else if(response.status == 302) {
                   let state = self.state;
+                  state.emaildError = "User with same Email Id already exists";
                   state.verificationError = "User with same Email Id already exists";
                   self.setState({state});
               }
@@ -87,12 +91,12 @@ export default class CreateAccountComponent extends Component {
     verifyAccount() {
         let email = this.state.email;
         let self = this;
-        let code = this.state.code;
-        verifyRegistraionCode(email, code).then((response) =>{
+        let verificationCode = this.state.verificationCode;
+        verifyRegistraionCode(email, verificationCode).then((response) =>{
             let state = self.state;
             if(response.status == 200 ) {
                 state.screen = "setPassword";
-                state.code = response.data;
+                state.code = response.data;                
                 self.setState({state});
             }
             else {
@@ -120,7 +124,7 @@ export default class CreateAccountComponent extends Component {
                 //state.screen = "setPassword";
                 //self.setState({state});
                 //console.log("Helleo");
-                self.props.history.push('/account')
+                self.props.history.push('/account/signIn')
             });
         }
     }
@@ -142,7 +146,8 @@ export default class CreateAccountComponent extends Component {
 	}
 
 	render(){
-		const { create, backToSignin } = this.props;
+    const { create, backToSignin, loadVerifyCode } = this.props;
+    const properties = this.props
 		const handleChange = name => event => {
       if(name === 'firstName'){
         this.state.firstNameValidation = ""
@@ -159,9 +164,17 @@ export default class CreateAccountComponent extends Component {
 		    this.setState({
 		      [name]: event.target.value,
 		    });
-		};
-    const screen = this.state.screen;
+    };
+
+  var screen = this.state.screen;
     const showLoader = this.state.loading;
+            if(screen === "validateEmail"){
+              return(
+                <div className="enter-from-right slide-in">
+                  <ValidateEmailComponent {...properties} email = {this.state.email}></ValidateEmailComponent>
+                </div>
+              )
+            }
         		if(screen === "registration"){
         		    return (
                     		<div className="enter-from-right slide-in">
@@ -170,16 +183,16 @@ export default class CreateAccountComponent extends Component {
                     	          Create your OneDataShare Account
                     	        </Typography>
                     	        <TextField
-                    	          id="Email"
-                    	          label={this.state.emaildError === this.emailValidationMsg ? this.emailValidationMsg: "Email"}
-                    	          value={this.state.email}
-                    	          style={{width: '100%', marginBottom: '50px'}}
-                    	          onChange={ handleChange('email') }
-                    	          error = {this.state.emaildError === this.emailValidationMsg }
-                    	        />
+                                      id="Email"
+                                      label={this.state.emaildError && this.state.emaildError!="" ? this.state.emaildError: "Email*"}
+                                      value={this.state.email}
+                                      style={{width: '100%', marginBottom: '50px'}}
+                                      onChange={ handleChange('email') }
+                                      error = {this.state.emaildError && this.state.emaildError != "" }
+                                />
                               <TextField
                     	          id="FirstName"
-                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name"}
+                    	          label={this.state.firstNameValidation === this.firstNameValidationMsg ? this.firstNameValidationMsg: "First Name*"}
                     	          value={this.state.firstName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('firstName') }
@@ -187,7 +200,7 @@ export default class CreateAccountComponent extends Component {
                     	        />
                               <TextField
                     	          id="LastName"
-                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Last Name"}
+                    	          label={this.state.lastNameValidation === this.lastNameValidationMsg ? this.lastNameValidationMsg: "Last Name*"}
                     	          value={this.state.lastName}
                     	          style={{width: '100%', marginBottom: '50px'}}
                     	          onChange={ handleChange('lastName') }
@@ -220,15 +233,20 @@ export default class CreateAccountComponent extends Component {
                             <TextField
                                 id="code"
                                 label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
-                                value={this.state.code}
+                                value={this.state.verificationCode}
                                 style={{width: '100%', marginBottom: '50px'}}
-                                onChange={ handleChange('code') }
+                                onChange={ handleChange('verificationCode') }
                                 error = {this.state.verificationError=="Please Enter Valid Verification Code"}
                             />
 
                             <CardActions style={spaceBetweenStyle,{float:'right'}}>
                                 <Button size="medium" variant="outlined" color="primary" onClick={() =>{
-                                  this.setState({screen: "registration"});
+                                  if(this.state.isLostVerifyCode){
+                                   this.setState({screen:"validateEmail"})
+                                  }
+                                  else{
+                                    this.setState({screen: "registration"});
+                                  }
                                 }}>
                                   Back
                                 </Button>

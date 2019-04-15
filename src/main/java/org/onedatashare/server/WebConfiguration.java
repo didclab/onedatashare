@@ -38,7 +38,7 @@ public class WebConfiguration implements WebFluxConfigurer {
         };
     }
     /*
-        Below methods are used for redirecting port 8080 to 8443
+       Below methods are used for redirecting port 8080 to 8443
      */
     @Autowired
     HttpHandler httpHandler;
@@ -47,8 +47,8 @@ public class WebConfiguration implements WebFluxConfigurer {
 
     @PostConstruct
     public void start() {
-        ReactiveWebServerFactory factory = new NettyReactiveWebServerFactory(8080);
-        this.http = factory.getWebServer(this.httpHandler);
+        ReactiveWebServerFactory factory2 = new NettyReactiveWebServerFactory(8080);
+        this.http = factory2.getWebServer(this.httpHandler);
         this.http.start();
     }
 

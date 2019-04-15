@@ -49,10 +49,10 @@ public class UserController {
         return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
+      case "getUser":
+        return userService.getUser(userAction.getEmail());
       case "getUsers":
         return userService.getAllUsers();
-      case "getUser":
-        return userService.getUserById(userAction.getEmail());
       case "getAdministrators":
         return userService.getAdministrators();
       case "verifyCode":
@@ -67,6 +67,18 @@ public class UserController {
         return userService.deleteHistory(cookie, userAction.uri);
       case "isAdmin":
         return userService.isAdmin(cookie);
+      case "resendVerificationCode":
+        return userService.resendVerificationCode(userAction.email);
+      default:
+        return null;
+    }
+  }
+
+  @PutMapping
+  public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
+    switch(userAction.action) {
+      case "updateAdminRights":
+        return userService.updateAdminRights(userAction.email, userAction.isAdmin);
       default:
         return null;
     }

@@ -2,12 +2,12 @@ package org.onedatashare.server.controller;
 
 import com.jcraft.jsch.HASH;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.service.*;
+import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.service.oauth.GridftpAuthService;
 import org.onedatashare.server.service.oauth.OauthService;
+import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequestMapping("/api/stork/oauth")
 public class OauthController {
   @Autowired
-  private UserService userService;
+  public UserService userService;
 
   @Autowired
   private OauthService oauthService;
@@ -36,25 +36,15 @@ public class OauthController {
   @Autowired
   private GridftpAuthService gridftpAuthService;
 
-  String instance ="";
-//  @GetMapping
-//  public Mono<RedirectView> handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-//    if(queryParameters.containsKey("state")) {
-//      return userService.saveCredential(headers.getFirst("cookie"), oauthService.finish(queryParameters.get("code")))
-//        .map(uuid -> new RedirectView("/oauth/" + uuid));
-//    }
-//    else {
-//      return userService.userLoggedIn(headers.getFirst("cookie")).map(oauthService::redirectToDropboxAuth);
-//    }
-//  }
   static final String googledrive = "googledrive";
   static final String dropbox = "dropbox";
   static final String gridftp = "gridftp";
 
   private static final String EMAIL_PARAM = "email";
   private static final String HASH_PARAM = "hash";
-  @GetMapping
-  public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
+
+
+  public static String getCookie(HttpHeaders headers, Map<String, String> queryParameters){
     String temp = headers.getFirst("cookie");
 
     if(temp == null){
@@ -64,40 +54,50 @@ public class OauthController {
       }
     }
 
-    String cookie = temp;
+    return temp;
+  }
 
-    if(queryParameters.containsKey("state")) {
-      if(instance.isEmpty())
-        instance = googledrive;
-      if(instance.equals(googledrive)){
-        instance = "";
-        return googleDriveOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-      }else if(instance.equals(dropbox)){
-        instance = "";
-      return dbxOauthService.finish(queryParameters.get("code"), cookie).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-              .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-      }else if(instance.equals(gridftp)){
-        instance = "";
-        return gridftpAuthService.finish(queryParameters.get("code")).flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
-      }else return Mono.error(new NotFound());
-    }
-    else {
+  @GetMapping(value = "/googledrive")
+  public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
+    String cookie = getCookie(headers, queryParameters);
+    return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
+            .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
+            .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive" ).build()));
+  }
+
+  @GetMapping(value = "/dropbox")
+  public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
+    String cookie = getCookie(headers, queryParameters);
+    return dbxOauthService.finish(queryParameters.get("code"), cookie)
+            .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
+            .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox" ).build()));
+  }
+
+  @GetMapping(value = "/gridftp")
+  public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
+    String cookie = getCookie(headers, queryParameters);
+    return gridftpAuthService.finish(queryParameters.get("code"))
+            .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+  }
+
+  @GetMapping
+  public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
+    String cookie = getCookie(headers, queryParameters);
+
       if(queryParameters.get("type").equals(googledrive) ){
-        instance = googledrive;
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
       }else if(queryParameters.get("type").equals(dropbox) ){
-        instance = dropbox;
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
       }else if(queryParameters.get("type").equals(gridftp) ){
-        instance = gridftp;
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
       }else return Mono.error(new NotFound());
-    }
+
   }
 
   @ExceptionHandler(NotFound.class)
