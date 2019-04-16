@@ -13,6 +13,7 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
@@ -275,6 +276,14 @@ public class UserService {
 
   public Flux<User> getAdministrators(){
     return userRepository.findAllAdministrators();
+  }
+
+  public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
+    return getUser(email).flatMap(user -> {
+      user.isAdmin = isAdmin;
+      userRepository.save(user).subscribe();
+      return Mono.just(true);
+    });
   }
 
   public Mono<Boolean> userLoggedIn(String cookie) {

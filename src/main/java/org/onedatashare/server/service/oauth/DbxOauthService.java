@@ -72,7 +72,7 @@ public class DbxOauthService  {
                 for (Credential value: val.values()) {
                     OAuthCredential oauthVal = ((OAuthCredential) value);
                     if ((oauthVal.dropboxID != null && oauthVal.dropboxID.equals(cred.dropboxID))) { //Checks if the ID already matches
-                        return Mono.error(new DuplicateCredentialException());           //Account already exists
+                        return Mono.empty();           //Account already exists
                     }
                 }
                 return Mono.just(cred);            //Account is not in the database, store as new
