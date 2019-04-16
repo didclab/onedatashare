@@ -414,11 +414,7 @@ export default class EndpointBrowseComponent extends Component {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 					  			const taskList = getSelectedTasksFromSide(endpoint);
 					  			if(getType(endpoint) === SFTP_TYPE){
-									setLoading(true);
-									getDownload(downloadUrl, endpoint.credential, taskList[0].id, (succeed)=>{
-
-										setLoading(false);
-									});
+									getDownload(downloadUrl, endpoint.credential, taskList[0].id);
 								}else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
 						  		}

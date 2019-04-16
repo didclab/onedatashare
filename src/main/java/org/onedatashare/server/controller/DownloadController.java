@@ -1,5 +1,7 @@
 package org.onedatashare.server.controller;
 
+import io.netty.handler.codec.http.Cookie;
+import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -24,9 +26,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
 
@@ -67,15 +69,16 @@ public class DownloadController {
     @RequestMapping(value = "/file", method = RequestMethod.GET)
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
         String cookie = clientHttpHeaders.getFirst("cookie");
-        final String authorization = clientHttpHeaders.getFirst("Authorization");
-        String credentials = null;
-        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
-            // Authorization: Basic base64credentials
-            credentials = authorization.substring("Basic".length()).trim();
-        }
+
+        Map<String,String> map = new HashMap<String,String>();
+        Set<Cookie> cookies = CookieDecoder.decode(cookie);
+        for (Cookie c : cookies)
+            map.put(c.getName(), c.getValue());
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = null;
+
         try {
+            final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
         } catch (IOException e) {
             e.printStackTrace();

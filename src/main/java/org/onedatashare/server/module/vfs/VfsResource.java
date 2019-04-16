@@ -323,7 +323,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 "attachment; filename=" + filename);
         return Mono.just(ResponseEntity.ok()
                 .headers(httpHeaders)
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(inputStreamResource));
      }
 }
