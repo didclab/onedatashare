@@ -116,6 +116,9 @@ public class GoogleDriveOauthService{
     }
 
     private static String[] storeCredential(String code) {
+        if(flow == null){
+            getUrl(); // quick fix made for drive oauth for cross platform app
+        }
         String[] accessToken ={"",""};
         try {
             // Build flow and trigger user authorization request.
