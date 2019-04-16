@@ -53,7 +53,7 @@ public class UserService {
 //    createUser(user).subscribe(System.out::println);
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
+            .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
   }
 
@@ -450,6 +450,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.getPublicKey());
   }
 }
