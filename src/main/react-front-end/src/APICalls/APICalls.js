@@ -501,7 +501,7 @@ export async function download(uri, credential, _id){
 	})
 }
 
-export async function getDownload(uri, credential, _id){
+export async function getDownload(uri, credential, _id, succeed){
 	// const publicKey = store.getState()["publicKey"];
 
 	// var encrypt = new JsEncryptModule.JSEncrypt();
@@ -515,16 +515,51 @@ export async function getDownload(uri, credential, _id){
 	const strin = JSON.stringify(json_to_send).toString('base64');
 	
 	const axios2 = Axios.create({
-		timeout: FETCH_TIMEOUT,
+		timeout: 86400000,
 		headers: {
-			Accept: 'type/valuable',
-			ResponseType: "type/valuable",
+			Accept: 'application/octet-stream',
+			ResponseType: "application/octet-stream",
 			Authorization: 'Basic '+strin
 		}
 	});	
 
-	 console.log(strin)
-	axios2.get(url+"download/file");
+	console.log(strin)
+	axios2({method:"get", url: url+"download/file", responseType:'arraybuffer'}).then((data)=>{
+		console.log(data.headers);
+		let filename = data.headers["content-disposition"].split("filename=")[1];
+		var blob = new Blob([data.data], {type: "application/octet-stream"});
+		if (typeof window.navigator.msSaveBlob !== "undefined") {
+				// IE workaround for “HTML7007: One or more blob URLs were
+				// revoked by closing the blob for which they were created.
+				// These URLs will no longer resolve as the data backing
+				// the URL has been freed.”
+				window.navigator.msSaveBlob(blob, filename);
+		}
+		else {
+				
+				var blobURL = window.URL.createObjectURL(blob);
+				var tempLink = document.createElement("a");
+				tempLink.style.display = "none";
+				tempLink.href = blobURL;
+				tempLink.setAttribute("download", filename);
+ 
+				// Safari thinks _blank anchor are pop ups. We only want to set _blank
+				// target if the browser does not support the HTML5 download attribute.
+				// This allows you to download files in desktop safari if pop up blocking
+				// is enabled.
+				if (typeof tempLink.download === "undefined") {
+						tempLink.setAttribute("target", "_blank");
+				}
+ 
+				document.body.appendChild(tempLink);
+				tempLink.click();
+				document.body.removeChild(tempLink);
+				window.URL.revokeObjectURL(blobURL);
+				
+		}
+		succeed();
+
+	});
 
 }
 
