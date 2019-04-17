@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
@@ -47,7 +48,20 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 
         @Override
         public Stat getTransferStat() {
-            return null;
+            Stat tapstat = new Stat();
+            tapstat.size = session.filesize;
+            ArrayList<Stat> filestat = new ArrayList<>();
+            Stat uploadStat = new Stat();
+            uploadStat.size = session.filesize;
+            uploadStat.dir = false;
+            uploadStat.file = true;
+            uploadStat.name = session.filename;
+
+
+            filestat.add(uploadStat);
+            tapstat.filesList = filestat;
+
+            return tapstat;
         }
 
         public Flux<Slice> tap(long size) {
@@ -71,7 +85,7 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
-            return null;
+            return this.tap(1<<10);
         }
     }
 }
