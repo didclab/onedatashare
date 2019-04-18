@@ -204,6 +204,15 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
+				{status != 'processing' &&
+					<Tooltip TransitionComponent={Zoom} title="Delete">
+						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} disabled={deleted} variant="contained" size="small" color="primary" 
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<DeleteOutline />
+						</Button>
+					</Tooltip>
+				}
         	</div>
 		);
 	}
