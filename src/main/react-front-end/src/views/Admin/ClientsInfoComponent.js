@@ -19,6 +19,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import {eventEmitter} from "../../App";
+import {store} from '../../App.js';
 
 import './ClientsInfoComponent.css';
 
@@ -141,7 +142,7 @@ export default class ClientsInfoComponent extends Component{
 											{(resp.validated)?<Done style={{color: 'green'}} />:<Clear style={{color: 'red'}} />}
 										</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" checked = {resp.isAdmin} onChange={(event) => this.updateAdminRights(event, resp)}></input></TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" disabled = {resp.email === store.getState().email} checked = {resp.isAdmin} onChange={(event) => this.updateAdminRights(event, resp)}></input></TableCell>
 									</TableRow>)
 								})
 							}
