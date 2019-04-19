@@ -6,7 +6,10 @@ import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
+
+import {cookies} from "../model/reducers.js";
 const FETCH_TIMEOUT = 10000;
+
 
 const axios = Axios.create({
   timeout: FETCH_TIMEOUT,
@@ -501,24 +504,23 @@ export async function download(uri, credential, _id){
 	})
 }
 
-export async function getDownload(uri, credential, _id){
-	const publicKey = store.getState()["publicKey"];
+export async function getDownload(uri, credential, _id, succeed){
+	// const publicKey = store.getState()["publicKey"];
 
-	var encrypt = new JsEncryptModule.JSEncrypt();
-	encrypt.setPublicKey(publicKey);
+	// var encrypt = new JsEncryptModule.JSEncrypt();
+	// encrypt.setPublicKey(publicKey);
+
 	let json_to_send = {
 		credential: credential,
 		type: getTypeFromUri(uri),
 		uri: encodeURI(uri),
 		id: _id,
 	}
-	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
-	console.log(strin)
-	axios.get(url+"download/file", {
-		params: {
-	      data: strin
-	    }
-	})
+	const strin = JSON.stringify(json_to_send);
+	cookies.set("SFTPAUTH", strin, {maxAge: 1});
+
+
+	window.location = url + "download/file";
 }
 
 export async function upload(uri, credential, accept, fail){

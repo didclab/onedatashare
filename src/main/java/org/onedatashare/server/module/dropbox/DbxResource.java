@@ -130,7 +130,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
               long directorySize = 0L;
               try{
                 if(s.dir)
-                  directorySize =buildDirectoryTree(sub, session.client.files().listFolder(path), "/");
+                  directorySize = buildDirectoryTree(sub, session.client.files().listFolder(path), "/");
                 else{
                   fileResource = true;
                   sub.add(s);

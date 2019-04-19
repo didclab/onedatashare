@@ -44,13 +44,12 @@ public class Transfer<S extends Resource, D extends Resource> {
     // initialize();
     Tap tap = source.tap();
     Stat tapStat = tap.getTransferStat();
-    info.setTotal(tapStat.size);
-    //Drain drain = destination.sink();
 
     if(tapStat == null) {
       System.out.println("Error occurred while generating tap stat object");
       return null;
     }
+    info.setTotal(tapStat.size);
 
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
@@ -67,16 +66,6 @@ public class Transfer<S extends Resource, D extends Resource> {
                       .map(this::addProgress)
                       .doOnComplete(drain::finish);
             }).doFinally(s -> done());
-
-
-//    return tap.tap(sliceSize)
-//            .subscribeOn(Schedulers.elastic())
-//            .doOnNext(drain::drain)
-//            .subscribeOn(Schedulers.elastic())
-//            .doOnSubscribe(s -> startTimer())
-//            .map(this::addProgress)
-//            .doOnComplete(drain::finish)
-//            .doFinally(s -> done());
   }
 
   public void initialize() {
