@@ -320,7 +320,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     class GoogleDriveTap implements Tap {
-//        Drive.Files.Get downloadBuilder;
         long size;
         Drive drive = session.service;
         Stat transferStat;
@@ -341,10 +340,10 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+stat.getId()+"?alt=media";
             try {
                 httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
-//                downloadBuilder = session.service.files().get(id);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            size = stat.getSize();
             return tap(sliceSize);
         }
 
@@ -446,7 +445,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 outputStream.write(body.getBytes());
                 outputStream.close();
                 request.connect();
-                if(request.getResponseCode() == 200) {
+                int responseCode = request.getResponseCode();
+                if(responseCode == 200) {
                     resumableSessionURL = request.getHeaderField("location");
                     /*String location = request.getHeaderField("Location");
                     if (location.contains("upload_id")) {

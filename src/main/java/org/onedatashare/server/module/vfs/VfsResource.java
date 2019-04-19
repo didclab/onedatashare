@@ -23,6 +23,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     this.fileObject = fileObject;
   }
 
+  /**
+   * This method creates a directory with the name of the folder to be created
+   * on clicking the 'New Folder' option on the front end .
+   * @return current VfsResource instance
+   */
   public Mono<VfsResource> mkdir() {
     return initialize().doOnSuccess(vfsResource -> {
       try {
@@ -31,6 +36,15 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         e.printStackTrace();
       }
     });
+  }
+
+  /**
+   * This method is invoked to create the directories to which a file needs to be transferred
+   * during folder transfer operation.
+   * @param directoryTree - String representation of the directory/directories to be created (from root)
+   */
+  public void mkdir(String directoryTree) {
+
   }
 
   public Mono<VfsResource> delete() {
@@ -256,6 +270,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     public VfsDrain start(String drainPath) {
       try {
         fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+        int index = drainPath.indexOf('/', drainPath.indexOf("//") + 2);
+        mkdir(drainPath.substring(index, drainPath.lastIndexOf('/')));
         return start();
       }
       catch(FileSystemException fse){
