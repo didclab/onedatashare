@@ -271,10 +271,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         @Override
         public VfsDrain start(String drainPath) {
             try {
+                fileObject = session.fileSystemManager.resolveFile(
+                        drainPath.substring(0, drainPath.lastIndexOf('/')), session.fileSystemOptions);
+                fileObject.createFolder();    // creates the folders for folder transfer
                 fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
-//                int index = drainPath.indexOf('/', drainPath.indexOf("//") + 2);
-//                mkdir(drainPath.substring(index, drainPath.lastIndexOf('/')));
-                fileObject.createFolder();
                 return start();
             }
             catch(FileSystemException fse){
