@@ -56,7 +56,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     public Mono<VfsResource> delete() {
         return initialize().doOnSuccess(vfsResource -> {
             try {
-                fileObject.delete();
+                fileObject.deleteAll();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
