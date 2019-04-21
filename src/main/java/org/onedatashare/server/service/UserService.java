@@ -307,12 +307,14 @@ public class UserService {
     });
   }
 
-  public Mono<Boolean> verifyEmail(String email,String cookie) {
-    final User.UserLogin userLogin = cookieToUserLogin(cookie);
-    if(userLogin.email.equals(email)){
-      return Mono.just(true);
-    }
-    return Mono.error(new Exception("Invalid email"));
+  public Mono<Object> verifyEmail(String email) {
+    return userRepository.existsById(email).flatMap( bool -> {
+      if (bool) {
+        return Mono.just(true);
+      }else{
+        return Mono.error(new Exception("Invalid email"));
+      }
+    });
   }
 
   public Mono<User> getLoggedInUser(String cookie) {

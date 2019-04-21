@@ -3,12 +3,12 @@ import { multiSelectTo as multiSelect } from './utils';
 
 import memoizeOne from 'memoize-one';
 import FileNode from "./FileNode.js";
+import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
-import UploadButton from "@material-ui/icons/CloudUpload";
 import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
@@ -22,14 +22,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FileInput from 'react-fine-uploader/file-input';
-
-import IconButton from '@material-ui/core/IconButton';
 import SearchIcon from '@material-ui/icons/Search';
 
 import InputBase from '@material-ui/core/InputBase';
 
-import FineUploaderTraditional from 'fine-uploader-wrappers';
+import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
@@ -57,8 +54,8 @@ export default class EndpointBrowseComponent extends Component {
 			shareUrl: "",
 			openAFolder: false,
 			addFolderName: "",
-			displayMode: "comfort",
-			searchText: "m"
+			searchText: "",
+			displayStyle: "compact",
 		};
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
@@ -94,6 +91,7 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 	    window.removeEventListener('touchend', this.onWindowTouchEnd);
 	}
+	
 
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
@@ -140,7 +138,6 @@ export default class EndpointBrowseComponent extends Component {
 	      getSelectedTasksFromSide(endpoint),
 	      newTask
 	 	);
-	    console.log(updated)
 	    if (updated == null) {
 	      return;
 	    }
@@ -198,14 +195,21 @@ export default class EndpointBrowseComponent extends Component {
 
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
-		console.log("list before finish ", this.state.path, this.state.id);
-		console.log("list after finish ", path, id);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
 
 		listFiles(uri, endpoint, id[id.length-1], (data) =>{
-			setFilesWithPathListAndId(data.files, path, id, endpoint);
+			let sortedfiles = data.files.sort((a, b) => { 
+				if(a.dir && !b.dir){
+					return -1;
+				}else if(!a.dir && b.dir){
+					return 1;
+				}else{
+					return a.name.localeCompare(b.name);
+				}
+			});
+			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
@@ -278,39 +282,12 @@ export default class EndpointBrowseComponent extends Component {
     	}
     }
 
+	
+
 	render(){
 		const {endpoint, back, setLoading, getLoading} = this.props;
-		const {directoryPath, displayMode, searchText} = this.state;
-		const uploader = new FineUploaderTraditional({
-			debug: true,
-			options: {
-				chunking: {
-					enabled: true,
-					partSize: 500000,
-					concurrent: {
-						enabled: false
-					},
-				},
-				request: {
-					endpoint: '/api/stork/upload',
-					params: {
-						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
-						credential: JSON.stringify(endpoint.credential),
-						id: this.state.ids[this.state.ids.length-1],
-						map: JSON.stringify(getMapFromEndpoint(endpoint))
-					}
-				},
-				retry: {
-					enableAuto: true
-				},
-				callbacks :{
-					onError: function(id, name, errorReason, xhr){
-						console.log('error occurred - ' + errorReason);
-					}
-				}
-				// "qqchunksize": 1000000
-			}
-		})
+		const {directoryPath, displayMode, searchText, compactStylePos, displayStyle} = this.state;
+		
 
 		const list = getFilesFromMemory(endpoint) || [];
 		let displayList = Object.keys(list);
@@ -320,18 +297,20 @@ export default class EndpointBrowseComponent extends Component {
 			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
 		}
 
+		
+
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
 		const selectedTasks = getSelectedTasksFromSide(endpoint);
-		//console.log(selectedTaskIds)
 		const loading = getLoading();
 		const tooltip = (name) => (
 		  <Tooltip id="tooltip">
 		  	{name}
 		  </Tooltip>
 		);
+
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
@@ -358,7 +337,6 @@ export default class EndpointBrowseComponent extends Component {
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-
 
 	        <Dialog
 	          open={this.state.openAFolder}
@@ -400,12 +378,7 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-						<FileInput uploader={uploader} style={buttonStyle}>
-				  			<BootStrapButton disabled={false}>
-								<UploadButton style={iconStyle}/>
-				  			</BootStrapButton>
-			  			</FileInput>
-				  			
+						<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
 				  	overlay={tooltip("Delete")}>
@@ -495,7 +468,23 @@ export default class EndpointBrowseComponent extends Component {
 							</h2>
 						}
 
-						{displayList.map((fileId, index) => {
+						{displayStyle == "compact" && !loading && displayList.length != 0 &&
+							<CompactFileNodeWrapper 
+								list={list} 
+								displayList={displayList} 
+								selectedTasks={selectedTasks} 
+								endpoint={endpoint} 
+								draggingTask={draggingTask}
+								toggleSelection={this.toggleSelection}
+								onClick={this.fileNodeClicked}
+								onDoubleClick={this.fileNodeDoubleClicked}
+								toggleSelectionInGroup={this.toggleSelectionInGroup}
+					            multiSelectTo={this.multiSelectTo}
+							/>
+						}
+
+
+						{displayStyle == "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
 							const isSelected: boolean = Boolean(
 			                  selectedTasks.indexOf(file)!=-1,
@@ -506,7 +495,7 @@ export default class EndpointBrowseComponent extends Component {
 			                  draggingTask.name !== file.name;
 
 							  return(
-								<FileNode 
+								<FileNode
 									key={fileId}
 									index={index}
 									file={file}

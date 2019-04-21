@@ -54,7 +54,7 @@ function statusHandle(response, callback){
 export async function checkLogin(email, accept, fail){
 	var callback = accept;
 	axios.post(url+'user', {
-	    action: 'verifyUser',
+	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
 		console.log("login response", response)

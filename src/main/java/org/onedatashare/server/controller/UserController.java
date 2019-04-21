@@ -32,7 +32,7 @@ public class UserController {
       case "history":
         return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
       case "verifyEmail":
-        return userService.verifyEmail(userAction.email, headers.getFirst("Cookie"));
+        return userService.verifyEmail(userAction.email);
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
       case "getUsers":
