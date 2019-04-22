@@ -122,7 +122,8 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     return stat;
   }
 
-  public Mono<Stat> transferStat(){
+  @Override
+  public Mono<Stat> getTransferStat(){
     return initialize()
             .map(DbxResource::onStat)
             .map(s ->{
@@ -179,7 +180,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
   public DbxTap tap() {
     DbxTap dbxTap = new DbxTap();
-    dbxTap.tapStat();
+//    dbxTap.tapStat();
     return dbxTap;
   }
 
@@ -195,16 +196,16 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public class DbxTap implements Tap {
     DownloadBuilder downloadBuilder;
     long size;
-    Stat transferStat;
+//    Stat transferStat;
+//
+//    public void tapStat(){
+//      transferStat =  transferStat().block();
+//    }
 
-    public void tapStat(){
-      transferStat =  transferStat().block();
-    }
-
-    @Override
-    public Stat getTransferStat() {
-      return transferStat;
-    }
+//    @Override
+//    public Stat getTransferStat() {
+//      return transferStat;
+//    }
 
     @Override
     public Flux<Slice> tap(Stat stat, long sliceSize) {

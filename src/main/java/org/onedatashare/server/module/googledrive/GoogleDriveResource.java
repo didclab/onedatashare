@@ -235,7 +235,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
-    public Mono<Stat>transferStat(){
+    @Override
+    public Mono<Stat> getTransferStat(){
         return initialize()
                 .map(GoogleDriveResource::onStat)
                 .map(s ->{
@@ -315,24 +316,24 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
 
     public GoogleDriveTap tap() {
         GoogleDriveTap gDriveTap = new GoogleDriveTap();
-        gDriveTap.tapStat();
+//        gDriveTap.tapStat();
         return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
         long size;
         Drive drive = session.service;
-        Stat transferStat;
+//        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
 
-        public void tapStat(){
-            transferStat =  transferStat().block();
-        }
-
-        @Override
-        public Stat getTransferStat() {
-            return transferStat;
-        }
+//        public void tapStat(){
+//            transferStat =  transferStat().block();
+//        }
+//
+//        @Override
+//        public Stat getTransferStat() {
+//            return transferStat;
+//        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -396,11 +397,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     class GoogleDriveDrain implements Drain {
-        long bytesWritten = 0;
+//        long bytesWritten = 0;
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
         long size = 0;
         String resumableSessionURL;
-        String upload_id;
+//        String upload_id;
 
         String drainPath = path;
         Boolean isDirTransfer = false;

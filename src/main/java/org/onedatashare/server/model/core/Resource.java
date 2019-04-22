@@ -78,6 +78,8 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
     throw unsupported("sink(stat)");
   }
 
+  public abstract  Mono<Stat> getTransferStat();
+
   private UnsupportedOperationException unsupported(String op) {
     throw new UnsupportedOperationException(
             "The " + op + " operation is unsupported.");

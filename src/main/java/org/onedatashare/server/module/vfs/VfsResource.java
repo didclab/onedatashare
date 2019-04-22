@@ -121,9 +121,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public VfsTap tap() {
-
         VfsTap vfsTap = new VfsTap();
-        vfsTap.tapStat();
+//        vfsTap.tapStat();
         return vfsTap;
     }
 
@@ -135,7 +134,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return new VfsDrain().start(path + stat.getName());
     }
 
-    public Mono<Stat>transferStat() {
+    @Override
+    public Mono<Stat> getTransferStat() {
         return initialize()
                 .map(VfsResource::onStat)
                 .map( s -> {
@@ -188,13 +188,13 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsTap implements Tap {
         FileContent fileContent;
-        Stat transferStat;
+//        Stat transferStat;
         long size;
-
-        @Override
-        public Stat getTransferStat() {
-            return transferStat;
-        }
+//
+//        @Override
+//        public Stat getTransferStat() {
+//            return transferStat;
+//        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -202,8 +202,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             if (!fileResource)
                 downloadPath += stat.getName();
             try {
-                fileObject = session.fileSystemManager.resolveFile(downloadPath, session.fileSystemOptions);
-                fileContent = fileObject.getContent();
+                fileContent = session.fileSystemManager.resolveFile(downloadPath, session.fileSystemOptions).getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
@@ -211,9 +210,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             return tap(sliceSize);
         }
 
-        public void tapStat() {
-            transferStat = transferStat().block();
-        }
+//        public void tapStat() {
+//            transferStat = transferStat().block();
+//        }
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
@@ -297,6 +296,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         @Override
         public void finish() {
             try {
+                outputStream.flush();
                 outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();

@@ -199,13 +199,18 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
 //    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
     }
 
+    @Override
+    public Mono<Stat> getTransferStat() {
+        return null;
+    }
+
     class GridftpTap implements Tap {
         final long size = stat().block().size;
 
-        @Override
-        public Stat getTransferStat() {
-            return null;
-        }
+//        @Override
+//        public Stat getTransferStat() {
+//            return null;
+//        }
 
         public Flux<Slice> tap(long sliceSize) {
             return Flux.empty();

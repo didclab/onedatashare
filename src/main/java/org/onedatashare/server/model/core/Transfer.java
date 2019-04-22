@@ -39,17 +39,16 @@ public class Transfer<S extends Resource, D extends Resource> {
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
 
-    // sliceSize = (sliceSize == null) ? 1024L : sliceSize;
-
-    // initialize();
-    Tap tap = source.tap();
-    Stat tapStat = tap.getTransferStat();
-
-    if(tapStat == null) {
-      System.out.println("Error occurred while generating tap stat object");
-      return null;
-    }
+//    Tap tap = source.tap();
+//    if(tapStat == null) {
+//      System.out.println("Error occurred while generating tap stat object");
+//      return null;
+//    }
+    Stat tapStat = (Stat)source.getTransferStat().block();
     info.setTotal(tapStat.size);
+
+
+
 
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
@@ -59,7 +58,7 @@ public class Transfer<S extends Resource, D extends Resource> {
                 drain = destination.sink(fileStat);
               else
                 drain = destination.sink();
-              return tap.tap(fileStat, sliceSize)
+              return source.tap().tap(fileStat, sliceSize)
                       .subscribeOn(Schedulers.elastic())
                       .doOnNext(drain::drain)
                       .subscribeOn(Schedulers.elastic())
