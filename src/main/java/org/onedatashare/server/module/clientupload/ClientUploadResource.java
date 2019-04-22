@@ -17,9 +17,6 @@ import java.util.ArrayList;
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
 
-//    public Mono<ClientUploadResource> select(String path) {
-//        return Mono.just(new ClientUploadResource());
-//    }
     public ClientUploadResource(ClientUploadSession session){
         super(session, null);
     }

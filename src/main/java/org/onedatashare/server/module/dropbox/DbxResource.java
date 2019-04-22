@@ -180,13 +180,11 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
   public DbxTap tap() {
     DbxTap dbxTap = new DbxTap();
-//    dbxTap.tapStat();
     return dbxTap;
   }
 
   public DbxDrain sink() {
     return new DbxDrain().start();
-//    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
   }
 
   public DbxDrain sink(Stat stat){
@@ -196,16 +194,6 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public class DbxTap implements Tap {
     DownloadBuilder downloadBuilder;
     long size;
-//    Stat transferStat;
-//
-//    public void tapStat(){
-//      transferStat =  transferStat().block();
-//    }
-
-//    @Override
-//    public Stat getTransferStat() {
-//      return transferStat;
-//    }
 
     @Override
     public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -222,7 +210,6 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       return Flux.generate(
               () -> 0L,
               (state, sink) -> {
-                //System.out.println("size: "+size);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 if (state + sliceSize < size) {
                   try {

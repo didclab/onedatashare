@@ -207,11 +207,6 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     class GridftpTap implements Tap {
         final long size = stat().block().size;
 
-//        @Override
-//        public Stat getTransferStat() {
-//            return null;
-//        }
-
         public Flux<Slice> tap(long sliceSize) {
             return Flux.empty();
         }

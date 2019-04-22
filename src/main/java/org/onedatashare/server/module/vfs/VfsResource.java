@@ -42,16 +42,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
         });
     }
-//
-//    /**
-//     * This method is invoked to create the directories to which a file needs to be transferred
-//     * during folder transfer operation.
-//     * @param directoryPath - String representation of the directory/directories to be created (from root)
-//     */
-//    public void mkdir(String directoryPath) {
-//        System.out.println();
-//    }
-
 
     public Mono<VfsResource> delete() {
         return initialize().doOnSuccess(vfsResource -> {
@@ -122,7 +112,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     public VfsTap tap() {
         VfsTap vfsTap = new VfsTap();
-//        vfsTap.tapStat();
         return vfsTap;
     }
 
@@ -188,13 +177,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsTap implements Tap {
         FileContent fileContent;
-//        Stat transferStat;
         long size;
-//
-//        @Override
-//        public Stat getTransferStat() {
-//            return transferStat;
-//        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -210,9 +193,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             return tap(sliceSize);
         }
 
-//        public void tapStat() {
-//            transferStat = transferStat().block();
-//        }
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
@@ -254,7 +234,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
-        long uploaded = 0L;
 
         @Override
         public VfsDrain start() {
@@ -290,7 +269,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            uploaded += slice.length();
         }
 
         @Override

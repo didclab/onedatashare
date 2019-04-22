@@ -316,24 +316,13 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
 
     public GoogleDriveTap tap() {
         GoogleDriveTap gDriveTap = new GoogleDriveTap();
-//        gDriveTap.tapStat();
         return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
         long size;
         Drive drive = session.service;
-//        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
-
-//        public void tapStat(){
-//            transferStat =  transferStat().block();
-//        }
-//
-//        @Override
-//        public Stat getTransferStat() {
-//            return transferStat;
-//        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
