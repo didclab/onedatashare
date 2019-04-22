@@ -29,6 +29,8 @@ public class User {
   public String firstName;
   /** User last name */
   public String lastName;
+  /** User last Activity */
+  public String lastActivity;
   /** User Organization */
   public String organization;
   /** Temp code and expire date **/
