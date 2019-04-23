@@ -56,7 +56,7 @@ public class UserService {
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
-            .doOnSuccess(Void -> saveLastActivity(email, System.currentTimeMillis()).subscribe());
+           .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
   public Object register(String email, String firstName, String lastName, String organization) {
@@ -365,9 +365,8 @@ public class UserService {
   }
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
-//    System.out.println("UserService: "+lastActivity+" Cookie: "+cookie);
-    return getUser(User.normalizeEmail(email)).doOnSuccess(user -> {
-            user.setLastActivity(lastActivity);
+    return getUser(email).doOnSuccess(user -> {
+           user.setLastActivity(lastActivity);
             userRepository.save(user).subscribe();
     }).then();
   }
