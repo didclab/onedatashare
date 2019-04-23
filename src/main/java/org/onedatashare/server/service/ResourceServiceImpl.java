@@ -181,20 +181,6 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                     job.deleted = true;
                     return job;
                 }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
-
-        // Can include below, if we need ADMIN to delete the job.
-        //        return userService.isAdmin(cookie).flatMap(isAdmin -> {
-//            if(isAdmin){
-//                return jobService.findJobByJobIdAndOwner(userAction.job_id,userAction.email)
-//                        .map(job -> {
-//                            job.deleted = true;
-//                            return job;
-//                        }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
-//            }
-//            else {
-//
-//            }
-//        });
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {

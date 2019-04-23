@@ -35,14 +35,14 @@ public class JobService {
     }
 
     public Mono<List<Job>> getJobsForUserOrAdmin(String cookie, String status) {
-        return userService.isAdmin(cookie).flatMap(isAdmin -> {
-                    if(isAdmin && status.equals("all"))
-                        return getAllJobs().collectList();
-                    else
-                        return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
-                                .collectList();
-                }
-        );
+        return userService.getLoggedInUser(cookie).flatMap(user -> {
+            if(user.isAdmin() && status.equals("all")){
+                return getAllJobs().collectList();
+            }
+            else
+                return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
+                        .collectList();
+        });
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
@@ -50,16 +50,6 @@ public class JobService {
             Job job = new Job(null, null);
             for(Job j: jobs) {
                 if(j.job_id == job_id) job = j;
-            }
-            return job;
-        });
-    }
-
-    public Mono<Job> findJobByJobIdAndOwner(Integer job_id, String owner) {
-        return getAllJobs().collectList().<Job>map(jobs -> {
-            Job job = new Job(null, null);
-            for(Job j: jobs) {
-                if(j.job_id == job_id && j.owner.equals(owner)) job = j;
             }
             return job;
         });
