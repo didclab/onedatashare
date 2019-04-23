@@ -54,7 +54,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public Mono<Stat> stat() {
-        return initialize().map(VfsResource::onStat);
+        return Mono.just(onStat());
     }
 
     private Stat onStat() {

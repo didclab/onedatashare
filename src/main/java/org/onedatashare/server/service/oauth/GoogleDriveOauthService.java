@@ -14,7 +14,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class GoogleDriveOauthService{
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     private static final HttpTransport HTTP_TRANSPORT;
     private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
-    private static GoogleAuthorizationCodeFlow flow;
+
 
     public static class GoogleDriveConfig {
         public String client_id, client_secret, auth_uri, token_uri, auth_provider_x509_cert_url, project_id, redirect_uris;
@@ -88,8 +87,7 @@ public class GoogleDriveOauthService{
         String url;
         try {
             // Build flow and trigger user authorization request.
-            flow =
-                    new GoogleAuthorizationCodeFlow.Builder(
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                             HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES).setAccessType("offline").setApprovalPrompt("force")
                             .setDataStoreFactory(DATA_STORE_FACTORY)
                             .build();
@@ -118,6 +116,7 @@ public class GoogleDriveOauthService{
     private static String[] storeCredential(String code) {
         String[] accessToken ={"",""};
         try {
+            GoogleAuthorizationCodeFlow flow = GoogleDriveSession.getFlow();
             // Build flow and trigger user authorization request.
             TokenResponse response = flow.newTokenRequest(code).setRedirectUri(finishURI).execute();
             accessToken[0] = response.getAccessToken();
