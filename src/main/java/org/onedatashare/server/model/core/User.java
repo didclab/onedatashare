@@ -31,7 +31,7 @@ public class User {
   /** User last name */
   public String lastName;
   /** User last Activity */
-  public String lastActivity;
+  public Long lastActivity;
   /** User Organization */
   public String organization;
   /** Temp code and expire date **/
