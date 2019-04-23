@@ -28,6 +28,9 @@ import './QueueComponent.css';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
+		root:{
+			width:'fit-content'
+		},
 		toolbar:{
 			paddingLeft:'300px'
 		},
@@ -215,7 +218,7 @@ class QueueComponent extends Component {
 
 		if(this.state.selectedTab === 0){
 			return(
-				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width: '100%' }}>
+				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
 					<Row>
 						<Col md={6}><b>User</b></Col>
 						<Col md={6}>{resp.owner}</Col>
@@ -371,8 +374,8 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
-	  		<Table style={{width:'90%'}}>
+		<Paper className={classes.root} id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
