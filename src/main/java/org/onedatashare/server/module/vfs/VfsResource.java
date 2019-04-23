@@ -220,7 +220,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             byte[] b = new byte[remaining];
                             try {
                                 finalInputStream.read(b, state, remaining);
-                                finalInputStream.close();
+//                                finalInputStream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -234,12 +234,13 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
+        FileObject drainFileObject;
 
         @Override
         public VfsDrain start() {
             try {
-                fileObject.createFile();
-                outputStream = fileObject.getContent().getOutputStream();
+                drainFileObject.createFile();
+                outputStream = drainFileObject.getContent().getOutputStream();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
@@ -249,10 +250,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         @Override
         public VfsDrain start(String drainPath) {
             try {
-                fileObject = session.fileSystemManager.resolveFile(
+                drainFileObject = session.fileSystemManager.resolveFile(
                         drainPath.substring(0, drainPath.lastIndexOf('/')), session.fileSystemOptions);
-                fileObject.createFolder();    // creates the folders for folder transfer
-                fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+                drainFileObject.createFolder();    // creates the folders for folder transfer
+                drainFileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
                 return start();
             }
             catch(FileSystemException fse){
