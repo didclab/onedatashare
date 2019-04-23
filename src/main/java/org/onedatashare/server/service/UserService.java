@@ -51,13 +51,12 @@ public class UserService {
   public Mono<User.UserLogin> login(String email, String password) {
 //    User user = new User("vanditsa@buffalo.edu", "asdasd");
 //    createUser(user).subscribe(System.out::println);
-    String lastActivityTime = Long.toString(System.currentTimeMillis());
-    saveLastActivity(email,lastActivityTime).subscribe();
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
-            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
+            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
+            .doOnSuccess(Void -> saveLastActivity(email, System.currentTimeMillis()).subscribe());
   }
 
   public Object register(String email, String firstName, String lastName, String organization) {
@@ -365,15 +364,15 @@ public class UserService {
             .map(user -> {return uuid;});
   }
 
-  public Mono<Void> saveLastActivity(String cookie, String lastActivity) {
+  public Mono<Void> saveLastActivity(String email, Long lastActivity) {
 //    System.out.println("UserService: "+lastActivity+" Cookie: "+cookie);
-    return  getLoggedInUser(cookie).doOnSuccess(user -> {
+    return getUser(User.normalizeEmail(email)).doOnSuccess(user -> {
             user.setLastActivity(lastActivity);
             userRepository.save(user).subscribe();
     }).then();
   }
 
- public Mono<String> getLastActivity(String cookie) {
+ public Mono<Long> getLastActivity(String cookie) {
     return getLoggedInUser(cookie).map(user ->user.getLastActivity());
   }
 
@@ -432,8 +431,10 @@ public class UserService {
     ArrayList<UUID> removingThese = new ArrayList<UUID>();
     for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
       if(entry.getValue().type == Credential.CredentialType.OAUTH &&
-        ((OAuthCredential)entry.getValue()).expiredTime != null &&
-        Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime)){
+              ((OAuthCredential)entry.getValue()).name.equals("GridFTP Client") &&
+              ((OAuthCredential)entry.getValue()).expiredTime != null &&
+              Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime))
+      {
         removingThese.add(entry.getKey());
       }
     }
