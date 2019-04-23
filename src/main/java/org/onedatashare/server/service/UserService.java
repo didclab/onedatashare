@@ -51,10 +51,12 @@ public class UserService {
   public Mono<User.UserLogin> login(String email, String password) {
 //    User user = new User("vanditsa@buffalo.edu", "asdasd");
 //    createUser(user).subscribe(System.out::println);
+
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
-            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
+            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
+            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
   public Object register(String email, String firstName, String lastName, String organization) {
@@ -361,6 +363,18 @@ public class UserService {
             .flatMap(userRepository::save)
             .map(user -> {return uuid;});
   }
+
+  public Mono<Void> saveLastActivity(String email, Long lastActivity) {
+    return  getUser(email).doOnSuccess(user -> {
+            user.setLastActivity(lastActivity);
+            userRepository.save(user).subscribe();
+    }).then();
+  }
+
+ public Mono<Long> getLastActivity(String cookie) {
+    return getLoggedInUser(cookie).map(user ->user.getLastActivity());
+  }
+
 
   public Mono<Void> deleteCredential(String cookie, String uuid) {
     return getLoggedInUser(cookie)
