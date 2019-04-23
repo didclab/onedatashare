@@ -40,10 +40,12 @@ public class VfsService implements ResourceService<VfsResource> {
     private JobService jobService;
 
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+        userAction = fixSCPUri(userAction);
         final String path = pathFromUri(userAction.uri);
+        final UserAction finalUserAction = userAction;
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userAction.credential))
-                .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
+                .map(user -> new UserInfoCredential(finalUserAction.credential))
+                .map(credential -> new VfsSession(URI.create(finalUserAction.uri), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
@@ -94,7 +96,6 @@ public class VfsService implements ResourceService<VfsResource> {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(userActionResource.toString());
                     UserInfoCredential userInfoCredential = new UserInfoCredential(userActionResource.credential);
                     VfsSession vfsSession = new VfsSession(URI.create(userActionResource.uri), userInfoCredential);
                     path.add(pathFromUri(userActionResource.uri));
@@ -104,12 +105,31 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
+        userActionResource = fixSCPUri(userActionResource);
+        System.out.println(userActionResource.toString());
         final String path = pathFromUri(userActionResource.uri);
+        final UserActionResource finalUserActionResource = userActionResource;
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userActionResource.credential))
-                .map(credential -> new VfsSession(URI.create(userActionResource.uri), credential))
+                .map(user -> new UserInfoCredential(finalUserActionResource.credential))
+                .map(credential -> new VfsSession(URI.create(finalUserActionResource.uri), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
+    }
+
+    public UserAction fixSCPUri(UserAction userAction){
+        if(userAction.type.equals("scp://")){
+            userAction.type = "sftp://";
+            userAction.uri = "sftp://" + userAction.uri.substring(6);
+        }
+        return userAction;
+    }
+
+    public UserActionResource fixSCPUri(UserActionResource userAction){
+        if(userAction.type.equals("scp://")){
+            userAction.type = "sftp://";
+            userAction.uri = "sftp://" + userAction.uri.substring(6);
+        }
+        return userAction;
     }
 
     public String pathFromUri(String uri) {
