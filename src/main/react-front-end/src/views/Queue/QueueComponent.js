@@ -66,7 +66,9 @@ class QueueComponent extends Component {
 		clearInterval(this.interval);
 	}
 
-	queueFunc = () => {queue((resp) => {
+	queueFunc = () => {
+		let isHistory = false;
+		queue(isHistory, (resp) => {
 		//success
 		resp.sort((a, b) => { return b.job_id - a.job_id});
 		resp.map(response => {
@@ -169,7 +171,7 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, deleted){
 		return(
 			<div >
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
@@ -198,7 +200,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' &&
+				{status != 'processing' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
 						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
@@ -350,7 +352,7 @@ class QueueComponent extends Component {
 		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
-		            	{this.renderActions(resp.job_id, resp.status)}
+		            	{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 		            </TableCell>
 	          	</TableRow>
 	        );

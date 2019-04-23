@@ -176,17 +176,11 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction){
-        return userService.getLoggedInUser(cookie)
-                .flatMap(user -> {
-                    return jobService.findJobByJobId(cookie, userAction.job_id)
-                            .map(job -> {
-                                job.deleted = true;
-                                user.saveJob(job);
-                                userService.saveUser(user).subscribe();
-                                return job;
-                            });
-                }).flatMap(jobService::saveJob)
-                .subscribeOn(Schedulers.elastic());
+        return jobService.findJobByJobId(cookie,userAction.job_id)
+                .map(job -> {
+                    job.deleted = true;
+                    return job;
+                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {
