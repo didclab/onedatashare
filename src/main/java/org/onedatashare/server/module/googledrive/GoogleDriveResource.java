@@ -241,7 +241,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
 
     public Mono<Stat>transferStat(){
         return stat().map(s ->{
-                    List<Stat> sub = new LinkedList<>();
+                   List<Stat> sub = new LinkedList<>();
                     long directorySize = 0L;
 
                     if(s.isDir()){
@@ -318,25 +318,13 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
 
     public GoogleDriveTap tap() {
         GoogleDriveTap gDriveTap = new GoogleDriveTap();
-        gDriveTap.tapStat();
         return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
-//        Drive.Files.Get downloadBuilder;
         long size;
         Drive drive = session.service;
-        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
-
-        public void tapStat(){
-            transferStat =  transferStat().block();
-        }
-
-        @Override
-        public Stat getTransferStat() {
-            return transferStat;
-        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -344,12 +332,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+stat.getId()+"?alt=media";
             try {
                 httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            size = stat.size;
-            return tap(sliceSize);
+            size = stat.getSize();
+           return tap(sliceSize);
         }
 
         @Override
@@ -399,11 +386,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     class GoogleDriveDrain implements Drain {
-        long bytesWritten = 0;
+//        long bytesWritten = 0;
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
         long size = 0;
         String resumableSessionURL;
-        String upload_id;
+//        String upload_id;
 
         String drainPath = path;
         Boolean isDirTransfer = false;
@@ -458,7 +445,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 request.connect();
                 int uploadRequestResponseCode  = request.getResponseCode();
                 if(uploadRequestResponseCode == 200) {
-                    resumableSessionURL = request.getHeaderField("location");
+                   resumableSessionURL = request.getHeaderField("location");
                 }else{
                     throw new Exception("Transfer will fail");
                 }

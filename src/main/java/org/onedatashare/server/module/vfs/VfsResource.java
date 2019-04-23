@@ -21,13 +21,18 @@ import java.util.List;
 
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
-    private FileObject fileObject;
+  private FileObject fileObject;
 
-    protected VfsResource(VfsSession session, String path, FileObject fileObject) {
-        super(session, path);
-        this.fileObject = fileObject;
-    }
+  protected VfsResource(VfsSession session, String path, FileObject fileObject) {
+    super(session, path);
+    this.fileObject = fileObject;
+  }
 
+    /**
+     * This method creates a directory with the name of the folder to be created
+     * on clicking the 'New Folder' option on the front end .
+     * @return current VfsResource instance
+     */
     public Mono<VfsResource> mkdir() {
         return initialize().doOnSuccess(vfsResource -> {
             try {
@@ -41,7 +46,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     public Mono<VfsResource> delete() {
         return initialize().doOnSuccess(vfsResource -> {
             try {
-                fileObject.delete();
+                fileObject.deleteAll();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
@@ -80,7 +85,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         } catch (FileSystemException e) {
             e.printStackTrace();
         }
-
         return stat;
     }
 
@@ -107,9 +111,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public VfsTap tap() {
-
         VfsTap vfsTap = new VfsTap();
-        vfsTap.tapStat();
         return vfsTap;
     }
 
@@ -121,7 +123,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return new VfsDrain().start(path + stat.getName());
     }
 
-    public Mono<Stat>transferStat() {
+    @Override
+    public Mono<Stat> getTransferStat() {
         return initialize()
                 .map(VfsResource::onStat)
                 .map( s -> {
@@ -174,33 +177,22 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsTap implements Tap {
         FileContent fileContent;
-        Stat transferStat;
         long size;
-
-        @Override
-        public Stat getTransferStat() {
-            return transferStat;
-        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
             String downloadPath = path;
-            if(!fileResource)
+            if (!fileResource)
                 downloadPath += stat.getName();
             try {
-                fileObject = session.fileSystemManager.resolveFile(downloadPath , session.fileSystemOptions);
-                fileContent = fileObject.getContent();
-            }
-            catch (FileSystemException e) {
+                fileContent = session.fileSystemManager.resolveFile(downloadPath, session.fileSystemOptions).getContent();
+            } catch (FileSystemException e) {
                 e.printStackTrace();
             }
             size = stat.getSize();
             return tap(sliceSize);
         }
 
-        public void tapStat(){
-            transferStat = transferStat().block();
-        }
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
@@ -228,7 +220,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             byte[] b = new byte[remaining];
                             try {
                                 finalInputStream.read(b, state, remaining);
-                                finalInputStream.close();
+//                                finalInputStream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -238,19 +230,17 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         return state + sliceSizeInt;
                     });
         }
-
-
     }
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
-        long uploaded = 0L;
+        FileObject drainFileObject;
 
         @Override
         public VfsDrain start() {
             try {
-                fileObject.createFile();
-                outputStream = fileObject.getContent().getOutputStream();
+                drainFileObject.createFile();
+                outputStream = drainFileObject.getContent().getOutputStream();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
@@ -260,7 +250,10 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         @Override
         public VfsDrain start(String drainPath) {
             try {
-                fileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+                drainFileObject = session.fileSystemManager.resolveFile(
+                        drainPath.substring(0, drainPath.lastIndexOf('/')), session.fileSystemOptions);
+                drainFileObject.createFolder();    // creates the folders for folder transfer
+                drainFileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
                 return start();
             }
             catch(FileSystemException fse){
@@ -277,12 +270,12 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            uploaded += slice.length();
         }
 
         @Override
         public void finish() {
             try {
+                outputStream.flush();
                 outputStream.close();
             } catch (IOException e) {
                 e.printStackTrace();
