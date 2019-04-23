@@ -24,21 +24,5 @@ public class AuthenticationRequired extends ODSError {
     if (options != null && options.length > 0)
       this.options = Arrays.asList(options);
   }
-  public AuthenticationRequired(int err,  OAuthCredential cred, String... authStatus) {
-    super("Authentication is required.");
-    type = "AuthenticationRequired";
-    error = "Authentication is required.";
-    if(err == 401)
-      status = HttpStatus.UNAUTHORIZED;
-    else
-      status = HttpStatus.BAD_REQUEST;
 
-    this.cred = cred;
-
-    if (authStatus != null && authStatus.length > 0){
-        this.options = Arrays.asList(authStatus);
-
-    }
-
-  }
 }

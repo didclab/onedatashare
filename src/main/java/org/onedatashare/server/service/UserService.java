@@ -56,7 +56,7 @@ public class UserService {
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
-            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
+           .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
   public Object register(String email, String firstName, String lastName, String organization) {
@@ -365,8 +365,8 @@ public class UserService {
   }
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
-    return  getUser(email).doOnSuccess(user -> {
-            user.setLastActivity(lastActivity);
+    return getUser(email).doOnSuccess(user -> {
+           user.setLastActivity(lastActivity);
             userRepository.save(user).subscribe();
     }).then();
   }
@@ -430,8 +430,10 @@ public class UserService {
     ArrayList<UUID> removingThese = new ArrayList<UUID>();
     for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
       if(entry.getValue().type == Credential.CredentialType.OAUTH &&
-        ((OAuthCredential)entry.getValue()).expiredTime != null &&
-        Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime)){
+              ((OAuthCredential)entry.getValue()).name.equals("GridFTP Client") &&
+              ((OAuthCredential)entry.getValue()).expiredTime != null &&
+              Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime))
+      {
         removingThese.add(entry.getKey());
       }
     }
