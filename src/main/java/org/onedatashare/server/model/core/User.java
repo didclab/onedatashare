@@ -19,35 +19,23 @@ import java.util.*;
 @Document
 public class User {
 
-    /**
-     * User's email.
-     */
-    @Id
-    public String email;
-    /**
-     * Hashed password.
-     */
-    public String hash;
-    /**
-     * Salt used for hash.
-     */
-    public String salt;
-    /**
-     * User first name.
-     */
-    public String firstName;
-    /**
-     * User last name
-     */
-    public String lastName;
-    /**
-     * User Organization
-     */
-    public String organization;
-    /**
-     * Temp code and expire date
-     **/
-    public VerifyCode code;
+  /** User's email. */
+  @Id
+  public String email;
+  /** Hashed password. */
+  public String hash;
+  /** Salt used for hash. */
+  public String salt;
+  /** User first name. */
+  public String firstName;
+  /** User last name */
+  public String lastName;
+  /** User last Activity */
+  public Long lastActivity;
+  /** User Organization */
+  public String organization;
+  /** Temp code and expire date **/
+  public VerifyCode code;
 
     /**
      * Set to true once the user has validated registration.
