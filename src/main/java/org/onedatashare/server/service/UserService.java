@@ -49,8 +49,8 @@ public class UserService {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
-//    User user = new User("vanditsa@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
+  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
+  //  createUser(user).subscribe(System.out::println);
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
@@ -338,13 +338,10 @@ public class UserService {
     });
   }
 
-  public Mono<Boolean> verifyEmail(String email,String cookie) {
-    final User.UserLogin userLogin = cookieToUserLogin(cookie);
-    if(userLogin.email.equals(email)){
-      return Mono.just(true);
+    public Mono<Boolean> verifyEmail(String email) {
+        return getUser(email)
+                .flatMap(u -> Mono.just(true)).switchIfEmpty( Mono.error(new Exception("Invalid")));
     }
-    return Mono.error(new Exception("Invalid email"));
-  }
 
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
