@@ -239,7 +239,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
-    public Mono<Stat>transferStat(){
+    public Mono<Stat> getTransferStat(){
         return stat().map(s ->{
                    List<Stat> sub = new LinkedList<>();
                     long directorySize = 0L;

@@ -115,7 +115,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                     s.error(t);
                 }
                 Date currentTime = new Date();
-                if(service !=null && currentTime.before(((OAuthCredential) credential).expiredTime))
+                if(service !=null && ((OAuthCredential) credential).expiredTime != null && currentTime.before(((OAuthCredential) credential).expiredTime))
                     s.success(this);
                 else {
                     OAuthCredential newCredential = updateToken();
