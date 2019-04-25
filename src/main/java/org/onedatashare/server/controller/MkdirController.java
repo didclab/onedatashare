@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/stork/mkdir")
 public class MkdirController {
 
@@ -28,9 +29,22 @@ public class MkdirController {
   @Autowired
   private GridftpService gridService;
 
+  private static final String EMAIL_PARAM = "email";
+  private static final String HASH_PARAM = "hash";
+
   @PostMapping
   public Object mkdir(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-    String cookie = headers.getFirst("cookie");
+    String temp = headers.getFirst("cookie");
+    if(temp == null){
+      //System.out.println("Email: "+userAction.getEmail()+" Hash: "+userAction.getPassword());
+      if(userAction.getEmail()!=null && userAction.getPassword()!=null &&
+              !userAction.getEmail().equalsIgnoreCase("") && !userAction.getPassword().equalsIgnoreCase("")){
+        temp = EMAIL_PARAM + "=" + userAction.getEmail() + "; " +
+                HASH_PARAM + "=" + userAction.getPassword();
+      }
+    }
+    String cookie = temp;
+
     if(userAction.uri.contains("dropbox://")) {
       if(userAction.credential == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
