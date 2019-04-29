@@ -1,13 +1,18 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.core.JobDetails;
+import org.onedatashare.server.model.pagination.PaginationAction;
 import org.onedatashare.server.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,9 +39,19 @@ public class JobService {
                 .collectList();
     }
 
-    public Mono<List<Job>> getAllUndeletedJobsForUser(String cookie) {
-        return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
-                .collectList();
+    public Mono<JobDetails> getAllUndeletedJobsForUser(String cookie, PaginationAction paginationAction) {
+        Sort.Direction direction = paginationAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String userEmail = userService.cookieToUserLogin(cookie).email;
+        return jobRepository.findJobsForUser(userEmail,false, PageRequest.of(paginationAction.pageNo,
+                paginationAction.pageSize, Sort.by(direction, paginationAction.sortBy)))
+                    .collectList()
+                    .flatMap(jobs -> jobRepository.countJobBy(userEmail,false)
+                        .map(count ->  {
+                            JobDetails result = new JobDetails();
+                            result.jobs = jobs;
+                            result.totalCount = count;
+                            return result;
+                        }));
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

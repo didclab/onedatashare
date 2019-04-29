@@ -63,20 +63,12 @@ class QueueComponent extends Component {
 		clearInterval(this.interval);
 	}
 
-	queueFunc = () => {queue((resp) => {
+	queueFunc = () => {queue(this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
-		resp.sort((a, b) => { return b.job_id - a.job_id});
-		resp.map(response => {
-			if(response.bytes !== null){
-				response.avgSpeed = response.bytes.avg == "Infinity" ? Number.MAX_SAFE_INTEGER : response.bytes.avg
-			}		
-				response.source = response.src !== null ? response.src.uri : ""
-		})
-		this.setState({response:resp});
+		this.setState({response:resp.jobs, totalCount: resp.totalCount});
 	}, (resp) => {
 		//failed
-		console.log('Error in queue request to API layer');
-	})};
+		console.log('Error in queue request to API layer')})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -274,13 +266,18 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
+		this.state.page=page
 		this.setState({ page });
+		this.queueFunc()
 	};
 
-	handleChangeRowsPerPage = event => {
+	handleChangeRowsPerPage = event => {		
+		this.state.page=0
+		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+		this.queueFunc()
 	};
-	
+
 	handleRequestSort = (property) => {
     const orderBy = property;
     let order = 'desc';
@@ -288,50 +285,26 @@ class QueueComponent extends Component {
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc';
     }
-		this.setState({ order, orderBy });
+		this.setState({ order:order, orderBy:orderBy });
+		this.state.order=order
+		this.state.orderBy = orderBy
+		this.queueFunc()
   };
-
-	sortElements(rowX, rowY, orderBy) {		
-		if (rowY[orderBy] < rowX[orderBy]) {
-			return -1;
-		}
-		if (rowY[orderBy] > rowX[orderBy]) {
-			return 1;
-		}
-		return 0;
-	};
-
-	tableSort(data, sortOrder, orderBy) {		
-		return data.sort((rowX, rowY) => {
-			var order = 0;		
-			if(sortOrder === 'desc'){
-				order = this.sortElements(rowX, rowY, orderBy)
-			}
-			else{
-				order = this.sortElements(rowY, rowX, orderBy)
-			}
-			if (order !== 0) return order;
-			// if the values of orderBy cell in the two rows are equal,
-			// then order them by job Id by default. Since job Id is unique for each row
-			return rowY.job_id - rowX.job_id;
-		});
-	}
 	
-
 	render(){
 		const height = window.innerHeight+"px";
-		const {response} = this.state;
+		const {response, totalCount} = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
-			avgSpeed : "avgSpeed",
-			source : "source"
+			avgSpeed : "bytes.avg",
+			source : "src.uri"
 		}
 		var tableRows = [];
-		this.tableSort(response, order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
+		response.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
@@ -426,7 +399,7 @@ class QueueComponent extends Component {
 								<TablePagination 
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={3}
-									count={response.length}
+									count={totalCount}
 									rowsPerPage={rowsPerPage}
 									page={page}
 									SelectProps={{

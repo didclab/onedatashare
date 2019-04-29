@@ -338,11 +338,15 @@ export async function dropboxCredList(accept, fail){
 /*
 	Desc: Extract all transfers for the user
 */
-export async function queue(accept, fail){
+export async function queue(pageNo, pageSize, sortBy, order, accept, fail){
 	var callback = accept;
-
+	
 	axios.post(url+'q', {
-	    status: 'all'
+			pageNo: pageNo,
+			pageSize: pageSize,
+			sortBy: sortBy,
+			sortOrder: order,
+			status: 'all'			
 	})
 	.then((response) => {
 		if(!(response.status === 200))
