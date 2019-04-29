@@ -12,7 +12,6 @@ import java.util.ArrayList;
 public class UserActionResource {
   public String uri;
   public String id;
-  @Transient
   public UserActionCredential credential;
   @Transient
   public UploadCredential uploader;

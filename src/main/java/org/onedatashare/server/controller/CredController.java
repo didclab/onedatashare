@@ -19,7 +19,7 @@ public class CredController {
   private UserService userService;
 
   @GetMapping
-  public Mono<Map<UUID, Credential>> listCredentials(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
+  public Mono<Map<String, Credential>> listCredentials(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
     return userService.getCredentials(headers.getFirst("cookie"));
   }
 
