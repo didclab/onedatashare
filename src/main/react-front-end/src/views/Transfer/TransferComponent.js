@@ -99,7 +99,7 @@ export default class TransferComponent extends Component {
     const destUrl = destUrls.reduce((a, v) => a+","+v)
     const srcUrl = srcUrls.reduce((a, v) => a+","+v)
     const fileId = fileIds.reduce((a, v) => a+","+v)
-    
+
     const src = {
       credential:endpointSrc.credential,
       id: fileId,

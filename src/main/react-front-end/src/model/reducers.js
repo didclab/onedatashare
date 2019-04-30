@@ -28,14 +28,16 @@ const initialState = {
 		login: false,
 		credential: {},
 		uri: "",
-    side: "left"
+        side: "left",
+        name: ""
 	},
 
 	endpoint2: cookies.get('endpoint2') ? JSON.parse(cookies.get('endpoint2')) : {
     login: false,
 		credential: {},
 		uri: "",
-    side: "right"
+        side: "right",
+        name:""
 	},
 
 	queue: [],

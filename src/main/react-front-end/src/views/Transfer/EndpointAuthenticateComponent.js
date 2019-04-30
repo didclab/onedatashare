@@ -174,9 +174,9 @@ export default class EndpointAuthenticateComponent extends Component {
 					uri: endpoint.uri,
 					login: true,
 					credential: {uuid: v},
-					side: endpoint.side
+					side: endpoint.side,
+					name: credList[v].name
 				}
-				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
 			}}>
 			  <ListItemIcon>
