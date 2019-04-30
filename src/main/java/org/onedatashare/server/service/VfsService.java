@@ -40,7 +40,7 @@ public class VfsService implements ResourceService<VfsResource> {
     private JobService jobService;
 
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        userAction = fixSCPUri(userAction);
+        fixSCPUri(userAction);
         final String path = pathFromUri(userAction.uri);
         final UserAction finalUserAction = userAction;
         return userService.getLoggedInUser(cookie)
@@ -114,20 +114,18 @@ public class VfsService implements ResourceService<VfsResource> {
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
 
-    public UserAction fixSCPUri(UserAction userAction){
+    public void fixSCPUri(UserAction userAction){
         if(userAction.type.equals("scp://")){
             userAction.type = "sftp://";
             userAction.uri = "sftp://" + userAction.uri.substring(6);
         }
-        return userAction;
     }
 
-    public UserActionResource fixSCPUri(UserActionResource userAction){
+    public void fixSCPUri(UserActionResource userAction){
         if(userAction.type.equals("scp://")){
             userAction.type = "sftp://";
             userAction.uri = "sftp://" + userAction.uri.substring(6);
         }
-        return userAction;
     }
 
     public String pathFromUri(String uri) {
