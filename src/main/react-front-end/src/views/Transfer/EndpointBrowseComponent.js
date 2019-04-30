@@ -412,10 +412,10 @@ export default class EndpointBrowseComponent extends Component {
 					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-					  			const taskList = getSelectedTasksFromSide(endpoint);
-					  			if(getType(endpoint) === SFTP_TYPE){
-									getDownload(downloadUrl, endpoint.credential, taskList[0].id);
-								}else{
+									const taskList = getSelectedTasksFromSide(endpoint);
+									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
+										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
+									}else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
 						  		}
 					  		}}

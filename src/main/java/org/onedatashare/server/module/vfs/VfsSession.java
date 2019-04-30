@@ -81,7 +81,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
           fileSystemManager.resolveFile(uri.toString());
           s.success(this);
         } catch (FileSystemException e) {
-          e.printStackTrace();
           s.error(new AuthenticationRequired("userinfo"));
         }catch (Exception e){
           e.printStackTrace();

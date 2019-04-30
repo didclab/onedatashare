@@ -33,6 +33,10 @@ public class UploadController {
                                @RequestPart("qqtotalfilesize") String totalFileSize,
                                @RequestPart("qqfile") Mono<FilePart> filePart){
         String cookie = headers.getFirst("cookie");
+        if(directoryPath.startsWith("scp://")){
+            directoryPath = "sftp://" + directoryPath.substring(6);
+            idmap.replace("scp://","sftp://");
+        }
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
             Long.parseLong(totalFileSize), googledriveid, idmap).map(job -> {

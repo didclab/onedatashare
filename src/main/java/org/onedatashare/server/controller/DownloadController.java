@@ -52,7 +52,6 @@ public class DownloadController {
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-        System.out.println(cookie);
         if (userAction.uri.startsWith("dropbox://")) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if ("googledrive:/".equals(userAction.type)) {
@@ -76,7 +75,6 @@ public class DownloadController {
             map.put(c.getName(), c.getValue());
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = null;
-
         try {
             final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
