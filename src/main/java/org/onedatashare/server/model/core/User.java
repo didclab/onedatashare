@@ -75,7 +75,7 @@ public class User {
     /**
      * Stored credentials.
      */
-    public Map<String, Credential> credentials = new HashMap<>();
+    public Map<UUID, Credential> credentials = new HashMap<>();
 
     /**
      * Job UUIDs with indices corresponding to job IDs.

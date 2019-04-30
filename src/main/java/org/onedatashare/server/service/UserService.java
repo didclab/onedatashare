@@ -351,13 +351,14 @@ public class UserService {
       });
   }
 
-  public Mono<String> saveCredential(String cookie, OAuthCredential credential) {
+  public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
+    final UUID uuid = UUID.randomUUID();
     return  getLoggedInUser(cookie).map(user -> {
-              user.getCredentials().put(credential.getName(), credential);
+              user.getCredentials().put(uuid, credential);
               return user;
             })
             .flatMap(userRepository::save)
-            .map(user -> credential.getName());
+            .map(user -> uuid);
   }
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
@@ -386,8 +387,8 @@ public class UserService {
     //Updating the access token for googledrive using refresh token
           getLoggedInUser(cookie)
             .doOnSuccess(user -> {
-                Map<String,Credential> credsTemporary = user.getCredentials();
-                for(String uid : credsTemporary.keySet()){
+                Map<UUID,Credential> credsTemporary = user.getCredentials();
+                for(UUID uid : credsTemporary.keySet()){
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
@@ -416,15 +417,15 @@ public class UserService {
   }
 
 
-  public Mono<Map<String, Credential>> getCredentials(String cookie) {
+  public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials).map(
             credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
   }
 
 
-  public Map<String, Credential> removeIfExpired(Map<String, Credential> creds){
-    ArrayList<String> removingThese = new ArrayList<String>();
-    for(Map.Entry<String, Credential> entry : creds.entrySet()){
+  public Map<UUID, Credential> removeIfExpired(Map<UUID, Credential> creds){
+    ArrayList<UUID> removingThese = new ArrayList<UUID>();
+    for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
       if(entry.getValue().type == Credential.CredentialType.OAUTH &&
               ((OAuthCredential)entry.getValue()).name.equals("GridFTP Client") &&
               ((OAuthCredential)entry.getValue()).expiredTime != null &&
@@ -433,13 +434,13 @@ public class UserService {
         removingThese.add(entry.getKey());
       }
     }
-    for(String id : removingThese){
+    for(UUID id : removingThese){
       creds.remove(id);
     }
     return creds;
   }
 
-  public Mono<Map<String, Credential>> saveCredToUser(Map<String, Credential> creds, String cookie){
+  public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
     return getLoggedInUser(cookie).map(user -> {
       user.setCredentials(creds);
       return userRepository.save(user);
