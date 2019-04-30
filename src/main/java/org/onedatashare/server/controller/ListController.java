@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.apache.http.protocol.HttpService;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -32,25 +33,12 @@ public class ListController {
   @Autowired
   private ResourceServiceImpl resourceService;
 
-//  @Autowired
-//  private GridftpService gridSevice;
-
-//  @PostMapping
-//  public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-//    String cookie = headers.getFirst("cookie");
-//    if(userAction.credential == null) {
-//      return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//    else return dbxService.list(cookie, userAction);
-//  }
-
   @PostMapping
   public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
     String cookie = headers.getFirst("cookie");
 
-    /* */
     if(userAction.credential == null) {
-      switch (userAction.uri) {
+      switch (userAction.type) {
         case "dropbox://":
         case "googledrive://":
         case "gsiftp://":
@@ -58,7 +46,8 @@ public class ListController {
       }
     }
 
-    switch (userAction.uri){
+
+    switch (userAction.type){
       case "dropbox://":
         return dbxService.list(cookie, userAction);
       case "googledrive://":
@@ -73,7 +62,6 @@ public class ListController {
       default:
         return null;
     }
-
   }
 
   @ExceptionHandler(AuthenticationRequired.class)
