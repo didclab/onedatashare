@@ -1,6 +1,10 @@
 package org.onedatashare.server.module.googledrive;
 
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.googleapis.media.MediaHttpUploader;
+import com.google.api.client.http.FileContent;
 import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
@@ -10,16 +14,15 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.NotFound;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import java.io.ByteArrayOutputStream;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriveResource> {
 
@@ -33,7 +36,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public Mono<GoogleDriveResource> mkdir() {
-        return initialize().doOnSuccess(resource -> {
+        return Mono.create(s -> {
             try {
                 String[] currpath = path.split("/");
                 for(int i =0; i<currpath.length; i++){
@@ -48,10 +51,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     System.out.println("Folder ID: " + file.getId());
                     id = file.getId();
                 }
-
             } catch (IOException e) {
                 e.printStackTrace();
+                s.error(e);
             }
+            s.success(this);
         });
     }
 
@@ -116,14 +120,14 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public Mono<GoogleDriveResource> delete() {
-       return initialize().map(resource -> {
+       return Mono.create(s -> {
            try {
-               resource.session.service.files().delete(id).execute();
-               id = session.idMap.get(session.idMap.size()-1).getId();
+               this.session.service.files().delete(id).execute();
+               id = session.idMap.get(session.idMap.size() - 1).getId();
            } catch (Exception e) {
-               e.printStackTrace();
+               s.error(e);
            }
-           return resource;
+           s.success(this);
        });
     }
 
@@ -140,7 +144,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public Mono<Stat> stat() {
-        return initialize().map(GoogleDriveResource::onStat);
+        return Mono.just(onStat());
     }
 
     public Stat onStat() {
@@ -235,11 +239,9 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
-    public Mono<Stat>transferStat(){
-        return initialize()
-                .map(GoogleDriveResource::onStat)
-                .map(s ->{
-                    List<Stat> sub = new LinkedList<>();
+    public Mono<Stat> getTransferStat(){
+        return stat().map(s ->{
+                   List<Stat> sub = new LinkedList<>();
                     long directorySize = 0L;
 
                     if(s.isDir()){
@@ -303,37 +305,26 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 stat.dir = true;
                 stat.file = false;
             }
-            else
+            else if(file.containsKey("size"))
                 stat.size = file.getSize();
         }
-        catch (Exception  e) {
+        catch (NullPointerException  e) {
+
+        }catch (Exception  e) {
           e.printStackTrace();
         }
-
         return stat;
     }
 
     public GoogleDriveTap tap() {
         GoogleDriveTap gDriveTap = new GoogleDriveTap();
-        gDriveTap.tapStat();
         return gDriveTap;
     }
 
     class GoogleDriveTap implements Tap {
-//        Drive.Files.Get downloadBuilder;
         long size;
         Drive drive = session.service;
-        Stat transferStat;
         com.google.api.client.http.HttpRequest httpRequestGet;
-
-        public void tapStat(){
-            transferStat =  transferStat().block();
-        }
-
-        @Override
-        public Stat getTransferStat() {
-            return transferStat;
-        }
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
@@ -341,51 +332,49 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             String downloadUrl = "https://www.googleapis.com/drive/v3/files/"+stat.getId()+"?alt=media";
             try {
                 httpRequestGet = drive.getRequestFactory().buildGetRequest(new GenericUrl(downloadUrl));
-//                downloadBuilder = session.service.files().get(id);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return tap(sliceSize);
+            size = stat.getSize();
+           return tap(sliceSize);
         }
 
         @Override
         public Flux<Slice> tap(long sliceSize) {
             return Flux.generate(
-                    () -> 0L,
-                    (state, sink) -> {
-                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                        if (state + sliceSize < size) {
-                            try {
-                                httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + sliceSize - 1));
-                                com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
-                                InputStream is = response.getContent();
-                                IOUtils.copy(is, outputStream);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            sink.next(new Slice(outputStream.toByteArray()));
-                            try {
-                                outputStream.close();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + size - state - 1));
-                                com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
-                                InputStream is = response.getContent();
-                                IOUtils.copy((InputStream)is, (OutputStream)outputStream);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            sink.next(new Slice(outputStream.toByteArray()));
-                            sink.complete();
+                () -> 0L,
+                (state, sink) -> {
+                    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                    if (state + sliceSize < size) {
+                        try {
+                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + sliceSize - 1));
+                            com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
+                            InputStream is = response.getContent();
+                            IOUtils.copy(is, outputStream);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                        return state + sliceSize;
-                    });
+                        sink.next(new Slice(outputStream.toByteArray()));
+                        try {
+                            outputStream.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + size - state - 1));
+                            com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
+                            InputStream is = response.getContent();
+                            IOUtils.copy(is, outputStream);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        sink.next(new Slice(outputStream.toByteArray()));
+                        sink.complete();
+                    }
+                    return state + sliceSize;
+                });
         }
-
-
     }
 
     public GoogleDriveDrain sink() {
@@ -397,11 +386,11 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     class GoogleDriveDrain implements Drain {
-        long bytesWritten = 0;
+//        long bytesWritten = 0;
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
         long size = 0;
         String resumableSessionURL;
-        String upload_id;
+//        String upload_id;
 
         String drainPath = path;
         Boolean isDirTransfer = false;
@@ -411,6 +400,13 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             this.drainPath = drainPath;
             this.isDirTransfer = true;
             return start();
+        }
+
+
+        //@Override
+        public GoogleDriveDrain start_2(){
+
+            return null;
         }
 
         @Override
@@ -430,9 +426,9 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 URL url = new URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
                 request.setRequestMethod("POST");
-                request.setRequestProperty("Authorization", "Bearer " + ((OAuthCredential)(session.getCredential())).token);
-                //request.setRequestProperty("X-Upload-Content-Type", "application/pdf");
-                //request.setRequestProperty("X-Upload-Content-Length", Long.toString(size));
+                request.setDoInput(true);
+                request.setDoOutput(true);
+                request.setRequestProperty("Authorization", "Bearer " + ((OAuthCredential)(session.getCredential())).getToken());
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                 String body;
                 if(id !=null){
@@ -440,19 +436,18 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 }else{
                      body = "{\"name\": \"" + name[name.length-1] + "\"}";
                 }
-                request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
-                request.setDoOutput(true);
+               // request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
+                request.setRequestProperty("Content-Length", String.format(Locale.ENGLISH, "%d", body.getBytes().length));
+
                 OutputStream outputStream = request.getOutputStream();
                 outputStream.write(body.getBytes());
                 outputStream.close();
                 request.connect();
-                if(request.getResponseCode() == 200) {
-                    resumableSessionURL = request.getHeaderField("location");
-                    /*String location = request.getHeaderField("Location");
-                    if (location.contains("upload_id")) {
-                        String[] uploadParameters = location.split("upload_id");
-                        upload_id = uploadParameters[1].replace("=", "");
-                    }*/
+                int uploadRequestResponseCode  = request.getResponseCode();
+                if(uploadRequestResponseCode == 200) {
+                   resumableSessionURL = request.getHeaderField("location");
+                }else{
+                    throw new Exception("Transfer will fail");
                 }
             }catch (Exception e) {
                 e.printStackTrace();

@@ -1,15 +1,12 @@
-package org.onedatashare.server.model.pagination;
-
+package org.onedatashare.server.model.jobaction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
-import org.onedatashare.module.globusapi.EndPoint;
-
-import java.util.ArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PaginationAction {
+public class JobRequest {
+    public String status;
     public int pageNo;
     public int pageSize;
     public String sortBy;

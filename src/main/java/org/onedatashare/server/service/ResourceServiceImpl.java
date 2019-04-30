@@ -8,6 +8,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ODSError;
+import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -45,26 +46,18 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         final String path = pathFromUri(userAction.uri);
         String id = userAction.id;
         ArrayList<IdMap> idMap = userAction.map;
-        if("googledrive:/".equals(userAction.type)){
-                return userService.getLoggedInUser(cookie)
-                        .map(User::getCredentials)
-                        .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
-                        .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
-                        .flatMap(GoogleDriveSession::initialize)
-                        .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                        .onErrorResume(throwable -> throwable instanceof AuthenticationRequired, throwable ->
-                            Mono.just(userService.updateCredential(cookie,((AuthenticationRequired)throwable).cred))
-                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
-                                    .flatMap(GoogleDriveSession::initialize)
-                                    .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                        );
-        }else{
-            return userService.getLoggedInUser(cookie)
-                    .map(user -> new UserInfoCredential(userAction.credential))
-                    .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
-                    .flatMap(VfsSession::initialize)
-                    .flatMap(vfsSession -> vfsSession.select(path));
-        }
+        return userService.getLoggedInUser(cookie)
+                .map(User::getCredentials)
+                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
+                .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                .flatMap(GoogleDriveSession::initialize)
+                .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+                    Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
+                            .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                            .flatMap(GoogleDriveSession::initialize)
+                            .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                );
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
@@ -176,17 +169,11 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction){
-        return userService.getLoggedInUser(cookie)
-                .flatMap(user -> {
-                    return jobService.findJobByJobId(cookie, userAction.job_id)
-                            .map(job -> {
-                                job.deleted = true;
-                                user.saveJob(job);
-                                userService.saveUser(user).subscribe();
-                                return job;
-                            });
-                }).flatMap(jobService::saveJob)
-                .subscribeOn(Schedulers.elastic());
+        return jobService.findJobByJobId(cookie,userAction.job_id)
+                .map(job -> {
+                    job.deleted = true;
+                    return job;
+                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
     }
 
     public Mono<Job> cancel(String cookie, UserAction userAction) {

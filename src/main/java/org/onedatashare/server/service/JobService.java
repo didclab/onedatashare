@@ -2,7 +2,7 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.JobDetails;
-import org.onedatashare.server.model.pagination.PaginationAction;
+import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +12,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,19 +38,34 @@ public class JobService {
                 .collectList();
     }
 
-    public Mono<JobDetails> getAllUndeletedJobsForUser(String cookie, PaginationAction paginationAction) {
-        Sort.Direction direction = paginationAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String userEmail = userService.cookieToUserLogin(cookie).email;
-        return jobRepository.findJobsForUser(userEmail,false, PageRequest.of(paginationAction.pageNo,
-                paginationAction.pageSize, Sort.by(direction, paginationAction.sortBy)))
-                    .collectList()
-                    .flatMap(jobs -> jobRepository.countJobBy(userEmail,false)
+    public Mono<JobDetails> getJobsForUserOrAdmin(String cookie, JobRequest request) {
+        Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return userService.getLoggedInUser(cookie).flatMap(user -> {
+            if(user.isAdmin() && request.status.equals("all")){
+                return jobRepository.findAllBy(PageRequest.of(request.pageNo,
+                        request.pageSize, Sort.by(direction, request.sortBy))).collectList().flatMap(jobs ->
+                        jobRepository.count()
                         .map(count ->  {
                             JobDetails result = new JobDetails();
                             result.jobs = jobs;
                             result.totalCount = count;
                             return result;
                         }));
+            }
+            else{
+                return jobRepository.findJobsForUser(user.email,false, PageRequest.of(request.pageNo,
+                        request.pageSize, Sort.by(direction, request.sortBy)))
+                        .collectList()
+                        .flatMap(jobs -> jobRepository.countJobBy(user.email,false)
+                                .map(count ->  {
+                                    JobDetails result = new JobDetails();
+                                    result.jobs = jobs;
+                                    result.totalCount = count;
+                                    return result;
+                                }));
+            }
+
+        });
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

@@ -17,9 +17,6 @@ import java.util.ArrayList;
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
 
-//    public Mono<ClientUploadResource> select(String path) {
-//        return Mono.just(new ClientUploadResource());
-//    }
     public ClientUploadResource(ClientUploadSession session){
         super(session, null);
     }
@@ -35,6 +32,24 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
     }
 
     @Override
+    public Mono<Stat> getTransferStat() {
+        Stat tapstat = new Stat();
+        tapstat.size = session.filesize;
+        ArrayList<Stat> filestat = new ArrayList<>();
+        Stat uploadStat = new Stat();
+        uploadStat.size = session.filesize;
+        uploadStat.dir = false;
+        uploadStat.file = true;
+        uploadStat.name = session.filename;
+
+
+        filestat.add(uploadStat);
+        tapstat.filesList = filestat;
+
+        return Mono.just(tapstat);
+    }
+
+    @Override
     public Mono<ClientUploadResource> select(String path) {
         return null;
     }
@@ -45,24 +60,6 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 
     public class ClientUploadTap implements Tap{
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
-
-        @Override
-        public Stat getTransferStat() {
-            Stat tapstat = new Stat();
-            tapstat.size = session.filesize;
-            ArrayList<Stat> filestat = new ArrayList<>();
-            Stat uploadStat = new Stat();
-            uploadStat.size = session.filesize;
-            uploadStat.dir = false;
-            uploadStat.file = true;
-            uploadStat.name = session.filename;
-
-
-            filestat.add(uploadStat);
-            tapstat.filesList = filestat;
-
-            return tapstat;
-        }
 
         public Flux<Slice> tap(long size) {
             System.out.println("Inside tap()");
