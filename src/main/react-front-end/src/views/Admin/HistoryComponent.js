@@ -48,7 +48,7 @@ class QueueComponent extends Component {
 						rowsPerPageOptions : [10, 20, 50, 100],
 						order : 'desc',
 						orderBy : 'job_id'};
-		
+
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
 		setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
@@ -58,7 +58,8 @@ class QueueComponent extends Component {
 	}
 
 	queueFunc = () => {
-		queue(this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
+        let isHistory = true;
+		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
 		this.setState({response:resp.jobs, totalCount: resp.totalCount});
 	}, (resp) => {
@@ -112,6 +113,16 @@ class QueueComponent extends Component {
         		}
 	}
 
+	// deleteButtonOnClick(jobID, owner){
+	// 	deleteJob(jobID, owner, (resp) => {
+	// 		//success
+	// 		this.queueFunc();
+	// 	}, (resp) => {
+	// 		//failed
+	// 		console.log('Error in delete job request to API layer');
+	// 	});
+	// }
+
 	closeAllInfoRows(){
 		for(var i=0 ; i < this.infoRowsIds.length; i++){
 			var infoRow = document.getElementById(this.infoRowsIds[i]);
@@ -132,7 +143,7 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, owner){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
 		return(
@@ -154,6 +165,15 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
+				{/* {
+					<Tooltip TransitionComponent={Zoom} title="Delete">
+						<Button onClick={() => {this.deleteButtonOnClick(jobID, owner)}} disabled={deleted} variant="contained" size="small" color="primary"
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<DeleteOutline />
+						</Button>
+					</Tooltip>
+				} */}
 			</div>
 		);
 	}
@@ -268,8 +288,8 @@ class QueueComponent extends Component {
 		this.state.orderBy = orderBy
 		this.queueFunc()
   };
-	
-	
+
+
 	render(){
 		const height = window.innerHeight+"px";
 		const {response, totalCount} = this.state;
@@ -303,7 +323,7 @@ class QueueComponent extends Component {
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-									{this.renderActions(resp.job_id, resp.status)}
+									{this.renderActions(resp.job_id, resp.status,resp.owner)}
                 </TableCell>
 	          	</TableRow>
 	        );
