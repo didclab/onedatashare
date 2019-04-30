@@ -5,6 +5,10 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class JobAction {
+public class JobRequest {
     public String status;
+    public int pageNo;
+    public int pageSize;
+    public String sortBy;
+    public String sortOrder;
 }
