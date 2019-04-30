@@ -8,11 +8,12 @@ import org.springframework.data.annotation.Transient;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserActionCredential {
-  public String type;
-  public String uuid;
+  private String type;
+  private String uuid;
+  private String name;
   @Transient
-  public String username;
+  private String username;
   @Transient
-  public String password;
-  public EndPoint globusEndpoint;
+  private String password;
+  private EndPoint globusEndpoint;
 }

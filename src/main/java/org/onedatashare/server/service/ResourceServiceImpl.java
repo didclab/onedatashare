@@ -48,7 +48,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         ArrayList<IdMap> idMap = userAction.map;
         return userService.getLoggedInUser(cookie)
                 .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
+                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
                 .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
                 .flatMap(GoogleDriveSession::initialize)
                 .flatMap(driveSession -> driveSession.select(path,id, idMap))
@@ -90,13 +90,13 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
-            return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
+            return user.getCredentials().get(UUID.fromString(userActionResource.credential.getUuid()));
         }else if(userActionResource.uri.equals("Upload")){
             return userActionResource.uploader;
         }else if(userActionResource.uri.startsWith("gsiftp://")){
 
             GlobusClient gc = userService.getGlobusClientFromUser(user);
-            return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);
+            return new GlobusWebClientCredential(userActionResource.credential.getGlobusEndpoint(), gc);
         }
         else return new UserInfoCredential(userActionResource.credential);
     }

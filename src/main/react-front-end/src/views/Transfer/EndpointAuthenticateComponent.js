@@ -173,9 +173,8 @@ export default class EndpointAuthenticateComponent extends Component {
 				const endpointSet = {
 					uri: endpoint.uri,
 					login: true,
-					credential: {uuid: v},
-					side: endpoint.side,
-					name: credList[v].name
+					credential: {uuid: v, name: credList[v].name},
+					side: endpoint.side
 				}
 				loginSuccess(endpointSet);
 			}}>
