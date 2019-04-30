@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserActionResource {
+public class  UserActionResource {
   public String uri;
   public String id;
   public UserActionCredential credential;

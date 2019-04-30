@@ -372,10 +372,10 @@ public class UserService {
   }
 
 
-  public Mono<Void> deleteCredential(String cookie, String uuid) {
+  public Mono<Void> deleteCredential(String cookie, String credIdentifier) {
     return getLoggedInUser(cookie)
       .map(user -> {
-          if(user.getCredentials().remove(UUID.fromString(uuid))== null) {
+          if(user.getCredentials().remove(credIdentifier)== null) {
             return Mono.error(new NotFound());
           }
         return userRepository.save(user).subscribe();
