@@ -28,6 +28,9 @@ import './QueueComponent.css';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
+		root:{
+			width:'fit-content'
+		},
 		toolbar:{
 			paddingLeft:'300px'
 		},
@@ -63,7 +66,9 @@ class QueueComponent extends Component {
 		clearInterval(this.interval);
 	}
 
-	queueFunc = () => {queue((resp) => {
+	queueFunc = () => {
+		let isHistory = false;
+		queue(isHistory, (resp) => {
 		//success
 		resp.sort((a, b) => { return b.job_id - a.job_id});
 		resp.map(response => {
@@ -166,7 +171,7 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, deleted){
 		return(
 			<div >
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
@@ -195,7 +200,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' &&
+				{status != 'processing' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
 						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
@@ -215,7 +220,7 @@ class QueueComponent extends Component {
 
 		if(this.state.selectedTab === 0){
 			return(
-				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width: '100%' }}>
+				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
 					<Row>
 						<Col md={6}><b>User</b></Col>
 						<Col md={6}>{resp.owner}</Col>
@@ -347,7 +352,7 @@ class QueueComponent extends Component {
 		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
-		            	{this.renderActions(resp.job_id, resp.status)}
+		            	{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 		            </TableCell>
 	          	</TableRow>
 	        );
@@ -371,8 +376,8 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
-	  		<Table style={{width:'90%'}}>
+		<Paper className={classes.root} id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
