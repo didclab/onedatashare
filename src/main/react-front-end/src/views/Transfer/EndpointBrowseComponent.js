@@ -413,9 +413,7 @@ export default class EndpointBrowseComponent extends Component {
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 									const taskList = getSelectedTasksFromSide(endpoint);
-									console.log(endpoint)
 									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
-										console.log("Switching sides")
 										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
 									}else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
