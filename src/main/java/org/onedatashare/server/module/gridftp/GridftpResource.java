@@ -1,23 +1,32 @@
 package org.onedatashare.server.module.gridftp;
 
-import com.dropbox.core.v2.files.FileMetadata;
-import com.dropbox.core.v2.files.FolderMetadata;
-import com.dropbox.core.v2.files.Metadata;
-import com.dropbox.core.v2.files.UploadSessionCursor;
-import org.onedatashare.module.globusapi.File;
-import org.onedatashare.module.globusapi.Result;
-import org.onedatashare.module.globusapi.TaskItem;
-import org.onedatashare.module.globusapi.TaskSubmissionRequest;
+import com.dropbox.core.DbxException;
+import com.dropbox.core.v2.files.*;
+import com.google.api.client.util.DateTime;
+import org.apache.commons.net.ntp.TimeStamp;
+import org.onedatashare.module.globusapi.*;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.util.TransferInfo;
+import org.onedatashare.server.module.dropbox.DbxResource;
+import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.service.GridftpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import sun.rmi.transport.Endpoint;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     private Boolean showHidden = true;
@@ -43,43 +52,43 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
 
     public Mono<Result> transferTo(GridftpResource grsf){
         return session.client.getJobSubmissionId()
-        .flatMap(response -> {
-            TaskSubmissionRequest request = new TaskSubmissionRequest();
-            request.setDataType("transfer");
-            request.setSubmissionId(response.getValue());
-            request.setSourceEndpoint(session.endpoint.getId());
-            request.setDestinationEndpoint(grsf.session.endpoint.getId());
-            List<TaskItem> data = new ArrayList<>();
-            TaskItem item = new TaskItem();
-            item.setDataType("transfer_item");
-            item.setRecursive(true);
-            item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
-            item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
-            data.add(item);
-            request.setData(data);
-            return session.client.submitTask(request);
-        });
+                .flatMap(response -> {
+                    TaskSubmissionRequest request = new TaskSubmissionRequest();
+                    request.setDataType("transfer");
+                    request.setSubmissionId(response.getValue());
+                    request.setSourceEndpoint(session.endpoint.getId());
+                    request.setDestinationEndpoint(grsf.session.endpoint.getId());
+                    List<TaskItem> data = new ArrayList<>();
+                    TaskItem item = new TaskItem();
+                    item.setDataType("transfer_item");
+                    item.setRecursive(true);
+                    item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
+                    item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
+                    data.add(item);
+                    request.setData(data);
+                    return session.client.submitTask(request);
+                });
     }
 
     public Mono<Result> deleteV2() {
         return initialize()
-            .flatMap(resource -> session.client.getJobSubmissionId())
-            .flatMap(result -> {
-                TaskSubmissionRequest tr = new TaskSubmissionRequest();
-                tr.setSubmissionId(result.getValue());
-                tr.setEndpoint(session.endpoint.getId());
-                tr.setDataType("delete");
-                tr.setLabel("delete kabrl");
-                tr.setRecursive(true);
-                tr.setIgnoreMissing(true);
-                List<TaskItem> tsl = new ArrayList<TaskItem>();
-                TaskItem ti = new TaskItem();
-                ti.setPath(this.getPath());
-                ti.setDataType("delete_item");
-                tsl.add(ti);
-                tr.setData(tsl);
-                return session.client.submitTask(tr);
-            });
+                .flatMap(resource -> session.client.getJobSubmissionId())
+                .flatMap(result -> {
+                    TaskSubmissionRequest tr = new TaskSubmissionRequest();
+                    tr.setSubmissionId(result.getValue());
+                    tr.setEndpoint(session.endpoint.getId());
+                    tr.setDataType("delete");
+                    tr.setLabel("delete kabrl");
+                    tr.setRecursive(true);
+                    tr.setIgnoreMissing(true);
+                    List<TaskItem> tsl = new ArrayList<TaskItem>();
+                    TaskItem ti = new TaskItem();
+                    ti.setPath(this.getPath());
+                    ti.setDataType("delete_item");
+                    tsl.add(ti);
+                    tr.setData(tsl);
+                    return session.client.submitTask(tr);
+                });
     }
 
     public Mono<Stat> stat() {
@@ -90,30 +99,30 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return session.client
                 .listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter)
                 .map(
-                    fileList -> {
-                    Stat st = new Stat();
-                    Stat files[] = new Stat[fileList.getData().size()];
-                    for(int i = 0; i < fileList.getData().size(); i++){
-                        Stat temps = new Stat();
-                        File file = fileList.getData().get(i);
-                        temps.file = file.getType().equals("file");
-                        temps.size = file.getSize();
-                        temps.name = file.getName();
-                        temps.dir = file.getType().equals("dir");
-                        SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
-                        try {
-                            temps.time = fromUser.parse(file.getLastModified()).getTime()/1000;
-                        }catch(Exception e){
-                            e.printStackTrace();
+                        fileList -> {
+                            Stat st = new Stat();
+                            Stat files[] = new Stat[fileList.getData().size()];
+                            for(int i = 0; i < fileList.getData().size(); i++){
+                                Stat temps = new Stat();
+                                File file = fileList.getData().get(i);
+                                temps.file = file.getType().equals("file");
+                                temps.size = file.getSize();
+                                temps.name = file.getName();
+                                temps.dir = file.getType().equals("dir");
+                                SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
+                                try {
+                                    temps.time = fromUser.parse(file.getLastModified()).getTime()/1000;
+                                }catch(Exception e){
+                                    e.printStackTrace();
+                                }
+                                temps.perm = file.getPermissions();
+                                temps.link = file.getLinkTarget();
+                                files[i] = temps;
+                            }
+                            st.setFiles(files);
+                            return st;
                         }
-                        temps.perm = file.getPermissions();
-                        temps.link = file.getLinkTarget();
-                        files[i] = temps;
-                    }
-                    st.setFiles(files);
-                    return st;
-                }
-        );
+                );
     }
 //    ListFolderResult data = null;
 //    Metadata mData = null;
@@ -207,7 +216,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             return null;
         }
     }
-//            return Flux.generate(
+    //            return Flux.generate(
 //                    new Slice()
 //                    () -> 0L,
 //                    (state, sink) -> {
@@ -244,13 +253,13 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         UploadSessionCursor cursor;
 
         public GridftpResource.GridftpDrain start() {
-              return this;
+            return this;
         }
 
-    @Override
-    public Drain start(String drainPath) {
-        return null;
-    }
+        @Override
+        public Drain start(String drainPath) {
+            return null;
+        }
 
 //            try { ^
 //                sessionId = session.client.files().uploadSessionStart()
