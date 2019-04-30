@@ -1,32 +1,23 @@
 package org.onedatashare.server.module.gridftp;
 
-import com.dropbox.core.DbxException;
-import com.dropbox.core.v2.files.*;
-import com.google.api.client.util.DateTime;
-import org.apache.commons.net.ntp.TimeStamp;
-import org.onedatashare.module.globusapi.*;
+import com.dropbox.core.v2.files.FileMetadata;
+import com.dropbox.core.v2.files.FolderMetadata;
+import com.dropbox.core.v2.files.Metadata;
+import com.dropbox.core.v2.files.UploadSessionCursor;
+import org.onedatashare.module.globusapi.File;
+import org.onedatashare.module.globusapi.Result;
+import org.onedatashare.module.globusapi.TaskItem;
+import org.onedatashare.module.globusapi.TaskSubmissionRequest;
 import org.onedatashare.server.model.core.*;
-import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.error.NotFound;
-import org.onedatashare.server.model.util.TransferInfo;
-import org.onedatashare.server.module.dropbox.DbxResource;
-import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.service.GridftpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import sun.rmi.transport.Endpoint;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     private Boolean showHidden = true;

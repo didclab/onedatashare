@@ -106,7 +106,6 @@ public class VfsService implements ResourceService<VfsResource> {
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         userActionResource = fixSCPUri(userActionResource);
-        System.out.println(userActionResource.toString());
         final String path = pathFromUri(userActionResource.uri);
         final UserActionResource finalUserActionResource = userActionResource;
         return userService.getLoggedInUser(cookie)

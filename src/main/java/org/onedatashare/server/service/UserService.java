@@ -52,7 +52,7 @@ public class UserService {
 //    User user = new User("vanditsa@buffalo.edu", "asdasd");
 //    createUser(user).subscribe(System.out::println);
     String lastActivityTime = Long.toString(System.currentTimeMillis());
-    saveLastActivity(email,lastActivityTime).subscribe();
+//    saveLastActivity(email,lastActivityTime).subscribe();
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
@@ -267,7 +267,6 @@ public class UserService {
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
-
       }
       return Mono.just(new Response("Success", 200));
     });
