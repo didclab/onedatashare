@@ -18,7 +18,6 @@ public class RestartJobController {
     @PostMapping
     public Mono<Job> restartJob(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
         String cookie = headers.getFirst("cookie");
-        //System.out.println("Job to restart :" + userAction.job_id);
         return resourceService.restartJob(cookie, userAction);
     }
 }

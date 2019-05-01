@@ -170,7 +170,6 @@ export default class EndpointBrowseComponent extends Component {
 	};
 	
 	fileNodeClicked(filename){
-		console.log(filename);
 	}
 
 	fileNodeDoubleClicked(filename, id){

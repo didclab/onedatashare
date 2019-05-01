@@ -15,7 +15,6 @@ public class  UserActionResource {
   public UserActionCredential credential;
   @Transient
   public UploadCredential uploader;
-  @Transient
   public ArrayList<IdMap> map;
   public String type;
 }

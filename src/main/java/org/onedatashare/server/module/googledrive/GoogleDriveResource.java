@@ -479,14 +479,14 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         ByteArrayOutputStream temp = new ByteArrayOutputStream();
                         temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
                         chunk = temp;
-                        System.out.println("Chunked upload working: " + size);
+//                        System.out.println("Chunked upload working: " + size);
                     } else if (request.getResponseCode() == 200 || request.getResponseCode() == 201) {
                         System.out.println("code: " + request.getResponseCode() +
                                 ", message: " + request.getResponseMessage());
                     } else {
                         System.out.println("code: " + request.getResponseCode() +
                                 ", message: " + request.getResponseMessage());
-                        System.out.println("last chunk Not working");
+//                        System.out.println("last chunk Not working");
                     }
                 }
             }catch (Exception e) {
