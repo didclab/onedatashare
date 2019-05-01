@@ -49,7 +49,6 @@ public class UserService {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
-
   //  User user = new User("vanditsa@buffalo.edu", "asdasd");
   //  createUser(user).subscribe(System.out::println);
 
@@ -129,7 +128,7 @@ public class UserService {
         return Mono.error(new Exception("Password is not confirmed."));
       }else if(user.getAuthToken() == null){
         return Mono.error(new Exception("Does not have Auth Token"));
-      }else if(user.getAuthToken().equals(authToken)){
+      }else if(user.getAuthToken().substring(0,6).equals(authToken)){
         user.setPassword(password);
         // Setting the verification code to null while resetting the password.
         // This will allow the user to use the same verification code multiple times with in 24 hrs.
@@ -274,6 +273,10 @@ public class UserService {
 
   public Flux<User> getAllUsers(){
     return userRepository.findAll();
+  }
+
+  public Mono<User> getUserById(String email){
+    return userRepository.findById(email);
   }
 
   public Flux<User> getAdministrators(){

@@ -11,9 +11,8 @@ import java.util.UUID;
 public interface JobRepository extends ReactiveMongoRepository<Job, UUID> {
 
     @Query(value="{$and: [{'owner':?0},{'deleted': ?1}]}")
-    Flux<Job> findJobsForUser(String owner, boolean deleted, Pageable pageable);
+    Flux<Job> findJobsForUser(String owner, boolean deleted);
 
-//    @Query(value="")
     Flux<Job> findAllBy(Pageable pageable);
 
     @Query(value="{$and: [{'owner':?0},{'deleted': ?1}]}", count = true)

@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/stork/user")
 public class UserController {
 
@@ -18,9 +19,22 @@ public class UserController {
   private UserService userService;
 
   final int TIMEOUT_IN_MINUTES = 1440;
-
+  private static final String EMAIL_PARAM = "email";
+  private static final String HASH_PARAM = "hash";
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+
+    String temp = headers.getFirst("cookie");
+    if(temp == null){
+      //System.out.println("Email: "+userAction.getEmail()+" Hash: "+userAction.getPassword());
+      if(userAction.getEmail()!=null && userAction.getPassword()!=null &&
+              !userAction.getEmail().equalsIgnoreCase("") && !userAction.getPassword().equalsIgnoreCase("")){
+        temp = EMAIL_PARAM + "=" + userAction.getEmail() + "; " +
+                HASH_PARAM + "=" + userAction.getPassword();
+      }
+    }
+
+    String cookie = temp;
 
     switch(userAction.action) {
       case "login":
@@ -30,7 +44,7 @@ public class UserController {
       case "validate":
         return userService.validate(userAction.email, userAction.code);
       case "history":
-        return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
+        return userService.saveHistory(userAction.uri, cookie);
       case "verifyEmail":
         return userService.verifyEmail(userAction.email);
       case "sendVerificationCode":
@@ -46,19 +60,20 @@ public class UserController {
       case "setPassword":
         return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
       case "resetPassword":
-        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
+        return userService.resetPasswordWithOld(cookie, userAction.password, userAction.newPassword, userAction.confirmPassword);
       case "deleteCredential":
-        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
+        return userService.deleteCredential(cookie, userAction.uuid);
       case "deleteHistory":
-        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
+        return userService.deleteHistory(cookie, userAction.uri);
       case "isAdmin":
-        return userService.isAdmin(headers.getFirst("cookie"));
+        return userService.isAdmin(cookie);
       case "resendVerificationCode":
         return userService.resendVerificationCode(userAction.email);
       default:
         return null;
     }
   }
+
   @PutMapping
   public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
     switch(userAction.action) {

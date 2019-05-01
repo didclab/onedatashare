@@ -38,35 +38,41 @@ public class JobService {
                 .collectList();
     }
 
-    public Mono<JobDetails> getJobsForUserOrAdmin(String cookie, JobRequest request) {
-        Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return userService.getLoggedInUser(cookie).flatMap(user -> {
-            if(user.isAdmin() && request.status.equals("all")){
-                return jobRepository.findAllBy(PageRequest.of(request.pageNo,
-                        request.pageSize, Sort.by(direction, request.sortBy))).collectList().flatMap(jobs ->
-                        jobRepository.count()
-                        .map(count ->  {
-                            JobDetails result = new JobDetails();
-                            result.jobs = jobs;
-                            result.totalCount = count;
-                            return result;
-                        }));
-            }
-            else{
-                return jobRepository.findJobsForUser(user.email,false, PageRequest.of(request.pageNo,
-                        request.pageSize, Sort.by(direction, request.sortBy)))
-                        .collectList()
-                        .flatMap(jobs -> jobRepository.countJobBy(user.email,false)
-                                .map(count ->  {
-                                    JobDetails result = new JobDetails();
-                                    result.jobs = jobs;
-                                    result.totalCount = count;
-                                    return result;
-                                }));
-            }
-
-        });
+    public Mono<List<Job>> getAllUndeletedJobsForUser(String cookie) {
+        return jobRepository.findJobsForUser(userService.cookieToUserLogin(cookie).email,false)
+                .collectList();
     }
+
+    // commenting out master code since mobile app is synced to a previous version and presentation is next week.
+//    public Mono<JobDetails> getJobsForUserOrAdmin(String cookie, JobRequest request) {
+//        Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+//        return userService.getLoggedInUser(cookie).flatMap(user -> {
+//            if(user.isAdmin() && request.status.equals("all")){
+//                return jobRepository.findAllBy(PageRequest.of(request.pageNo,
+//                        request.pageSize, Sort.by(direction, request.sortBy))).collectList().flatMap(jobs ->
+//                        jobRepository.count()
+//                        .map(count ->  {
+//                            JobDetails result = new JobDetails();
+//                            result.jobs = jobs;
+//                            result.totalCount = count;
+//                            return result;
+//                        }));
+//            }
+//            else{
+//                return jobRepository.findJobsForUser(user.email,false, PageRequest.of(request.pageNo,
+//                        request.pageSize, Sort.by(direction, request.sortBy)))
+//                        .collectList()
+//                        .flatMap(jobs -> jobRepository.countJobBy(user.email,false)
+//                                .map(count ->  {
+//                                    JobDetails result = new JobDetails();
+//                                    result.jobs = jobs;
+//                                    result.totalCount = count;
+//                                    return result;
+//                                }));
+//            }
+//
+//        });
+//    }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
         return getAllJobsForUser(cookie).<Job>map(jobs -> {

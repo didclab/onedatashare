@@ -48,24 +48,24 @@ self.__precacheManifest = [
     "url": "/static/media/s1.be1fb98e.png"
   },
   {
-    "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
-    "url": "/static/media/s3.240cb46b.png"
+    "revision": "b79f2dc0cf2628cee3e0afcaa22d0ce9",
+    "url": "/static/media/s4.b79f2dc0.png"
   },
   {
     "revision": "d37df03f5a21b720f133e1d7bcca29b7",
     "url": "/static/media/s2.d37df03f.png"
   },
   {
-    "revision": "b79f2dc0cf2628cee3e0afcaa22d0ce9",
-    "url": "/static/media/s4.b79f2dc0.png"
-  },
-  {
-    "revision": "86c1f97abb212a6b0c9b751b6a42a067",
-    "url": "/static/media/s6.86c1f97a.png"
+    "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
+    "url": "/static/media/s3.240cb46b.png"
   },
   {
     "revision": "0066c9f5fb6311639ceff2d8b1fc8813",
     "url": "/static/media/s5.0066c9f5.png"
+  },
+  {
+    "revision": "86c1f97abb212a6b0c9b751b6a42a067",
+    "url": "/static/media/s6.86c1f97a.png"
   },
   {
     "revision": "0333f46c0f248d70b48036f4bdf2caea",
