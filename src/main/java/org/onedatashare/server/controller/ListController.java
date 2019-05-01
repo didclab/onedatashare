@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.apache.http.protocol.HttpService;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -31,38 +32,36 @@ public class ListController {
 
   @Autowired
   private ResourceServiceImpl resourceService;
-  
-//  @Autowired
-//  private GridftpService gridSevice;
-
-//  @PostMapping
-//  public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-//    String cookie = headers.getFirst("cookie");
-//    if(userAction.credential == null) {
-//      return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-//    }
-//    else return dbxService.list(cookie, userAction);
-//  }
 
   @PostMapping
   public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
     String cookie = headers.getFirst("cookie");
-    if(userAction.uri.contains("dropbox://")) {
-      if(userAction.credential == null) {
-        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+
+    if(userAction.credential == null) {
+      switch (userAction.type) {
+        case "dropbox://":
+        case "googledrive://":
+        case "gsiftp://":
+          return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else return dbxService.list(cookie, userAction);
-    }else if("googledrive:/".contains(userAction.type)) {
-      if(userAction.credential == null) {
-        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-      else return resourceService.list(cookie, userAction);
-    }else if("gsiftp://".equals(userAction.type)) {
-      if (userAction.credential == null) {
-        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      } else return gridService.list(cookie, userAction);
     }
-    else return vfsService.list(cookie, userAction);
+
+
+    switch (userAction.type){
+      case "dropbox://":
+        return dbxService.list(cookie, userAction);
+      case "googledrive://":
+        return resourceService.list(cookie, userAction);
+      case "gsiftp://":
+        return gridService.list(cookie, userAction);
+      case "scp://":
+      case "sftp://":
+      case "ftp://":
+        return vfsService.list(cookie, userAction);
+      case "http://":
+      default:
+        return null;
+    }
   }
 
   @ExceptionHandler(AuthenticationRequired.class)

@@ -48,25 +48,24 @@ class QueueComponent extends Component {
 						rowsPerPageOptions : [10, 20, 50, 100],
 						order : 'desc',
 						orderBy : 'job_id'};
-		let queueFunc = () => {
-			let isHistory = true;
-			queue(isHistory, (resp) => {
-			//success
-			resp.map(response => {
-					response.avgSpeed = response.bytes.avg
-					response.source = response.src !== null ? response.src.uri : ""
-			})
-			this.setState({response:resp});
-		}, (resp) => {
-			//failed
-			console.log('Error in queue request to API layer');
-		})};
-		queueFunc();
-		setInterval(queueFunc, 2000);    //making a queue request every 2 seconds
+
+		this.queueFunc = this.queueFunc.bind(this)
+		this.queueFunc();
+		setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		var infoRowsIds= [];
 		this.toggleTabs = this.toggleTabs.bind(this);
 	}
+
+	queueFunc = () => {
+        let isHistory = true;
+		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
+		//success
+		this.setState({response:resp.jobs, totalCount: resp.totalCount});
+	}, (resp) => {
+		//failed
+		console.log('Error in queue request to API layer');
+	})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -168,8 +167,8 @@ class QueueComponent extends Component {
 				}
 				{/* {
 					<Tooltip TransitionComponent={Zoom} title="Delete">
-						<Button onClick={() => {this.deleteButtonOnClick(jobID, owner)}} disabled={deleted} variant="contained" size="small" color="primary" 
-							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
+						<Button onClick={() => {this.deleteButtonOnClick(jobID, owner)}} disabled={deleted} variant="contained" size="small" color="primary"
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<DeleteOutline />
 						</Button>
@@ -265,11 +264,16 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
+		this.state.page=page
 		this.setState({ page });
+		this.queueFunc()
 	};
 
-	handleChangeRowsPerPage = event => {
+	handleChangeRowsPerPage = event => {		
+		this.state.page=0
+		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+		this.queueFunc()
 	};
 
 	handleRequestSort = (property) => {
@@ -279,49 +283,28 @@ class QueueComponent extends Component {
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc';
     }
-		this.setState({ order, orderBy });
+		this.setState({ order:order, orderBy:orderBy });
+		this.state.order=order
+		this.state.orderBy = orderBy
+		this.queueFunc()
   };
-	sortElements(rowX, rowY, orderBy) {		
-		if (rowY[orderBy] < rowX[orderBy]) {
-			return -1;
-		}
-		if (rowY[orderBy] > rowX[orderBy]) {
-			return 1;
-		}
-		return 0;
-	};
 
-	tableSort(data, sortOrder, orderBy) {		
-		return data.sort((rowX, rowY) => {
-			var order = 0;		
-			if(sortOrder === 'desc'){
-				order = this.sortElements(rowX, rowY, orderBy)
-			}
-			else{
-				order = this.sortElements(rowY, rowX, orderBy)
-			}
-			if (order !== 0) return order;
-			// if the values of orderBy cell in the two rows are equal,
-			// then order them by job Id by default. Since job Id is unique for each row
-			return rowY.job_id - rowX.job_id;
-		});
-	}
 
 	render(){
 		const height = window.innerHeight+"px";
-		const {response} = this.state;
+		const {response, totalCount} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy} = this.state;
 		const {classes} = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
-			avgSpeed : "avgSpeed",
-			source : "source",
+			avgSpeed : "bytes.avg",
+			source : "src.uri",
 			userName: "owner"
 		}
 		var tableRows = [];
-		this.tableSort(response, order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
+		this.state.response.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
@@ -429,7 +412,7 @@ class QueueComponent extends Component {
 								<TablePagination 
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={4}
-									count={response.length}
+									count={totalCount}
 									rowsPerPage={rowsPerPage}
 									page={page}
 									SelectProps={{

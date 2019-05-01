@@ -40,6 +40,7 @@ public class VfsService implements ResourceService<VfsResource> {
     private JobService jobService;
 
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+        fixSCPUri(userAction);
         final String path = pathFromUri(userAction.uri);
         return userService.getLoggedInUser(cookie)
                 .map(user -> new UserInfoCredential(userAction.credential))
@@ -94,7 +95,6 @@ public class VfsService implements ResourceService<VfsResource> {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(userActionResource.toString());
                     UserInfoCredential userInfoCredential = new UserInfoCredential(userActionResource.credential);
                     VfsSession vfsSession = new VfsSession(URI.create(userActionResource.uri), userInfoCredential);
                     path.add(pathFromUri(userActionResource.uri));
@@ -104,12 +104,27 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
+        fixSCPUri(userActionResource);
         final String path = pathFromUri(userActionResource.uri);
         return userService.getLoggedInUser(cookie)
                 .map(user -> new UserInfoCredential(userActionResource.credential))
                 .map(credential -> new VfsSession(URI.create(userActionResource.uri), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
+    }
+
+    public void fixSCPUri(UserAction userAction){
+        if(userAction.type.equals("scp://")){
+            userAction.type = "sftp://";
+            userAction.uri = "sftp://" + userAction.uri.substring(6);
+        }
+    }
+
+    public void fixSCPUri(UserActionResource userAction){
+        if(userAction.type.equals("scp://")){
+            userAction.type = "sftp://";
+            userAction.uri = "sftp://" + userAction.uri.substring(6);
+        }
     }
 
     public String pathFromUri(String uri) {
