@@ -28,9 +28,6 @@ import './QueueComponent.css';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
-		root:{
-			width:'fit-content'
-		},
 		toolbar:{
 			paddingLeft:'300px'
 		},
@@ -66,14 +63,20 @@ class QueueComponent extends Component {
 		clearInterval(this.interval);
 	}
 
-	queueFunc = () => {
-        let isHistory = false;
-	    queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
+	queueFunc = () => {queue((resp) => {
 		//success
-		this.setState({response:resp.jobs, totalCount: resp.totalCount});
+		resp.sort((a, b) => { return b.job_id - a.job_id});
+		resp.map(response => {
+			if(response.bytes !== null){
+				response.avgSpeed = response.bytes.avg == "Infinity" ? Number.MAX_SAFE_INTEGER : response.bytes.avg
+			}
+				response.source = response.src !== null ? response.src.uri : ""
+		})
+		this.setState({response:resp});
 	}, (resp) => {
 		//failed
-		console.log('Error in queue request to API layer')})};
+		console.log('Error in queue request to API layer');
+	})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -138,7 +141,7 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Restart job failed since either or both credentials of the job do not exist');
+			console.log('Error in restart job request to API layer');
 		});
 	}
 
@@ -163,20 +166,20 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status, deleted){
+	renderActions(jobID, status){
 		return(
 			<div >
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
-					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
 						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
-						fontWeight: 'bold', width: '20%', textTransform: 'none', 
+						fontWeight: 'bold', width: '20%', textTransform: 'none',
 						minWidth: '0px', minHeigth: '0px'}}>
 						<Info />
 					</Button>
 				</Tooltip>
-				{status == 'processing' && 
+				{status == 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Cancel">
-						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<Cancel />
@@ -185,17 +188,17 @@ class QueueComponent extends Component {
 				}
 				{status != 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Restart">
-						<Button onClick={() => {this.restartButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.restartButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<Refresh />
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' && !deleted &&
+				{status != 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
-						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
-							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
+						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<DeleteOutline />
 						</Button>
@@ -212,7 +215,7 @@ class QueueComponent extends Component {
 
 		if(this.state.selectedTab === 0){
 			return(
-				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
+				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width: '100%' }}>
 					<Row>
 						<Col md={6}><b>User</b></Col>
 						<Col md={6}>{resp.owner}</Col>
@@ -271,16 +274,11 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		this.state.page=page
 		this.setState({ page });
-		this.queueFunc()
 	};
 
-	handleChangeRowsPerPage = event => {		
-		this.state.page=0
-		this.state.rowsPerPage = parseInt(event.target.value)
+	handleChangeRowsPerPage = event => {
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
-		this.queueFunc()
 	};
 
 	handleRequestSort = (property) => {
@@ -290,26 +288,50 @@ class QueueComponent extends Component {
     if (this.state.orderBy === property && this.state.order === 'desc') {
       order = 'asc';
     }
-		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
-		this.queueFunc()
-  };	
+		this.setState({ order, orderBy });
+  };
+
+	sortElements(rowX, rowY, orderBy) {
+		if (rowY[orderBy] < rowX[orderBy]) {
+			return -1;
+		}
+		if (rowY[orderBy] > rowX[orderBy]) {
+			return 1;
+		}
+		return 0;
+	};
+
+	tableSort(data, sortOrder, orderBy) {
+		return data.sort((rowX, rowY) => {
+			var order = 0;
+			if(sortOrder === 'desc'){
+				order = this.sortElements(rowX, rowY, orderBy)
+			}
+			else{
+				order = this.sortElements(rowY, rowX, orderBy)
+			}
+			if (order !== 0) return order;
+			// if the values of orderBy cell in the two rows are equal,
+			// then order them by job Id by default. Since job Id is unique for each row
+			return rowY.job_id - rowX.job_id;
+		});
+	}
+
 
 	render(){
 		const height = window.innerHeight+"px";
-		const {response, totalCount} = this.state;
+		const {response} = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
-			avgSpeed : "bytes.avg",
-			source : "src.uri"
+			avgSpeed : "avgSpeed",
+			source : "source"
 		}
 		var tableRows = [];
-		response.map(resp => {
+		this.tableSort(response, order, orderBy).slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
@@ -325,7 +347,7 @@ class QueueComponent extends Component {
 		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
-		            	{this.renderActions(resp.job_id, resp.status, resp.deleted)}
+		            	{this.renderActions(resp.job_id, resp.status)}
 		            </TableCell>
 	          	</TableRow>
 	        );
@@ -349,8 +371,8 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper className={classes.root} id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
-	  		<Table>
+		<Paper id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+	  		<Table style={{width:'90%'}}>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
@@ -361,7 +383,7 @@ class QueueComponent extends Component {
 											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
 											Job ID
 										</TableSortLabel>
-									</Tooltip>								
+									</Tooltip>
 								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>
 									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
@@ -371,7 +393,7 @@ class QueueComponent extends Component {
 											onClick={() => this.handleRequestSort(sortableColumns.status)}>
 											Progress
 										</TableSortLabel>
-									</Tooltip>								
+									</Tooltip>
 								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
@@ -391,7 +413,7 @@ class QueueComponent extends Component {
 											onClick={() => this.handleRequestSort(sortableColumns.source)}>
 											Source/Destination
 										</TableSortLabel>
-									</Tooltip>								
+									</Tooltip>
 								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
@@ -401,10 +423,10 @@ class QueueComponent extends Component {
 		        </TableBody>
 						<TableFooter style={{textAlign:'center'}}>
 							<TableRow>
-								<TablePagination 
+								<TablePagination
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={3}
-									count={totalCount}
+									count={response.length}
 									rowsPerPage={rowsPerPage}
 									page={page}
 									SelectProps={{
