@@ -39,18 +39,17 @@ public class ListController {
 
     if(userAction.credential == null) {
       switch (userAction.type) {
-        case "dropbox://":
-        case "googledrive://":
+        case "dropbox:///":
+        case "googledrive:/":
         case "gsiftp://":
           return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }
 
-
     switch (userAction.type){
-      case "dropbox://":
+      case "dropbox:///":
         return dbxService.list(cookie, userAction);
-      case "googledrive://":
+      case "googledrive:/":
         return resourceService.list(cookie, userAction);
       case "gsiftp://":
         return gridService.list(cookie, userAction);
