@@ -358,7 +358,7 @@ public class UserService {
               return user;
             })
             .flatMap(userRepository::save)
-            .map(user -> {return uuid;});
+            .map(user -> uuid);
   }
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {

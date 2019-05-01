@@ -234,7 +234,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
-        FileObject drainFileObject;
+        FileObject drainFileObject = fileObject;
 
         @Override
         public VfsDrain start() {

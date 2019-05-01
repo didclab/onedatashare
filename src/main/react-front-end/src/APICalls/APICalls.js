@@ -360,6 +360,7 @@ export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fa
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
+	console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
 	if(Object.keys( src0.credential ).length == 0){

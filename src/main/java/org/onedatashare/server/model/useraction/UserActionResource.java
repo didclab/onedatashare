@@ -9,14 +9,12 @@ import java.util.ArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserActionResource {
+public class  UserActionResource {
   public String uri;
   public String id;
-  @Transient
   public UserActionCredential credential;
   @Transient
   public UploadCredential uploader;
-  @Transient
   public ArrayList<IdMap> map;
   public String type;
 }

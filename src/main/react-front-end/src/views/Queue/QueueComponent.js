@@ -138,7 +138,7 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Error in restart job request to API layer');
+			console.log('Restart job failed since either or both credentials of the job do not exist');
 		});
 	}
 

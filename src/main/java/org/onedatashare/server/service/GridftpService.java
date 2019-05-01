@@ -32,7 +32,7 @@ public class GridftpService {
     public Mono<GridftpResource> getResourceWithUserUserAction(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
         return userService.getLoggedInUser(cookie)
-            .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().globusEndpoint, client)))
+            .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().getGlobusEndpoint(), client)))
             .map(credential -> new GridftpSession(URI.create(userAction.uri), credential))
             .flatMap(GridftpSession::initialize)
             .flatMap(GridftpSession -> GridftpSession.select(path));

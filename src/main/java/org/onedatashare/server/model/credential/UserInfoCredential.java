@@ -20,8 +20,8 @@ public class UserInfoCredential extends Credential {
   public UserInfoCredential(UserActionCredential credential) {
     this(null, null);
     if(credential != null){
-      this.username = credential.username;
-      this.password = credential.password;
+      this.username = credential.getUsername();
+      this.password = credential.getPassword();
     }
   }
 }

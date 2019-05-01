@@ -27,7 +27,7 @@ public class DbxService implements ResourceService<DbxResource>{
     final String path = pathFromDbxUri(userAction.uri);
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
-            .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
+            .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
             .map(credential -> new DbxSession(URI.create(userAction.uri), credential))
             .flatMap(DbxSession::initialize)
             .flatMap(dbxSession -> dbxSession.select(path));
@@ -38,7 +38,7 @@ public class DbxService implements ResourceService<DbxResource>{
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
             .map(uuidCredentialMap ->
-                    uuidCredentialMap.get(UUID.fromString(userActionResource.credential.uuid)))
+                    uuidCredentialMap.get(UUID.fromString(userActionResource.credential.getUuid())))
             .map(credential -> new DbxSession(URI.create(userActionResource.uri), credential))
             .flatMap(DbxSession::initialize)
             .flatMap(dbxSession -> dbxSession.select(path));
