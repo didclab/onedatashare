@@ -193,7 +193,6 @@ export default class TransferComponent extends Component {
   onDragStart = (start: DragStart) => {
     var task = JSON.parse(start.draggableId.slice(start.draggableId.indexOf(" ")));
     var selectedSide = start.source.droppableId;
-    console.log(task);
     const selected = getSelectedTasks()[selectedSide].find(
       (listTask): boolean => listTask.name === task.name,
     );

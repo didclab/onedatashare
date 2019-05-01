@@ -191,8 +191,6 @@ export default class EndpointBrowseComponent extends Component {
 
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
-		console.log("list before finish ", this.state.path, this.state.id);
-		console.log("list after finish ", path, id);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
