@@ -210,7 +210,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b, state, sliceSizeInt);
+                                finalInputStream.read(b, 0, sliceSizeInt);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -219,7 +219,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
-                                finalInputStream.read(b, state, remaining);
+                                finalInputStream.read(b, 0, remaining);
 //                                finalInputStream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
@@ -234,7 +234,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
-        FileObject drainFileObject;
+        FileObject drainFileObject = fileObject;
 
         @Override
         public VfsDrain start() {

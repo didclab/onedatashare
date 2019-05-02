@@ -49,6 +49,7 @@ public class UserService {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
+
   //  User user = new User("vanditsa@buffalo.edu", "asdasd");
   //  createUser(user).subscribe(System.out::println);
 
@@ -266,7 +267,6 @@ public class UserService {
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
-
       }
       return Mono.just(new Response("Success", 200));
     });
@@ -358,7 +358,7 @@ public class UserService {
               return user;
             })
             .flatMap(userRepository::save)
-            .map(user -> {return uuid;});
+            .map(user -> uuid);
   }
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {

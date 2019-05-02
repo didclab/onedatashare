@@ -170,7 +170,6 @@ export default class EndpointBrowseComponent extends Component {
 	};
 	
 	fileNodeClicked(filename){
-		console.log(filename);
 	}
 
 	fileNodeDoubleClicked(filename, id){
@@ -192,8 +191,6 @@ export default class EndpointBrowseComponent extends Component {
 
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
-		console.log("list before finish ", this.state.path, this.state.id);
-		console.log("list after finish ", path, id);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
@@ -412,10 +409,10 @@ export default class EndpointBrowseComponent extends Component {
 					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-					  			const taskList = getSelectedTasksFromSide(endpoint);
-					  			if(getType(endpoint) === SFTP_TYPE){
-									getDownload(downloadUrl, endpoint.credential, taskList[0].id);
-								}else{
+									const taskList = getSelectedTasksFromSide(endpoint);
+									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
+										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
+									}else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
 						  		}
 					  		}}

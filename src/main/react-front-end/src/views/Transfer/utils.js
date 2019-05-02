@@ -45,7 +45,8 @@ const reorderSingleDrag = ({
       [column.id]: withNewTasks(column, reordered),
     };
 
-    const selected = [...selectedTasks["left"], ...selectedTasks["right"]];
+    const selected = selectedTasks[source.droppableId];
+
     if(selected.length == 0){
       selected.push(task);
     }
@@ -86,7 +87,7 @@ const reorderSingleDrag = ({
     [home.id]: withNewTasks(home, newHomeTasks),
     [foreign.id]: withNewTasks(foreign, newForeignTasks),
   };
-  const selected = [...selectedTasks["left"], ...selectedTasks["right"]];
+  const selected = selectedTasks[source.droppableId];
   if(selected.length == 0){
     selected.push(task);
   }

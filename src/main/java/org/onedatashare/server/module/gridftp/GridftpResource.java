@@ -296,3 +296,4 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         }
     }
 }
+

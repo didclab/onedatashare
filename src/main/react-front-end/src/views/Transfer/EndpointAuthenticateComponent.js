@@ -173,10 +173,9 @@ export default class EndpointAuthenticateComponent extends Component {
 				const endpointSet = {
 					uri: endpoint.uri,
 					login: true,
-					credential: {uuid: v},
+					credential: {uuid: v, name: credList[v].name},
 					side: endpoint.side
 				}
-				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
 			}}>
 			  <ListItemIcon>
@@ -308,7 +307,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == HTTP_TYPE){
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://"});
 		        	}else if(loginType == SCP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "scp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "scp://"});
 		        	}else if(loginType == GRIDFTP_TYPE){
 		        		this.setState({selectingEndpoint: true});
 		        	}

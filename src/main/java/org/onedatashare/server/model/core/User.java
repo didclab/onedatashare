@@ -341,24 +341,28 @@ public class User {
         }
     }
 
-    /**
-     * Add a credential for this user, returning a UUID.
-     */
-    public synchronized String addCredential(Credential cred) {
-        UUID uuid = UUID.randomUUID();
-        credentials.put(uuid, cred);
-        return uuid.toString();
-    }
 
-    /**
-     * Get a simplified list of this user's credentials.
-     */
-    public synchronized Map<UUID, Object> credentialList() {
-        Map<UUID, Object> map = new HashMap<UUID, Object>();
-        for (Map.Entry<UUID, Credential> e : credentials.entrySet())
-            map.put(e.getKey(), e.getValue());
-        return map;
-    }
+// commenting out since this method is never used
+//    /**
+//     * Add a credential for this user, returning a UUID.
+//     */
+//    public synchronized String addCredential(Credential cred) {
+//        UUID uuid = UUID.randomUUID();
+//        credentials.put(uuid.toString(), cred);
+//        return uuid.toString();
+//    }
+
+
+    // commented out redundant and unused code
+//    /**
+//     * Get a simplified list of this user's credentials.
+//     */
+//    public synchronized Map<String, Object> credentialList() {
+//        Map<String, Object> map = new HashMap<String, Object>();
+//        for (Map.Entry<String, Credential> e : credentials.entrySet())
+//            map.put(e.getKey(), e.getValue());
+//        return map;
+//    }
 
     /**
      * Validate a user given a token.

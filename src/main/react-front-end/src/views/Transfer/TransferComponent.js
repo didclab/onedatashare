@@ -90,6 +90,7 @@ export default class TransferComponent extends Component {
     const srcUrls = [] 
     const fileIds = [] 
     const destUrls = []
+    console.log(processed.selectedTasks);
     processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
@@ -99,7 +100,7 @@ export default class TransferComponent extends Component {
     const destUrl = destUrls.reduce((a, v) => a+","+v)
     const srcUrl = srcUrls.reduce((a, v) => a+","+v)
     const fileId = fileIds.reduce((a, v) => a+","+v)
-    
+
     const src = {
       credential:endpointSrc.credential,
       id: fileId,
@@ -110,6 +111,7 @@ export default class TransferComponent extends Component {
       id: getCurrentFolderId(endpointDest),
       uri: encodeURI(destUrl)
     }
+
     var optionParsed = {}
     Object.keys(options).map((v)=>{
       var value = options[v];
@@ -190,9 +192,8 @@ export default class TransferComponent extends Component {
 
   onDragStart = (start: DragStart) => {
     var task = JSON.parse(start.draggableId.slice(start.draggableId.indexOf(" ")));
-    console.log(task);
-
-    const selected = [...getSelectedTasks()["left"], ...getSelectedTasks()["right"]].find(
+    var selectedSide = start.source.droppableId;
+    const selected = getSelectedTasks()[selectedSide].find(
       (listTask): boolean => listTask.name === task.name,
     );
 
@@ -207,15 +208,15 @@ export default class TransferComponent extends Component {
     const destination: ?DraggableLocation = result.destination;
     const source: DraggableLocation = result.source;
     // nothing to do
+
     if (!destination || result.reason === 'CANCEL') {
       setDraggingTask(null);
       return;
     }
-
+    console.log(getSelectedTasks(), result.source, result.destination)
     const processed: ReorderResult = mutliDragAwareReorder({
       entities: getEntities(),
       selectedTasks: getSelectedTasks(),
-
       source,
       destination,
     });
