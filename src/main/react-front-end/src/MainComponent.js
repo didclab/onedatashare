@@ -90,6 +90,10 @@ export default class MainComponent extends Component {
             {(isLoggedIn ) && 
               <h1 to='/transfer'>Page Not Found</h1>
             }
+
+            {!isLoggedIn && 
+              <Route render={() => <Redirect to="/"/>}/>
+            }
             
           </Switch>
         </div>
