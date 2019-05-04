@@ -13,12 +13,6 @@ import org.springframework.web.bind.annotation.*;
 public class SubmitController {
 
   @Autowired
-  private DbxService dbxService;
-
-  @Autowired
-  private VfsService vfsService;
-
-  @Autowired
   private ResourceServiceImpl resourceService;
 
   @PostMapping
