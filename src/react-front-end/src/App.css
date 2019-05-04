@@ -1,0 +1,71 @@
+
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.navbar_navbar{
+  width: 100%;
+}
+
+.homepage_section{
+  width: 100%;
+  height: 800px;
+  margin: 0px !important;
+  background-size: auto 100%;
+  background-position: right top;
+}
+
+.homepage_section1 {
+  background-image: url("./assets/s1.png");
+}
+
+.homepage_section2 {
+  background-image: url("./assets/s2.png");
+}
+
+.homepage_section3 {
+  background-image: url("./assets/s3.png");
+}
+
+.homepage_section4 {
+  background-image: url("./assets/s4.png");
+}
+
+.homepage_section5 {
+  background-image: url("./assets/s5.png");
+}
+
+.homepage_section6 {
+  background-image: url("./assets/s6.png");
+}
+
+.flexSpacebetween {
+  display: flex;
+  justify-content:"space-between"
+}
