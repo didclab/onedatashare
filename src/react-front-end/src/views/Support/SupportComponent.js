@@ -14,17 +14,30 @@ export default class SupportComponent extends Component{
 
   constructor(){
     super();
-    this.submitIssue = this.submitIssue.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
-  submitIssue(){
+  handleChange = (event) =>{
+    this.setState({
+      [event.target.name] : event.target.value
+    });
+  }
+
+  handleSubmit(){
     var progressBarDiv = document.getElementById('progress-bar');
     progressBarDiv.style.visibility = 'visible';
 
     var msgDiv = document.getElementById('msg');
-    
-    var reqBody = {};
 
+    var reqBody = {
+      name : this.state.first_name + ' ' + this.state.last_name,
+      email : this.state.email,
+      phone : this.state.phone,
+      subject : this.state.subject,
+      issueDescription : this.state.description
+    };
+    
     submitIssue(reqBody, 
       (resp)=>{
         progressBarDiv.style.visibility = 'hidden';
@@ -39,7 +52,7 @@ export default class SupportComponent extends Component{
         msgDiv.style.color = "red";
         msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again.";
         msgDiv.style.visibility = 'visible';
-      })
+      });
   }
 
 
@@ -53,12 +66,13 @@ export default class SupportComponent extends Component{
         
           <CardHeader title="Report an Issue" />
 
-          <ValidatorForm ref="support-form" onSubmit={this.submitIssue}>
+          <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
             <div style={divStyle}>
               <TextField
                 required
                 label = 'First Name'
                 name = 'first_name' 
+                onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />
 
@@ -66,6 +80,7 @@ export default class SupportComponent extends Component{
                 required
                 label = 'Last Name'
                 name = 'last_name'   
+                onChange = {this.handleChange}
                 style = {{ marginLeft : '5%', width :'30%' }}
               />
             </div>
@@ -75,12 +90,14 @@ export default class SupportComponent extends Component{
                 required
                 label = 'Email Address'
                 name = 'email' 
+                onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />
 
               <TextField
                 label = 'Phone'
                 name = 'phone'   
+                onChange = {this.handleChange}
                 style = {{ marginLeft : '5%', width :'30%' }}
               />
             </div>
@@ -89,18 +106,20 @@ export default class SupportComponent extends Component{
               <TextField
                 required
                 label = 'Subject'
-                name = 'subject'   
+                name = 'subject'
+                onChange = {this.handleChange}   
                 style = {{ width :'70%' }}
               />
             </div>
 
             <div style={ divStyle } >
               <TextField
-                label="Issue Description"
-                name="description"
-                style={{ width : '70%' }}
                 multiline
                 rows="6"
+                label="Issue Description"
+                name="description"
+                onChange = {this.handleChange}
+                style={{ width : '70%' }}
               />
             </div>
 
