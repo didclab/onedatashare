@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import { submitIssue } from '../../APICalls/APICalls'
+
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
 import TextField from '@material-ui/core/TextField';
@@ -18,6 +20,26 @@ export default class SupportComponent extends Component{
   submitIssue(){
     var progressBarDiv = document.getElementById('progress-bar');
     progressBarDiv.style.visibility = 'visible';
+
+    var msgDiv = document.getElementById('msg');
+    
+    var reqBody = {};
+
+    submitIssue(reqBody, 
+      (resp)=>{
+        progressBarDiv.style.visibility = 'hidden';
+        msgDiv.style.border = '1px solid green'
+        msgDiv.style.color = "green";
+        msgDiv.innerHTML = "Support ticket created successfully. Ticket number - " + resp;
+        msgDiv.style.visibility = 'visible';
+      },
+      (err)=>{
+        progressBarDiv.style.visibility = 'hidden';
+        msgDiv.style.border = '1px solid red';
+        msgDiv.style.color = "red";
+        msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again.";
+        msgDiv.style.visibility = 'visible';
+      })
   }
 
 
@@ -90,6 +112,10 @@ export default class SupportComponent extends Component{
               <Button type="submit" size="medium" variant="contained" color="primary" style={{ width : '70%' }}>
                 Submit
               </Button>
+            </div>
+
+            <div id="msg" style={{marginLeft : '19%', marginRight : '19%', marginTop : '2%', marginBottom : '2%', 
+                        textAlign : 'center', paddingTop : '1%', paddingBottom : '1%', visibility : 'hidden'}}>
             </div>
 
           </ValidatorForm>

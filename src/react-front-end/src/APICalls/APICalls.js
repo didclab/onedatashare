@@ -358,6 +358,20 @@ export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fa
     });
 }
 
+// Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
+export async function submitIssue(reqBody, success, fail){
+	var callback = success;
+
+	axios.post(url+'/ticket', reqBody).then((resp) =>{
+		if(!(resp.status === 200))
+		 callback = fail;
+		statusHandle(resp, callback)
+	})
+	.catch((err) =>{
+		fail(err)
+	});
+}
+
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
 	console.log(src)
