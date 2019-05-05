@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 /**
  * Model holding the data for support ticket (data sent in HTTP request).
  *
- * @author Linus Castelino
  * @version 1.0
  * @since 05-03/2018
  */

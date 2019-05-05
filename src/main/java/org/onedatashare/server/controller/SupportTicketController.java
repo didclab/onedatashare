@@ -10,7 +10,6 @@ import reactor.core.publisher.Mono;
  * This class creates a controller that accepts requests for creating support cases
  * and returns the generated ticket number in response.
  *
- * @author Linus Castelino
  * @version 1.0
  * @since 05-03-2019
  */

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 /**
  * Model for response from Redmine server. Constructed using ObjectMapper by converting JSON string response from Redmine.
  *
- * @author Linus Castelino
  * @version 1.0
  * @since 05-03-2019
  */
@@ -19,6 +18,10 @@ public class RedmineResponse {
 
     public Integer getTicketId(){
         return getIssue().getId();
+    }
+
+    public String getIssueDescription(){
+        return getIssue().getDescription();
     }
 
 }    //class

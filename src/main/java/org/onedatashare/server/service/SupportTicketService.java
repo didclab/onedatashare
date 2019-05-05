@@ -3,10 +3,12 @@ package org.onedatashare.server.service;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.ticket.RedmineResponse;
 import org.onedatashare.server.model.ticket.SupportTicket;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.mail.MessagingException;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -21,12 +23,14 @@ import java.net.URL;
  *
  * Reference used for creating POST request in Java - https://www.mkyong.com/java/how-to-send-http-request-getpost-in-java/
  *
- * @author Linus Castelino
  * @version 1.0
  * @since 05-03-2019
  */
 @Service
 public class SupportTicketService {
+
+    @Autowired
+    EmailService emailService;
 
     @Value("${redmine.server.url}")
     private String REDMINE_SERVER_ISSUES_URL;
@@ -37,6 +41,7 @@ public class SupportTicketService {
     private final String REQUEST_METHOD = "POST";
     private final String CONTENT_TYPE = "application/json";
     private final String CHARACTER_ENCODING = "utf-8";
+    private final String ODS_TICKET_MAILBOX = "onedatasharetest@gmail.com";
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -75,15 +80,15 @@ public class SupportTicketService {
 
                 br.close();
 
-//                System.out.println(response);
+                // System.out.println(response);
                 RedmineResponse responseObj = objectMapper.readValue(response.toString(), RedmineResponse.class);
+                sendEmail(responseObj);
                 return Mono.just(responseObj.getTicketId());
             }
             else{
                 // Support ticket was not created by Redmine due to some error
                 System.out.println("An error occurred while trying to create a support ticket");
                 System.out.println(conn.getResponseMessage());
-
             }
         }
         catch(MalformedURLException mue){
@@ -101,5 +106,24 @@ public class SupportTicketService {
 
         return Mono.error(new Exception("Error occurred while trying to create a support ticket"));
     }    // createSupportTicket()
+
+    /**
+     * This method triggers an email on successful ticket creation.
+     * The email is sent to ODS team members (common mailbox). Email contains details about the ticket.
+     *
+     * @param responseObj - Redmine server response on ticket creation
+     */
+    public void sendEmail(RedmineResponse responseObj){
+        String subject = "Support ticket " + responseObj.getTicketId() + " created";
+        String emailText = "Ticket Details - \n" + responseObj.getIssueDescription();
+
+        try{
+            emailService.sendEmail(ODS_TICKET_MAILBOX, subject, emailText);
+        }
+        catch (MessagingException me){
+            System.out.println("There was an error in sending ticket creation email");
+            me.printStackTrace();
+        }
+    }
 
 }    //class
