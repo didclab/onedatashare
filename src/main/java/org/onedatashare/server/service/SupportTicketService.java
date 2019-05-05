@@ -1,9 +1,11 @@
 package org.onedatashare.server.service;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.onedatashare.server.model.core.SupportTicket;
+import org.onedatashare.server.model.ticket.RedmineResponse;
+import org.onedatashare.server.model.ticket.SupportTicket;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -45,7 +47,7 @@ public class SupportTicketService {
      * @param supportTicket - Object containing request values
      * @return ticketNumber - An integer value returned by Redmine server after generating the ticket
      */
-    public Integer createSupportTicket(SupportTicket supportTicket){
+    public Mono<Integer> createSupportTicket(SupportTicket supportTicket){
 
         try {
             URL urlObj = new URL(REDMINE_SERVER_ISSUES_URL + "?key=" + REDMINE_AUTH_KEY);
@@ -73,10 +75,16 @@ public class SupportTicketService {
 
                 br.close();
 
-                System.out.println(response);
+//                System.out.println(response);
+                RedmineResponse responseObj = objectMapper.readValue(response.toString(), RedmineResponse.class);
+                return Mono.just(responseObj.getTicketId());
             }
+            else{
+                // Support ticket was not created by Redmine due to some error
+                System.out.println("An error occurred while trying to create a support ticket");
+                System.out.println(conn.getResponseMessage());
 
-
+            }
         }
         catch(MalformedURLException mue){
             System.out.println("Exception occurred while creating URL object");
@@ -86,49 +94,12 @@ public class SupportTicketService {
             System.out.println("Exception occurred while opening or reading from a connection with " + REDMINE_SERVER_ISSUES_URL);
             ioe.printStackTrace();
         }
+        catch (Exception e){
+            System.out.println("General exception occurred while trying to create a support ticket");
+            e.printStackTrace();
+        }
 
-        return null;
-    }
-}
+        return Mono.error(new Exception("Error occurred while trying to create a support ticket"));
+    }    // createSupportTicket()
 
-
-
-/*
-Sample JSON response from Redmine for issue creation :
-{
-    "issue": {
-        "id": 6,
-        "project": {
-            "id": 2,
-            "name": "test"
-        },
-        "tracker": {
-            "id": 1,
-            "name": "Bug"
-        },
-        "status": {
-            "id": 1,
-            "name": "New"
-        },
-        "priority": {
-            "id": 2,
-            "name": "Normal"
-        },
-        "author": {
-            "id": 1,
-            "name": "Linus Castelino Admin"
-        },
-        "subject": "test issue",
-        "description": "TEst description",
-        "start_date": "2019-05-04",
-        "due_date": null,
-        "done_ratio": 0,
-        "is_private": false,
-        "estimated_hours": null,
-        "total_estimated_hours": null,
-        "created_on": "2019-05-04T22:08:07Z",
-        "updated_on": "2019-05-04T22:08:07Z",
-        "closed_on": null
-    }
-}
- */
+}    //class

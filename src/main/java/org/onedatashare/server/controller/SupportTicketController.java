@@ -1,9 +1,10 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.core.SupportTicket;
+import org.onedatashare.server.model.ticket.SupportTicket;
 import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 /**
  * This class creates a controller that accepts requests for creating support cases
@@ -31,7 +32,7 @@ public class SupportTicketController {
      * @return ticketNumber - An integer value returned by Redmine server after generating the ticket
      */
     @PostMapping
-    public Integer handle(@RequestBody SupportTicket supportTicket){
+    public Mono<Integer> handle(@RequestBody SupportTicket supportTicket){
         return supportTicketService.createSupportTicket(supportTicket);
     }
 }

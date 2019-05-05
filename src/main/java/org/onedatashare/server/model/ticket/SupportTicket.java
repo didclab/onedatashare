@@ -1,8 +1,15 @@
-package org.onedatashare.server.model.core;
+package org.onedatashare.server.model.ticket;
 
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+/**
+ * Model holding the data for support ticket (data sent in HTTP request).
+ *
+ * @author Linus Castelino
+ * @version 1.0
+ * @since 05-03/2018
+ */
 @Data
 @Component
 public class SupportTicket {
@@ -15,14 +22,25 @@ public class SupportTicket {
     private String subject;
     private String issueDescription;
 
+    /**
+     * This method converts the data sent in a support ticket request into a string representation.
+     * This string will be added to the description section of the ticket in Redmine.
+     *
+     * @return A string representation of the content
+     */
     @Override
     public String toString(){
         return  "Name : " + this.getName() + "\\n" +
                 "Email : " + this.getEmail() + "\\n" +
                 "Phone : " + this.getPhone() + "\\n\\n" +
                 "Issue Description : \\n" + this.getIssueDescription();
-    }
+    }    // toString()
 
+    /**
+     * This method constructs the JSON request to be sent to Redmine server for this support ticket request.
+     *
+     * @return String representation of JSON body to be sent to Redmine server issue creation request.
+     */
     public String getRequestString(){
         return "{" +
                     "\"issue\" : {" +
@@ -31,5 +49,5 @@ public class SupportTicket {
                         "\"description\" : \"" + this.toString() + "\"" +
                     "}" +
                 "}";
-    }
-}
+    }    //getRequestString()
+}    //class
