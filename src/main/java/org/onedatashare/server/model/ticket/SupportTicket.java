@@ -3,6 +3,8 @@ package org.onedatashare.server.model.ticket;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
+import javax.validation.constraints.NotNull;
+
 /**
  * Model holding the data for support ticket (data sent in HTTP request).
  *
@@ -16,10 +18,17 @@ public class SupportTicket {
 
     private final String REDMINE_PROJECT_ID = "ods";
 
+    @NotNull
     private String name;
+
+    @NotNull
     private String email;
+
     private String phone;
+
+    @NotNull
     private String subject;
+
     private String issueDescription;
 
     /**
