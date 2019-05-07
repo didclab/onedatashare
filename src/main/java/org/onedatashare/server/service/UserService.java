@@ -27,16 +27,15 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.*;
 import javax.mail.*;
-import javax.mail.internet.*;
 
 @Service
 public class UserService {
 
-  final String EMAIL_USERNAME = System.getenv("ODS_EMAIL_ADDRESS");
-  final String EMAIL_PWD = System.getenv("ODS_EMAIL_PWD");
-
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private EmailService emailService;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
@@ -228,42 +227,15 @@ public class UserService {
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-    // Recipient's email ID needs to be mentioned.
-    String to = email;
-
-    // Get system properties
-    Properties properties = System.getProperties();
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.starttls.enable", "true");
-    properties.put("mail.smtp.host", "smtp.gmail.com");
-    properties.put("mail.smtp.port", "587");
-
-    // Get the default Session object.
-    Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PWD);
-      }
-    });
-
 
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
       userRepository.save(user).subscribe();
       try {
-        // Create a default MimeMessage object.
-        MimeMessage message = new MimeMessage(session);
-        // Set From: header field of the header.
-        message.setFrom(new InternetAddress(EMAIL_USERNAME));
-        // Set To: header field of the header.
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-        // Set Subject: header field
-        message.setSubject("Auth Code");
-        // Now set the actual message
-        message.setText("The authorization code for your OneDataShare account is : " + code);
-        // Send message
-        Transport.send(message);
-        System.out.println("Sent message successfully....");
+        String subject = "OneDataShare Authorization Code";
+        String emailText = "The authorization code for your OneDataShare account is : " + code;
+        emailService.sendEmail(email, subject, emailText);
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
@@ -452,7 +424,7 @@ public class UserService {
   }
 
   public Mono<User> addJob(Job job, String cookie) {
-    return getLoggedInUser(cookie).map(user -> user.addJob(job.uuid)).flatMap(userRepository::save);
+    return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
   }
 
   public User.UserLogin cookieToUserLogin(String cookie) {

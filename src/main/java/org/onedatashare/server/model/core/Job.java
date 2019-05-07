@@ -1,5 +1,6 @@
 package org.onedatashare.server.model.core;
 
+import lombok.Data;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.Times;
@@ -10,35 +11,36 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.UUID;
 
 @Document
+@Data
 public class Job {
-  public JobStatus status = JobStatus.scheduled;
+  private JobStatus status = JobStatus.scheduled;
 
-  public UserActionResource src, dest;
+  private UserActionResource src, dest;
 
-  public String message;
+  private String message;
 
   /** Byte progress of the transfer. */
-  public TransferInfo bytes;
+  private TransferInfo bytes;
   /** File progress of the transfer. Currently unused. */
-  public TransferInfo files;
+  private TransferInfo files;
 
-  public int attempts = 0, max_attempts = 10;
+  private int attempts = 0, max_attempts = 10;
 
   /** An ID meaningful to the user who owns the job. */
-  public int job_id;
+  private int job_id;
 
   /** To mark job as deleted **/
-  public boolean deleted = false;
+  private boolean deleted = false;
 
   /** The owner of the job. */
-  public String owner;
+  private String owner;
 
   /** Identifiers for jobs restarted using restart job functionality */
   public Boolean restartedJob = false;
   public Integer sourceJob = null;
 
   @Id
-  public UUID uuid;
+  private UUID uuid;
 
   public synchronized UUID uuid() {
     if (uuid == null)
@@ -47,7 +49,7 @@ public class Job {
   }
 
   /** Times of various important events. */
-  public Times times = new Times();
+  private Times times = new Times();
 
   public Job(UserActionResource src, UserActionResource dest) {
     uuid();
@@ -79,114 +81,6 @@ public class Job {
       case complete:
         times.completed = Time.now(); break;
     } return this;
-  }
-
-  public JobStatus getStatus() {
-    return this.status;
-  }
-
-  public UserActionResource getSrc() {
-    return this.src;
-  }
-
-  public UserActionResource getDest() {
-    return this.dest;
-  }
-
-  public String getMessage() {
-    return this.message;
-  }
-
-  public TransferInfo getBytes() {
-    return this.bytes;
-  }
-
-  public TransferInfo getFiles() {
-    return this.files;
-  }
-
-  public int getAttempts() {
-    return this.attempts;
-  }
-
-  public int getMax_attempts() {
-    return this.max_attempts;
-  }
-
-  public int getJob_id() {
-    return this.job_id;
-  }
-
-  public String getOwner() {
-    return this.owner;
-  }
-
-  public UUID getUuid() {
-    return this.uuid;
-  }
-
-  public Times getTimes() {
-    return this.times;
-  }
-
-  public void setSrc(UserActionResource src) {
-    this.src = src;
-  }
-
-  public void setDest(UserActionResource dest) {
-    this.dest = dest;
-  }
-
-  public void setMessage(String message) {
-    this.message = message;
-  }
-
-  public void setBytes(TransferInfo bytes) {
-    this.bytes = bytes;
-  }
-
-  public void setFiles(TransferInfo files) {
-    this.files = files;
-  }
-
-  public void setAttempts(int attempts) {
-    this.attempts = attempts;
-  }
-
-  public void setMax_attempts(int max_attempts) {
-    this.max_attempts = max_attempts;
-  }
-
-  public void setJob_id(int job_id) {
-    this.job_id = job_id;
-  }
-
-  public void setOwner(String owner) {
-    this.owner = owner;
-  }
-
-  public void setUuid(UUID uuid) {
-    this.uuid = uuid;
-  }
-
-  public void setTimes(Times times) {
-    this.times = times;
-  }
-
-  public Boolean isRestartedJob(){
-    return this.restartedJob;
-  }
-
-  public void setRestartedJob(Boolean value){
-    this.restartedJob = value;
-  }
-
-  public Integer getSourceJob(){
-    return this.sourceJob;
-  }
-
-  public void setSourceJob(Integer jobId){
-    this.sourceJob = jobId;
   }
 
   public boolean equals(final Object o) {
@@ -231,6 +125,7 @@ public class Job {
     return other instanceof Job;
   }
 
+  @Override
   public int hashCode() {
     final int PRIME = 59;
     int result = 1;
