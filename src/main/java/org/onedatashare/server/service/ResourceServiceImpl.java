@@ -214,7 +214,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             UUID destCredUUID = getCredUuidUsingCredName(user, restartedJob.getDest().getCredential().getName());
             if(destCredUUID != null){
                 if(!UUID.fromString(restartedJob.getDest().getCredential().getUuid()).equals(destCredUUID)){
-                    restartedJob.getSrc().getCredential().setUuid(destCredUUID.toString());
+                    restartedJob.getDest().getCredential().setUuid(destCredUUID.toString());
                 }
             }
             else
