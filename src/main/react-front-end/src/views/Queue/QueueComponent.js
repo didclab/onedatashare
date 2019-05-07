@@ -24,8 +24,6 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 
-import './QueueComponent.css';
-
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
 		root:{

@@ -6,11 +6,15 @@ import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';
 import  { Route, Switch, Redirect } from 'react-router-dom';
-//import './lightTheme.css';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
+import Fab from '@material-ui/core/Fab';
+import Tooltip from '@material-ui/core/Tooltip';
+import ContactSupportOutlined  from '@material-ui/icons/ContactSupportOutlined';
+
 import EventEmitter from 'eventemitter3';
+import { Link } from 'react-router-dom';
 export const eventEmitter = new EventEmitter();
 
 
@@ -47,6 +51,8 @@ class App extends Component {
 
   render() {
     const { loggedIn,vertical,horizontal, error, open } = this.state;
+    const fabButtonStyle = {position: 'fixed', bottom: '10%', right: '3%', background: '#d7e2ef', border : '1px solid black'};
+
     return (
       <div>
 
@@ -71,6 +77,12 @@ class App extends Component {
           <Route path='/oauth/:id' component={OauthProcessComponent}/>
           <Route exact path='/*/' component={MainComponent}/>
         </Switch>
+
+        <Tooltip title="Report an issue" placement="top">
+          <Fab aria-label="Support Ticket" style={fabButtonStyle} component={Link} to="/support">
+            <ContactSupportOutlined />
+          </Fab>
+        </Tooltip>
       </div>
     );
   }
