@@ -33,6 +33,10 @@ public class Job {
   /** The owner of the job. */
   public String owner;
 
+  /** Identifiers for jobs restarted using restart job functionality */
+  public Boolean restartedJob = false;
+  public Integer sourceJob = null;
+
   @Id
   public UUID uuid;
 
@@ -167,6 +171,22 @@ public class Job {
 
   public void setTimes(Times times) {
     this.times = times;
+  }
+
+  public Boolean isRestartedJob(){
+    return this.restartedJob;
+  }
+
+  public void setRestartedJob(Boolean value){
+    this.restartedJob = value;
+  }
+
+  public Integer getSourceJob(){
+    return this.sourceJob;
+  }
+
+  public void setSourceJob(Integer jobId){
+    this.sourceJob = jobId;
   }
 
   public boolean equals(final Object o) {

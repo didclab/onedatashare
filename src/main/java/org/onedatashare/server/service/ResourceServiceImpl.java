@@ -162,6 +162,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                             return Mono.error(new Exception("Restart job failed since either or both credentials of the job do not exist"));
                         }
                         restartedJob.setStatus(JobStatus.scheduled);
+                        restartedJob.setRestartedJob(true);
+                        restartedJob.setSourceJob(userAction.job_id);
                         restartedJob = user.saveJob(restartedJob);
                         userService.saveUser(user).subscribe();
                         return Mono.just(restartedJob);
