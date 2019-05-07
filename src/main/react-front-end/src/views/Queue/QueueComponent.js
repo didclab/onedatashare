@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { queue, cancelJob, restartJob, deleteJob} from '../../APICalls/APICalls';
+import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -136,7 +137,9 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Restart job failed since either or both credentials of the job do not exist');
+			var msg = 'Restart job failed since either or both credentials of the job do not exist';
+			console.log(msg);
+			eventEmitter.emit("errorOccured", msg);
 		});
 	}
 

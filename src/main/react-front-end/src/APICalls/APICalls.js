@@ -465,7 +465,6 @@ export async function mkdir(uri,type, endpoint,  accept, fail){
 }
 
 export async function deleteCall(uri, endpoint, id, accept, fail){
-	console.log("screw")
 	var callback = accept;
 	axios.post(url+'delete', {
 	    credential: endpoint.credential,

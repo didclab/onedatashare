@@ -35,6 +35,10 @@ public class Job {
   /** The owner of the job. */
   private String owner;
 
+  /** Identifiers for jobs restarted using restart job functionality */
+  public Boolean restartedJob = false;
+  public Integer sourceJob = null;
+
   @Id
   private UUID uuid;
 
@@ -79,7 +83,6 @@ public class Job {
     } return this;
   }
 
-  @Override
   public boolean equals(final Object o) {
     if (o == this) return true;
     if (!(o instanceof Job)) return false;
