@@ -424,7 +424,7 @@ public class UserService {
   }
 
   public Mono<User> addJob(Job job, String cookie) {
-    return getLoggedInUser(cookie).map(user -> user.addJob(job.uuid)).flatMap(userRepository::save);
+    return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
   }
 
   public User.UserLogin cookieToUserLogin(String cookie) {
