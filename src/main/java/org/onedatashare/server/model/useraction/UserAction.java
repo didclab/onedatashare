@@ -15,6 +15,7 @@ public class UserAction {
   public String lastName;
   public String organization;
   public String password;
+  public String oldPassword;
   public String uri;
   public String id;
   public ArrayList<IdMap> map;
