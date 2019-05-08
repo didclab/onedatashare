@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-public class SupportTicket {
+public class SupportTicketRequest {
 
     @NonNull
     private String name;
@@ -23,13 +23,15 @@ public class SupportTicket {
     @NonNull
     private String email;
 
-    private String phone;
+    private String phone = "";
 
     @NonNull
     private String subject;
 
     @NonNull
     private String description;
+
+    private String captchaVerificationValue;
 
     // mandatory settings required by Freshdesk
     private Integer source = 2;    // 2 -> Portal, indicating it was created using our webapp
@@ -50,14 +52,37 @@ public class SupportTicket {
                 "Issue Description : <br />" + this.getDescription();
     }    // toString()
 
-//    /**
-//     * This method constructs the JSON request to be sent to Freshdesk for this support ticket request.
-//     *
-//     * @return String representation of JSON body to be sent to Freshdesk issue creation request.
-//     */
-//    public String getRequestString(){
-//        return "{" +
-//                    "" +
-//                "}";
-//    }    //getRequestString()
+    /**
+     * This method constructs the JSON request to be sent to Freshdesk for this support ticket request.
+     *
+     * @return String representation of JSON body to be sent to Freshdesk issue creation request.
+     */
+    public String getRequestString(){
+        return "{" +
+                    "\"name\" : \"" + this.getName() + "\"" +
+                    "\"email\" : \"" + this.getEmail() + "\"" +
+                    "\"phone\" : \"" + this.getPhone() + "\"" +
+                    "\"subject\" : \"" + this.getSubject() + "\"" +
+                    "\"description\" : " + this.getDescription() + "\"" +
+                    "\"source\" : " + this.getSource() +
+                    "\"status\" : " + this.getStatus() +
+                    "\"priority\" : " + this.getPriority() +
+                "}";
+
+
+    }    //getRequestString()
 }    //class
+
+/*
+Sample request object to Freshdesk
+{
+        "name":"Test User",
+        "email":"linuscas@buffalo.edu",
+        "phone": "2019524216",
+        "source" : 2,
+        "status" : 2,
+        "priority" : 2,
+        "description" : "TEst ticket <br /> New Line",
+        "subject" : "TEst ticket 2 using api"
+}
+*/

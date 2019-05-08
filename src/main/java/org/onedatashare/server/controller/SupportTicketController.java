@@ -1,6 +1,6 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.ticket.SupportTicket;
+import org.onedatashare.server.model.ticket.SupportTicketRequest;
 import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +30,11 @@ public class SupportTicketController {
      * Note - Unlike other controllers, this controller does not accept HttpHeaders as an argument for checking for cookies,
      * since a user can create a ticket even without logging in.
      *
-     * @param supportTicket - Object containing request values
+     * @param supportTicketRequest - Object containing request values
      * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
      */
     @PostMapping
-    public Mono<Integer> handle(@RequestBody SupportTicket supportTicket){
-        return supportTicketService.createSupportTicket(supportTicket);
+    public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest){
+        return supportTicketService.createSupportTicket(supportTicketRequest);
     }
 }

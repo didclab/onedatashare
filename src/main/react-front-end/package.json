@@ -23,6 +23,7 @@
     "react-favicon": "0.0.14",
     "react-file-input": "^0.2.5",
     "react-fine-uploader": "^1.1.1",
+    "react-google-recaptcha": "^1.0.5",
     "react-material-ui-form-validator": "^2.0.8",
     "react-redux": "^5.1.1",
     "react-router": "^4.3.1",
