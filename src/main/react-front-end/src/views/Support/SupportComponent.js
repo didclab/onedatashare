@@ -35,7 +35,7 @@ export default class SupportComponent extends Component{
       email : this.state.email,
       phone : this.state.phone,
       subject : this.state.subject,
-      issueDescription : this.state.description
+      description : this.state.description
     };
     
     submitIssue(reqBody, 
@@ -114,6 +114,7 @@ export default class SupportComponent extends Component{
 
             <div style={ divStyle } >
               <TextField
+                required
                 multiline
                 rows="6"
                 label="Issue Description"
