@@ -59,13 +59,13 @@ public class SupportTicketRequest {
      */
     public String getRequestString(){
         return "{" +
-                    "\"name\" : \"" + this.getName() + "\"" +
-                    "\"email\" : \"" + this.getEmail() + "\"" +
-                    "\"phone\" : \"" + this.getPhone() + "\"" +
-                    "\"subject\" : \"" + this.getSubject() + "\"" +
-                    "\"description\" : " + this.getDescription() + "\"" +
-                    "\"source\" : " + this.getSource() +
-                    "\"status\" : " + this.getStatus() +
+                    "\"name\" : \"" + this.getName() + "\"," +
+                    "\"email\" : \"" + this.getEmail() + "\"," +
+                    "\"phone\" : \"" + this.getPhone() + "\"," +
+                    "\"subject\" : \"" + this.getSubject() + "\"," +
+                    "\"description\" : \"" + this.getDescription() + "\"," +
+                    "\"source\" : " + this.getSource() + "," +
+                    "\"status\" : " + this.getStatus() + "," +
                     "\"priority\" : " + this.getPriority() +
                 "}";
 

@@ -45,16 +45,21 @@ public class CaptchaService {
             outputStream.close();
 
             int respCode = conn.getResponseCode();
-            System.out.println(respCode);
 
-            StringBuffer resp = new StringBuffer();
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String input = null;
-            while((input = br.readLine()) != null)
-                resp.append(input);
+            if(respCode == HttpURLConnection.HTTP_OK) {
+                StringBuffer resp = new StringBuffer();
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String input = null;
+                while ((input = br.readLine()) != null)
+                    resp.append(input);
 
-            GoogleCaptchaVerifyResponse respObj = objectMapper.readValue(resp.toString(), GoogleCaptchaVerifyResponse.class);
-            return Mono.just(respObj.getSuccess());
+                GoogleCaptchaVerifyResponse respObj = objectMapper.readValue(resp.toString(), GoogleCaptchaVerifyResponse.class);
+                return Mono.just(respObj.getSuccess());
+            }
+            else{
+                errorMsg = "There was an error verifying the captcha code - " + conn.getResponseMessage();
+                System.out.println(errorMsg);
+            }
         }
         catch(MalformedURLException mue){
             errorMsg = "Exception occurred while creating URL object";

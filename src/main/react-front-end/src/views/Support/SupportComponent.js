@@ -52,7 +52,6 @@ export default class SupportComponent extends Component{
 
       submitIssue(reqBody,
         (resp)=>{
-          console.log(resp);
           progressBarDiv.style.visibility = 'hidden';
           msgDiv.style.border = '1px solid green'
           msgDiv.style.color = "green";
@@ -60,7 +59,6 @@ export default class SupportComponent extends Component{
           msgDiv.style.visibility = 'visible';
         },
         (err)=>{
-          console.error(err);
           progressBarDiv.style.visibility = 'hidden';
           msgDiv.style.border = '1px solid red';
           msgDiv.style.color = "red";
