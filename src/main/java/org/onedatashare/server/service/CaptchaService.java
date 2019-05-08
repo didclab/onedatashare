@@ -15,7 +15,11 @@ import java.net.URL;
 import java.util.Date;
 
 /**
+ * Service that performs server side validation functionality of Google ReCaptcha V2
+ * by validating the verification value with the secret key using the Google siteverify API.
  *
+ * @version 1.0
+ * @since 05-08-2019
  */
 @Service
 public class CaptchaService {
@@ -27,6 +31,12 @@ public class CaptchaService {
     private final String REQUEST_METHOD = "POST";
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * Method that performs server side validation.
+     *
+     * @param verificationValue
+     * @return a boolean value if the verification was successful with the passed verificatioValue from frontend
+     */
     public Mono<Boolean> verifyValue(String verificationValue){
         String errorMsg = "";
 
@@ -79,6 +89,9 @@ public class CaptchaService {
     }
 }
 
+/**
+ * Model for response from Google siteverify API.
+ */
 @Data
 class GoogleCaptchaVerifyResponse{
 
