@@ -15,8 +15,6 @@ import org.onedatashare.module.globusapi.EndPoint;
 
 import java.util.*;
 
-
-
 @Data
 @Document
 public class User {
@@ -245,13 +243,12 @@ public class User {
      * Save a {@link Job} to this {@code User}'s {@code jobs} list.
      */
     public Job saveJob(Job job) {
-        if (job.uuid == null) {
+        if (job.getUuid() == null) {
             job.uuid();
         }
-        job.owner = normalizedEmail();
-        jobs.add(job.uuid());
-        job.job_id = jobs.size();
-        jobs.add(job.uuid);
+        job.setOwner(normalizedEmail());
+        job.setJob_id(jobs.size());
+        jobs.add(job.getUuid());
         return job;
     }
 

@@ -176,9 +176,9 @@ public class VfsService implements ResourceService<VfsResource> {
 
     public void processTransferFromJob(Job job, String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
-        getResourceWithUserActionResource(cookie, job.src)
+        getResourceWithUserActionResource(cookie, job.getSrc())
                 .map(transfer::setSource)
-                .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
+                .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
                 .map(transfer::setDestination)
                 .flux()
                 .flatMap(transfer1 -> transfer1.start(1L << 20))

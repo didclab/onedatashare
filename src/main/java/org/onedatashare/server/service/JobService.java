@@ -93,7 +93,7 @@ public class JobService {
         return getAllJobsForUser(cookie).<Job>map(jobs -> {
             Job job = new Job(null, null);
             for(Job j: jobs) {
-                if(j.job_id == job_id) job = j;
+                if(j.getJob_id() == job_id) job = j;
             }
             return job;
         });

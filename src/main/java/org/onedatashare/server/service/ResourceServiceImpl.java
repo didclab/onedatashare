@@ -140,7 +140,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 userService.saveUser(user).subscribe();
                 return job;
             })
-            .flatMap(job -> jobService.saveJob(job))
+            .flatMap(jobService::saveJob)
             .doOnSuccess(job -> processTransferFromJob(job, cookie))
             .subscribeOn(Schedulers.elastic());
     }
@@ -156,12 +156,14 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .flatMap(user ->{
                 return jobService.findJobByJobId(cookie, userAction.job_id)
                     .flatMap(job -> {
-                        Job restartedJob = new Job(job.src, job.dest);
+                        Job restartedJob = new Job(job.getSrc(), job.getDest());
                         boolean credsExists = updateJobCredentials(user, job);
                         if(!credsExists){
                             return Mono.error(new Exception("Restart job failed since either or both credentials of the job do not exist"));
                         }
                         restartedJob.setStatus(JobStatus.scheduled);
+                        restartedJob.setRestartedJob(true);
+                        restartedJob.setSourceJob(userAction.job_id);
                         restartedJob = user.saveJob(restartedJob);
                         userService.saveUser(user).subscribe();
                         return Mono.just(restartedJob);
@@ -175,7 +177,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Mono<Job> deleteJob(String cookie, UserAction userAction){
         return jobService.findJobByJobId(cookie,userAction.job_id)
                 .map(job -> {
-                    job.deleted = true;
+                    job.setDeleted(true);
                     return job;
                 }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
     }
@@ -185,8 +187,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 .flatMap(user -> {
                     return jobService.findJobByJobId(cookie, userAction.job_id)
                             .map(job -> {
-                                ongoingJobs.get(job.uuid).dispose();
-                                ongoingJobs.remove(job.uuid);
+                                ongoingJobs.get(job.getUuid()).dispose();
+                                ongoingJobs.remove(job.getUuid());
                                 return job.setStatus(JobStatus.removed);
                             });
                 })
@@ -214,7 +216,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             UUID destCredUUID = getCredUuidUsingCredName(user, restartedJob.getDest().getCredential().getName());
             if(destCredUUID != null){
                 if(!UUID.fromString(restartedJob.getDest().getCredential().getUuid()).equals(destCredUUID)){
-                    restartedJob.getSrc().getCredential().setUuid(destCredUUID.toString());
+                    restartedJob.getDest().getCredential().setUuid(destCredUUID.toString());
                 }
             }
             else
@@ -238,9 +240,9 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public void processTransferFromJob(Job job, String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
-        Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.src)
+        Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.getSrc())
             .map(transfer::setSource)
-            .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
+            .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
             .flatMap(transfer1 -> transfer1.start(1L << 20))
@@ -254,7 +256,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .map(job::updateJobWithTransferInfo)
             .flatMap(jobService::saveJob)
             .subscribe();
-        ongoingJobs.put(job.uuid, ongoingJob);
+        ongoingJobs.put(job.getUuid(), ongoingJob);
     }
 
     class RunnableCanceler implements Runnable {

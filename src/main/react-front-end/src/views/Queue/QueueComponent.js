@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { queue, cancelJob, restartJob, deleteJob} from '../../APICalls/APICalls';
+import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -23,8 +24,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
-
-import './QueueComponent.css';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -147,7 +146,9 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Restart job failed since either or both credentials of the job do not exist');
+			var msg = 'Restart job failed since either or both credentials of the job do not exist';
+			console.log(msg);
+			eventEmitter.emit("errorOccured", msg);
 		});
 	}
 
@@ -280,7 +281,6 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		console.log("The page is:" + page)
 		let nextRecords
 		if(page > this.state.page){
 			// Moving to next page
@@ -291,7 +291,7 @@ class QueueComponent extends Component {
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
 		this.state.page=page
-		
+
 		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
