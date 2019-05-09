@@ -186,7 +186,8 @@ class ClientsInfoComponent extends Component{
 			firstName: 'firstName',
 			lastName : "lastName",
 			lastActivity : "lastActivity",
-			registerMoment: "registerMoment"
+			registerMoment: "registerMoment",
+			organization: "organization"
 		}
 		return(
 			<div>
@@ -214,83 +215,96 @@ class ClientsInfoComponent extends Component{
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>
-							<TableCell colSpan={7} style={{...tbcellStyle, backgroundColor: '#d9edf7', width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Users Information</TableCell>
+								<TableCell colSpan={8} style={{...tbcellStyle, backgroundColor: '#d9edf7', width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Users Information</TableCell>
 							</TableRow>
 							<TableRow>
-							<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={userTblOrderBy === sortableColumns.email}
-									direction={userTblOrder}
-									onClick={() => {this.handleUserTblRequestSort(sortableColumns.email)}}>
-									<People />Users
-								</TableSortLabel>
-							</Tooltip>						
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on First Name" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={userTblOrderBy === sortableColumns.firstName}
-										direction={userTblOrder}
-										onClick={() => {this.handleUserTblRequestSort(sortableColumns.firstName)}}>
-										First Name
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={userTblOrderBy === sortableColumns.lastName}
-										direction={userTblOrder}
-										onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastName)}}>
-										Last Name
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on Sign Up" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={userTblOrderBy === sortableColumns.registerMoment}
-										direction={userTblOrder}
-										onClick={() => {this.handleUserTblRequestSort(sortableColumns.registerMoment)}}>
-										Sign Up
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-							Validation
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on Last Activity" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={userTblOrderBy === sortableColumns.lastActivity}
-										direction={userTblOrder}
-										onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastActivity)}}>
-										Last Activity
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>Make Admin</TableCell>
+								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.email}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.email)}}>
+											<People />Users
+										</TableSortLabel>
+									</Tooltip>						
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1.75rem', color: '#31708f'}}>
+									<Tooltip title="Sort on First Name" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.firstName}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.firstName)}}>
+											Name
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								{/* <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.lastName}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastName)}}>
+											Last Name
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell> */}
+								<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1.75rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.organization}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.organization)}}>
+											Orgainzation
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Sign Up" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.registerMoment}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.registerMoment)}}>
+											Sign Up
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.75rem', color: '#31708f'}}>
+								Validation
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Last Activity" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={userTblOrderBy === sortableColumns.lastActivity}
+											direction={userTblOrder}
+											onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastActivity)}}>
+											Last Activity
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>Make Admin</TableCell>
 							</TableRow>
 						</TableHead>
 						<TableBody>
 							{
 								users.map(resp =>{
-									var timeStamp = resp.registerMoment * 1000;
+									var timeStamp = resp.registerMoment;
+									console.log(timeStamp)
 									var date = new Date(timeStamp);
+									var lastActivity = new Date(resp.lastActivity);
 
 									return(
 									<TableRow>
 										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName + " " + resp.lastName}</TableCell>
+										{/* <TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell> */}
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.organization}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{
-											date.getMonth() +'/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes()
+											(1 + date.getMonth()) +'/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes()
 										}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>
 											{(resp.validated)?<Done style={{color: 'green'}} />:<Clear style={{color: 'red'}} />}
 										</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
+										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{(1 + lastActivity.getMonth()) +'/' + lastActivity.getDate() + '/' + lastActivity.getFullYear() + ' ' + date.getHours() + ':' + lastActivity.getMinutes()}</TableCell>
 										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" disabled = {resp.email === store.getState().email} checked = {resp.isAdmin} onChange={(event) => this.updateAdminRights(event, resp)}></input></TableCell>
 									</TableRow>)
 								})
@@ -300,7 +314,7 @@ class ClientsInfoComponent extends Component{
 							<TableRow>
 								<TablePagination
 									rowsPerPageOptions={userTblRowsPerPageOptions}
-									colSpan={7}
+									colSpan={8}
 									count={totalUsersCount}
 									rowsPerPage={userTblRowsPerPage}
 									page={userTblPage}

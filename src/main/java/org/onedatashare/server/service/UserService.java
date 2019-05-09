@@ -46,6 +46,7 @@ public class UserService {
   }
 
   public Mono<User> createUser(User user) {
+    user.registerMoment = System.currentTimeMillis();
     return userRepository.insert(user);
   }
 
