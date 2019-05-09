@@ -12,14 +12,18 @@ import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -272,12 +276,34 @@ public class UserService {
     });
   }
 
-  public Flux<User> getAllUsers(){
-    return userRepository.findAll();
+  public Mono<UserDetails> getAllUsers(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                userRepository.count()
+                    .map(count ->  {
+                      UserDetails result = new UserDetails();
+                      result.users = users;
+                      result.totalCount = count;
+                      return result;
+                    }));
   }
 
-  public Flux<User> getAdministrators(){
-    return userRepository.findAllAdministrators();
+  public Mono<UserDetails> getAdministrators(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                  userRepository.countAdministrators()
+                          .map(count ->  {
+                            UserDetails result = new UserDetails();
+                            result.users = users;
+                            result.totalCount = count;
+                            return result;
+                          }));
   }
 
   public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){

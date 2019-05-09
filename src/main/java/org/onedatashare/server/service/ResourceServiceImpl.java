@@ -140,7 +140,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 userService.saveUser(user).subscribe();
                 return job;
             })
-            .flatMap(jobService::saveJob)
+            .flatMap(job -> jobService.saveJob(job))
             .doOnSuccess(job -> processTransferFromJob(job, cookie))
             .subscribeOn(Schedulers.elastic());
     }
