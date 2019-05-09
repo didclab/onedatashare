@@ -82,6 +82,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 }
                 stat.setFiles(files);
             }
+//            stat.setFiles();
         } catch (FileSystemException e) {
             e.printStackTrace();
         }

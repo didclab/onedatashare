@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.ArrayList;
 
 public class HttpSession extends Session<HttpSession, HttpResource> {
-    protected HttpSession(URI uri) {
+    public HttpSession(URI uri) {
         super(uri);
     }
 
@@ -19,6 +19,11 @@ public class HttpSession extends Session<HttpSession, HttpResource> {
 
     @Override
     public Mono<HttpSession> initialize() {
-        return null;
+        return Mono.create(s-> s.success(this));
+    }
+
+    @Override
+    public Mono<HttpResource> select(String path){
+        return Mono.just(new HttpResource(this, uri.toString()));
     }
 }
