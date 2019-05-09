@@ -59,7 +59,6 @@ public class DownloadController {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return resourceService.download(cookie, userAction);
         } else if (userAction.uri.startsWith("ftp://")) {
-
             return vfsService.getDownloadURL(cookie, userAction);
         }
         return null;
