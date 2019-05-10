@@ -67,8 +67,6 @@ public class Job {
     if (status == null || status.isFilter)
       throw new Error("Cannot set job state to status: "+status);
 
-    if (this.status == status)
-      return this;
 
     // Handle entering the new state.
     switch (this.status = status) {

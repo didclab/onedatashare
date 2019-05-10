@@ -562,11 +562,15 @@ export async function upload(uri, credential, accept, fail){
 /*
 	Desc: Retrieve all the available users
 */
-export async function getUsers(type, accept, fail){
+export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
-	    action: type
+			action: type,
+			pageNo: pageNo,
+			pageSize: pageSize,
+			sortBy: sortBy,
+			sortOrder: order
 	})
 	.then((response) => {
 		if(!(response.status === 200))

@@ -47,6 +47,7 @@ class QueueComponent extends Component {
 	constructor(){
 		super();
 		this.state = {response:[],
+						responsesToDisplay:[],
 						selectedTab: 0,
 						page: 0,
 						rowsPerPage: 10,
@@ -69,7 +70,15 @@ class QueueComponent extends Component {
         let isHistory = false;
 	    queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
-		this.setState({response:resp.jobs, totalCount: resp.totalCount});
+		let responsesToDisplay = [];
+		if(this.state.page == 0){
+			responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
+		}
+		else{
+			responsesToDisplay = resp.jobs.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage);
+		}
+
+		this.setState({response:resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount});
 	}, (resp) => {
 		//failed
 		console.log('Error in queue request to API layer')})};
@@ -272,8 +281,18 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
+		let nextRecords
+		if(page > this.state.page){
+			// Moving to next page
+			nextRecords = this.state.response.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage)
+		}
+		else{
+			// Moving to previous page
+			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
+		}
 		this.state.page=page
-		this.setState({ page });
+
+		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
 
@@ -299,7 +318,7 @@ class QueueComponent extends Component {
 
 	render(){
 		const height = window.innerHeight+"px";
-		const {response, totalCount} = this.state;
+		const {response, totalCount, responsesToDisplay} = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
@@ -310,7 +329,7 @@ class QueueComponent extends Component {
 			source : "src.uri"
 		}
 		var tableRows = [];
-		response.map(resp => {
+		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>

@@ -38,9 +38,9 @@ public class UserController {
       case "getUser":
         return userService.getUser(userAction.getEmail());
       case "getUsers":
-        return userService.getAllUsers();
+        return userService.getAllUsers(userAction);
       case "getAdministrators":
-        return userService.getAdministrators();
+        return userService.getAdministrators(userAction);
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":

@@ -12,6 +12,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,31 +41,51 @@ public class JobService {
 
     public Mono<JobDetails> getJobsForUserOrAdmin(String cookie, JobRequest request) {
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        int numberOfItrs = request.pageNo == 0 ? 2 : 3;
+        request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
+
         return userService.getLoggedInUser(cookie).flatMap(user -> {
             if(user.isAdmin() && request.status.equals("all")){
-                return jobRepository.findAllBy(PageRequest.of(request.pageNo,
-                        request.pageSize, Sort.by(direction, request.sortBy))).collectList().flatMap(jobs ->
-                        jobRepository.count()
+                Mono<List<Job>> jobs = Mono.just(new ArrayList<>());
+                for (int i = 0; i < numberOfItrs; i++) {
+                    int pageNo = request.pageNo + i;
+                    jobs = jobs.flatMap(jobs1 -> jobRepository.findAllBy(PageRequest.of(pageNo,
+                            request.pageSize, Sort.by(direction, request.sortBy)))
+                            .collectList()
+                            .map(jobs2 -> {
+                                jobs1.addAll(jobs2);
+                                return jobs1;
+                            }));
+                }
+
+                return jobs.flatMap(jobs1 -> jobRepository.count()
                         .map(count ->  {
                             JobDetails result = new JobDetails();
-                            result.jobs = jobs;
+                            result.jobs = jobs1;
                             result.totalCount = count;
                             return result;
                         }));
             }
             else{
-                return jobRepository.findJobsForUser(user.email,false, PageRequest.of(request.pageNo,
-                        request.pageSize, Sort.by(direction, request.sortBy)))
-                        .collectList()
-                        .flatMap(jobs -> jobRepository.countJobBy(user.email,false)
-                                .map(count ->  {
-                                    JobDetails result = new JobDetails();
-                                    result.jobs = jobs;
-                                    result.totalCount = count;
-                                    return result;
-                                }));
+                Mono<List<Job>> jobs = Mono.just(new ArrayList<>());
+                for (int i = 0; i < numberOfItrs; i++) {
+                    int pageNo = request.pageNo + i;
+                    jobs = jobs.flatMap(jobs1 -> jobRepository.findJobsForUser(user.email,false, PageRequest.of(pageNo,
+                            request.pageSize, Sort.by(direction, request.sortBy)))
+                            .collectList()
+                            .map(jobs2 -> {
+                                jobs1.addAll(jobs2);
+                                return jobs1;
+                            }));
+                }
+                return jobs.flatMap(jobs1 -> jobRepository.countJobBy(user.email,false)
+                        .map(count ->  {
+                            JobDetails result = new JobDetails();
+                            result.jobs = jobs1;
+                            result.totalCount = count;
+                            return result;
+                        }));
             }
-
         });
     }
 
