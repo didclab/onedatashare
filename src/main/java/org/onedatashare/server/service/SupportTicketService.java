@@ -64,9 +64,9 @@ public class SupportTicketService {
      */
     public Mono<Integer> createSupportTicket(SupportTicketRequest supportTicketRequest){
 
-        return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
-                .flatMap(captchaVerified-> {
-                    if (captchaVerified){
+//        return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
+//                .flatMap(captchaVerified-> {
+//                    if (captchaVerified){
                         try {
                             URL urlObj = new URL(FRESHDESK_API_URL);
                             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
@@ -79,7 +79,7 @@ public class SupportTicketService {
                             conn.setRequestProperty("Accept", CONTENT_TYPE);
                             conn.setDoOutput(true);
 
-                            String jsonBody =  supportTicketRequest.getRequestString();
+                            String jsonBody =  supportTicketRequest.getRequestString().replace("\n","<br />");
                             DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream());
                             outputStream.writeBytes(jsonBody);
                             outputStream.flush();
@@ -123,11 +123,11 @@ public class SupportTicketService {
                         }
 
                         return Mono.error(new Exception("Error occurred while trying to create a support ticket"));
-                    }
-                    else
-                        return Mono.error(new Exception("Captcha verification failed"));
-                    }
-                );
+//                    }
+//                    else
+//                        return Mono.error(new Exception("Captcha verification failed"));
+//                    }
+//                );
     }    // createSupportTicket()
 
     /**

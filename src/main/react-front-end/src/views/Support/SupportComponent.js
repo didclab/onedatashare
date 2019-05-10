@@ -35,19 +35,19 @@ export default class SupportComponent extends Component{
   }
 
   handleSubmit(){
-    if(this.state.captchaVerified){
+    // if(this.state.captchaVerified){
       var progressBarDiv = document.getElementById('progress-bar');
       progressBarDiv.style.visibility = 'visible';
 
       var msgDiv = document.getElementById('msg');
 
       var reqBody = {
-        name : this.state.first_name + ' ' + this.state.last_name,
+        name : this.state.name,
         email : this.state.email,
         phone : this.state.phone,
         subject : this.state.subject,
         description : this.state.description,
-        captchaVerificationValue : this.state.captchaVerificationValue
+        // captchaVerificationValue : this.state.captchaVerificationValue
       };
 
       submitIssue(reqBody,
@@ -65,9 +65,9 @@ export default class SupportComponent extends Component{
           msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again.";
           msgDiv.style.visibility = 'visible';
         });
-      }
-      else
-        eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
+      // }
+      // else
+      //   eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
   }
 
 
@@ -75,7 +75,7 @@ export default class SupportComponent extends Component{
     
     const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' }
     const divStyle = { margin : '2% 5%' }
-    const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' }
+    // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' }
 
     return(
         <Card style={cardStyle}>
@@ -86,35 +86,18 @@ export default class SupportComponent extends Component{
             <div style={divStyle}>
               <TextField
                 required
-                label = 'First Name'
-                name = 'first_name' 
+                label = 'Name'
+                name = 'name' 
                 onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />
 
-              <TextField
-                required
-                label = 'Last Name'
-                name = 'last_name'   
-                onChange = {this.handleChange}
-                style = {{ marginLeft : '5%', width :'30%' }}
-              />
-            </div>
-
-            <div style={divStyle}>
               <TextField
                 required
                 label = 'Email Address'
                 name = 'email' 
                 onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
-              />
-
-              <TextField
-                label = 'Phone'
-                name = 'phone'   
-                onChange = {this.handleChange}
-                style = {{ marginLeft : '5%', width :'30%' }}
               />
             </div>
 
@@ -139,10 +122,11 @@ export default class SupportComponent extends Component{
                 style={{ width : '70%' }}
               />
             </div>
-
+            {/* 
             <div style={ captchaStyle }>
                 <ReCAPTCHA sitekey="6LfXVKIUAAAAAICqn4qGgNtf44QqQ-4CEVWiU_u8" onChange={this.handleCaptchaEvent} />
-            </div>
+            </div> 
+            */}
 
             <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
               <LinearProgress />
