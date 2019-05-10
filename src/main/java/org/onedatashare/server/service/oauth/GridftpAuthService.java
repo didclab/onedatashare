@@ -36,9 +36,11 @@ public class GridftpAuthService {
 
     public synchronized Mono<OAuthCredential> finish(String token) {
         try {
+
             return globusclient.getAccessToken(token).map(
                     acctoken -> {
-                        OAuthCredential oa = new OAuthCredential(acctoken.getAccessToken());
+
+                        OAuthCredential oa = new OAuthCredential(acctoken.getTransferAccessToken());
                         oa.expiredTime = acctoken.getExpiredTime();
                         oa.name = "GridFTP Client";
                         return oa;

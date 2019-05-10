@@ -56,7 +56,7 @@ public class GoogleDriveOauthService{
 
     public static class GoogleDriveConfig {
         public String client_id, client_secret, auth_uri, token_uri, auth_provider_x509_cert_url, project_id;
-        public String redirect_uris = "http://127.0.0.1:8080/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
+        public String redirect_uris = "https://onedatashare.org/api/stork/oauth,https://onedatashare.org/api/stork/oauth,http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth,http:///www.onedatashare.org/api/stork/oauth";
         public GoogleDriveConfig() {
             this.client_id = "1093251746493-hga9ltfasf35q9daqrf00rgcu1ocj3os.apps.googleusercontent.com";
             this.client_secret = "8Zsk-F6iP3jyIDVvHV33CkKh";

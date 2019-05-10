@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class UserServiceTest {
   @Autowired
   private UserService userService;
-
-  @Test
-  public void createUserTest() throws Exception {
-//    User user = new User("vanditsa@buffalo.edu", "asdasd");
-//    userService.createUser(user).subscribe(System.out::println);
-  }
+//
+//  @Test
+//  public void createUserTest() throws Exception {
+////    User user = new User("vanditsa@buffalo.edu", "asdasd");
+////    userService.createUser(user).subscribe(System.out::println);
+//  }
 }

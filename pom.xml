@@ -128,8 +128,6 @@
             <groupId>org.onedatashare.module</groupId>
             <artifactId>globus-api</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>
@@ -162,5 +160,10 @@
         </plugins>
     </build>
 
-
+    <repositories>
+        <repository>
+            <id>local-library</id>
+            <url>file:///${project.basedir}/lib</url>
+        </repository>
+    </repositories>
 </project>

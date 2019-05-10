@@ -369,6 +369,7 @@ export async function listFiles(uri, endpoint, id, accept, fail){
 	    uri: encodeURI(uri),
 	    depth: 1,
 	    id: id,
+	    portNumber: endpoint.portNumber,
 	    //map: getMapFromEndpoint(endpoint),
 	    type: getTypeFromUri(uri)
 	  };

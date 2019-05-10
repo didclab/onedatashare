@@ -54,8 +54,7 @@ export default class EndpointBrowseComponent extends Component {
 			shareUrl: "",
 			openAFolder: false,
 			addFolderName: "",
-			searchText: "",
-			displayStyle: "compact",
+			searchText: ""
 		};
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
@@ -285,8 +284,8 @@ export default class EndpointBrowseComponent extends Component {
 	
 
 	render(){
-		const {endpoint, back, setLoading, getLoading} = this.props;
-		const {directoryPath, displayMode, searchText, compactStylePos, displayStyle} = this.state;
+		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
+		const {directoryPath, displayMode, searchText, compactStylePos} = this.state;
 		
 
 		const list = getFilesFromMemory(endpoint) || [];
@@ -296,8 +295,6 @@ export default class EndpointBrowseComponent extends Component {
 		if(searchText.length > 0){
 			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
 		}
-
-		
 
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};

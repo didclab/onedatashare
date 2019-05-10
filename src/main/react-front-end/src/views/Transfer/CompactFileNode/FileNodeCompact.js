@@ -94,9 +94,26 @@ const primaryButton = 0;
 
 export default class FileNodeCompact extends Component {
 
+
+	arraysEqual(a, b) {
+	  if (a === b) return true;
+	  if (a == null || b == null) return false;
+	  if (a.length != b.length) return false;
+
+	  // If you don't care about the order of the elements inside
+	  // the array, you should sort both arrays here.
+	  // Please note that calling sort on an array will modify that array.
+	  // you might want to clone your array first.
+
+	  for (var i = 0; i < a.length; ++i) {
+	    if (a[i] !== b[i]) return false;
+	  }
+	  return true;
+	}
+
 	shouldComponentUpdate(nextProps, nextState) { 
 
-    	if (nextProps.columns === this.props.columns &&
+    	if (this.arraysEqual(nextProps.columns, this.props.columns) &&
     		nextProps.posit0 === this.props.posit0 &&
     		nextProps.posit1 === this.props.posit1 &&
     		nextProps.posit2 === this.props.posit2 &&
@@ -104,10 +121,9 @@ export default class FileNodeCompact extends Component {
     		nextProps.isSelected === this.props.isSelected && 
     		nextProps.isGhosting === this.props.isGhosting && 
     		nextProps.file === this.props.file) return false;
-
     	return true;
   	}
-
+  	
 
 	onKeyDown = (
 	    event: KeyboardEvent,
@@ -203,6 +219,7 @@ export default class FileNodeCompact extends Component {
 		this.state = {
 			isDragging: false,
 		}
+		this.arraysEqual = this.arraysEqual.bind();
 
 	}
 

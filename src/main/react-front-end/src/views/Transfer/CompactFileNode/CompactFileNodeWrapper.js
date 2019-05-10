@@ -3,7 +3,6 @@ import FileNodeCompact from "./FileNodeCompact.js";
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import CheckIcon from "@material-ui/icons/Check";
-var nw = require('nw');
 
 export default class CompactFileNodeWrapper extends Component {
 	constructor(props){
@@ -11,7 +10,9 @@ export default class CompactFileNodeWrapper extends Component {
 		this.state = {
 			headerCompactStylePos : [200, 200, 50, 50],
 			compactStylePos : [200, 200, 50, 50],
-			columns: [true, true, true, true]
+			columns: [true, true, true, true],
+			leftPosition: 0,
+			showBar: null
 		}
 		this.generateResizer = this.generateResizer.bind(this);
 		this.contextMenu = this.contextMenu.bind(this);
@@ -23,6 +24,9 @@ export default class CompactFileNodeWrapper extends Component {
    			onMouseDown={(e) => {
    				this.pageX = e.pageX;
    				this.target = targetNum;
+   				let rect = document.getElementById("browser"+this.props.endpoint.side).getBoundingClientRect();
+		
+   				this.setState({showBar: targetNum+1, leftPosition: e.clientX - rect.left});
    			}}
    		></div>);
 	}
@@ -39,11 +43,13 @@ export default class CompactFileNodeWrapper extends Component {
 	}
 
 	onMouseMove = (e) => {
+		let rect = document.getElementById("browser"+this.props.endpoint.side).getBoundingClientRect();
 		if(this.target != undefined){
 			let temp = this.state.headerCompactStylePos;
 			temp[this.target] += (e.pageX - this.pageX);
 			this.pageX = e.pageX;
-			this.setState({headerCompactStylePos: temp});
+			let accumlate = e.clientX - rect.left;
+			this.setState({headerCompactStylePos: temp, leftPosition: accumlate});
 		}
 	}
 
@@ -59,14 +65,14 @@ export default class CompactFileNodeWrapper extends Component {
 	}
 
 	onMouseUp = (e) => {
-		this.setState({compactStylePos: this.state.headerCompactStylePos.slice()});
+		this.setState({compactStylePos: this.state.headerCompactStylePos.slice(), showBar: null});
 		this.pageX = undefined;
 		this.target = undefined;
 	}
 
 	render(){
 		let { displayList, list, selectedTasks, endpoint, draggingTask, toggleSelection, toggleSelectionInGroup, multiSelectTo, onClick, onDoubleClick}  = this.props;
-		let { compactStylePos, headerCompactStylePos, anchorEl,columns } = this.state;
+		let { compactStylePos, headerCompactStylePos, anchorEl,columns, leftPosition, showBar } = this.state;
 
 		const pstyle = { height: "15px", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden", marginLeft: "10px",textAlign: "left", display: "inline-block"};
 
@@ -77,9 +83,13 @@ export default class CompactFileNodeWrapper extends Component {
 		}
 		return (
 		<div>
-			<table>
-				<thead style={{boxShadow: "0px 0px 5px #aaaaaa", overflow: "visible"}} onContextMenu={this.contextMenu} ref="CompactHeader">
+			<table id={"tableHeader"+this.props.endpoint.side}>
+
+				<thead  style={{boxShadow: "0px 0px 5px #aaaaaa", overflow: "visible"}} onContextMenu={this.contextMenu} ref="CompactHeader">
 					<tr>
+					{showBar &&
+						<div style={{borderLeft:"1px solid black", height: "270px", position: "absolute", left: leftPosition+17+"px"}}></div>
+					}
 					{columns[0] && 
 					   <th style={{borderBottom: "1px solid gray", height: "10px", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "visible", position: "relative"}}>
 					   		<p style={{...pstyle, width: headerCompactStylePos[0]}}>File Name</p>
@@ -111,23 +121,18 @@ export default class CompactFileNodeWrapper extends Component {
 	            onClose={this.handleClose}
 	            style={{width: "200px", left: this.offset+"px", top: "50px"}}
 	            onContextMenu={this.handleClose}
-	            >
-	            
-	            <MenuItem onClick={columnToggle(0)}>
-	           			{columns[0] && <CheckIcon/>}
-	           			File Name
-	           	</MenuItem>
+	        >
 	            <MenuItem onClick={columnToggle(1)}>
 	            	{columns[1] && <CheckIcon/>}
-	            	Profile
+	            	Date
 	            </MenuItem>
 	            <MenuItem onClick={columnToggle(2)}>
 	            	{columns[2] && <CheckIcon/>}
-	            	My account
+	            	Permission
 	            </MenuItem>
 	            <MenuItem onClick={columnToggle(3)}>
 	            	{columns[3] && <CheckIcon/>}
-	            	Logout
+	            	File Size
 	            </MenuItem>
 	        </Menu>
 
