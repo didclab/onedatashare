@@ -32,4 +32,10 @@ public class UserAction {
   public String filter_fulltext;
   public EndPoint globusEndpoint;
   public String username;
+  public boolean isAdmin;
+
+  public int pageNo;
+  public int pageSize;
+  public String sortBy;
+  public String sortOrder;
 }

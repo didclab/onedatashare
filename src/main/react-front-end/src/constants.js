@@ -69,7 +69,6 @@ export function getType(endpoint){
 }
 
 export function getTypeFromUri(uri){
-	console.log("getting type", uri)
 	return showType[uri.split(":")[0].toLowerCase()]
 }
 

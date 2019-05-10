@@ -33,6 +33,7 @@ export default class BrowseModuleComponent extends Component {
 		super(props);
 		this.state={
 			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) == 0 }),
+			creds: {},
 			endpoint: props.endpoint, 
 			mode: props.mode,
 			loading: false,
@@ -77,7 +78,7 @@ export default class BrowseModuleComponent extends Component {
 				return data[id].name.toLowerCase().
 				indexOf(containsType.toLowerCase()) != -1 
 			})){
-				succeed();
+				succeed(data);
 			}else{
 				failed();
 			}
@@ -90,12 +91,14 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, oneSideIsLoggedInAsGridftp} = this.state;
+		const {endpoint, mode, history, type, loading, creds} = this.state;
 		const {update} = this.props;
-		const loginPrep = (uri) => () => {
+		const loginPrep = (uri) => (data) => {
 
 			this.setState({mode: inModule, history: this.props.history.filter(
-				(v) => { return v.indexOf(uri) == 0 }), endpoint: {...endpoint, uri: uri} 
+				(v) => { return v.indexOf(uri) == 0 }),
+				endpoint: {...endpoint, uri: uri},
+				creds: data
 			});
 			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 		}
@@ -140,6 +143,7 @@ export default class BrowseModuleComponent extends Component {
 	      		{loading && <LinearProgress/>}
 		      	<EndpointAuthenticateComponent endpoint={endpoint} 
 		      		history={history} type={type}
+		      		credentials={creds}
 			      	loginSuccess={(object) =>{
 			      		this.setState({endpoint: object});
 			      		update({endpoint: object})
@@ -159,7 +163,6 @@ export default class BrowseModuleComponent extends Component {
 		      		displayStyle={this.props.displayStyle}
 		      	/>
 		    </div>}
-
 	      </div>
 	    );
   	}

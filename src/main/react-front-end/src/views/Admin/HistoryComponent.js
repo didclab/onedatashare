@@ -12,6 +12,7 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
 import Zoom from '@material-ui/core/Zoom';
 import Info from '@material-ui/icons/Info';
@@ -41,23 +42,39 @@ class QueueComponent extends Component {
 	constructor(){
 		super();
 		this.state = {response:[],
+						responsesToDisplay:[],
 					  selectedTab: 0,
 						page: 0,
 						rowsPerPage: 10,
-						rowsPerPageOptions : [10, 20, 50, 100]};
-		let queueFunc = () => {queue((resp) => {
-			//success
-			this.setState({response:resp});
-		}, (resp) => {
-			//failed
-			console.log('Error in queue request to API layer');
-		})};
-		queueFunc();
-		setInterval(queueFunc, 2000);    //making a queue request every 2 seconds
+						rowsPerPageOptions : [10, 20, 50, 100],
+						order : 'desc',
+						orderBy : 'job_id'};
+
+		this.queueFunc = this.queueFunc.bind(this)
+		this.queueFunc();
+		setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		var infoRowsIds= [];
 		this.toggleTabs = this.toggleTabs.bind(this);
 	}
+
+	queueFunc = () => {
+		let isHistory = true;
+		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
+		//success
+		let responsesToDisplay = [];
+		if(this.state.page == 0){
+			responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
+		}
+		else{
+			responsesToDisplay = resp.jobs.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage);
+		}
+
+		this.setState({response:resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount});
+	}, (resp) => {
+		//failed
+		console.log('Error in queue request to API layer');
+	})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -105,6 +122,16 @@ class QueueComponent extends Component {
         		}
 	}
 
+	// deleteButtonOnClick(jobID, owner){
+	// 	deleteJob(jobID, owner, (resp) => {
+	// 		//success
+	// 		this.queueFunc();
+	// 	}, (resp) => {
+	// 		//failed
+	// 		console.log('Error in delete job request to API layer');
+	// 	});
+	// }
+
 	closeAllInfoRows(){
 		for(var i=0 ; i < this.infoRowsIds.length; i++){
 			var infoRow = document.getElementById(this.infoRowsIds[i]);
@@ -125,28 +152,37 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, owner){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
 		return(
 			<div>
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
-					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
+					<Button onClick={() => {this.infoButtonOnClick(jobID)}} variant="contained" size="small" color="primary"
 						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
-						fontWeight: 'bold', width: '20%', textTransform: 'none', 
+						fontWeight: 'bold', width: '20%', textTransform: 'none',
 						minWidth: '0px', minHeigth: '0px'}}>
 						<Info />
 					</Button>
 				</Tooltip>
 				{status == 'processing' &&
 				<Tooltip TransitionComponent={Zoom} title="Cancel">
-						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<Cancel />
 						</Button>
 					</Tooltip>
 				}
+				{/* {
+					<Tooltip TransitionComponent={Zoom} title="Delete">
+						<Button onClick={() => {this.deleteButtonOnClick(jobID, owner)}} disabled={deleted} variant="contained" size="small" color="primary"
+							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+							<DeleteOutline />
+						</Button>
+					</Tooltip>
+				} */}
 			</div>
 		);
 	}
@@ -237,21 +273,59 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		this.setState({ page });
+		console.log("The page is:" + page)
+		let nextRecords
+		if(page > this.state.page){
+			// Moving to next page
+			nextRecords = this.state.response.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage)
+		}
+		else{
+			// Moving to previous page
+			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
+		}
+		this.state.page=page
+		
+		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+
+		this.queueFunc()
 	};
 
-	handleChangeRowsPerPage = event => {
+	handleChangeRowsPerPage = event => {		
+		this.state.page=0
+		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+		this.queueFunc()
 	};
+
+	handleRequestSort = (property) => {
+    const orderBy = property;
+    let order = 'desc';
+
+    if (this.state.orderBy === property && this.state.order === 'desc') {
+      order = 'asc';
+    }
+		this.setState({ order:order, orderBy:orderBy });
+		this.state.order=order
+		this.state.orderBy = orderBy
+		this.queueFunc()
+  };
+
+
 	render(){
 		const height = window.innerHeight+"px";
-		const {response} = this.state;
+		const {response, totalCount, responsesToDisplay} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
-		const {rowsPerPage, rowsPerPageOptions, page } = this.state;
+		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy} = this.state;
 		const {classes} = this.props;
-
+		const sortableColumns = {
+			jobId: 'job_id',
+			status: 'status',
+			avgSpeed : "bytes.avg",
+			source : "src.uri",
+			userName: "owner"
+		}
 		var tableRows = [];
-		response.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
+		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
@@ -270,7 +344,7 @@ class QueueComponent extends Component {
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
-									{this.renderActions(resp.job_id, resp.status)}
+									{this.renderActions(resp.job_id, resp.status,resp.owner)}
                 </TableCell>
 	          	</TableRow>
 	        );
@@ -298,11 +372,56 @@ class QueueComponent extends Component {
 	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Username</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '2rem', color: '#31708f'}}>Job ID</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Progress</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%',  fontSize: '2rem', color: '#31708f'}}>Average Speed</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Source/Destination</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.userName}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
+											Username
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.jobId}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
+											Job ID
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.status}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
+											Progress
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '35%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.avgSpeed}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
+											Average Speed
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
+											Source/Destination
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
@@ -314,7 +433,7 @@ class QueueComponent extends Component {
 								<TablePagination 
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={4}
-									count={response.length}
+									count={totalCount}
 									rowsPerPage={rowsPerPage}
 									page={page}
 									SelectProps={{

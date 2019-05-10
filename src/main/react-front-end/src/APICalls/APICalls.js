@@ -6,7 +6,10 @@ import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
+
+import {cookies} from "../model/reducers.js";
 const FETCH_TIMEOUT = 10000;
+
 
 const axios = Axios.create({
   timeout: FETCH_TIMEOUT,
@@ -136,6 +139,19 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
 	}).catch((error) => {
       statusHandle(error, fail);
     });
+}
+
+export async function resendVerificationCode(emailId){
+	return axios.post(url+'user',{
+		action:'resendVerificationCode',
+		email: emailId
+	})
+	.then((response) => {
+		return response
+	})
+	.catch((error) =>{
+		
+	});
 }
 
 export async function setPassword(emailId, code, password, confirmPassword) {
@@ -322,11 +338,15 @@ export async function dropboxCredList(accept, fail){
 /*
 	Desc: Extract all transfers for the user
 */
-export async function queue(accept, fail){
+export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fail){
 	var callback = accept;
 
 	axios.post(url+'q', {
-	    status: 'all'
+		status: isHistory ? 'all' : 'userJob',
+        pageNo: pageNo,
+        pageSize: pageSize,
+        sortBy: sortBy,
+        sortOrder: order
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -338,8 +358,23 @@ export async function queue(accept, fail){
     });
 }
 
+// Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
+export async function submitIssue(reqBody, success, fail){
+	var callback = success;
+
+	axios.post(url+'ticket', reqBody).then((resp) =>{
+		if(!(resp.status === 200))
+		 callback = fail;
+		statusHandle(resp, callback)
+	})
+	.catch((err) =>{
+		fail(err)
+	});
+}
+
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
+	console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
 	if(Object.keys( src0.credential ).length == 0){
@@ -431,7 +466,6 @@ export async function mkdir(uri,type, endpoint,  accept, fail){
 }
 
 export async function deleteCall(uri, endpoint, id, accept, fail){
-	console.log("screw")
 	var callback = accept;
 	axios.post(url+'delete', {
 	    credential: endpoint.credential,
@@ -451,8 +485,9 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
     });
 }
 
-export async function download(uri, credential, _id){
-	axios.post(url+'download', {
+// Returns the url for file. It is used to download the file and also to display in share url popup
+async function getDownloadLink(uri, credential, _id){
+	return axios.post(url+'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
@@ -463,7 +498,7 @@ export async function download(uri, credential, _id){
 			console.log("Error in download API call");
 		else{
 		//	console.log(response.data, encodeURI(response.data));
-			window.open(response.data)
+			return response.data
 		}
 	})
 	.catch((error) => {
@@ -471,24 +506,40 @@ export async function download(uri, credential, _id){
 	});
 }
 
-export async function getDownload(uri, credential, _id){
-	const publicKey = store.getState()["publicKey"];
+export async function getSharableLink(uri, credential, _id){
+		return getDownloadLink(uri, credential, _id).then((response) => {
+			return response
+		})
+}
 
-	var encrypt = new JsEncryptModule.JSEncrypt();
-	encrypt.setPublicKey(publicKey);
+export async function download(uri, credential, _id){
+	return getDownloadLink(uri, credential, _id).then((response) => {
+		if(response !== ""){
+			window.open(response)
+		}
+		else{
+			console.log("Error encountered while generating download link");
+		}
+	})
+}
+
+export async function getDownload(uri, credential, _id, succeed){
+	// const publicKey = store.getState()["publicKey"];
+
+	// var encrypt = new JsEncryptModule.JSEncrypt();
+	// encrypt.setPublicKey(publicKey);
+
 	let json_to_send = {
 		credential: credential,
 		type: getTypeFromUri(uri),
 		uri: encodeURI(uri),
 		id: _id,
 	}
-	const strin = encrypt.encrypt(JSON.stringify(json_to_send));
-	console.log(strin)
-	axios.get(url+"download/file", {
-		params: {
-	      data: strin
-	    }
-	})
+	const strin = JSON.stringify(json_to_send);
+	cookies.set("SFTPAUTH", strin, {maxAge: 1});
+
+
+	window.location = url + "download/file";
 }
 
 export async function upload(uri, credential, accept, fail){
@@ -512,11 +563,15 @@ export async function upload(uri, credential, accept, fail){
 /*
 	Desc: Retrieve all the available users
 */
-export async function getUsers(type, accept, fail){
+export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
-	    action: type
+			action: type,
+			pageNo: pageNo,
+			pageSize: pageSize,
+			sortBy: sortBy,
+			sortOrder: order
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -527,6 +582,24 @@ export async function getUsers(type, accept, fail){
       
       statusHandle(error, fail);
     });
+}
+
+export async function updateAdminRightsApiCall(email, isAdmin){
+	return axios.put(url+'user', {
+		action: "updateAdminRights",
+		email: email,
+		isAdmin: isAdmin
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			return false;
+		else{
+			return true;
+		}
+	})
+	.catch((error) => {
+			console.log("Error encountered while updating the user.");
+	});
 }
 
 /*
@@ -605,6 +678,22 @@ export async function restartJob(jobID, accept, fail){
 	})
 	.catch((error) => {
       
+      statusHandle(error, fail);
+    });
+}
+
+export async function deleteJob(jobID, accept, fail){
+	var callback = accept;
+	axios.post(url+'deleteJob',{
+		job_id: jobID
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+
       statusHandle(error, fail);
     });
 }

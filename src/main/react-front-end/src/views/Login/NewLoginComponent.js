@@ -106,12 +106,12 @@ export default class NewLoginComponent extends Component {
             	<TextValidator
             		error = {error}
             		helperText = {errorMessage}
-                    label="Email"
-                    onChange={handleChange('email')}
-                    name="email"
-                    value={email}
-                    validators={['required', 'isEmail']}
-                    errorMessages={['Please put email here', 'Can not understand email format']}
+								label="Email"
+								onChange={handleChange('email')}
+								name="email"
+								value={email}
+								validators={['required', 'isEmail']}
+								errorMessages={['Please put email here', 'Can not understand email format']}
 		          	style={{width: "90%", margin: "5%"}}
                 />
 		        <CardActions style={spaceBetweenStyle}>

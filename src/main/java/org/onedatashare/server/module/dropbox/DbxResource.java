@@ -4,6 +4,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.NotFound;
+import org.springframework.data.mongodb.core.query.Meta;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,6 +17,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class DbxResource extends Resource<DbxSession, DbxResource> {
+
+  List<Metadata> nodeMetadata = new LinkedList<Metadata>();
 
   DbxResource(DbxSession session, String path) {
     super(session, path);
@@ -119,6 +122,48 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     return stat;
   }
 
+  @Override
+  public Mono<Stat> getTransferStat(){
+    return initialize()
+            .map(DbxResource::onStat)
+            .map(s ->{
+              List<Stat> sub = new LinkedList<>();
+              long directorySize = 0L;
+              try{
+                if(s.dir)
+                  directorySize = buildDirectoryTree(sub, session.client.files().listFolder(path), "/");
+                else{
+                  fileResource = true;
+                  sub.add(s);
+                  directorySize = s.getSize();
+                }
+              }
+              catch (DbxException e) {
+                e.printStackTrace();
+              }
+              s.setFilesList(sub);
+              s.setSize(directorySize);
+              return s;
+            });
+  }
+
+  public Long buildDirectoryTree(List<Stat> sub, ListFolderResult lfr, String relativeDirName) throws DbxException{
+    long directorySize = 0L;
+    for(Metadata childNode : lfr.getEntries()){
+      if(childNode instanceof FileMetadata){
+        Stat fileStat = mDataToStat(childNode);
+        fileStat.setName(relativeDirName + fileStat.getName());
+        directorySize += fileStat.size;
+        sub.add(fileStat);
+      }
+      else if(childNode instanceof FolderMetadata){
+        directorySize += buildDirectoryTree(sub, session.client.files().listFolder(((FolderMetadata) childNode).getId()),
+                                            relativeDirName + childNode.getName()+"/");
+      }
+    }
+    return directorySize;
+  }
+
   private Stat mDataToStat(Metadata data) {
     Stat stat = new Stat(data.getName());
     if (data instanceof FileMetadata) {
@@ -134,23 +179,37 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   }
 
   public DbxTap tap() {
-    return new DbxTap();
+    DbxTap dbxTap = new DbxTap();
+    return dbxTap;
   }
 
   public DbxDrain sink() {
     return new DbxDrain().start();
-//    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
   }
 
-  class DbxTap implements Tap {
-    DownloadBuilder downloadBuilder = session.client.files().downloadBuilder(path);
-    final long size = stat().block().size;
+  public DbxDrain sink(Stat stat){
+    return new DbxDrain().start(path + stat.getName());
+  }
+
+  public class DbxTap implements Tap {
+    DownloadBuilder downloadBuilder;
+    long size;
+
+    @Override
+    public Flux<Slice> tap(Stat stat, long sliceSize) {
+      String downloadPath = "";
+      if(!fileResource)
+        downloadPath += path;
+      downloadBuilder = session.client.files().downloadBuilder(downloadPath +stat.getName());
+      size = stat.getSize();
+      return tap(sliceSize);
+    }
 
     public Flux<Slice> tap(long sliceSize) {
+
       return Flux.generate(
               () -> 0L,
               (state, sink) -> {
-                //System.out.println("size: "+size);
                 ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                 if (state + sliceSize < size) {
                   try {
@@ -181,10 +240,16 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
   class DbxDrain implements Drain {
     final long CHUNKED_UPLOAD_CHUNK_SIZE = 1L << 20; // 1MiB
+    String drainPath = path;
     long uploaded = 0L;
     InputStream in = new ByteArrayInputStream(new byte[]{});
     String sessionId;
     UploadSessionCursor cursor;
+
+    public DbxDrain start(String drainPath){
+      this.drainPath = drainPath;
+      return start();
+    }
 
     public DbxDrain start() {
       try {
@@ -211,7 +276,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     }
 
     public void finish() {
-      CommitInfo commitInfo = CommitInfo.newBuilder(path)
+      CommitInfo commitInfo = CommitInfo.newBuilder(drainPath)
               .withMode(WriteMode.ADD)
               .withClientModified(new Date())
               .build();
@@ -228,7 +293,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     String downloadLink="";
     try {
 //      downloadLink = session.client.sharing().createSharedLinkWithSettings(path).getUrl();    // throws an exception if a shared link already exists
-      downloadLink = session.client.files().getTemporaryLink(path).getLink();
+      downloadLink = session.client.files().getTemporaryLink(path).getLink();    //temporary link valid for 4 hours
 
     }
     catch(DbxException dbxe){

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { queue, cancelJob, restartJob } from '../../APICalls/APICalls';
+import { queue, cancelJob, restartJob, deleteJob} from '../../APICalls/APICalls';
+import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -12,21 +13,23 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Tooltip from '@material-ui/core/Tooltip';
+
 import Zoom from '@material-ui/core/Zoom';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Refresh from '@material-ui/icons/Refresh';
 import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
-
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 
-import './QueueComponent.css';
-
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
+		root:{
+			width:'fit-content'
+		},
 		toolbar:{
 			paddingLeft:'300px'
 		},
@@ -44,10 +47,13 @@ class QueueComponent extends Component {
 	constructor(){
 		super();
 		this.state = {response:[],
+						responsesToDisplay:[],
 						selectedTab: 0,
 						page: 0,
 						rowsPerPage: 10,
-						rowsPerPageOptions : [10, 20, 50, 100],};
+						rowsPerPageOptions : [10, 20, 50, 100],
+						order : 'desc',
+						orderBy : 'job_id'};
 		this.queueFunc();
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 		var infoRowsIds= [];
@@ -60,14 +66,22 @@ class QueueComponent extends Component {
 		clearInterval(this.interval);
 	}
 
-	queueFunc = () => {queue((resp) => {
+	queueFunc = () => {
+        let isHistory = false;
+	    queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
-		resp.sort((a, b) => { return b.job_id - a.job_id});
-		this.setState({response:resp});
+		let responsesToDisplay = [];
+		if(this.state.page == 0){
+			responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
+		}
+		else{
+			responsesToDisplay = resp.jobs.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage);
+		}
+
+		this.setState({response:resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount});
 	}, (resp) => {
 		//failed
-		console.log('Error in queue request to API layer');
-	})};
+		console.log('Error in queue request to API layer')})};
 
 	getStatus(status, total, done){
 		const style = {marginTop: '5%', fontWeight: 'bold'};
@@ -132,7 +146,19 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Error in restart job request to API layer');
+			var msg = 'Restart job failed since either or both credentials of the job do not exist';
+			console.log(msg);
+			eventEmitter.emit("errorOccured", msg);
+		});
+	}
+
+	deleteButtonOnClick(jobID){
+		deleteJob(jobID, (resp) => {
+			//success
+			this.queueFunc();
+		}, (resp) => {
+			//failed
+			console.log('Error in delete job request to API layer');
 		});
 	}
 
@@ -147,7 +173,7 @@ class QueueComponent extends Component {
 			this.setState({selectedTab: 0});
 	}
 
-	renderActions(jobID, status){
+	renderActions(jobID, status, deleted){
 		return(
 			<div >
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
@@ -176,9 +202,9 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' &&
+				{status != 'processing' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
-						<Button  variant="contained" size="small" color="primary" 
+						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
 							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 							<DeleteOutline />
@@ -196,7 +222,7 @@ class QueueComponent extends Component {
 
 		if(this.state.selectedTab === 0){
 			return(
-				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width: '100%' }}>
+				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
 					<Row>
 						<Col md={6}><b>User</b></Col>
 						<Col md={6}>{resp.owner}</Col>
@@ -255,22 +281,55 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		this.setState({ page });
+		let nextRecords
+		if(page > this.state.page){
+			// Moving to next page
+			nextRecords = this.state.response.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage)
+		}
+		else{
+			// Moving to previous page
+			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
+		}
+		this.state.page=page
+
+		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.queueFunc()
 	};
 
-	handleChangeRowsPerPage = event => {
+	handleChangeRowsPerPage = event => {		
+		this.state.page=0
+		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
+		this.queueFunc()
 	};
+
+	handleRequestSort = (property) => {
+    const orderBy = property;
+    let order = 'desc';
+
+    if (this.state.orderBy === property && this.state.order === 'desc') {
+      order = 'asc';
+    }
+		this.setState({ order:order, orderBy:orderBy });
+		this.state.order=order
+		this.state.orderBy = orderBy
+		this.queueFunc()
+  };	
+
 	render(){
 		const height = window.innerHeight+"px";
-		const {response} = this.state;
-		const {rowsPerPage, rowsPerPageOptions, page } = this.state;
+		const {response, totalCount, responsesToDisplay} = this.state;
+		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
-
-
+		const sortableColumns = {
+			jobId: 'job_id',
+			status: 'status',
+			avgSpeed : "bytes.avg",
+			source : "src.uri"
+		}
 		var tableRows = [];
-		response.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map(resp => {
+		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
 		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
@@ -286,7 +345,7 @@ class QueueComponent extends Component {
 		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
-		            	{this.renderActions(resp.job_id, resp.status)}
+		            	{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 		            </TableCell>
 	          	</TableRow>
 	        );
@@ -310,14 +369,50 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper id="jobHistory" style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+		<Paper className={classes.root} id="jobHistory" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
 	  		<Table>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Job ID</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>Progress</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Average Speed</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>Source/Destination</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.jobId}
+											direction={order}
+											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
+											Job ID
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.status}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.status)}>
+											Progress
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.avgSpeed}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
+											Average Speed
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
+								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.source)}>
+											Source/Destination
+										</TableSortLabel>
+									</Tooltip>								
+								</TableCell>
 		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
@@ -329,7 +424,7 @@ class QueueComponent extends Component {
 								<TablePagination 
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={3}
-									count={response.length}
+									count={totalCount}
 									rowsPerPage={rowsPerPage}
 									page={page}
 									SelectProps={{

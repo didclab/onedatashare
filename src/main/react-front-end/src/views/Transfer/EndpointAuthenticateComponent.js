@@ -33,6 +33,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		loginSuccess : PropTypes.func,
 		endpoint : PropTypes.object,
 		history: PropTypes.array,
+        credentials: PropTypes.object,
 		type: PropTypes.string,
 		back: PropTypes.func,
 		setLoading : PropTypes.func
@@ -42,7 +43,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.state={
 			historyList: props.history,
 			endpoint: props.endpoint,
-			credList: {},
+			credList: props.credentials || {},
 			endpointIdsList: {},
 			settingAuth: false,
 			settingAuthType: "", 
@@ -56,11 +57,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		};
 
 		let loginType = getType(props.endpoint);
-		if(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE){
-			this.credentialListUpdateFromBackend();
-		}
-		else if(loginType === GRIDFTP_TYPE){
+		if(loginType === GRIDFTP_TYPE){
 			this.endpointIdsListUpdateFromBackend();
+		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE){
+		    this.historyListUpdateFromBackend();
 		}
 		this.handleChange = this.handleChange.bind(this);
 		this._handleError = this._handleError.bind(this);
@@ -175,10 +175,9 @@ export default class EndpointAuthenticateComponent extends Component {
 				const endpointSet = {
 					uri: endpoint.uri,
 					login: true,
-					credential: {uuid: v},
+					credential: {uuid: v, name: credList[v].name},
 					side: endpoint.side
 				}
-				//addCred(v, endpoint);
 				loginSuccess(endpointSet);
 			}}>
 			  <ListItemIcon>
@@ -282,11 +281,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);
 		const histList = this.getHistoryListComponentFromList(historyList);
+
 		const cloudList = this.getCredentialListComponentFromList(credList, type)
 		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
-
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
-		
 
 		return(
 		<div > 

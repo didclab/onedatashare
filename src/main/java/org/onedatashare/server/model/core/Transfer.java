@@ -39,20 +39,24 @@ public class Transfer<S extends Resource, D extends Resource> {
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
 
-    sliceSize = (sliceSize == null) ? 1024L : sliceSize;
+    Stat tapStat = (Stat)source.getTransferStat().block();
+    info.setTotal(tapStat.size);
 
-    initialize();
-    Tap tap = source.tap();
-    Drain drain = destination.sink();
-
-    return tap.tap(sliceSize)
-            .subscribeOn(Schedulers.elastic())
-            .doOnNext(drain::drain)
-            .subscribeOn(Schedulers.elastic())
+    return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
-            .map(this::addProgress)
-            .doOnComplete(drain::finish)
-            .doFinally(s -> done());
+            .flatMap(fileStat -> {
+              final Drain drain;
+              if(tapStat.isDir())
+                drain = destination.sink(fileStat);
+              else
+                drain = destination.sink();
+              return source.tap().tap(fileStat, sliceSize)
+                      .subscribeOn(Schedulers.elastic())
+                      .doOnNext(drain::drain)
+                      .subscribeOn(Schedulers.elastic())
+                      .map(this::addProgress)
+                      .doOnComplete(drain::finish);
+            }).doFinally(s -> done());
   }
 
   public void initialize() {
@@ -88,5 +92,48 @@ public class Transfer<S extends Resource, D extends Resource> {
   public Transfer<S, D> setDestination(D destination) {
     this.destination = destination;
     return this;
+  }
+
+
+
+
+
+  /**
+   * This method was developed for debugging purposes.
+   * This method ensures that the transfer is performed sequentially.
+   * @param sliceSize
+   * @return TransferInfo - returned purposely to satisfy return constraint
+   */
+  public Flux<TransferInfo> blockingStart(Long sliceSize) {
+
+    if (source instanceof GridftpResource && destination instanceof GridftpResource){
+      ((GridftpResource) source).transferTo(((GridftpResource) destination)).subscribe();
+      return Flux.empty();
+    }else if (source instanceof GridftpResource || destination instanceof GridftpResource){
+      return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
+    }
+
+    Stat tapStat = (Stat)source.getTransferStat().block();
+    info.setTotal(tapStat.size);
+
+    startTimer();
+    for(Stat fileStat : tapStat.getFilesList()){
+      final Drain drain;
+      if(tapStat.isDir())
+        drain = destination.sink(fileStat);
+      else
+        drain = destination.sink();
+      source.tap().tap(fileStat, sliceSize)
+              .subscribeOn(Schedulers.elastic())
+              .doOnNext(drain::drain)
+              .subscribeOn(Schedulers.elastic())
+              .map(this::addProgress)
+              .blockLast();
+      drain.finish();
+      System.out.println(fileStat.getName() + " transferred");
+    }
+    done();
+    return Flux.just(info);
+
   }
 }

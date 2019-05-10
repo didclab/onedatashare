@@ -1,17 +1,13 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.jobaction.JobRequest;
+import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/stork/q")
@@ -21,9 +17,9 @@ public class QueueController {
   private JobService jobService;
 
   @PostMapping
-  public Mono<List<Job>> queue(@RequestHeader HttpHeaders headers) {
+  public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
     String cookie = headers.getFirst("cookie");
-    return jobService.getAllJobsForUser(cookie)
+    return jobService.getJobsForUserOrAdmin(cookie, jobDetails)
             .subscribeOn(Schedulers.elastic());
   }
 }

@@ -1,20 +1,29 @@
 package org.onedatashare.server.service;
 
+import com.google.api.client.http.HttpStatusCodes;
+import com.sun.jersey.api.NotFoundException;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,30 +31,37 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.*;
 import javax.mail.*;
-import javax.mail.internet.*;
 
 @Service
 public class UserService {
+
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private EmailService emailService;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
   public Mono<User> createUser(User user) {
+    user.registerMoment = System.currentTimeMillis();
     return userRepository.insert(user);
   }
 
   final int TIMEOUT_IN_MINUTES = 1440;
 
   public Mono<User.UserLogin> login(String email, String password) {
-//    User user = new User("vanditsa@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
+
+  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
+  //  createUser(user).subscribe(System.out::println);
+
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.email, user1.hash))
-            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")));
+            .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
+            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
+           .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
   public Object register(String email, String firstName, String lastName, String organization) {
@@ -63,7 +79,7 @@ public class UserService {
         if(!user.validated){
           return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
         }else{
-          return Mono.just(new Response("Account already exists",500));
+          return Mono.just(new Response("Account already exists",302));
         }
       }
       return createUser(new User(email, firstName, lastName, organization, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));
@@ -119,6 +135,9 @@ public class UserService {
         return Mono.error(new Exception("Does not have Auth Token"));
       }else if(user.getAuthToken().equals(authToken)){
         user.setPassword(password);
+        // Setting the verification code to null while resetting the password.
+        // This will allow the user to use the same verification code multiple times with in 24 hrs.
+        user.setCode(null);
         user.setAuthToken(null);
         user.validated = true;
         userRepository.save(user).subscribe();
@@ -167,7 +186,7 @@ public class UserService {
     .flatMap(userRepository::save).map(User::getHistory);
   }
 
-  public Mono< Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+  public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
       if(!user.getGlobusEndpoints().containsKey(enp)) {
         user.getGlobusEndpoints().put(id, enp);
@@ -199,61 +218,73 @@ public class UserService {
             .switchIfEmpty(Mono.error(new Exception("Invalid login")));
   }
 
-  public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-    // Recipient's email ID needs to be mentioned.
-    String to = email;
-
-    final String username = "yifuyin7@gmail.com";
-    final String password = "canada332211";
-
-    // Get system properties
-    Properties properties = System.getProperties();
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.starttls.enable", "true");
-    properties.put("mail.smtp.host", "smtp.gmail.com");
-    properties.put("mail.smtp.port", "587");
-
-    // Get the default Session object.
-    Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(username, password);
+  public Mono<Object> resendVerificationCode(String email) {
+    return doesUserExists(email).flatMap(user -> {
+      if(user.email == null){
+        return Mono.just(new Response("User not registered",500));
+      }
+      if(!user.validated){
+        return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+      }else{
+        return Mono.just(new Response("User account is already validated.",500));
       }
     });
+  }
 
+  public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
 
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
       userRepository.save(user).subscribe();
       try {
-        // Create a default MimeMessage object.
-        MimeMessage message = new MimeMessage(session);
-        // Set From: header field of the header.
-        message.setFrom(new InternetAddress(username));
-        // Set To: header field of the header.
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-        // Set Subject: header field
-        message.setSubject("Auth Code");
-        // Now set the actual message
-        message.setText(code);
-        // Send message
-        Transport.send(message);
-        System.out.println("Sent message successfully....");
+        String subject = "OneDataShare Authorization Code";
+        String emailText = "The authorization code for your OneDataShare account is : " + code;
+        emailService.sendEmail(email, subject, emailText);
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
-
       }
       return Mono.just(new Response("Success", 200));
     });
   }
 
-  public Flux<User> getAllUsers(){
-    return userRepository.findAll();
+  public Mono<UserDetails> getAllUsers(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                userRepository.count()
+                    .map(count ->  {
+                      UserDetails result = new UserDetails();
+                      result.users = users;
+                      result.totalCount = count;
+                      return result;
+                    }));
   }
 
-  public Flux<User> getAdministrators(){
-    return userRepository.findAllAdministrators();
+  public Mono<UserDetails> getAdministrators(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                  userRepository.countAdministrators()
+                          .map(count ->  {
+                            UserDetails result = new UserDetails();
+                            result.users = users;
+                            result.totalCount = count;
+                            return result;
+                          }));
+  }
+
+  public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
+    return getUser(email).flatMap(user -> {
+      user.isAdmin = isAdmin;
+      userRepository.save(user).subscribe();
+      return Mono.just(true);
+    });
   }
 
   public Mono<Boolean> userLoggedIn(String cookie) {
@@ -297,7 +328,6 @@ public class UserService {
       }else if(expectedCode.expireDate.before(new Date())){
         return Mono.error(new Exception("code expired"));
       }else if(expectedCode.code.equals(code)){
-        user.setCode(null);
         user.setAuthToken(code+User.salt(12));
         userRepository.save(user).subscribe();
         return Mono.just(user.authToken);
@@ -332,8 +362,20 @@ public class UserService {
               return user;
             })
             .flatMap(userRepository::save)
-            .map(user -> {return uuid;});
+            .map(user -> uuid);
   }
+
+  public Mono<Void> saveLastActivity(String email, Long lastActivity) {
+    return getUser(email).doOnSuccess(user -> {
+           user.setLastActivity(lastActivity);
+            userRepository.save(user).subscribe();
+    }).then();
+  }
+
+ public Mono<Long> getLastActivity(String cookie) {
+    return getLoggedInUser(cookie).map(user ->user.getLastActivity());
+  }
+
 
   public Mono<Void> deleteCredential(String cookie, String uuid) {
     return getLoggedInUser(cookie)
@@ -344,6 +386,25 @@ public class UserService {
         return userRepository.save(user).subscribe();
       }).then();
   }
+
+  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
+    //Updating the access token for googledrive using refresh token
+          getLoggedInUser(cookie)
+            .doOnSuccess(user -> {
+                Map<UUID,Credential> credsTemporary = user.getCredentials();
+                for(UUID uid : credsTemporary.keySet()){
+                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+                    credsTemporary.replace(uid, credential);
+                    user.setCredentials(credsTemporary);
+                    userRepository.save(user).subscribe();
+                  }
+                }
+            }).subscribe();
+
+    return credential;
+  }
+
 
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)
@@ -370,8 +431,10 @@ public class UserService {
     ArrayList<UUID> removingThese = new ArrayList<UUID>();
     for(Map.Entry<UUID, Credential> entry : creds.entrySet()){
       if(entry.getValue().type == Credential.CredentialType.OAUTH &&
-        ((OAuthCredential)entry.getValue()).expiredTime != null &&
-        Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime)){
+              ((OAuthCredential)entry.getValue()).name.equals("GridFTP Client") &&
+              ((OAuthCredential)entry.getValue()).expiredTime != null &&
+              Calendar.getInstance().getTime().after(((OAuthCredential)entry.getValue()).expiredTime))
+      {
         removingThese.add(entry.getKey());
       }
     }
@@ -393,7 +456,7 @@ public class UserService {
   }
 
   public Mono<User> addJob(Job job, String cookie) {
-    return getLoggedInUser(cookie).map(user -> user.addJob(job.uuid)).flatMap(userRepository::save);
+    return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
   }
 
   public User.UserLogin cookieToUserLogin(String cookie) {
@@ -404,6 +467,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.getPublicKey());
   }
 }

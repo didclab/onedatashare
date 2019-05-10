@@ -12,13 +12,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
 
-//    public Mono<ClientUploadResource> select(String path) {
-//        return Mono.just(new ClientUploadResource());
-//    }
     public ClientUploadResource(ClientUploadSession session){
         super(session, null);
     }
@@ -31,6 +29,24 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
         s.size = session.filesize;
         s.name = session.filename;
         return Mono.just(s);
+    }
+
+    @Override
+    public Mono<Stat> getTransferStat() {
+        Stat tapstat = new Stat();
+        tapstat.size = session.filesize;
+        ArrayList<Stat> filestat = new ArrayList<>();
+        Stat uploadStat = new Stat();
+        uploadStat.size = session.filesize;
+        uploadStat.dir = false;
+        uploadStat.file = true;
+        uploadStat.name = session.filename;
+
+
+        filestat.add(uploadStat);
+        tapstat.filesList = filestat;
+
+        return Mono.just(tapstat);
     }
 
     @Override
@@ -62,6 +78,11 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
                         return state;
                     }
                 });
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            return this.tap(1<<10);
         }
     }
 }

@@ -28,14 +28,14 @@ const initialState = {
 		login: false,
 		credential: {},
 		uri: "",
-    side: "left"
+        side: "left"
 	},
 
 	endpoint2: cookies.get('endpoint2') ? JSON.parse(cookies.get('endpoint2')) : {
     login: false,
 		credential: {},
 		uri: "",
-    side: "right"
+        side: "right"
 	},
 
 	queue: [],
@@ -75,6 +75,8 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
       cookies.remove("publicKey");
+      window.location.replace('/');
+
       return Object.assign({}, state, {
         login: false,
         admin: false,

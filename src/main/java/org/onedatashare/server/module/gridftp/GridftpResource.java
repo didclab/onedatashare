@@ -14,9 +14,9 @@ import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.service.GridftpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import sun.rmi.transport.Endpoint;
+//import sun.rmi.transport.Endpoint;
 
-import javax.xml.bind.DatatypeConverter;
+//import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,7 +61,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             List<TaskItem> data = new ArrayList<>();
             TaskItem item = new TaskItem();
             item.setDataType("transfer_item");
-            item.setRecursive(false);
+            item.setRecursive(true);
             item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
             item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
             data.add(item);
@@ -199,11 +199,21 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
 //    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
     }
 
+    @Override
+    public Mono<Stat> getTransferStat() {
+        return null;
+    }
+
     class GridftpTap implements Tap {
         final long size = stat().block().size;
 
         public Flux<Slice> tap(long sliceSize) {
             return Flux.empty();
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            return null;
         }
     }
 //            return Flux.generate(
@@ -246,6 +256,11 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
               return this;
         }
 
+    @Override
+    public Drain start(String drainPath) {
+        return null;
+    }
+
 //            try { ^
 //                sessionId = session.client.files().uploadSessionStart()
 //                        .uploadAndFinish(in, 0L)
@@ -281,3 +296,4 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         }
     }
 }
+

@@ -32,12 +32,6 @@ export default class AccountControlComponent extends Component {
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
 	
-	isAdmin(email, hash, (status) => {
-		store.dispatch(isAdminAction());
-	}, (fail) => {
-		console.log("Not Admin", fail);
-	})
-	
 	store.dispatch(loginAction(email, hash, publicKey, remember));
 	//this.setState({authenticated : true});
   }
@@ -46,7 +40,7 @@ export default class AccountControlComponent extends Component {
   }
 
   constructor(props){
-    super(props);
+		super(props);
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
@@ -84,7 +78,7 @@ export default class AccountControlComponent extends Component {
     	signIn: false,
     	forgotPasswordPressed: false,
     	validateEmailPressed: false
-    }
+		}
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
@@ -130,6 +124,14 @@ export default class AccountControlComponent extends Component {
 						}}
 					/>}>
 				</Route>
+				<Route exact path={'/account/lostValidationCode'}  
+					 render={(props) => <ValidateEmailComponent {...props} 
+					 email = {this.state.email}
+					 back={() => {
+						this.setState({loading: false, loggingAccount: true, validateEmailPressed: false});
+					}} />}>
+				</Route>
+
 				<Route exact path={'/account/signIn'} 
 					render={(props) =>
 						<div>
@@ -146,11 +148,9 @@ export default class AccountControlComponent extends Component {
 								}}
 
 								validateEmailPressed={(email) => {
-									this.setState({loading: false, screen:	
-										<ValidateEmailComponent back={() => {
-											this.setState({loading: false, screen: this.newLogin, validateEmailPressed: false});
-										}} email={email}/>,
-										validateEmailPressed: true
+									this.setState({loading: false, 
+										validateEmailPressed: true,
+										email: email
 									});
 								}}
 
@@ -174,7 +174,7 @@ export default class AccountControlComponent extends Component {
 
   	render() {
 
-	    const {isSmall, loading, accounts, screen, authenticated, creatingAccount, loggingAccount, signIn, forgotPasswordPressed} = this.state;
+	    const {isSmall, loading, accounts, screen, authenticated, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
 	    console.log(forgotPasswordPressed)
 	    const isNewUser = Object.keys(accounts).length == 0;
 	    const handleChange = name => event => {
@@ -185,6 +185,7 @@ export default class AccountControlComponent extends Component {
 
 		console.log(addAccountUrl);
 		this.state.creatingAccount = false;
+		this.state.validateEmailPressed = false;
 		this.state.loggingAccount = false;
 		this.state.signIn = false;
 
@@ -195,7 +196,8 @@ export default class AccountControlComponent extends Component {
 		    <div style={{width: '450px', marginTop: '30px', marginLeft: '30px',marginRight: '30px', alignSelf:  isSmall ? 'flex-start': 'center'}}>
 		    
 		    {store.getState().login && <Redirect to={transferPageUrl}/>}
-		    {creatingAccount && <Redirect to={"/account/register"}/>}
+				{creatingAccount && <Redirect to={"/account/register"}/>}
+				{validateEmailPressed && <Redirect to={{pathname :"/account/lostValidationCode"}}/>}
 		    {loggingAccount && <Redirect to={"/account"}/>}
 		    {signIn && <Redirect to={"/account/signIn"}/>}
 		    {loading && <LinearProgress  />}

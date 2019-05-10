@@ -30,7 +30,7 @@ import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import {share, mkdir, deleteCall, download, getDownload} from "../../APICalls/APICalls";
+import {share, mkdir, deleteCall, download, getDownload, getSharableLink} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
@@ -41,6 +41,7 @@ import {eventEmitter} from "../../App";
 
 import {getType} from '../../constants.js';
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -170,9 +171,8 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	    //this.unselectAll();
 	};
-
+	
 	fileNodeClicked(filename){
-		console.log(filename);
 	}
 
 	fileNodeDoubleClicked(filename, id){
@@ -314,19 +314,25 @@ export default class EndpointBrowseComponent extends Component {
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
-	          aria-labelledby="form-dialog-title"
+						aria-labelledby="form-dialog-title"
 	        >
 	          <DialogTitle id="form-dialog-title">Share</DialogTitle>
-	          <DialogContent>
+	          <DialogContent style={{width:"100%"}}>
 	            <DialogContentText>
 	              Share this URL to allow others access to the selected file:
 	            </DialogContentText>
-	            <TextField
-	              autoFocus
-	              id="name"
-	              value={this.state.shareUrl}
-	              fullWidth
-	            />
+	            <div style={{width:"96%", float:"left"}}><TextField
+								autoFocus
+								id="name"
+								disabled
+								value={this.state.shareUrl}
+								fullWidth
+	            ></TextField></div>
+							<CopyToClipboard text = {this.state.shareUrl} style={{float:"right", width:"3%"}}>
+							<svg width="24" height="24" viewBox="0 0 24 24">
+								<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+							</svg>								
+							</CopyToClipboard>
 	          </DialogContent>
 	          <DialogActions>
 	            <Button onClick={this.handleClose} color="primary">
@@ -388,27 +394,29 @@ export default class EndpointBrowseComponent extends Component {
 					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 					  		onClick={() => {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-					  			const taskList = getSelectedTasksFromSide(endpoint);
-					  			if(getType(endpoint) === SFTP_TYPE){
-									getDownload(downloadUrl, endpoint.credential, taskList[0].id)
-								}else{
+									const taskList = getSelectedTasksFromSide(endpoint);
+									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
+										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
+									}else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
 						  		}
 					  		}}
 					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
 						</OverlayTrigger>
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-				  		
-				  		<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} style={buttonStyle} onClick={() => {
-				  			const sid = getSelectedTasksFromSide(endpoint)[0].name;
-
-				  			const uri = makeFileNameFromPath(endpoint.uri,directoryPath, sid);
-				  			share(uri, endpoint, (response) => {
-				  				const shareUri = "https://storkcloud.org/api/stork/get?uuid="+response.uuid;
-				  				this.handleClickOpen(shareUri);
-				  			}, (error) => {
-				  				eventEmitter.emit("errorOccured", error);
-				  			});
+						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
+							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
+							const taskList = getSelectedTasksFromSide(endpoint);
+							getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)
+							.then(response => {
+								if(response !== ""){
+									this.handleClickOpen(response);
+								}
+								else{
+									eventEmitter.emit("errorOccured", "Error encountered while generating link");
+								}	
+							})
 				  		}}>
 				  			<LinkButton style={iconStyle}/>
 				  		</BootStrapButton>

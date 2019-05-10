@@ -4,7 +4,9 @@ import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -20,12 +22,15 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 public class ResourceServiceImpl implements ResourceService<Resource>  {
@@ -37,24 +42,22 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
-    public Mono<Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+    public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.uri);
         String id = userAction.id;
         ArrayList<IdMap> idMap = userAction.map;
-        if("googledrive:/".equals(userAction.type)){
-            return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.uuid)))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
-                    .flatMap(GoogleDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path,id, idMap));
-        }else{
-            return userService.getLoggedInUser(cookie)
-                    .map(user -> new UserInfoCredential(userAction.credential))
-                    .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
-                    .flatMap(VfsSession::initialize)
-                    .flatMap(vfsSession -> vfsSession.select(path));
-        }
+        return userService.getLoggedInUser(cookie)
+                .map(User::getCredentials)
+                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
+                .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                .flatMap(GoogleDriveSession::initialize)
+                .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+                    Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
+                            .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                            .flatMap(GoogleDriveSession::initialize)
+                            .flatMap(driveSession -> driveSession.select(path,id, idMap))
+                );
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
@@ -87,16 +90,17 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
         if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
-            return user.getCredentials().get(UUID.fromString(userActionResource.credential.uuid));
+            return user.getCredentials().get(UUID.fromString(userActionResource.credential.getUuid()));
         }else if(userActionResource.uri.equals("Upload")){
             return userActionResource.uploader;
         }else if(userActionResource.uri.startsWith("gsiftp://")){
 
             GlobusClient gc = userService.getGlobusClientFromUser(user);
-            return new GlobusWebClientCredential(userActionResource.credential.globusEndpoint, gc);
+            return new GlobusWebClientCredential(userActionResource.credential.getGlobusEndpoint(), gc);
         }
         else return new UserInfoCredential(userActionResource.credential);
     }
+
 
     public Session createSession(String uri, Credential credential) {
         if(uri.contains("dropbox://")){
@@ -151,12 +155,18 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         return userService.getLoggedInUser(cookie)
             .flatMap(user ->{
                 return jobService.findJobByJobId(cookie, userAction.job_id)
-                    .map(job -> {
-                        Job restartedJob = new Job(job.src, job.dest);
+                    .flatMap(job -> {
+                        Job restartedJob = new Job(job.getSrc(), job.getDest());
+                        boolean credsExists = updateJobCredentials(user, job);
+                        if(!credsExists){
+                            return Mono.error(new Exception("Restart job failed since either or both credentials of the job do not exist"));
+                        }
                         restartedJob.setStatus(JobStatus.scheduled);
+                        restartedJob.setRestartedJob(true);
+                        restartedJob.setSourceJob(userAction.job_id);
                         restartedJob = user.saveJob(restartedJob);
                         userService.saveUser(user).subscribe();
-                        return restartedJob;
+                        return Mono.just(restartedJob);
                     })
                     .flatMap(jobService::saveJob)
                     .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
@@ -164,24 +174,75 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .subscribeOn(Schedulers.elastic());
     }
 
+    public Mono<Job> deleteJob(String cookie, UserAction userAction){
+        return jobService.findJobByJobId(cookie,userAction.job_id)
+                .map(job -> {
+                    job.setDeleted(true);
+                    return job;
+                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
+    }
+
     public Mono<Job> cancel(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
                 .flatMap(user -> {
                     return jobService.findJobByJobId(cookie, userAction.job_id)
                             .map(job -> {
-                                ongoingJobs.get(job.uuid).dispose();
-                                ongoingJobs.remove(job.uuid);
+                                ongoingJobs.get(job.getUuid()).dispose();
+                                ongoingJobs.remove(job.getUuid());
                                 return job.setStatus(JobStatus.removed);
                             });
                 })
                 .subscribeOn(Schedulers.elastic());
     }
 
+    public boolean updateJobCredentials(User user, Job restartedJob){
+        boolean credsExist = true;
+        if(restartedJob.getSrc().getCredential() != null) {
+            UUID srcCredUUID = getCredUuidUsingCredName(user, restartedJob.getSrc().getCredential().getName());
+            if(srcCredUUID != null){
+                if(!UUID.fromString(restartedJob.getSrc().getCredential().getUuid()).equals(srcCredUUID)){
+                    restartedJob.getSrc().getCredential().setUuid(srcCredUUID.toString());
+                }
+            }
+            else
+                credsExist = false;
+
+        }
+
+        if(!credsExist)
+            return credsExist;    // don't want to check for dest cred if src cred doesn't exist
+
+        if(restartedJob.getDest().getCredential() != null) {
+            UUID destCredUUID = getCredUuidUsingCredName(user, restartedJob.getDest().getCredential().getName());
+            if(destCredUUID != null){
+                if(!UUID.fromString(restartedJob.getDest().getCredential().getUuid()).equals(destCredUUID)){
+                    restartedJob.getDest().getCredential().setUuid(destCredUUID.toString());
+                }
+            }
+            else
+                credsExist = false;
+        }
+
+        return credsExist;
+    }
+
+    public UUID getCredUuidUsingCredName(User user, String credName){
+        for(Map.Entry<UUID, Credential> userCredEntry : user.getCredentials().entrySet()){
+            if(userCredEntry.getValue() instanceof OAuthCredential){
+                OAuthCredential cred = (OAuthCredential) userCredEntry.getValue();
+                if(cred.getName().equals(credName)){
+                    return  userCredEntry.getKey();
+                }
+            }
+        }
+        return null;
+    }
+
     public void processTransferFromJob(Job job, String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
-        Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.src)
+        Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.getSrc())
             .map(transfer::setSource)
-            .flatMap(t -> getResourceWithUserActionResource(cookie, job.dest))
+            .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
             .flatMap(transfer1 -> transfer1.start(1L << 20))
@@ -195,7 +256,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .map(job::updateJobWithTransferInfo)
             .flatMap(jobService::saveJob)
             .subscribe();
-        ongoingJobs.put(job.uuid, ongoingJob);
+        ongoingJobs.put(job.getUuid(), ongoingJob);
     }
 
     class RunnableCanceler implements Runnable {
