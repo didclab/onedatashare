@@ -337,10 +337,15 @@ public class UserService {
     });
   }
 
-    public Mono<Boolean> verifyEmail(String email) {
-        return getUser(email)
-                .flatMap(u -> Mono.just(true)).switchIfEmpty( Mono.error(new Exception("Invalid")));
-    }
+  public Mono<Object> verifyEmail(String email) {
+    return userRepository.existsById(email).flatMap( bool -> {
+      if (bool) {
+        return Mono.just(true);
+      }else{
+        return Mono.error(new Exception("Invalid email"));
+      }
+    });
+  }
 
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);

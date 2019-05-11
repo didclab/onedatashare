@@ -36,6 +36,9 @@ import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTr
 import {eventEmitter} from "../../App.js";
 import Slider from '@material-ui/lab/Slider';
 
+
+import Switch from '@material-ui/core/Switch';
+
 export default class TransferComponent extends Component {
 
   constructor(){
@@ -56,7 +59,8 @@ export default class TransferComponent extends Component {
         encrypt: "true",
         compress: "true",
         retry: 5
-      }
+      },
+      compact: false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -65,10 +69,6 @@ export default class TransferComponent extends Component {
           endpoint2: store.getState().endpoint2,
         });
     });
-
-
-    
-
     this.updateDimensions = this.updateDimensions.bind(this);
     this._returnBrowseComponent1 = this._returnBrowseComponent1.bind(this);
     this._returnBrowseComponent2 = this._returnBrowseComponent2.bind(this);
@@ -148,26 +148,30 @@ export default class TransferComponent extends Component {
   componentWillUnmount(){
 
     document.title = "OneDataShare - Home";
-    this.unsubcribe();
+//    this.unsubcribe();
   }
 
   _returnBrowseComponent1(){
-     const {mode1, endpoint1,history} = this.state;
-
+     const {mode1, endpoint1,history, compact} = this.state;
+     console.log("asdsaDAS\n\n\n")
     return <BrowseModuleComponent 
+      id="browserleft"
       mode={mode1} 
       endpoint={endpoint1} 
       history={history} 
+      displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseOne}/>
   }
 
   _returnBrowseComponent2(){
-     const {mode2, endpoint2, history} = this.state;
+     const {mode2, endpoint2, history, compact} = this.state;
    
     return <BrowseModuleComponent 
+      id="browserright"
       mode={mode2}
       endpoint={endpoint2} 
       history={history} 
+      displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseTwo}
     />
   }
@@ -359,15 +363,38 @@ export default class TransferComponent extends Component {
 
     const isSmall = screenIsSmall();
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
+    let handleChange = name => event => {
+      this.setState({ [name]: event.target.checked });
+    };
 
-    
+    const { alignment } = this.state;
+    console.log(alignment)
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
           
           {!isSmall && 
           <Panel bsStyle="primary">
-          <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+          <FormControlLabel
+            style={{width: "200px", right: "10px", color: "white", position: "absolute"}}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={handleChange('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{color: "white", fontSize: "12px"}}>Compact</Typography>}
+          />
+          <Panel.Heading>
+            <p>
+              Browse and Transfer Files
+            </p>
+            
+
+            </Panel.Heading>
             <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
               
                 <Row style={{flexDirection: 'column'}}>
@@ -375,10 +402,10 @@ export default class TransferComponent extends Component {
                     onDragStart={this.onDragStart}
                     onDragEnd={this.onDragEnd}
                   >
-                  <Col xs={6} style={panelStyle}>
+                  <Col xs={6} style={panelStyle}  >
                     {this._returnBrowseComponent1()}
                   </Col>
-                  <Col xs={6} style={panelStyle}>
+                  <Col xs={6} style={panelStyle} >
                     {this._returnBrowseComponent2()}  
                   </Col>
                   </DragDropContext>
@@ -388,15 +415,20 @@ export default class TransferComponent extends Component {
                     <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
             
+
             </Panel.Body>
           </Panel>
 
           
         }
-        {!isSmall && this.getSettingComponent(isSmall)}
+        {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
         <Panel bsStyle="primary">
-        <Panel.Heading>Browse and Transfer Files</Panel.Heading>
+        <Panel.Heading>
+          <p>
+            Browse and Transfer Files
+          </p>
+        </Panel.Heading>
         <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
             <Row style={{flexDirection: 'column'}}>
               <DragDropContext
@@ -413,12 +445,24 @@ export default class TransferComponent extends Component {
                 <Row style={panelStyle}>
                   {this._returnBrowseComponent2()}  
                 </Row>
-                <Row>
-          
-                  {this.getSettingComponent(isSmall)}
-                </Row>
+                
+                 {/*  <Row> {this.getSettingComponent(isSmall)} </Row> */}
               </DragDropContext>
+              
             </Row>
+            <FormControlLabel
+              style={{width: "200px", float: "right", color: "white"}}
+              control={
+                <Switch
+                  color="default"
+                  style={{colorPrimary: "white", colorSecondary:"white"}}
+                  checked={this.state.compact}
+                  onChange={handleChange('compact')}
+                  value="compact"
+                />
+              }
+              label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+            />
             </Panel.Body>
             </Panel>
           }

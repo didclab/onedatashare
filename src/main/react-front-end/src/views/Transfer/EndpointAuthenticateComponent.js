@@ -53,6 +53,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			password: "",
 			endpointSelected: {},
 			selectingEndpoint: false,
+			portNum: -1
 		};
 
 		let loginType = getType(props.endpoint);
@@ -110,13 +111,14 @@ export default class EndpointAuthenticateComponent extends Component {
       });
     };
 
-	endpointCheckin=(url, credential, callback) => {
+	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
 		const endpointSet = {
 			uri: url,
 			login: true,
 			side: this.props.endpoint.side,
-			credential: credential
+			credential: credential,
+			portNumber: portNum
 		}
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, (suc) => {
@@ -199,7 +201,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((v) =>
 			<ListItem button key={v} onClick={() => {
-				this.endpointCheckin(v, {}, (error) => {
+				this.endpointCheckin(v, this.state.portNum, {}, (error) => {
 					this._handleError("Please enter your credential.");
 					this.setState({url: v, authFunction : this.regularSignIn, settingAuth: true, needPassword: true});
 				})
@@ -227,11 +229,11 @@ export default class EndpointAuthenticateComponent extends Component {
 		const { needPassword} = this.state;
 		
 		if(!needPassword){
-    		this.endpointCheckin(this.state.url, {}, () => {
+    		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
     			this.setState({needPassword: true});
     		});
     	}else{
-    		this.endpointCheckin(this.state.url, {type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
+    		this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
     			this._handleError("Authentication Failed");
     		});
     	}
@@ -265,7 +267,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
 			this.setState({selectingEndpoint: false});
-			this.endpointCheckin("gsiftp:///", {type: "globus", globusEndpoint: endpoint}, (msg) => {
+			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
     			this._handleError("Authentication Failed");
     		});
 		}
@@ -301,13 +303,13 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
 		        	}else if(loginType == FTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://", portNum: 21});
 		        	}else if(loginType == SFTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "sftp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "sftp://", portNum: 22});
 		        	}else if(loginType == HTTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://", portNum: 80});
 		        	}else if(loginType == SCP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "scp://"});
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "scp://", portNum: 22});
 		        	}else if(loginType == GRIDFTP_TYPE){
 		        		this.setState({selectingEndpoint: true});
 		        	}
@@ -319,7 +321,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE) && cloudList}
-
 		        {loginType == GRIDFTP_TYPE && endpointsList}
 		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && loginType != GRIDFTP_TYPE && 
 		        	histList}
@@ -341,8 +342,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
+		    		<div>
 			    	<TextField
-			    	  style={{width: "80%"}}
+			    	  style={{width: "60%"}}
 			          id="outlined-name"
 			          label="Url"
 			          value={this.state.url}
@@ -350,7 +352,18 @@ export default class EndpointAuthenticateComponent extends Component {
 			          margin="normal"
 			          variant="outlined"
 			        />
+			        <TextField
+			    	  style={{width: "20%"}}
+			          id="outlined-pnum"
+			          label="Port Number"
+			          value={this.state.portNum}
+			          onChange={this.handleChange('portNum')}
+			          margin="normal"
+			          variant="outlined"
+			        />
+			        </div>
 		    	}
+
 
 		        
 		        {needPassword &&

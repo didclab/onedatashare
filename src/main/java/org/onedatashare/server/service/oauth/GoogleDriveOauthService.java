@@ -50,7 +50,7 @@ public class GoogleDriveOauthService{
             this.token_uri = "https://accounts.google.com/o/oauth2/token";
             this.auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs";
             this.project_id = System.getenv("ods_drive_project_id");
-            this.redirect_uris = "http://127.0.0.1:8080/api/stork/oauth/googledrive,https://onedatashare.org/api/stork/oauth," +
+            this.redirect_uris = "https://onedatashare.org/api/stork/oauth/googledrive,https://onedatashare.org/api/stork/oauth," +
                                  "http://127.0.0.1:8080/api/stork/oauth,http://localhost:8080/api/stork/oauth," +
                                  "http:///www.onedatashare.org/api/stork/oauth";
         }

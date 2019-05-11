@@ -11,7 +11,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -26,6 +26,7 @@ export default class BrowseModuleComponent extends Component {
 		mode : PropTypes.number,
 		update : PropTypes.func,
 		type: PropTypes.string,
+		display: PropTypes.string
 	}
 
 	constructor(props){
@@ -35,8 +36,22 @@ export default class BrowseModuleComponent extends Component {
 			creds: {},
 			endpoint: props.endpoint, 
 			mode: props.mode,
-			loading: false
+			loading: false,
+			oneSideIsLoggedInAsGridftp: false
 		};
+
+		this.unsubcribe = store.subscribe(() => {
+			let currentState = store.getState();
+			// Check if either side is logged in as GRID_FTP
+			let oneSideIsLoggedInAsGrid = (getType(currentState.endpoint1) === GRIDFTP_TYPE || getType(currentState.endpoint2) === GRIDFTP_TYPE);
+			if(oneSideIsLoggedInAsGrid && !this.state.oneSideIsLoggedInAsGridftp){
+				this.setState({oneSideIsLoggedInAsGridftp: true});
+			}else if(!oneSideIsLoggedInAsGrid && this.state.oneSideIsLoggedInAsGridftp){
+				this.setState({oneSideIsLoggedInAsGridftp: false});
+			}
+     		
+    	});
+
 		this.setLoading = this.setLoading.bind(this);
 		this.getLoading = this.getLoading.bind(this);
 
@@ -59,7 +74,6 @@ export default class BrowseModuleComponent extends Component {
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
 		dropboxCredList((data) => {
-			console.log(data);
 			if(Object.keys(data).some(id => {
 				return data[id].name.toLowerCase().
 				indexOf(containsType.toLowerCase()) != -1 
@@ -77,7 +91,7 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, creds} = this.state;
+		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp} = this.state;
 		const {update} = this.props;
 		const loginPrep = (uri) => (data) => {
 
@@ -98,31 +112,30 @@ export default class BrowseModuleComponent extends Component {
 	    return (
 	    // saved credential
 	    // login manually
-	    <div style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
+	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
 	      	{(!endpoint.login && mode == pickModule) &&
 	      	<div style={{height: "100%",display: "flex", flexDirection: "column"}}>
-		      	<Button style={buttonStyle} onClick={() => {
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
 		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
-		      	}}>DropBox</Button>
-		      	<Button style={buttonStyle} onClick={() => {
+		      	}}>DropBox</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
 		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
-		      	}}>Google Drive</Button>
+		      	}}>Google Drive</Button>}
 		      	<Button style={buttonStyle} onClick={() =>{
 		      		this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 		      	}}>Grid FTP</Button>
-		      	<Button style={buttonStyle} onClick={() => {
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
 		      		loginPrep(FTP_TYPE)()
-		      	}}>FTP</Button>
-		      	<Button style={buttonStyle} onClick={() =>{
+		      	}}>FTP</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
-		      	}}>SFTP</Button>
-		      	<Button style={buttonStyle} onClick={() =>{
+		      	}}>SFTP</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
 		      		loginPrep(HTTP_TYPE)()
-		      	}}>HTTP</Button>
-		      	<Button style={buttonStyle} onClick={() =>{
+		      	}}>HTTP</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
 		      		loginPrep(SCP_TYPE)()
-		      	}}>SSH</Button>
-
+		      	}}>SSH</Button>}
 		    </div>}
 
 		    {(!endpoint.login && mode == inModule) &&
@@ -136,9 +149,7 @@ export default class BrowseModuleComponent extends Component {
 			      		update({endpoint: object})
 			      	}}
 			      	setLoading = {this.setLoading}
-			      	back={() =>{
-		      			backHome();
-		      		}}
+			      	back={backHome}
 		      	/>
 		    </div>}
 		    {endpoint.login &&
@@ -149,6 +160,7 @@ export default class BrowseModuleComponent extends Component {
 		      		setLoading = {this.setLoading}
 		      		getLoading = {this.getLoading} 
 		      		back={backHome}
+		      		displayStyle={this.props.displayStyle}
 		      	/>
 		    </div>}
 	      </div>

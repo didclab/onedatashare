@@ -61,7 +61,7 @@ export default class NewLoginComponent extends Component {
 	    	},
 	    	(error)=>{
 	    		isLoading(false);
-	    		this.setState({emailChecked: true, error: true, errorMessage: "Email not found or server error."});
+	    		this.setState({emailChecked: false, error: true, errorMessage: "Email not found or server error."});
 	    	}
 	    );
 	}

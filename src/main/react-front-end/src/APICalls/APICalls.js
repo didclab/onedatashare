@@ -42,8 +42,8 @@ function statusHandle(response, callback){
 	      return;
 	    }
 		console.log(response)
-		const errorText = JSON.stringify(response.response.data);
-		callback(`500${response.response.statusText} ${errorText}`);
+		//const errorText = JSON.stringify(response.response.data);
+		callback(`500`);
 	}
 }
 
@@ -57,7 +57,7 @@ function statusHandle(response, callback){
 export async function checkLogin(email, accept, fail){
 	var callback = accept;
 	axios.post(url+'user', {
-	    action: 'verifyUser',
+	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
 		console.log("login response", response)
@@ -404,6 +404,7 @@ export async function listFiles(uri, endpoint, id, accept, fail){
 	    uri: encodeURI(uri),
 	    depth: 1,
 	    id: id,
+	    portNumber: endpoint.portNumber,
 	    //map: getMapFromEndpoint(endpoint),
 	    type: getTypeFromUri(uri)
 	  };

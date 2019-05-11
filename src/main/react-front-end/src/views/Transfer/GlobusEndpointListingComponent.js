@@ -69,10 +69,10 @@ export default class GlobusEndpointListingComponent extends Component {
 		if(search_text !== ""){
 			globusListEndpoints(
 				search_text,
-				(resp)=>{
+				(resp) => {
 					this.setState({data: resp["DATA"]});
 					this.setState({loading: false});
-				}, (error)=>{
+				}, (error) => {
 					eventEmitter.emit("errorOccured", error);
 					this.setState({loading: false});
 				}
@@ -85,13 +85,11 @@ export default class GlobusEndpointListingComponent extends Component {
 	render(){
 		const { close } = this.props;
 		const { search_text, loading, data } = this.state;
-		console.log(data)
-		const greatDiscoveryList = data.map((v)=>
+		const greatDiscoveryList = data.map((v) =>
     		<ListItem button key={v.canonical_name} style={{background: "white", height: 40}} onClick={() => {
-    			console.log("endpoint without detail", v)
-    			globusEndpointIds(v, (resp)=>{
+    			globusEndpointIds(v, (resp) => {
     				this.props.endpointAdded(v);
-    			}, (error)=>{
+    			}, (error) => {
     				eventEmitter.emit("errorOccured", "Error Saving Your endpoint.");
     			});
 			}}>
@@ -100,30 +98,24 @@ export default class GlobusEndpointListingComponent extends Component {
 		);
 
 		return (
-		<div style={{  width: 300, height: 400, backgroundColor: "white", borderWidth: '1px', borderColor: '#005bbb', borderRadius: 2,borderStyle: 'solid', overflow: "hidden"}}>
+		<div style={{width: 300, height: 400, backgroundColor: "white", borderWidth: '1px', borderColor: '#005bbb', borderRadius: 2,borderStyle: 'solid', overflow: "hidden"}}>
 			{loading && <LinearProgress/>}
 			<Paper style={styles.root} elevation={0}>
-		      <InputBase style={styles.input} placeholder="Search for Endpoints" value={search_text} onChange={(event)=>{
+		      <InputBase style={styles.input} placeholder="Search for Endpoints" value={search_text} onChange={(event) => {
 		      	this.setState({search_text: event.target.value})
 		      }}/>
-		      <IconButton style={styles.iconButton} aria-label="Search" onClick={(e)=>{
+		      <IconButton style={styles.iconButton} aria-label="Search" onClick={(e) => {
 		      	this.getEndpointListAsData();
 		      }}>
 		        <SearchIcon/>
 		      </IconButton>
 		    </Paper>
-
-		    {(data.length === 0) &&
-		    	<h3 style={{margin: "100px"}}> No Result </h3>
-			}
-
-			
+		    {(data.length === 0) && <h3 style={{margin: "100px"}}> No Result </h3>}
 		    <List component="nav" style={{overflow: 'auto', height: "100%"}}>
 		    	{data.length > 0 &&
 			    	greatDiscoveryList
 			    }
 		    </List>
-			
 		</div>);
 	}
 } 
