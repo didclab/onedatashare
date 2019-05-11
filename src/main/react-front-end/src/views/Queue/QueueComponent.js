@@ -163,7 +163,7 @@ class QueueComponent extends Component {
 	}
 
 	getFormattedDate(d){
-		return (d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
+		return (1 + d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
 	}
 
 	toggleTabs(){

@@ -91,7 +91,7 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, creds} = this.state;
+		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp} = this.state;
 		const {update} = this.props;
 		const loginPrep = (uri) => (data) => {
 
