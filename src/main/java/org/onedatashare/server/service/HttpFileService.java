@@ -1,12 +1,7 @@
 package org.onedatashare.server.service;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.http.HttpResource;
 import org.onedatashare.server.module.http.HttpSession;

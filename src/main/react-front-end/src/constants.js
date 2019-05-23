@@ -51,7 +51,8 @@ export const showText={
 	sftp : SFTP_NAME,
 	http : HTTP_NAME,
 	gsiftp : GRIDFTP_NAME,
-	scp : SCP_NAME
+	scp : SCP_NAME,
+	https : HTTP_NAME
 }
 
 export const showType={
@@ -61,7 +62,8 @@ export const showType={
 	sftp : SFTP_TYPE,
 	http : HTTP_TYPE,
 	gsiftp : GRIDFTP_TYPE,
-	scp : SCP_TYPE
+	scp : SCP_TYPE,
+	https : HTTP_TYPE
 }
 
 export function getType(endpoint){

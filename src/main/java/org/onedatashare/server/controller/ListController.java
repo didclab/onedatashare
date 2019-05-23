@@ -38,7 +38,6 @@ public class ListController {
     @PostMapping
     public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-
         if (userAction.credential == null) {
             switch (userAction.type) {
                 case "dropbox:///":
@@ -60,6 +59,7 @@ public class ListController {
             case "ftp://":
                 return vfsService.list(cookie, userAction);
             case "http://":
+            case  "https://":
                 return httpService.list(cookie, userAction);
             default:
                 return null;

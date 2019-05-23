@@ -68,7 +68,7 @@ public class DownloadController {
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
         String cookie = clientHttpHeaders.getFirst("cookie");
 
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<String, String>();
         Set<Cookie> cookies = CookieDecoder.decode(cookie);
         for (Cookie c : cookies)
             map.put(c.getName(), c.getValue());
