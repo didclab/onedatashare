@@ -54,8 +54,8 @@ public class UserService {
 
   public Mono<User.UserLogin> login(String email, String password) {
 
-  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
-  //  createUser(user).subscribe(System.out::println);
+//    User user = new User("vanditsa@buffalo.edu", "asdasd");
+//    createUser(user).subscribe(System.out::println);
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
@@ -148,7 +148,7 @@ public class UserService {
     });
   }
 
-  public Mono<Boolean> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
+  public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
     return getLoggedInUser(cookie).flatMap(user-> {
       if(!newpassword.equals(passwordConfirm)){
         return Mono.error(new Exception("Password is not confirmed."));
@@ -159,9 +159,8 @@ public class UserService {
         System.out.println(user.checkPassword(newpassword));
         //cookieToUserLogin(cookie).hash = user.hash;
         //or
-        cookieToUserLogin(cookie).hash = user.hash(newpassword);
         userRepository.save(user).subscribe();
-        return Mono.just(true);
+        return Mono.just(user.hash);
       }
     });
   }
@@ -343,7 +342,7 @@ public class UserService {
         return Mono.just(true);
       }else{
         return Mono.error(new Exception("Invalid email"));
-      }
+     }
     });
   }
 
@@ -419,6 +418,8 @@ public class UserService {
   public Mono<Boolean> isAdmin(String cookie){
     return getLoggedInUser(cookie).map(user ->user.isAdmin());
   }
+
+  public Mono<String> getOrganization(String cookie){ return getLoggedInUser(cookie).map(user-> user.organization );};
 
 
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
