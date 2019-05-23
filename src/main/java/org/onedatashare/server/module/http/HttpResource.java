@@ -10,7 +10,10 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri = null;
@@ -47,14 +50,17 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         }
 
         Elements table = document.select("tr");
+
         //Remove the header and 1st row of the table
         if(table.size() >= 2) {
-            table.remove(1);
             table.remove(0);
+            table.remove(1);
         }
 
         Stat contentStat;
         ArrayList<Stat> contents = new ArrayList<>(table.size());
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         for (Element row : table) {
             try {
@@ -73,7 +79,12 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     contentStat.dir = false;
                     contentStat.file = true;
                     contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-//                    contentStat.time = null;
+                }
+                String dateString = rowContent.get(2).text();
+
+                if(!dateString.equals("")) {
+                    Date d = sdf.parse(dateString);
+                    contentStat.time = d.getTime() / 1000L;
                 }
                 contents.add(contentStat);
             } catch (Exception e) {
@@ -96,6 +107,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
             String multiplier = sizeString.replaceAll("\\D+","");
             String digits = sizeString.replaceAll("[^\\d]","");
+
+            // No size information available
+            if(digits.equals(""))
+                return 0;
+
             float size = Float.parseFloat(digits);
 
             final long K_FACTOR = 1024;
