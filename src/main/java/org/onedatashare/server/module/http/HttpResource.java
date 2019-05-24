@@ -69,7 +69,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     continue;
                 contentStat = new Stat();
                 String fileName = rowContent.get(1).text();
-                String date = rowContent.get(2).text();
+                String dateString = rowContent.get(2).text();
                 if (fileName.endsWith("/")) {
                     contentStat.name = fileName.substring(0, fileName.length() - 1);
                     contentStat.dir = true;
@@ -80,7 +80,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     contentStat.file = true;
                     contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
                 }
-                String dateString = rowContent.get(2).text();
 
                 if(!dateString.equals("")) {
                     Date d = sdf.parse(dateString);
