@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -13,23 +12,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 @Service
 public class VfsService implements ResourceService<VfsResource> {
@@ -49,60 +33,6 @@ public class VfsService implements ResourceService<VfsResource> {
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
 
-    public Mono<VfsResource> getResourceWithUserActionUri(String cookie, String userActionString) {
-        List<String> path = new ArrayList<>();
-        return userService.getLoggedInUser(cookie)
-                .map(user -> {
-                    byte[] encryptedString = Base64.getDecoder().decode(userActionString);
-                    byte[] privateKeyString = Base64.getDecoder().decode(user.getPrivateKey());
-                    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyString);
-                    KeyFactory fact = null;
-                    try {
-                        fact = KeyFactory.getInstance("RSA");
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                    PrivateKey privateKey = null;
-                    try {
-                        privateKey = fact.generatePrivate(spec);
-                    } catch (InvalidKeySpecException e) {
-                        e.printStackTrace();
-                    }
-                    Cipher decrypt = null;
-                    try {
-                        decrypt = Cipher.getInstance("RSA");
-                        decrypt.init(Cipher.DECRYPT_MODE, privateKey);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    }
-                    String decryptedMessage = null;
-                    try {
-                        decryptedMessage = new String(decrypt.doFinal(encryptedString), StandardCharsets.UTF_8);
-                    } catch (IllegalBlockSizeException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println(decryptedMessage);
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    UserActionResource userActionResource = null;
-                    try {
-                        userActionResource = objectMapper.readValue(decryptedMessage, UserActionResource.class);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    UserInfoCredential userInfoCredential = new UserInfoCredential(userActionResource.credential);
-                    VfsSession vfsSession = new VfsSession(URI.create(userActionResource.uri), userInfoCredential);
-                    path.add(pathFromUri(userActionResource.uri));
-                    return vfsSession;
-                }).flatMap(VfsSession::initialize)
-                .flatMap(vfsSession -> vfsSession.select(path.get(0)));
-    }
-
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         fixSCPUri(userActionResource);
         final String path = pathFromUri(userActionResource.uri);
@@ -113,15 +43,15 @@ public class VfsService implements ResourceService<VfsResource> {
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
 
-    public void fixSCPUri(UserAction userAction){
-        if(userAction.type.equals("scp://")){
+    public void fixSCPUri(UserAction userAction) {
+        if (userAction.type.equals("scp://")) {
             userAction.type = "sftp://";
             userAction.uri = "sftp://" + userAction.uri.substring(6);
         }
     }
 
-    public void fixSCPUri(UserActionResource userAction){
-        if(userAction.type.equals("scp://")){
+    public void fixSCPUri(UserActionResource userAction) {
+        if (userAction.type.equals("scp://")) {
             userAction.type = "sftp://";
             userAction.uri = "sftp://" + userAction.uri.substring(6);
         }

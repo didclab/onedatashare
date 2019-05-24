@@ -59,7 +59,7 @@ public class ListController {
             case "ftp://":
                 return vfsService.list(cookie, userAction);
             case "http://":
-            case  "https://":
+            case "https://":
                 return httpService.list(cookie, userAction);
             default:
                 return null;
@@ -70,20 +70,4 @@ public class ListController {
     public ResponseEntity<AuthenticationRequired> handle(AuthenticationRequired authenticationRequired) {
         return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
     }
-
-//  public Mono<Stat> list(UserAction userAction){
-//    Document document;
-//    List<String> directoryContents = new ArrayList<>();
-//    try {
-//      document = Jsoup.connect(userAction.uri).get();
-//      Elements links = document.select("a[href]");
-//      for (Element link : links) {
-//        directoryContents.add(link.text());
-//        System.out.println(link.text());
-//      }
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
-//    return Mono.just(new Stat());
-//  }
 }

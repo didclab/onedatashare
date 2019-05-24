@@ -414,7 +414,7 @@ export default class EndpointBrowseComponent extends Component {
 										getDownload(downloadUrl, endpoint.credential, taskList);
 									}
 									else if(getType(endpoint) == HTTP_TYPE){
-										window.open(downloadUrl);
+										window.open(downloadUrlg);
 									}
 									else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)

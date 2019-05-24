@@ -308,7 +308,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             e.printStackTrace();
         }
 
-//        System.out.println("Size of file is " + stream.length());
         String[] strings = fileObject.getName().toString().split("/");
         String filename = strings[strings.length - 1];
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
