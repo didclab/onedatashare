@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class HttpResource extends Resource<HttpSession, HttpResource> {
-    private String uri = null;
+    private String uri;
 
     protected HttpResource(HttpSession session, String uri) {
         super(session);
