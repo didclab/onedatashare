@@ -3,12 +3,12 @@ import { multiSelectTo as multiSelect } from './utils';
 
 import memoizeOne from 'memoize-one';
 import FileNode from "./FileNode.js";
+import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
-import UploadButton from "@material-ui/icons/CloudUpload";
 import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
@@ -22,9 +22,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import FileInput from 'react-fine-uploader/file-input';
+import SearchIcon from '@material-ui/icons/Search';
 
-import FineUploaderTraditional from 'fine-uploader-wrappers';
+import InputBase from '@material-ui/core/InputBase';
+
+import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
@@ -52,7 +54,8 @@ export default class EndpointBrowseComponent extends Component {
 			openShare: false,
 			shareUrl: "",
 			openAFolder: false,
-			addFolderName: ""
+			addFolderName: "",
+			searchText: ""
 		};
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
@@ -88,6 +91,7 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 	    window.removeEventListener('touchend', this.onWindowTouchEnd);
 	}
+	
 
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
@@ -134,7 +138,6 @@ export default class EndpointBrowseComponent extends Component {
 	      getSelectedTasksFromSide(endpoint),
 	      newTask
 	 	);
-	    console.log(updated)
 	    if (updated == null) {
 	      return;
 	    }
@@ -196,7 +199,16 @@ export default class EndpointBrowseComponent extends Component {
 		uri = makeFileNameFromPath(uri, path, "");
 
 		listFiles(uri, endpoint, id[id.length-1], (data) =>{
-			setFilesWithPathListAndId(data.files, path, id, endpoint);
+			let sortedfiles = data.files.sort((a, b) => { 
+				if(a.dir && !b.dir){
+					return -1;
+				}else if(!a.dir && b.dir){
+					return 1;
+				}else{
+					return a.name.localeCompare(b.name);
+				}
+			});
+			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
@@ -224,10 +236,10 @@ export default class EndpointBrowseComponent extends Component {
 			dirName =  addFolderName;
 		}
 		//make api call
-		mkdir(dirName,dirType, endpoint, (response)=>{
+		mkdir(dirName,dirType, endpoint, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
-		}, (error)=>{
+		}, (error) => {
 			this._handleError(error);
 		})
 	}
@@ -269,54 +281,33 @@ export default class EndpointBrowseComponent extends Component {
     	}
     }
 
+	
+
 	render(){
-		const {endpoint, back, setLoading, getLoading} = this.props;
-		const {directoryPath} = this.state;
-		const uploader = new FineUploaderTraditional({
-			debug: true,
-			 options: {
-					 chunking: {
-						enabled: true,
-						partSize: 500000,
-						concurrent: {
-							enabled: false
-						},
-					},
-					request: {
-						endpoint: '/api/stork/upload',
-						params: {
-							directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
-							credential: JSON.stringify(endpoint.credential),
-							id: this.state.ids[this.state.ids.length-1],
-							map: JSON.stringify(getMapFromEndpoint(endpoint))
-						}
-					},
-					retry: {
-						enableAuto: true
-					},
-					callbacks :{
-						onError: function(id, name, errorReason, xhr){
-							console.log('error occurred - ' + errorReason);
-						}
-					}
-					// "qqchunksize": 1000000
-			 }
-		})
+		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
+		const {directoryPath, displayMode, searchText, compactStylePos} = this.state;
+		
 
 		const list = getFilesFromMemory(endpoint) || [];
-		//console.log(list);
+		let displayList = Object.keys(list);
+
+
+		if(searchText.length > 0){
+			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
+		}
+
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
 		const selectedTasks = getSelectedTasksFromSide(endpoint);
-		//console.log(selectedTaskIds)
 		const loading = getLoading();
 		const tooltip = (name) => (
 		  <Tooltip id="tooltip">
 		  	{name}
 		  </Tooltip>
 		);
+
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
@@ -349,7 +340,6 @@ export default class EndpointBrowseComponent extends Component {
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-
 
 	        <Dialog
 	          open={this.state.openAFolder}
@@ -391,12 +381,7 @@ export default class EndpointBrowseComponent extends Component {
 
 				  <OverlayTrigger placement="top" 
 						overlay={tooltip("Upload")}>
-						<FileInput uploader={uploader} style={buttonStyle}>
-				  			<BootStrapButton disabled={false}>
-								<UploadButton style={iconStyle}/>
-				  			</BootStrapButton>
-			  			</FileInput>
-				  			
+						<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
 				  </OverlayTrigger>
 				  <OverlayTrigger placement="top" 
 				  	overlay={tooltip("Delete")}>
@@ -414,7 +399,7 @@ export default class EndpointBrowseComponent extends Component {
 										getDownload(downloadUrl, endpoint.credential, taskList);
 									}
 									else if(getType(endpoint) == HTTP_TYPE){
-										window.open(downloadUrlg);
+										window.open(downloadUrl);
 									}
 									else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
@@ -423,22 +408,19 @@ export default class EndpointBrowseComponent extends Component {
 					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
 						</OverlayTrigger>
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-				  		
-
-							<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
-							|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
-								const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-								const taskList = getSelectedTasksFromSide(endpoint);
-								getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)
-								.then(response => {
-									if(response !== ""){
-										this.handleClickOpen(response);
-									}
-									else{
-										eventEmitter.emit("errorOccured", "Error encountered while generating link");
-									}	
-								})
-														
+						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
+							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
+							const taskList = getSelectedTasksFromSide(endpoint);
+							getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)
+							.then(response => {
+								if(response !== ""){
+									this.handleClickOpen(response);
+								}
+								else{
+									eventEmitter.emit("errorOccured", "Error encountered while generating link");
+								}	
+							})
 				  		}}>
 				  			<LinkButton style={iconStyle}/>
 				  		</BootStrapButton>
@@ -463,6 +445,11 @@ export default class EndpointBrowseComponent extends Component {
 				</ButtonGroup>
 			</div>
 
+			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search Files And Folders" onChange={(event) => {
+		      	this.setState({searchText: event.target.value})
+		      }}/>
+			</div>
 
 
 			<Droppable droppableId={endpoint.side} > 
@@ -483,7 +470,30 @@ export default class EndpointBrowseComponent extends Component {
 								LOADING
 							</h2>
 						}
-						{Object.keys(list).map((fileId, index) => {
+
+						{!loading && displayList.length == 0 && Object.keys(list).length > 0 &&
+							<h2>
+								No Search Result
+							</h2>
+						}
+
+						{displayStyle == "compact" && !loading && displayList.length != 0 &&
+							<CompactFileNodeWrapper 
+								list={list} 
+								displayList={displayList} 
+								selectedTasks={selectedTasks} 
+								endpoint={endpoint} 
+								draggingTask={draggingTask}
+								toggleSelection={this.toggleSelection}
+								onClick={this.fileNodeClicked}
+								onDoubleClick={this.fileNodeDoubleClicked}
+								toggleSelectionInGroup={this.toggleSelectionInGroup}
+					            multiSelectTo={this.multiSelectTo}
+							/>
+						}
+
+
+						{displayStyle == "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
 							const isSelected: boolean = Boolean(
 			                  selectedTasks.indexOf(file)!=-1,
@@ -494,7 +504,7 @@ export default class EndpointBrowseComponent extends Component {
 			                  draggingTask.name !== file.name;
 
 							  return(
-								<FileNode 
+								<FileNode
 									key={fileId}
 									index={index}
 									file={file}

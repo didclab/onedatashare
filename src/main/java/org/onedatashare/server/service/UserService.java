@@ -1,48 +1,46 @@
 package org.onedatashare.server.service;
 
-import com.google.api.client.http.HttpStatusCodes;
-import com.sun.jersey.api.NotFoundException;
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.mail.MessagingException;
 import java.net.URI;
 import java.util.*;
-import javax.mail.*;
-import javax.mail.internet.*;
 
 @Service
 public class UserService {
 
-  final String EMAIL_USERNAME = System.getenv("ODS_EMAIL_ADDRESS");
-  final String EMAIL_PWD = System.getenv("ODS_EMAIL_PWD");
-
   @Autowired
   private UserRepository userRepository;
+
+  @Autowired
+  private EmailService emailService;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
 
   public Mono<User> createUser(User user) {
+    user.registerMoment = System.currentTimeMillis();
     return userRepository.insert(user);
   }
 
@@ -228,42 +226,15 @@ public class UserService {
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-    // Recipient's email ID needs to be mentioned.
-    String to = email;
-
-    // Get system properties
-    Properties properties = System.getProperties();
-    properties.put("mail.smtp.auth", "true");
-    properties.put("mail.smtp.starttls.enable", "true");
-    properties.put("mail.smtp.host", "smtp.gmail.com");
-    properties.put("mail.smtp.port", "587");
-
-    // Get the default Session object.
-    Session session = Session.getDefaultInstance(properties, new javax.mail.Authenticator() {
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return new PasswordAuthentication(EMAIL_USERNAME, EMAIL_PWD);
-      }
-    });
-
 
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
       userRepository.save(user).subscribe();
       try {
-        // Create a default MimeMessage object.
-        MimeMessage message = new MimeMessage(session);
-        // Set From: header field of the header.
-        message.setFrom(new InternetAddress(EMAIL_USERNAME));
-        // Set To: header field of the header.
-        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-        // Set Subject: header field
-        message.setSubject("Auth Code");
-        // Now set the actual message
-        message.setText("The authorization code for your OneDataShare account is : " + code);
-        // Send message
-        Transport.send(message);
-        System.out.println("Sent message successfully....");
+        String subject = "OneDataShare Authorization Code";
+        String emailText = "The authorization code for your OneDataShare account is : " + code;
+        emailService.sendEmail(email, subject, emailText);
       } catch (MessagingException mex) {
         mex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
@@ -272,12 +243,34 @@ public class UserService {
     });
   }
 
-  public Flux<User> getAllUsers(){
-    return userRepository.findAll();
+  public Mono<UserDetails> getAllUsers(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                userRepository.count()
+                    .map(count ->  {
+                      UserDetails result = new UserDetails();
+                      result.users = users;
+                      result.totalCount = count;
+                      return result;
+                    }));
   }
 
-  public Flux<User> getAdministrators(){
-    return userRepository.findAllAdministrators();
+  public Mono<UserDetails> getAdministrators(UserAction userAction){
+    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
+            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+            .collectList()
+            .flatMap(users ->
+                  userRepository.countAdministrators()
+                          .map(count ->  {
+                            UserDetails result = new UserDetails();
+                            result.users = users;
+                            result.totalCount = count;
+                            return result;
+                          }));
   }
 
   public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
@@ -338,10 +331,15 @@ public class UserService {
     });
   }
 
-    public Mono<Boolean> verifyEmail(String email) {
-        return getUser(email)
-                .flatMap(u -> Mono.just(true)).switchIfEmpty( Mono.error(new Exception("Invalid")));
-    }
+  public Mono<Object> verifyEmail(String email) {
+    return userRepository.existsById(email).flatMap( bool -> {
+      if (bool) {
+        return Mono.just(true);
+      }else{
+        return Mono.error(new Exception("Invalid email"));
+      }
+    });
+  }
 
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
@@ -452,7 +450,7 @@ public class UserService {
   }
 
   public Mono<User> addJob(Job job, String cookie) {
-    return getLoggedInUser(cookie).map(user -> user.addJob(job.uuid)).flatMap(userRepository::save);
+    return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
   }
 
   public User.UserLogin cookieToUserLogin(String cookie) {

@@ -14,14 +14,14 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-@Configuration
-@ComponentScan("org.onedatashare.module")
+//@Configuration
+//@ComponentScan("org.onedatashare.module")
 public class WebConfiguration implements WebFluxConfigurer {
 
     /*
         Below methods are used for setting up HTTPS on port 8443
      */
-    @Bean
+    /*@Bean
     public WebServerFactoryCustomizer<NettyReactiveWebServerFactory> customizer() {
         return new WebServerFactoryCustomizer<NettyReactiveWebServerFactory>() {
             @Override
@@ -40,7 +40,7 @@ public class WebConfiguration implements WebFluxConfigurer {
     /*
        Below methods are used for redirecting port 8080 to 8443
      */
-    @Autowired
+    /*@Autowired
     HttpHandler httpHandler;
 
     WebServer http;
@@ -55,5 +55,5 @@ public class WebConfiguration implements WebFluxConfigurer {
     @PreDestroy
     public void stop() {
         this.http.stop();
-    }
+    }*/
 }

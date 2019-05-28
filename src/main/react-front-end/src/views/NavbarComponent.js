@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
-import {Navbar, Nav, NavItem, NavDropdown, Button} from 'react-bootstrap';
+import {Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
+import Button from '@material-ui/core/Button';
 import { PropTypes } from 'prop-types';
 import { Redirect, Link} from 'react-router-dom';
+import ContactSupportOutlined  from '@material-ui/icons/ContactSupportOutlined';
+import Tooltip from '@material-ui/core/Tooltip';
 
 import {transferPageUrl,queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, managementPageUrl, dataPageUrl} from '../constants';
 import {store} from '../App';
@@ -80,7 +83,13 @@ class NavbarComponent extends Component {
 		        {this.state.login && 
 			        <NavItem onClick={()=>{store.dispatch(logoutAction())}}>
 			            <span>Log out</span>
-			        </NavItem>}
+							</NavItem>}
+					
+						<NavItem component={Link} href="/support">
+							<Tooltip title="Report an issue" placement="top">
+									<ContactSupportOutlined />
+							</Tooltip>
+						</NavItem>
 		      </Nav>
 		    </Navbar.Collapse>
 		</Navbar>

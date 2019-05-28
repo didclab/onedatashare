@@ -125,22 +125,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.onedatashare.module</groupId>
-            <artifactId>globus-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-deploy-plugin</artifactId>
             <version>2.8.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jsoup</groupId>
-            <artifactId>jsoup</artifactId>
-            <version>1.11.3</version>
         </dependency>
 
         <!-- Lombok Plugin -->
@@ -150,6 +137,27 @@
             <!--<version>1.18.6</version>-->
             <!--<scope>provided</scope>-->
         <!--</dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-ses</artifactId>
+            <version>1.11.548</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.onedatashare.module</groupId>
+            <artifactId>globus-api</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
+        </dependency>
+
 
     </dependencies>
 
@@ -167,5 +175,10 @@
         </plugins>
     </build>
 
-
+    <repositories>
+        <repository>
+            <id>local-library</id>
+            <url>file:///${project.basedir}/lib</url>
+        </repository>
+    </repositories>
 </project>

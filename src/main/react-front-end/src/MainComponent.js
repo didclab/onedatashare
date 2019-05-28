@@ -2,16 +2,16 @@ import React, { Component } from 'react';
 
 import NavbarComponent from "./views/NavbarComponent";
 import HomePageComponent  from './views/HomePageComponent';
-import PropTypes from 'prop-types';
 
 import  { Route, Switch, Redirect } from 'react-router-dom';
 import {store} from './App.js';
-import {cookies} from './model/reducers';
+
 import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent.js';
 import UserAccountComponent from './views/Login/UserAccountComponent.js';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent.js';
+import SupportComponent from './views/Support/SupportComponent.js';
 
 
 
@@ -52,6 +52,11 @@ export default class MainComponent extends Component {
             <Route exact path='/' render = {(props) =>
                 <HomePageComponent  {...props} store={store} />
             }/>
+
+            <Route exact path="/support" render = {() =>
+              <SupportComponent />  
+            } />
+
             {isLoggedIn && 
               <Route exact path='/transfer' render=
                 { (props) => 
@@ -91,6 +96,9 @@ export default class MainComponent extends Component {
               <h1 to='/transfer'>Page Not Found</h1>
             }
             
+            {!isLoggedIn && 
+              <Route render={() => <Redirect to="/"/>}/>
+            }
           </Switch>
         </div>
 

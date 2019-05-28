@@ -124,6 +124,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
            try {
                this.session.service.files().delete(id).execute();
                id = session.idMap.get(session.idMap.size() - 1).getId();
+               if(id == null && session.idMap.size() ==1)
+                   id = ROOT_DIR_ID;
            } catch (Exception e) {
                s.error(e);
            }
@@ -400,13 +402,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             this.drainPath = drainPath;
             this.isDirTransfer = true;
             return start();
-        }
-
-
-        //@Override
-        public GoogleDriveDrain start_2(){
-
-            return null;
         }
 
         @Override

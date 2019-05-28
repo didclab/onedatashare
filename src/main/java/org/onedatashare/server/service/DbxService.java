@@ -93,9 +93,9 @@ public class DbxService implements ResourceService<DbxResource>{
 
   public void processTransferFromJob(Job job, String cookie) {
     Transfer<DbxResource, DbxResource> transfer = new Transfer<>();
-    getDbxResourceWithJobSourceOrDestination(cookie, job.src)
+    getDbxResourceWithJobSourceOrDestination(cookie, job.getSrc())
             .map(transfer::setSource)
-            .flatMap(t -> getDbxResourceWithJobSourceOrDestination(cookie, job.dest))
+            .flatMap(t -> getDbxResourceWithJobSourceOrDestination(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
             .flatMap(transfer1 -> transfer1.start(1L << 20))
