@@ -51,25 +51,53 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
         Elements table = document.select("tr");
 
-        //Remove the header and 1st row of the table
-        if(table.size() >= 2) {
+        if (table.size() >= 2) {
+            //Remove the header and 1st row of the table
             table.remove(0);
             table.remove(1);
-        }
 
-        Stat contentStat;
-        ArrayList<Stat> contents = new ArrayList<>(table.size());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Stat contentStat;
+            ArrayList<Stat> contents = new ArrayList<>(table.size());
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        for (Element row : table) {
-            try {
-                Elements rowContent = row.select("td");
-                if (rowContent.size() == 0)
-                    continue;
+            for (Element row : table) {
+                try {
+                    Elements rowContent = row.select("td");
+                    if (rowContent.size() == 0)
+                        continue;
+                    contentStat = new Stat();
+                    String fileName = rowContent.get(1).text();
+                    String dateString = rowContent.get(2).text();
+                    if (fileName.endsWith("/")) {
+                        contentStat.name = fileName.substring(0, fileName.length() - 1);
+                        contentStat.dir = true;
+                        contentStat.file = false;
+                    } else {
+                        contentStat.name = fileName;
+                        contentStat.dir = false;
+                        contentStat.file = true;
+                        contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
+                    }
+
+                    if (!dateString.equals("")) {
+                        Date d = sdf.parse(dateString);
+                        contentStat.time = d.getTime() / 1000L;
+                    }
+                    contents.add(contentStat);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+            stat.setFiles(contents);
+        } else {
+            Elements links = document.select("a[href]");
+            Stat contentStat;
+            ArrayList<Stat> contents = new ArrayList<>(links.size());
+            for (Element link : links) {
                 contentStat = new Stat();
-                String fileName = rowContent.get(1).text();
-                String dateString = rowContent.get(2).text();
+                String fileName = link.text();
                 if (fileName.endsWith("/")) {
                     contentStat.name = fileName.substring(0, fileName.length() - 1);
                     contentStat.dir = true;
@@ -78,20 +106,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     contentStat.name = fileName;
                     contentStat.dir = false;
                     contentStat.file = true;
-                    contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-                }
-
-                if(!dateString.equals("")) {
-                    Date d = sdf.parse(dateString);
-                    contentStat.time = d.getTime() / 1000L;
                 }
                 contents.add(contentStat);
-            } catch (Exception e) {
-                e.printStackTrace();
-                break;
             }
+            stat.setFiles(contents);
         }
-        stat.setFiles(contents);
         return stat;
     }
 
@@ -100,15 +119,16 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         return null;
     }
 
+
     private static class SizeParser {
 
         public static long getBytes(String sizeString) {
 
-            String multiplier = sizeString.replaceAll("\\D+","");
-            String digits = sizeString.replaceAll("[^\\d]","");
+            String multiplier = sizeString.replaceAll("\\D+", "");
+            String digits = sizeString.replaceAll("[^\\d]", "");
 
             // No size information available
-            if(digits.equals(""))
+            if (digits.equals(""))
                 return 0;
 
             float size = Float.parseFloat(digits);
