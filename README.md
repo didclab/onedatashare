@@ -57,10 +57,9 @@ Recommended IDEs (used by ODS team for development):
 		npm run build
 
 5. Configure necessary environment variables
-
-	_Note-
+	Note-
 	1. Contact the ODS development team for environment variables setup information using the contact details mentioned below. 
-	2. For environment variables to take effect, please restart your machine and proceed._
+	2. For environment variables to take effect, please restart your machine and proceed.
 
 6. Start MongoDB server by running ‘mongod’ executable in the ‘bin’ directory of MongoDB installation.
 
@@ -73,8 +72,11 @@ Please direct all issues/concerns/queries with respect to OneDataShare using the
 ### OneDataShare Team ###
 
 Dr. Tevfik Kosar (tkosar@buffalo.edu)
+
 Product Owner
+
 https://cse.buffalo.edu/faculty/tkosar/
+
 Associate Professor, University at Buffalo 
 
 Asif Imran
