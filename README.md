@@ -71,54 +71,51 @@ Please direct all issues/concerns/queries with respect to OneDataShare using the
 
 ### OneDataShare Team ###
 
-Dr. Tevfik Kosar (tkosar@buffalo.edu)
+Dr. Tevfik Kosar (tkosar@buffalo.edu)  
+Product Owner  
+https://cse.buffalo.edu/faculty/tkosar/  
+Associate Professor, University at Buffalo   
 
-Product Owner
+Asif Imran  
+Stakeholder/Researcher  
+Ph.D. Student, University at Buffalo   
 
-https://cse.buffalo.edu/faculty/tkosar/
+Yifu Yin  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Associate Professor, University at Buffalo 
+Linus Castelino  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Asif Imran
-Stakeholder/Researcher
-Ph.D. Student, University at Buffalo 
+Praveenkumar Rajendran  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Yifu Yin
-Application Developer
-Graduate Student, University at Buffalo
+Aashish Jain  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Linus Castelino
-Application Developer
-Graduate Student, University at Buffalo
+Atul Singh  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Praveenkumar Rajendran
-Application Developer
-Graduate Student, University at Buffalo
+Kiran Prabhakar  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Aashish Jain
-Application Developer
-Graduate Student, University at Buffalo
+Ramandeep Singh  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Atul Singh
-Application Developer
-Graduate Student, University at Buffalo
+Rohit Bhalke  
+Application Developer  
+Graduate Student, University at Buffalo  
 
-Kiran Prabhakar
-Application Developer
-Graduate Student, University at Buffalo
+Javier Falca  
+Application Developer  
+Undergraduate Student, University at Buffalo  
 
-Ramandeep Singh
-Application Developer
-Graduate Student, University at Buffalo
-
-Rohit Bhalke
-Application Developer
-Graduate Student, University at Buffalo
-
-Javier Falca
-Application Developer
-Undergraduate Student, University at Buffalo
-
-Ryan Dils
-Application Developer
-Undergraduate Student, University at Buffalo
+Ryan Dils  
+Application Developer  
+Undergraduate Student, University at Buffalo  
