@@ -17,7 +17,7 @@ ODS currently supports transfers between 7 endpoint protocol types viz.
 
 _Note: Box and Amazon S3 endpoints support will be provided in future releases_
 
-### Technology Stack ###
+## Technology Stack ##
 
 OneDataShare application is built using following technologies/frameworks:
 1. Node.js (v8.9.4) – needed for node package manager (NPM)
@@ -32,7 +32,7 @@ Recommended IDEs (used by ODS team for development):
 1. IntelliJ Idea Community Edition (for backend code)
 2. Visual Studio Code (for front-end code)
 
-### Installation Procedure ###
+## Installation Procedure ##
 
 1. Clone OneDataShare GitHub repository.
 	Open command prompt (Windows OS) or terminal (Unix-based OS)
@@ -65,11 +65,11 @@ Recommended IDEs (used by ODS team for development):
 
 7. Run the ODS codebase (Run &gt; Run 'Server Application')
 
-### Contact Team ###
+## Contact ODS Team ##
 
 Please direct all issues/concerns/queries with respect to OneDataShare using the support page (https://www.onedatashare.org/support) or by sending us an email at admin@onedatashare.org.
 
-### OneDataShare Team ###
+## OneDataShare Team ##
 
 Dr. Tevfik Kosar (tkosar@buffalo.edu)  
 Product Owner  
