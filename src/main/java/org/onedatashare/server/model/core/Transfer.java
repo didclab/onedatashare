@@ -2,12 +2,12 @@ package org.onedatashare.server.model.core;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.onedatashare.module.globusapi.Result;
 import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
 import org.onedatashare.server.module.gridftp.GridftpResource;
+import org.onedatashare.server.module.http.HttpResource;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -38,6 +38,9 @@ public class Transfer<S extends Resource, D extends Resource> {
     }else if (source instanceof GridftpResource || destination instanceof GridftpResource){
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
+    // HTTP is read only
+    else if(destination instanceof HttpResource)
+      return Flux.error(new Exception("HTTP is read-only"));
 
     Stat tapStat = (Stat)source.getTransferStat().block();
     info.setTotal(tapStat.size);

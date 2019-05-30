@@ -290,7 +290,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         UserInfoCredential userInfoCredential = (UserInfoCredential) session.credential;
         String username = userInfoCredential.getUsername(), password = userInfoCredential.getPassword();
         StringBuilder downloadURL = new StringBuilder();
-        System.out.println(session + " " + username);
         if (username != null)
             downloadURL.append("ftp://" + username + ':' + password + '@' + downloadLink.substring(6));
         else
