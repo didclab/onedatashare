@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
@@ -23,28 +24,27 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 
     @Override
     public Mono<Stat> stat(){
-        Stat s = new Stat();
-        s.file = true;
-        s.dir = false;
-        s.size = session.filesize;
-        s.name = session.filename;
-        return Mono.just(s);
+        Stat stat = new Stat();
+        stat.setFile(true);
+        stat.setDir(false);
+        stat.setSize(session.filesize);
+        stat.setName(session.filename);
+        return Mono.just(stat);
     }
 
     @Override
     public Mono<Stat> getTransferStat() {
-        Stat tapstat = new Stat();
-        tapstat.size = session.filesize;
-        ArrayList<Stat> filestat = new ArrayList<>();
         Stat uploadStat = new Stat();
-        uploadStat.size = session.filesize;
-        uploadStat.dir = false;
-        uploadStat.file = true;
-        uploadStat.name = session.filename;
+        uploadStat.setSize(session.filesize);
+        uploadStat.setDir(false);
+        uploadStat.setFile(true);
+        uploadStat.setName(session.filename);
 
-
+        Stat tapstat = new Stat();
+        tapstat.setSize(session.filesize);
+        List<Stat> filestat = new ArrayList<Stat>();
         filestat.add(uploadStat);
-        tapstat.filesList = filestat;
+        tapstat.setFilesList(filestat);
 
         return Mono.just(tapstat);
     }

@@ -40,7 +40,7 @@ public class Transfer<S extends Resource, D extends Resource> {
     }
 
     Stat tapStat = (Stat)source.getTransferStat().block();
-    info.setTotal(tapStat.size);
+    info.setTotal(tapStat.getSize());
 
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
@@ -61,7 +61,7 @@ public class Transfer<S extends Resource, D extends Resource> {
 
   public void initialize() {
     Stat stat = (Stat) source.stat().block();
-    info.setTotal(stat.size);
+    info.setTotal(stat.getSize());
   }
 
   public void initializeUpload(int fileSize){
@@ -114,7 +114,7 @@ public class Transfer<S extends Resource, D extends Resource> {
     }
 
     Stat tapStat = (Stat)source.getTransferStat().block();
-    info.setTotal(tapStat.size);
+    info.setTotal(tapStat.getSize());
 
     startTimer();
     for(Stat fileStat : tapStat.getFilesList()){

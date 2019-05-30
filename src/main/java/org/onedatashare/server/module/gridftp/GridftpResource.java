@@ -100,27 +100,27 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                 .listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter)
                 .map(
                     fileList -> {
-                    Stat st = new Stat();
-                    Stat files[] = new Stat[fileList.getData().size()];
+                    Stat stat = new Stat();
+                    Stat filesStat[] = new Stat[fileList.getData().size()];
                     for(int i = 0; i < fileList.getData().size(); i++){
-                        Stat temps = new Stat();
+                        Stat tempStat = new Stat();
                         File file = fileList.getData().get(i);
-                        temps.file = file.getType().equals("file");
-                        temps.size = file.getSize();
-                        temps.name = file.getName();
-                        temps.dir = file.getType().equals("dir");
+                        tempStat.setFile(file.getType().equals("file"));
+                        tempStat.setSize(file.getSize());
+                        tempStat.setName(file.getName());
+                        tempStat.setDir(file.getType().equals("dir"));
                         SimpleDateFormat fromUser = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssXXX");
                         try {
-                            temps.time = fromUser.parse(file.getLastModified()).getTime()/1000;
+                            tempStat.setTime(fromUser.parse(file.getLastModified()).getTime()/1000);
                         }catch(Exception e){
                             e.printStackTrace();
                         }
-                        temps.perm = file.getPermissions();
-                        temps.link = file.getLinkTarget();
-                        files[i] = temps;
+                        tempStat.setPermissions(file.getPermissions());
+                        tempStat.setLink(file.getLinkTarget());
+                        filesStat[i] = tempStat;
                     }
-                    st.setFiles(files);
-                    return st;
+                    stat.setFiles(filesStat);
+                    return stat;
                 }
         );
     }
@@ -180,12 +180,12 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         Stat stat = new Stat(data.getName());
         if (data instanceof FileMetadata) {
             FileMetadata file = (FileMetadata) data;
-            stat.file = true;
-            stat.size = file.getSize();
-            stat.time = file.getClientModified().getTime() / 1000;
+            stat.setFile(true);
+            stat.setSize(file.getSize());
+            stat.setTime(file.getClientModified().getTime() / 1000);
         }
         if (data instanceof FolderMetadata) {
-            stat.dir = true;
+            stat.setDir(true);
         }
         return stat;
     }
@@ -205,7 +205,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
 
     class GridftpTap implements Tap {
-        final long size = stat().block().size;
+        final long size = stat().block().getSize();
 
         public Flux<Slice> tap(long sliceSize) {
             return Flux.empty();

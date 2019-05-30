@@ -66,15 +66,15 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         Stat stat = new Stat();
         try {
             if(fileObject.isFolder()){
-                stat.dir = true;
-                stat.file = false;
+                stat.setDir(true);
+                stat.setFile(false);
             }
             else {
                 stat = fileContentToStat(fileObject);
             }
-            stat.name = fileObject.getName().getBaseName();
+            stat.setName(fileObject.getName().getBaseName());
 
-            if(stat.dir) {
+            if(stat.isDir()) {
                 FileObject[] children = fileObject.getChildren();
                 ArrayList<Stat> files = new ArrayList<>();
                 for(FileObject file : children) {
@@ -94,16 +94,16 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         try {
             fileContent = file.getContent();
             if(file.isFolder()) {
-                stat.dir = true;
-                stat.file = false;
+                stat.setDir(true);
+                stat.setFile(false);
             }
             else {
-                stat.file = true;
-                stat.dir = false;
-                stat.size = fileContent.getSize();
+                stat.setFile(true);
+                stat.setDir(false);
+                stat.setSize(fileContent.getSize());
             }
-            stat.name = file.getName().getBaseName();
-            stat.time = fileContent.getLastModifiedTime() / 1000;
+            stat.setName(file.getName().getBaseName());
+            stat.setTime(fileContent.getLastModifiedTime() / 1000);
         } catch (FileSystemException e) {
             e.printStackTrace();
         }
@@ -192,7 +192,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             size = stat.getSize();
             return tap(sliceSize);
         }
-
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
