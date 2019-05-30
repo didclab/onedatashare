@@ -43,10 +43,10 @@ public class VfsService implements ResourceService<VfsResource> {
         fixSCPUri(userAction);
         final String path = pathFromUri(userAction.uri);
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userAction.credential))
-                .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
-                .flatMap(VfsSession::initialize)
-                .flatMap(vfsSession -> vfsSession.select(path));
+            .map(user -> new UserInfoCredential(userAction.credential))
+            .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
+            .flatMap(vfsSession -> vfsSession.initialize(userAction.portNumber))
+            .flatMap(vfsSession -> vfsSession.select(path, userAction.portNumber));
     }
 
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, String userActionString) {

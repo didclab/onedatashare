@@ -51,7 +51,8 @@ export const showText={
 	sftp : SFTP_NAME,
 	http : HTTP_NAME,
 	gsiftp : GRIDFTP_NAME,
-	scp : SCP_NAME
+	scp : SCP_NAME,
+	https : HTTP_NAME
 }
 
 export const showType={
@@ -61,11 +62,27 @@ export const showType={
 	sftp : SFTP_TYPE,
 	http : HTTP_TYPE,
 	gsiftp : GRIDFTP_TYPE,
-	scp : SCP_TYPE
+	scp : SCP_TYPE,
+	https : HTTP_TYPE
+}
+
+export const defaultPort={
+	dropbox: -1,
+	googledrive: -1,
+	ftp : 21,
+	sftp : 22,
+	http : 80,
+	gsiftp : -1,
+	scp : 22,
+	https : 443
 }
 
 export function getType(endpoint){
-	return showType[endpoint.uri.split(":")[0].toLowerCase()]
+	return getTypeFromUri(endpoint.uri)
+}
+
+export function getDefaultPortFromUri(uri){
+	return defaultPort[uri.split(":")[0].toLowerCase()]
 }
 
 export function getTypeFromUri(uri){

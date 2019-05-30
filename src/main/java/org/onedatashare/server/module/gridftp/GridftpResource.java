@@ -124,57 +124,6 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                 }
         );
     }
-//    ListFolderResult data = null;
-//    Metadata mData = null;
-//        try {
-//        if (path.equals("/")) {
-//            data = session.client.files().listFolder("");
-//        } else {
-//            try {
-//                String s = path;
-//                data = session.client.files().listFolder(path);
-//            } catch (ListFolderErrorException e) {
-//                mData = session.client.files().getMetadata(path);
-//            }
-//        }
-//        if (data == null && mData == null)
-//            throw new NotFound();
-//        if (data == null) {
-//            stat = mDataToStat(mData);
-//        } else {
-//            if (!data.getEntries().isEmpty()) {
-//                stat = mDataToStat(data.getEntries().iterator().next());
-//            }
-//            stat.dir = true;
-//            stat.file = false;
-//        }
-//
-//        stat.name = path;
-//
-//        if (stat.dir) {
-//            ListFolderResult lfr = null;
-//            if (stat.name.equals("/")) {
-//                lfr = session.client.files().listFolder("");
-//            } else {
-//                // If the metadata is a directory
-//                if (session.client.files().getMetadata(path) instanceof FolderMetadata) {
-//                    // list the directory files
-//                    lfr = session.client.files().listFolder(path);
-//                }
-//                // If the metadata is a file
-//                else if (session.client.files().getMetadata(path) instanceof FileMetadata) {
-//                    // Return the metadata as a stat object
-//                    stat = mDataToStat(session.client.files().getMetadata(path));
-//                }
-//            }
-//            List<Stat> sub = new LinkedList<>();
-//            for (Metadata child : lfr.getEntries())
-//                sub.add(mDataToStat(child));
-//            stat.setFiles(sub);
-//        }
-//    } catch (DbxException e) {
-//        e.printStackTrace();
-//    }
 
     private Stat mDataToStat(Metadata data) {
         Stat stat = new Stat(data.getName());
@@ -216,35 +165,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             return null;
         }
     }
-//            return Flux.generate(
-//                    new Slice()
-//                    () -> 0L,
-//                    (state, sink) -> {
-//                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-//                        if (state + sliceSize < size) {
-//                            try {
-//                                downloadBuilder.range(state, sliceSize).start().download(outputStream);
-//                            } catch (DbxException | IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                            sink.next(new Slice(outputStream.toByteArray()));
-//                            try {
-//                                outputStream.close();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        } else {
-//                            try {
-//                                downloadBuilder.range(state, size - state).start().download(outputStream);
-//                            } catch (DbxException | IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                            sink.next(new Slice(outputStream.toByteArray()));
-//                            sink.complete();
-//                        }
-//                        return state + sliceSize;
-//                    });
-//        }
+
     class GridftpDrain implements Drain {
         final long CHUNKED_UPLOAD_CHUNK_SIZE = 1L << 20; // 1MiB
         long uploaded = 0L;
@@ -261,38 +182,11 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return null;
     }
 
-//            try { ^
-//                sessionId = session.client.files().uploadSessionStart()
-//                        .uploadAndFinish(in, 0L)
-//                        .getSessionId();
-//                cursor = new UploadSessionCursor(sessionId, uploaded);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
 
         public void drain(Slice slice) {
-//            InputStream sliceInputStream = new ByteArrayInputStream(slice.asBytes());
-//            try {
-//                session.client.files().uploadSessionAppendV2(cursor)
-//                        .uploadAndFinish(sliceInputStream, slice.length());
-//            } catch (DbxException | IOException e) {
-//                e.printStackTrace();
-//            }
-//            uploaded += slice.length();
-//            cursor = new UploadSessionCursor(sessionId, uploaded);
         }
 
         public void finish() {
-//            CommitInfo commitInfo = CommitInfo.newBuilder(path)
-//                    .withMode(WriteMode.ADD)
-//                    .withClientModified(new Date())
-//                    .build();
-//            try {
-//                FileMetadata metadata = session.client.files().uploadSessionFinish(cursor, commitInfo)
-//                        .uploadAndFinish(in, 0L);
-//            } catch (DbxException | IOException e) {
-//                e.printStackTrace();
-//            }
         }
     }
 }

@@ -10,6 +10,7 @@
     "@material-ui/icons": "latest",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "axios": "^0.18.0",
+    "fg-loadcss": "^2.1.0",
     "fine-uploader": "^5.16.2",
     "fine-uploader-wrappers": "^1.0.1",
     "flux": "^3.1.3",
