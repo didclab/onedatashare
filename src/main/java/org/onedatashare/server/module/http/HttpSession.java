@@ -13,8 +13,11 @@ public class HttpSession extends Session<HttpSession, HttpResource> {
     }
 
     @Override
+    /*
+    * Ignoring path and idMap (Not used)
+     */
     public Mono<HttpResource> select(String path, String id, ArrayList<IdMap> idMap) {
-        return null;
+        return Mono.just(new HttpResource(this, uri.toString()));
     }
 
     @Override

@@ -9,7 +9,10 @@ import org.onedatashare.server.model.core.Stat;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,10 +40,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     public Stat onStat() {
         Stat stat = new Stat();
-        URI uriType = URI.create(uri);
 
         // Get the hostname from the uri
-        stat.name = uriType.toString();
+        stat.name = URI.create(uri).toString();
 
         Document document = null;
 
@@ -80,6 +82,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         contentStat.dir = false;
                         contentStat.file = true;
                         contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
+                        System.out.println(contentStat.name + " " + contentStat.size);
                     }
 
                     if (!dateString.equals("")) {
@@ -118,119 +121,79 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     @Override
     public Mono<Stat> getTransferStat() {
-//        Stat stat = new Stat();
-//        URI uriType = URI.create(uri);
-//
-//        // Get the hostname from the uri
-//        stat.name = uriType.toString();
-//
-//        Document document = null;
-//
-//        LinkedList<String> linksToVisit = new LinkedList<>();
-//
-//        try {
-//            document = Jsoup.connect(uri).get();
-//            document.select("th").remove();
-//        } catch (IOException e) {
-//            return Mono.just(null);
-//        }
-//
-//        Elements table = document.select("tr");
-//
-//        if (table.size() >= 2) {
-//            //Remove the header and 1st row of the table
-//            table.remove(0);
-//            table.remove(1);
-//
-//            Stat contentStat;
-//            ArrayList<Stat> contents = new ArrayList<>(table.size());
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-//
-//            for (Element row : table) {
-//                try {
-//                    Elements rowContent = row.select("td");
-//                    if (rowContent.size() == 0)
-//                        continue;
-//                    contentStat = new Stat();
-//                    String fileName = rowContent.get(1).text();
-//                    String dateString = rowContent.get(2).text();
-//                    if (fileName.endsWith("/")) {
-//                        contentStat.name = fileName.substring(0, fileName.length() - 1);
-//                        contentStat.dir = true;
-//                        contentStat.file = false;
-//                    } else {
-//                        contentStat.name = fileName;
-//                        contentStat.dir = false;
-//                        contentStat.file = true;
-//                        contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-//                    }
-//
-//                    if (!dateString.equals("")) {
-//                        Date d = sdf.parse(dateString);
-//                        contentStat.time = d.getTime() / 1000L;
-//                    }
-//                    contents.add(contentStat);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    break;
-//                }
-//            }
-//            stat.setFiles(contents);
-//        } else {
-//            Elements links = document.select("a[href]");
-//            Stat contentStat;
-//            ArrayList<Stat> contents = new ArrayList<>(links.size());
-//            for (Element link : links) {
-//                contentStat = new Stat();
-//                String fileName = link.text();
-//                if (fileName.endsWith("/")) {
-//                    contentStat.name = fileName.substring(0, fileName.length() - 1);
-//                    contentStat.dir = true;
-//                    contentStat.file = false;
-//                } else {
-//                    contentStat.name = fileName;
-//                    contentStat.dir = false;
-//                    contentStat.file = true;
-//                }
-//                contents.add(contentStat);
-//            }
-//            stat.setFiles(contents);
-//        }
-//        return Mono.just(stat);
-        System.out.println("get transfer stat called");
-        return Mono.just(null);
+        Stat stat = new Stat();
+
+        // Get the hostname from the uri
+        stat.name = URI.create(uri).toString();
+
+        if (!uri.endsWith("/")) {
+            System.out.println(fetchFileSize(uri));
+
+        }
+
+        Document document = null;
+        System.out.println(uri);
+        try {
+            document = Jsoup.connect(uri).get();
+            document.select("th").remove();
+        } catch (IOException e) {
+            return Mono.just(null);
+        }
+
+        return Mono.just(stat);
     }
 
+    private static int fetchFileSize(String urlString) {
+        URL url;
+        URLConnection conn = null;
+        try {
+            url = new URL(urlString);
+            conn = url.openConnection();
+            if (conn instanceof HttpURLConnection) {
+                ((HttpURLConnection) conn).setRequestMethod("HEAD");
+            }
+            conn.getInputStream();
+            return conn.getContentLength();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (conn instanceof HttpURLConnection) {
+                ((HttpURLConnection) conn).disconnect();
+            }
+        }
+    }
 
     private static class SizeParser {
 
         public static long getBytes(String sizeString) {
+            int sizeStringLength = sizeString.length();
+            char multiplier = sizeString.charAt(sizeStringLength - 1);
+            long multiply = 1;
+            switch (multiplier) {
+                case 'T':
+                    multiply <<= 40;
+                case 'G':
+                    multiply <<= 30;
+                    break;
+                case 'M':
+                    multiply <<= 20;
+                    break;
+                case 'K':
+                    multiply <<= 10;
+            }
 
-            String multiplier = sizeString.replaceAll("\\D+", "");
-            String digits = sizeString.replaceAll("[^\\d]", "");
+            if (multiplier != 1)
+                sizeStringLength -= 1;
 
+            String digits = sizeString.substring(0, sizeStringLength);
             // No size information available
             if (digits.equals(""))
                 return 0;
 
-            float size = Float.parseFloat(digits);
+            double size = Double.parseDouble(digits);
 
-            final long K_FACTOR = 1024;
-            final long M_FACTOR = 1024 * K_FACTOR;
-            final long G_FACTOR = 1024 * M_FACTOR;
-
-            switch (multiplier) {
-                case "G":
-                    size *= G_FACTOR;
-                    break;
-                case "M":
-                    size *= M_FACTOR;
-                    break;
-                case "K":
-                    size *= K_FACTOR;
-                    break;
-            }
+            System.out.print(multiplier + " " + digits + " " + sizeString);
+            size *= multiply;
             return Math.round(size);
         }
     }

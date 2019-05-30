@@ -237,10 +237,10 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         return null;
     }
 
-    public void processTransferFromJob(Job job, String cookie) {
+    public void processTransferFromJob(Job job, final String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
         Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.getSrc())
-            .map(transfer::setSource)
+                .map(transfer::setSource)
             .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
@@ -268,7 +268,6 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         @Override
         public void run() {
             job.setStatus(JobStatus.removed);
-//            ongoingJobs.remove(job.uuid);
         }
     }
 }

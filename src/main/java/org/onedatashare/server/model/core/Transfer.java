@@ -31,7 +31,6 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
   public Flux<TransferInfo> start(Long sliceSize) {
-
     if (source instanceof GridftpResource && destination instanceof GridftpResource){
         ((GridftpResource) source).transferTo(((GridftpResource) destination)).subscribe();
         return Flux.empty();
@@ -39,8 +38,9 @@ public class Transfer<S extends Resource, D extends Resource> {
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
     // HTTP is read only
-    else if(destination instanceof HttpResource)
+    if(destination instanceof HttpResource)
       return Flux.error(new Exception("HTTP is read-only"));
+    System.out.println("Hi");
 
     Stat tapStat = (Stat)source.getTransferStat().block();
     info.setTotal(tapStat.size);
@@ -88,17 +88,16 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
   public Transfer<S, D> setSource(S source) {
+      System.out.println("Source set to " + source.getClass());
     this.source = source;
     return this;
   }
 
   public Transfer<S, D> setDestination(D destination) {
+      System.out.println("Destination set to " + destination.getClass());
     this.destination = destination;
     return this;
   }
-
-
-
 
 
   /**
