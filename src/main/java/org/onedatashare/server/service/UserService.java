@@ -170,7 +170,14 @@ public class UserService {
     return userRepository.findById(email)
             .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
   }
-
+  public Mono<User> getUserFromCookie(String email, String cookie) {
+    return  getLoggedInUser(cookie).flatMap(user->{
+            if(user != null && user.email.equals(email)){
+              return Mono.just(user);
+            }
+            return Mono.error(new Exception("No User found with Id: " + email));
+    });
+  }
   public Mono<User> saveUser(User user) {
     return userRepository.save(user);
   }
@@ -232,7 +239,6 @@ public class UserService {
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
@@ -249,9 +255,10 @@ public class UserService {
     });
   }
 
-  public Mono<UserDetails> getAllUsers(UserAction userAction){
+  public Mono<UserDetails> getAllUsers(UserAction userAction, String cookie){
     Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
+    return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin) ?
+       userRepository.findAllBy(PageRequest.of(userAction.pageNo,
             userAction.pageSize, Sort.by(direction, userAction.sortBy)))
             .collectList()
             .flatMap(users ->
@@ -261,12 +268,14 @@ public class UserService {
                       result.users = users;
                       result.totalCount = count;
                       return result;
-                    }));
+                    }))
+            : Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
-  public Mono<UserDetails> getAdministrators(UserAction userAction){
+  public Mono<UserDetails> getAdministrators(UserAction userAction, String cookie){
     Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
+    return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin) ?
+     userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
             userAction.pageSize, Sort.by(direction, userAction.sortBy)))
             .collectList()
             .flatMap(users ->
@@ -276,7 +285,8 @@ public class UserService {
                             result.users = users;
                             result.totalCount = count;
                             return result;
-                          }));
+                          }))
+            : Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
   public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
