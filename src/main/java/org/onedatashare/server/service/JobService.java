@@ -61,8 +61,8 @@ public class JobService {
                 return jobs.flatMap(jobs1 -> jobRepository.count()
                         .map(count ->  {
                             JobDetails result = new JobDetails();
-                            result.jobs = jobs1;
-                            result.totalCount = count;
+                            result.setJobs(jobs1);
+                            result.setTotalCount(count);
                             return result;
                         }));
             }
@@ -78,11 +78,11 @@ public class JobService {
                                 return jobs1;
                             }));
                 }
-                return jobs.flatMap(jobs1 -> jobRepository.countJobBy(user.email,false)
+                return jobs.flatMap(jobs1 -> jobRepository.getJobCountForUser(user.email,false)
                         .map(count ->  {
                             JobDetails result = new JobDetails();
-                            result.jobs = jobs1;
-                            result.totalCount = count;
+                            result.setJobs(jobs1);
+                            result.setTotalCount(count);
                             return result;
                         }));
             }

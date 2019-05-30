@@ -1,8 +1,12 @@
 package org.onedatashare.server.model.core;
 
+import lombok.Data;
+
 import java.util.List;
 
+@Data
 public class JobDetails{
-    public List<Job> jobs;
-    public Long totalCount;
+
+    private List<Job> jobs;
+    private Long totalCount;
 }
