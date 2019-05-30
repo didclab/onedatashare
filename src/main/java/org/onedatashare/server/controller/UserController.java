@@ -36,11 +36,11 @@ public class UserController {
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
       case "getUser":
-        return userService.getUser(userAction.getEmail());
+        return userService.getUserFromCookie(userAction.email, headers.getFirst("Cookie"));
       case "getUsers":
-        return userService.getAllUsers(userAction);
+        return userService.getAllUsers(userAction, headers.getFirst("Cookie"));
       case "getAdministrators":
-        return userService.getAdministrators(userAction);
+        return userService.getAdministrators(userAction, headers.getFirst("Cookie"));
       case "verifyCode":
         return userService.verifyCode(userAction.email, userAction.code);
       case "setPassword":
