@@ -152,12 +152,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     public Stat onStat() {
         Drive.Files.List result ;
         Stat stat = new Stat();
-        stat.name = path;
-        stat.id = id;
+        stat.setName(path);
+        stat.setId(id);
 
         try {
             if (path.equals("/")) {
-                stat.dir = true;
+                stat.setDir(true);
                 result = session.service.files().list()
                     .setOrderBy("name")
                     .setQ("trashed=false and 'root' in parents")
@@ -194,7 +194,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                             .setFields("id, name, kind, mimeType, size, modifiedTime")
                             .execute();
                     if (googleDriveFile.getMimeType().equals("application/vnd.google-apps.folder")) {
-                        stat.dir = true;
+                        stat.setDir(true);
 
                         String query = new StringBuilder().append("trashed=false and ")
 //                          .append("'0BzkkzI-oRXwxfjRHVXZxQmhSaldCWWJYX0Y2OVliTkFLbjdzVTBFaWZ5c1RJRF9XSjViQ3c'")
@@ -227,9 +227,9 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         }
                         while (result.getPageToken() != null);
                     } else {
-                        stat.file = true;
-                        stat.time = googleDriveFile.getModifiedTime().getValue() / 1000;
-                        stat.size = googleDriveFile.getSize();
+                        stat.setFile(true);
+                        stat.setTime(googleDriveFile.getModifiedTime().getValue() / 1000);
+                        stat.setSize(googleDriveFile.getSize());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -282,7 +282,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     else{
                         Stat fileStat = mDataToStat(file);
                         fileStat.setName( relativePath + file.getName());
-                        directorySize += fileStat.size;
+                        directorySize += fileStat.getSize();
                         sub.add(fileStat);
                     }
                 }
@@ -300,15 +300,15 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         Stat stat = new Stat(file.getName());
 
         try {
-            stat.file = true;
-            stat.id = file.getId();
-            stat.time = file.getModifiedTime().getValue()/1000;
+            stat.setFile(true);
+            stat.setId(file.getId());
+            stat.setTime(file.getModifiedTime().getValue()/1000);
             if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
-                stat.dir = true;
-                stat.file = false;
+                stat.setDir(true);
+                stat.setFile(false);
             }
             else if(file.containsKey("size"))
-                stat.size = file.getSize();
+                stat.setSize(file.getSize());
         }
         catch (NullPointerException  e) {
 

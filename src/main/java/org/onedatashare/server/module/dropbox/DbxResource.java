@@ -89,15 +89,15 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
         if (!data.getEntries().isEmpty()) {
           stat = mDataToStat(data.getEntries().iterator().next());
         }
-        stat.dir = true;
-        stat.file = false;
+        stat.setDir(true);
+        stat.setFile(false);
       }
 
-      stat.name = path;
+      stat.setName(path);
 
-      if (stat.dir) {
+      if (stat.isDir()) {
         ListFolderResult lfr = null;
-        if (stat.name.equals("/")) {
+        if (stat.getName().equals("/")) {
           lfr = session.client.files().listFolder("");
         } else {
           // If the metadata is a directory
@@ -130,7 +130,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
               List<Stat> sub = new LinkedList<>();
               long directorySize = 0L;
               try{
-                if(s.dir)
+                if(s.isDir())
                   directorySize = buildDirectoryTree(sub, session.client.files().listFolder(path), "/");
                 else{
                   fileResource = true;
@@ -153,7 +153,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       if(childNode instanceof FileMetadata){
         Stat fileStat = mDataToStat(childNode);
         fileStat.setName(relativeDirName + fileStat.getName());
-        directorySize += fileStat.size;
+        directorySize += fileStat.getSize();
         sub.add(fileStat);
       }
       else if(childNode instanceof FolderMetadata){
@@ -168,12 +168,12 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     Stat stat = new Stat(data.getName());
     if (data instanceof FileMetadata) {
       FileMetadata file = (FileMetadata) data;
-      stat.file = true;
-      stat.size = file.getSize();
-      stat.time = file.getClientModified().getTime() / 1000;
+      stat.setFile(true);
+      stat.setSize(file.getSize());
+      stat.setTime(file.getClientModified().getTime() / 1000);
     }
     if (data instanceof FolderMetadata) {
-      stat.dir = true;
+      stat.setDir(true);
     }
     return stat;
   }
