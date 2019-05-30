@@ -8,8 +8,12 @@ import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
 import org.onedatashare.server.module.gridftp.GridftpResource;
+import org.onedatashare.server.module.gridftp.GridftpSession;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.concurrent.TimeUnit;
 
 @NoArgsConstructor
 @Data
@@ -33,8 +37,36 @@ public class Transfer<S extends Resource, D extends Resource> {
   public Flux<TransferInfo> start(Long sliceSize) {
 
     if (source instanceof GridftpResource && destination instanceof GridftpResource){
-        ((GridftpResource) source).transferTo(((GridftpResource) destination)).subscribe();
-        return Flux.empty();
+        return ((GridftpResource) source).transferTo(((GridftpResource) destination)).flatMapMany(result -> {
+            String taskId = result.getTaskId();
+            startTimer();
+            info.setTotal(Long.MAX_VALUE);
+
+            return Flux.generate(() -> info, (state, sink) -> {
+
+                  ((GridftpSession)((GridftpResource) source).session).client.getTaskDetail(taskId).map(detail -> {
+                    long total = detail.getBytes_transferred();
+                    addProgressSize((Long)total);
+                    String status = detail.getStatus();
+                    if("ACTIVE".equals(status)){
+                        sink.next(info);
+                    }else if("INACTIVE".equals(status)){
+                        sink.next(info);
+                    }else if("SUCCEEDED".equals(status)){
+                        info.setTotal(total);
+                        sink.next(info);
+                        sink.complete();
+                    }else if("FAILED".equals(status)){
+                        sink.error(new Exception("Globus transfer failure"));
+                    }
+                    return info;
+                }).subscribe();
+                try {
+                    TimeUnit.SECONDS.sleep(2);
+                }catch(InterruptedException e){}
+                return info;
+            }).subscribeOn(Schedulers.elastic()).take(100).map(info -> (TransferInfo)info).doFinally(s -> done());
+        });
     }else if (source instanceof GridftpResource || destination instanceof GridftpResource){
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
@@ -83,6 +115,14 @@ public class Transfer<S extends Resource, D extends Resource> {
     info.update(timer, progress, throughput);
     return info;
   }
+
+    public TransferInfo addProgressSize(Long totalSize) {
+        long size = totalSize - progress.total();
+        progress.add(size);
+        throughput.update(size);
+        info.update(timer, progress, throughput);
+        return info;
+    }
 
   public Transfer<S, D> setSource(S source) {
     this.source = source;

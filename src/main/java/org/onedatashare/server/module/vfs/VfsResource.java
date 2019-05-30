@@ -97,14 +97,22 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 stat.setDir(true);
                 stat.setFile(false);
             }
-            else {
+            else if(file.isFile()){
                 stat.setFile(true);
-                stat.setDir(false);
+                stat.setDir(true);
                 stat.setSize(fileContent.getSize());
+            }else if(file.exists()){
+                stat.setFile(true);
+                stat.setDir(true);
+            }else{
+                stat.setName(file.getName().getBaseName());
+                stat.setFile(true);
+                stat.setDir(true);
+                return stat;
             }
             stat.setName(file.getName().getBaseName());
             stat.setTime(fileContent.getLastModifiedTime() / 1000);
-        } catch (FileSystemException e) {
+       } catch (FileSystemException e) {
             e.printStackTrace();
         }
         return stat;

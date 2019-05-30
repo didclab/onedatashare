@@ -18,7 +18,7 @@ import java.net.URI;
 import java.util.ArrayList;
 
 public class GridftpSession extends Session<GridftpSession, GridftpResource> {
-    GlobusClient client;
+    public GlobusClient client;
     EndPoint endpoint;
     public GridftpSession(URI uri, Credential cred) {
         super(uri, cred);

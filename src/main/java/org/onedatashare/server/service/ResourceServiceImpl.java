@@ -260,6 +260,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 if (job.getStatus() != JobStatus.removed)
                     job.setStatus(JobStatus.complete);
                 jobService.saveJob(job).subscribe();
+                ongoingJobs.remove(job.getUuid());
             })
             .map(job::updateJobWithTransferInfo)
             .flatMap(jobService::saveJob)
