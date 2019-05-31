@@ -5,9 +5,6 @@ import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.Tap;
-import org.onedatashare.server.module.dropbox.DbxResource;
-import org.onedatashare.server.module.dropbox.DbxSession;
-import org.springframework.http.codec.multipart.FilePart;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,7 +12,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * Resource class that provides services for file upload initiated by client
+ */
 public class ClientUploadResource extends Resource<ClientUploadSession, ClientUploadResource> {
 
     public ClientUploadResource(ClientUploadSession session){
@@ -27,21 +26,21 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
         Stat stat = new Stat();
         stat.setFile(true);
         stat.setDir(false);
-        stat.setSize(session.filesize);
-        stat.setName(session.filename);
+        stat.setSize(getSession().filesize);
+        stat.setName(getSession().filename);
         return Mono.just(stat);
     }
 
     @Override
     public Mono<Stat> getTransferStat() {
         Stat uploadStat = new Stat();
-        uploadStat.setSize(session.filesize);
+        uploadStat.setSize(getSession().filesize);
         uploadStat.setDir(false);
         uploadStat.setFile(true);
-        uploadStat.setName(session.filename);
+        uploadStat.setName(getSession().filename);
 
         Stat tapstat = new Stat();
-        tapstat.setSize(session.filesize);
+        tapstat.setSize(getSession().filesize);
         List<Stat> filestat = new ArrayList<Stat>();
         filestat.add(uploadStat);
         tapstat.setFilesList(filestat);
@@ -63,10 +62,10 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
 
         public Flux<Slice> tap(long size) {
             System.out.println("Inside tap()");
-            return Flux.generate(() -> session.filesize,
+            return Flux.generate(() -> getSession().filesize,
                 (state, sink) -> {
                     try{
-                        Slice s = session.flux.take();
+                        Slice s = getSession().flux.take();
                         sink.next(s);
 
                         System.out.println("uploading" + s.length() + " " + state);

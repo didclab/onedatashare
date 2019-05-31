@@ -44,7 +44,7 @@ public class Transfer<S extends Resource, D extends Resource> {
 
             return Flux.generate(() -> info, (state, sink) -> {
 
-                  ((GridftpSession)((GridftpResource) source).session).client.getTaskDetail(taskId).map(detail -> {
+                  ((GridftpSession)((GridftpResource) source).getSession()).client.getTaskDetail(taskId).map(detail -> {
                     long total = detail.getBytes_transferred();
                     addProgressSize((Long)total);
                     String status = detail.getStatus();
