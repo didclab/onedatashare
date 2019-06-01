@@ -1,33 +1,21 @@
 package org.onedatashare.server.module.gridftp;
 
-import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
-import com.google.api.client.util.DateTime;
-import org.apache.commons.net.ntp.TimeStamp;
 import org.onedatashare.module.globusapi.*;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.error.NotFound;
-import org.onedatashare.server.model.util.TransferInfo;
-import org.onedatashare.server.module.dropbox.DbxResource;
-import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.service.GridftpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-//import sun.rmi.transport.Endpoint;
 
-//import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
+/**
+ * Resource that provides services specific to Grid FTP endpoint.
+ */
 public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     private Boolean showHidden = true;
     private Integer limit = Integer.MAX_VALUE;
@@ -40,24 +28,23 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
     @Override
     public Mono<GridftpResource> select(String name) {
-        return session.select(name);
+        return getSession().select(name);
     }
-
 
     public Mono<GridftpResource> mkdir() {
         return initialize().flatMap(
-                resource -> resource.session.client.mkdir( session.endpoint.getId(), this.path))
+                resource -> resource.getSession().client.mkdir(getSession().endpoint.getId(), getPath()))
                 .map(u -> this);
     }
 
     public Mono<Result> transferTo(GridftpResource grsf){
-        return session.client.getJobSubmissionId()
+        return getSession().client.getJobSubmissionId()
         .flatMap(response -> {
             TaskSubmissionRequest request = new TaskSubmissionRequest();
             request.setDataType("transfer");
             request.setSubmissionId(response.getValue());
-            request.setSourceEndpoint(session.endpoint.getId());
-            request.setDestinationEndpoint(grsf.session.endpoint.getId());
+            request.setSourceEndpoint(getSession().endpoint.getId());
+            request.setDestinationEndpoint(grsf.getSession().endpoint.getId());
             List<TaskItem> data = new ArrayList<>();
             TaskItem item = new TaskItem();
             item.setDataType("transfer_item");
@@ -66,17 +53,17 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
             data.add(item);
             request.setData(data);
-            return session.client.submitTask(request);
+            return getSession().client.submitTask(request);
         });
     }
 
     public Mono<Result> deleteV2() {
         return initialize()
-            .flatMap(resource -> session.client.getJobSubmissionId())
+            .flatMap(resource -> getSession().client.getJobSubmissionId())
             .flatMap(result -> {
                 TaskSubmissionRequest tr = new TaskSubmissionRequest();
                 tr.setSubmissionId(result.getValue());
-                tr.setEndpoint(session.endpoint.getId());
+                tr.setEndpoint(getSession().endpoint.getId());
                 tr.setDataType("delete");
                 tr.setLabel("delete kabrl");
                 tr.setRecursive(true);
@@ -87,7 +74,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                 ti.setDataType("delete_item");
                 tsl.add(ti);
                 tr.setData(tsl);
-                return session.client.submitTask(tr);
+                return getSession().client.submitTask(tr);
             });
     }
 
@@ -96,8 +83,8 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
 
     public Mono<Stat> onStat() {
-        return session.client
-                .listFiles(session.endpoint.getId(), this.path, showHidden, offset, limit, orderedBy, filter)
+        return getSession().client
+                .listFiles(getSession().endpoint.getId(), getPath(), showHidden, offset, limit, orderedBy, filter)
                 .map(
                     fileList -> {
                     Stat stat = new Stat();
