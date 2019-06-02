@@ -14,9 +14,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.TimeZone;
+import java.util.*;
 
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri;
@@ -118,19 +116,34 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         return stat;
     }
 
-    @Override
-    public Mono<Stat> getTransferStat() {
+    public Stat exactStat() {
         Stat stat = new Stat();
 
         // Get the hostname from the uri
         stat.name = URI.create(uri).toString();
-        if (!uri.endsWith("/")) {
-            stat.file = true;
-            stat.dir = false;
-            stat.size = fetchFileSize(uri);
-        }
-        System.out.println("Stat : " + stat.toString());
-        return Mono.just(stat);
+        stat.size = fetchFileSize(uri);
+        stat.dir = false;
+        stat.file = true;
+        return stat;
+    }
+
+    @Override
+    public Mono<Stat> getTransferStat() {
+        return initialize()
+                .map(HttpResource::exactStat)
+                .map( s -> {
+                    List<Stat> subDirectory = new LinkedList<>();
+                    long directorySize = 0L;
+                    if(!s.dir){
+                        fileResource = true;
+                        subDirectory.add(s);
+                        directorySize = s.getSize();
+                        System.out.println("Directory size : " + directorySize);
+                    }
+                    s.setFilesList(subDirectory);
+                    s.setSize(directorySize);
+                    return s;
+                });
     }
 
     private static int fetchFileSize(String urlString) {
