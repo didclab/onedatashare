@@ -82,7 +82,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         contentStat.dir = false;
                         contentStat.file = true;
                         contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-                        System.out.println(contentStat.name + " " + contentStat.size);
                     }
 
                     if (!dateString.equals("")) {
@@ -125,21 +124,12 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
         // Get the hostname from the uri
         stat.name = URI.create(uri).toString();
-
         if (!uri.endsWith("/")) {
-            System.out.println(fetchFileSize(uri));
-
+            stat.file = true;
+            stat.dir = false;
+            stat.size = fetchFileSize(uri);
         }
-
-        Document document = null;
-        System.out.println(uri);
-        try {
-            document = Jsoup.connect(uri).get();
-            document.select("th").remove();
-        } catch (IOException e) {
-            return Mono.just(null);
-        }
-
+        System.out.println("Stat : " + stat.toString());
         return Mono.just(stat);
     }
 
@@ -192,7 +182,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
             double size = Double.parseDouble(digits);
 
-            System.out.print(multiplier + " " + digits + " " + sizeString);
             size *= multiply;
             return Math.round(size);
         }

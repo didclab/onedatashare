@@ -40,11 +40,10 @@ public class Transfer<S extends Resource, D extends Resource> {
     // HTTP is read only
     if(destination instanceof HttpResource)
       return Flux.error(new Exception("HTTP is read-only"));
-    System.out.println("Hi");
 
-    Stat tapStat = (Stat)source.getTransferStat().block();
+    Stat tapStat = (Stat) source.getTransferStat().block();
     info.setTotal(tapStat.size);
-
+    System.out.println("Info: " + info.toString());
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
             .flatMap(fileStat -> {
@@ -88,13 +87,11 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
   public Transfer<S, D> setSource(S source) {
-      System.out.println("Source set to " + source.getClass());
     this.source = source;
     return this;
   }
 
   public Transfer<S, D> setDestination(D destination) {
-      System.out.println("Destination set to " + destination.getClass());
     this.destination = destination;
     return this;
   }
