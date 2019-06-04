@@ -13,8 +13,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri;
@@ -42,8 +43,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         // Get the hostname from the uri
         stat.name = URI.create(uri).toString();
 
-        Document document = null;
+        Document document;
 
+        // Fetch the document
         try {
             document = Jsoup.connect(uri).get();
             document.select("th").remove();
@@ -51,53 +53,67 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             return stat;
         }
 
+        // Select the table rows
         Elements table = document.select("tr");
-
-        if (table.size() >= 2) {
-            //Remove the header and 1st row of the table
-            table.remove(0);
-            table.remove(1);
-
-            Stat contentStat;
-            ArrayList<Stat> contents = new ArrayList<>(table.size());
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-
+        if(table.size()>0) {
             for (Element row : table) {
-                try {
-                    Elements rowContent = row.select("td");
-                    if (rowContent.size() == 0)
-                        continue;
-                    contentStat = new Stat();
-                    String fileName = rowContent.get(1).text();
-                    String dateString = rowContent.get(2).text();
-                    if (fileName.endsWith("/")) {
-                        contentStat.name = fileName.substring(0, fileName.length() - 1);
-                        contentStat.dir = true;
-                        contentStat.file = false;
-                    } else {
-                        contentStat.name = fileName;
-                        contentStat.dir = false;
-                        contentStat.file = true;
-                        contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-                    }
+                //Filter for removing queries, no links and links to parent directory
+                if(row.toString().contains("href=?") || row.toString().contains("href=\"/\"") || !row.toString().contains("href"))
+                    continue;
 
-                    if (!dateString.equals("")) {
-                        Date d = sdf.parse(dateString);
-                        contentStat.time = d.getTime() / 1000L;
-                    }
-                    contents.add(contentStat);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
+                ArrayList<Stat> contents = new ArrayList<>(table.size());
+                // Select the table data rows
+                Elements rowContent = row.select("td");
             }
-            stat.setFiles(contents);
-        } else {
+        }
+//        // Try selecting table rows
+//        Elements table = document.select("tr");
+//        if (table.size() >= 2) {
+//
+//            Stat contentStat;
+//            ArrayList<Stat> contents = new ArrayList<>(table.size());
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+//            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+//
+//            for (Element row : table) {
+//                try {
+//                    Elements rowContent = row.select("td");
+//                    if (rowContent.size() == 0)
+//                        continue;
+//                    contentStat = new Stat();
+//                    if(rowContent.get(1) !=null && uri.startsWith(rowContent.attr("href")))
+//                        continue;
+//                    String fileName = rowContent.get(1).text();
+//                    String dateString = rowContent.get(2).text();
+//                    if (fileName.endsWith("/")) {
+//                        contentStat.name = fileName.substring(0, fileName.length() - 1);
+//                        contentStat.dir = true;
+//                        contentStat.file = false;
+//                    } else {
+//                        contentStat.name = fileName;
+//                        contentStat.dir = false;
+//                        contentStat.file = true;
+//                        contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
+//                    }
+//
+//                    if (!dateString.equals("")) {
+//                        Date d = sdf.parse(dateString);
+//                        contentStat.time = d.getTime() / 1000L;
+//                    }
+//                    contents.add(contentStat);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    break;
+//                }
+//            }
+//            stat.setFiles(contents);
+//        }
+        else {
             Elements links = document.select("a[href]");
             Stat contentStat;
             ArrayList<Stat> contents = new ArrayList<>(links.size());
             for (Element link : links) {
+                //TODO: fix for parent directory (similar to above case
                 contentStat = new Stat();
                 String fileName = link.text();
                 if (fileName.endsWith("/")) {
