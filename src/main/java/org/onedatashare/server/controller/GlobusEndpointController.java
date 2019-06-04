@@ -43,7 +43,8 @@ public class GlobusEndpointController {
                 return userService.deleteEndpointId(headers.getFirst("Cookie"), UUID.fromString(gea.getGlobusEndpoint().getId()));
             case "endpointActivate":
                 return userService.getGlobusClient(headers.getFirst("cookie")).flatMap(gc ->
-                    gc.activateEndPoint(gea.getGlobusEndpoint().getId(), gea.globusEndpoint.getMyProxyServer(), gea.globusEndpoint.getMyProxyDomainName(), gea.username, gea.password));
+                    gc.activateEndPoint(gea.getGlobusEndpoint().getId(), gea.globusEndpoint.getMyProxyServer(), gea.globusEndpoint.getMyProxyDomainName(), gea.username, gea.password))
+                    .switchIfEmpty(Mono.error(new Exception("Auth Failed")));
             default:
                 return Mono.error(new NotFound());
         }

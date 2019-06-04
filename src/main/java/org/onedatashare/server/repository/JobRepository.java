@@ -17,6 +17,6 @@ public interface JobRepository extends ReactiveMongoRepository<Job, UUID> {
     Flux<Job> findAllBy(Pageable pageable);
 
     @Query(value="{$and: [{'owner':?0},{'deleted': ?1}]}", count = true)
-    Mono<Long> countJobBy(String owner, boolean deleted);
+    Mono<Long> getJobCountForUser(String owner, boolean deleted);
 
 }

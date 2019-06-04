@@ -182,16 +182,25 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
     }
 
+    /**
+     * This method cancel an ongoing transfer.
+     * User email and job id passed in the request is used to obtain the job UUID,
+     * which is in turn used to access the ongoing job flux from the ongoingJobs map.
+     *
+     * This flux is then disposed and the job is evicted from the map to cancel the transfer.
+     *
+     * @param cookie
+     * @param userAction
+     * @return Mono of job that was stopped
+     */
     public Mono<Job> cancel(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
-                .flatMap(user -> {
-                    return jobService.findJobByJobId(cookie, userAction.job_id)
-                            .map(job -> {
-                                ongoingJobs.get(job.getUuid()).dispose();
-                                ongoingJobs.remove(job.getUuid());
-                                return job.setStatus(JobStatus.removed);
-                            });
-                })
+                .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.job_id)
+                        .map(job -> {
+                            ongoingJobs.get(job.getUuid()).dispose();
+                            ongoingJobs.remove(job.getUuid());
+                            return job.setStatus(JobStatus.removed);
+                        }))
                 .subscribeOn(Schedulers.elastic());
     }
 
@@ -206,7 +215,6 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             }
             else
                 credsExist = false;
-
         }
 
         if(!credsExist)
@@ -252,6 +260,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                 if (job.getStatus() != JobStatus.removed)
                     job.setStatus(JobStatus.complete);
                 jobService.saveJob(job).subscribe();
+                ongoingJobs.remove(job.getUuid());
             })
             .map(job::updateJobWithTransferInfo)
             .flatMap(jobService::saveJob)

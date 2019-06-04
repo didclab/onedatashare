@@ -38,4 +38,6 @@ public class UserAction {
   public int pageSize;
   public String sortBy;
   public String sortOrder;
+
+  public String portNumber;
 }

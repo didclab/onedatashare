@@ -1,12 +1,8 @@
 package org.onedatashare.server.service;
 
-import com.google.api.client.http.HttpStatusCodes;
-import com.sun.jersey.api.NotFoundException;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
@@ -14,8 +10,6 @@ import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -32,6 +26,9 @@ import java.net.URI;
 import java.util.*;
 import javax.mail.*;
 
+/**
+ * Service class for all operations related to users' information.
+ */
 @Service
 public class UserService {
 
@@ -169,7 +166,14 @@ public class UserService {
     return userRepository.findById(email)
             .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
   }
-
+  public Mono<User> getUserFromCookie(String email, String cookie) {
+    return  getLoggedInUser(cookie).flatMap(user->{
+            if(user != null && user.email.equals(email)){
+              return Mono.just(user);
+            }
+            return Mono.error(new Exception("No User found with Id: " + email));
+    });
+  }
   public Mono<User> saveUser(User user) {
     return userRepository.save(user);
   }
@@ -231,7 +235,6 @@ public class UserService {
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
@@ -248,9 +251,10 @@ public class UserService {
     });
   }
 
-  public Mono<UserDetails> getAllUsers(UserAction userAction){
+  public Mono<UserDetails> getAllUsers(UserAction userAction, String cookie){
     Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
+    return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin) ?
+       userRepository.findAllBy(PageRequest.of(userAction.pageNo,
             userAction.pageSize, Sort.by(direction, userAction.sortBy)))
             .collectList()
             .flatMap(users ->
@@ -260,12 +264,14 @@ public class UserService {
                       result.users = users;
                       result.totalCount = count;
                       return result;
-                    }));
+                    }))
+            : Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
-  public Mono<UserDetails> getAdministrators(UserAction userAction){
+  public Mono<UserDetails> getAdministrators(UserAction userAction, String cookie){
     Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
+    return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin) ?
+     userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
             userAction.pageSize, Sort.by(direction, userAction.sortBy)))
             .collectList()
             .flatMap(users ->
@@ -275,7 +281,8 @@ public class UserService {
                             result.users = users;
                             result.totalCount = count;
                             return result;
-                          }));
+                          }))
+            : Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
   public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
@@ -422,6 +429,12 @@ public class UserService {
   public Mono<String> getOrganization(String cookie){ return getLoggedInUser(cookie).map(user-> user.organization );};
 
 
+  /**
+   * Service method that retrieves all existing credentials linked to a user account.
+   *
+   * @param cookie - Browser cookie string passed in the HTTP request to the controller
+   * @return a map containing all the endpoint credentials linked to the user account as a Mono
+   */
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials).map(
             credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
@@ -462,9 +475,9 @@ public class UserService {
 
   public User.UserLogin cookieToUserLogin(String cookie) {
     Map<String,String> map = new HashMap<String,String>();
-    Set<Cookie> cookies = CookieDecoder.decode(cookie);
+    Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
     for (Cookie c : cookies)
-      map.put(c.getName(), c.getValue());
+      map.put(c.name(), c.value());
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));

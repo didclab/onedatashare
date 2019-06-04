@@ -219,11 +219,12 @@ export async function isAdmin(email, hash, accept, fail){
     });
 }
 
-export async function history(uri, accept, fail){
+export async function history(uri, portNum, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
 	    action: 'history',
+	    portNumber: portNum,
 	    uri: encodeURI(uri)
 	}).then((response) => {
 		if(!(response.status === 200))
