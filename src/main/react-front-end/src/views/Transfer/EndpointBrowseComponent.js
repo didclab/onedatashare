@@ -74,6 +74,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.onWindowClick = this.onWindowClick.bind(this);
 		this.fileChangeHandler = this.fileChangeHandler.bind(this);
 		this._handleAddFolderTextFieldChange = this._handleAddFolderTextFieldChange.bind(this);
+
 		//this.props.setLoading(true);
 		if(this.state.directoryPath.length == 0)
 			this.getFilesFromBackend(props.endpoint);
@@ -480,7 +481,7 @@ export default class EndpointBrowseComponent extends Component {
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
 						<Button id="ignoreCase" onClick={() => {
-							this.state.ignoreCase =! this.state.ignoreCase; 
+							this.setState({ignoreCase : !this.state.ignoreCase})
 							var propertyStatus = this.state.ignoreCase;
 							var property = document.getElementById("ignoreCase");
 							if(propertyStatus)
@@ -492,7 +493,7 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
 						<Button id="regex" onClick={() => {
-							this.state.regex =! this.state.regex; 
+							this.setState({regex : !this.state.regex})
 							var propertyStatus = this.state.regex;
 							var property = document.getElementById("regex");
 							if(propertyStatus)
