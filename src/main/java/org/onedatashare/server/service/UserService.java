@@ -1,12 +1,8 @@
 package org.onedatashare.server.service;
 
-import com.google.api.client.http.HttpStatusCodes;
-import com.sun.jersey.api.NotFoundException;
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpResponseException;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.Credential;
@@ -14,8 +10,6 @@ import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -32,6 +26,9 @@ import java.net.URI;
 import java.util.*;
 import javax.mail.*;
 
+/**
+ * Service class for all operations related to users' information.
+ */
 @Service
 public class UserService {
 
@@ -431,6 +428,12 @@ public class UserService {
   }
 
 
+  /**
+   * Service method that retrieves all existing credentials linked to a user account.
+   *
+   * @param cookie - Browser cookie string passed in the HTTP request to the controller
+   * @return a map containing all the endpoint credentials linked to the user account as a Mono
+   */
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials).map(
             credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
@@ -471,9 +474,9 @@ public class UserService {
 
   public User.UserLogin cookieToUserLogin(String cookie) {
     Map<String,String> map = new HashMap<String,String>();
-    Set<Cookie> cookies = CookieDecoder.decode(cookie);
+    Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
     for (Cookie c : cookies)
-      map.put(c.getName(), c.getValue());
+      map.put(c.name(), c.value());
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
