@@ -57,8 +57,8 @@ export default class EndpointBrowseComponent extends Component {
 			openAFolder: false,
 			addFolderName: "",
 			searchText: "",
-			ignoreCase : true,
-			regex : true
+			ignoreCase : false,
+			regex : false
 		};
 
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
@@ -463,44 +463,37 @@ export default class EndpointBrowseComponent extends Component {
 				</ButtonGroup>
 			</div>
 
-			{/* <div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				
-				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search" onChange={(event) => {
-		      	this.setState({searchText: event.target.value})
-		      }}/> */}
-			{/* </div> */}
-
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}}>
-					<FormControl
+				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+					<FormControl 
 						placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" onClick={() => {
+						<Button id="ignoreCase"  style={{backgroundColor : "white"}} onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
 							var propertyStatus = this.state.ignoreCase;
 							var property = document.getElementById("ignoreCase");
-							if(propertyStatus)
-								property.style.color = "black";
+							if(!propertyStatus)
+								property.style.backgroundColor = "#d9edf7";
 							else
-								property.style.color = "gray";
+								property.style.backgroundColor = "white";
 							} 
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" onClick={() => {
-							this.setState({regex : !this.state.regex})
+						<Button id="regex" style={{backgroundColor : "white"}} onClick={() => {
 							var propertyStatus = this.state.regex;
 							var property = document.getElementById("regex");
-							if(propertyStatus)
-								property.style.color = "black";
+							if(!propertyStatus)
+								property.style.backgroundColor = "#d9edf7";
 							else
-								property.style.color = "gray";
-						} 
-							}><b>*.</b></Button>
+								property.style.backgroundColor = "white";
+							this.setState({regex : !this.state.regex})
+							} 
+						}><b>*.</b></Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
