@@ -35,8 +35,8 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
   @Override
   public Mono<DbxSession> initialize() {
     return Mono.create(s -> {
-      if(credential instanceof OAuthCredential){
-        OAuthCredential oauth = (OAuthCredential) credential;
+      if(getCredential() instanceof OAuthCredential){
+        OAuthCredential oauth = (OAuthCredential) getCredential();
         DbxRequestConfig config =
                 DbxRequestConfig.newBuilder("OneDataShare-DIDCLab").build();
         client = new DbxClientV2(config, oauth.token);

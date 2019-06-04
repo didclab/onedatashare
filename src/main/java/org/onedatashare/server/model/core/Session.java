@@ -5,15 +5,20 @@ import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
+/**
+ * The model that maintains the session for a specific resource.
+ * The session is maintained indirectly by retaining the enpoint URI and the corresponding credential of the resource.
+ * Logically, in most cases, a new HTTP connection is made for every activity performed for a particular resource.
+ * @param <S>
+ * @param <R>
+ */
 @Data
 public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>> {
-  public final URI uri;
-  public final Credential credential;
-  public boolean closed;
+  private final URI uri;
+  private final Credential credential;
+  private boolean closed;
 
   protected Session(URI uri) {
     this(uri, null);
@@ -42,13 +47,9 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
 
   public final synchronized Mono<S> close(Throwable reason) {
     if (reason == null) {
-      reason = new IllegalStateException("Session is closed.");
+      throw new IllegalStateException("Session is already closed.");
     }
     closed = true;
     return Mono.just((S) this);
-  }
-
-  public final synchronized void closeWhen(Mono mono) {
-    mono.doOnSuccess(s -> close()).doOnError(t -> close((Throwable) t)).subscribe();
   }
 }

@@ -95,9 +95,9 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
             sfscb.setUserDirIsRoot(fileSystemOptions, true);
             sfscb.setTimeout(fileSystemOptions, 10000);
             sfscb.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
-            if(credential instanceof UserInfoCredential && ((UserInfoCredential) credential).getUsername() != null) {
-                UserInfoCredential cred = (UserInfoCredential) credential;
-                StaticUserAuthenticator auth = new StaticUserAuthenticator(uri.getHost(), cred.getUsername(), cred.getPassword());
+            if(getCredential() instanceof UserInfoCredential && ((UserInfoCredential) getCredential()).getUsername() != null) {
+                UserInfoCredential cred = (UserInfoCredential) getCredential();
+                StaticUserAuthenticator auth = new StaticUserAuthenticator(getUri().getHost(), cred.getUsername(), cred.getPassword());
 
                 try {
                     DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(fileSystemOptions, auth);
