@@ -11,7 +11,12 @@ body {
 	top: 45%;
 	cursor:pointer;
 }
-
+.userDescThemeFont{
+    font-size:0.9em !important;
+}
+.userDescValueFont{
+    font-size:0.8em !important;
+}
 .slick-prev {
   left: 40px !important;
   z-index: 1;
