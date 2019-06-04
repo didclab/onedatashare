@@ -14,6 +14,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
@@ -28,9 +29,10 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
+@Data
 public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDriveResource> {
     private static GoogleClientSecrets clientSecrets = initGoogle();
-    Drive service;
+    private Drive service;
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
     private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");

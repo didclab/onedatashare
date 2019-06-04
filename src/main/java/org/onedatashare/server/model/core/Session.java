@@ -20,6 +20,15 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
   private final Credential credential;
   private boolean closed;
 
+  /**
+   * Default constructor.
+   * Not used. Created to avoid an error arising due to default behaviour of Java compiler during inheritance.
+   */
+  protected Session(){
+    this.uri = null;
+    this.credential = null;
+  }
+
   protected Session(URI uri) {
     this(uri, null);
   }
