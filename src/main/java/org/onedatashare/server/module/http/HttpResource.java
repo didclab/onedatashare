@@ -13,9 +13,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri;
@@ -55,16 +55,46 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
         // Select the table rows
         Elements table = document.select("tr");
-        if(table.size()>0) {
+        Stat contentStat;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        if(table.size()>0){
+            ArrayList<Stat> contents = new ArrayList<>(table.size());
             for (Element row : table) {
-                //Filter for removing queries, no links and links to parent directory
+                // Filter for removing queries, no links and links to parent directory
+                // Remove Query Strings, link to parent directory and no links
                 if(row.toString().contains("href=?") || row.toString().contains("href=\"/\"") || !row.toString().contains("href"))
                     continue;
 
-                ArrayList<Stat> contents = new ArrayList<>(table.size());
                 // Select the table data rows
                 Elements rowContent = row.select("td");
+                String fileName = rowContent.get(1).text();
+                String dateString = rowContent.get(2).text();
+                contentStat = new Stat();
+                if (fileName.endsWith("/")) {
+                    contentStat.name = fileName.substring(0, fileName.length() - 1);
+                    contentStat.dir = true;
+                    contentStat.file = false;
+                } else {
+                    contentStat.name = fileName;
+                    contentStat.dir = false;
+                    contentStat.file = true;
+                    contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
+                }
+
+                if (!dateString.equals("")) {
+                    Date d = null;
+                    try {
+                        d = sdf.parse(dateString);
+                        contentStat.time = d.getTime() / 1000L;
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                contents.add(contentStat);
             }
+            stat.setFiles(contents);
         }
 //        // Try selecting table rows
 //        Elements table = document.select("tr");
@@ -110,7 +140,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 //        }
         else {
             Elements links = document.select("a[href]");
-            Stat contentStat;
             ArrayList<Stat> contents = new ArrayList<>(links.size());
             for (Element link : links) {
                 //TODO: fix for parent directory (similar to above case
