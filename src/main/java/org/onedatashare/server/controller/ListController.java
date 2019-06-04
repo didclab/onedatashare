@@ -4,11 +4,8 @@ import org.apache.http.protocol.HttpService;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.service.DbxService;
-import org.onedatashare.server.service.GridftpService;
-import org.onedatashare.server.service.ResourceServiceImpl;
+import org.onedatashare.server.service.*;
 //import org.onedatashare.server.service.GridftpService;
-import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,7 +28,11 @@ public class ListController {
   private GridftpService gridService;
 
   @Autowired
+  private BoxService boxService;
+
+  @Autowired
   private ResourceServiceImpl resourceService;
+
 
   @PostMapping
   public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
@@ -53,6 +54,8 @@ public class ListController {
         return resourceService.list(cookie, userAction);
       case "gsiftp://":
         return gridService.list(cookie, userAction);
+      case "box:///":
+        return boxService.list(cookie, userAction);
       case "scp://":
       case "sftp://":
       case "ftp://":

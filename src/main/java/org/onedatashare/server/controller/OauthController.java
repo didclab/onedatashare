@@ -1,11 +1,8 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
+import org.onedatashare.server.service.oauth.*;
 import org.onedatashare.server.model.error.NotFound;
-import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.onedatashare.server.service.oauth.GridftpAuthService;
-import org.onedatashare.server.service.oauth.OauthService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -34,9 +31,13 @@ public class OauthController {
   @Autowired
   private GridftpAuthService gridftpAuthService;
 
+  @Autowired
+  private BoxOauthService boxOauthService;
+
   static final String googledrive = "googledrive";
   static final String dropbox = "dropbox";
   static final String gridftp = "gridftp";
+  static final String box = "box";
 
   @GetMapping(value = "/googledrive")
   public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
@@ -64,6 +65,16 @@ public class OauthController {
             .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
   }
 
+  @GetMapping(value = "/box")
+  public Object boxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
+    String cookie = headers.getFirst("cookie");
+    return boxOauthService.finish(queryParameters.get("code"), cookie)
+            .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
+            .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox" ).build()));
+  }
+
+
   @GetMapping
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
     String cookie = headers.getFirst("cookie");
@@ -74,9 +85,12 @@ public class OauthController {
       }else if(queryParameters.get("type").equals(dropbox) ){
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
-      }else if(queryParameters.get("type").equals(gridftp) ){
+      }else if(queryParameters.get("type").equals(gridftp) ) {
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
+      }else if(queryParameters.get("type").equals(box) ) {
+        return userService.userLoggedIn(cookie)
+                .map(bool -> Rendering.redirectTo(boxOauthService.start()).build());
       }else return Mono.error(new NotFound());
 
   }

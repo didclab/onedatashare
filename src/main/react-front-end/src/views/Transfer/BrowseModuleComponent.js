@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth, history, dropboxCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
 import {endpointProgress} from "../../model/actions"
 import PropTypes from "prop-types";
@@ -11,7 +11,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -121,6 +121,9 @@ export default class BrowseModuleComponent extends Component {
 		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
 		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
 		      	}}>Google Drive</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
+                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
+                }}>Box</Button>}
 		      	<Button style={buttonStyle} onClick={() =>{
 		      		this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 		      	}}>Grid FTP</Button>

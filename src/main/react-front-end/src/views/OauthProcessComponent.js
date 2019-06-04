@@ -21,11 +21,15 @@ export default class OauthProcessComponent extends Component{
 		}
 		if(id === "ExistingCredGoogleDrive"){
             setTimeout( () => {eventEmitter.emit(
-               "errorOccured","Credential for the endpoint already Exists. Please logout from Google Drive and try again."
+               "errorOccurred","Credential for that endpoint already exists. Please logout from Google Drive and try again."
             )}, 500);
 		}else if(id === "ExistingCredDropbox"){
             setTimeout( () => { eventEmitter.emit(
-                "errorOccured","Credential for the endpoint already Exists. Please logout from Dropbox and try again."
+                "errorOccurred","Credential for that endpoint already exists. Please logout from Dropbox and try again."
+            )}, 500);
+        }else if(id ==="ExistingCredBox"){
+            setTimeout( () => {eventEmitter.emit(
+                "errorOcurred","Credential for that endpoint already exists. Please logout from Box and try again."
             )}, 500);
         }else{
             endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: id});

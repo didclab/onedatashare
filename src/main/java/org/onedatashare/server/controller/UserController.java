@@ -52,7 +52,7 @@ public class UserController {
       case "deleteHistory":
         return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
       case "isAdmin":
-        return userService.isAdmin(headers.getFirst("cookie"));
+        return userService.isAdmin(headers.getFirst("Cookie"));
       case "resendVerificationCode":
         return userService.resendVerificationCode(userAction.email);
       default:

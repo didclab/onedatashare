@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, 
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth, openGridFtpOAuth, history, dropboxCredList,
 		listFiles, deleteCredential, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -302,6 +302,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		openDropboxOAuth();
 		        	}else if(loginType == GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
+		        	}else if(loginType == BOX_TYPE){
+		        	    openBoxOAuth();
 		        	}else if(loginType == FTP_TYPE){
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://", portNum: 21});
 		        	}else if(loginType == SFTP_TYPE){
@@ -320,9 +322,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE) && cloudList}
+		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE || loginType == BOX_TYPE) && cloudList}
 		        {loginType == GRIDFTP_TYPE && endpointsList}
-		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && loginType != GRIDFTP_TYPE && 
+		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && loginType != GRIDFTP_TYPE && loginType != BOX_TYPE &&
 		        	histList}
 		    </List>}
 	    	<Modal
