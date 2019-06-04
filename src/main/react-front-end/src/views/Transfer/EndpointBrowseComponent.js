@@ -58,6 +58,7 @@ export default class EndpointBrowseComponent extends Component {
 			addFolderName: "",
 			searchText: "",
 			ignoreCase : true,
+			regex : true
 		};
 
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
@@ -296,16 +297,24 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		if(searchText.length > 0){
-			var flags = this.state.ignoreCase? "i" : "";
-			var regex = 0;
-			try{
-				regex = new RegExp(searchText, flags);
-			} catch {
-				console.log("Invalid regex")
-			}	
-			if(regex!=0)
-				displayList = Object.keys(list).filter(key => regex.test(list[key].name));
-		}
+			if(this.state.regex){
+				var flags = this.state.ignoreCase? "i" : "";
+				try{
+					var regex = new RegExp(searchText, flags);
+					displayList = Object.keys(list).filter(key => regex.test(list[key].name));
+				} catch {
+					console.log("Invalid regex")
+				}	
+			}
+			else{
+				if(this.state.ignoreCase){
+					var keyword = searchText.toLowerCase()
+					displayList = Object.keys(list).filter(key => list[key].name.toLowerCase().includes(keyword));
+				}
+				else
+					displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
+			}
+		} 
 		
 
 		const iconStyle = {fontSize: "15px", width: "100%"};
@@ -480,6 +489,18 @@ export default class EndpointBrowseComponent extends Component {
 								property.style.color = "gray";
 						} 
 							}>Aa</Button>
+					</OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
+						<Button id="regex" onClick={() => {
+							this.state.regex =! this.state.regex; 
+							var propertyStatus = this.state.regex;
+							var property = document.getElementById("regex");
+							if(propertyStatus)
+								property.style.color = "black";
+							else
+								property.style.color = "gray";
+						} 
+							}>*.</Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
