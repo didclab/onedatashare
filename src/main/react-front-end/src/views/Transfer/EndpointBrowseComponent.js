@@ -464,9 +464,8 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
-					<FormControl 
-						placeholder="Search"
+				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+					<FormControl placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
 						}}/>
@@ -498,6 +497,7 @@ export default class EndpointBrowseComponent extends Component {
 					</InputGroup.Button>
 				</InputGroup>
 			</div>
+
 			
 			<Droppable droppableId={endpoint.side} > 
 				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
