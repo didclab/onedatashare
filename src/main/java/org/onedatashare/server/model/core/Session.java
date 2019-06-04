@@ -18,7 +18,6 @@ import java.util.ArrayList;
 public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>> {
   private final URI uri;
   private final Credential credential;
-  private boolean closed;
 
   /**
    * Default constructor.
@@ -29,36 +28,59 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
     this.credential = null;
   }
 
+  /**
+   * Parameterised contrustor that calls another parameterized constructor with a null value for credential
+   * @param uri - Endpoint URI of the resource
+   */
   protected Session(URI uri) {
     this(uri, null);
   }
 
+  /**
+   * Parameterized constructor that sets the enpoint URI of the resource and the credential in the current session object.
+   * @param uri - Endpoint URI of the resource
+   * @param credential - Credential object of the resource (could be an OAuthCredential containing a token
+   *                   or a UserActionCredential containing raw username and password)
+   */
   protected Session(URI uri, Credential credential) {
     this.uri = uri;
     this.credential = credential;
   }
 
+  /**
+   * This method creates the resource object corresponding to the session endpoint type.
+   * All child classes must override this method and generate a resource object in return.
+   *
+   * @param path - relative path of the file/folder in the resource (different from URI which also consists the
+   *             protocol type appended to the relative path)
+   * @return a resource instance corresponding to endpoint type
+   */
   public Mono<R> select(String path){return select(path, null,null);}
 
+  /**
+   * Overloaded version of the select method that includes the file/folder id.
+   * GoogleDrive APIs assign a unique id to every file/folder, which is used to generate the corresponding resource instance.
+   *
+   * @param path - relative path of the file/folder in the resource
+   * @param id - Unique id of file/folder
+   * @return a resource instance corresponding to endpoint type
+   */
   public Mono<R> select(String path, String id){return select(path, id,null);}
 
+  /**
+   * Overloaded version of the select method that includes the idMap map for a GoogleDrive type resource.
+   * @param path - relative path of the file/folder in the resource
+   * @param id - Unique id of file/folder
+   * @param idMap
+   * @return a resource instance corresponding to endpoint type
+   */
   public abstract Mono<R> select(String path, String id, ArrayList<IdMap> idMap);
 
+  /**
+   * Method to initiate an authenticated HTTP session with the endpoint resource.
+   * Method must be overridden in child classes to implement resource specific logic to generate an HTTP session.
+   * @return HTTP session object specific to the resource type
+   */
   public abstract Mono<S> initialize();
 
-  protected void finalize() {
-    close().subscribe();
-  }
-
-  public final synchronized Mono<S> close() {
-    return close(null);
-  }
-
-  public final synchronized Mono<S> close(Throwable reason) {
-    if (reason == null) {
-      throw new IllegalStateException("Session is already closed.");
-    }
-    closed = true;
-    return Mono.just((S) this);
-  }
 }
