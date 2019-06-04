@@ -56,8 +56,10 @@ export default class EndpointBrowseComponent extends Component {
 			shareUrl: "",
 			openAFolder: false,
 			addFolderName: "",
-			searchText: ""
+			searchText: "",
+			ignoreCase : true,
 		};
+
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
@@ -294,19 +296,17 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		if(searchText.length > 0){
-			// Regex ignore case and global search
+			var flags = this.state.ignoreCase? "i" : "";
 			var regex = 0;
 			try{
-				regex = new RegExp(searchText,"i"); //notice the extra backslash before \w
+				regex = new RegExp(searchText, flags);
 			} catch {
 				console.log("Invalid regex")
-			}
-
-		if(regex!=0)
-			displayList = Object.keys(list).filter(key => regex.test(list[key].name));
-		else 
-			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
+			}	
+			if(regex!=0)
+				displayList = Object.keys(list).filter(key => regex.test(list[key].name));
 		}
+		
 
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
@@ -457,27 +457,32 @@ export default class EndpointBrowseComponent extends Component {
 				
 				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search" onChange={(event) => {
 		      	this.setState({searchText: event.target.value})
-		      }}/>
-			</div> */}
+		      }}/> */}
+			{/* </div> */}
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}} placeholder="Search">
+				{/* <InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}}> */}
+				<InputGroup>
 					<FormControl
 						placeholder="Search"
-					/>
+						onChange={(event) => {
+							this.setState({searchText: event.target.value})
+						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button width="5px" >Aa</Button>
-					</OverlayTrigger>
-					<OverlayTrigger placement="top" overlay={tooltip("Match Words")}>
-						<Button>Abl</Button>
-					</OverlayTrigger>
-					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button>.*</Button>
+						<Button id="ignoreCase" onClick={() => {
+							this.state.ignoreCase =! this.state.ignoreCase; 
+							var propertyStatus = this.state.ignoreCase;
+							var property = document.getElementById("ignoreCase");
+							if(propertyStatus)
+								property.style.color = "black";
+							else
+								property.style.color = "gray";
+						} 
+							}>Aa</Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
-				<Tooltip placement="bottom" id="enable-regex">Enable regex based filtering</Tooltip>
 			</div>
 			
 			<Droppable droppableId={endpoint.side} > 
