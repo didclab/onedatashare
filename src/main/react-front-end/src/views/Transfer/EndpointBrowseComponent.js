@@ -16,6 +16,7 @@ import RefreshButton from "@material-ui/icons/Refresh";
 import {listFiles} from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
+import {InputGroup, FormControl} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -293,6 +294,17 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		if(searchText.length > 0){
+			// Regex ignore case and global search
+			var regex = 0;
+			try{
+				regex = new RegExp(searchText,"i"); //notice the extra backslash before \w
+			} catch {
+				console.log("Invalid regex")
+			}
+
+		if(regex!=0)
+			displayList = Object.keys(list).filter(key => regex.test(list[key].name));
+		else 
 			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
 		}
 
@@ -441,13 +453,33 @@ export default class EndpointBrowseComponent extends Component {
 				</ButtonGroup>
 			</div>
 
-			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search Files And Folders" onChange={(event) => {
+			{/* <div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+				
+				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search" onChange={(event) => {
 		      	this.setState({searchText: event.target.value})
 		      }}/>
+			</div> */}
+
+			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}} placeholder="Search">
+					<FormControl
+						placeholder="Search"
+					/>
+					<InputGroup.Button>	
+					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
+						<Button width="5px" >Aa</Button>
+					</OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Match Words")}>
+						<Button>Abl</Button>
+					</OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
+						<Button>.*</Button>
+					</OverlayTrigger>
+					</InputGroup.Button>
+				</InputGroup>
+				<Tooltip placement="bottom" id="enable-regex">Enable regex based filtering</Tooltip>
 			</div>
-
-
+			
 			<Droppable droppableId={endpoint.side} > 
 				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 					<div
