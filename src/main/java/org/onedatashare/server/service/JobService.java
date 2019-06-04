@@ -90,7 +90,7 @@ public class JobService {
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
-        return getAllJobsForUser(cookie).<Job>map(jobs -> {
+        return getAllJobsForUser(cookie).map(jobs -> {
             Job job = new Job(null, null);
             for(Job j: jobs) {
                 if(j.getJob_id() == job_id) job = j;

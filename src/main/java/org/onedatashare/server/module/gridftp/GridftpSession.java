@@ -42,9 +42,9 @@ public class GridftpSession extends Session<GridftpSession, GridftpResource> {
     @Override
     public Mono<GridftpSession> initialize() {
         return Mono.create(s -> {
-            if(credential instanceof GlobusWebClientCredential){
-                client = ((GlobusWebClientCredential) credential)._globusClient;
-                endpoint = ((GlobusWebClientCredential) credential)._endpoint;
+            if(getCredential() instanceof GlobusWebClientCredential){
+                client = ((GlobusWebClientCredential) getCredential())._globusClient;
+                endpoint = ((GlobusWebClientCredential) getCredential())._endpoint;
                 s.success(this);
             }
             else s.error(new AuthenticationRequired("gridftp"));

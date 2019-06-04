@@ -33,7 +33,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     return initialize().flux().flatMap(resource -> {
       ListFolderResult listing = null;
       try {
-        listing = getSession().client.files().listFolder(getPath());
+        listing = getSession().getClient().files().listFolder(getPath());
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -44,7 +44,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public Mono<DbxResource> mkdir() {
     return initialize().doOnSuccess(resource -> {
       try {
-        resource.getSession().client.files().createFolderV2(getPath());
+        resource.getSession().getClient().files().createFolderV2(getPath());
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -54,7 +54,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
   public Mono<DbxResource> delete() {
     return initialize().map(resource -> {
       try {
-        resource.getSession().client.files().deleteV2(getPath());
+        resource.getSession().getClient().files().deleteV2(getPath());
       } catch (DbxException e) {
         e.printStackTrace();
       }
@@ -72,12 +72,12 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     Metadata mData = null;
     try {
       if (getPath().equals("/")) {
-        data = getSession().client.files().listFolder("");
+        data = getSession().getClient().files().listFolder("");
       } else {
         try {
-          data = getSession().client.files().listFolder(getPath());
+          data = getSession().getClient().files().listFolder(getPath());
         } catch (ListFolderErrorException e) {
-          mData = getSession().client.files().getMetadata(getPath());
+          mData = getSession().getClient().files().getMetadata(getPath());
         }
       }
       if (data == null && mData == null)
@@ -97,17 +97,17 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       if (stat.isDir()) {
         ListFolderResult lfr = null;
         if (stat.getName().equals("/")) {
-          lfr = getSession().client.files().listFolder("");
+          lfr = getSession().getClient().files().listFolder("");
         } else {
           // If the metadata is a directory
-          if (getSession().client.files().getMetadata(getPath()) instanceof FolderMetadata) {
+          if (getSession().getClient().files().getMetadata(getPath()) instanceof FolderMetadata) {
             // list the directory files
-            lfr = getSession().client.files().listFolder(getPath());
+            lfr = getSession().getClient().files().listFolder(getPath());
           }
           // If the metadata is a file
-          else if (getSession().client.files().getMetadata(getPath()) instanceof FileMetadata) {
+          else if (getSession().getClient().files().getMetadata(getPath()) instanceof FileMetadata) {
             // Return the metadata as a stat object
-            stat = mDataToStat(getSession().client.files().getMetadata(getPath()));
+            stat = mDataToStat(getSession().getClient().files().getMetadata(getPath()));
           }
         }
         List<Stat> sub = new LinkedList<>();
@@ -130,7 +130,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
               long directorySize = 0L;
               try{
                 if(s.isDir())
-                  directorySize = buildDirectoryTree(sub, getSession().client.files().listFolder(getPath()), "/");
+                  directorySize = buildDirectoryTree(sub, getSession().getClient().files().listFolder(getPath()), "/");
                 else{
                   setFileResource(true);
                   sub.add(s);
@@ -156,7 +156,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
         sub.add(fileStat);
       }
       else if(childNode instanceof FolderMetadata){
-        directorySize += buildDirectoryTree(sub, getSession().client.files().listFolder(((FolderMetadata) childNode).getId()),
+        directorySize += buildDirectoryTree(sub, getSession().getClient().files().listFolder(((FolderMetadata) childNode).getId()),
                                             relativeDirName + childNode.getName()+"/");
       }
     }
@@ -199,7 +199,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
       String downloadPath = "";
       if(!isFileResource())
         downloadPath += getPath();
-      downloadBuilder = getSession().client.files().downloadBuilder(downloadPath +stat.getName());
+      downloadBuilder = getSession().getClient().files().downloadBuilder(downloadPath +stat.getName());
       size = stat.getSize();
       return tap(sliceSize);
     }
@@ -251,7 +251,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
     public DbxDrain start() {
       try {
-        sessionId = getSession().client.files().uploadSessionStart()
+        sessionId = getSession().getClient().files().uploadSessionStart()
                 .uploadAndFinish(in, 0L)
                 .getSessionId();
         cursor = new UploadSessionCursor(sessionId, uploaded);
@@ -264,7 +264,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     public void drain(Slice slice) {
       InputStream sliceInputStream = new ByteArrayInputStream(slice.asBytes());
       try {
-        getSession().client.files().uploadSessionAppendV2(cursor)
+        getSession().getClient().files().uploadSessionAppendV2(cursor)
                 .uploadAndFinish(sliceInputStream, slice.length());
       } catch (DbxException | IOException e) {
         e.printStackTrace();
@@ -279,7 +279,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
               .withClientModified(new Date())
               .build();
       try {
-        getSession().client.files().uploadSessionFinish(cursor, commitInfo)
+        getSession().getClient().files().uploadSessionFinish(cursor, commitInfo)
                     .uploadAndFinish(in, 0L);
       } catch (DbxException | IOException e) {
         e.printStackTrace();
@@ -291,7 +291,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
     String downloadLink="";
     try {
 //      downloadLink = session.client.sharing().createSharedLinkWithSettings(path).getUrl();    // throws an exception if a shared link already exists
-      downloadLink = getSession().client.files().getTemporaryLink(getPath()).getLink();    //temporary link valid for 4 hours
+      downloadLink = getSession().getClient().files().getTemporaryLink(getPath()).getLink();    //temporary link valid for 4 hours
 
     }
     catch(DbxException dbxe){
