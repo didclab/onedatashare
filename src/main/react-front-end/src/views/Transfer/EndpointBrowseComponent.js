@@ -471,8 +471,7 @@ export default class EndpointBrowseComponent extends Component {
 			{/* </div> */}
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				{/* <InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}}> */}
-				<InputGroup>
+				<InputGroup style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px"}}>
 					<FormControl
 						placeholder="Search"
 						onChange={(event) => {
@@ -488,8 +487,8 @@ export default class EndpointBrowseComponent extends Component {
 								property.style.color = "black";
 							else
 								property.style.color = "gray";
-						} 
-							}>Aa</Button>
+							} 
+						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
 						<Button id="regex" onClick={() => {
@@ -501,7 +500,7 @@ export default class EndpointBrowseComponent extends Component {
 							else
 								property.style.color = "gray";
 						} 
-							}>*.</Button>
+							}><b>*.</b></Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
