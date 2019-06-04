@@ -10,10 +10,7 @@ import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
-import org.onedatashare.server.service.DbxService;
-import org.onedatashare.server.service.ResourceServiceImpl;
-import org.onedatashare.server.service.UserService;
-import org.onedatashare.server.service.VfsService;
+import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.VfsResource;
@@ -40,6 +37,9 @@ public class DownloadController {
     private DbxService dbxService;
 
     @Autowired
+    private BoxService boxService;
+
+    @Autowired
     private VfsService vfsService;
 
     @Autowired
@@ -58,7 +58,11 @@ public class DownloadController {
             if (userAction.credential == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return resourceService.download(cookie, userAction);
-        } else if (userAction.uri.startsWith("ftp://")) {
+        }else if ("box:///".equals(userAction.type)) {
+            if (userAction.credential == null) {
+                return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+            } else return boxService.download(cookie, userAction);
+        }else if (userAction.uri.startsWith("ftp://")) {
 
             return vfsService.getDownloadURL(cookie, userAction);
         }

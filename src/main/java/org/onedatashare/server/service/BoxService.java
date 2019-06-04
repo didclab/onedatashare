@@ -44,7 +44,7 @@ public class BoxService implements ResourceService<BoxResource> {
     @Override
     public Mono<BoxResource> delete(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
-                .flatMap(Resource::delete);
+                .flatMap(BoxResource::delete);
     }
 
     @Override
@@ -54,7 +54,8 @@ public class BoxService implements ResourceService<BoxResource> {
 
     @Override
     public Mono<String> download(String cookie, UserAction userAction) {
-        return null;
+        return getBoxResourceUserActionUri(cookie, userAction)
+                .flatMap(BoxResource::download);
     }
 
     public Mono<BoxResource> getBoxResourceUserActionUri(String cookie, UserAction userAction) {
