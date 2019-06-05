@@ -20,9 +20,6 @@ import java.util.*;
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri;
 
-    // Max recursion depth
-    static final int maxDepth = 10;
-
     protected HttpResource(HttpSession session, String uri) {
         super(session);
         this.uri = uri;
@@ -63,14 +60,15 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             ArrayList<Stat> contents = new ArrayList<>(table.size());
             for (Element row : table) {
                 // Filter for removing queries, no links and links to parent directory
-                // Remove Query Strings, link to parent directory and no links
-                if(row.toString().contains("href=?") || row.toString().contains("href=\"/\"") || !row.toString().contains("href"))
+                // Remove Query Strings or no links
+                if(row.toString().contains("href=?") || !row.toString().contains("href"))
                     continue;
 
                 // Select the table data rows
                 Elements rowContent = row.select("td");
                 String fileName = rowContent.get(1).text();
                 String dateString = rowContent.get(2).text();
+
                 contentStat = new Stat();
                 if (fileName.endsWith("/")) {
                     contentStat.name = fileName.substring(0, fileName.length() - 1);
@@ -96,48 +94,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             }
             stat.setFiles(contents);
         }
-//        // Try selecting table rows
-//        Elements table = document.select("tr");
-//        if (table.size() >= 2) {
-//
-//            Stat contentStat;
-//            ArrayList<Stat> contents = new ArrayList<>(table.size());
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-//            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-//
-//            for (Element row : table) {
-//                try {
-//                    Elements rowContent = row.select("td");
-//                    if (rowContent.size() == 0)
-//                        continue;
-//                    contentStat = new Stat();
-//                    if(rowContent.get(1) !=null && uri.startsWith(rowContent.attr("href")))
-//                        continue;
-//                    String fileName = rowContent.get(1).text();
-//                    String dateString = rowContent.get(2).text();
-//                    if (fileName.endsWith("/")) {
-//                        contentStat.name = fileName.substring(0, fileName.length() - 1);
-//                        contentStat.dir = true;
-//                        contentStat.file = false;
-//                    } else {
-//                        contentStat.name = fileName;
-//                        contentStat.dir = false;
-//                        contentStat.file = true;
-//                        contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
-//                    }
-//
-//                    if (!dateString.equals("")) {
-//                        Date d = sdf.parse(dateString);
-//                        contentStat.time = d.getTime() / 1000L;
-//                    }
-//                    contents.add(contentStat);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                    break;
-//                }
-//            }
-//            stat.setFiles(contents);
-//        }
         else {
             Elements links = document.select("a[href]");
             ArrayList<Stat> contents = new ArrayList<>(links.size());
@@ -145,6 +101,8 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 //TODO: fix for parent directory (similar to above case
                 contentStat = new Stat();
                 String fileName = link.text();
+                if(fileName.equals("Parent Directory"))
+                    continue;
                 if (fileName.endsWith("/")) {
                     contentStat.name = fileName.substring(0, fileName.length() - 1);
                     contentStat.dir = true;
@@ -183,7 +141,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         fileResource = true;
                         subDirectory.add(s);
                         directorySize = s.getSize();
-                        System.out.println("Directory size : " + directorySize);
+//                        System.out.println("Directory size : " + directorySize);
                     }
                     s.setFilesList(subDirectory);
                     s.setSize(directorySize);
