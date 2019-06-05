@@ -471,7 +471,8 @@ export default class EndpointBrowseComponent extends Component {
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase"  style={{backgroundColor : "white"}} onClick={() => {
+						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"}} 
+						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
 							var propertyStatus = this.state.ignoreCase;
 							var property = document.getElementById("ignoreCase");
@@ -483,7 +484,8 @@ export default class EndpointBrowseComponent extends Component {
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{backgroundColor : "white"}} onClick={() => {
+						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px"}}
+						 onClick={() => {
 							var propertyStatus = this.state.regex;
 							var property = document.getElementById("regex");
 							if(!propertyStatus)
