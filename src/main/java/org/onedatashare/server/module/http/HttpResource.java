@@ -123,30 +123,18 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         Stat stat = new Stat();
 
         // Get the hostname from the uri
-        stat.name = URI.create(uri).toString();
+        stat.name = "Test.txt";
         stat.size = fetchFileSize(uri);
         stat.dir = false;
         stat.file = true;
+        System.out.println(stat.size());
         return stat;
     }
 
     @Override
     public Mono<Stat> getTransferStat() {
         return initialize()
-                .map(HttpResource::exactStat)
-                .map( s -> {
-                    List<Stat> subDirectory = new LinkedList<>();
-                    long directorySize = 0L;
-                    if(!s.dir){
-                        fileResource = true;
-                        subDirectory.add(s);
-                        directorySize = s.getSize();
-//                        System.out.println("Directory size : " + directorySize);
-                    }
-                    s.setFilesList(subDirectory);
-                    s.setSize(directorySize);
-                    return s;
-                });
+                .map(HttpResource::exactStat);
     }
 
     private static int fetchFileSize(String urlString) {

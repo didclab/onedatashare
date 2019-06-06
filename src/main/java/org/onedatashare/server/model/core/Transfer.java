@@ -41,6 +41,8 @@ public class Transfer<S extends Resource, D extends Resource> {
     if(destination instanceof HttpResource)
       return Flux.error(new Exception("HTTP is read-only"));
 
+    System.out.println(source);
+
     Stat tapStat = (Stat) source.getTransferStat().block();
     info.setTotal(tapStat.size);
     System.out.println("Info: " + info.toString());
