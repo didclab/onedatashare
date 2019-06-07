@@ -1,13 +1,15 @@
 package org.onedatashare.server.module.box;
 
-import com.box.sdk.BoxFile;
-import com.box.sdk.BoxFolder;
-import com.box.sdk.BoxItem;
-import com.box.sdk.BoxSharedLink;
+import com.box.sdk.*;
 import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.core.Tap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.EnumSet;
 
@@ -143,5 +145,31 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     @Override
     public Mono<Stat> getTransferStat() {
         return null;
+    }
+
+    class BoxTap implements Tap {
+        long size;
+        BoxAPIConnection api = session.client;
+
+        @Override
+        public Flux<Slice> tap(long sliceSize) {
+            return null;
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+                BoxFolder rootFolder = BoxFolder.getRootFolder(api);
+
+            try{
+                FileInputStream stream = new FileInputStream(path);
+                BoxFile.Info newFileInfo = rootFolder.uploadFile(stream, stat.getName());
+                stream.close();
+
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            size = stat.getSize();
+            return tap(sliceSize);
+        }
     }
 }
