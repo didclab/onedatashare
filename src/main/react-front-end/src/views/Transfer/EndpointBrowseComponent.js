@@ -471,28 +471,36 @@ export default class EndpointBrowseComponent extends Component {
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"}} 
+						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
 						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
 							var propertyStatus = this.state.ignoreCase;
 							var property = document.getElementById("ignoreCase");
-							if(!propertyStatus)
-								property.style.backgroundColor = "#d9edf7";
-							else
+							if(!propertyStatus){
+								property.style.backgroundColor = "#337AB6";
+								property.style.color = "white";
+							}
+							else{
+								property.style.color = "black";
 								property.style.backgroundColor = "white";
+								}
 							} 
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px"}}
+						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
 						 onClick={() => {
 							var propertyStatus = this.state.regex;
 							var property = document.getElementById("regex");
-							if(!propertyStatus)
-								property.style.backgroundColor = "#d9edf7";
-							else
+							if(!propertyStatus){
+								property.style.backgroundColor = "#337AB6";
+								property.style.color = "white";
+							}
+							else{
+								property.style.color = "black";
 								property.style.backgroundColor = "white";
-							this.setState({regex : !this.state.regex})
+							}
+						this.setState({regex : !this.state.regex})
 							} 
 						}><b>*.</b></Button>
 					</OverlayTrigger>
