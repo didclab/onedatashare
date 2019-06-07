@@ -23,6 +23,18 @@ export function register(email, username, password) {
   }
 }
 
+
+
+export const UPDATE_HASH = 'UPDATE_HASH';
+
+export function updateHashAction(hash) {
+  return {
+    type: UPDATE_HASH,
+    hash: hash
+  }
+}
+
+
 export const PROMOTE = 'PROMOTE';
 export function isAdminAction() {
   return {
