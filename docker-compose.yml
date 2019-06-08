@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+
+  # Mongo service that runs the MongoDB server container 
+  mongo-service:
+    image : mongo:4.0.4
+    ports :
+      - 27017:27017           # mapping the container's 27017 port to the host machines 27017 port
+    volumes : 
+      - /data/db:/data/db     # Sharing the hosts database files with the container, so that the data persists even after the container is shut down
+
+  # ODS service that runs the Maven container
+  ods-service:
+    build : .                 # Refers to the Dockerfile in the current directory
+    ports :
+      - 8080:8080             # mapping the container's 8080 port to the host machines 8080 port
+    volumes :
+      - .:/ods                # Sharing the current directory (containing the code) and mapping it to '/ods' location within the Maven container 
+    working_dir: /ods         # Setting the working directory from which the all commands in the Maven container will be run
+    network_mode : host       # Setting the containers localhost/127.0.0.1 to point to the host machine
+    depends_on :
+      - mongo-service         # ensuring that the Maven container is started only after the mongo-service is up
