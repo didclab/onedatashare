@@ -57,7 +57,7 @@ Recommended IDEs (used by ODS team for development):
 		npm install  
 		npm run build  
 
-5. To execute ODS as a standalone application, follow steps mentioned in the standalone-execution.txt file.
+5. To execute ODS as a standalone application, follow steps mentioned in the standalone-execution.txt file.  
    To execute ODS using docker containers, follow steps mentioned in the docker-execution.txt file.
 
 ## Contact ODS Team ##
