@@ -25,7 +25,5 @@ public class IndexFilter implements WebFilter {
     }
     return chain.filter(exchange);
   }
-    private void error(ServerWebExchange exchange, Throwable cause) {
-        System.out.println("End AppFilter1 with Error in thread:" + Thread.currentThread().getId() + "...............");
-    }
+
 }

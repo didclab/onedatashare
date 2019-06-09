@@ -4,6 +4,7 @@ import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -81,13 +82,13 @@ public class UserController {
 
   @ExceptionHandler(InvalidField.class)
   public ResponseEntity<InvalidField> handle(InvalidField invf){
-    System.out.println(invf.getMessage());
+    ODSLoggerService.logError(invf.getMessage());
     return new ResponseEntity<>(invf, invf.status);
   }
 
   @ExceptionHandler(ForbiddenAction.class)
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
-    System.out.println(fa.getMessage());
+    ODSLoggerService.logError(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
   }
 }

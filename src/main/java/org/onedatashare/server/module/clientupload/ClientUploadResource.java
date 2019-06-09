@@ -5,6 +5,7 @@ import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.Tap;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -61,14 +62,13 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
 
         public Flux<Slice> tap(long size) {
-            System.out.println("Inside tap()");
             return Flux.generate(() -> getSession().filesize,
                 (state, sink) -> {
                     try{
                         Slice s = getSession().flux.take();
                         sink.next(s);
 
-                        System.out.println("uploading" + s.length() + " " + state);
+                        ODSLoggerService.logInfo("uploading" + s.length() + " " + state);
                         if(state - s.length() == 0){
                             sink.complete();
                         }

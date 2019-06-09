@@ -5,6 +5,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -147,8 +148,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             directorySize = buildDirectoryTree(sub, fileObject.getChildren(), "/");
                         }
                         catch(FileSystemException fse){
-                            System.out.println("Exception encountered while generating file objects within a folder");
-                            fse.printStackTrace();
+                            ODSLoggerService.logError("Exception encountered while generating " +
+                                                        "file objects within a folder", fse);
                         }
                     }
                     else{
@@ -267,8 +268,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 return start();
             }
             catch(FileSystemException fse){
-                System.out.println("Exception encountered while creating file object");
-                fse.printStackTrace();
+                ODSLoggerService.logError("Exception encountered while creating file object", fse);
             }
             return null;
         }
@@ -317,7 +317,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             e.printStackTrace();
         }
 
-//        System.out.println("Size of file is " + stream.length());
         String[] strings = fileObject.getName().toString().split("/");
         String filename = strings[strings.length - 1];
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
