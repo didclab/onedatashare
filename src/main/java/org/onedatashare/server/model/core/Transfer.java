@@ -44,7 +44,6 @@ public class Transfer<S extends Resource, D extends Resource> {
     Stat tapStat = (Stat) source.getTransferStat().block();
     info.setTotal(tapStat.size);
 
-    System.out.println("Transfer stat " + tapStat.toString());
 
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
@@ -55,7 +54,6 @@ public class Transfer<S extends Resource, D extends Resource> {
               else {
                   drain = destination.sink();
               }
-              System.out.println("Source is " + source.getClass()   );
               return source.tap().tap(fileStat, sliceSize)
                       .subscribeOn(Schedulers.elastic())
                       .doOnNext(drain::drain)
@@ -137,6 +135,5 @@ public class Transfer<S extends Resource, D extends Resource> {
     }
     done();
     return Flux.just(info);
-
   }
 }
