@@ -72,7 +72,7 @@ public class UserService {
       */
       // Means admin user exists in the DB
       if(user.email!=null && user.email.equals(email)) {
-        System.out.println("User with email " + email + " already exists.");
+        ODSLoggerService.logWarning("User with email " + email + " already exists.");
         if(!user.validated){
           return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
         }else{
@@ -148,15 +148,15 @@ public class UserService {
   public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
     return getLoggedInUser(cookie).flatMap(user-> {
       if(!newpassword.equals(passwordConfirm)){
-        return Mono.error(new Exception("Password is not confirmed."));
+        ODSLoggerService.logError("Passwords don't match.");
+        return Mono.error(new Exception("Passwords don't match."));
       }else if(!user.checkPassword(oldpassword)){
+        ODSLoggerService.logError("Old Password is incorrect.");
         return Mono.error(new Exception("Old Password is incorrect."));
       }else{
         user.setPassword(newpassword);
-        System.out.println(user.checkPassword(newpassword));
-        //cookieToUserLogin(cookie).hash = user.hash;
-        //or
         userRepository.save(user).subscribe();
+        ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
         return Mono.just(user.hash);
       }
     });
@@ -243,8 +243,9 @@ public class UserService {
         String subject = "OneDataShare Authorization Code";
         String emailText = "The authorization code for your OneDataShare account is : " + code;
         emailService.sendEmail(email, subject, emailText);
-      } catch (MessagingException mex) {
-        mex.printStackTrace();
+      }
+      catch (Exception ex) {
+        ex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
       }
       return Mono.just(new Response("Success", 200));

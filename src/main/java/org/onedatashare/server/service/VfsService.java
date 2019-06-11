@@ -87,7 +87,6 @@ public class VfsService implements ResourceService<VfsResource> {
                     } catch (BadPaddingException e) {
                         e.printStackTrace();
                     }
-                    System.out.println(decryptedMessage);
                     ObjectMapper objectMapper = new ObjectMapper();
                     UserActionResource userActionResource = null;
                     try {

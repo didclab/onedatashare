@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,7 +40,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             try {
                 String[] currpath = getPath().split("/");
                 for(int i =0; i<currpath.length; i++){
-//                    System.out.println("Parent ID: " + id);
                     File fileMetadata = new File();
                     fileMetadata.setName(currpath[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -47,7 +47,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     File file = getSession().getService().files().create(fileMetadata)
                             .setFields("id")
                             .execute();
-                    System.out.println("Folder ID: " + file.getId());
+                    ODSLoggerService.logInfo("Folder ID: " + file.getId());
                     setId(file.getId());
                 }
             } catch (IOException e) {
@@ -75,8 +75,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     curId = file.getId();
 
                 } catch (IOException ioe) {
-                    System.out.println("Exception encountered while creating directory tree");
-                    ioe.printStackTrace();
+                    ODSLoggerService.logError("Exception encountered while creating directory tree", ioe);
                 }
             }
             else{
@@ -112,8 +111,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             }while(request.getPageToken() != null);
         }
         catch (IOException ioe){
-            System.out.println("Exception encountered while checking if folder " + directoryName + " exists in " + curId);
-            ioe.printStackTrace();
+            ODSLoggerService.logError("Exception encountered while checking if folder " + directoryName +
+                                        " exists in " + curId, ioe);
         }
         return null;
     }
@@ -138,8 +137,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             downloadUrl = "https://drive.google.com/uc?id="+ getId() +"&export=download";
 
         }catch(Exception exp){
-            System.out.println("Error encountered while generating shared link for " + getPath());
-            System.out.println(exp);
+            ODSLoggerService.logError("Error encountered while generating shared link for " + getPath(), exp);
         }
         return Mono.just(downloadUrl);
     }
@@ -283,8 +281,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
             }while(request.getPageToken() != null);
         }
         catch (IOException ioe){
-            System.out.println("Exception encountered while building directory tree");
-            ioe.printStackTrace();
+            ODSLoggerService.logError("Exception encountered while building directory tree", ioe);
         }
         return directorySize;
     }
@@ -468,14 +465,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         ByteArrayOutputStream temp = new ByteArrayOutputStream();
                         temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
                         chunk = temp;
-//                        System.out.println("Chunked upload working: " + size);
                     } else if (request.getResponseCode() == 200 || request.getResponseCode() == 201) {
-                        System.out.println("code: " + request.getResponseCode() +
+                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
                                 ", message: " + request.getResponseMessage());
                     } else {
-                        System.out.println("code: " + request.getResponseCode() +
+                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
                                 ", message: " + request.getResponseMessage());
-//                        System.out.println("last chunk Not working");
                     }
                 }
             }catch (Exception e) {
@@ -501,12 +496,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 outputStream.close();
                 request.connect();
                 if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
-                    System.out.println("code: " + request.getResponseCode()+
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
                             ", message: "+ request.getResponseMessage());
                 }else {
-                    System.out.println("code: " + request.getResponseCode()+
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
                             ", message: "+ request.getResponseMessage());
-                    System.out.println("fail");
+                    ODSLoggerService.logDebug("fail");
                 }
             }catch (Exception e) {
                 e.printStackTrace();

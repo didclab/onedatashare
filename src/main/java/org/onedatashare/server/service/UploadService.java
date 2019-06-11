@@ -36,13 +36,14 @@ public class UploadService {
                                  String directoryPath, String fileName, Long totalFileSize, String googledriveid, String idmap) {
         if (ongoingUploads.containsKey(uuid)) {
             return sendFilePart(filePart, ongoingUploads.get(uuid));
-        } else {
+        }
+        else {
             UserAction ua = new UserAction();
             ua.src = new UserActionResource();
             ua.src.uri = "Upload";
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
             ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
-            System.out.println("total "+totalFileSize);
+            ODSLoggerService.logInfo("total "+totalFileSize);
             ua.dest = new UserActionResource();
             ua.dest.id = googledriveid;
 
@@ -85,7 +86,7 @@ public class UploadService {
                     }catch(Exception e){}
                     return acc;
         }).map(content ->  {
-            System.out.println("uploading"+content.size());
+            ODSLoggerService.logInfo("uploading " + content.size());
             Slice slc = new Slice(content.toByteArray());
             qugue.add(slc);
             return slc.length();

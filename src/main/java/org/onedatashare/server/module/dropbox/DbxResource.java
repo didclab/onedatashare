@@ -4,6 +4,7 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -231,7 +232,6 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
                   sink.next(new Slice(outputStream.toByteArray()));
                   sink.complete();
                 }
-                //System.out.println("size1: " +state + sliceSize);
                 return state + sliceSize;
               });
     }
@@ -295,8 +295,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
 
     }
     catch(DbxException dbxe){
-      System.out.println("Error encountered while generating shared link for " + getPath());
-      System.out.println(dbxe);
+      ODSLoggerService.logError("Error encountered while generating shared link for " + getPath(), dbxe);
     }
     return Mono.just(downloadLink);
   }
