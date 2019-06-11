@@ -53,7 +53,6 @@ public class Transfer<S extends Resource, D extends Resource> {
               if(tapStat.isDir())
                 drain = destination.sink(fileStat);
               else {
-                  System.out.println("Draining a File !!");
                   drain = destination.sink();
               }
               System.out.println("Source is " + source.getClass()   );

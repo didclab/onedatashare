@@ -243,12 +243,8 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             FileSystemOptions fileSystemOptions;
             try {
                 fileSystemManager = VFS.getManager();
-                fileSystemOptions = new FileSystemOptions();
-                fileContent = fileSystemManager.resolveFile(uri, fileSystemOptions).getContent();
-
-                byte[] b = new byte[(int)size];
-                fileContent.getInputStream().read(b);
-                System.out.println("WTG " + new String(b) + uri);
+                FileObject fileObject = fileSystemManager.resolveFile(uri);
+                fileContent = fileObject.getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             } catch (IOException e) {
