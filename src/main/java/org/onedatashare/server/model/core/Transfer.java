@@ -41,19 +41,22 @@ public class Transfer<S extends Resource, D extends Resource> {
     if(destination instanceof HttpResource)
       return Flux.error(new Exception("HTTP is read-only"));
 
-    System.out.println(source);
-
     Stat tapStat = (Stat) source.getTransferStat().block();
     info.setTotal(tapStat.size);
-    System.out.println("Info: " + info.toString());
+
+    System.out.println("Transfer stat " + tapStat.toString());
+
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
             .flatMap(fileStat -> {
               final Drain drain;
               if(tapStat.isDir())
                 drain = destination.sink(fileStat);
-              else
-                drain = destination.sink();
+              else {
+                  System.out.println("Draining a File !!");
+                  drain = destination.sink();
+              }
+              System.out.println("Source is " + source.getClass()   );
               return source.tap().tap(fileStat, sliceSize)
                       .subscribeOn(Schedulers.elastic())
                       .doOnNext(drain::drain)

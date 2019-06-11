@@ -175,7 +175,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return directorySize;
     }
 
-    class VfsTap implements Tap {
+    public class VfsTap implements Tap {
         FileContent fileContent;
         long size;
 

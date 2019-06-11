@@ -1,14 +1,19 @@
 package org.onedatashare.server.module.http;
 
+import org.apache.commons.vfs2.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.core.Tap;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -27,6 +32,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     @Override
     public Mono<HttpResource> select(String path) {
+        System.out.println("Error!!!!");
         return null;
     }
 
@@ -56,12 +62,12 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        if(table.size()>0){
+        if (table.size() > 0) {
             ArrayList<Stat> contents = new ArrayList<>(table.size());
             for (Element row : table) {
                 // Filter for removing queries, no links and links to parent directory
                 // Remove Query Strings or no links
-                if(row.toString().contains("href=?") || !row.toString().contains("href"))
+                if (row.toString().contains("href=?") || !row.toString().contains("href"))
                     continue;
 
                 // Select the table data rows
@@ -93,15 +99,14 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 contents.add(contentStat);
             }
             stat.setFiles(contents);
-        }
-        else {
+        } else {
             Elements links = document.select("a[href]");
             ArrayList<Stat> contents = new ArrayList<>(links.size());
             for (Element link : links) {
                 //TODO: fix for parent directory (similar to above case
                 contentStat = new Stat();
                 String fileName = link.text();
-                if(fileName.equals("Parent Directory"))
+                if (fileName.equals("Parent Directory"))
                     continue;
                 if (fileName.endsWith("/")) {
                     contentStat.name = fileName.substring(0, fileName.length() - 1);
@@ -122,12 +127,37 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
     public Stat exactStat() {
         Stat stat = new Stat();
 
-        // Get the hostname from the uri
-        stat.name = "Test.txt";
-        stat.size = fetchFileSize(uri);
-        stat.dir = false;
-        stat.file = true;
-        System.out.println(stat.size());
+        FileObject fileObject = null;
+
+        Document document = null;
+        List<Stat> fileList = new LinkedList<>();
+        long totalSize = 0;
+
+        // Fetch the document
+        if (uri.endsWith("/"))
+            try {
+                document = Jsoup.connect(uri).get();
+            } catch (IOException e) {
+                System.out.println("In exact stat: is this a file???");
+            }
+        else
+            try {
+                fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
+                // Get the hostname from the uri
+                stat.name = getName(uri);
+                stat.size = fileObject.getContent().getSize();
+                stat.dir = false;
+                stat.file = true;
+                fileResource = true;
+                totalSize += stat.size;
+                fileList.add(stat);
+            } catch (FileSystemException e) {
+                System.out.println("In exact stat: is this a folder???");
+                e.printStackTrace();
+                return null;
+            }
+        stat.setFilesList(fileList);
+        stat.setSize(totalSize);
         return stat;
     }
 
@@ -135,6 +165,14 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
     public Mono<Stat> getTransferStat() {
         return initialize()
                 .map(HttpResource::exactStat);
+    }
+
+    private static String getName(String uri) {
+        String name = null;
+        String[] splitURI = uri.split("/");
+        if (splitURI.length > 0)
+            name = splitURI[splitURI.length - 1];
+        return name;
     }
 
     private static int fetchFileSize(String urlString) {
@@ -190,4 +228,76 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             return Math.round(size);
         }
     }
+
+    public HttpTap tap() {
+        return new HttpTap(uri);
+    }
+
+    class HttpTap implements Tap {
+
+        FileContent fileContent;
+        long size;
+
+        public HttpTap(String uri) {
+            FileSystemManager fileSystemManager;
+            FileSystemOptions fileSystemOptions;
+            try {
+                fileSystemManager = VFS.getManager();
+                fileSystemOptions = new FileSystemOptions();
+                fileContent = fileSystemManager.resolveFile(uri, fileSystemOptions).getContent();
+
+                byte[] b = new byte[(int)size];
+                fileContent.getInputStream().read(b);
+                System.out.println("WTG " + new String(b) + uri);
+            } catch (FileSystemException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
+            size = stat.getSize();
+            return tap(sliceSize);
+        }
+
+
+        public Flux<Slice> tap(long sliceSize) {
+            int sliceSizeInt = Math.toIntExact(sliceSize);
+            int sizeInt = Math.toIntExact(size);
+            InputStream inputStream = null;
+            try {
+                inputStream = fileContent.getInputStream();
+            } catch (FileSystemException e) {
+                e.printStackTrace();
+            }
+            InputStream finalInputStream = inputStream;
+            return Flux.generate(
+                    () -> 0,
+                    (state, sink) -> {
+                        if (state + sliceSizeInt < sizeInt) {
+                            byte[] b = new byte[sliceSizeInt];
+                            try {
+                                finalInputStream.read(b, 0, sliceSizeInt);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            sink.next(new Slice(b));
+                        } else {
+                            int remaining = sizeInt - state;
+                            byte[] b = new byte[remaining];
+                            try {
+                                finalInputStream.read(b, 0, remaining);
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            sink.next(new Slice(b));
+                            sink.complete();
+                        }
+                        return state + sliceSizeInt;
+                    });
+        }
+    }
+
 }

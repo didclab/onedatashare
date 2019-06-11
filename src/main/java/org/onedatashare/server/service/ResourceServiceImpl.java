@@ -14,6 +14,7 @@ import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
 import org.onedatashare.server.module.gridftp.GridftpSession;
+import org.onedatashare.server.module.http.HttpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,9 +110,9 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         }else if(credential instanceof GlobusWebClientCredential) {
             return new GridftpSession(URI.create(uri), credential);
         }
-//        } else if(uri.startsWith("http")){
-//            return new HttpSession(URI.create(uri));
-//        }
+        else if(uri.startsWith("http")){
+            return new HttpSession(URI.create(uri));
+        }
         else return new VfsSession(URI.create(uri), credential);
     }
 

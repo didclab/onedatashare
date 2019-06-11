@@ -39,7 +39,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
     FileObject fo = null;
     try {
       fo = fileSystemManager.resolveFile(path, fileSystemOptions);
-      System.out.println("Mode 2 " + uri.toString());
     } catch (FileSystemException e) {
       e.printStackTrace();
     }
@@ -51,8 +50,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
     FileObject fo = null;
     try {
       fo = fileSystemManager.resolveFile(path, fileSystemOptions);
-      System.out.println("Mode z " + uri.toString());
-
     } catch (FileSystemException e) {
       e.printStackTrace();
     }
