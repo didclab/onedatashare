@@ -254,10 +254,10 @@ public class UserService {
   }
 
   public Mono<UserDetails> getAllUsers(UserAction userAction, String cookie){
-    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
     return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin()) ?
-       userRepository.findAllBy(PageRequest.of(userAction.pageNo,
-            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+       userRepository.findAllBy(PageRequest.of(userAction.getPageNo(),
+            userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
             .collectList()
             .flatMap(users ->
                 userRepository.count()
@@ -271,11 +271,11 @@ public class UserService {
   }
 
   public Mono<UserDetails> getAdministrators(UserAction userAction, String cookie){
-    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
     return getLoggedInUser(cookie).flatMap(user ->
             (user != null && user.isAdmin()) ?
-                    userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
-                        userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+                    userRepository.findAllAdministrators(PageRequest.of(userAction.getPageNo(),
+                        userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
                         .collectList()
                         .flatMap(users ->
                               userRepository.countAdministrators()

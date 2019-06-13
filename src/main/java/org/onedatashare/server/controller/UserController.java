@@ -23,48 +23,48 @@ public class UserController {
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
 
-    switch(userAction.action) {
+    switch(userAction.getAction()) {
       case "login":
-        return userService.login(userAction.email, userAction.password);
+        return userService.login(userAction.getEmail(), userAction.getPassword());
       case "register":
-        return userService.register(userAction.email, userAction.firstName, userAction.lastName, userAction.organization);
+        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(), userAction.getOrganization());
       case "validate":
-        return userService.validate(userAction.email, userAction.code);
+        return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
-        return userService.saveHistory(userAction.uri, headers.getFirst("Cookie"));
+        return userService.saveHistory(userAction.getUri(), headers.getFirst("Cookie"));
       case "verifyEmail":
-        return userService.verifyEmail(userAction.email);
+        return userService.verifyEmail(userAction.getEmail());
       case "sendVerificationCode":
-        return userService.sendVerificationCode(userAction.email, TIMEOUT_IN_MINUTES);
+        return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
       case "getUser":
-        return userService.getUserFromCookie(userAction.email, headers.getFirst("Cookie"));
+        return userService.getUserFromCookie(userAction.getEmail(), headers.getFirst("Cookie"));
       case "getUsers":
         return userService.getAllUsers(userAction, headers.getFirst("Cookie"));
       case "getAdministrators":
         return userService.getAdministrators(userAction, headers.getFirst("Cookie"));
       case "verifyCode":
-        return userService.verifyCode(userAction.email, userAction.code);
+        return userService.verifyCode(userAction.getEmail(), userAction.getCode());
       case "setPassword":
-        return userService.resetPassword(userAction.email, userAction.password, userAction.confirmPassword,userAction.code);
+        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(), userAction.getCode());
       case "resetPassword":
-        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.password, userAction.newPassword, userAction.confirmPassword);
+        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.getPassword(), userAction.getNewPassword(), userAction.getConfirmPassword());
       case "deleteCredential":
-        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.uuid);
+        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.getUuid());
       case "deleteHistory":
-        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.uri);
+        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.getUri());
       case "isAdmin":
         return userService.isAdmin(headers.getFirst("cookie"));
       case "resendVerificationCode":
-        return userService.resendVerificationCode(userAction.email);
+        return userService.resendVerificationCode(userAction.getEmail());
       default:
         return null;
     }
   }
   @PutMapping
   public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
-    switch(userAction.action) {
+    switch(userAction.getAction()) {
       case "updateAdminRights":
-        return userService.updateAdminRights(userAction.email, userAction.isAdmin);
+        return userService.updateAdminRights(userAction.getEmail(), userAction.isAdmin());
       default:
         return null;
     }
