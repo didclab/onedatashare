@@ -30,18 +30,18 @@ public class DeleteController {
   @PostMapping
   public Object delete(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
     String cookie = headers.getFirst("cookie");
-    if(userAction.uri.contains("dropbox://")) {
-      if(userAction.credential == null) {
+    if(userAction.getUri().contains("dropbox://")) {
+      if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return dbxService.delete(cookie, userAction);
-    }else if("googledrive:/".equals(userAction.type)) {
-      if(userAction.credential == null) {
+    }else if("googledrive:/".equals(userAction.getType())) {
+      if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return resourceService.delete(cookie, userAction);
-    }else if("gsiftp://".equals(userAction.type)) {
-      if (userAction.credential == null) {
+    }else if("gsiftp://".equals(userAction.getType())) {
+      if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return gridService.delete(cookie, userAction);
     }else return vfsService.delete(cookie, userAction);
