@@ -1,6 +1,7 @@
 package org.onedatashare.server.module.http;
 
 import org.apache.commons.vfs2.*;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -133,19 +134,59 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         List<Stat> fileList = new LinkedList<>();
         long totalSize = 0;
 
+        boolean exception = false;
+
+        System.out.println("URI " + uri);
+
         // Fetch the document
-        if (uri.endsWith("/"))
+        if (!uri.endsWith("/"))
             try {
+
+                Connection.Response resp = Jsoup.connect(uri).execute();
+
+                System.out.println("Type "  + resp.contentType());
+
+                if(!resp.contentType().contains("html"))
+                    throw new Exception("Not a html page");
+
                 document = Jsoup.connect(uri).get();
-            } catch (IOException e) {
-                System.out.println("In exact stat: is this a file???");
+                Elements elements = document.select("a[href]");
+
+                stat.name = uri.substring(uri.lastIndexOf('/') + 1);
+                stat.dir = true;
+                stat.file = false;
+
+                for (Element e : elements) {
+                    // Ignore Folders
+                    if (e.text().endsWith("/"))
+                        continue;
+                    Stat tempStat = new Stat();
+                    tempStat.dir = false;
+                    tempStat.file = true;
+                    tempStat.name = e.text();
+                    System.out.println("Added " + tempStat.name);
+                    try {
+                        tempStat.size = VFS.getManager().resolveFile(uri + "/" + tempStat.name).getContent().getSize();
+                        tempStat.id = uri + "/" + tempStat.name;
+                        totalSize += tempStat.size;
+                        fileList.add(tempStat);
+                    } catch (Exception e1){
+                        System.out.println("Skipped " + tempStat.name);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                exception = true;
             }
-        else
+
+        if(exception)
             try {
+                System.out.println("Type 2");
                 fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
                 // Get the hostname from the uri
                 stat.name = getName(uri);
                 stat.size = fileObject.getContent().getSize();
+                stat.id = uri;
                 stat.dir = false;
                 stat.file = true;
                 fileResource = true;
@@ -158,6 +199,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             }
         stat.setFilesList(fileList);
         stat.setSize(totalSize);
+
         return stat;
     }
 
@@ -230,7 +272,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
     }
 
     public HttpTap tap() {
-        return new HttpTap(uri);
+        return new HttpTap();
     }
 
     class HttpTap implements Tap {
@@ -238,22 +280,20 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         FileContent fileContent;
         long size;
 
-        public HttpTap(String uri) {
+        @Override
+        public Flux<Slice> tap(Stat stat, long sliceSize) {
             FileSystemManager fileSystemManager;
             FileSystemOptions fileSystemOptions;
             try {
+                System.out.println(stat.id);
                 fileSystemManager = VFS.getManager();
-                FileObject fileObject = fileSystemManager.resolveFile(uri);
+                FileObject fileObject = fileSystemManager.resolveFile(stat.id);
                 fileContent = fileObject.getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-
-        @Override
-        public Flux<Slice> tap(Stat stat, long sliceSize) {
             size = stat.getSize();
             return tap(sliceSize);
         }
