@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.apache.http.protocol.HttpService;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -39,7 +40,7 @@ public class ListController {
 
     if(userAction.getCredential() == null) {
       switch (userAction.getType()) {
-        case "dropbox:///":
+        case ODSConstants.DROPBOX_URI_SCHEME:
         case "googledrive:/":
         case "gsiftp://":
           return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -47,7 +48,7 @@ public class ListController {
     }
 
     switch (userAction.getType()){
-      case "dropbox:///":
+      case ODSConstants.DROPBOX_URI_SCHEME:
         return dbxService.list(cookie, userAction);
       case "googledrive:/":
         return resourceService.list(cookie, userAction);

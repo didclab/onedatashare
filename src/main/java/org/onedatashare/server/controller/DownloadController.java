@@ -6,6 +6,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -52,7 +53,7 @@ public class DownloadController {
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-        if (userAction.getUri().startsWith("dropbox://")) {
+        if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if ("googledrive:/".equals(userAction.getType())) {
             if (userAction.getCredential() == null) {

@@ -130,8 +130,8 @@ public class VfsService implements ResourceService<VfsResource> {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if (uri.contains("dropbox://")) {
-            path = uri.split("dropbox://")[1];
+        if (uri.contains(ODSConstants.DROPBOX_URI_SCHEME)) {
+            path = uri.split(ODSConstants.DROPBOX_URI_SCHEME)[1];
         } else path = uri;
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");

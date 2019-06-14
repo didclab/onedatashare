@@ -74,8 +74,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains("dropbox://")){
-            path = uri.split("dropbox://")[1];
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+            path = uri.split(ODSConstants.DROPBOX_URI_SCHEME)[1];
         }else if(uri.contains("googledrive:/")){
             path = uri.split("googledrive:")[1];
         }else path = uri;
@@ -89,7 +89,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.getUri().contains("dropbox://") || userActionResource.getUri().contains("googledrive:/")){
+        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) || userActionResource.getUri().contains("googledrive:/")){
             return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
         }else if(userActionResource.getUri().equals("Upload")){
             return userActionResource.getUploader();
@@ -103,7 +103,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
 
     public Session createSession(String uri, Credential credential) {
-        if(uri.contains("dropbox://")){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
             return new DbxSession(URI.create(uri), credential);
         }else if(uri.contains("Upload")){
             UploadCredential upc = (UploadCredential)credential;

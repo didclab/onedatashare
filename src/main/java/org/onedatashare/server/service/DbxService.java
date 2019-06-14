@@ -46,8 +46,8 @@ public class DbxService implements ResourceService<DbxResource>{
 
   public String pathFromDbxUri(String uri) {
     String path = "";
-    if(uri.contains("dropbox://")){
-      path = uri.split("dropbox://")[1];
+    if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+      path = uri.split(ODSConstants.DROPBOX_URI_SCHEME)[1];
     }
     try {
       path = java.net.URLDecoder.decode(path, "UTF-8");
