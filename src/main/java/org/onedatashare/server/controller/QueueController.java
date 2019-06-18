@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.service.JobService;
@@ -18,7 +19,7 @@ public class QueueController {
 
   @PostMapping
   public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
-    String cookie = headers.getFirst("cookie");
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
     return jobService.getJobsForUserOrAdmin(cookie, jobDetails)
             .subscribeOn(Schedulers.elastic());
   }

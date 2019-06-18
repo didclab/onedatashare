@@ -2,6 +2,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.module.globusapi.Result;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
@@ -51,8 +52,8 @@ public class GridftpService {
 
     public static String pathFromUri(String uri) {
         String path;
-        if(uri.contains("gsiftp://")){
-            path = uri.split("gsiftp://")[1];
+        if(uri.contains(ODSConstants.GRIDFTP_URI_SCHEME)){
+            path = uri.substring(ODSConstants.GRIDFTP_URI_SCHEME.length());
         }
         else path = uri;
         try {

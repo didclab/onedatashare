@@ -40,10 +40,10 @@ public class UploadService {
         else {
             UserAction ua = new UserAction();
             ua.setSrc(new UserActionResource());
-            ua.getSrc().setUri("Upload");
+            ua.getSrc().setUri(ODSConstants.UPLOAD_IDENTIFIER);
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
             ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
-            ODSLoggerService.logInfo("total "+totalFileSize);
+            ODSLoggerService.logInfo("Total upload file size - " + totalFileSize);
             ua.setDest( new UserActionResource());
             ua.getDest().setId( googleDriveId );
 

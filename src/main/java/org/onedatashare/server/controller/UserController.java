@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
@@ -23,37 +24,41 @@ public class UserController {
   @PostMapping
   public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
 
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
     switch(userAction.getAction()) {
       case "login":
         return userService.login(userAction.getEmail(), userAction.getPassword());
       case "register":
-        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(), userAction.getOrganization());
+        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
+                                      userAction.getOrganization());
       case "validate":
         return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
-        return userService.saveHistory(userAction.getUri(), headers.getFirst("Cookie"));
+        return userService.saveHistory(userAction.getUri(), cookie);
       case "verifyEmail":
         return userService.verifyEmail(userAction.getEmail());
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
       case "getUser":
-        return userService.getUserFromCookie(userAction.getEmail(), headers.getFirst("Cookie"));
+        return userService.getUserFromCookie(userAction.getEmail(), cookie);
       case "getUsers":
-        return userService.getAllUsers(userAction, headers.getFirst("Cookie"));
+        return userService.getAllUsers(userAction, headers.getFirst(ODSConstants.COOKIE));
       case "getAdministrators":
-        return userService.getAdministrators(userAction, headers.getFirst("Cookie"));
+        return userService.getAdministrators(userAction, cookie);
       case "verifyCode":
         return userService.verifyCode(userAction.getEmail(), userAction.getCode());
       case "setPassword":
-        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(), userAction.getCode());
+        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(),
+                                          userAction.getCode());
       case "resetPassword":
-        return userService.resetPasswordWithOld(headers.getFirst("Cookie"), userAction.getPassword(), userAction.getNewPassword(), userAction.getConfirmPassword());
+        return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
+                                                  userAction.getConfirmPassword());
       case "deleteCredential":
-        return userService.deleteCredential(headers.getFirst("Cookie"), userAction.getUuid());
+        return userService.deleteCredential(cookie, userAction.getUuid());
       case "deleteHistory":
-        return userService.deleteHistory(headers.getFirst("Cookie"), userAction.getUri());
+        return userService.deleteHistory(cookie, userAction.getUri());
       case "isAdmin":
-        return userService.isAdmin(headers.getFirst("cookie"));
+        return userService.isAdmin(cookie);
       case "resendVerificationCode":
         return userService.resendVerificationCode(userAction.getEmail());
       default:
@@ -77,7 +82,7 @@ public class UserController {
 
   @GetMapping
   public Object getHistory(@RequestHeader HttpHeaders headers) {
-    return userService.getHistory(headers.getFirst("Cookie"));
+    return userService.getHistory(headers.getFirst(ODSConstants.COOKIE));
   }
 
   @ExceptionHandler(InvalidField.class)
