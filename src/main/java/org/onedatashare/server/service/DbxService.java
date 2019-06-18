@@ -24,22 +24,22 @@ public class DbxService implements ResourceService<DbxResource>{
   private JobService jobService;
 
   public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
-    final String path = pathFromDbxUri(userAction.uri);
+    final String path = pathFromDbxUri(userAction.getUri());
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
-            .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
-            .map(credential -> new DbxSession(URI.create(userAction.uri), credential))
+            .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+            .map(credential -> new DbxSession(URI.create(userAction.getUri()), credential))
             .flatMap(DbxSession::initialize)
             .flatMap(dbxSession -> dbxSession.select(path));
   }
 
   public Mono<DbxResource> getDbxResourceWithJobSourceOrDestination(String cookie, UserActionResource userActionResource) {
-    final String path = pathFromDbxUri(userActionResource.uri);
+    final String path = pathFromDbxUri(userActionResource.getUri());
     return userService.getLoggedInUser(cookie)
             .map(User::getCredentials)
             .map(uuidCredentialMap ->
-                    uuidCredentialMap.get(UUID.fromString(userActionResource.credential.getUuid())))
-            .map(credential -> new DbxSession(URI.create(userActionResource.uri), credential))
+                    uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
+            .map(credential -> new DbxSession(URI.create(userActionResource.getUri()), credential))
             .flatMap(DbxSession::initialize)
             .flatMap(dbxSession -> dbxSession.select(path));
   }
@@ -75,7 +75,7 @@ public class DbxService implements ResourceService<DbxResource>{
   public Mono<Job> submit(String cookie, UserAction userAction) {
     return userService.getLoggedInUser(cookie)
             .map(user -> {
-              Job job = new Job(userAction.src, userAction.dest);
+              Job job = new Job(userAction.getSrc(), userAction.getDest());
               job.setStatus(JobStatus.scheduled);
               job = user.saveJob(job);
               userService.saveUser(user).subscribe();

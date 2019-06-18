@@ -21,6 +21,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Mono;
 import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 
@@ -108,7 +109,6 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             if(getCredential() instanceof OAuthCredential){
                 try {
                     service = getDriveService(((OAuthCredential) getCredential()).token);
-                    System.out.println("Service: "+service);
                 } catch (Throwable t) {
                     s.error(t);
                 }
@@ -162,12 +162,12 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                 requestInitializer.initialize(httpRequest);
                 httpRequest.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
                 httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
-                }catch(IOException ioe){
-                    System.out.println("IOException occurred in GoogleDriveSession.setHttpTimeout() - " + ioe.getMessage());
-                    ioe.printStackTrace();
-                }catch(NullPointerException npe){
-                    System.out.println("IOException occurred in GoogleDriveSession.setHttpTimeout() - " + npe.getMessage());
-                    npe.printStackTrace();
+                }
+                catch(IOException ioe){
+                    ODSLoggerService.logError("IOException occurred in GoogleDriveSession.setHttpTimeout()", ioe);
+                }
+                catch(NullPointerException npe){
+                    ODSLoggerService.logError("IOException occurred in GoogleDriveSession.setHttpTimeout()", npe);
                 }
             }
         };
@@ -188,7 +188,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
         //Updating the access token for googledrive using refresh token
         OAuthCredential cred = (OAuthCredential) getCredential();
         try{
-            System.out.println("\nOld AccessToken: "+cred.token+"\n"+cred.refreshToken);
+            ODSLoggerService.logInfo("Old AccessToken: "+cred.token+"\tRefresh token: "+cred.refreshToken);
             GoogleDriveOauthService.GoogleDriveConfig c = new GoogleDriveOauthService.GoogleDriveConfig();
             //GoogleCredential refreshTokenCredential = new GoogleCredential.Builder().setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).setClientSecrets(c.client_id, c.client_secret).build().setRefreshToken(cred.refreshToken);
             TokenResponse response = new GoogleRefreshTokenRequest(new NetHttpTransport(), new JacksonFactory(),
@@ -202,7 +202,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             cred.expiredTime = calendar.getTime();
 
             flow.createAndStoreCredential(response, cred.token);
-            System.out.println("New AccessToken:"+response.getAccessToken()+" RefreshToken:"+cred.refreshToken);
+            ODSLoggerService.logInfo("New AccessToken:"+response.getAccessToken()+" RefreshToken:"+cred.refreshToken);
         }catch (IOException e){
             e.printStackTrace();
         }
