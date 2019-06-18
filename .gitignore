@@ -83,4 +83,6 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 src/react-front-end/node_modules
+output.log
+Dockerfile
 logs/*.log
