@@ -75,9 +75,9 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public String pathFromUri(String uri) {
         String path = "";
         if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
-            path = uri.split(ODSConstants.DROPBOX_URI_SCHEME)[1];
-        }else if(uri.contains("googledrive:/")){
-            path = uri.split("googledrive:")[1];
+            path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
+        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+            path = uri.substring(ODSConstants.DRIVE_URI_SCHEME.length() - 1);
         }else path = uri;
 
         try {
@@ -89,11 +89,12 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) || userActionResource.getUri().contains("googledrive:/")){
+        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)){
             return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-        }else if(userActionResource.getUri().equals("Upload")){
+        }else if(userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)){
             return userActionResource.getUploader();
-        }else if(userActionResource.getUri().startsWith("gsiftp://")){
+        }else if(userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)){
 
             GlobusClient gc = userService.getGlobusClientFromUser(user);
             return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
@@ -105,10 +106,10 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Session createSession(String uri, Credential credential) {
         if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
             return new DbxSession(URI.create(uri), credential);
-        }else if(uri.contains("Upload")){
+        }else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)){
             UploadCredential upc = (UploadCredential)credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        }else if(uri.contains("googledrive:/")){
+        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
             return new GoogleDriveSession(URI.create(uri), credential);
         }else if(credential instanceof GlobusWebClientCredential){
             return new GridftpSession(URI.create(uri), credential);

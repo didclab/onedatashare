@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
@@ -41,7 +42,7 @@ public class OauthController {
 
   @GetMapping(value = "/googledrive")
   public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
-    String cookie = headers.getFirst("cookie");
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
     return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
             .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
             .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
@@ -50,7 +51,7 @@ public class OauthController {
 
   @GetMapping(value = "/dropbox")
   public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
-    String cookie = headers.getFirst("cookie");
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
     return dbxOauthService.finish(queryParameters.get("code"), cookie)
             .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
             .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
@@ -59,7 +60,7 @@ public class OauthController {
 
   @GetMapping(value = "/gridftp")
   public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
-    String cookie = headers.getFirst("cookie");
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
     return gridftpAuthService.finish(queryParameters.get("code"))
             .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
             .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
@@ -67,7 +68,7 @@ public class OauthController {
 
   @GetMapping
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-    String cookie = headers.getFirst("cookie");
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
 
       if(queryParameters.get("type").equals(googledrive) ){
         return userService.userLoggedIn(cookie)

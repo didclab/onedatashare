@@ -294,7 +294,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         StringBuilder downloadURL = new StringBuilder();
 
         if (username != null)
-            downloadURL.append("ftp://" + username + ':' + password + '@' + downloadLink.substring(6));
+            downloadURL.append(ODSConstants.FTP_URI_SCHEME + username + ':' + password + '@' + downloadLink.substring(6));
         else
             downloadURL.append(downloadLink);
         downloadLink = downloadURL.toString();

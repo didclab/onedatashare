@@ -115,23 +115,23 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public void fixSCPUri(UserAction userAction){
-        if(userAction.getType().equals("scp://")){
-            userAction.setType("sftp://");
-            userAction.setUri("sftp://" + userAction.getUri().substring(6));
+        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
+            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
+            userAction.setUri(ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(6));
         }
     }
 
     public void fixSCPUri(UserActionResource userAction){
-        if(userAction.getType().equals("scp://")){
-            userAction.setType( "sftp://" );
-            userAction.setUri( "sftp://" + userAction.getUri().substring(FTP_URL_OFFSET) );
+        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
+            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
+            userAction.setUri( ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(FTP_URL_OFFSET) );
         }
     }
 
     public String pathFromUri(String uri) {
         String path = "";
         if (uri.contains(ODSConstants.DROPBOX_URI_SCHEME)) {
-            path = uri.split(ODSConstants.DROPBOX_URI_SCHEME)[1];
+            path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
         } else path = uri;
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
