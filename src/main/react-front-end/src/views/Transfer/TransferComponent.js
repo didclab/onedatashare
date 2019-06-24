@@ -80,6 +80,7 @@ export default class TransferComponent extends Component {
   }
 
   sendFile = (processed) => {
+    console.log(processed);
     if(processed.selectedTasks.length == 0){
       eventEmitter.emit("errorOccured", "You did not select any files!");
       return 0;

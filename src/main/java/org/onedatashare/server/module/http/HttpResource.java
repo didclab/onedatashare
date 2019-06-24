@@ -15,10 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLConnection;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -33,7 +30,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     @Override
     public Mono<HttpResource> select(String path) {
-        System.out.println("Error!!!!");
         return null;
     }
 
@@ -144,15 +140,17 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
                 Connection.Response resp = Jsoup.connect(uri).execute();
 
-                System.out.println("Type "  + resp.contentType());
+                System.out.println("Type " + resp.contentType());
 
-                if(!resp.contentType().contains("html"))
+                if (!resp.contentType().contains("html"))
                     throw new Exception("Not a html page");
 
                 document = Jsoup.connect(uri).get();
                 Elements elements = document.select("a[href]");
 
+
                 stat.name = uri.substring(uri.lastIndexOf('/') + 1);
+                System.out.println("Name is  " + stat.name);
                 stat.dir = true;
                 stat.file = false;
 
@@ -163,14 +161,14 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     Stat tempStat = new Stat();
                     tempStat.dir = false;
                     tempStat.file = true;
-                    tempStat.name = e.text();
+                    tempStat.name = "/" + e.text();
                     System.out.println("Added " + tempStat.name);
                     try {
                         tempStat.size = VFS.getManager().resolveFile(uri + "/" + tempStat.name).getContent().getSize();
                         tempStat.id = uri + "/" + tempStat.name;
                         totalSize += tempStat.size;
                         fileList.add(tempStat);
-                    } catch (Exception e1){
+                    } catch (Exception e1) {
                         System.out.println("Skipped " + tempStat.name);
                     }
                 }
@@ -179,9 +177,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 exception = true;
             }
 
-        if(exception)
+        if (exception)
             try {
-                System.out.println("Type 2");
+                System.out.println("Type 2 File transfer");
                 fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
                 // Get the hostname from the uri
                 stat.name = getName(uri);
@@ -197,9 +195,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 e.printStackTrace();
                 return null;
             }
+        stat.setFiles(fileList);
         stat.setFilesList(fileList);
         stat.setSize(totalSize);
 
+        boolean z = true;
         return stat;
     }
 
@@ -215,26 +215,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         if (splitURI.length > 0)
             name = splitURI[splitURI.length - 1];
         return name;
-    }
-
-    private static int fetchFileSize(String urlString) {
-        URL url;
-        URLConnection conn = null;
-        try {
-            url = new URL(urlString);
-            conn = url.openConnection();
-            if (conn instanceof HttpURLConnection) {
-                ((HttpURLConnection) conn).setRequestMethod("HEAD");
-            }
-            conn.getInputStream();
-            return conn.getContentLength();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn instanceof HttpURLConnection) {
-                ((HttpURLConnection) conn).disconnect();
-            }
-        }
     }
 
     private static class SizeParser {
@@ -283,7 +263,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
             FileSystemManager fileSystemManager;
-            FileSystemOptions fileSystemOptions;
             try {
                 System.out.println(stat.id);
                 fileSystemManager = VFS.getManager();
