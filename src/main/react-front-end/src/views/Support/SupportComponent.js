@@ -97,7 +97,7 @@ export default class SupportComponent extends Component{
                 required
                 label = 'Email Address'
                 name = 'email'
-                value = { store.getState().email.replace('noemail','') }
+                value = { (store.getState().email === "noemail" ? "" : store.getState().email) }
                 onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />
