@@ -1,6 +1,7 @@
 package org.onedatashare.server.module.http;
 
 import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.provider.http.HttpFileSystemConfigBuilder;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -137,7 +138,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         // Fetch the document
         if (!uri.endsWith("/"))
             try {
-
                 Connection.Response resp = Jsoup.connect(uri).execute();
 
                 System.out.println("Type " + resp.contentType());
@@ -147,7 +147,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
                 document = Jsoup.connect(uri).get();
                 Elements elements = document.select("a[href]");
-
 
                 stat.name = uri.substring(uri.lastIndexOf('/') + 1);
                 System.out.println("Name is  " + stat.name);
@@ -162,10 +161,10 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     tempStat.dir = false;
                     tempStat.file = true;
                     tempStat.name = "/" + e.text();
-                    System.out.println("Added " + tempStat.name);
                     try {
                         tempStat.size = VFS.getManager().resolveFile(uri + "/" + tempStat.name).getContent().getSize();
                         tempStat.id = uri + "/" + tempStat.name;
+                        System.out.println("ID "  + tempStat.id);
                         totalSize += tempStat.size;
                         fileList.add(tempStat);
                     } catch (Exception e1) {
@@ -187,7 +186,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 stat.id = uri;
                 stat.dir = false;
                 stat.file = true;
-                fileResource = true;
                 totalSize += stat.size;
                 fileList.add(stat);
             } catch (FileSystemException e) {
@@ -199,7 +197,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         stat.setFilesList(fileList);
         stat.setSize(totalSize);
 
-        boolean z = true;
         return stat;
     }
 
@@ -262,11 +259,18 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
-            FileSystemManager fileSystemManager;
+
             try {
                 System.out.println(stat.id);
-                fileSystemManager = VFS.getManager();
-                FileObject fileObject = fileSystemManager.resolveFile(stat.id);
+                FileSystemOptions fs = new FileSystemOptions();
+                HttpFileSystemConfigBuilder.getInstance().setFollowRedirect(fs, true);
+
+                HttpFileSystemConfigBuilder.getInstance().setConnectionTimeout(fs, 5000);
+                HttpFileSystemConfigBuilder.getInstance().setMaxConnectionsPerHost(fs, 99);
+                HttpFileSystemConfigBuilder.getInstance().setMaxTotalConnections(fs, 99);
+
+                HttpFileSystemConfigBuilder.getInstance().setPreemptiveAuth(fs, false);
+                FileObject fileObject = VFS.getManager().resolveFile(stat.id, fs);
                 fileContent = fileObject.getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
@@ -294,7 +298,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b, 0, sliceSizeInt);
+                                finalInputStream.read(b);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -303,12 +307,19 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
-                                finalInputStream.read(b, 0, remaining);
-                            } catch (IOException e) {
+                                int offset = 0;
+                                for(; offset < remaining-1; offset+=1){
+                                    finalInputStream.read(b, offset, 1);
+                                }
+                                finalInputStream.read(b, offset, remaining-offset);
+
+                                sink.next(new Slice(b));
+                                finalInputStream.close();
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
-                            sink.next(new Slice(b));
                             sink.complete();
+                            return state + remaining;
                         }
                         return state + sliceSizeInt;
                     });
