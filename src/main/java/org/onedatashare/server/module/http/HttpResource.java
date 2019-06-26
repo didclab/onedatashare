@@ -160,7 +160,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     try {
                         tempStat.setSize(VFS.getManager().resolveFile(uri + "/" + tempStat.getName()).getContent().getSize());
                         tempStat.setId(uri + "/" + tempStat.getName());
-                        System.out.println("ID "  + tempStat.getId());
+                        System.out.println("ID " + tempStat.getId());
                         totalSize += tempStat.getSize();
                         fileList.add(tempStat);
                     } catch (Exception e1) {
@@ -283,7 +283,8 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b);
+                                for(int offset = 0; offset < sliceSizeInt; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -291,22 +292,15 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         } else {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
-
-                            // Fix for corrupted PDF Files - Added by Yifu
                             try {
-                                int offset = 0;
-                                for(; offset < remaining-1; offset+=1){
+                                for(int offset = 0; offset < remaining; offset+=1)
                                     finalInputStream.read(b, offset, 1);
-                                }
-                                finalInputStream.read(b, offset, remaining-offset);
-
                                 sink.next(new Slice(b));
                                 finalInputStream.close();
+                                sink.complete();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
-                            sink.complete();
                             return state + remaining;
                         }
                         return state + sliceSizeInt;

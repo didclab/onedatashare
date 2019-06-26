@@ -75,6 +75,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             else {
                 stat = fileContentToStat(fileObject);
+                stat.setDir(false);
+                stat.setFile(true);
             }
             stat.setName(fileObject.getName().getBaseName());
 
@@ -103,16 +105,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             else if(file.isFile()){
                 stat.setFile(true);
-                stat.setDir(true);
+                stat.setDir(false);
                 stat.setSize(fileContent.getSize());
-            }else if(file.exists()){
-                stat.setFile(true);
-                stat.setDir(true);
-            }else{
-                stat.setName(file.getName().getBaseName());
-                stat.setFile(true);
-                stat.setDir(true);
-                return stat;
             }
             stat.setName(file.getName().getBaseName());
             stat.setTime(fileContent.getLastModifiedTime() / 1000);
@@ -222,7 +216,8 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b, 0, sliceSizeInt);
+                                for(int offset = 0; offset < sliceSizeInt; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -231,12 +226,15 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
-                                finalInputStream.read(b, 0, remaining);
+                                for(int offset = 0; offset < remaining; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
+                                finalInputStream.close();
+                                sink.next(new Slice(b));
+                                sink.complete();
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            sink.next(new Slice(b));
-                            sink.complete();
                         }
                         return state + sliceSizeInt;
                     });
