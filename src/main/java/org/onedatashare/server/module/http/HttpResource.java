@@ -41,7 +41,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         Stat stat = new Stat();
 
         // Get the hostname from the uri
-        stat.name = URI.create(uri).toString();
+        stat.setName(URI.create(uri).toString());
 
         Document document;
 
@@ -74,21 +74,21 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
                 contentStat = new Stat();
                 if (fileName.endsWith("/")) {
-                    contentStat.name = fileName.substring(0, fileName.length() - 1);
-                    contentStat.dir = true;
-                    contentStat.file = false;
+                    contentStat.setName(fileName.substring(0, fileName.length() - 1));
+                    contentStat.setDir(true);
+                    contentStat.setFile(false);
                 } else {
-                    contentStat.name = fileName;
-                    contentStat.dir = false;
-                    contentStat.file = true;
-                    contentStat.size = SizeParser.getBytes(rowContent.get(3).text());
+                    contentStat.setName(fileName);
+                    contentStat.setDir(false);
+                    contentStat.setFile(true);
+                    contentStat.setSize(SizeParser.getBytes(rowContent.get(3).text()));
                 }
 
                 if (!dateString.equals("")) {
                     Date d = null;
                     try {
                         d = sdf.parse(dateString);
-                        contentStat.time = d.getTime() / 1000L;
+                        contentStat.setTime(d.getTime() / 1000L);
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -105,13 +105,13 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 if (fileName.equals("Parent Directory"))
                     continue;
                 if (fileName.endsWith("/")) {
-                    contentStat.name = fileName.substring(0, fileName.length() - 1);
-                    contentStat.dir = true;
-                    contentStat.file = false;
+                    contentStat.setName(fileName.substring(0, fileName.length() - 1));
+                    contentStat.setDir(true);
+                    contentStat.setFile(false);
                 } else {
-                    contentStat.name = fileName;
-                    contentStat.dir = false;
-                    contentStat.file = true;
+                    contentStat.setName(fileName);
+                    contentStat.setDir(false);
+                    contentStat.setFile(true);
                 }
                 contents.add(contentStat);
             }
@@ -144,27 +144,27 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 document = Jsoup.connect(uri).get();
                 Elements elements = document.select("a[href]");
 
-                stat.name = uri.substring(uri.lastIndexOf('/') + 1);
-                System.out.println("Name is  " + stat.name);
-                stat.dir = true;
-                stat.file = false;
+                stat.setName(uri.substring(uri.lastIndexOf('/') + 1));
+                System.out.println("Name is  " + stat.getName());
+                stat.setDir(true);
+                stat.setFile(false);
 
                 for (Element e : elements) {
                     // Ignore Folders
                     if (e.text().endsWith("/"))
                         continue;
                     Stat tempStat = new Stat();
-                    tempStat.dir = false;
-                    tempStat.file = true;
-                    tempStat.name = "/" + e.text();
+                    tempStat.setDir(false);
+                    tempStat.setFile(true);
+                    tempStat.setName("/" + e.text());
                     try {
-                        tempStat.size = VFS.getManager().resolveFile(uri + "/" + tempStat.name).getContent().getSize();
-                        tempStat.id = uri + "/" + tempStat.name;
-                        System.out.println("ID "  + tempStat.id);
-                        totalSize += tempStat.size;
+                        tempStat.setSize(VFS.getManager().resolveFile(uri + "/" + tempStat.getName()).getContent().getSize());
+                        tempStat.setId(uri + "/" + tempStat.getName());
+                        System.out.println("ID "  + tempStat.getId());
+                        totalSize += tempStat.getSize();
                         fileList.add(tempStat);
                     } catch (Exception e1) {
-                        System.out.println("Skipped " + tempStat.name);
+                        System.out.println("Skipped " + tempStat.getName());
                     }
                 }
             } catch (Exception e) {
@@ -175,12 +175,12 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             try {
                 fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
                 // Get the hostname from the uri
-                stat.name = getName(uri);
-                stat.size = fileObject.getContent().getSize();
-                stat.id = uri;
-                stat.dir = false;
-                stat.file = true;
-                totalSize += stat.size;
+                stat.setName(getName(uri));
+                stat.setSize(fileObject.getContent().getSize());
+                stat.setId(uri);
+                stat.setDir(false);
+                stat.setFile(false);
+                totalSize += stat.getSize();
                 fileList.add(stat);
             } catch (FileSystemException e) {
                 System.out.println("In exact stat: is this a folder???");
@@ -255,7 +255,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         public Flux<Slice> tap(Stat stat, long sliceSize) {
 
             try {
-                FileObject fileObject = VFS.getManager().resolveFile(stat.id);
+                FileObject fileObject = VFS.getManager().resolveFile(stat.getId());
                 fileContent = fileObject.getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();

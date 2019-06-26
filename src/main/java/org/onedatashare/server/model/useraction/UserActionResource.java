@@ -10,11 +10,11 @@ import java.util.ArrayList;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class  UserActionResource {
-  public String uri;
-  public String id;
-  public UserActionCredential credential;
+  private String uri;
+  private String id;
+  private UserActionCredential credential;
   @Transient
-  public UploadCredential uploader;
-  public ArrayList<IdMap> map;
-  public String type;
+  private UploadCredential uploader;
+  private ArrayList<IdMap> map;
+  private String type;
 }

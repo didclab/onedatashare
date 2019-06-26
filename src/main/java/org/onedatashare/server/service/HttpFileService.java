@@ -21,9 +21,9 @@ public class HttpFileService implements ResourceService<HttpResource> {
     private JobService jobService;
 
     public Mono<HttpResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        String path = pathFromUri(userAction.uri);
+        String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-                .map(user -> new HttpSession(URI.create(userAction.uri)))
+                .map(user -> new HttpSession(URI.create(userAction.getUri())))
                 .flatMap(HttpSession::initialize)
                 .flatMap(httpSession -> httpSession.select(path));
     }

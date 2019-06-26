@@ -52,13 +52,14 @@ public class DownloadController {
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-        if (userAction.uri.startsWith("dropbox://")) {
+        if (userAction.getUri().startsWith("dropbox://")) {
             return dbxService.getDownloadURL(cookie, userAction);
-        } else if ("googledrive:/".equals(userAction.type)) {
-            if (userAction.credential == null) {
+        } else if ("googledrive:/".equals(userAction.getType())) {
+            if (userAction.getCredential() == null)
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-            } else return resourceService.download(cookie, userAction);
-        } else if (userAction.uri.startsWith("ftp://")) {
+            else
+                return resourceService.download(cookie, userAction);
+        } else if (userAction.getUri().startsWith("ftp://")) {
             return vfsService.getDownloadURL(cookie, userAction);
         }
         return null;

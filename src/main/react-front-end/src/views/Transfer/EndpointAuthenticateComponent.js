@@ -27,7 +27,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {getType, getName} from '../../constants.js';
+import {getType, getName, getDefaultPortFromUri} from '../../constants.js';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -92,11 +92,11 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	historyListUpdateFromBackend = () => {
 		this.props.setLoading(true);
-		history("", (data) =>{
+		history("",-1, (data) =>{
 			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) == 0 })});
 			this.props.setLoading(false);
 		}, (error) => {
-			this._handleError(error);
+			this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
 			this.props.setLoading(false);
 		});
 	}
@@ -121,7 +121,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			portNumber: portNum
 		}
 		listFiles(url, endpointSet, null, (response) => {
-			history(url, (suc) => {
+			history(url, portNum, (suc) => {
 				console.log(suc)
 			}, (error) => {
 				this._handleError(error);
@@ -199,20 +199,25 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 	getHistoryListComponentFromList(historyList){
-		return historyList.map((v) =>
-			<ListItem button key={v} onClick={() => {
-				this.endpointCheckin(v, this.state.portNum, {}, (error) => {
+		return historyList.map((uri) =>
+			<ListItem button key={uri} onClick={() => {
+				const url = new URL(uri);
+				let portValue = url.port;
+				if(url.port.length === 0){
+					portValue = getDefaultPortFromUri(uri);
+				}
+				this.endpointCheckin(uri, portValue, {}, (error) => {
 					this._handleError("Please enter your credential.");
-					this.setState({url: v, authFunction : this.regularSignIn, settingAuth: true, needPassword: true});
+					this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
 				})
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
 		      </ListItemIcon>
-	          <ListItemText primary={v} />
+	          <ListItemText primary={uri}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteHistory(v, (accept) => {
+	            	deleteHistory(uri, (accept) => {
 	            		this.historyListUpdateFromBackend();
 	            	}, (error) => {
 	            		this._handleError("Delete History Failed");
@@ -239,11 +244,29 @@ export default class EndpointAuthenticateComponent extends Component {
     	}
 	}
 
+	globusSignIn = () => {
+		const { needPassword } = this.state;
+		
+		if(!needPassword){
+    		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+    			this.setState({needPassword: true});
+    		});
+    	}else{
+    		this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
+    			this._handleError("Authentication Failed");
+    		});
+    	}
+	}
+
     globusActivateSignin = () => {
     	const {endpointSelected} = this.state;
+    	this.props.setLoading(true);
 		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
+			this.props.setLoading(false);
+			endpointSelected.activated = true;
 			this.endpointModalLogin(endpointSelected);
 		}, (error) => {
+			this.props.setLoading(false);
 			this._handleError("Authentication Failed");
 		});
 	}
@@ -263,11 +286,13 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointModalLogin = (endpoint) => {
 		if(endpoint.activated === "false"){
-
+			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential.");
 			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
+			
 			this.setState({selectingEndpoint: false});
 			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
+				
     			this._handleError("Authentication Failed");
     		});
 		}
@@ -303,15 +328,23 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	}else if(loginType == GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
 		        	}else if(loginType == FTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "ftp://", portNum: 21});
+		        		let loginUri = "ftp://";
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
+		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType == SFTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: true, url: "sftp://", portNum: 22});
+		        		let loginUri = "sftp://";
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
+		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType == HTTP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "http://", portNum: 80});
+		        		let loginUri = "http://";
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
+		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType == SCP_TYPE){
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, needPassword: false, url: "scp://", portNum: 22});
+		        		let loginUri = "scp://";
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
+		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType == GRIDFTP_TYPE){
-		        		this.setState({selectingEndpoint: true});
+		        		this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
 		        	}
 		        }}>
 		          <ListItemIcon>

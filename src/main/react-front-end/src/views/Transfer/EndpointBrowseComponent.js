@@ -16,6 +16,7 @@ import RefreshButton from "@material-ui/icons/Refresh";
 import {listFiles} from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
+import {InputGroup, FormControl} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -55,8 +56,11 @@ export default class EndpointBrowseComponent extends Component {
 			shareUrl: "",
 			openAFolder: false,
 			addFolderName: "",
-			searchText: ""
+			searchText: "",
+			ignoreCase : false,
+			regex : false
 		};
+
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
@@ -70,6 +74,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.onWindowClick = this.onWindowClick.bind(this);
 		this.fileChangeHandler = this.fileChangeHandler.bind(this);
 		this._handleAddFolderTextFieldChange = this._handleAddFolderTextFieldChange.bind(this);
+
 		//this.props.setLoading(true);
 		if(this.state.directoryPath.length == 0)
 			this.getFilesFromBackend(props.endpoint);
@@ -293,8 +298,25 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		if(searchText.length > 0){
-			displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
-		}
+			if(this.state.regex){
+				var flags = this.state.ignoreCase? "i" : "";
+				try{
+					var regex = new RegExp(searchText, flags);
+					displayList = Object.keys(list).filter(key => regex.test(list[key].name));
+				} catch {
+					console.log("Invalid regex")
+				}	
+			}
+			else{
+				if(this.state.ignoreCase){
+					var keyword = searchText.toLowerCase()
+					displayList = Object.keys(list).filter(key => list[key].name.toLowerCase().includes(keyword));
+				}
+				else
+					displayList = Object.keys(list).filter(key => list[key].name.includes(searchText));
+			}
+		} 
+		
 
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
@@ -446,12 +468,51 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputBase style={{padding: "4px",marginLeft: 8, flex: 1, background: "white", borderRadius: "5px", overflow: "hidden"}} placeholder="Search Files And Folders" onChange={(event) => {
-		      	this.setState({searchText: event.target.value})
-		      }}/>
+				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+					<FormControl placeholder="Search"
+						onChange={(event) => {
+							this.setState({searchText: event.target.value})
+						}}/>
+					<InputGroup.Button>	
+					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
+						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
+						onClick={() => {
+							this.setState({ignoreCase : !this.state.ignoreCase})
+							var propertyStatus = this.state.ignoreCase;
+							var property = document.getElementById("ignoreCase");
+							if(!propertyStatus){
+								property.style.backgroundColor = "#337AB6";
+								property.style.color = "white";
+							}
+							else{
+								property.style.color = "black";
+								property.style.backgroundColor = "white";
+								}
+							} 
+						}>Aa</Button>
+					</OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
+						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
+						 onClick={() => {
+							var propertyStatus = this.state.regex;
+							var property = document.getElementById("regex");
+							if(!propertyStatus){
+								property.style.backgroundColor = "#337AB6";
+								property.style.color = "white";
+							}
+							else{
+								property.style.color = "black";
+								property.style.backgroundColor = "white";
+							}
+						this.setState({regex : !this.state.regex})
+							} 
+						}><b>*.</b></Button>
+					</OverlayTrigger>
+					</InputGroup.Button>
+				</InputGroup>
 			</div>
 
-
+			
 			<Droppable droppableId={endpoint.side} > 
 				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
 					<div

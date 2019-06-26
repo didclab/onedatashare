@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.error.DuplicateCredentialException;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.service.oauth.DbxOauthService;
@@ -83,14 +84,14 @@ public class OauthController {
 
   @ExceptionHandler(NotFound.class)
   public Object handle(NotFound notfound) {
-    System.out.println(notfound.status);
+    ODSLoggerService.logError(notfound.status.toString());
     return Rendering.redirectTo("/404").build();
 
   }
 
   @ExceptionHandler(DuplicateCredentialException.class)
   public Object handleDup(DuplicateCredentialException dce) {
-    System.out.println(dce.status);
+    ODSLoggerService.logError(dce.status.toString());
     return Rendering.redirectTo("/transfer").build();
     //return new ResponseEntity<>(notfound, notfound.status);
   }

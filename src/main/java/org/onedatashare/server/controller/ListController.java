@@ -35,11 +35,12 @@ public class ListController {
     @Autowired
     private HttpFileService httpService;
 
+
     @PostMapping
     public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
         String cookie = headers.getFirst("cookie");
-        if (userAction.credential == null) {
-            switch (userAction.type) {
+        if (userAction.getCredential() == null) {
+            switch (userAction.getType()) {
                 case "dropbox:///":
                 case "googledrive:/":
                 case "gsiftp://":
@@ -47,7 +48,7 @@ public class ListController {
             }
         }
 
-        switch (userAction.type) {
+        switch (userAction.getType()) {
             case "dropbox:///":
                 return dbxService.list(cookie, userAction);
             case "googledrive:/":
@@ -59,7 +60,6 @@ public class ListController {
             case "ftp://":
                 return vfsService.list(cookie, userAction);
             case "http://":
-            case "https://":
                 return httpService.list(cookie, userAction);
             default:
                 return null;

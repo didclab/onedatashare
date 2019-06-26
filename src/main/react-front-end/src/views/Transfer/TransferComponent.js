@@ -26,7 +26,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-import {history, submit} from "../../APICalls/APICalls";
+import {submit} from "../../APICalls/APICalls";
 import {endpointUpdate} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
@@ -36,8 +36,9 @@ import {getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTr
 import {eventEmitter} from "../../App.js";
 import Slider from '@material-ui/lab/Slider';
 
-
 import Switch from '@material-ui/core/Switch';
+
+import ErrorMessagesConsole from '../ErrorMessagesConsole';
 
 export default class TransferComponent extends Component {
 
@@ -60,7 +61,7 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: false
+      compact: true
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -124,7 +125,7 @@ export default class TransferComponent extends Component {
 
     submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
       setBeforeTransferReorder(processed);
-      eventEmitter.emit("errorOccured", "Transfer Scheduled!")
+      eventEmitter.emit("messageOccured", "Transfer Scheduled!")
     }, (error)=>{
       eventEmitter.emit("errorOccured", error);
     })
@@ -154,7 +155,6 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent1(){
      const {mode1, endpoint1,history, compact} = this.state;
-     console.log("asdsaDAS\n\n\n")
     return <BrowseModuleComponent 
       id="browserleft"
       mode={mode1} 
@@ -356,8 +356,8 @@ export default class TransferComponent extends Component {
                   />
                   <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
                 </FormControl>
-              
               </Panel.Body>
+              
             </Panel>
   }
   render() {
@@ -397,7 +397,6 @@ export default class TransferComponent extends Component {
 
             </Panel.Heading>
             <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-              
                 <Row style={{flexDirection: 'column'}}>
                   <DragDropContext 
                     onDragStart={this.onDragStart}
@@ -417,6 +416,7 @@ export default class TransferComponent extends Component {
                 </Row>
             
 
+              <ErrorMessagesConsole/>
             </Panel.Body>
           </Panel>
 
@@ -464,6 +464,7 @@ export default class TransferComponent extends Component {
               }
               label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
             />
+            <ErrorMessagesConsole/>
             </Panel.Body>
             </Panel>
           }

@@ -17,7 +17,7 @@ public class HttpSession extends Session<HttpSession, HttpResource> {
     * Ignoring path and idMap (Not used)
      */
     public Mono<HttpResource> select(String path, String id, ArrayList<IdMap> idMap) {
-        return Mono.just(new HttpResource(this, uri.toString()));
+        return Mono.just(new HttpResource(this, getUri().toString()));
     }
 
     @Override
@@ -27,6 +27,6 @@ public class HttpSession extends Session<HttpSession, HttpResource> {
 
     @Override
     public Mono<HttpResource> select(String path){
-        return Mono.just(new HttpResource(this, uri.toString()));
+        return Mono.just(new HttpResource(this, getUri().toString()));
     }
 }

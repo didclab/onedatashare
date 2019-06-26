@@ -10,41 +10,53 @@ public class Stat {
   /**
    * The id of the resource (Used in Google Drive SDK for now)
    */
-  public String id;
+  private String id;
+
   /**
    * The name of the resource.
    */
-  public String name;
+  private String name;
+
   /**
    * The size of the resource in bytes.
    */
-  public long size;
+  private long size;
+
   /**
    * The modification time of the resource in Unix time.
    */
-  public long time;
+  private long time;
+
   /**
    * Whether or not the resource is a directory.
    */
-  public boolean dir;
+  private boolean dir;
+
   /**
    * Whether or not the resource is a file.
    */
-  public boolean file;
+  private boolean file;
+
   /**
    * If the resource is a link, the link target.
    */
-  public String link;
+  private String link;
+
   /**
    * An implementation-specific permissions string.
    */
-  public String perm;
+  private String permissions;
+
   /**
    * An array of subresources, if known.
    */
-  public Stat[] files;
+  private Stat[] files;
 
-  public List<Stat> filesList;
+  /**
+   * List of files in the Stat
+   * Holds relative paths of all the children in case of a folder
+   */
+  private List<Stat> filesList;
 
   private transient long total_size = -1;
   private transient long total_num = 0;
@@ -89,7 +101,7 @@ public class Stat {
     dir = ft.dir;
     file = ft.file;
     link = ft.link;
-    perm = ft.perm;
+    permissions = ft.permissions;
     return this;
   }
 

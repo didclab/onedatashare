@@ -66,8 +66,23 @@ export const showType={
 	https : HTTP_TYPE
 }
 
+export const defaultPort={
+	dropbox: -1,
+	googledrive: -1,
+	ftp : 21,
+	sftp : 22,
+	http : 80,
+	gsiftp : -1,
+	scp : 22,
+	https : 443
+}
+
 export function getType(endpoint){
-	return showType[endpoint.uri.split(":")[0].toLowerCase()]
+	return getTypeFromUri(endpoint.uri)
+}
+
+export function getDefaultPortFromUri(uri){
+	return defaultPort[uri.split(":")[0].toLowerCase()]
 }
 
 export function getTypeFromUri(uri){

@@ -10,6 +10,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.UUID;
 
+/**
+ * Model that holds transfer job information.
+ * Represents the document that is eventually stored in the MongoDB Job collection.
+ */
 @Document
 @Data
 public class Job {

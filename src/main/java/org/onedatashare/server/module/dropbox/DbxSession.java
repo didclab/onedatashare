@@ -2,6 +2,7 @@ package org.onedatashare.server.module.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
+import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
@@ -10,11 +11,11 @@ import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
+@Data
 public class DbxSession extends Session<DbxSession, DbxResource> {
-  DbxClientV2 client;
+  private DbxClientV2 client;
 
   public DbxSession(URI uri, Credential cred) {
     super(uri, cred);
@@ -24,10 +25,12 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
   public Mono<DbxResource> select(String path) {
     return Mono.just(new DbxResource(this, path));
   }
+
   @Override
   public Mono<DbxResource> select(String path, String id) {
     return Mono.just(new DbxResource(this, path));
   }
+
   @Override
   public Mono<DbxResource> select(String path, String id, ArrayList<IdMap> idMap) {
     return Mono.just(new DbxResource(this, path));
@@ -35,8 +38,8 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
   @Override
   public Mono<DbxSession> initialize() {
     return Mono.create(s -> {
-      if(credential instanceof OAuthCredential){
-        OAuthCredential oauth = (OAuthCredential) credential;
+      if(getCredential() instanceof OAuthCredential){
+        OAuthCredential oauth = (OAuthCredential) getCredential();
         DbxRequestConfig config =
                 DbxRequestConfig.newBuilder("OneDataShare-DIDCLab").build();
         client = new DbxClientV2(config, oauth.token);

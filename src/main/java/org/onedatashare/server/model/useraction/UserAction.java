@@ -9,33 +9,35 @@ import java.util.ArrayList;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAction {
-  public String action;
-  public String email;
-  public String firstName;
-  public String lastName;
-  public String organization;
-  public String password;
-  public String uri;
-  public String id;
-  public ArrayList<IdMap> map;
-  public String type;
-  public String uuid;
-  public String code;
-  public String confirmPassword;
-  public String newPassword;
-  public int depth;
-  public UserActionResource src;
-  public UserActionResource dest;
-  public UserActionCredential credential;
-  public Integer job_id;
+  private String action;
+  private String email;
+  private String firstName;
+  private String lastName;
+  private String organization;
+  private String password;
+  private String uri;
+  private String id;
+  private ArrayList<IdMap> map;
+  private String type;
+  private String uuid;
+  private String code;
+  private String confirmPassword;
+  private String newPassword;
+  private int depth;
+  private UserActionResource src;
+  private UserActionResource dest;
+  private UserActionCredential credential;
+  private Integer job_id;
 
-  public String filter_fulltext;
-  public EndPoint globusEndpoint;
-  public String username;
-  public boolean isAdmin;
+  private String filter_fulltext;
+  private EndPoint globusEndpoint;
+  private String username;
+  private boolean isAdmin;
 
-  public int pageNo;
-  public int pageSize;
-  public String sortBy;
-  public String sortOrder;
+  private int pageNo;
+  private int pageSize;
+  private String sortBy;
+  private String sortOrder;
+
+  private String portNumber;
 }

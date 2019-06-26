@@ -23,37 +23,39 @@ public class VfsService implements ResourceService<VfsResource> {
     @Autowired
     private JobService jobService;
 
+    private final Integer FTP_URL_OFFSET = 6;
+
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         fixSCPUri(userAction);
-        final String path = pathFromUri(userAction.uri);
+        final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userAction.credential))
-                .map(credential -> new VfsSession(URI.create(userAction.uri), credential))
-                .flatMap(VfsSession::initialize)
-                .flatMap(vfsSession -> vfsSession.select(path));
+            .map(user -> new UserInfoCredential(userAction.getCredential()))
+            .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
+            .flatMap(vfsSession -> vfsSession.initialize(userAction.getPortNumber()))
+            .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         fixSCPUri(userActionResource);
-        final String path = pathFromUri(userActionResource.uri);
+        final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userActionResource.credential))
-                .map(credential -> new VfsSession(URI.create(userActionResource.uri), credential))
+                .map(user -> new UserInfoCredential(userActionResource.getCredential()))
+                .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
 
-    public void fixSCPUri(UserAction userAction) {
-        if (userAction.type.equals("scp://")) {
-            userAction.type = "sftp://";
-            userAction.uri = "sftp://" + userAction.uri.substring(6);
+    public void fixSCPUri(UserAction userAction){
+        if(userAction.getType().equals("scp://")){
+            userAction.setType("sftp://");
+            userAction.setUri("sftp://" + userAction.getUri().substring(6));
         }
     }
 
-    public void fixSCPUri(UserActionResource userAction) {
-        if (userAction.type.equals("scp://")) {
-            userAction.type = "sftp://";
-            userAction.uri = "sftp://" + userAction.uri.substring(6);
+    public void fixSCPUri(UserActionResource userAction){
+        if(userAction.getType().equals("scp://")){
+            userAction.setType( "sftp://" );
+            userAction.setUri( "sftp://" + userAction.getUri().substring(FTP_URL_OFFSET) );
         }
     }
 
@@ -88,7 +90,7 @@ public class VfsService implements ResourceService<VfsResource> {
     public Mono<Job> submit(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
                 .map(user -> {
-                    Job job = new Job(userAction.src, userAction.dest);
+                    Job job = new Job(userAction.getSrc(), userAction.getDest());
                     job.setStatus(JobStatus.scheduled);
                     job = user.saveJob(job);
                     userService.saveUser(user).subscribe();

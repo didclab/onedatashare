@@ -1,7 +1,7 @@
 package org.onedatashare.server.service;
 
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
@@ -22,10 +22,12 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.mail.MessagingException;
 import java.net.URI;
 import java.util.*;
 
+/**
+ * Service class for all operations related to users' information.
+ */
 @Service
 public class UserService {
 
@@ -40,7 +42,7 @@ public class UserService {
   }
 
   public Mono<User> createUser(User user) {
-    user.registerMoment = System.currentTimeMillis();
+    user.setRegisterMoment(System.currentTimeMillis());
     return userRepository.insert(user);
   }
 
@@ -48,12 +50,12 @@ public class UserService {
 
   public Mono<User.UserLogin> login(String email, String password) {
 
-  //  User user = new User("vanditsa@buffalo.edu", "asdasd");
-  //  createUser(user).subscribe(System.out::println);
+//    User user = new User("vanditsa@buffalo.edu", "asdasd");
+//    createUser(user).subscribe(System.out::println);
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.email, user1.hash, user1.getPublicKey()))
+            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.getPublicKey()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
@@ -68,15 +70,16 @@ public class UserService {
         once the user goes through the whole User creation workflow, he/she can change the password.
       */
       // Means admin user exists in the DB
-      if(user.email!=null && user.email.equals(email)) {
-        System.out.println("User with email " + email + " already exists.");
-        if(!user.validated){
+      if(user.getEmail() != null && user.getEmail().equals(email)) {
+        ODSLoggerService.logWarning("User with email " + email + " already exists.");
+        if(!user.isValidated()){
           return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
         }else{
           return Mono.just(new Response("Account already exists",302));
         }
       }
-      return createUser(new User(email, firstName, lastName, organization, password)).flatMap(createdUser-> sendVerificationCode(createdUser.email, TIMEOUT_IN_MINUTES));
+      return createUser(new User(email, firstName, lastName, organization, password))
+                  .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
     });
   }
 
@@ -133,7 +136,7 @@ public class UserService {
         // This will allow the user to use the same verification code multiple times with in 24 hrs.
         user.setCode(null);
         user.setAuthToken(null);
-        user.validated = true;
+        user.setValidated(true);
         userRepository.save(user).subscribe();
         return Mono.just(true);
       }else{
@@ -142,20 +145,19 @@ public class UserService {
     });
   }
 
-  public Mono<Boolean> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
+  public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
     return getLoggedInUser(cookie).flatMap(user-> {
       if(!newpassword.equals(passwordConfirm)){
-        return Mono.error(new Exception("Password is not confirmed."));
+        ODSLoggerService.logError("Passwords don't match.");
+        return Mono.error(new Exception("Passwords don't match."));
       }else if(!user.checkPassword(oldpassword)){
+        ODSLoggerService.logError("Old Password is incorrect.");
         return Mono.error(new Exception("Old Password is incorrect."));
       }else{
         user.setPassword(newpassword);
-        System.out.println(user.checkPassword(newpassword));
-        //cookieToUserLogin(cookie).hash = user.hash;
-        //or
-        cookieToUserLogin(cookie).hash = user.hash(newpassword);
         userRepository.save(user).subscribe();
-        return Mono.just(true);
+        ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
+        return Mono.just(user.getHash());
       }
     });
   }
@@ -164,7 +166,14 @@ public class UserService {
     return userRepository.findById(email)
             .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
   }
-
+  public Mono<User> getUserFromCookie(String email, String cookie) {
+    return  getLoggedInUser(cookie).flatMap(user->{
+            if(user != null && user.getEmail().equals(email)){
+              return Mono.just(user);
+            }
+            return Mono.error(new Exception("No User found with Id: " + email));
+    });
+  }
   public Mono<User> saveUser(User user) {
     return userRepository.save(user);
   }
@@ -214,10 +223,10 @@ public class UserService {
 
   public Mono<Object> resendVerificationCode(String email) {
     return doesUserExists(email).flatMap(user -> {
-      if(user.email == null){
+      if(user.getEmail() == null){
         return Mono.just(new Response("User not registered",500));
       }
-      if(!user.validated){
+      if(!user.isValidated()){
         return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
       }else{
         return Mono.just(new Response("User account is already validated.",500));
@@ -226,7 +235,6 @@ public class UserService {
   }
 
   public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
-
     return getUser(email).flatMap(user -> {
       String code = RandomStringUtils.randomAlphanumeric(6);
       user.setVerifyCode(code, expire_in_minutes);
@@ -235,18 +243,20 @@ public class UserService {
         String subject = "OneDataShare Authorization Code";
         String emailText = "The authorization code for your OneDataShare account is : " + code;
         emailService.sendEmail(email, subject, emailText);
-      } catch (MessagingException mex) {
-        mex.printStackTrace();
+      }
+      catch (Exception ex) {
+        ex.printStackTrace();
         return Mono.error(new Exception("Email Sending Failed."));
       }
       return Mono.just(new Response("Success", 200));
     });
   }
 
-  public Mono<UserDetails> getAllUsers(UserAction userAction){
-    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllBy(PageRequest.of(userAction.pageNo,
-            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
+  public Mono<UserDetails> getAllUsers(UserAction userAction, String cookie){
+    Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin()) ?
+       userRepository.findAllBy(PageRequest.of(userAction.getPageNo(),
+            userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
             .collectList()
             .flatMap(users ->
                 userRepository.count()
@@ -255,27 +265,32 @@ public class UserService {
                       result.users = users;
                       result.totalCount = count;
                       return result;
-                    }));
+                    }))
+            : Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
-  public Mono<UserDetails> getAdministrators(UserAction userAction){
-    Sort.Direction direction = userAction.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-    return userRepository.findAllAdministrators(PageRequest.of(userAction.pageNo,
-            userAction.pageSize, Sort.by(direction, userAction.sortBy)))
-            .collectList()
-            .flatMap(users ->
-                  userRepository.countAdministrators()
-                          .map(count ->  {
-                            UserDetails result = new UserDetails();
-                            result.users = users;
-                            result.totalCount = count;
-                            return result;
-                          }));
+  public Mono<UserDetails> getAdministrators(UserAction userAction, String cookie){
+    Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    return getLoggedInUser(cookie).flatMap(user ->
+            (user != null && user.isAdmin()) ?
+                    userRepository.findAllAdministrators(PageRequest.of(userAction.getPageNo(),
+                        userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
+                        .collectList()
+                        .flatMap(users ->
+                              userRepository.countAdministrators()
+                                      .map(count ->  {
+                                        UserDetails result = new UserDetails();
+                                        result.users = users;
+                                        result.totalCount = count;
+                                        return result;
+                                      }))
+                    :
+                    Mono.error(new Exception("The logged in user is not an Admin.")));
   }
 
   public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
     return getUser(email).flatMap(user -> {
-      user.isAdmin = isAdmin;
+      user.setAdmin(isAdmin);
       userRepository.save(user).subscribe();
       return Mono.just(true);
     });
@@ -288,7 +303,7 @@ public class UserService {
 
   public Mono<Boolean> validate(String email, String authToken){
       return getUser(email).flatMap(user-> {
-        if(user.validated){
+        if(user.isValidated()){
           return Mono.error(new Exception("Already Validated"));
         }else if(user.getAuthToken() == null){
           return Mono.error(new Exception("Did not have Auth Token"));
@@ -324,7 +339,7 @@ public class UserService {
       }else if(expectedCode.code.equals(code)){
         user.setAuthToken(code+User.salt(12));
         userRepository.save(user).subscribe();
-        return Mono.just(user.authToken);
+        return Mono.just(user.getAuthToken());
       }else{
         return Mono.error(new Exception("Code not match"));
       }
@@ -337,7 +352,7 @@ public class UserService {
         return Mono.just(true);
       }else{
         return Mono.error(new Exception("Invalid email"));
-      }
+     }
     });
   }
 
@@ -414,7 +429,12 @@ public class UserService {
     return getLoggedInUser(cookie).map(user ->user.isAdmin());
   }
 
-
+  /**
+   * Service method that retrieves all existing credentials linked to a user account.
+   *
+   * @param cookie - Browser cookie string passed in the HTTP request to the controller
+   * @return a map containing all the endpoint credentials linked to the user account as a Mono
+   */
   public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
     return getLoggedInUser(cookie).map(User::getCredentials).map(
             credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
@@ -455,9 +475,9 @@ public class UserService {
 
   public User.UserLogin cookieToUserLogin(String cookie) {
     Map<String,String> map = new HashMap<String,String>();
-    Set<Cookie> cookies = CookieDecoder.decode(cookie);
+    Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
     for (Cookie c : cookies)
-      map.put(c.getName(), c.getValue());
+      map.put(c.name(), c.value());
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));

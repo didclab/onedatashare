@@ -15,6 +15,7 @@ import com.google.api.services.drive.DriveScopes;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -130,7 +131,8 @@ public class GoogleDriveOauthService{
 
             oauth.expiredTime = calendar.getTime();
 
-            System.out.println("TokenStore"+oauth.getToken()+"\n Refresh Token:"+oauth.refreshToken);
+            ODSLoggerService.logInfo("TokenStore " + oauth.getToken());
+            ODSLoggerService.logInfo("Refresh Token: " +oauth.refreshToken);
             flow.createAndStoreCredential(response, oauth.token);
             return oauth;
         }
@@ -157,7 +159,7 @@ public class GoogleDriveOauthService{
                 return Mono.just(oauth);
             });
         } catch (Exception e) {
-            System.out.println("Runtime exception occurred while finishing initializing Google drive oauth session");
+            ODSLoggerService.logError("Runtime exception occurred while finishing initializing Google drive oauth session");
             throw new RuntimeException(e);
         }
     }

@@ -9,11 +9,15 @@ import PropTypes from "prop-types";
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
+import { loadCSS } from 'fg-loadcss';
+import Icon from '@material-ui/core/Icon';
+
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
+import SvgIcon from '@material-ui/core/SvgIcon';
 
 const pickModule = 0;
 const inModule = 1;
@@ -26,30 +30,42 @@ export default class BrowseModuleComponent extends Component {
 		mode : PropTypes.number,
 		update : PropTypes.func,
 		type: PropTypes.string,
-		display: PropTypes.string
+		display: PropTypes.string 
 	}
 
 	constructor(props){
 		super(props);
+
+		const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
+			return (getType(currentState.endpoint1) === GRIDFTP_TYPE || getType(currentState.endpoint2) === GRIDFTP_TYPE) && (currentState.endpoint1.login || currentState.endpoint1.login);
+		}
+		const checkIfGridftpIsOpen = (currentState) => {
+			return (getType(currentState.endpoint1) === GRIDFTP_TYPE 
+				|| getType(currentState.endpoint2) === GRIDFTP_TYPE) 
+				|| !(currentState.endpoint1.login || currentState.endpoint1.login);
+		}
+
+
+		let constructState = store.getState();
+
 		this.state={
 			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) == 0 }),
 			creds: {},
 			endpoint: props.endpoint, 
 			mode: props.mode,
 			loading: false,
-			oneSideIsLoggedInAsGridftp: false
+			oneSideIsLoggedInAsGridftp: checkIfOneSideIsLoggedInAsGrid(constructState),
+			gridftpIsOpen: checkIfGridftpIsOpen(constructState)
 		};
 
 		this.unsubcribe = store.subscribe(() => {
 			let currentState = store.getState();
 			// Check if either side is logged in as GRID_FTP
-			let oneSideIsLoggedInAsGrid = (getType(currentState.endpoint1) === GRIDFTP_TYPE || getType(currentState.endpoint2) === GRIDFTP_TYPE);
-			if(oneSideIsLoggedInAsGrid && !this.state.oneSideIsLoggedInAsGridftp){
-				this.setState({oneSideIsLoggedInAsGridftp: true});
-			}else if(!oneSideIsLoggedInAsGrid && this.state.oneSideIsLoggedInAsGridftp){
-				this.setState({oneSideIsLoggedInAsGridftp: false});
+			let oneSideIsLoggedInAsGrid = checkIfOneSideIsLoggedInAsGrid(currentState);
+			let gridftpIsOpen = checkIfGridftpIsOpen(currentState);
+			if(oneSideIsLoggedInAsGrid != this.state.oneSideIsLoggedInAsGridftp || gridftpIsOpen != this.state.gridftpIsOpen){
+				this.setState({oneSideIsLoggedInAsGridftp: oneSideIsLoggedInAsGrid, gridftpIsOpen: gridftpIsOpen});
 			}
-     		
     	});
 
 		this.setLoading = this.setLoading.bind(this);
@@ -70,7 +86,12 @@ export default class BrowseModuleComponent extends Component {
 	_handleError = (msg) =>{
     	eventEmitter.emit("errorOccured", msg);
 	}
-
+	componentDidMount(){
+		loadCSS(
+	      'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
+	      document.querySelector('#font-awesome-css'),
+	    );
+	}
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
 		dropboxCredList((data) => {
@@ -91,7 +112,7 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp} = this.state;
+		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
 		const loginPrep = (uri) => (data) => {
 
@@ -107,35 +128,69 @@ export default class BrowseModuleComponent extends Component {
 			this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
-
-		const buttonStyle = {flexGrow: 1, width: "100%", fontSize: "12px"};
+		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
+		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
 	    return (
 	    // saved credential
 	    // login manually
 	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
 	      	{(!endpoint.login && mode == pickModule) &&
-	      	<div style={{height: "100%",display: "flex", flexDirection: "column"}}>
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
-		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
-		      	}}>DropBox</Button>}
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
-		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
-		      	}}>Google Drive</Button>}
-		      	<Button style={buttonStyle} onClick={() =>{
-		      		this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
-		      	}}>Grid FTP</Button>
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() => {
-		      		loginPrep(FTP_TYPE)()
-		      	}}>FTP</Button>}
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
-		      		loginPrep(SFTP_TYPE)()
-		      	}}>SFTP</Button>}
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
-		      		loginPrep(HTTP_TYPE)()
-		      	}}>HTTP</Button>}
-		      	{!oneSideIsLoggedInAsGridftp && <Button style={buttonStyle} onClick={() =>{
-		      		loginPrep(SCP_TYPE)()
-		      	}}>SSH</Button>}
+	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
+		      	{!oneSideIsLoggedInAsGridftp && 
+		      		<Button style={buttonStyle} onClick={() => {
+			      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
+			      	}}>
+			      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
+			      		DropBox
+			      	</Button>
+			    }
+		      	{!oneSideIsLoggedInAsGridftp && 
+			      	<Button style={buttonStyle} onClick={() => {
+			      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
+			      	}}>
+				      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
+				      	Google Drive
+			      	</Button>
+			    }
+		      	{gridftpIsOpen &&
+		      		<Button style={buttonStyle} onClick={() =>{
+		      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
+		      		}}>
+		      		<Icon className={'fas fa-server'} style={iconStyle}/>
+		      		Grid FTP
+		      	</Button>}
+		      	{!oneSideIsLoggedInAsGridftp && 
+		      		<Button style={buttonStyle} onClick={() => {
+			      		loginPrep(FTP_TYPE)()
+			      	}}>
+			      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
+			      		FTP
+		      		</Button>
+		      	}
+		      	{!oneSideIsLoggedInAsGridftp && 
+			      	<Button style={buttonStyle} onClick={() =>{
+			      		loginPrep(SFTP_TYPE)()
+			      	}}>
+			      		<Icon className={'fas fa-folder-open'} style={iconStyle}/>
+			      		SFTP
+			      	</Button>
+			    }
+		      	{!oneSideIsLoggedInAsGridftp && 
+		      		<Button style={buttonStyle} onClick={() =>{
+		      			loginPrep(HTTP_TYPE)()
+		      		}}>
+			      		<Icon className={'fas fa-globe'} style={iconStyle}/>
+			      		HTTP/HTTPS
+		      		</Button>
+		      	}
+		      	{!oneSideIsLoggedInAsGridftp && 
+		      		<Button style={buttonStyle} onClick={() =>{
+		      			loginPrep(SCP_TYPE)()
+		      		}}>
+		      			<Icon className={'fas fa-terminal'} style={iconStyle}/>
+		      			SSH
+		      		</Button>
+		      	}
 		    </div>}
 
 		    {(!endpoint.login && mode == inModule) &&

@@ -1,8 +1,6 @@
 package org.onedatashare.server.model.core;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,85 +17,72 @@ import java.util.*;
 @Document
 public class User {
 
-  /** User's email. */
-  @Id
-  public String email;
-  /** Hashed password. */
-  public String hash;
-  /** Salt used for hash. */
-  public String salt;
-  /** User first name. */
-  public String firstName;
-  /** User last name */
-  public String lastName;
-  /** User last Activity */
-  public Long lastActivity;
-  /** User Organization */
-  public String organization;
-  /** Temp code and expire date **/
-  public VerifyCode code;
+    /** User's email. */
+    @Id
+    private String email;
 
-    /**
-     * Set to true once the user has validated registration.
-     */
-    public boolean validated = false;
+    /** Hashed password. */
+    private String hash;
 
-    /**
-     * The validation token we're expecting.
-     */
+    /** Salt used for hash. */
+    private String salt;
+
+    /** User first name. */
+    private String firstName;
+
+    /** User last name */
+    private String lastName;
+
+    /** User last Activity */
+    private Long lastActivity;
+
+    /** User Organization */
+    private String organization;
+
+    /** Temp code and expire date **/
+    private VerifyCode code;
+
+    /** Set to true once the user has validated registration. */
+    private boolean validated = false;
+
+    /** The validation token we're expecting. */
     private String validationToken;
 
-    /**
-     * Set to true if user is administrator.
-     */
-    public boolean isAdmin = false;
-    /**
-     * Token for reset password.
-     */
-    public String authToken;
+    /** Set to true if user is administrator. */
+    private boolean isAdmin = false;
 
-    /**
-     * Time registered
-     */
-    public long registerMoment;
+    /** Token for reset password. */
+    private String authToken;
 
+    /** Registration time */
+    private long registerMoment;
 
-    /**
-     * Previously visited URIs.
-     */
-    public LinkedList<URI> history = new LinkedList<>();
+    /** Previously visited URIs. */
+    private LinkedList<URI> history = new LinkedList<>();
 
-    /**
-     * Previously visited URIs.
-     */
-    public Map<UUID, EndPoint> globusEndpoints = new HashMap<>();
+    /** Previously visited URIs. */
+    private Map<UUID, EndPoint> globusEndpoints = new HashMap<>();
 
-    /**
-     * Stored credentials.
-     */
-    public Map<UUID, Credential> credentials = new HashMap<>();
+    /** Stored credentials. */
+    private Map<UUID, Credential> credentials = new HashMap<>();
 
-    /**
-     * Job UUIDs with indices corresponding to job IDs.
-     */
+    /** Job UUIDs with indices corresponding to job IDs. */
     private HashSet<UUID> jobs = new HashSet<>();
 
-    /**
-     * No. of bits in the KeyPair
-     */
+    /** No. of bits in the KeyPair */
     private static final int keyPairLen = 2048;
 
-    /**
-     * Key pair for encypting the messages between
-     * the end user and the server
-     */
+    // Key pair for encypting the messages between the end user and the server
+    /** RSA public key */
     private String publicKey;
+    /** RSA private key */
     private String privateKey;
 
-    /**
-     * Used to hold session connections for reuse.
-     */
-    public transient Map<Session, Session> sessions = new HashMap<>();
+    /** The minimum allowed password length. */
+    public static final int PASS_LEN = 6;
+
+    /** Used to hold session connections for reuse. */
+    private transient Map<Session, Session> sessions = new HashMap<>();
 
     protected static KeyPair getNewRSAKeyPair() {
         try {
@@ -111,54 +96,13 @@ public class User {
     }
 
     /**
-     * Basic user login cookie.
-     */
-    public static class Cookie {
-        public String email;
-        public String hash;
-        public String password;
-        public String authToken;
-
-        protected Cookie() {
-        }
-
-
-//    /** Attempt to log in with the given information. */
-//    public User login() {
-//      if (email != null && authToken != null) {
-//        User user = server().users.get(User.normalizeEmail(email));
-//        return user;
-//      }
-//      if (email == null || (email = email.trim()).isEmpty())
-//        throw new RuntimeException("No email address provided.");
-//      if (hash == null && (password == null || password.isEmpty()))
-//        throw new RuntimeException("No password provided.");
-//      User user = server().users.get(User.normalizeEmail(email));
-//      if (user == null)
-//        throw new RuntimeException("Invalid username or password.");
-//      if (hash == null)
-//        hash = user.hash(password);
-//      if (!hash.equals(user.hash))
-//        throw new RuntimeException("Invalid username or password.");
-//      if (!user.validated)
-//        throw new RuntimeException("This account has not been validated.");
-//      return user;
-//    }
-    }
-
-    /**
-     * The minimum allowed password length.
-     */
-    public static final int PASS_LEN = 6;
-
-    /**
      * Create an anonymous user.
      */
     public User() {
     }
 
     /**
-     * Create a user with the given email and password.
+     * Create a user with the given values.
      */
     public User(String email, String firstName, String lastName, String organization, String password) {
         this.email = email;
@@ -171,6 +115,9 @@ public class User {
         this.privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
     }
 
+    /**
+     * Create a user with the given email and password.
+     */
     public User(String email, String password) {
         this.email = email;
         this.firstName = "";
@@ -197,16 +144,6 @@ public class User {
             throw new RuntimeException("Password must be " + PASS_LEN + "+ characters.");
         salt = salt();
         hash = hash(pass);
-    }
-
-    /**
-     * Get an object containing information to return on login.
-     */
-    public Cookie getLoginCookie() {
-        Cookie cookie = new Cookie();
-        cookie.email = email;
-        cookie.hash = hash;
-        return cookie;
     }
 
     public boolean isAdmin() {
@@ -252,31 +189,15 @@ public class User {
         return job;
     }
 
+    /**
+     * Link a job to the user
+     * @param uuid - Identifier of the job
+     * @return Updated user object
+     */
     public User addJob(UUID uuid) {
         jobs.add(uuid);
         return this;
     }
-
-    /** Get one of this user's jobs by its ID. */
-//  public synchronized Job getJob(int id) {
-//    try {
-//      UUID uuid = jobs.get(id);
-//      return server().findJob(uuid);
-//    } catch (Exception e) {
-//      throw new RuntimeException("No job with that ID.", e);
-//    }
-//  }
-
-//  /** Get a list of actual jobs owned by the user. */
-//  public synchronized List<Job> jobs() {
-//    // FIXME: Inefficient...
-//    List<Job> list = new LinkedList<Job>();
-//    for (int i = 0; i < jobs.size(); i++) try {
-//      list.add(getJob(i));
-//    } catch (Exception e) {
-//      // This handles invalid UUIDs in the jobs list.
-//    } return list;
-//  }
 
     /**
      * Generate a random salt using a secure random number generator.
@@ -322,48 +243,6 @@ public class User {
     }
 
     /**
-     * ZL: TODO: token generator
-     */
-    public static String tokenGenerator(String email, String time, String salt) {
-        try {
-            String saltpass = email + '\n' + time + '\n' + salt;
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = saltpass.getBytes("UTF-8");
-
-            // Run the digest for three rounds.
-            for (int i = 0; i < 3; i++)
-                digest = md.digest(digest);
-
-            return Util.formatBytes(digest, "%02x");
-        } catch (Exception e) {
-            throw new RuntimeException("Couldn't generate a token for reset password.");
-        }
-    }
-
-
-// commenting out since this method is never used
-//    /**
-//     * Add a credential for this user, returning a UUID.
-//     */
-//    public synchronized String addCredential(Credential cred) {
-//        UUID uuid = UUID.randomUUID();
-//        credentials.put(uuid.toString(), cred);
-//        return uuid.toString();
-//    }
-
-
-    // commented out redundant and unused code
-//    /**
-//     * Get a simplified list of this user's credentials.
-//     */
-//    public synchronized Map<String, Object> credentialList() {
-//        Map<String, Object> map = new HashMap<String, Object>();
-//        for (Map.Entry<String, Credential> e : credentials.entrySet())
-//            map.put(e.getKey(), e.getValue());
-//        return map;
-//    }
-
-    /**
      * Validate a user given a token.
      */
     public synchronized boolean validate(String token) {
@@ -378,22 +257,6 @@ public class User {
     }
 
     /**
-     * Get or create a validation token for this user.
-     */
-    public synchronized String validationToken() {
-        if (validated)
-            throw new RuntimeException("User is already validated.");
-        if (validationToken == null)
-            validationToken = salt(12);
-        return validationToken;
-    }
-
-    public synchronized String exist() {
-        if (User.this.email == null) throw new RuntimeException("no user exist");
-        return User.this.email;
-    }
-
-    /**
      * This is thrown when a user is trying to perform an action but is not
      * validated.
      */
@@ -401,18 +264,20 @@ public class User {
         this.code = new VerifyCode(code);
     }
 
+    /**
+     * Method that sets the timeout for the validation code based on a constant value
+     * @param code - validation code
+     * @param expire_in_minutes - timeout value
+     */
     public void setVerifyCode(String code, int expire_in_minutes) {
         VerifyCode _code = new VerifyCode(code);
         _code.SetExpDate(expire_in_minutes);
         this.code = _code;
     }
 
-    public static class NotValidatedException extends RuntimeException {
-        public NotValidatedException() {
-            super("This account has not been validated.");
-        }
-    }
-
+    /**
+     * Model class to hold logged in user specific information
+     */
     public class UserLogin {
         public String email;
         public String hash;
@@ -426,10 +291,13 @@ public class User {
         }
     }
 
+    /**
+     * Model class that holds information for the validation code for the current user account
+     */
     public class VerifyCode {
         public String code;
         public Date expireDate;
-        static final long ONE_MINUTE_IN_MILLIS = 60000;//millisecs
+        static final long ONE_MINUTE_IN_MILLIS = 60000;  //millisecs
 
         public VerifyCode(String code) {
             this.code = code;
