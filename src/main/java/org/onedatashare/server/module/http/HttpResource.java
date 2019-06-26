@@ -1,7 +1,6 @@
 package org.onedatashare.server.module.http;
 
 import org.apache.commons.vfs2.*;
-import org.apache.commons.vfs2.provider.http.HttpFileSystemConfigBuilder;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -101,7 +100,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             Elements links = document.select("a[href]");
             ArrayList<Stat> contents = new ArrayList<>(links.size());
             for (Element link : links) {
-                //TODO: fix for parent directory (similar to above case
                 contentStat = new Stat();
                 String fileName = link.text();
                 if (fileName.equals("Parent Directory"))
@@ -132,8 +130,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         long totalSize = 0;
 
         boolean exception = false;
-
-        System.out.println("URI " + uri);
 
         // Fetch the document
         if (!uri.endsWith("/"))
@@ -172,13 +168,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 exception = true;
             }
 
         if (exception)
             try {
-                System.out.println("Type 2 File transfer");
                 fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
                 // Get the hostname from the uri
                 stat.name = getName(uri);
@@ -261,16 +255,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         public Flux<Slice> tap(Stat stat, long sliceSize) {
 
             try {
-                System.out.println(stat.id);
-                FileSystemOptions fs = new FileSystemOptions();
-                HttpFileSystemConfigBuilder.getInstance().setFollowRedirect(fs, true);
-
-                HttpFileSystemConfigBuilder.getInstance().setConnectionTimeout(fs, 5000);
-                HttpFileSystemConfigBuilder.getInstance().setMaxConnectionsPerHost(fs, 99);
-                HttpFileSystemConfigBuilder.getInstance().setMaxTotalConnections(fs, 99);
-
-                HttpFileSystemConfigBuilder.getInstance().setPreemptiveAuth(fs, false);
-                FileObject fileObject = VFS.getManager().resolveFile(stat.id, fs);
+                FileObject fileObject = VFS.getManager().resolveFile(stat.id);
                 fileContent = fileObject.getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
@@ -306,6 +291,8 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         } else {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
+
+                            // Fix for corrupted PDF Files - Added by Yifu
                             try {
                                 int offset = 0;
                                 for(; offset < remaining-1; offset+=1){
@@ -318,6 +305,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+
                             sink.complete();
                             return state + remaining;
                         }
