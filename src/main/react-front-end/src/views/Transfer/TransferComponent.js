@@ -81,7 +81,6 @@ export default class TransferComponent extends Component {
   }
 
   sendFile = (processed) => {
-    console.log(processed);
     if(processed.selectedTasks.length == 0){
       eventEmitter.emit("errorOccured", "You did not select any files!");
       return 0;
@@ -266,7 +265,8 @@ export default class TransferComponent extends Component {
       fromTo: [entity.right, entity.left],
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
-
+    
+    console.log(processed);
     this.sendFile(processed);
   }
 
