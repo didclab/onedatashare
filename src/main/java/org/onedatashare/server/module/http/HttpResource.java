@@ -10,6 +10,7 @@ import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Slice;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.Tap;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -147,8 +148,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             try {
                 Connection.Response resp = Jsoup.connect(uri).execute();
 
-                System.out.println("Type " + resp.contentType());
-
                 if (!resp.contentType().contains("html"))
                     throw new Exception("Not a html page");
 
@@ -156,7 +155,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 Elements elements = document.select("a[href]");
 
                 stat.setName(uri.substring(uri.lastIndexOf('/') + 1));
-                System.out.println("Name is  " + stat.getName());
                 stat.setDir(true);
                 stat.setFile(false);
 
@@ -171,11 +169,10 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     try {
                         tempStat.setSize(VFS.getManager().resolveFile(uri + "/" + tempStat.getName()).getContent().getSize());
                         tempStat.setId(uri + "/" + tempStat.getName());
-                        System.out.println("ID " + tempStat.getId());
                         totalSize += tempStat.getSize();
                         fileList.add(tempStat);
                     } catch (Exception e1) {
-                        System.out.println("Skipped " + tempStat.getName());
+                        ODSLoggerService.logError("Skipped " + tempStat.getName());
                     }
                 }
             } catch (Exception e) {
