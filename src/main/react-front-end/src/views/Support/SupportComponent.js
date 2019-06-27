@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { submitIssue } from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App';
+import {store} from '../../App';
 
 import Card from '@material-ui/core/Card';
 import CardHeader from '@material-ui/core/CardHeader';
@@ -95,7 +96,8 @@ export default class SupportComponent extends Component{
               <TextField
                 required
                 label = 'Email Address'
-                name = 'email' 
+                name = 'email'
+                value = { (store.getState().email === "noemail" ? "" : store.getState().email) }
                 onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />

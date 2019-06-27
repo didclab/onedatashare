@@ -154,7 +154,6 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent1(){
      const {mode1, endpoint1,history, compact} = this.state;
-     console.log("asdsaDAS\n\n\n")
     return <BrowseModuleComponent 
       id="browserleft"
       mode={mode1} 

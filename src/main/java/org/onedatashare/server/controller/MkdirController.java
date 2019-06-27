@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.DbxService;
@@ -30,19 +31,19 @@ public class MkdirController {
 
   @PostMapping
   public Object mkdir(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-    String cookie = headers.getFirst("cookie");
-    if(userAction.uri.contains("dropbox://")) {
-      if(userAction.credential == null) {
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
+    if(userAction.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME)) {
+      if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return dbxService.mkdir(cookie, userAction);
-    }else if("googledrive:/".equals(userAction.type)) {
-      if(userAction.credential == null) {
+    }else if(ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
+      if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return resourceService.mkdir(cookie, userAction);
-    }else if("gsiftp://".equals(userAction.type)) {
-      if (userAction.credential == null) {
+    }else if(ODSConstants.GRIDFTP_URI_SCHEME.equals(userAction.getType())) {
+      if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return gridService.mkdir(cookie, userAction);
     }

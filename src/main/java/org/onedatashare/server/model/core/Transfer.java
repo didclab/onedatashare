@@ -9,6 +9,7 @@ import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
 import org.onedatashare.server.module.gridftp.GridftpResource;
 import org.onedatashare.server.module.gridftp.GridftpSession;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -44,7 +45,7 @@ public class Transfer<S extends Resource, D extends Resource> {
 
             return Flux.generate(() -> info, (state, sink) -> {
 
-                  ((GridftpSession)((GridftpResource) source).session).client.getTaskDetail(taskId).map(detail -> {
+                  ((GridftpSession)((GridftpResource) source).getSession()).client.getTaskDetail(taskId).map(detail -> {
                     long total = detail.getBytes_transferred();
                     addProgressSize((Long)total);
                     String status = detail.getStatus();
@@ -170,7 +171,7 @@ public class Transfer<S extends Resource, D extends Resource> {
               .map(this::addProgress)
               .blockLast();
       drain.finish();
-      System.out.println(fileStat.getName() + " transferred");
+        ODSLoggerService.logInfo(fileStat.getName() + " transferred");
     }
     done();
     return Flux.just(info);

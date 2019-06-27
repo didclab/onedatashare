@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,7 @@ public class DeleteJobController {
 
     @PostMapping
     public Mono<Job> restartJob(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
-        String cookie = headers.getFirst("cookie");
-//        System.out.println("Job to delete :" + userAction.job_id);
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
         return resourceService.deleteJob(cookie, userAction);
     }
 }

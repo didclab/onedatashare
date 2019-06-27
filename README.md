@@ -27,6 +27,7 @@ OneDataShare application is built using following technologies/frameworks:
 5. Git (version 2.16 or above)
 6. ReactJS
 7. Spring Boot coupled with Reactive Web (commonly known as WebFlux) dependency.
+8. Docker
 
 Recommended IDEs (used by ODS team for development):
 1. IntelliJ Idea Community Edition (for backend code)
@@ -35,35 +36,29 @@ Recommended IDEs (used by ODS team for development):
 ## Installation Procedure ##
 
 1. Clone OneDataShare GitHub repository.
-	Open command prompt (Windows OS) or terminal (Unix-based OS)
-	Run following command –
+	Open command prompt (Windows OS) or terminal (Unix-based OS)  
+	Run following command –  
 	git clone https://github.com/didclab/onedatashare-spring.git
 
 2. Open the cloned repository in IntelliJ and import it as a Maven project.
 
-3. Install Lombok Plugin in IntelliJ.
-	In IntelliJ, goto File &gt; Settings &gt; Plugins.
-	In the search box, type ‘Lombok’ and click on ‘search in repositories’.
+3. Install Lombok Plugin in IntelliJ.  
+	In IntelliJ, goto File &gt; Settings &gt; Plugins.  
+	In the search box, type ‘Lombok’ and click on ‘search in repositories’.  
 	Install the Lombok plugin.
 
 	_Note – Lombok plugin enables us to avoid writing boilerplate code such as getters, setters and parameterized constructors._
 
-4. Navigate to the front-end codebase (&lt;cloned_directory&gt;/src/main/react-front-end/) and build.
-	For Windows OS, run following commands:
-		npm install
-		npm run build-win
-	For Unix-based OS, run following commands:
-		npm install
-		npm run build
+4. Navigate to the front-end codebase (&lt;cloned_directory&gt;/src/main/react-front-end/) and build.  
+	For Windows OS, run following commands:  
+		npm install  
+		npm run build-win  
+	For Unix-based OS, run following commands:  
+		npm install  
+		npm run build  
 
-5. Configure necessary environment variables
-	Note-
-	1. Contact the ODS development team for environment variables setup information using the contact details mentioned below. 
-	2. For environment variables to take effect, please restart your machine and proceed.
-
-6. Start MongoDB server by running ‘mongod’ executable in the ‘bin’ directory of MongoDB installation.
-
-7. Run the ODS codebase (Run &gt; Run 'Server Application')
+5. To execute ODS as a standalone application, follow steps mentioned in the standalone-execution.txt file.  
+   To execute ODS using docker containers, follow steps mentioned in the docker-execution.txt file.
 
 ## Contact ODS Team ##
 

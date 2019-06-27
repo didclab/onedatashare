@@ -585,6 +585,26 @@ export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fa
     });
 }
 
+export async function getUser(email, accept, fail){
+    var callback = accept;
+
+    axios.post(url+'user',{
+        action: "getUser",
+        email: email,
+    })
+    .then((response) => {
+        if(!(response.status === 200))
+        callback = fail;
+        statusHandle(response, callback);
+    })
+    .catch((error) => {
+        statusHandle(error, fail);
+    })
+
+
+
+}
+
 export async function updateAdminRightsApiCall(email, isAdmin){
 	return axios.put(url+'user', {
 		action: "updateAdminRights",
@@ -620,7 +640,6 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
-		store.dispatch(logoutAction());
 	})
 	.catch((error) => {
       fail(error);
@@ -715,6 +734,10 @@ export async function openOAuth(url){
 	window.open(url, 'oAuthWindow');
 }
 
+
+export async function getOrganization(){
+
+}
 
 
 export async function registerUser(emailId, firstName, lastName, organization) {
