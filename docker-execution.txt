@@ -1,0 +1,17 @@
+Continuation to installation steps mentioned in README file.  
+
+Please ensure that Docker is installed on your host machine.
+
+1. Open Dockerfile file in the root direcotry of the project and configure all the necessary environment variables.  
+   Please contact the ODS development team for environment variables setup information using the contact details mentioned in the README file.  
+
+2. Open a terminal window (or command prompt) from the root directory (directory containing the docker-compose.yml file).
+
+3. Execute the following command which creates the containers with all the configurations and starts them :  
+   docker-compose up
+
+4. Open your web browser and navigate to http://127.0.0.1:8080
+
+Note -  
+The first run of step 3 will require a significant amount of time since it creates the containers from the base Docker images, makes necessary configurations and downloads all the maven dependencies.  
+Subsequent runs will be quick since the configured containers are already available and Docker just starts up those containers.

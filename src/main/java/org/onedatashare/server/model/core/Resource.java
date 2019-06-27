@@ -10,12 +10,19 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Resource model that holds identifiers for a file/folder of an endpoint
+ * such as file/folder path and id (for Google Drive)
+ * @param <S>
+ * @param <R>
+ */
 @Data
 public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>> {
-  public final String path;
-  public final S session;
-  public String id;
-  public boolean fileResource;    // flag to identify if the current resource is a file
+
+  private final String path;
+  private final S session;
+  private String id;
+  private boolean fileResource;    // flag to identify if the current resource is a file
 
   protected Resource(S session, String path) {
     if (path == null)

@@ -7,6 +7,7 @@ import FileInput from 'react-fine-uploader/file-input';
 import IconButton from '@material-ui/core/IconButton';
 import { Button } from 'react-bootstrap';
 import UploadButton from "@material-ui/icons/CloudUpload";
+import {eventEmitter} from "../../App";
 export default class UploaderWrapper extends Component {
 	constructor(props){
 		super(props);
@@ -50,7 +51,17 @@ render(){
 				callbacks :{
 					onError: function(id, name, errorReason, xhr){
 						console.log('error occurred - ' + errorReason);
+					},
+					onStatusChange: function(id, old_status, new_status){
+						if(new_status === "submitted"){
+							eventEmitter.emit("messageOccured", "Upload Task has been submitted");
+						}
+						if(new_status === "upload successful"){
+							eventEmitter.emit("messageOccured", "Uploading succeed!");
+						
+						}
 					}
+
 				}
 				// "qqchunksize": 1000000
 			}

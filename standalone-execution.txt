@@ -1,0 +1,23 @@
+Continuation to installation steps mentioned in README file.  
+
+1. Configure following environment variables on your machine that are necessary for the project execution:  
+	ODS_EMAIL_ADDRESS  
+	ods_drive_client_id  
+	ods_drive_client_secret  
+	ods_drive_project_id  
+	FRESHDESK_API_KEY  
+	GOOGLE_CAPTCHA_SECRET  
+	AWS_ACCESS_KEY  
+	AWS_SECRET_KEY  
+
+	Note-
+	1. Please contact the ODS development team for environment variables setup information using the contact details mentioned in the README file.  
+	2. For environment variables to take effect, please restart your machine and proceed.
+
+2. Start MongoDB server by running ‘mongod’ executable in the ‘bin’ directory of MongoDB installation.
+
+3. Run the ODS codebase from IntelliJ (Run &gt; Run 'Server Application')  
+   To run using command line, execute the following command from the directory that contains the POM file -  
+   mvn spring-boot:run
+
+4. Open your web browser and navigate to http://127.0.0.1:8080

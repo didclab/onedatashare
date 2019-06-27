@@ -61,8 +61,8 @@ public class JobService {
                 return jobs.flatMap(jobs1 -> jobRepository.count()
                         .map(count ->  {
                             JobDetails result = new JobDetails();
-                            result.jobs = jobs1;
-                            result.totalCount = count;
+                            result.setJobs(jobs1);
+                            result.setTotalCount(count);
                             return result;
                         }));
             }
@@ -70,7 +70,7 @@ public class JobService {
                 Mono<List<Job>> jobs = Mono.just(new ArrayList<>());
                 for (int i = 0; i < numberOfItrs; i++) {
                     int pageNo = request.pageNo + i;
-                    jobs = jobs.flatMap(jobs1 -> jobRepository.findJobsForUser(user.email,false, PageRequest.of(pageNo,
+                    jobs = jobs.flatMap(jobs1 -> jobRepository.findJobsForUser(user.getEmail(),false, PageRequest.of(pageNo,
                             request.pageSize, Sort.by(direction, request.sortBy)))
                             .collectList()
                             .map(jobs2 -> {
@@ -78,11 +78,11 @@ public class JobService {
                                 return jobs1;
                             }));
                 }
-                return jobs.flatMap(jobs1 -> jobRepository.countJobBy(user.email,false)
+                return jobs.flatMap(jobs1 -> jobRepository.getJobCountForUser(user.getEmail(),false)
                         .map(count ->  {
                             JobDetails result = new JobDetails();
-                            result.jobs = jobs1;
-                            result.totalCount = count;
+                            result.setJobs(jobs1);
+                            result.setTotalCount(count);
                             return result;
                         }));
             }
@@ -90,7 +90,7 @@ public class JobService {
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
-        return getAllJobsForUser(cookie).<Job>map(jobs -> {
+        return getAllJobsForUser(cookie).map(jobs -> {
             Job job = new Job(null, null);
             for(Job j: jobs) {
                 if(j.getJob_id() == job_id) job = j;

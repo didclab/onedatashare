@@ -1,6 +1,7 @@
 package org.onedatashare.server.model.error;
 
 
+import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,17 +11,15 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(NullPointerException.class)
-    public String handle(NullPointerException e) {
-        System.out.println("Nullpointer Exception thrown");
-        e.printStackTrace();
+    public String handle(NullPointerException npe) {
+        ODSLoggerService.logError("Nullpointer Exception thrown", npe);
         return "NullPointerException";
     }
 
     //Handles generic and unknown exceptions
     @ExceptionHandler(Exception.class)
     public String handle(Exception e) {
-        System.out.println("Unknown Exception thrown");
-        e.printStackTrace();
+        ODSLoggerService.logError("Unknown Exception thrown", e);
         return "Exception";
     }
 
