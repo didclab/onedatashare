@@ -65,7 +65,6 @@ public class HttpFileService implements ResourceService<HttpResource> {
     }
 
     @Override
-    /* TODO: handle at the front-end */
     public Mono<String> download(String cookie, UserAction userAction) {
         return null;
     }
