@@ -10,6 +10,7 @@ import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.box.BoxSession;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GoogleDriveResource;
@@ -89,7 +90,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
+        if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")
+                || userActionResource.type.equals("box:///")){
             return user.getCredentials().get(UUID.fromString(userActionResource.credential.getUuid()));
         }else if(userActionResource.uri.equals("Upload")){
             return userActionResource.uploader;
@@ -112,7 +114,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             return new GoogleDriveSession(URI.create(uri), credential);
         }else if(credential instanceof GlobusWebClientCredential){
             return new GridftpSession(URI.create(uri), credential);
-        }
+        } else if(uri.startsWith("box:///"))
+            return new BoxSession(URI.create(uri), credential);
         else return new VfsSession(URI.create(uri), credential);
     }
 

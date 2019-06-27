@@ -73,4 +73,13 @@ public class BoxOauthService {
              }
 
     }
+
+    public class BoxClient extends BoxAPIConnection{
+
+        public BoxClient(String accessToken) {
+
+            super(accessToken);
+        }
+    }
+
 }

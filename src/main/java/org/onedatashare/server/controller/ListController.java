@@ -43,6 +43,7 @@ public class ListController {
         case "dropbox:///":
         case "googledrive:/":
         case "gsiftp://":
+        case "box:///":
           return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
     }

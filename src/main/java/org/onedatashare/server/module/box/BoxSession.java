@@ -43,6 +43,7 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                 s.success(this);
             }
             else s.error(new AuthenticationRequired("oauth"));
+
         });
     }
 }
