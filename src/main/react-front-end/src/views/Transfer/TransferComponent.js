@@ -425,11 +425,30 @@ export default class TransferComponent extends Component {
         {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
         <Panel bsStyle="primary">
+        <FormControlLabel
+                      style={{width: "200px", float: "right", color: "white"}}
+                      control={
+                        <Switch
+                          color="default"
+                          style={{colorPrimary: "white", colorSecondary:"white"}}
+                          checked={this.state.compact}
+                          onChange={handleChange('compact')}
+                          value="compact"
+                        />
+                      }
+                      label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+                    />
         <Panel.Heading>
           <p>
             Browse and Transfer Files
+
+
           </p>
+
+
         </Panel.Heading>
+
+
         <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
             <Row style={{flexDirection: 'column'}}>
               <DragDropContext
@@ -451,19 +470,7 @@ export default class TransferComponent extends Component {
               </DragDropContext>
               
             </Row>
-            <FormControlLabel
-              style={{width: "200px", float: "right", color: "white"}}
-              control={
-                <Switch
-                  color="default"
-                  style={{colorPrimary: "white", colorSecondary:"white"}}
-                  checked={this.state.compact}
-                  onChange={handleChange('compact')}
-                  value="compact"
-                />
-              }
-              label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-            />
+            <div> </div>
             <ErrorMessagesConsole/>
             </Panel.Body>
             </Panel>
