@@ -8,6 +8,7 @@ public class ODSConstants {
     public static final String FTP_URI_SCHEME = "ftp://";
     public static final String SCP_URI_SCHEME = "scp://";
     public static final String GRIDFTP_URI_SCHEME = "gsiftp://";
+    public static final String HTTP_URI_SCHEME = "http://";
 
     public static final String UPLOAD_IDENTIFIER = "Upload";
 
