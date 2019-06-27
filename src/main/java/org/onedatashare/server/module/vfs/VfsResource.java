@@ -130,7 +130,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     @Override
     public Mono<Stat> getTransferStat() {
-        System.out.println("Transfer Stat called");
         return initialize()
                 .map(VfsResource::onStat)
                 .map( s -> {
