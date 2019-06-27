@@ -51,9 +51,6 @@ public class UserService {
 
   public Mono<User.UserLogin> login(String email, String password) {
 
-//    User user = new User("vanditsa@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
-
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.getPublicKey()))
@@ -348,6 +345,9 @@ public class UserService {
   }
 
   public Mono<Object> verifyEmail(String email) {
+
+//    User user = new User("arnabdas@buffalo.edu", "asdasd");
+//    createUser(user).subscribe(System.out::println);
     return userRepository.existsById(email).flatMap( bool -> {
       if (bool) {
         return Mono.just(true);
