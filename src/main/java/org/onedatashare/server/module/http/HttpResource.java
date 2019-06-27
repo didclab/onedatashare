@@ -43,8 +43,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     /**
      * This method returns the information parsed from the given http file server web page
-     * @return
-     * Returns the stat object
+     * @return stat object
      */
     public Stat onStat() {
         Stat stat = new Stat();
