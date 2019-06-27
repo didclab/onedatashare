@@ -75,8 +75,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             else {
                 stat = fileContentToStat(fileObject);
-                stat.setDir(false);
-                stat.setFile(true);
             }
             stat.setName(fileObject.getName().getBaseName());
 

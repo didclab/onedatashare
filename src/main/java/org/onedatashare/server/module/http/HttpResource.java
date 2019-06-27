@@ -37,6 +37,12 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         return Mono.just(onStat());
     }
 
+
+    /**
+     * This method returns the information parsed from the given http file server web page
+     * @return
+     * Returns the stat object
+     */
     public Stat onStat() {
         Stat stat = new Stat();
 
@@ -120,6 +126,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         return stat;
     }
 
+    /**
+     * This method returns the correct size of the file / directory with upto 1 level depth
+     * @return
+     * Returns a Stat object
+     */
     public Stat exactStat() {
         Stat stat = new Stat();
 
@@ -183,8 +194,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 totalSize += stat.getSize();
                 fileList.add(stat);
             } catch (FileSystemException e) {
-                System.out.println("In exact stat: is this a folder???");
-                e.printStackTrace();
                 return null;
             }
         stat.setFiles(fileList);
@@ -208,6 +217,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         return name;
     }
 
+    /**
+     * Class to parse the size parameter in the webpage
+     */
     private static class SizeParser {
 
         public static long getBytes(String sizeString) {
@@ -251,6 +263,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         FileContent fileContent;
         long size;
 
+
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
 
@@ -266,7 +279,11 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             return tap(sliceSize);
         }
 
-
+        /**
+         * This is the tap method that is used to fetch information from the given HTTP file server
+         * @param sliceSize : Size of the chunk to be fetched
+         * @return Returns a Flux of Slice
+         */
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
             int sizeInt = Math.toIntExact(size);
@@ -283,6 +300,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
+                                /**
+                                 * Fix for buggy PDF files
+                                 */
                                 for(int offset = 0; offset < sliceSizeInt; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
@@ -293,6 +313,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
+                                /**
+                                 * Fix for buggy PDF files
+                                 */
                                 for(int offset = 0; offset < remaining; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                                 sink.next(new Slice(b));
