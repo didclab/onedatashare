@@ -6,6 +6,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -51,15 +52,14 @@ public class DownloadController {
 
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-        String cookie = headers.getFirst("cookie");
-        if (userAction.getUri().startsWith("dropbox://")) {
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
+        if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
             return dbxService.getDownloadURL(cookie, userAction);
-        } else if ("googledrive:/".equals(userAction.getType())) {
-            if (userAction.getCredential() == null)
+        } else if (ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
+            if (userAction.getCredential() == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-            else
-                return resourceService.download(cookie, userAction);
-        } else if (userAction.getUri().startsWith("ftp://")) {
+            } else return resourceService.download(cookie, userAction);
+        } else if (userAction.getUri().startsWith(ODSConstants.FTP_URI_SCHEME)) {
             return vfsService.getDownloadURL(cookie, userAction);
         }
         return null;
@@ -67,7 +67,7 @@ public class DownloadController {
 
     @RequestMapping(value = "/file", method = RequestMethod.GET)
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
-        String cookie = clientHttpHeaders.getFirst("cookie");
+        String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
 
         Map<String, String> map = new HashMap<String, String>();
         Set<Cookie> cookies = CookieDecoder.decode(cookie);

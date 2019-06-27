@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 
 import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,7 +33,7 @@ public class CredController {
    */
   @GetMapping
   public Mono<Map<UUID, Credential>> listCredentials(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-    return userService.getCredentials(headers.getFirst("cookie"));
+    return userService.getCredentials(headers.getFirst(ODSConstants.COOKIE));
   }
 
 }
