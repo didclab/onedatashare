@@ -1,6 +1,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.http.HttpResource;
@@ -30,9 +31,9 @@ public class HttpFileService implements ResourceService<HttpResource> {
 
     private String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains("http://")){
+        if(uri.startsWith(ODSConstants.HTTPS_URI_SCHEME) || uri.startsWith(ODSConstants.HTTP_URI_SCHEME))
             path = uri;
-        }
+
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {
