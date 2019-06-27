@@ -24,6 +24,8 @@ import java.util.*;
 public class HttpResource extends Resource<HttpSession, HttpResource> {
     private String uri;
 
+    private static final char TERA ='T', GIGA = 'G', MEGA = 'M', KILO = 'K';
+
     protected HttpResource(HttpSession session, String uri) {
         super(session);
         this.uri = uri;
@@ -88,7 +90,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                     contentStat.setName(fileName);
                     contentStat.setDir(false);
                     contentStat.setFile(true);
-                    contentStat.setSize(SizeParser.getBytes(rowContent.get(3).text()));
+                    contentStat.setSize(getBytes(rowContent.get(3).text()));
                 }
 
                 if (!dateString.equals("")) {
@@ -129,8 +131,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
     /**
      * This method returns the correct size of the file / directory with upto 1 level depth
-     * @return
-     * Returns a Stat object
+     * @return Returns a Stat object
      */
     public Stat exactStat() {
         Stat stat = new Stat();
@@ -215,40 +216,35 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
     }
 
     /**
-     * Class to parse the size parameter in the webpage
+     * parses the Size String from the webpage
      */
-    private static class SizeParser {
-
-        public static long getBytes(String sizeString) {
-            int sizeStringLength = sizeString.length();
-            char multiplier = sizeString.charAt(sizeStringLength - 1);
-            long multiply = 1;
-            switch (multiplier) {
-                case 'T':
-                    multiply <<= 40;
-                case 'G':
-                    multiply <<= 30;
-                    break;
-                case 'M':
-                    multiply <<= 20;
-                    break;
-                case 'K':
-                    multiply <<= 10;
-            }
-
-            if (multiplier != 1)
-                sizeStringLength -= 1;
-
-            String digits = sizeString.substring(0, sizeStringLength);
-            // No size information available
-            if (digits.equals(""))
-                return 0;
-
-            double size = Double.parseDouble(digits);
-
-            size *= multiply;
-            return Math.round(size);
+    public static long getBytes(String sizeString) {
+        int sizeStringLength = sizeString.length();
+        char multiplier = sizeString.charAt(sizeStringLength - 1);
+        long multiply = 1;
+        switch (Character.toUpperCase(multiplier)) {
+            case TERA:
+                multiply <<= 10;
+            case GIGA:
+                multiply <<= 10;
+            case MEGA:
+                multiply <<= 10;
+            case KILO:
+                multiply <<= 10;
         }
+
+        if (multiplier != 1)
+            sizeStringLength -= 1;
+
+        String digits = sizeString.substring(0, sizeStringLength);
+        // No size information available
+        if (digits.equals(""))
+            return 0;
+
+        double size = Double.parseDouble(digits);
+
+        size *= multiply;
+        return Math.round(size);
     }
 
     public HttpTap tap() {
@@ -297,9 +293,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                /**
-                                 * Fix for buggy PDF files
-                                 */
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
                                 for(int offset = 0; offset < sliceSizeInt; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
@@ -310,9 +304,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
-                                /**
-                                 * Fix for buggy PDF files
-                                 */
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
                                 for(int offset = 0; offset < remaining; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                                 sink.next(new Slice(b));

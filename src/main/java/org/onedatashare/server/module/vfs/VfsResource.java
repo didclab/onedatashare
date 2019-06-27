@@ -214,6 +214,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
                                 for(int offset = 0; offset < sliceSizeInt; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
@@ -224,6 +225,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
                                 for(int offset = 0; offset < remaining; offset+=1)
                                     finalInputStream.read(b, offset, 1);
                                 finalInputStream.close();
