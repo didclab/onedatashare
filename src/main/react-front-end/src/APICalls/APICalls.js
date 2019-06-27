@@ -375,9 +375,7 @@ export async function submitIssue(reqBody, success, fail){
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
-	console.log(srcEndpoint);
-
-	// console.log(src)
+	console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
 	if(Object.keys( src0.credential ).length == 0){
