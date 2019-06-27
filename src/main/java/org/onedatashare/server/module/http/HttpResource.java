@@ -49,6 +49,9 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
     public Stat onStat() {
         Stat stat = new Stat();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+
         // Get the hostname from the uri
         stat.setName(URI.create(uri).toString());
 
@@ -65,28 +68,29 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         // Select the table rows
         Elements table = document.select("tr");
         Stat contentStat;
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
+        // If the web page uses a table
         if (table.size() > 0) {
             ArrayList<Stat> contents = new ArrayList<>(table.size());
             for (Element row : table) {
                 // Filter for removing queries, no links and links to parent directory
-                // Remove Query Strings or no links
                 if (row.toString().contains("href=?") || !row.toString().contains("href"))
                     continue;
 
-                // Select the table data rows
+                // Select the table rows
                 Elements rowContent = row.select("td");
                 String fileName = rowContent.get(1).text();
                 String dateString = rowContent.get(2).text();
 
                 contentStat = new Stat();
+                /* Name ending with / is a folder*/
                 if (fileName.endsWith("/")) {
                     contentStat.setName(fileName.substring(0, fileName.length() - 1));
                     contentStat.setDir(true);
                     contentStat.setFile(false);
-                } else {
+                }
+                /* Else a file */
+                else {
                     contentStat.setName(fileName);
                     contentStat.setDir(false);
                     contentStat.setFile(true);
@@ -105,19 +109,25 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 contents.add(contentStat);
             }
             stat.setFiles(contents);
-        } else {
+        }
+        // If the web page format isn't known
+        else {
             Elements links = document.select("a[href]");
             ArrayList<Stat> contents = new ArrayList<>(links.size());
             for (Element link : links) {
                 contentStat = new Stat();
                 String fileName = link.text();
+                // Skip adding links to the parent directory
                 if (fileName.equals("Parent Directory"))
                     continue;
+                // If the file is a directory*/
                 if (fileName.endsWith("/")) {
                     contentStat.setName(fileName.substring(0, fileName.length() - 1));
                     contentStat.setDir(true);
                     contentStat.setFile(false);
-                } else {
+                }
+                // Else a folder
+                else {
                     contentStat.setName(fileName);
                     contentStat.setDir(false);
                     contentStat.setFile(true);
@@ -144,7 +154,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
 
         boolean exception = false;
 
-        // Fetch the document
+        // If a link i.e. Directory
         if (!uri.endsWith("/"))
             try {
                 Connection.Response resp = Jsoup.connect(uri).execute();
@@ -180,6 +190,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                 exception = true;
             }
 
+        /* If a file*/
         if (exception)
             try {
                 fileObject = VFS.getManager().resolveFile(uri, new FileSystemOptions());
@@ -194,6 +205,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             } catch (FileSystemException e) {
                 return null;
             }
+
         stat.setFiles(fileList);
         stat.setFilesList(fileList);
         stat.setSize(totalSize);
