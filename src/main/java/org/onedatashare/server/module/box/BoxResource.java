@@ -4,10 +4,7 @@ import com.box.sdk.*;
 import com.box.sdk.http.HttpMethod;
 import com.sun.mail.iap.ByteArray;
 import org.apache.commons.io.IOUtils;
-import org.onedatashare.server.model.core.Resource;
-import org.onedatashare.server.model.core.Slice;
-import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.core.Tap;
+import org.onedatashare.server.model.core.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -310,24 +307,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             int sizeInt = Math.toIntExact(size);
             BoxAPIResponse resp = req.send();
             InputStream inputStream = resp.getBody();
-            FileWriter file = null;
-//            try {
-//                file = new FileWriter("textfile.txt");
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-            FileWriter finalFile = file;
             return Flux.generate(
                     () -> 0,
                     (state, sink) -> {
                         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                         if (state + sliceSizeInt < sizeInt) {
-                            byte[] b = new byte[sliceSizeInt];
                             try {
-                                //inputStream.read(b, 0, sliceSizeInt);
                                 IOUtils.copy(inputStream, outputStream);
-
-//                                finalFile.write(new String(b));
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -338,17 +324,11 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                                 e.printStackTrace();
                             }
                         } else {
-                            int remaining = state + sizeInt - state;
-                            byte[] b = new byte[remaining];
                             try {
-                                //inputStream.read(b, 0, remaining);
                                 IOUtils.copy(inputStream, outputStream);
-//                                finalFile.write(new String(b));
-//                                inputStream.close();
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
 
                             sink.next(new Slice(outputStream.toByteArray()));
                             sink.complete();
@@ -359,5 +339,41 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         }
 
 
+    }
+    public BoxDrain sink() {
+        return new BoxDrain().start();
+    }
+
+    public BoxDrain sink(Stat stat){
+        return new BoxDrain().start(path + stat.getName());
+    }
+
+    class BoxDrain implements Drain {
+
+        String drainPath = path;
+        Boolean isDirTransfer = false;
+
+
+        @Override
+        public BoxDrain start(String drainPath) {
+            this.drainPath = drainPath;
+            this.isDirTransfer = true;
+            return start();
+        }
+
+        @Override
+        public BoxDrain start() {
+            return null;
+        }
+
+        @Override
+        public void drain(Slice slice) {
+
+        }
+
+        @Override
+        public void finish() {
+
+        }
     }
 }
