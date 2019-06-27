@@ -71,11 +71,12 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
             path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
-        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+        else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME))
             path = uri.substring(ODSConstants.DRIVE_URI_SCHEME.length() - 1);
-        }else path = uri;
+        else
+            path = uri;
 
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
@@ -101,19 +102,18 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
 
     public Session createSession(String uri, Credential credential) {
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
             return new DbxSession(URI.create(uri), credential);
-        }else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)){
-            UploadCredential upc = (UploadCredential)credential;
+        else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)) {
+            UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+        }
+        else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME))
             return new GoogleDriveSession(URI.create(uri), credential);
-        }else if(credential instanceof GlobusWebClientCredential) {
+        else if(credential instanceof GlobusWebClientCredential)
             return new GridftpSession(URI.create(uri), credential);
-        }
-        else if(uri.startsWith("http")){
+        else if(uri.startsWith(ODSConstants.HTTPS_URI_SCHEME) || uri.startsWith(ODSConstants.HTTP_URI_SCHEME))
             return new HttpSession(URI.create(uri));
-        }
         else return new VfsSession(URI.create(uri), credential);
     }
 
