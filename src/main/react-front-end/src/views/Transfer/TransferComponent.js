@@ -267,7 +267,6 @@ export default class TransferComponent extends Component {
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
 
-    console.log(processed)
     this.sendFile(processed);
   }
 
