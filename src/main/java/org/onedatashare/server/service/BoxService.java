@@ -1,10 +1,7 @@
 package org.onedatashare.server.service;
 
 
-import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.Resource;
-import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -59,33 +56,33 @@ public class BoxService implements ResourceService<BoxResource> {
     }
 
     public Mono<BoxResource> getBoxResourceUserActionUri(String cookie, UserAction userAction) {
-        final String path = pathFromUri(userAction.uri);
-        String id = userAction.id;
-        ArrayList<IdMap> idMap = userAction.map;
+        final String path = pathFromUri(userAction.getUri());
+        String id = userAction.getId();
+        ArrayList<IdMap> idMap = userAction.getMap();
         return userService.getLoggedInUser(cookie)
                 .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
-                .map(credential -> new BoxSession(URI.create(userAction.uri), credential))
+                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+                .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
                 .flatMap(BoxSession::initialize)
                 .flatMap(boxSession -> boxSession.select(path, id, idMap)
                         .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
                                 Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
-                                        .map(credential -> new BoxSession(URI.create(userAction.uri), credential))
+                                        .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
                                         .flatMap(BoxSession::initialize)
                                         .flatMap(driveSession -> driveSession.select(path,id, idMap)))
                 );
     }
 
     public Mono<BoxResource> getBoxResourceUserActionResource(String cookie, UserActionResource userActionResource) {
-        final String path = pathFromUri(userActionResource.uri);
-        String id = userActionResource.id;
-        ArrayList<IdMap> idMap = userActionResource.map;
+        final String path = pathFromUri(userActionResource.getUri());
+        String id = userActionResource.getId();
+        ArrayList<IdMap> idMap = userActionResource.getMap();
 
         return userService.getLoggedInUser(cookie)
                 .map(User::getCredentials)
                 .map(uuidCredentialMap ->
-                        uuidCredentialMap.get(UUID.fromString(userActionResource.credential.getUuid())))
-                .map(credential -> new BoxSession(URI.create(userActionResource.uri), credential))
+                        uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
+                .map(credential -> new BoxSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(BoxSession::initialize)
                 .flatMap(boxSession -> boxSession.select(path, id, idMap));
     }
@@ -93,8 +90,8 @@ public class BoxService implements ResourceService<BoxResource> {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains("box://")){
-            path = uri.split("box://")[1];
+        if(uri.contains(ODSConstants.BOX_URI_SCHEME)){
+            path = uri.substring(ODSConstants.BOX_URI_SCHEME.length() - 1);
         }
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
@@ -102,6 +99,6 @@ public class BoxService implements ResourceService<BoxResource> {
             e.printStackTrace();
         }
         return path;
+        }
     }
 
-}

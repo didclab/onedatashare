@@ -24,11 +24,12 @@ public class BoxOauthService {
 
     public static class BoxConfig {
 
-        public static String client_id = "7xifcu329elepngu76j3k5vart312ibr";
-        public static String client_secret = "UPGc0WGVHTNB6UmYU2RPneXPA2yJB5Qp";
-        public static String redirect_uri = "http://127.0.0.1:8080/api/stork/oauth/box";
-        public static String box_redirect = "https://account.box.com/api/oauth2/authorize";
-        public static String scope = "root_readwrite";
+        private static String client_id = System.getenv("BOX_CLIENT_ID");
+        private static String client_secret = System.getenv("BOX_CLIENT_SECRET");
+        private static String scope = System.getenv("BOX_SCOPE");
+        private static String redirect_uri = "http://127.0.0.1:8080/api/stork/oauth/box";
+        private static String box_redirect = "https://account.box.com/api/oauth2/authorize";
+
     }
 
     public synchronized String start() {

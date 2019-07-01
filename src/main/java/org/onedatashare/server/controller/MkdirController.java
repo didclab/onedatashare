@@ -46,8 +46,8 @@ public class MkdirController {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return gridService.mkdir(cookie, userAction);
-    }else if("box:///".equals(userAction.type)) {
-      if (userAction.credential == null) {
+    }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
+      if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return boxService.mkdir(cookie, userAction);
     }

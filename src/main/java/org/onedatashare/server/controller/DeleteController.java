@@ -42,7 +42,7 @@ public class DeleteController {
       }
       else return resourceService.delete(cookie, userAction);
     }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) { //Old: "box:///".equals(userAction.type)
-      if (userAction.credential == null) {
+      if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return boxService.delete(cookie, userAction);
     }else if(ODSConstants.GRIDFTP_URI_SCHEME.equals(userAction.getType())) {

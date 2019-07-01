@@ -60,7 +60,7 @@ public class DownloadController {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return resourceService.download(cookie, userAction);
         }else if (ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
-            if (userAction.credential == null) {
+            if (userAction.getCredential() == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return boxService.download(cookie, userAction);
         } else if (userAction.getUri().startsWith(ODSConstants.FTP_URI_SCHEME)) {

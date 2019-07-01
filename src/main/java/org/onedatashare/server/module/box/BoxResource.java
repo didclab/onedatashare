@@ -37,29 +37,22 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         BoxItem item;
 
-       // folder.getMetadata().getTypeName();
-        //BoxAPIConnection client = new BoxAPIConnection(session.client.getAccessToken());
-        //URL url = new URL();
-        //BoxAPIRequest req = new BoxAPIRequest(session.client, url, "GET");
-        ;
-        if (id == null){
-           // folder = new BoxFolder(session.client, "0");
-            folder = BoxFolder.getRootFolder(session.client);
+        if (getId() == null){
+            folder = BoxFolder.getRootFolder(getSession().client);
             Iterable<BoxItem.Info> children = folder.getChildren();
             Stat rStat = buildDirStat(children);
-            rStat.dir = true;
-            rStat.file = false;
-            rStat.name = "root";
+            rStat.setDir(true);
+            rStat.setFile(false);
+            rStat.setName("root");
             return rStat;
-           // stat.id = folder.getID();
         }
         String type = "";
             try{
-                folder = new BoxFolder(session.client, id);
+                folder = new BoxFolder(getSession().client, getId());
                 item = folder;
                 type = item.getInfo().getType();
             }catch(BoxAPIResponseException e){
-                item = new BoxFile(session.client, id);
+                item = new BoxFile(getSession().client, getId());
                 type = item.getInfo().getType();
 
             }
@@ -67,29 +60,29 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             if(type.equals("folder")) {
                 Iterable<BoxItem.Info> children = folder.getChildren();
                 Stat stat = buildDirStat(children);
-                stat.dir = true;
-                stat.file = false;
-                stat.name = folder.getInfo().getName();
+                stat.setDir(true);
+                stat.setFile(false);
+                stat.setName(folder.getInfo().getName());
                 return stat;
             }
             else{
-                BoxFile file = new BoxFile(session.client, id);
+                BoxFile file = new BoxFile(getSession().client, getId());
                 Stat stat = new Stat();
-                stat.dir = false;
-                stat.file = true;
-                stat.name = file.getInfo().getName();
-                stat.id = id;
+                stat.setDir(false);
+                stat.setFile(true);
+                stat.setName(file.getInfo().getName());
+                stat.setId(file.getID());
 
                 BoxFile.Info fileInfo = file.getInfo();
-                stat.size = fileInfo.getSize();
-                stat.time = fileInfo.getContentModifiedAt().getTime() / 1000;
+                stat.setSize(fileInfo.getSize());
+                stat.setTime(fileInfo.getContentModifiedAt().getTime() / 1000);
                 BoxSharedLink sharedLink = fileInfo.getSharedLink();
                 if (sharedLink != null) {
-                    stat.link = sharedLink.toString();
+                    stat.setLink(sharedLink.toString());
                 }
                 EnumSet<BoxFile.Permission> permissions = fileInfo.getPermissions();
                 if (permissions != null) {
-                    stat.perm = permissions.toString();
+                    stat.setPermissions(permissions.toString());
                 }
                 return stat;
 
@@ -102,40 +95,40 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         for (BoxItem.Info child : children) {
 
             Stat statChild = new Stat();
-            statChild.file = child instanceof BoxFile.Info;
-            statChild.dir = child instanceof BoxFolder.Info;
-            statChild.setDir(statChild.dir);
-            statChild.setFile(statChild.file);
-            statChild.id = child.getID();
-            statChild.name = child.getName();
-            if (statChild.dir) {
-                BoxFolder childFolder = new BoxFolder(session.client, statChild.id);
+            statChild.setFile(child instanceof BoxFile.Info);
+            statChild.setDir(child instanceof BoxFolder.Info);
+            statChild.setDir(statChild.isDir());
+            statChild.setFile(statChild.isFile());
+            statChild.setId(child.getID());
+            statChild.setName(child.getName());
+            if (statChild.isDir()) {
+                BoxFolder childFolder = new BoxFolder(getSession().client, statChild.getId());
                 BoxFolder.Info childFolderInfo = childFolder.getInfo();
-                statChild.size = childFolderInfo.getSize();
-                statChild.time = childFolderInfo.getContentModifiedAt().getTime() / 1000;
+                statChild.setSize(childFolderInfo.getSize());
+                statChild.setTime(childFolderInfo.getContentModifiedAt().getTime() / 1000);
                 BoxSharedLink sharedLink = childFolderInfo.getSharedLink();
                 if (sharedLink != null) {
-                    statChild.link = sharedLink.toString();
+                    statChild.setLink(sharedLink.toString());
                 }
                 EnumSet<BoxFolder.Permission> permissions = childFolderInfo.getPermissions();
                 if (permissions != null) {
-                    statChild.perm = permissions.toString();
+                    statChild.setPermissions(permissions.toString());
                 }
                 contents.add(statChild);
             }
 
-            if (statChild.file) {
-                BoxFile childFile = new BoxFile(session.client, statChild.id);
+            if (statChild.isFile()) {
+                BoxFile childFile = new BoxFile(getSession().client, statChild.getId());
                 BoxFile.Info childFileInfo = childFile.getInfo();
-                statChild.size = childFileInfo.getSize();
-                statChild.time = childFileInfo.getContentModifiedAt().getTime() / 1000;
+                statChild.setSize(childFileInfo.getSize());
+                statChild.setTime(childFileInfo.getContentModifiedAt().getTime() / 1000);
                 BoxSharedLink sharedLink = childFileInfo.getSharedLink();
                 if (sharedLink != null) {
-                    statChild.link = sharedLink.toString();
+                    statChild.setLink(sharedLink.toString());
                 }
                 EnumSet<BoxFile.Permission> permissions = childFileInfo.getPermissions();
                 if (permissions != null) {
-                    statChild.perm = permissions.toString();
+                    statChild.setPermissions(permissions.toString());
                 }
                 contents.add(statChild);
             }
@@ -143,9 +136,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         }
 
-        stat.files = new Stat[contents.size()];
 
-        stat.files = contents.toArray(stat.files);
+        stat.setFiles(new Stat[contents.size()]);
+
+        stat.setFiles(contents.toArray(stat.getFiles()));
 
         return stat;
     }
@@ -153,15 +147,15 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     public Mono<BoxResource> mkdir() {
         return initialize().doOnSuccess(resource -> {
             try {
-                String[] currpath = path.split("/");
-                String folderId = id;
-                if(id == null){
+                String[] currpath = getPath().split("/");
+                String folderId = getId();
+                if(getId() == null){
                     folderId = "0";
                 }
-                BoxFolder parentFolder = new BoxFolder(resource.session.client, folderId);
+                BoxFolder parentFolder = new BoxFolder(resource.getSession().client, folderId);
                 BoxFolder.Info childFolder = parentFolder.createFolder(currpath[currpath.length-1]);
 
-                id = childFolder.getID();
+                setId(childFolder.getID());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -174,12 +168,12 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         return initialize().doOnSuccess(resource -> {
             try {
                 if(onStat().isFile()) {
-                    BoxFile file = new BoxFile(resource.session.client, id);
+                    BoxFile file = new BoxFile(resource.getSession().client, getId());
                     file.delete();
                 }
                 else if(onStat().isDir()){
                     boolean recursive = true;
-                    BoxFolder folder = new BoxFolder(resource.session.client, id);
+                    BoxFolder folder = new BoxFolder(resource.getSession().client, getId());
                     folder.delete(recursive);
                 }
             } catch (Exception e) {
@@ -193,7 +187,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     public Mono<String> download(){
         String url = "";
         try {
-            BoxFile file = new BoxFile(session.client, id);
+            BoxFile file = new BoxFile(getSession().client, getId());
             url = file.getDownloadURL().toString();
 
         }catch(Exception e){
@@ -204,7 +198,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
     @Override
     public Mono<BoxResource> select(String path) {
-        return session.select(path);
+        return getSession().select(path);
     }
 
     @Override
@@ -214,7 +208,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             List<Stat> sub = new LinkedList<>();
             long directorySize = 0L;
             if(s.isDir()){
-                directorySize = buildDirectoryTree(sub, id, "/");
+                directorySize = buildDirectoryTree(sub, getId(), "/");
             }else{
                 sub.add(s);
                 directorySize = s.getSize();
@@ -232,17 +226,17 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         }
         Long directorySize = 0L;
         try {
-            BoxFolder folder = new BoxFolder(session.client, curId);
+            BoxFolder folder = new BoxFolder(getSession().client, curId);
             for (BoxItem.Info itemInfo : folder) {
                 if (itemInfo instanceof BoxFile.Info) {
-                    BoxFile file = new BoxFile(session.client, itemInfo.getID());
+                    BoxFile file = new BoxFile(getSession().client, itemInfo.getID());
                     BoxFile.Info fileInfo = file.getInfo();
                     directorySize += fileInfo.getSize();
                     Stat fStat = fileContentToStat(fileInfo);
                     fStat.setName( relativePath + fileInfo.getName());
                     sub.add(fStat);
                 } else if (itemInfo instanceof BoxFolder.Info) {
-                    BoxFolder fold = new BoxFolder(session.client, itemInfo.getID());
+                    BoxFolder fold = new BoxFolder(getSession().client, itemInfo.getID());
                     BoxFolder.Info folderInfo = fold.getInfo();
                     directorySize += buildDirectoryTree(sub, folderInfo.getID(), relativePath + folderInfo.getName() + "/");
                 }
@@ -259,17 +253,17 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         Stat stat = new Stat();
         try {
             if (info instanceof BoxFolder.Info) {
-                stat.dir = true;
-                stat.file = false;
+                stat.setDir(true);
+                stat.setFile(false);
             } else {
-                stat.file = true;
-                stat.dir = false;
-                stat.size = info.getSize();
+                stat.setFile(true);
+                stat.setDir(false);
+                stat.setSize(info.getSize());
             }
-            stat.id = info.getID();
-            stat.name = info.getName();
+            stat.setId(info.getID());
+            stat.setName(info.getName());
             if (info.getContentModifiedAt() != null)
-                stat.time = info.getContentModifiedAt().getTime() / 1000;
+                stat.setTime(info.getContentModifiedAt().getTime() / 1000);
         } catch (BoxAPIException e) {
             e.printStackTrace();
         }
@@ -283,12 +277,12 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
     class BoxTap implements Tap {
         long size;
-        BoxAPIConnection api = session.client;
+        BoxAPIConnection api = getSession().client;
         BoxAPIRequest req;
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
-            BoxFile file = new BoxFile(api, stat.id);
+            BoxFile file = new BoxFile(api, stat.getId());
             URL downloadUrl = file.getDownloadURL();
             try {
                 req = new BoxAPIRequest(api, downloadUrl, HttpMethod.GET);
@@ -345,12 +339,12 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     }
 
     public BoxDrain sink(Stat stat){
-        return new BoxDrain().start(path + stat.getName());
+        return new BoxDrain().start(getPath() + stat.getName());
     }
 
     class BoxDrain implements Drain {
 
-        String drainPath = path;
+        String drainPath = getPath();
         Boolean isDirTransfer = false;
 
 

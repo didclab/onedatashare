@@ -37,8 +37,8 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
     @Override
     public Mono<BoxSession> initialize() {
         return Mono.create(s -> {
-            if(credential instanceof OAuthCredential){
-                OAuthCredential oauth = (OAuthCredential) credential;
+            if(getCredential() instanceof OAuthCredential){
+                OAuthCredential oauth = (OAuthCredential) getCredential();
                 client = new BoxAPIConnection(oauth.token);
                 s.success(this);
             }

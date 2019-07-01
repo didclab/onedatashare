@@ -113,7 +113,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             return new GoogleDriveSession(URI.create(uri), credential);
         }else if(credential instanceof GlobusWebClientCredential){
             return new GridftpSession(URI.create(uri), credential);
-        } else if(uri.startsWith("box:///"))
+        } else if(uri.contains(ODSConstants.BOX_URI_SCHEME))
             return new BoxSession(URI.create(uri), credential);
         else return new VfsSession(URI.create(uri), credential);
     }
