@@ -235,13 +235,17 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
         long multiply = 1;
         switch (Character.toUpperCase(multiplier)) {
             case TERA:
-                multiply <<= 10;
+                multiply <<= 40;
+                break;
             case GIGA:
-                multiply <<= 10;
+                multiply <<= 30;
+                break;
             case MEGA:
-                multiply <<= 10;
+                multiply <<= 20;
+                break;
             case KILO:
                 multiply <<= 10;
+                break;
         }
 
         if (multiplier != 1)
