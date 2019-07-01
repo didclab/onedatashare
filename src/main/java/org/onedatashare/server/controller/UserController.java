@@ -65,6 +65,7 @@ public class UserController {
         return null;
     }
   }
+
   @PutMapping
   public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
     switch(userAction.getAction()) {
