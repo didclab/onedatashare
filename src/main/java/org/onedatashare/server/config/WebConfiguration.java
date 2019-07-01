@@ -1,4 +1,4 @@
-package org.onedatashare.server;
+package org.onedatashare.server.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory;
