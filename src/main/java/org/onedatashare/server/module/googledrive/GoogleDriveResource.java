@@ -59,7 +59,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
     }
 
     public String mkdir(String directoryTree[]){
-        String curId = getId();
+        String curId = ROOT_DIR_ID;
 
         for(int i=1; i< directoryTree.length-1; i++){
             String exisitingID = folderExistsCheck(curId, directoryTree[i]);
@@ -92,8 +92,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                               .append(" in parents").toString();
 
             Drive.Files.List request = getSession().getService().files().list()
-                        .setOrderBy("name").setQ(query)
-                        .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
+                    .setOrderBy("name").setQ(query)
+                    .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
             FileList fileSet = null;
             List<File> fileList = null;
 
@@ -395,16 +395,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         @Override
         public GoogleDriveDrain start() {
             try{
-                String parentid = getSession().idMap.get(getSession().idMap.size()-1).getId();
-                if( parentid != null ) {
-                    setId( getSession().idMap.get(getSession().idMap.size()-1).getId() );
-                }else {
-                    setId(ROOT_DIR_ID);
-                }
                 String name[] = drainPath.split("/");
 
                 if(isDirTransfer)
                     setId(mkdir(name));
+                else
+                    setId( getSession().idMap.get(getSession().idMap.size()-1).getId() );
 
                 URL url = new URL("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
