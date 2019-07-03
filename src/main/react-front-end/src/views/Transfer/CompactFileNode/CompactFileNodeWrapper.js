@@ -54,15 +54,7 @@ export default class CompactFileNodeWrapper extends Component {
 		let headersTotal = headerStyleDelta.reduce((a, x) => a+x, 0)
 		let multiplier = this.CompactTable.current.offsetWidth/headersTotal
 		let headerMultiplied = headerStyleDelta.map((v) => v*multiplier);
-		/*
-		let firstHeader = this.CompactTable.current.offsetWidth - 
-			(this.state.headerCompactStylePos[1]+
-			this.state.headerCompactStylePos[2]+
-			this.state.headerCompactStylePos[3]+50);
-		if(firstHeader < 70){
-			firstHeader = 70;
-		}*/
-		//headerStyleDelta[0] = firstHeader;
+		
 		headerStyleDelta = headerMultiplied.map((v)=> v < 70? 70 : v);
 		
 		this.setState({headerCompactStylePos: headerStyleDelta, compactStylePos: headerStyleDelta});
