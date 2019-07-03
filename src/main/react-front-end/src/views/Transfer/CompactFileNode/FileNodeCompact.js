@@ -280,14 +280,18 @@ export default class FileNodeCompact extends Component {
 								
 							</td>}
 							{columns[1] && <td style={{borderLeft: "1px solid lightgray", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit1}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>
+
+								<p style={{...pstyle, width: posit1}}>
+									{time === 0? "Not Available" : new Intl.DateTimeFormat('en-US', options).format(date)}
+								</p>
+								
 							</td>}
 
 							{columns[2] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit2}}> {perm} </p>
+								<p style={{...pstyle, width: posit2}}> {perm? perm: "N\/A"} </p>
 							</td>}
 							{columns[3] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit3}}> {this.humanFileSize(size)} </p>
+								<p style={{...pstyle, width: posit3}}> {size===0 ? "N\/A" : this.humanFileSize(size)} </p>
 							</td>}
 					</FileDiv>
 			)}}

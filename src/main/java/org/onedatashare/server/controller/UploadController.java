@@ -41,9 +41,10 @@ public class UploadController {
         }
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
-            Long.parseLong(totalFileSize), googledriveid, idMap).map(job -> {
+            Long.parseLong(totalFileSize), googledriveid, idMap).map(success -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
-                resp.success = true;
+                resp.success = success;
+                resp.error = !success;
                 return resp;
             });
     }
