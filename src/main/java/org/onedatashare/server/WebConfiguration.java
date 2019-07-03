@@ -1,4 +1,5 @@
 package org.onedatashare.server;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.reactive.server.ReactiveWebServerFactory;
@@ -17,9 +18,11 @@ import javax.annotation.PreDestroy;
 @Configuration
 //@ComponentScan("org.onedatashare.module")
 public class WebConfiguration implements WebFluxConfigurer {
-
-    /*
-        Below methods are used for setting up HTTPS on port 443
+    final String CERTIFICATE_KEY_PASSWORD = System.getenv("CERTIFICATE_KEY_PASSWORD");
+    /***
+        Below methods are used for setting up HTTPS on port 443.
+        It loads keystore.p12, which is the certificate for *.onedatashare.org
+        uses Key password and KeyStore password set during certificate generation
      */
     @Bean
     public WebServerFactoryCustomizer<NettyReactiveWebServerFactory> customizer() {
@@ -28,11 +31,11 @@ public class WebConfiguration implements WebFluxConfigurer {
             public void customize(NettyReactiveWebServerFactory factory) {
                 Ssl ssl = new Ssl();
                 ssl.setEnabled(true);
-                ssl.setKeyStoreType("PKCS12");
-                ssl.setKeyStore("classpath:keystore.p12");
-                ssl.setKeyPassword("ODS@DIDCLab");
-                ssl.setKeyAlias("tomcat");
-                ssl.setKeyStorePassword("ODS@DIDCLab");
+                ssl.setKeyStoreType(ODSConstants.CERTIFICATETYPE);
+                ssl.setKeyStore(ODSConstants.KEYSTORELOCATION);
+                ssl.setKeyPassword(CERTIFICATE_KEY_PASSWORD);
+                ssl.setKeyAlias(ODSConstants.CERTIFICATEKEYALIAS);
+                ssl.setKeyStorePassword(CERTIFICATE_KEY_PASSWORD);
                 factory.setSsl(ssl);
             }
         };
@@ -48,7 +51,7 @@ public class WebConfiguration implements WebFluxConfigurer {
 
     @PostConstruct
     public void start() {
-        ReactiveWebServerFactory factory2 = new NettyReactiveWebServerFactory(80);
+        ReactiveWebServerFactory factory2 = new NettyReactiveWebServerFactory(ODSConstants.REDIRECTHOSTINGPORT);
         this.http = factory2.getWebServer(this.httpHandler);
         this.http.start();
     }

@@ -415,7 +415,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 }else{
                      body = "{\"name\": \"" + name[name.length-1] + "\"}";
                 }
-               // request.setRequestProperty("Content-Length", Integer.toString(body.getBytes().length));
+
                 request.setRequestProperty("Content-Length", String.format(Locale.ENGLISH, "%d", body.getBytes().length));
 
                 OutputStream outputStream = request.getOutputStream();

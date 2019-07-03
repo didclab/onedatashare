@@ -13,5 +13,10 @@ public class ODSConstants {
 
     public static final String COOKIE = "cookie";
 
+    public static final String CERTIFICATETYPE = "PCK12";
+    public static final String KEYSTORELOCATION = "classpath:keystore.p12";
+    public static final String CERTIFICATEKEYALIAS = "tomcat";
+
+    public static final int REDIRECTHOSTINGPORT = 80;
 
 }
