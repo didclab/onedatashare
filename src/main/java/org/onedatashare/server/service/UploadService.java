@@ -32,20 +32,20 @@ public class UploadService {
 
     private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
-    public Mono<Integer> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
+    public Mono<Boolean> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
                                  String directoryPath, String fileName, Long totalFileSize, String googledriveid, String idmap) {
         if (ongoingUploads.containsKey(uuid)) {
-            return sendFilePart(filePart, ongoingUploads.get(uuid));
+            if(ongoingUploads.get(uuid).isEmpty())
+                return sendFilePart(filePart, ongoingUploads.get(uuid)).map(size -> true);
+            else return Mono.just(false);
         } else {
             UserAction ua = new UserAction();
             ua.src = new UserActionResource();
             ua.src.uri = "Upload";
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
             ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
-            System.out.println("total "+totalFileSize);
             ua.dest = new UserActionResource();
             ua.dest.id = googledriveid;
-
 
             try {
                 if(directoryPath.endsWith("/")) {
@@ -53,7 +53,6 @@ public class UploadService {
                 } else {
                     ua.dest.uri = directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8");
                 }
-
                 ObjectMapper mapper = new ObjectMapper();
                 ua.dest.credential = mapper.readValue(credential, UserActionCredential.class);
                 IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
@@ -62,12 +61,13 @@ public class UploadService {
                 e.printStackTrace();
             }
             resourceService.submit(cookie, ua).subscribe();
-            return sendFilePart(filePart, uploadQueue).map(size -> {
-                if (size < totalFileSize) {
-                    ongoingUploads.put(uuid, uploadQueue);
-                }
-                return size;
-            });
+
+                return sendFilePart(filePart, uploadQueue).map(size -> {
+                    if (size < totalFileSize) {
+                        ongoingUploads.put(uuid, uploadQueue);
+                    }
+                    return true;
+                });
         }
     }
 
@@ -85,7 +85,6 @@ public class UploadService {
                     }catch(Exception e){}
                     return acc;
         }).map(content ->  {
-            System.out.println("uploading"+content.size());
             Slice slc = new Slice(content.toByteArray());
             qugue.add(slc);
             return slc.length();

@@ -14,14 +14,14 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-//@Configuration
+@Configuration
 //@ComponentScan("org.onedatashare.module")
 public class WebConfiguration implements WebFluxConfigurer {
 
     /*
-        Below methods are used for setting up HTTPS on port 8443
+        Below methods are used for setting up HTTPS on port 443
      */
-    /*@Bean
+    @Bean
     public WebServerFactoryCustomizer<NettyReactiveWebServerFactory> customizer() {
         return new WebServerFactoryCustomizer<NettyReactiveWebServerFactory>() {
             @Override
@@ -30,9 +30,9 @@ public class WebConfiguration implements WebFluxConfigurer {
                 ssl.setEnabled(true);
                 ssl.setKeyStoreType("PKCS12");
                 ssl.setKeyStore("classpath:keystore.p12");
-                ssl.setKeyPassword("asdasd");
+                ssl.setKeyPassword("ODS@DIDCLab");
                 ssl.setKeyAlias("tomcat");
-                ssl.setKeyStorePassword("asdasd");
+                ssl.setKeyStorePassword("ODS@DIDCLab");
                 factory.setSsl(ssl);
             }
         };
@@ -40,14 +40,15 @@ public class WebConfiguration implements WebFluxConfigurer {
     /*
        Below methods are used for redirecting port 8080 to 8443
      */
-    /*@Autowired
+
+    @Autowired
     HttpHandler httpHandler;
 
     WebServer http;
 
     @PostConstruct
     public void start() {
-        ReactiveWebServerFactory factory2 = new NettyReactiveWebServerFactory(8080);
+        ReactiveWebServerFactory factory2 = new NettyReactiveWebServerFactory(80);
         this.http = factory2.getWebServer(this.httpHandler);
         this.http.start();
     }
@@ -55,5 +56,5 @@ public class WebConfiguration implements WebFluxConfigurer {
     @PreDestroy
     public void stop() {
         this.http.stop();
-    }*/
+    }
 }
