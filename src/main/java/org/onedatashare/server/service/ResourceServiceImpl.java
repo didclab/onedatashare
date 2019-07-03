@@ -43,41 +43,41 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
     public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        final String path = pathFromUri(userAction.uri);
-        String id = userAction.id;
-        ArrayList<IdMap> idMap = userAction.map;
+        final String path = pathFromUri(userAction.getUri());
+        String id = userAction.getId();
+        ArrayList<IdMap> idMap = userAction.getMap();
         return userService.getLoggedInUser(cookie)
                 .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.credential.getUuid())))
-                .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+                .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
                 .flatMap(GoogleDriveSession::initialize)
                 .flatMap(driveSession -> driveSession.select(path,id, idMap))
                 .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
                     Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
-                            .map(credential -> new GoogleDriveSession(URI.create(userAction.uri), credential))
+                            .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
                             .flatMap(GoogleDriveSession::initialize)
                             .flatMap(driveSession -> driveSession.select(path,id, idMap))
                 );
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
-        final String path = pathFromUri(userActionResource.uri);
-        String id = userActionResource.id;
-        ArrayList<IdMap> idMap = userActionResource.map;
+        final String path = pathFromUri(userActionResource.getUri());
+        String id = userActionResource.getId();
+        ArrayList<IdMap> idMap = userActionResource.getMap();
 
         return userService.getLoggedInUser(cookie)
                 .map(user -> createCredential(userActionResource, user))
-                .map(credential -> createSession(userActionResource.uri, credential))
+                .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> session.initialize())
                 .flatMap(session -> ((Session)session).select(path,id,idMap));
     }
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains("dropbox://")){
-            path = uri.split("dropbox://")[1];
-        }else if(uri.contains("googledrive:/")){
-            path = uri.split("googledrive:")[1];
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+            path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
+        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+            path = uri.substring(ODSConstants.DRIVE_URI_SCHEME.length() - 1);
         }else path = uri;
 
         try {
@@ -89,26 +89,27 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.uri.contains("dropbox://") || userActionResource.uri.contains("googledrive:/")){
-            return user.getCredentials().get(UUID.fromString(userActionResource.credential.getUuid()));
-        }else if(userActionResource.uri.equals("Upload")){
-            return userActionResource.uploader;
-        }else if(userActionResource.uri.startsWith("gsiftp://")){
+        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)){
+            return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
+        }else if(userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)){
+            return userActionResource.getUploader();
+        }else if(userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)){
 
             GlobusClient gc = userService.getGlobusClientFromUser(user);
-            return new GlobusWebClientCredential(userActionResource.credential.getGlobusEndpoint(), gc);
+            return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
         }
-        else return new UserInfoCredential(userActionResource.credential);
+        else return new UserInfoCredential(userActionResource.getCredential());
     }
 
 
     public Session createSession(String uri, Credential credential) {
-        if(uri.contains("dropbox://")){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
             return new DbxSession(URI.create(uri), credential);
-        }else if(uri.contains("Upload")){
+        }else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)){
             UploadCredential upc = (UploadCredential)credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        }else if(uri.contains("googledrive:/")){
+        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
             return new GoogleDriveSession(URI.create(uri), credential);
         }else if(credential instanceof GlobusWebClientCredential){
             return new GridftpSession(URI.create(uri), credential);
@@ -134,7 +135,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Mono<Job> submit(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
             .map(user -> {
-                Job job = new Job(userAction.src, userAction.dest);
+                Job job = new Job(userAction.getSrc(), userAction.getDest());
                 job.setStatus(JobStatus.scheduled);
                 job = user.saveJob(job);
                 userService.saveUser(user).subscribe();
@@ -154,7 +155,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     public Mono<Job> restartJob(String cookie, UserAction userAction){
         return userService.getLoggedInUser(cookie)
             .flatMap(user ->{
-                return jobService.findJobByJobId(cookie, userAction.job_id)
+                return jobService.findJobByJobId(cookie, userAction.getJob_id())
                     .flatMap(job -> {
                         Job restartedJob = new Job(job.getSrc(), job.getDest());
                         boolean credsExists = updateJobCredentials(user, job);
@@ -163,7 +164,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                         }
                         restartedJob.setStatus(JobStatus.scheduled);
                         restartedJob.setRestartedJob(true);
-                        restartedJob.setSourceJob(userAction.job_id);
+                        restartedJob.setSourceJob(userAction.getJob_id());
                         restartedJob = user.saveJob(restartedJob);
                         userService.saveUser(user).subscribe();
                         return Mono.just(restartedJob);
@@ -175,7 +176,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction){
-        return jobService.findJobByJobId(cookie,userAction.job_id)
+        return jobService.findJobByJobId(cookie,userAction.getJob_id())
                 .map(job -> {
                     job.setDeleted(true);
                     return job;
@@ -195,7 +196,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
      */
     public Mono<Job> cancel(String cookie, UserAction userAction) {
         return userService.getLoggedInUser(cookie)
-                .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.job_id)
+                .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.getJob_id())
                         .map(job -> {
                             ongoingJobs.get(job.getUuid()).dispose();
                             ongoingJobs.remove(job.getUuid());

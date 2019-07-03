@@ -5,6 +5,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,6 +20,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Resource class that provides services for FTP, SFTP and SSH protocols
+ */
 public class VfsResource extends Resource<VfsSession, VfsResource> {
 
   private FileObject fileObject;
@@ -55,7 +59,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
     @Override
     public Mono<VfsResource> select(String path) {
-        return session.select(path);
+        return getSession().select(path);
     }
 
     public Mono<Stat> stat() {
@@ -97,19 +101,12 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 stat.setDir(true);
                 stat.setFile(false);
             }
-            else if(file.isFile()){
+            else {
                 stat.setFile(true);
-                stat.setDir(true);
+                stat.setDir(false);
                 stat.setSize(fileContent.getSize());
-            }else if(file.exists()){
-                stat.setFile(true);
-                stat.setDir(true);
-            }else{
-                stat.setName(file.getName().getBaseName());
-                stat.setFile(true);
-                stat.setDir(true);
-                return stat;
             }
+
             stat.setName(file.getName().getBaseName());
             stat.setTime(fileContent.getLastModifiedTime() / 1000);
        } catch (FileSystemException e) {
@@ -128,7 +125,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public VfsDrain sink(Stat stat) {
-        return new VfsDrain().start(path + stat.getName());
+        return new VfsDrain().start(getPath() + stat.getName());
     }
 
     @Override
@@ -144,12 +141,12 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             directorySize = buildDirectoryTree(sub, fileObject.getChildren(), "/");
                         }
                         catch(FileSystemException fse){
-                            System.out.println("Exception encountered while generating file objects within a folder");
-                            fse.printStackTrace();
+                            ODSLoggerService.logError("Exception encountered while generating " +
+                                                        "file objects within a folder", fse);
                         }
                     }
                     else{
-                        fileResource = true;
+                        setFileResource(true);
                         sub.add(s);
                         directorySize = s.getSize();
                     }
@@ -189,11 +186,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
-            String downloadPath = path;
-            if (!fileResource)
+            String downloadPath = getPath();
+            if (!isFileResource())
                 downloadPath += stat.getName();
             try {
-                fileContent = session.fileSystemManager.resolveFile(downloadPath, session.fileSystemOptions).getContent();
+                fileContent = getSession().fileSystemManager.resolveFile(downloadPath, getSession().fileSystemOptions).getContent();
             } catch (FileSystemException e) {
                 e.printStackTrace();
             }
@@ -257,15 +254,14 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         @Override
         public VfsDrain start(String drainPath) {
             try {
-                drainFileObject = session.fileSystemManager.resolveFile(
-                        drainPath.substring(0, drainPath.lastIndexOf('/')), session.fileSystemOptions);
+                drainFileObject = getSession().fileSystemManager.resolveFile(
+                        drainPath.substring(0, drainPath.lastIndexOf('/')), getSession().fileSystemOptions);
                 drainFileObject.createFolder();    // creates the folders for folder transfer
-                drainFileObject = session.fileSystemManager.resolveFile(drainPath, session.fileSystemOptions);
+                drainFileObject = getSession().fileSystemManager.resolveFile(drainPath, getSession().fileSystemOptions);
                 return start();
             }
             catch(FileSystemException fse){
-                System.out.println("Exception encountered while creating file object");
-                fse.printStackTrace();
+                ODSLoggerService.logError("Exception encountered while creating file object", fse);
             }
             return null;
         }
@@ -292,13 +288,13 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public Mono<String> getDownloadURL() {
-        String downloadLink = session.getUri().toString();
-        UserInfoCredential userInfoCredential = (UserInfoCredential) session.credential;
+        String downloadLink = getSession().getUri().toString();
+        UserInfoCredential userInfoCredential = (UserInfoCredential) getSession().getCredential();
         String username = userInfoCredential.getUsername(), password = userInfoCredential.getPassword();
         StringBuilder downloadURL = new StringBuilder();
-        System.out.println(session + " " + username);
+
         if (username != null)
-            downloadURL.append("ftp://" + username + ':' + password + '@' + downloadLink.substring(6));
+            downloadURL.append(ODSConstants.FTP_URI_SCHEME + username + ':' + password + '@' + downloadLink.substring(6));
         else
             downloadURL.append(downloadLink);
         downloadLink = downloadURL.toString();
@@ -314,7 +310,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             e.printStackTrace();
         }
 
-//        System.out.println("Size of file is " + stream.length());
         String[] strings = fileObject.getName().toString().split("/");
         String filename = strings[strings.length - 1];
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);

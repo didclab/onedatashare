@@ -84,3 +84,5 @@ fabric.properties
 
 src/react-front-end/node_modules
 output.log
+Dockerfile
+logs/*.log

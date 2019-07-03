@@ -33,30 +33,32 @@ public class UploadService {
     private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
     public Mono<Boolean> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
-                                 String directoryPath, String fileName, Long totalFileSize, String googledriveid, String idmap) {
+                                 String directoryPath, String fileName, Long totalFileSize, String googleDriveId, String idmap) {
         if (ongoingUploads.containsKey(uuid)) {
             if(ongoingUploads.get(uuid).isEmpty())
                 return sendFilePart(filePart, ongoingUploads.get(uuid)).map(size -> true);
             else return Mono.just(false);
         } else {
             UserAction ua = new UserAction();
-            ua.src = new UserActionResource();
-            ua.src.uri = "Upload";
+            ua.setSrc(new UserActionResource());
+            ua.getSrc().setUri(ODSConstants.UPLOAD_IDENTIFIER);
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
-            ua.src.uploader = new UploadCredential(uploadQueue, totalFileSize, fileName);
-            ua.dest = new UserActionResource();
-            ua.dest.id = googledriveid;
+
+            ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
+            ODSLoggerService.logInfo("Total upload file size - " + totalFileSize);
+            ua.setDest( new UserActionResource());
+            ua.getDest().setId( googleDriveId );
 
             try {
                 if(directoryPath.endsWith("/")) {
-                    ua.dest.uri = directoryPath+URLEncoder.encode(fileName,"UTF-8");
+                    ua.getDest().setUri( directoryPath+URLEncoder.encode(fileName,"UTF-8") );
                 } else {
-                    ua.dest.uri = directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8");
+                    ua.getDest().setUri( directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8") );
                 }
                 ObjectMapper mapper = new ObjectMapper();
-                ua.dest.credential = mapper.readValue(credential, UserActionCredential.class);
+                ua.getDest().setCredential( mapper.readValue(credential, UserActionCredential.class) );
                 IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
-                ua.dest.map = new ArrayList<>(Arrays.asList(idms));
+                ua.getDest().setMap( new ArrayList<>(Arrays.asList(idms)) );
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -73,9 +75,6 @@ public class UploadService {
 
     public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue){
 
-        //ongoingUploads.get(uuid).onNext(pfr);
-
-
         return pfr.flatMapMany(fp -> fp.content())
                 .reduce(new ByteArrayOutputStream(), (acc, newbuf)->{
                     try
@@ -85,6 +84,7 @@ public class UploadService {
                     }catch(Exception e){}
                     return acc;
         }).map(content ->  {
+            ODSLoggerService.logInfo("uploading " + content.size());
             Slice slc = new Slice(content.toByteArray());
             qugue.add(slc);
             return slc.length();

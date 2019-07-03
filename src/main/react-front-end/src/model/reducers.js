@@ -9,7 +9,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH } from './actions';
 import { transferOptimizations } from "./actions";
 
 export const cookies = require("js-cookie");
@@ -65,7 +65,7 @@ export function onedatashareModel(state = initialState, action) {
     		login: true,
     		email: email,
     		hash: hash,
-        publicKey: publicKey
+            publicKey: publicKey
     	});
     case LOGOUT:
       console.log("logging out");
@@ -110,6 +110,13 @@ export function onedatashareModel(state = initialState, action) {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
+    case UPDATE_HASH:
+        cookies.remove('hash');
+     cookies.set('hash',  action.hash, {maxAge: 7200});
+         return Object.assign({}, state, {
+                  hash: action.hash
+                });
+
     default:
       return state
   }

@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,20 +27,21 @@ public class UploadController {
     public Mono<Object> upload(@RequestHeader HttpHeaders headers,
                                @RequestPart("directoryPath") String directoryPath,
                                @RequestPart("qqfilename") String fileName,
-                               @RequestPart("map") String idmap,
+                               @RequestPart("map") String idMap,
                                @RequestPart("credential") String credential,
                                @RequestPart("id") String googledriveid,
                                @RequestPart("qquuid") String fileUUID,
                                @RequestPart("qqtotalfilesize") String totalFileSize,
                                @RequestPart("qqfile") Mono<FilePart> filePart){
-        String cookie = headers.getFirst("cookie");
-        if(directoryPath.startsWith("scp://")){
-            directoryPath = "sftp://" + directoryPath.substring(6);
-            idmap.replace("scp://","sftp://");
+
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
+        if(directoryPath.startsWith(ODSConstants.SCP_URI_SCHEME)){
+            directoryPath = directoryPath.replace(ODSConstants.SCP_URI_SCHEME, ODSConstants.SFTP_URI_SCHEME);
+            idMap = idMap.replace(ODSConstants.SCP_URI_SCHEME, ODSConstants.SFTP_URI_SCHEME);
         }
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
-            Long.parseLong(totalFileSize), googledriveid, idmap).map(success -> {
+            Long.parseLong(totalFileSize), googledriveid, idMap).map(success -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
                 resp.success = success;
                 resp.error = !success;

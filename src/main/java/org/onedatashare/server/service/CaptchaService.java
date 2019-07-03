@@ -67,24 +67,19 @@ public class CaptchaService {
                 return Mono.just(respObj.getSuccess());
             }
             else{
-                errorMsg = "There was an error verifying the captcha code - " + conn.getResponseMessage();
-                System.out.println(errorMsg);
+                ODSLoggerService.logError("There was an error verifying the captcha code - " + conn.getResponseMessage());
             }
         }
         catch(MalformedURLException mue){
-            errorMsg = "Exception occurred while creating URL object";
-            mue.printStackTrace();
+            ODSLoggerService.logError("Exception occurred while creating URL object",mue);
         }
         catch(IOException ioe){
-            errorMsg = "Exception occurred while opening or reading from a connection with " + GOOGLE_CAPTCHA_VERIFY_API_URL;
-            ioe.printStackTrace();
+            ODSLoggerService.logError("Exception occurred while opening or reading from a connection with "
+                                            + GOOGLE_CAPTCHA_VERIFY_API_URL, ioe);
         }
-        catch (Exception e){
-            errorMsg = "General error occurred while verify captcha";
-            e.printStackTrace();
+        catch (Exception ex){
+            ODSLoggerService.logError("General error occurred while verify captcha", ex);
         }
-
-        System.out.println(errorMsg);
         return Mono.error(new Exception(errorMsg));
     }
 }
