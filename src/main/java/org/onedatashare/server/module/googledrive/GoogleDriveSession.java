@@ -14,7 +14,10 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
@@ -31,7 +34,8 @@ import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
-@Data
+@Getter(AccessLevel.PROTECTED)
+@Setter(AccessLevel.PUBLIC)
 public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDriveResource> {
     private static GoogleClientSecrets clientSecrets = initGoogle();
     private Drive service;
