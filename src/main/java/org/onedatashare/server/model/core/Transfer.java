@@ -2,16 +2,15 @@ package org.onedatashare.server.model.core;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.onedatashare.module.globusapi.Result;
 import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
 import org.onedatashare.server.module.gridftp.GridftpResource;
 import org.onedatashare.server.module.gridftp.GridftpSession;
+import org.onedatashare.server.module.http.HttpResource;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.concurrent.TimeUnit;
@@ -36,7 +35,6 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
   public Flux<TransferInfo> start(Long sliceSize) {
-
     if (source instanceof GridftpResource && destination instanceof GridftpResource){
         return ((GridftpResource) source).transferTo(((GridftpResource) destination)).flatMapMany(result -> {
             String taskId = result.getTaskId();
@@ -71,9 +69,13 @@ public class Transfer<S extends Resource, D extends Resource> {
     }else if (source instanceof GridftpResource || destination instanceof GridftpResource){
         return Flux.error(new Exception("Can not send from GridFTP to other protocols"));
     }
+    // HTTP is read only
+    if(destination instanceof HttpResource)
+      return Flux.error(new Exception("HTTP is read-only"));
 
     Stat tapStat = (Stat)source.getTransferStat().block();
     info.setTotal(tapStat.getSize());
+
 
     return Flux.fromIterable(tapStat.getFilesList())
             .doOnSubscribe(s -> startTimer())
@@ -81,8 +83,9 @@ public class Transfer<S extends Resource, D extends Resource> {
               final Drain drain;
               if(tapStat.isDir())
                 drain = destination.sink(fileStat);
-              else
-                drain = destination.sink();
+              else {
+                  drain = destination.sink();
+              }
               return source.tap().tap(fileStat, sliceSize)
                       .subscribeOn(Schedulers.elastic())
                       .doOnNext(drain::drain)
@@ -136,9 +139,6 @@ public class Transfer<S extends Resource, D extends Resource> {
   }
 
 
-
-
-
   /**
    * This method was developed for debugging purposes.
    * This method ensures that the transfer is performed sequentially.
@@ -175,6 +175,5 @@ public class Transfer<S extends Resource, D extends Resource> {
     }
     done();
     return Flux.just(info);
-
   }
 }

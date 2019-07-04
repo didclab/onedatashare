@@ -139,9 +139,11 @@ public class Stat {
     this.filesList = fs;
   }
 
+  @Override
   public String toString(){
     return name;
   }
+
 
   public List<Stat> getFilesList(){
     return this.filesList;

@@ -37,6 +37,7 @@ public class EmailService {
      * @param emailText - content of the email
      * @throws MessagingException - throws an exception if there was an error in sending email. Must be caught in referenced classes.
      */
+
     public void sendEmail(String emailTo, String subject, String emailText){
         //Get system properties
         try {

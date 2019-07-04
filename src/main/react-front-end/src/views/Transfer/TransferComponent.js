@@ -265,8 +265,8 @@ export default class TransferComponent extends Component {
       fromTo: [entity.right, entity.left],
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
-
-    console.log(processed)
+    
+    console.log(processed);
     this.sendFile(processed);
   }
 
