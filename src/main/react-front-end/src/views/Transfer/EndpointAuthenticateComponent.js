@@ -27,7 +27,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import {getType, getName, getDefaultPortFromUri} from '../../constants.js';
+import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -113,13 +113,23 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
-		const endpointSet = {
+		let endpointSet = {
 			uri: url,
 			login: true,
 			side: this.props.endpoint.side,
 			credential: credential,
 			portNumber: portNum
 		}
+		// scp protocol is set into a sftp automatically
+		if(getTypeFromUri(endpointSet.uri)){
+			if(endpointSet.uri.startsWith("scp://")){
+				endpointSet.uri = "sftp://" + endpointSet.uri.substring(6);
+				url = endpointSet.uri;
+			}
+		}else{
+			this._handleError("Protocol is not understood");
+		}
+		
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
 				console.log(suc)

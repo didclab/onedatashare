@@ -13,9 +13,12 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.ArrayList;
 
-@Data
 public class DbxSession extends Session<DbxSession, DbxResource> {
   private DbxClientV2 client;
+
+  protected DbxClientV2 getClient(){
+    return client;
+  }
 
   public DbxSession(URI uri, Credential cred) {
     super(uri, cred);

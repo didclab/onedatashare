@@ -180,7 +180,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return directorySize;
     }
 
-    class VfsTap implements Tap {
+    public class VfsTap implements Tap {
         FileContent fileContent;
         long size;
 
@@ -214,7 +214,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         if (state + sliceSizeInt < sizeInt) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b, 0, sliceSizeInt);
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
+                                for(int offset = 0; offset < sliceSizeInt; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -223,13 +225,16 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             int remaining = sizeInt - state;
                             byte[] b = new byte[remaining];
                             try {
-                                finalInputStream.read(b, 0, remaining);
-//                                finalInputStream.close();
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
+                                for(int offset = 0; offset < remaining; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
+                                finalInputStream.close();
+                                sink.next(new Slice(b));
+                                sink.complete();
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            sink.next(new Slice(b));
-                            sink.complete();
                         }
                         return state + sliceSizeInt;
                     });

@@ -9,7 +9,7 @@
     "@material-ui/core": "latest",
     "@material-ui/icons": "latest",
     "@material-ui/lab": "^3.0.0-alpha.30",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "fg-loadcss": "^2.1.0",
     "fine-uploader": "^5.16.2",
     "fine-uploader-wrappers": "^1.0.1",
@@ -46,7 +46,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:8080/",
+  "proxy": "http://localhost:80/",
   "browserslist": [
     ">0.2%",
     "not dead",

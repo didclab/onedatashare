@@ -37,7 +37,6 @@
         </repository>
     </repositories>
 
-
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -144,6 +143,7 @@
             <artifactId>google-api-services-drive</artifactId>
             <version>v3-rev160-1.25.0</version>
         </dependency>
+
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
@@ -156,7 +156,6 @@
             <version>2.8.2</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-ses -->
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ses</artifactId>
@@ -164,12 +163,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.11.3</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.onedatashare.module</groupId>
             <artifactId>globus-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1-SNAPSHOT</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/globus-api-1.0-SNAPSHOT.jar</systemPath>
+            <systemPath>${project.basedir}/lib/globus-api-1.1-SNAPSHOT.jar</systemPath>
         </dependency>
+
 
         <dependency>
             <groupId>io.springfox</groupId>
@@ -188,6 +194,7 @@
             <artifactId>springfox-spring-webflux</artifactId>
             <version>3.0.0-SNAPSHOT</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -203,6 +210,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

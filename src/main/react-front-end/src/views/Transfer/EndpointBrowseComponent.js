@@ -74,8 +74,18 @@ export default class EndpointBrowseComponent extends Component {
 		this.onWindowClick = this.onWindowClick.bind(this);
 		this.fileChangeHandler = this.fileChangeHandler.bind(this);
 		this._handleAddFolderTextFieldChange = this._handleAddFolderTextFieldChange.bind(this);
-
-		//this.props.setLoading(true);
+		
+		this.filenameAscendingOrderSort = this.filenameAscendingOrderSort.bind(this);
+		this.sizeAscendingOrderSort = this.sizeAscendingOrderSort.bind(this);
+		this.dateAscendingOrderSort = this.dateAscendingOrderSort.bind(this);
+		this.permissionAscendingOrderSort = this.permissionAscendingOrderSort.bind(this);
+		this.filenameDescendingOrderSort = this.filenameDescendingOrderSort.bind(this);
+		this.sizeDescendingOrderSort = this.sizeDescendingOrderSort.bind(this);
+		this.dateDescendingOrderSort = this.dateDescendingOrderSort.bind(this);
+		this.permissionDescendingOrderSort = this.permissionDescendingOrderSort.bind(this);
+		
+		this.sortBy = this.sortBy.bind(this);
+		
 		if(this.state.directoryPath.length == 0)
 			this.getFilesFromBackend(props.endpoint);
 	}
@@ -163,7 +173,7 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 
-	onWindowClick = (event: KeyboardEvent) => {
+	onWindowClick = (		event: KeyboardEvent) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -174,9 +184,12 @@ export default class EndpointBrowseComponent extends Component {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
-	    //this.unselectAll();
 	};
 	
+	componentWillUnmount(){
+		this.unselectAll();
+	}
+
 	fileNodeClicked(filename){
 	}
 
@@ -197,6 +210,81 @@ export default class EndpointBrowseComponent extends Component {
 		this.getFilesFromBackendWithPath(endpoint, [], [null]);
 	}
 
+	filenameAscendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.dir && !b.dir){
+				return -1;
+			}else if(!a.dir && b.dir){
+				return 1;
+			}else{
+				return a.name.localeCompare(b.name);
+			}
+		});
+	}
+
+	filenameDescendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.dir && !b.dir){
+				return -1;
+			}else if(!a.dir && b.dir){
+				return 1;
+			}else{
+				return b.name.localeCompare(a.name);
+			}
+		});
+	}
+
+	dateAscendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return a.time - b.time;
+		});
+	}
+
+	dateDescendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return b.time - a.time;
+		});
+	}
+
+	sizeAscendingOrderSort (files){
+		return files.sort((a, b) => { 
+			return a.size - b.size;
+		});
+	}
+
+	sizeDescendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return b.size - a.size;
+		});
+	}
+
+	permissionAscendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.perm && b.perm)
+				return a.perm.localeCompare(b.perm);
+			return 0;
+		});
+	}
+
+	permissionDescendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.perm && b.perm)
+				return b.perm.localeCompare(a.perm);
+			return 0;
+		});
+	}
+
+	sortBy = (sortingFunc) => {
+		console.log("SortingBy", sortingFunc)
+		const {endpoint} = this.props;
+		const {directoryPath, ids} = this.state;
+		let files = getFilesFromMemory(endpoint);
+		console.log(sortingFunc);
+		let sortedfiles = sortingFunc(files);
+		setFilesWithPathListAndId(sortedfiles, directoryPath, ids, endpoint);
+		this.setState({directoryPath: directoryPath, ids: ids});
+	}
+
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
 		const {setLoading} = this.props;
@@ -204,15 +292,7 @@ export default class EndpointBrowseComponent extends Component {
 		uri = makeFileNameFromPath(uri, path, "");
 
 		listFiles(uri, endpoint, id[id.length-1], (data) =>{
-			let sortedfiles = data.files.sort((a, b) => { 
-				if(a.dir && !b.dir){
-					return -1;
-				}else if(!a.dir && b.dir){
-					return 1;
-				}else{
-					return a.name.localeCompare(b.name);
-				}
-			});
+			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
@@ -220,25 +300,28 @@ export default class EndpointBrowseComponent extends Component {
 			this._handleError(error);
 			setLoading(false);
 		});
-	}
+	};
+
 	handleClickOpen = (url) => {
 		this.setState({ openShare: true, shareUrl: url });
 	};
+
 	handleClickOpenAddFolder = () => {
 		this.setState({ openAFolder: true });
 	};
+
 	handleClose = () => {
 		this.setState({ openShare: false, openAFolder: false });
 	};
+
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
-
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
 		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
-			dirName =  addFolderName;
+			dirName = addFolderName;
 		}
 		//make api call
 		mkdir(dirName,dirType, endpoint, (response) => {
@@ -248,6 +331,7 @@ export default class EndpointBrowseComponent extends Component {
 			this._handleError(error);
 		})
 	}
+
 	_handleError = (error) =>{
 		eventEmitter.emit("errorOccured", error);
 	}
@@ -418,8 +502,12 @@ export default class EndpointBrowseComponent extends Component {
 					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 									const taskList = getSelectedTasksFromSide(endpoint);
 									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
-										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
-									}else{
+										getDownload(downloadUrl, endpoint.credential, taskList);
+									}
+									else if(getType(endpoint) == HTTP_TYPE){
+										window.open(downloadUrl);
+									}
+									else{
 						  			download(downloadUrl, endpoint.credential, taskList[0].id)
 						  		}
 					  		}}
@@ -536,6 +624,11 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle == "compact" && !loading && displayList.length != 0 &&
 							<CompactFileNodeWrapper 
+								sortFunctions = {[{"Asc": this.filenameAscendingOrderSort, "Desc" : this.filenameDescendingOrderSort}, 
+												  {"Asc": this.dateAscendingOrderSort, "Desc":this.dateDescendingOrderSort},
+												  {"Asc": this.permissionAscendingOrderSort, "Desc":this.permissionDescendingOrderSort},
+												  {"Asc": this.sizeAscendingOrderSort, "Desc":this.sizeDescendingOrderSort}]}
+								sortBy = {this.sortBy}
 								list={list} 
 								displayList={displayList} 
 								selectedTasks={selectedTasks} 

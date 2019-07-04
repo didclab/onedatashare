@@ -24,7 +24,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.*;
-import javax.mail.*;
 
 /**
  * Service class for all operations related to users' information.
