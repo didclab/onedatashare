@@ -15,7 +15,7 @@ import org.springframework.web.reactive.config.WebFluxConfigurer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
-@Configuration
+//@Configuration
 //@ComponentScan("org.onedatashare.module")
 public class WebConfiguration implements WebFluxConfigurer {
     final String CERTIFICATE_KEY_PASSWORD = System.getenv("CERTIFICATE_KEY_PASSWORD");
