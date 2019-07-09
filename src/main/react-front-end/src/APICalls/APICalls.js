@@ -731,7 +731,13 @@ export async function openGridFtpOAuth(){
 }
 
 export async function openOAuth(url){
-	window.open(url, 'oAuthWindow');
+	var link=document.createElement("a");
+	link.id = 'oAuthWindow'; //give it an ID!
+	link.href=url;
+
+	//Add the link somewhere, an appendChild statement will do.
+	//Then run this
+	link.click();
 }
 
 
