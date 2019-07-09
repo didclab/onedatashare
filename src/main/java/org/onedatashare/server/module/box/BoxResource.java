@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileSystemException;
 import java.util.*;
@@ -343,6 +344,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     }
 
     class BoxDrain implements Drain {
+        ByteArrayOutputStream chunk = new ByteArrayOutputStream();
+        long size = 0;
+        String resumableSessionURL;
+
 
         String drainPath = getPath();
         Boolean isDirTransfer = false;
@@ -357,7 +362,38 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         @Override
         public BoxDrain start() {
-            return null;
+            String name[] = drainPath.split("/");
+            try {
+                URL url = new URL("https://upload.box.com/api/2.0/files/upload_sessions");
+                HttpURLConnection request = (HttpURLConnection) url.openConnection();
+                request.setRequestMethod("POST");
+                request.setDoInput(true);
+                request.setDoOutput(true);
+                request.setRequestProperty("Authorization", "Bearer " + getSession().client.getAccessToken());
+                request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                String body;
+
+                // (getId() != null) {
+                    body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": \"" + 100000000 + "\", \"file_name\": \"" + name[name.length - 1] + "\"}";
+               // }
+
+                OutputStream outputStream = request.getOutputStream();
+                outputStream.write(body.getBytes());
+                outputStream.close();
+                request.connect();
+                int uploadRequestResponseCode =  request.getResponseCode();
+                if(uploadRequestResponseCode == 200){
+                    resumableSessionURL = request.getHeaderField("location");
+                }
+                else{
+                    throw new Exception("Error occurred while transferring into Box");
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return this;
         }
 
         @Override
