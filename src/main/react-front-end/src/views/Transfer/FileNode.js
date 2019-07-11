@@ -125,7 +125,7 @@ export default class FileNode extends Component {
 	    // we are using the event for selection
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
@@ -141,7 +141,7 @@ export default class FileNode extends Component {
 	    // marking the event as used
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	  };
