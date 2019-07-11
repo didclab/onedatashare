@@ -54,7 +54,7 @@ export default class NewLoginComponent extends Component {
 		var { email } = this.state;
 		isLoading(true);
 
-	    checkLogin(this.state.email, 
+	    checkLogin(this.state.email,
 	    	(success)=>{
 	    		isLoading(false);
 	    		this.setState({emailChecked: true});
@@ -74,7 +74,7 @@ export default class NewLoginComponent extends Component {
 		userLoggedIn(email, password, remember, (error)=>{
     		isLoading(false);
     		console.log("error message", error);
-			this.setState({error: true, errorMessage: "Wrong password or server error."});
+			  this.setState({error: true, errorMessage: "Wrong password or server error."});
 		});
 	}
 
