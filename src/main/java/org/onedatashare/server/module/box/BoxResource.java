@@ -5,14 +5,18 @@ import com.box.sdk.http.HttpMethod;
 import com.sun.mail.iap.ByteArray;
 import org.apache.commons.io.IOUtils;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileSystemException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class BoxResource extends Resource<BoxSession, BoxResource> {
@@ -374,7 +378,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 String body;
 
                 // (getId() != null) {
-                    body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": \"" + 100000000 + "\", \"file_name\": \"" + name[name.length - 1] + "\"}";
+                body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": \"" + 100000000 + "\", \"file_name\": \"" + name[name.length - 1] + "\"}";
                // }
 
                 OutputStream outputStream = request.getOutputStream();
@@ -382,7 +386,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 outputStream.close();
                 request.connect();
                 int uploadRequestResponseCode =  request.getResponseCode();
-                if(uploadRequestResponseCode == 200){
+                if(uploadRequestResponseCode == 200 || uploadRequestResponseCode == 201){
                     resumableSessionURL = request.getHeaderField("location");
                 }
                 else{
@@ -396,8 +400,68 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             return this;
         }
 
-        @Override
+        private String hashString(String input) {
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-1");
+                byte[] messageDigest = md.digest(input.getBytes());
+                BigInteger no = new BigInteger(1, messageDigest);
+                String hashtext = no.toString(16);
+                while (hashtext.length() < 32) {
+                    hashtext = "0" + hashtext;
+                }
+                return hashtext;
+            }
+            catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
+            return input;
+        }
+
+            @Override
         public void drain(Slice slice) {
+            try{
+                chunk.write(slice.asBytes());
+
+                // Google drive only supports 258KB (1 << 18) of data transfer per request
+                int chunks = chunk.size() / (1<<18);
+                int sizeUploading = chunks * (1<<18);
+
+                URL url = new URL(resumableSessionURL);
+                if(sizeUploading > 0) {
+                    HttpURLConnection request = (HttpURLConnection) url.openConnection();
+                    request.setRequestMethod("PUT");
+                    request.setConnectTimeout(10000);
+                    request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
+                    request.setRequestProperty("content-Range", "bytes " + size + "-" + (size + sizeUploading - 1) + "/" + "*");
+                    request.setRequestProperty("content-type","application/octet-stream");
+                    String sliceHash = hashString(slice.toString());
+                    request.setRequestProperty("digest", "sha=" + sliceHash + "=");
+
+
+
+
+                    request.setDoOutput(true);
+                    OutputStream outputStream = request.getOutputStream();
+                    outputStream.write(chunk.toByteArray(), 0, sizeUploading);
+                    outputStream.close();
+                    request.connect();
+
+                    if (request.getResponseCode() == 308) {
+                        size = size + sizeUploading;
+                        ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                        temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
+                        chunk = temp;
+                    } else if (request.getResponseCode() == 200 || request.getResponseCode() == 201) {
+                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
+                                ", message: " + request.getResponseMessage());
+                    } else {
+                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
+                                ", message: " + request.getResponseMessage());
+                    }
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
 
         }
 
