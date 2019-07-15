@@ -74,7 +74,6 @@ public class DownloadController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println(userActionResource);
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
     }
 }
