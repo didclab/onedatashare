@@ -534,8 +534,9 @@ export async function getDownload(uri, credential, _id, succeed){
 		credential: credential,
 		type: getTypeFromUri(uri),
 		uri: encodeURI(uri),
-		id: _id,
+		id: "",
 	}
+	
 	const strin = JSON.stringify(json_to_send);
 	cookies.set("SFTPAUTH", strin, {maxAge: 1});
 
