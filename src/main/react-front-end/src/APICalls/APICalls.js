@@ -525,10 +525,6 @@ export async function download(uri, credential, _id){
 }
 
 export async function getDownload(uri, credential, _id, succeed){
-	// const publicKey = store.getState()["publicKey"];
-
-	// var encrypt = new JsEncryptModule.JSEncrypt();
-	// encrypt.setPublicKey(publicKey);
 
 	let json_to_send = {
 		credential: credential,
