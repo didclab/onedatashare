@@ -275,11 +275,9 @@ export default class EndpointBrowseComponent extends Component {
 	}
 
 	sortBy = (sortingFunc) => {
-		console.log("SortingBy", sortingFunc)
 		const {endpoint} = this.props;
 		const {directoryPath, ids} = this.state;
 		let files = getFilesFromMemory(endpoint);
-		console.log(sortingFunc);
 		let sortedfiles = sortingFunc(files);
 		setFilesWithPathListAndId(sortedfiles, directoryPath, ids, endpoint);
 		this.setState({directoryPath: directoryPath, ids: ids});
