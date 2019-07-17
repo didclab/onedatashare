@@ -2,8 +2,6 @@ package org.onedatashare.server;
 
 import javafx.concurrent.Task;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.onedatashare.server.model.core.User;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
@@ -14,6 +12,7 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.context.annotation.DependsOn;
+import org.testng.annotations.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,8 +29,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class ChromeFrontendTest {
     private String baseUrl;
+    private int msWaitShort = 1000;
+    private int msWaitLong = 3000;
 
-    @Before
+    @Test
     public void setUp() throws Exception {
         WebDriver driver = new ChromeDriver();
         baseUrl = "localhost:8080";
@@ -40,23 +41,23 @@ public class ChromeFrontendTest {
         driver.quit();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"setUp"})
     public void LoginTest() throws Exception {
         WebDriver driver = new ChromeDriver();
         driver.get(baseUrl);
         driver.findElement(By.linkText("Sign in")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
         driver.findElement(By.name("email")).click();
         driver.findElement(By.name("email")).clear();
         driver.findElement(By.name("email")).sendKeys("vanditsa@buffalo.edu");
         driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.id("Password")).click();
         driver.findElement(By.id("Password")).clear();
         driver.findElement(By.id("Password")).sendKeys("asdasd");
         driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getTitle(), "OneDataShare - Transfer");
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/transfer");
         driver.findElement(By.linkText("Queue")).click();
@@ -72,35 +73,36 @@ public class ChromeFrontendTest {
         assertEquals(driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='First Name'])[1]/following::span[1]")).getText(), "Last Name");
         assertEquals(driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Last Name'])[1]/following::span[1]")).getText(), "Organization");
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='vanditsa@buffalo.edu'])[1]/following::span[1]")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertTrue(driver.getCurrentUrl().equals( "http://localhost:8080/") || driver.getCurrentUrl().equals( "http://localhost:8080"));
         driver.quit();
+        throw new Exception();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"LoginTest"})
     public void SortingTestLeft() throws Exception {
         WebDriver driver = new ChromeDriver();
         driver.get(baseUrl);
         driver.findElement(By.linkText("Sign in")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
         driver.findElement(By.name("email")).click();
         driver.findElement(By.name("email")).clear();
         driver.findElement(By.name("email")).sendKeys("vanditsa@buffalo.edu");
         driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.id("Password")).click();
         driver.findElement(By.id("Password")).clear();
         driver.findElement(By.id("Password")).sendKeys("asdasd");
         driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Grid FTP'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Back'])[1]/following::div[3]")).click();
         driver.findElement(By.id("outlined-name")).click();
         driver.findElement(By.id("outlined-name")).clear();
         driver.findElement(By.id("outlined-name")).sendKeys("speedtest.tele2.net");
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='​'])[2]/following::span[1]")).click();
-        Thread.sleep(3000);
+        Thread.sleep(msWaitLong);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
@@ -114,7 +116,7 @@ public class ChromeFrontendTest {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Permission'])[1]/following::span[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Permission'])[1]/following::span[1]")).click();
         driver.findElement(By.linkText("Queue")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Log out'])[1]/following::span[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Job ID'])[1]/following::span[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Progress'])[1]/following::span[1]")).click();
@@ -138,30 +140,30 @@ public class ChromeFrontendTest {
         driver.quit();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"LoginTest"})
     public void SortingTestRight() throws Exception {
         WebDriver driver = new ChromeDriver();
         driver.get(baseUrl);
         driver.findElement(By.linkText("Sign in")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
         driver.findElement(By.name("email")).click();
         driver.findElement(By.name("email")).clear();
         driver.findElement(By.name("email")).sendKeys("vanditsa@buffalo.edu");
         driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.id("Password")).click();
         driver.findElement(By.id("Password")).clear();
         driver.findElement(By.id("Password")).sendKeys("asdasd");
         driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Grid FTP'])[2]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Back'])[1]/following::div[3]")).click();
         driver.findElement(By.id("outlined-name")).click();
         driver.findElement(By.id("outlined-name")).clear();
         driver.findElement(By.id("outlined-name")).sendKeys("speedtest.tele2.net");
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='​'])[2]/following::span[1]")).click();
-        Thread.sleep(3000);
+        Thread.sleep(msWaitLong);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='*.'])[1]/following::span[2]")).click();
@@ -176,7 +178,7 @@ public class ChromeFrontendTest {
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Permission'])[1]/following::span[1]")).click();
         driver.findElement(By.cssSelector("button.btn.btn-primary > svg.MuiSvgIcon-root")).click();
         driver.findElement(By.linkText("Queue")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Log out'])[1]/following::span[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Job ID'])[1]/following::span[1]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Progress'])[1]/following::span[1]")).click();
@@ -200,30 +202,30 @@ public class ChromeFrontendTest {
         driver.quit();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"LoginTest"})
     public void SearchingTestLeft() throws Exception {
         WebDriver driver = new ChromeDriver();
         driver.get(baseUrl);
         driver.findElement(By.linkText("Sign in")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
         driver.findElement(By.name("email")).click();
         driver.findElement(By.name("email")).clear();
         driver.findElement(By.name("email")).sendKeys("vanditsa@buffalo.edu");
         driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.id("Password")).click();
         driver.findElement(By.id("Password")).clear();
         driver.findElement(By.id("Password")).sendKeys("asdasd");
         driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Grid FTP'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Back'])[1]/following::div[3]")).click();
         driver.findElement(By.id("outlined-name")).click();
         driver.findElement(By.id("outlined-name")).clear();
         driver.findElement(By.id("outlined-name")).sendKeys("speedtest.tele2.net");
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='​'])[2]/following::span[1]")).click();
-        Thread.sleep(3000);
+        Thread.sleep(msWaitLong);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).clear();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).sendKeys("1000");
@@ -257,30 +259,30 @@ public class ChromeFrontendTest {
         driver.quit();
     }
 
-    @Test
+    @Test(dependsOnMethods = {"LoginTest"})
     public void SearchingTestRight() throws Exception {
         WebDriver driver = new ChromeDriver();
         driver.get(baseUrl);
         driver.findElement(By.linkText("Sign in")).click();
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
         driver.findElement(By.name("email")).click();
         driver.findElement(By.name("email")).clear();
         driver.findElement(By.name("email")).sendKeys("vanditsa@buffalo.edu");
         driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.id("Password")).click();
         driver.findElement(By.id("Password")).clear();
         driver.findElement(By.id("Password")).sendKeys("asdasd");
         driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-        Thread.sleep(1000);
+        Thread.sleep(msWaitShort);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Grid FTP'])[1]/following::span[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Back'])[1]/following::div[3]")).click();
         driver.findElement(By.id("outlined-name")).click();
         driver.findElement(By.id("outlined-name")).clear();
         driver.findElement(By.id("outlined-name")).sendKeys("speedtest.tele2.net");
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='​'])[2]/following::span[1]")).click();
-        Thread.sleep(3000);
+        Thread.sleep(msWaitLong);
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).click();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).clear();
         driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='ftp://speedtest.tele2.net'])[1]/following::input[2]")).sendKeys("1000");
@@ -329,20 +331,20 @@ public class ChromeFrontendTest {
         {
             try {
                 WebDriver driver = new ChromeDriver();
-                Thread.sleep(1000);
+                Thread.sleep(msWaitShort);
                 driver.get("https://www.onedatashare.org");
                 driver.findElement(By.linkText("Sign in")).click();
-                Thread.sleep(3000);
+                Thread.sleep(msWaitLong);
                 driver.findElement(By.name("email")).click();
                 driver.findElement(By.name("email")).clear();
                 driver.findElement(By.name("email")).sendKeys("yifuyin@buffalo.edu");
                 driver.findElement(By.name("email")).sendKeys(Keys.ENTER);
-                Thread.sleep(3000);
+                Thread.sleep(msWaitLong);
                 driver.findElement(By.id("Password")).click();
                 driver.findElement(By.id("Password")).clear();
                 driver.findElement(By.id("Password")).sendKeys("asdasd");
                 driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
-                Thread.sleep(3000);
+                Thread.sleep(msWaitLong);
                 assertEquals(driver.getTitle(), "OneDataShare - Transfer");
                 driver.findElement(By.linkText("Queue")).click();
                 assertEquals(driver.getTitle(), "OneDataShare - Home");
@@ -354,7 +356,7 @@ public class ChromeFrontendTest {
                 assertEquals(driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='First Name'])[1]/following::span[1]")).getText(), "Last Name");
                 assertEquals(driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='Last Name'])[1]/following::span[1]")).getText(), "Organization");
                 driver.findElement(By.xpath("(.//*[normalize-space(text()) and normalize-space(.)='yifuyin@buffalo.edu'])[1]/following::span[1]")).click();
-                Thread.sleep(3000);
+                Thread.sleep(msWaitLong);
                 driver.quit();
             }catch(Exception e){
                 e.printStackTrace();
