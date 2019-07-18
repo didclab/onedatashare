@@ -4,6 +4,8 @@ import com.box.sdk.*;
 import com.box.sdk.http.HttpMethod;
 import com.sun.mail.iap.ByteArray;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.jose4j.json.internal.json_simple.JSONObject;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
@@ -52,47 +54,47 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             return rStat;
         }
         String type = "";
-            try{
-                folder = new BoxFolder(getSession().client, getId());
-                item = folder;
-                type = item.getInfo().getType();
-            }catch(BoxAPIResponseException e){
-                item = new BoxFile(getSession().client, getId());
-                type = item.getInfo().getType();
+        try{
+            folder = new BoxFolder(getSession().client, getId());
+            item = folder;
+            type = item.getInfo().getType();
+        }catch(BoxAPIResponseException e){
+            item = new BoxFile(getSession().client, getId());
+            type = item.getInfo().getType();
 
-            }
-
-            if(type.equals("folder")) {
-                Iterable<BoxItem.Info> children = folder.getChildren();
-                Stat stat = buildDirStat(children);
-                stat.setDir(true);
-                stat.setFile(false);
-                stat.setName(folder.getInfo().getName());
-                return stat;
-            }
-            else{
-                BoxFile file = new BoxFile(getSession().client, getId());
-                Stat stat = new Stat();
-                stat.setDir(false);
-                stat.setFile(true);
-                stat.setName(file.getInfo().getName());
-                stat.setId(file.getID());
-
-                BoxFile.Info fileInfo = file.getInfo();
-                stat.setSize(fileInfo.getSize());
-                stat.setTime(fileInfo.getContentModifiedAt().getTime() / 1000);
-                BoxSharedLink sharedLink = fileInfo.getSharedLink();
-                if (sharedLink != null) {
-                    stat.setLink(sharedLink.toString());
-                }
-                EnumSet<BoxFile.Permission> permissions = fileInfo.getPermissions();
-                if (permissions != null) {
-                    stat.setPermissions(permissions.toString());
-                }
-                return stat;
-
-            }
         }
+
+        if(type.equals("folder")) {
+            Iterable<BoxItem.Info> children = folder.getChildren();
+            Stat stat = buildDirStat(children);
+            stat.setDir(true);
+            stat.setFile(false);
+            stat.setName(folder.getInfo().getName());
+            return stat;
+        }
+        else{
+            BoxFile file = new BoxFile(getSession().client, getId());
+            Stat stat = new Stat();
+            stat.setDir(false);
+            stat.setFile(true);
+            stat.setName(file.getInfo().getName());
+            stat.setId(file.getID());
+
+            BoxFile.Info fileInfo = file.getInfo();
+            stat.setSize(fileInfo.getSize());
+            stat.setTime(fileInfo.getContentModifiedAt().getTime() / 1000);
+            BoxSharedLink sharedLink = fileInfo.getSharedLink();
+            if (sharedLink != null) {
+                stat.setLink(sharedLink.toString());
+            }
+            EnumSet<BoxFile.Permission> permissions = fileInfo.getPermissions();
+            if (permissions != null) {
+                stat.setPermissions(permissions.toString());
+            }
+            return stat;
+
+        }
+    }
 
     public Stat buildDirStat(Iterable<BoxItem.Info> children){
         Stat stat = new Stat();
@@ -368,26 +370,57 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         public BoxDrain start() {
             String name[] = drainPath.split("/");
             try {
+                String parentid = getSession().idMap.get(getSession().idMap.size()-1).getId();
+                if( parentid != null ) {
+                    setId( getSession().idMap.get(getSession().idMap.size()-1).getId() );
+                }else {
+                    parentid = "0";
+                    setId("0");
+                }
+
                 URL url = new URL("https://upload.box.com/api/2.0/files/upload_sessions");
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
+
+                request.setConnectTimeout(15000);
+
+                request.setUseCaches(false);
                 request.setRequestMethod("POST");
                 request.setDoInput(true);
                 request.setDoOutput(true);
                 request.setRequestProperty("Authorization", "Bearer " + getSession().client.getAccessToken());
-                request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                request.setRequestProperty("Content-Type", "application/json");
                 String body;
 
-                // (getId() != null) {
-                body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": \"" + 100000000 + "\", \"file_name\": \"" + name[name.length - 1] + "\"}";
-               // }
+                if (getId() != null){
+                    body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": " + 20000000 + ", \"file_name\": \"" + name[name.length - 1] + "\"}";
+                }
+                else{
+                    body = "{\"name\": \"" + name[name.length-1] + "\"}";
+                }
 
+                //request.setRequestProperty("Content-Length", String.format(Locale.ENGLISH, "%d", body.getBytes().length));
+                //request.setRequestProperty("data", body);
                 OutputStream outputStream = request.getOutputStream();
                 outputStream.write(body.getBytes());
+                outputStream.flush();
                 outputStream.close();
                 request.connect();
+                System.out.println(request.toString());
+
                 int uploadRequestResponseCode =  request.getResponseCode();
+                System.out.println(request.getResponseCode() + request.getResponseMessage());
                 if(uploadRequestResponseCode == 200 || uploadRequestResponseCode == 201){
-                    resumableSessionURL = request.getHeaderField("location");
+                    BufferedReader reader = new BufferedReader(new InputStreamReader((request.getInputStream())));
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String output = reader.readLine();
+                    stringBuilder.append(output);
+                    String jsonString = stringBuilder.toString();
+                    System.out.println(jsonString);
+                    ObjectMapper mapper = new ObjectMapper();
+                    Map<String,Object> map = mapper.readValue(jsonString, Map.class);
+                    Map<String,Object> sessionEndpointsMap = (Map<String, Object>) map.get("session_endpoints");
+                    resumableSessionURL = sessionEndpointsMap.get("upload_part").toString();
+                    System.out.println(resumableSessionURL);
                 }
                 else{
                     throw new Exception("Error occurred while transferring into Box");
@@ -400,65 +433,64 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             return this;
         }
 
-        private String hashString(String input) {
+        private String hashString(byte[] input) {
             try {
                 MessageDigest md = MessageDigest.getInstance("SHA-1");
-                byte[] messageDigest = md.digest(input.getBytes());
-                BigInteger no = new BigInteger(1, messageDigest);
-                String hashtext = no.toString(16);
-                while (hashtext.length() < 32) {
-                    hashtext = "0" + hashtext;
-                }
-                return hashtext;
+                byte[] messageDigest = md.digest(input);
+
+                return Base64.getEncoder().encodeToString(messageDigest);
             }
             catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
             }
-            return input;
+            return null;
         }
 
-            @Override
+        @Override
         public void drain(Slice slice) {
             try{
                 chunk.write(slice.asBytes());
-
-                // Google drive only supports 258KB (1 << 18) of data transfer per request
                 int chunks = chunk.size() / (1<<18);
                 int sizeUploading = chunks * (1<<18);
 
                 URL url = new URL(resumableSessionURL);
-                if(sizeUploading > 0) {
-                    HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                    request.setRequestMethod("PUT");
-                    request.setConnectTimeout(10000);
-                    request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
-                    request.setRequestProperty("content-Range", "bytes " + size + "-" + (size + sizeUploading - 1) + "/" + "*");
-                    request.setRequestProperty("content-type","application/octet-stream");
-                    String sliceHash = hashString(slice.toString());
-                    request.setRequestProperty("digest", "sha=" + sliceHash + "=");
+                //if(sizeUploading > 0) {
+                HttpURLConnection request = (HttpURLConnection) url.openConnection();
+                request.setConnectTimeout(15000);
+                request.setUseCaches(false);
+                request.setRequestMethod("PUT");
+                request.setDoInput(true);
+                request.setDoOutput(true);
+                request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
+                request.setRequestProperty("content-Range", "bytes " + size + "-" + (size + sizeUploading - 1)+"/20000000");
+                request.setRequestProperty("content-type","application/octet-stream");
+                String sliceHash = hashString(slice.asBytes());
+                request.setRequestProperty("digest", "sha=" + sliceHash + "=");
 
 
 
 
-                    request.setDoOutput(true);
-                    OutputStream outputStream = request.getOutputStream();
-                    outputStream.write(chunk.toByteArray(), 0, sizeUploading);
-                    outputStream.close();
-                    request.connect();
-
-                    if (request.getResponseCode() == 308) {
-                        size = size + sizeUploading;
-                        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                        temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
-                        chunk = temp;
-                    } else if (request.getResponseCode() == 200 || request.getResponseCode() == 201) {
-                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
-                                ", message: " + request.getResponseMessage());
-                    } else {
-                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
-                                ", message: " + request.getResponseMessage());
-                    }
+                request.setDoOutput(true);
+                OutputStream outputStream = request.getOutputStream();
+                outputStream.write(chunk.toByteArray(), 0, sizeUploading);
+                outputStream.close();
+                request.connect();
+                int requestCode = request.getResponseCode();
+                String reqm = request.getRequestMethod();
+                String hashed = hashString("asdasd".getBytes("UTF-8"));
+                if (requestCode == 308) {
+                    size = size + sizeUploading;
+                    ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                    temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
+                    chunk = temp;
+                } else if (requestCode == 200 || requestCode == 201) {
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode() +
+                            ", message: " + request.getResponseMessage());
+                } else {
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode() +
+                            ", message: " + request.getResponseMessage());
                 }
+                //     }
             }catch (Exception e) {
                 e.printStackTrace();
             }
@@ -467,7 +499,32 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         @Override
         public void finish() {
-
+            try{
+                URL url = new URL(resumableSessionURL);
+                HttpURLConnection request = (HttpURLConnection) url.openConnection();
+                request.setRequestMethod("PUT");
+                request.setConnectTimeout(10000);
+                request.setRequestProperty("Content-Length", Long.toString(chunk.size()));
+                if(chunk.size() == 0)
+                    request.setRequestProperty("Content-Range", "bytes */" + (size+chunk.size()));
+                else
+                    request.setRequestProperty("Content-Range", "bytes " + size + "-" + (size+chunk.size()-1) + "/" + (size + chunk.size()));
+                request.setDoOutput(true);
+                OutputStream outputStream = request.getOutputStream();
+                outputStream.write(chunk.toByteArray(), 0, chunk.size());
+                outputStream.close();
+                request.connect();
+                if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
+                            ", message: "+ request.getResponseMessage());
+                }else {
+                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
+                            ", message: "+ request.getResponseMessage());
+                    ODSLoggerService.logDebug("fail");
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 }

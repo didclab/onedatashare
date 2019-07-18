@@ -10,9 +10,12 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class BoxSession extends Session<BoxSession, BoxResource> {
     BoxAPIConnection client;
+    private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
+    protected ArrayList<IdMap> idMap = null;
     public BoxSession(URI uri, Credential credential) {
         super(uri, credential);
     }
@@ -31,7 +34,12 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
 
     @Override
     public Mono<BoxResource> select(String path, String id, ArrayList<IdMap> idMap) {
-        return Mono.just(new BoxResource(this, path, id));
+        this.idMap = idMap;
+        if(idMap !=null && idMap.size()>0)
+            for (IdMap idPath: idMap) {
+                pathToParentIdMap.put(idPath.getPath(),idPath.getId());
+            }
+        return Mono.just(new BoxResource(this, path,id));
     }
 
     @Override
