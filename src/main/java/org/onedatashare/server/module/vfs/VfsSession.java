@@ -42,7 +42,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
 
   public static URI getURIWithPortNumber(URI buildItem, String portNum){
       if(StringUtils.isNumeric(portNum) && portNum.length() <= 5 && portNum.length() > 0){
-
           try {
               int portNumber = Integer.parseInt(portNum);
               URI historyItem = new URI(buildItem.getScheme(),
@@ -83,17 +82,11 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
 
   @Override
   public Mono<VfsSession> initialize() {
-    return initialize("-1");
-  }
-
-  public Mono<VfsSession> initialize(String portNum) {
 
         return Mono.create(s -> {
             fileSystemOptions = new FileSystemOptions();
             FtpFileSystemConfigBuilder.getInstance().setPassiveMode(fileSystemOptions, true);
             SftpFileSystemConfigBuilder sfscb = SftpFileSystemConfigBuilder.getInstance();
-            sfscb.setUserDirIsRoot(fileSystemOptions, true);
-            sfscb.setTimeout(fileSystemOptions, 10000);
             sfscb.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
             if(getCredential() instanceof UserInfoCredential && ((UserInfoCredential) getCredential()).getUsername() != null) {
                 UserInfoCredential cred = (UserInfoCredential) getCredential();
