@@ -1,6 +1,5 @@
 package org.onedatashare.server;
 
-import javafx.concurrent.Task;
 import org.junit.After;
 import org.onedatashare.server.model.core.User;
 import org.openqa.selenium.By;
