@@ -48,13 +48,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public Mono<VfsResource> delete() {
-        return initialize().doOnSuccess(vfsResource -> {
-            try {
-                fileObject.deleteAll();
-            } catch (FileSystemException e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            fileObject.deleteAll();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }return Mono.just(this);
     }
 
     @Override
@@ -306,7 +304,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return Mono.just(downloadLink);
     }
 
-    public Mono<ResponseEntity> getSftpObject() {
+    public Mono<ResponseEntity> sftpObject() {
 
         InputStream inputStream = null;
         try {

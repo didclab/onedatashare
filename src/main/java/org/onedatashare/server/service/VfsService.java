@@ -28,7 +28,7 @@ public class VfsService implements ResourceService<VfsResource> {
         return userService.getLoggedInUser(cookie)
             .map(user -> new UserInfoCredential(userAction.getCredential()))
             .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
-            .flatMap(vfsSession -> vfsSession.initialize(userAction.getPortNumber()))
+            .flatMap(vfsSession -> vfsSession.initialize())
             .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
@@ -111,6 +111,6 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
-        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::getSftpObject);
+        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
     }
 }
