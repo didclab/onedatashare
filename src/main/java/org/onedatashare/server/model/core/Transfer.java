@@ -7,6 +7,7 @@ import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
 import org.onedatashare.server.model.util.TransferInfo;
+import org.onedatashare.server.module.box.BoxResource;
 import org.onedatashare.server.module.gridftp.GridftpResource;
 import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.service.ODSLoggerService;
@@ -79,6 +80,9 @@ public class Transfer<S extends Resource, D extends Resource> {
             .doOnSubscribe(s -> startTimer())
             .flatMap(fileStat -> {
               final Drain drain;
+              if( destination instanceof BoxResource){
+                  drain =  ((BoxResource)destination).sink(fileStat, tapStat.isDir());
+              }else
               if(tapStat.isDir())
                 drain = destination.sink(fileStat);
               else

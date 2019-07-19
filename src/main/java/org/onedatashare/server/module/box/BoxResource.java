@@ -345,19 +345,32 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         return new BoxDrain().start();
     }
 
-    public BoxDrain sink(Stat stat){
-        return new BoxDrain().start(getPath() + stat.getName());
+    public BoxDrain sink(Stat stat, boolean isDir){
+        String path = isDir ? getPath() + stat.getName() : getPath();
+        return new BoxDrain().start(path, stat.getSize());
     }
 
     class BoxDrain implements Drain {
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
-        long size = 0;
+        long totalSize = 0;
+        long sizeUploaded = 0;
+        int part_size;
         String resumableSessionURL;
-
-
         String drainPath = getPath();
         Boolean isDirTransfer = false;
 
+        MessageDigest sha1;
+
+        public BoxDrain start(String drainPath, long size){
+             totalSize = size;
+             try{
+                 sha1 = MessageDigest.getInstance("SHA-1");
+             }
+             catch (NoSuchAlgorithmException e) {
+                 e.printStackTrace();
+             }
+            return start(drainPath);
+        }
 
         @Override
         public BoxDrain start(String drainPath) {
@@ -382,24 +395,15 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 HttpURLConnection request = (HttpURLConnection) url.openConnection();
 
                 request.setConnectTimeout(15000);
-
                 request.setUseCaches(false);
                 request.setRequestMethod("POST");
                 request.setDoInput(true);
                 request.setDoOutput(true);
+
                 request.setRequestProperty("Authorization", "Bearer " + getSession().client.getAccessToken());
                 request.setRequestProperty("Content-Type", "application/json");
-                String body;
+                String body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": " + totalSize + ", \"file_name\": \"" + name[name.length - 1] + "\"}";
 
-                if (getId() != null){
-                    body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": " + 20000000 + ", \"file_name\": \"" + name[name.length - 1] + "\"}";
-                }
-                else{
-                    body = "{\"name\": \"" + name[name.length-1] + "\"}";
-                }
-
-                //request.setRequestProperty("Content-Length", String.format(Locale.ENGLISH, "%d", body.getBytes().length));
-                //request.setRequestProperty("data", body);
                 OutputStream outputStream = request.getOutputStream();
                 outputStream.write(body.getBytes());
                 outputStream.flush();
@@ -411,15 +415,15 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 System.out.println(request.getResponseCode() + request.getResponseMessage());
                 if(uploadRequestResponseCode == 200 || uploadRequestResponseCode == 201){
                     BufferedReader reader = new BufferedReader(new InputStreamReader((request.getInputStream())));
-                    StringBuilder stringBuilder = new StringBuilder();
                     String output = reader.readLine();
-                    stringBuilder.append(output);
-                    String jsonString = stringBuilder.toString();
+                    String jsonString = output;
                     System.out.println(jsonString);
+
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String,Object> map = mapper.readValue(jsonString, Map.class);
                     Map<String,Object> sessionEndpointsMap = (Map<String, Object>) map.get("session_endpoints");
                     resumableSessionURL = sessionEndpointsMap.get("upload_part").toString();
+                    part_size = Integer.parseInt(map.get("part_size").toString());
                     System.out.println(resumableSessionURL);
                 }
                 else{
@@ -434,67 +438,59 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         }
 
         private String hashString(byte[] input) {
-            try {
-                MessageDigest md = MessageDigest.getInstance("SHA-1");
-                byte[] messageDigest = md.digest(input);
-
-                return Base64.getEncoder().encodeToString(messageDigest);
-            }
-            catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-            return null;
+            sha1.update(input);
+            byte[] messageDigest = sha1.digest();
+            return Base64.getEncoder().encodeToString(messageDigest);
         }
 
         @Override
         public void drain(Slice slice) {
-            try{
+            try {
                 chunk.write(slice.asBytes());
-                int chunks = chunk.size() / (1<<18);
-                int sizeUploading = chunks * (1<<18);
+                int chunks = chunk.size() / part_size;
+                int sizeUploading = Math.min(chunks * part_size, part_size);
+                if (sizeUploading > 0) {
+                    URL url = new URL(resumableSessionURL);
+                    //if(sizeUploading > 0) {
+                    HttpURLConnection request = (HttpURLConnection) url.openConnection();
+                    request.setRequestMethod("PUT");
+                    request.setDoOutput(true);
+                    request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
+                    request.setRequestProperty("content-range", "bytes " + sizeUploaded + "-" + (sizeUploaded + sizeUploading - 1) + "/" + totalSize);
 
-                URL url = new URL(resumableSessionURL);
-                //if(sizeUploading > 0) {
-                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                request.setConnectTimeout(15000);
-                request.setUseCaches(false);
-                request.setRequestMethod("PUT");
-                request.setDoInput(true);
-                request.setDoOutput(true);
-                request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
-                request.setRequestProperty("content-Range", "bytes " + size + "-" + (size + sizeUploading - 1)+"/20000000");
-                request.setRequestProperty("content-type","application/octet-stream");
-                String sliceHash = hashString(slice.asBytes());
-                request.setRequestProperty("digest", "sha=" + sliceHash + "=");
+                    System.out.println(sizeUploaded + " " + sizeUploading + " " + totalSize);
+                    System.out.println("content-range: " +  "bytes " + sizeUploaded + "-" + (sizeUploaded + sizeUploading - 1) + "/" + totalSize);
 
+                    request.setRequestProperty("content-type", "application/octet-stream");
+                    byte[] newbuffer = new byte[sizeUploading];
+                    chunk.write(newbuffer, 0, sizeUploading);
+                    String sliceHash = hashString(newbuffer);
+                    System.out.println("sha=" + sliceHash);
+                    request.setRequestProperty("digest", "sha=" + sliceHash);
 
+                    OutputStream outputStream = request.getOutputStream();
+                    outputStream.write(newbuffer);
+                    outputStream.close();
+                    request.connect();
+                    int requestCode = request.getResponseCode();
+                    System.out.println(request.getResponseMessage());
 
-
-                request.setDoOutput(true);
-                OutputStream outputStream = request.getOutputStream();
-                outputStream.write(chunk.toByteArray(), 0, sizeUploading);
-                outputStream.close();
-                request.connect();
-                int requestCode = request.getResponseCode();
-                String reqm = request.getRequestMethod();
-                String hashed = hashString("asdasd".getBytes("UTF-8"));
-                if (requestCode == 308) {
-                    size = size + sizeUploading;
-                    ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                    temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
-                    chunk = temp;
-                } else if (requestCode == 200 || requestCode == 201) {
-                    ODSLoggerService.logDebug("code: " + request.getResponseCode() +
-                            ", message: " + request.getResponseMessage());
-                } else {
-                    ODSLoggerService.logDebug("code: " + request.getResponseCode() +
-                            ", message: " + request.getResponseMessage());
+                    System.out.println(request.toString());
+//                    byte[] op = new byte[999];
+//                    System.out.println(request.getInputStream().read(op) + new String(op));
+                    if (requestCode == 200) {
+                        sizeUploaded = sizeUploaded + sizeUploading;
+                        ByteArrayOutputStream temp = new ByteArrayOutputStream();
+                        temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
+                        chunk = temp;
+                    } else {
+                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
+                                ", message: " + request.getResponseMessage());
+                    }
                 }
-                //     }
-            }catch (Exception e) {
+            }catch(Exception e){
                 e.printStackTrace();
             }
-
         }
 
         @Override
@@ -505,10 +501,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 request.setRequestMethod("PUT");
                 request.setConnectTimeout(10000);
                 request.setRequestProperty("Content-Length", Long.toString(chunk.size()));
-                if(chunk.size() == 0)
-                    request.setRequestProperty("Content-Range", "bytes */" + (size+chunk.size()));
-                else
-                    request.setRequestProperty("Content-Range", "bytes " + size + "-" + (size+chunk.size()-1) + "/" + (size + chunk.size()));
+//                if(chunk.size() == 0)
+//                    request.setRequestProperty("Content-Range", "bytes */" + (size+chunk.size()));
+//                else
+//                    request.setRequestProperty("Content-Range", "bytes " + size + "-" + (size+chunk.size()-1) + "/" + (size + chunk.size()));
                 request.setDoOutput(true);
                 OutputStream outputStream = request.getOutputStream();
                 outputStream.write(chunk.toByteArray(), 0, chunk.size());
