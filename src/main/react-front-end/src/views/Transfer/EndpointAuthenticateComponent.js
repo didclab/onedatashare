@@ -113,6 +113,10 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
+		
+		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
+		url = url + ":" + portNum;
+
 		let endpointSet = {
 			uri: url,
 			login: true,
@@ -120,6 +124,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			credential: credential,
 			portNumber: portNum
 		}
+
 		// scp protocol is set into a sftp automatically
 		if(getTypeFromUri(endpointSet.uri)){
 			if(endpointSet.uri.startsWith("scp://")){
