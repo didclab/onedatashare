@@ -105,8 +105,11 @@ export default class TransferComponent extends Component {
     const src = {
       credential:endpointSrc.credential,
       id: fileId,
-      uri: encodeURI(srcUrl)
+      uri: srcUrl,
+      // For multiple transfers from the same Folder
+      uriList: srcUrls.length > 1 ? srcUrls.map(encodeURI) : undefined
     }
+
     const dest = {
       credential:endpointDest.credential,
       id: getCurrentFolderId(endpointDest),
