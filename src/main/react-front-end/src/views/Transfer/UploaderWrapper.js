@@ -68,9 +68,7 @@ render(){
 		})
 
 	return <FileInput uploader={uploader} style={buttonStyle}>
-  			<Button disabled={false}>
-				<UploadButton style={iconStyle}/>
-  			</Button>
+                    <UploadButton style={iconStyle}/>
 		</FileInput>
 	}
 }
