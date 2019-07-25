@@ -340,7 +340,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
 		            	{resp.job_id}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '10rem'}}>
+		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
                         {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
                     </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
