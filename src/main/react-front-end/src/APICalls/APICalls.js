@@ -524,17 +524,14 @@ export async function download(uri, credential, _id){
 }
 
 export async function getDownload(uri, credential, _id, succeed){
-	// const publicKey = store.getState()["publicKey"];
-
-	// var encrypt = new JsEncryptModule.JSEncrypt();
-	// encrypt.setPublicKey(publicKey);
 
 	let json_to_send = {
 		credential: credential,
 		type: getTypeFromUri(uri),
 		uri: encodeURI(uri),
-		id: _id,
+		id: "",
 	}
+	
 	const strin = JSON.stringify(json_to_send);
 	cookies.set("SFTPAUTH", strin, {maxAge: 1});
 
@@ -730,7 +727,7 @@ export async function openGridFtpOAuth(){
 }
 
 export async function openOAuth(url){
-	window.open(url, 'oAuthWindow');
+	window.location = url;
 }
 
 
