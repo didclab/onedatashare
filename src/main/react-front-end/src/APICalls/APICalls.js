@@ -341,7 +341,6 @@ export async function dropboxCredList(accept, fail){
 */
 export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fail){
 	var callback = accept;
-
 	axios.post(url+'q', {
 		status: isHistory ? 'all' : 'userJob',
         pageNo: pageNo,
