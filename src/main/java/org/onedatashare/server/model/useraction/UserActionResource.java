@@ -12,7 +12,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class  UserActionResource {
   private String uri;
-  private ArrayList<String> uriList;
   private String id;
   private UserActionCredential credential;
   @Transient
