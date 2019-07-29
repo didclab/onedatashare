@@ -60,6 +60,7 @@ class QueueComponent extends Component {
 
 	queueFunc = () => {
 		let isHistory = true;
+
 		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
 		let responsesToDisplay = [];
@@ -71,6 +72,7 @@ class QueueComponent extends Component {
 		}
 
 		this.setState({response:resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount});
+
 	}, (resp) => {
 		//failed
 		console.log('Error in queue request to API layer');
@@ -286,7 +288,11 @@ class QueueComponent extends Component {
 		this.state.page=page
 		
 		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+        var x = document.getElementsByClassName("rohit");
 
+                for (var i = 0; i < x.length; i++) {
+                  x[i].style.display = "none";
+                }
 		this.queueFunc()
 	};
 
@@ -337,7 +343,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
                         {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
                     </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px"}}>
+		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
@@ -369,7 +375,7 @@ class QueueComponent extends Component {
 
 		return(
 		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', border: 'solid 2px #d9edf7'}}>
-	  		<Table>
+	  		<Table style={{display: "block"}}>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
@@ -425,12 +431,13 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
-		        <TableBody>
+		        <TableBody style={{height:'620px', overflowY: 'scroll', display: "block"}}>
 		            {tableRows}
+
 		        </TableBody>
 						<TableFooter style={{textAlign:'center'}}>
 							<TableRow>
-								<TablePagination 
+								<TablePagination
 									rowsPerPageOptions={rowsPerPageOptions}
 									colSpan={4}
 									count={totalCount}
