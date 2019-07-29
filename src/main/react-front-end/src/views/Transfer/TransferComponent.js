@@ -108,7 +108,6 @@ export default class TransferComponent extends Component {
       optionParsed[v] = value
     })
 
-    setBeforeTransferReorder(processed);
 
     const src = {
       credential:endpointSrc.credential,
@@ -126,6 +125,7 @@ export default class TransferComponent extends Component {
   
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
         eventEmitter.emit("messageOccured", "Transfer Scheduled!")
+        setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
       })  
