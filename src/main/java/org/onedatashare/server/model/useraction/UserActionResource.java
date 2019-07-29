@@ -6,7 +6,6 @@ import org.onedatashare.server.model.credential.UploadCredential;
 import org.springframework.data.annotation.Transient;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)

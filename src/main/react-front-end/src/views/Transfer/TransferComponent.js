@@ -98,10 +98,6 @@ export default class TransferComponent extends Component {
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
-    const dest = {
-      credential:endpointDest.credential,
-      id: getCurrentFolderId(endpointDest),
-    }
 
     var optionParsed = {}
     Object.keys(options).map((v)=>{
@@ -113,8 +109,14 @@ export default class TransferComponent extends Component {
     })
 
     setBeforeTransferReorder(processed);
+
     const src = {
       credential:endpointSrc.credential,
+    }
+
+    const dest = {
+      credential:endpointDest.credential,
+      id: getCurrentFolderId(endpointDest),
     }
 
     for(let i=0; i < srcUrls.length; i++){
@@ -126,11 +128,8 @@ export default class TransferComponent extends Component {
         eventEmitter.emit("messageOccured", "Transfer Scheduled!")
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
-      })
-  
+      })  
     }
-
-
  
   };
 
