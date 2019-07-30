@@ -28,7 +28,6 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
-import { bgcolor } from '@material-ui/system';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -55,7 +54,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			endpointSelected: {},
 			selectingEndpoint: false,
 			portNum: -1,
-			portNumFeild: true
+			portNumField: true
 		};
 
 		let loginType = getType(props.endpoint);
@@ -121,7 +120,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
 
 		this.setState({
-			"portNumFeild": colonCount>=2 ? false : true,
+			"portNumField": colonCount>=2 ? false : true,
 			[name] : event.target.value
 		})
 		
@@ -422,11 +421,11 @@ export default class EndpointAuthenticateComponent extends Component {
 			          variant="outlined"
 			        />
 			        <TextField
-			    	  style={{width: "20%", background: this.state.portNumFeild? "white" : "#D3D3D3"}}
+			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  id="outlined-pnum"
-					  disabled = {!this.state.portNumFeild}
+					  disabled = {!this.state.portNumField}
 			          label="Port Number"
-			          value={this.state.portNumFeild? this.state.portNum : "-"} 
+			          value={this.state.portNumField? this.state.portNum : "-"} 
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
 			          variant="outlined"
