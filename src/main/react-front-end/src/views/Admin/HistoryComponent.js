@@ -92,6 +92,10 @@ class QueueComponent extends Component {
 		}
 	}
 
+	getFormattedDate(d){
+		return (1 + d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
+	}
+
 	renderSpeed(speedInBps){
 		var displaySpeed = "";
 		if(speedInBps > 1000000000){
@@ -243,15 +247,15 @@ class QueueComponent extends Component {
 					</Row>
 					<Row>
 						<Col md={6}><b>Scheduled Time</b></Col>
-						<Col md={6}>TBD</Col>
+						<Col md={6}>{this.getFormattedDate(new Date(resp.times.scheduled))}</Col>
 					</Row>
 					<Row>
 						<Col md={6}><b>Started Time</b></Col>
-						<Col md={6}>TBD</Col>
+						<Col md={6}>{this.getFormattedDate(new Date(resp.times.started))}</Col>
 					</Row>
 					<Row>
 						<Col md={6}><b>Completed Time</b></Col>
-						<Col md={6}>TBD</Col>
+						<Col md={6}>{this.getFormattedDate(new Date(resp.times.completed))}</Col>
 					</Row>
 					<Row>
 						<Col md={6}><b>Time Duration</b></Col>
