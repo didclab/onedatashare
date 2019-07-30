@@ -383,7 +383,8 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         @Override
         public BoxDrain start() {
-            String name[] = drainPath.split("/");
+
+            String name = drainPath.substring(drainPath.lastIndexOf('/')+1);
             try {
                 String parentid = getSession().idMap.get(getSession().idMap.size()-1).getId();
                 if( parentid != null ) {
@@ -393,7 +394,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                     setId("0");
                 }
                 BoxFolder rootFolder = BoxFolder.getRootFolder(getSession().client);
-                sessionInfo = rootFolder.createUploadSession(name.toString(), totalSize);
+                sessionInfo = rootFolder.createUploadSession(name, totalSize);
                 parts = new ArrayList<BoxFileUploadSessionPart>();
                 session = sessionInfo.getResource();
 
