@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^1.2.17",
-    "@fortawesome/free-solid-svg-icons": "^5.8.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.20",
+    "@fortawesome/free-solid-svg-icons": "^5.10.0",
     "@fortawesome/react-fontawesome": "0.1.0-11",
-    "@material-ui/core": "latest",
+    "@material-ui/core": "^4.3.0",
     "@material-ui/icons": "latest",
     "@material-ui/lab": "^3.0.0-alpha.30",
     "axios": "^0.19.0",
@@ -24,8 +24,8 @@
     "react-favicon": "0.0.14",
     "react-file-input": "^0.2.5",
     "react-fine-uploader": "^1.1.1",
-    "react-google-recaptcha": "^1.0.5",
-    "react-material-ui-form-validator": "^2.0.8",
+    "react-google-recaptcha": "^1.1.0",
+    "react-material-ui-form-validator": "^2.0.9",
     "react-redux": "^5.1.1",
     "react-router": "^4.3.1",
     "react-router-dom": "^4.3.1",
@@ -33,10 +33,10 @@
     "react-slick": "^0.23.2",
     "react-snap": "^1.23.0",
     "react-treebeard": "^2.1.0",
-    "react-virtualized": "^9.21.0",
-    "redux": "^4.0.1",
+    "react-virtualized": "^9.21.1",
+    "redux": "^4.0.4",
     "slick-carousel": "^1.8.1",
-    "styled-components": "^4.2.0"
+    "styled-components": "^4.3.2"
   },
   "scripts": {
     "start": "react-scripts start",

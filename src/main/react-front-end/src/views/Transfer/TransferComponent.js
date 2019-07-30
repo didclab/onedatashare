@@ -98,20 +98,6 @@ export default class TransferComponent extends Component {
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
-    const destUrl = destUrls.reduce((a, v) => a+","+v)
-    const srcUrl = srcUrls.reduce((a, v) => a+","+v)
-    const fileId = fileIds.reduce((a, v) => a+","+v)
-
-    const src = {
-      credential:endpointSrc.credential,
-      id: fileId,
-      uri: encodeURI(srcUrl)
-    }
-    const dest = {
-      credential:endpointDest.credential,
-      id: getCurrentFolderId(endpointDest),
-      uri: encodeURI(destUrl)
-    }
 
     var optionParsed = {}
     Object.keys(options).map((v)=>{
@@ -122,13 +108,29 @@ export default class TransferComponent extends Component {
       optionParsed[v] = value
     })
 
-    submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-      setBeforeTransferReorder(processed);
-      eventEmitter.emit("messageOccured", "Transfer Scheduled!")
-    }, (error)=>{
-      eventEmitter.emit("errorOccured", error);
-    })
 
+    const src = {
+      credential:endpointSrc.credential,
+    }
+
+    const dest = {
+      credential:endpointDest.credential,
+      id: getCurrentFolderId(endpointDest),
+    }
+
+    for(let i=0; i < srcUrls.length; i++){
+      src["id"] = fileIds[i];
+      src["uri"] = srcUrls[i];
+      dest["uri"] = destUrls[i];
+  
+      submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
+        eventEmitter.emit("messageOccured", "Transfer Scheduled!")
+        setBeforeTransferReorder(processed);
+      }, (error)=>{
+        eventEmitter.emit("errorOccured", error);
+      })  
+    }
+ 
   };
 
   updateDimensions() {
