@@ -28,6 +28,7 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
+import { bgcolor } from '@material-ui/system';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -53,7 +54,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			password: "",
 			endpointSelected: {},
 			selectingEndpoint: false,
-			portNum: -1
+			portNum: -1,
+			portNumFeild: true
 		};
 
 		let loginType = getType(props.endpoint);
@@ -109,13 +111,32 @@ export default class EndpointAuthenticateComponent extends Component {
       this.setState({
         [name]: event.target.value,
       });
-    };
+	};
+	
+	handleUrlChange = name => event => {
+		let url = event.target.value;
+
+		// Count the number of colons (2nd colon means the URL contains the portnumber)
+		let colonCount = 0;
+		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
+
+		this.setState({
+			"portNumFeild": colonCount>=2 ? false : true,
+			[name] : event.target.value
+		})
+		
+	}
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
 		
 		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
-		url = url + ":" + portNum;
+		
+		let colonCount = 0;
+		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
+		// If the Url already doesn't contain the portnumber append it else no change
+		if(colonCount==1)
+			url = url + ":" + portNum;
 
 		let endpointSet = {
 			uri: url,
@@ -396,15 +417,16 @@ export default class EndpointAuthenticateComponent extends Component {
 			          id="outlined-name"
 			          label="Url"
 			          value={this.state.url}
-			          onChange={this.handleChange('url')}
+			          onChange={this.handleUrlChange('url')}
 			          margin="normal"
 			          variant="outlined"
 			        />
 			        <TextField
-			    	  style={{width: "20%"}}
-			          id="outlined-pnum"
+			    	  style={{width: "20%", background: this.state.portNumFeild? "white" : "#D3D3D3"}}
+					  id="outlined-pnum"
+					  disabled = {!this.state.portNumFeild}
 			          label="Port Number"
-			          value={this.state.portNum}
+			          value={this.state.portNumFeild? this.state.portNum : "-"} 
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
 			          variant="outlined"
