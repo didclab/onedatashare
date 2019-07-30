@@ -355,11 +355,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         long totalSize = 0;
         long sizeUploaded = 0;
         int part_size;
-        String resumableSessionURL;
+        int partsNumber = 0;
         String drainPath = getPath();
         Boolean isDirTransfer = false;
-
+        BoxFileUploadSession.Info sessionInfo;
+        BoxFileUploadSession session;
         MessageDigest sha1;
+        List<BoxFileUploadSessionPart> parts;
 
         public BoxDrain start(String drainPath, long size){
              totalSize = size;
@@ -390,45 +392,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                     parentid = "0";
                     setId("0");
                 }
-
-                URL url = new URL("https://upload.box.com/api/2.0/files/upload_sessions");
-                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-
-                request.setConnectTimeout(15000);
-                request.setUseCaches(false);
-                request.setRequestMethod("POST");
-                request.setDoInput(true);
-                request.setDoOutput(true);
-
-                request.setRequestProperty("Authorization", "Bearer " + getSession().client.getAccessToken());
-                request.setRequestProperty("Content-Type", "application/json");
-                String body = "{\"folder_id\": \"" + getId() + "\", \"file_size\": " + totalSize + ", \"file_name\": \"" + name[name.length - 1] + "\"}";
-
-                OutputStream outputStream = request.getOutputStream();
-                outputStream.write(body.getBytes());
-                outputStream.flush();
-                outputStream.close();
-                request.connect();
-                System.out.println(request.toString());
-
-                int uploadRequestResponseCode =  request.getResponseCode();
-                System.out.println(request.getResponseCode() + request.getResponseMessage());
-                if(uploadRequestResponseCode == 200 || uploadRequestResponseCode == 201){
-                    BufferedReader reader = new BufferedReader(new InputStreamReader((request.getInputStream())));
-                    String output = reader.readLine();
-                    String jsonString = output;
-                    System.out.println(jsonString);
-
-                    ObjectMapper mapper = new ObjectMapper();
-                    Map<String,Object> map = mapper.readValue(jsonString, Map.class);
-                    Map<String,Object> sessionEndpointsMap = (Map<String, Object>) map.get("session_endpoints");
-                    resumableSessionURL = sessionEndpointsMap.get("upload_part").toString();
-                    part_size = Integer.parseInt(map.get("part_size").toString());
-                    System.out.println(resumableSessionURL);
-                }
-                else{
-                    throw new Exception("Error occurred while transferring into Box");
-                }
+                BoxFolder rootFolder = BoxFolder.getRootFolder(getSession().client);
+                sessionInfo = rootFolder.createUploadSession(name.toString(), totalSize);
+                parts = new ArrayList<BoxFileUploadSessionPart>();
+                session = sessionInfo.getResource();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -437,57 +404,20 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             return this;
         }
 
-        private String hashString(byte[] input) {
-            sha1.update(input);
-            byte[] messageDigest = sha1.digest();
-            return Base64.getEncoder().encodeToString(messageDigest);
-        }
 
         @Override
         public void drain(Slice slice) {
             try {
+                part_size = sessionInfo.getPartSize();
                 chunk.write(slice.asBytes());
-                int chunks = chunk.size() / part_size;
-                int sizeUploading = Math.min(chunks * part_size, part_size);
-                if (sizeUploading > 0) {
-                    URL url = new URL(resumableSessionURL);
-                    //if(sizeUploading > 0) {
-                    HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                    request.setRequestMethod("PUT");
-                    request.setDoOutput(true);
-                    request.setRequestProperty("authorization", "bearer " + getSession().client.getAccessToken());
-                    request.setRequestProperty("content-range", "bytes " + sizeUploaded + "-" + (sizeUploaded + sizeUploading - 1) + "/" + totalSize);
-
-                    System.out.println(sizeUploaded + " " + sizeUploading + " " + totalSize);
-                    System.out.println("content-range: " +  "bytes " + sizeUploaded + "-" + (sizeUploaded + sizeUploading - 1) + "/" + totalSize);
-
-                    request.setRequestProperty("content-type", "application/octet-stream");
-                    byte[] newbuffer = new byte[sizeUploading];
-                    chunk.write(newbuffer, 0, sizeUploading);
-                    String sliceHash = hashString(newbuffer);
-                    System.out.println("sha=" + sliceHash);
-                    request.setRequestProperty("digest", "sha=" + sliceHash);
-
-                    OutputStream outputStream = request.getOutputStream();
-                    outputStream.write(newbuffer);
-                    outputStream.close();
-                    request.connect();
-                    int requestCode = request.getResponseCode();
-                    System.out.println(request.getResponseMessage());
-
-                    System.out.println(request.toString());
-//                    byte[] op = new byte[999];
-//                    System.out.println(request.getInputStream().read(op) + new String(op));
-                    if (requestCode == 200) {
-                        sizeUploaded = sizeUploaded + sizeUploading;
-                        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-                        temp.write(chunk.toByteArray(), sizeUploading, (chunk.size() - sizeUploading));
-                        chunk = temp;
-                    } else {
-                        ODSLoggerService.logDebug("code: " + request.getResponseCode() +
-                                ", message: " + request.getResponseMessage());
-                    }
+                if (chunk.size() == part_size) {
+                    BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
+                    parts.add(part);
+                    sizeUploaded = sizeUploaded + chunk.size();
+                    sha1.update(chunk.toByteArray());
+                    chunk = new ByteArrayOutputStream();
                 }
+
             }catch(Exception e){
                 e.printStackTrace();
             }
@@ -495,30 +425,22 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         @Override
         public void finish() {
-            try{
-                URL url = new URL(resumableSessionURL);
-                HttpURLConnection request = (HttpURLConnection) url.openConnection();
-                request.setRequestMethod("PUT");
-                request.setConnectTimeout(10000);
-                request.setRequestProperty("Content-Length", Long.toString(chunk.size()));
-//                if(chunk.size() == 0)
-//                    request.setRequestProperty("Content-Range", "bytes */" + (size+chunk.size()));
-//                else
-//                    request.setRequestProperty("Content-Range", "bytes " + size + "-" + (size+chunk.size()-1) + "/" + (size + chunk.size()));
-                request.setDoOutput(true);
-                OutputStream outputStream = request.getOutputStream();
-                outputStream.write(chunk.toByteArray(), 0, chunk.size());
-                outputStream.close();
-                request.connect();
-                if(request.getResponseCode() == 200 || request.getResponseCode() == 201){
-                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
-                            ", message: "+ request.getResponseMessage());
-                }else {
-                    ODSLoggerService.logDebug("code: " + request.getResponseCode()+
-                            ", message: "+ request.getResponseMessage());
-                    ODSLoggerService.logDebug("fail");
+            try {
+                if(chunk.size() > 0){
+                BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
+                parts.add(part);
+                sizeUploaded = sizeUploaded + chunk.size();
+                sha1.update(chunk.toByteArray());
                 }
-            }catch (Exception e) {
+
+
+                byte[] digestBytes = sha1.digest();
+                //Base64 encoding of the hash
+                String digestStr = Base64.getEncoder().encodeToString(digestBytes);
+
+                BoxFile.Info fileInfo = session.commit(digestStr, parts, null, null, null);
+            }
+            catch(Exception e){
                 e.printStackTrace();
             }
         }
