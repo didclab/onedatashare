@@ -205,7 +205,7 @@ export default class CreateAccountComponent extends Component {
                   <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                     Sign in Instead
                   </Button>
-                  <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} type="submit">
+                  <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} type="submit" onClick={this.registerAccount}>
                     Next
                   </Button>
               </CardActions>
@@ -239,7 +239,7 @@ export default class CreateAccountComponent extends Component {
                           }}>
                             Back
                           </Button>
-                          <Button size="large" variant="contained" color="primary" type="submit" style={{marginLeft: '4vw'}}>
+                          <Button size="large" variant="contained" color="primary" type="submit" style={{marginLeft: '4vw'}} onClick={this.verifyAccount}>
                             Next
                           </Button>
                       </CardActions>
