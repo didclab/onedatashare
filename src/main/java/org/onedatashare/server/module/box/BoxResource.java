@@ -2,24 +2,20 @@ package org.onedatashare.server.module.box;
 
 import com.box.sdk.*;
 import com.box.sdk.http.HttpMethod;
-import com.sun.mail.iap.ByteArray;
 import org.apache.commons.io.IOUtils;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.jose4j.json.internal.json_simple.JSONObject;
 import org.onedatashare.server.model.core.*;
-import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.*;
-import java.math.BigInteger;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import org.onedatashare.server.model.core.ODSConstants;
+
 import java.net.URL;
-import java.nio.file.FileSystemException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+
+import static org.onedatashare.server.model.core.ODSConstants.BOX_URI_SCHEME;
 
 public class BoxResource extends Resource<BoxSession, BoxResource> {
 
@@ -96,6 +92,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         }
     }
 
+    /**
+     * Builds a new stat object containing information about a parent's children in
+     * a case of a directory transfer
+     * @author Javier Falca
+     * @param children Takes in an Iterable Object of type BoxItem.Info from the parent Box Folder
+     * @return Stat object with a directory built
+     */
     public Stat buildDirStat(Iterable<BoxItem.Info> children){
         Stat stat = new Stat();
         ArrayList<Stat> contents = new ArrayList<>();
@@ -256,6 +259,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         return directorySize;
     }
 
+    /**
+     * Fills in information for a Stat object
+     * @author Javier Falca
+     * @param info Box Item refers to a Box File or Box Folder, a stat is created
+     * with the information provided on the Info class
+     * @return Stat object
+     */
     public Stat fileContentToStat(BoxItem.Info info) {
         Stat stat = new Stat();
         try {
@@ -301,6 +311,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         }
 
+        /**
+         * BoxTap follows a similar model to Google Drive and other transfer modules
+         * It uses input and output streams to perform the outgoing transfer
+         * @author Javier Falca
+         * @param sliceSize
+         * @return A flux generated slice
+         */
         @Override
         public Flux<Slice> tap(long sliceSize) {
 
@@ -350,6 +367,16 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         return new BoxDrain().start(path, stat.getSize());
     }
 
+    /**
+     * @README
+     * @Author Javier Falca
+     * Box Chunked Upload has some cryptic properties that are not too well documented
+     * 1.) To perform a chunked upload, a file must be greater than 20MB, any less will have to be
+     * sent as a single chunk with a different function.
+     * 2.) Each chunk must be exactly 8MB in size, if this number is not met, the chunk will fail to upload.
+     * 3.) A SHA-1 Base64 hash of the entire file must be provided at the end of the finish state during the commit.
+     */
+    private HashMap<String, String> hashMap = new HashMap<String, String>();
     class BoxDrain implements Drain {
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
         long totalSize = 0;
@@ -359,6 +386,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
         String drainPath = getPath();
         Boolean isDirTransfer = false;
+
 
         BoxFileUploadSession.Info sessionInfo;
         BoxFileUploadSession session;
@@ -370,14 +398,14 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         boolean isSmall;
 
         public BoxDrain start(String drainPath, long size){
-             totalSize = size;
-             isSmall = (totalSize < 20971520) ? true : false;
-             try{
-                 sha1 = MessageDigest.getInstance("SHA-1");
-             }
-             catch (NoSuchAlgorithmException e) {
-                 e.printStackTrace();
-             }
+            totalSize = size;
+            isSmall = (totalSize < 20971520) ? true : false;
+            try{
+                sha1 = MessageDigest.getInstance("SHA-1");
+            }
+            catch (NoSuchAlgorithmException e) {
+                e.printStackTrace();
+            }
             return start(drainPath);
         }
 
@@ -392,6 +420,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         public BoxDrain start() {
 
             String name = drainPath.substring(drainPath.lastIndexOf('/')+1);
+
             fileName = name;
             try {
                 String parentid = getSession().idMap.get(getSession().idMap.size()-1).getId();
@@ -402,9 +431,30 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                     setId("0");
                 }
 
-                BoxFolder rootFolder = BoxFolder.getRootFolder(getSession().client);
+                if(isDirTransfer) {
+                    String path = drainPath.substring(BOX_URI_SCHEME.length(), drainPath.lastIndexOf("/"));
+                    if(!hashMap.containsKey(path)){
+                        //directory has not been created in previous iterations
+                        String[] folders = path.split("/");
+                        BoxFolder parentFolder = new BoxFolder(getSession().client, parentid);
+                        for(String folder : folders){
+                            if(!folder.equals(parentFolder.getInfo().getName())) {
+                                BoxFolder.Info childFolder = parentFolder.createFolder(folder);
+                                parentid = childFolder.getID();
+                                parentFolder = childFolder.getResource();
+                            }
+                        }
+                        hashMap.put(path, parentid);
+                        setId(parentid);
+                    }else {
+                        parentid = hashMap.get(path);
+                        setId(parentid);
+                    }
+                }
+
+                BoxFolder folder = new BoxFolder(getSession().client, parentid);
                 if(!isSmall){
-                    sessionInfo = rootFolder.createUploadSession(name, totalSize);
+                    sessionInfo = folder.createUploadSession(name, totalSize);
                     parts = new ArrayList<BoxFileUploadSessionPart>();
                     session = sessionInfo.getResource();
                 }
@@ -417,15 +467,12 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             return this;
         }
 
-
         @Override
         public void drain(Slice slice) {
             try {
-                //Box only allows chunked upload for files greater than 20MB
+                //Box only allows chunked upload for files greater than 20MB at 8MB chunks
                 if (isSmall) {
                     chunk.write(slice.asBytes());
-                    sha1.update(chunk.toByteArray());
-
                 } else {
                     part_size = sessionInfo.getPartSize();
                     chunk.write(slice.asBytes());
@@ -466,7 +513,6 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
                     //Base64 encoding of the hash
                     String digestStr = Base64.getEncoder().encodeToString(digestBytes);
-
                     BoxFile.Info largeFile = session.commit(digestStr, parts, null, null, null);
                 }
             }
