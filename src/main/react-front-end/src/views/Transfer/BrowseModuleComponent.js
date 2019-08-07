@@ -142,6 +142,12 @@ export default class BrowseModuleComponent extends Component {
 		      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
 		      		DropBox
 		      	</Button>
+	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+		      		loginPrep(FTP_TYPE)()
+		      	}}>
+		      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
+		      		FTP
+	      		</Button>
 		      	<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
 		      	}}>
@@ -154,11 +160,11 @@ export default class BrowseModuleComponent extends Component {
 	      			<Icon className={'fas fa-server'} style={iconStyle}/>
 	      		Grid FTP
 		      	</Button>
-	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		loginPrep(FTP_TYPE)()
-		      	}}>
-		      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
-		      		FTP
+				  <Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+	      			loginPrep(HTTP_TYPE)()
+	      		}}>
+		      		<Icon className={'fas fa-globe'} style={iconStyle}/>
+		      		HTTP/HTTPS
 	      		</Button>
 		      	<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
@@ -166,12 +172,6 @@ export default class BrowseModuleComponent extends Component {
 		      		<Icon className={'fas fa-folder-open'} style={iconStyle}/>
 		      		SFTP
 		      	</Button>	      		
-			    <Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-	      			loginPrep(HTTP_TYPE)()
-	      		}}>
-		      		<Icon className={'fas fa-globe'} style={iconStyle}/>
-		      		HTTP/HTTPS
-	      		</Button>
 	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(SCP_TYPE)()
 	      		}}>
