@@ -55,8 +55,7 @@ public class UserController {
         return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
                                                   userAction.getConfirmPassword());
       case "updateSaveOAuth":
-        //TODO: Complete this function
-        return Mono.just("Success");
+        return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
       case "deleteCredential":
         return userService.deleteCredential(cookie, userAction.getUuid());
       case "deleteHistory":

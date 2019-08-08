@@ -138,8 +138,12 @@ export default class UserAccountComponent extends Component{
 										onClick={() => {
 											let confirm = true;
 											let currentSaveStatus = this.state.saveOAuthTokens;
+											
+											// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
 											if(currentSaveStatus)
 												confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
+											
+											// Request the change to backend and change it in the front-end
 											if(confirm){
 												currentSaveStatus = !currentSaveStatus;
 												this.setState({saveOAuthTokens : currentSaveStatus});

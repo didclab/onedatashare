@@ -425,6 +425,15 @@ public class UserService {
       }).then();
   }
 
+  public Mono<Void> updateSaveOAuth(String cookie, boolean saveOAuthCredentials){
+    return getLoggedInUser(cookie).map(user -> {
+      user.setSaveOAuthTokens(saveOAuthCredentials);
+      System.out.println(user.toString());
+      return userRepository.save(user).subscribe();
+        }
+    ).then() ;
+  }
+
   public Mono<Boolean> isAdmin(String cookie){
     return getLoggedInUser(cookie).map(user ->user.isAdmin());
   }
