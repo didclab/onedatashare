@@ -26,7 +26,7 @@ import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import {changePassword, getUser} from '../../APICalls/APICalls';
+import {changePassword, getUser, updateSaveOAuth} from '../../APICalls/APICalls';
 import {eventEmitter, store} from '../../App.js';
 
 import { updateHashAction } from '../../model/actions';
@@ -58,8 +58,7 @@ export default class UserAccountComponent extends Component{
 			   lName: resp.lastName,
 			   saveOAuthTokens: resp.saveOAuthTokens,
                loading: false
-            });
-            console.log(resp)
+			});
             }, (resp) => {
             //failed
             this.setState({loading: false})
@@ -135,12 +134,20 @@ export default class UserAccountComponent extends Component{
 						<FormControlLabel
 							value="new_source"
 							control={<Switch
-										checked={this.saveOAuthTokens}
+										checked={this.state.saveOAuthTokens}
 										onClick={() => {
-											this.setState({saveOAuthTokens : !this.state.saveOAuthTokens})
+											let confirm = true;
+											let currentSaveStatus = this.state.saveOAuthTokens;
+											if(currentSaveStatus)
+												confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
+											if(confirm){
+												currentSaveStatus = !currentSaveStatus;
+												this.setState({saveOAuthTokens : currentSaveStatus});
+												updateSaveOAuth(this.state.email, currentSaveStatus);
+												}
 											}
 										}
-										value="checkedB"
+										value="saveOAuthTokenSwitch"
 										color="primary"
 									/>
 							}

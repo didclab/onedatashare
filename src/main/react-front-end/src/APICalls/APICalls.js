@@ -596,9 +596,24 @@ export async function getUser(email, accept, fail){
     .catch((error) => {
         statusHandle(error, fail);
     })
+}
 
-
-
+export async function updateSaveOAuth(email, saveOAuth){
+	axios.post(url + 'user', {
+		action: "updateSaveOAuth",
+		email: email,
+		saveOAuth: saveOAuth
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			return false;
+		else{
+			return true;
+		}
+	})
+	.catch((error) => {
+			console.log("Error encountered while updating the user.");
+	});
 }
 
 export async function updateAdminRightsApiCall(email, isAdmin){
