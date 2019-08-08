@@ -405,7 +405,8 @@ public class UserService {
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
-                    user.setCredentials(credsTemporary);
+//                    if(user.isSaveOAuthTokens())
+                      user.setCredentials(credsTemporary);
                     userRepository.save(user).subscribe();
                   }
                 }
@@ -428,6 +429,10 @@ public class UserService {
   public Mono<Void> updateSaveOAuth(String cookie, boolean saveOAuthCredentials){
     return getLoggedInUser(cookie).map(user -> {
       user.setSaveOAuthTokens(saveOAuthCredentials);
+      // Remove the saved credentials
+//      if(!saveOAuthCredentials)
+//        user.setCredentials(new HashMap<>());
+
       return userRepository.save(user).subscribe();
         }
     ).then() ;
@@ -468,7 +473,8 @@ public class UserService {
 
   public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
     return getLoggedInUser(cookie).map(user -> {
-      user.setCredentials(creds);
+//      if(user.isSaveOAuthTokens())
+        user.setCredentials(creds);
       return userRepository.save(user);
     }).flatMap(repo -> repo.map(user -> user.getCredentials()));
   }
