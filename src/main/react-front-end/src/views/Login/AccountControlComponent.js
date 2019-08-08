@@ -26,13 +26,13 @@ export default class AccountControlComponent extends Component {
 
   static propTypes = {}
   // Called when user clicked login
-  userLogin(email, hash, publicKey, remember){
-  	this.state.accounts[email] = {hash: hash, publicKey: publicKey};
+  userLogin(email, hash, remember){
+  	this.state.accounts[email] = {hash: hash};
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
 	
-	store.dispatch(loginAction(email, hash, publicKey, remember));
+	store.dispatch(loginAction(email, hash, remember));
 	//this.setState({authenticated : true});
   }
   componentWillUnmount(){
@@ -53,7 +53,7 @@ export default class AccountControlComponent extends Component {
 					accounts={accounts} 
 					login={(email) => {
 						const user = JSON.parse(cookies.get('SavedUsers'))[email];
-						this.userLogin(email, user.hash, user.publicKey, false);
+						this.userLogin(email, user.hash, false);
 					}}
 					removedAccount={(accounts) => {
 						cookies.set('SavedUsers', JSON.stringify(accounts));
@@ -102,7 +102,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 	    	(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, success.publicKey, remember);
+	    		this.userLogin(email, success.hash, remember);
 	    	},
 	    	(error) => {fail(error)}
 	    );

@@ -17,6 +17,11 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Grid from '@material-ui/core/Grid';
+
 import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
@@ -41,15 +46,17 @@ export default class UserAccountComponent extends Component{
     	    userEmail: store.getState().email,
     	    userOrganization: "...",
     	    fName: "...",
-    	    lName: "...",
-    	    redirect: false
+			lName: "...",
+			redirect: false,
+			saveOAuthTokens: false
     	};
     	getUser(this.state.userEmail,  (resp) => {
             //success
             this.setState({
                userOrganization: resp.organization,
                fName: resp.firstName,
-               lName: resp.lastName,
+			   lName: resp.lastName,
+			   saveOAuthTokens: resp.saveOAuthTokens,
                loading: false
             });
             console.log(resp)
@@ -119,13 +126,38 @@ export default class UserAccountComponent extends Component{
 
                     <br/>
 
-    		      </div>
-
+				<List>
+					<Card style={{minWidth: 275}}>
+						<CardContent>
+						<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
+                          Account Preferences <br/>
+                        </Typography>
+						<FormControlLabel
+							value="new_source"
+							control={<Switch
+										checked={this.saveOAuthTokens}
+										onClick={() => {
+											this.setState({saveOAuthTokens : !this.state.saveOAuthTokens})
+											}
+										}
+										value="checkedB"
+										color="primary"
+									/>
+							}
+							justifyContent="space-between"
+							labelPlacement="start"
+							label={"Save OAuth tokens"}
+							/>
+						<br>
+						</br>
+						</CardContent>
+					</Card>
+				</List>
+				</div>
 
     		);
     	}
-
-
+	
 	getInnerCard() {
 		const handleChange = name => event => {
 		    this.setState({
@@ -179,10 +211,6 @@ export default class UserAccountComponent extends Component{
 	componentDidMount(){
 
 		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
 		this.resize();
 	}
 

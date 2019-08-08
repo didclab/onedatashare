@@ -1,11 +1,10 @@
 export const LOGIN = 'LOGIN';
-export function loginAction(username, hash, publicKey) {
+export function loginAction(username, hash) {
   return {
     type: LOGIN,
     credential: {
     	email: username,
     	hash: hash,
-      publicKey: publicKey
     }
   }
 }
