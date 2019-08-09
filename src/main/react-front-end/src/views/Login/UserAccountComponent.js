@@ -131,6 +131,7 @@ export default class UserAccountComponent extends Component{
 						<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
                           Account Preferences <br/>
                         </Typography>
+						<FormGroup>
 						<FormControlLabel
 							value="new_source"
 							control={<Switch
@@ -155,12 +156,10 @@ export default class UserAccountComponent extends Component{
 										color="primary"
 									/>
 							}
-							justifyContent="space-between"
-							labelPlacement="start"
 							label={"Save OAuth tokens"}
 							/>
-						<br>
-						</br>
+
+							</FormGroup>
 						</CardContent>
 					</Card>
 				</List>
