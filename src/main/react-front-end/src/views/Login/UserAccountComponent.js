@@ -118,9 +118,6 @@ export default class UserAccountComponent extends Component{
 
     		           </CardContent>
     		          </Card>
-
-
-
                        </List>
 
                     <br/>
@@ -141,6 +138,7 @@ export default class UserAccountComponent extends Component{
 											let currentSaveStatus = this.state.saveOAuthTokens;
 											
 											// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
+											// TODO: change the confirmation box to material ui
 											if(currentSaveStatus)
 												confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
 											
