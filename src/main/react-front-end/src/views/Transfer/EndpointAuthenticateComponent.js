@@ -334,6 +334,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 	
 	render(){
+
 		const {historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint} = this.state;
 		const { back, loginSuccess, setLoading} = this.props;
 		const {uri} = endpoint;

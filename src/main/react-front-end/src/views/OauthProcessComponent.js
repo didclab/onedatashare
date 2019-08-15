@@ -10,10 +10,12 @@ import {transferPageUrl, oauthPreUrl,
 } from "../constants";
 import {eventEmitter} from "../App";
 import {endpointLogin} from '../model/actions';
+import { cookies } from '../model/reducers';
 
 export default class OauthProcessComponent extends Component{
 
 	constructor(props){
+			
 		super(props);
 		const {id} = this.props.match.params;
 		this.state={
@@ -33,14 +35,24 @@ export default class OauthProcessComponent extends Component{
 	}
 
 	render(){
-
+		console.log(oauthPreUrl, id);
+		let search = new URLSearchParams(window.location.search);
+		console.log('search is ', search);
+		let oauthId = search.get("state");
+		if(oauthId!=null){
+		  console.log("OAUTH id ", oauthId);
+		  cookies.set("OAUTH", oauthId);
+		}
+		
 		const {id} = this.state;
 		return <div>
-			<Redirect from={oauthPreUrl+id} to={transferPageUrl}></Redirect>
+			{/* <Redirect from={oauthPreUrl+id} to={transferPageUrl}></Redirect> */}
 			<h1> 
 				Wait a second, You will be redirected.
 			</h1>
 			<h2>
+				OAUTH_PRE_URL: {oauthPreUrl} ,
+				transferPageUrl: {transferPageUrl} ,
 				ID: {id}
 			</h2>
 		</div>

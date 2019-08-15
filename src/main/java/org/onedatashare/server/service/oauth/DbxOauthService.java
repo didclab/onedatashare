@@ -47,7 +47,7 @@ public class DbxOauthService  {
         if (secrets == null) {
             throw new RuntimeException("Dropbox OAuth is disabled.");
         } if (auth != null) {
-            //throw new IllegalStateException("Don't call this twice.");
+//            throw new IllegalStateException("Don't call this twice.");
         } try {
             auth = new DbxWebAuth(config, secrets);
             // Authorize the DbxWebAuth auth as well as redirect the user to the finishURI, done this way to appease OAuth 2.0

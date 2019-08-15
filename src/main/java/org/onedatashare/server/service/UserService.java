@@ -403,9 +403,10 @@ public class UserService {
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
-                    if(user.isSaveOAuthTokens())
-                        user.setCredentials(credsTemporary);
-                    userRepository.save(user).subscribe();
+                    if(user.isSaveOAuthTokens()) {
+                      user.setCredentials(credsTemporary);
+                      userRepository.save(user).subscribe();
+                    }
                   }
                 }
             }).subscribe();
