@@ -6,6 +6,7 @@ import com.dropbox.core.v2.users.FullAccount;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
