@@ -43,6 +43,10 @@ public class DbxOauthService  {
 
     private DbxWebAuth auth;
 
+    public boolean keysNotNull(){
+        return key!=null && secret!=null;
+    }
+
     public synchronized String start() {
         if (secrets == null) {
             throw new RuntimeException("Dropbox OAuth is disabled.");

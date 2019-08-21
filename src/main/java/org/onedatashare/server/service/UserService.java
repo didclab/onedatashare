@@ -345,8 +345,6 @@ public class UserService {
 
   public Mono<Object> verifyEmail(String email) {
 
-//    User user = new User("arnabdas@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
     return userRepository.existsById(email).flatMap( bool -> {
       if (bool) {
         return Mono.just(true);

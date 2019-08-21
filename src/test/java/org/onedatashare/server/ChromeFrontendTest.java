@@ -1,16 +1,10 @@
 package org.onedatashare.server;
 
-import org.junit.After;
-import org.onedatashare.server.model.core.User;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeDriverService;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.springframework.context.annotation.DependsOn;
+
 import org.testng.annotations.Test;
 
 import java.util.concurrent.ExecutorService;
@@ -30,6 +24,10 @@ public class ChromeFrontendTest {
     private String baseUrl;
     private int msWaitShort = 1000;
     private int msWaitLong = 3000;
+
+    @Test
+    public void failure(){
+    }
 
     @Test
     public void setUp() throws Exception {
