@@ -29,6 +29,7 @@ public class UserAction {
   private UserActionCredential credential;
   private Integer job_id;
 
+  private boolean saveOAuth;
   private String filter_fulltext;
   private EndPoint globusEndpoint;
   private String username;

@@ -17,11 +17,16 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import Grid from '@material-ui/core/Grid';
+
 import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import {changePassword, getUser} from '../../APICalls/APICalls';
+import {changePassword, getUser, updateSaveOAuth} from '../../APICalls/APICalls';
 import {eventEmitter, store} from '../../App.js';
 
 import { updateHashAction } from '../../model/actions';
@@ -41,18 +46,19 @@ export default class UserAccountComponent extends Component{
     	    userEmail: store.getState().email,
     	    userOrganization: "...",
     	    fName: "...",
-    	    lName: "...",
-    	    redirect: false
+			lName: "...",
+			redirect: false,
+			saveOAuthTokens: false
     	};
     	getUser(this.state.userEmail,  (resp) => {
             //success
             this.setState({
                userOrganization: resp.organization,
                fName: resp.firstName,
-               lName: resp.lastName,
+			   lName: resp.lastName,
+			   saveOAuthTokens: resp.saveOAuthTokens,
                loading: false
-            });
-            console.log(resp)
+			});
             }, (resp) => {
             //failed
             this.setState({loading: false})
@@ -112,20 +118,54 @@ export default class UserAccountComponent extends Component{
 
     		           </CardContent>
     		          </Card>
-
-
-
                        </List>
 
                     <br/>
 
-    		      </div>
+				<List>
+					<Card style={{minWidth: 275}}>
+						<CardContent>
+						<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
+                          Account Preferences <br/>
+                        </Typography>
+						<FormGroup>
+						<FormControlLabel
+							value="new_source"
+							control={<Switch
+										checked={this.state.saveOAuthTokens}
+										onClick={() => {
+											let confirm = true;
+											let currentSaveStatus = this.state.saveOAuthTokens;
+											
+											// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
+											// TODO: change the confirmation box to material ui
+											if(currentSaveStatus)
+												confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
+											
+											// Request the change to backend and change it in the front-end
+											if(confirm){
+												currentSaveStatus = !currentSaveStatus;
+												this.setState({saveOAuthTokens : currentSaveStatus});
+												updateSaveOAuth(this.state.email, currentSaveStatus);
+												}
+											}
+										}
+										value="saveOAuthTokenSwitch"
+										color="primary"
+									/>
+							}
+							label={"Save OAuth tokens"}
+							/>
 
+							</FormGroup>
+						</CardContent>
+					</Card>
+				</List>
+				</div>
 
     		);
     	}
-
-
+	
 	getInnerCard() {
 		const handleChange = name => event => {
 		    this.setState({
@@ -179,10 +219,6 @@ export default class UserAccountComponent extends Component{
 	componentDidMount(){
 
 		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
 		this.resize();
 	}
 

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/stork/user")
@@ -53,6 +54,8 @@ public class UserController {
       case "resetPassword":
         return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
                                                   userAction.getConfirmPassword());
+      case "updateSaveOAuth":
+        return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
       case "deleteCredential":
         return userService.deleteCredential(cookie, userAction.getUuid());
       case "deleteHistory":
