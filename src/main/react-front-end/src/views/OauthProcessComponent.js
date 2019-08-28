@@ -21,6 +21,10 @@ export default class OauthProcessComponent extends Component{
 		this.state={
 			id: id,
 		}
+		
+		let queryString = this.props.location.search;
+		console.log(this.props.match.params, queryString);
+
 		if(id === "ExistingCredGoogleDrive"){
             setTimeout( () => {eventEmitter.emit(
                "errorOccured","Credential for the endpoint already Exists. Please logout from Google Drive and try again."
