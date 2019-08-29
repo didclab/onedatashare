@@ -6,7 +6,7 @@ import  { Redirect } from 'react-router-dom';
 import {store} from '../App';
 import {transferPageUrl, oauthPreUrl,
 		DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE,
-		sideLeft, sideRight
+		sideLeft, sideRight, DROPBOX_NAME
 } from "../constants";
 import {eventEmitter} from "../App";
 import {endpointLogin} from '../model/actions';
@@ -28,15 +28,14 @@ export default class OauthProcessComponent extends Component{
 			console.log('Dropbox identifier received');
 			
 			let qsObj = JSON.parse(decodeURIComponent(qs.substring(qs.indexOf('=') + 1)));
-			let dropboxCreds = cookies.get("DropboxCreds") || 0;
-			console.log("Dropbox creds - ", dropboxCreds);
+			let dropboxCreds = cookies.get(DROPBOX_NAME) || 0;
 			if(dropboxCreds !== 0){
 				let parsedJSON = JSON.parse(dropboxCreds);
 				parsedJSON.push({name : qsObj.name.split(":+")[1], token : qsObj.token });
-				cookies.set("DropboxCreds", JSON.stringify(parsedJSON));
+				cookies.set(DROPBOX_NAME, JSON.stringify(parsedJSON));
 			}
 			else{
-				cookies.set("DropboxCreds", JSON.stringify([{name : qsObj.name.split(":+")[1], token : qsObj.token }]));
+				cookies.set(DROPBOX_NAME, JSON.stringify([{name : qsObj.name.split(":+")[1], token : qsObj.token }]));
 			}
 		}
 		else if(tag === 'googledrive'){

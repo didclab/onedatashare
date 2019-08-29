@@ -94,21 +94,34 @@ export default class BrowseModuleComponent extends Component {
 	}
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-		dropboxCredList((data) => {
-			if(Object.keys(data).some(id => {
-				return data[id].name.toLowerCase().
-				indexOf(containsType.toLowerCase()) != -1 
-			})){
-				succeed(data);
-			}else{
-				failed();
+		console.log("store.getState().saveOAuthOption ",store.getState().saveOAuthOption);
+		if(store.getState().saveOAuthOption){
+			console.log("Reading creds from cookies");
+			let creds = cookies.get(containsType) || 0;
+			if(creds !== 0){
+				creds= JSON.parse(creds);
+				succeed(creds);
 			}
-			this.setLoading(false);
-		}, (error) =>{
-			this._handleError("Could not get credential from our server. Maybe check your internet connection.");
-			failed();
-			this.setLoading(false);
-		});
+			else
+				failed();
+		}
+		else{
+			dropboxCredList((data) => {
+				if(Object.keys(data).some(id => {
+					return data[id].name.toLowerCase().
+					indexOf(containsType.toLowerCase()) != -1 
+				})){
+					succeed(data);
+				}else{
+					failed();
+				}
+				this.setLoading(false);
+			}, (error) =>{
+				this._handleError("Could not get credential from our server. Maybe check your internet connection.");
+				failed();
+				this.setLoading(false);
+			});
+		}
 	}
 
 	render() {
