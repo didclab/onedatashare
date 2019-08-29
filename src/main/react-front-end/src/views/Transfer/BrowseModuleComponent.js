@@ -96,12 +96,13 @@ export default class BrowseModuleComponent extends Component {
 	}
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-		console.log("store.getState().saveOAuthOption ",store.getState().saveOAuthOption);
-		if(store.getState().saveOAuthOption){
-			console.log("Reading creds from cookies");
+		if(!store.getState().saveOAuthOption){
+			
 			let creds = cookies.get(containsType) || 0;
+			console.log("creds", creds);
 			if(creds !== 0){
 				creds= JSON.parse(creds);
+				console.log("Parsed creds - ", creds);
 				succeed(creds);
 			}
 			else

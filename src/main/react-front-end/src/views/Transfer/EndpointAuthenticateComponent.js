@@ -4,6 +4,7 @@ import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropb
 		listFiles, deleteCredential, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {store} from "../../App";
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -202,36 +203,68 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		return Object.keys(credList).filter(id => {
-			return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
-						&& !getCred().includes(id))})
-			.map((v) =>
-			<ListItem button key={v} onClick={() => {
-				const endpointSet = {
-					uri: endpoint.uri,
-					login: true,
-					credential: {uuid: v, name: credList[v].name},
-					side: endpoint.side
-				}
-				loginSuccess(endpointSet);
-			}}>
-			  <ListItemIcon>
-		        <DataIcon/>
-		      </ListItemIcon>
-	          <ListItemText primary={credList[v].name} />
-	          <ListItemSecondaryAction>
-	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteCredential(v, (accept) => {
-	            		this.credentialListUpdateFromBackend();
-	            	}, (error) => {
-	            		this._handleError("Delete Credential Failed");
-	            	});
-	            }}>
-	              <DeleteIcon />
-	            </IconButton>
-	          </ListItemSecondaryAction>
-	        </ListItem>
-		);
+		if(!store.getState().saveOAuthOption){
+			return credList.map((cred) =>
+
+			<ListItem button onClick={() => {
+					const endpointSet = {
+						uri: endpoint.uri,
+						login: true,
+						credential: {name: cred.name},
+						side: endpoint.side
+					}
+					loginSuccess(endpointSet);
+				}}>
+					<ListItemIcon>
+							<DataIcon/>
+						</ListItemIcon>
+							<ListItemText primary={cred.name} />
+							<ListItemSecondaryAction>
+								<IconButton aria-label="Delete" onClick={() => {
+									deleteCredential(cred, (accept) => {
+										this.credentialListUpdateFromBackend();
+									}, (error) => {
+										this._handleError("Delete Credential Failed");
+									});
+								}}>
+									<DeleteIcon />
+								</IconButton>
+							</ListItemSecondaryAction>
+				</ListItem>
+			);
+		}
+		else{
+			return Object.keys(credList).filter(id => {
+				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
+							&& !getCred().includes(id))})
+				.map((v) =>
+				<ListItem button key={v} onClick={() => {
+					const endpointSet = {
+						uri: endpoint.uri,
+						login: true,
+						credential: {uuid: v, name: credList[v].name},
+						side: endpoint.side
+					}
+					loginSuccess(endpointSet);
+				}}>
+					<ListItemIcon>
+							<DataIcon/>
+						</ListItemIcon>
+							<ListItemText primary={credList[v].name} />
+							<ListItemSecondaryAction>
+								<IconButton aria-label="Delete" onClick={() => {
+									deleteCredential(v, (accept) => {
+										this.credentialListUpdateFromBackend();
+									}, (error) => {
+										this._handleError("Delete Credential Failed");
+									});
+								}}>
+									<DeleteIcon />
+								</IconButton>
+							</ListItemSecondaryAction>
+						</ListItem>
+			);
+		}
 	}
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
