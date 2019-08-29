@@ -63,7 +63,7 @@ public class OauthController {
               if(user.isSaveOAuthTokens())
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
                         .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                        .map(uuid -> Rendering.redirectTo("/oauth/uuid/" + uuid).build())
+                        .map(uuid -> Rendering.redirectTo("/oauth/creds/uuid/" + uuid).build())
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
               // Else send back the tokens
               else
@@ -71,14 +71,13 @@ public class OauthController {
                         .map(oAuthCredential -> {
                           ObjectMapper objectMapper = new ObjectMapper();
                           try {
-                            return  "/oauth/credentials?creds="  + URLEncoder.encode(objectMapper.writeValueAsString(oAuthCredential) , StandardCharsets.UTF_8.toString());
+                              return  "/oauth/creds/dropbox?creds="  + URLEncoder.encode(objectMapper.writeValueAsString(oAuthCredential) , StandardCharsets.UTF_8.toString());
                           } catch (IOException e) {
                             e.printStackTrace();
                           }
                           return null;
                         })
                         .map(oauthCred -> {
-                          System.out.println(oauthCred);
                           return Rendering.redirectTo(oauthCred).build();
                         })
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox" ).build()));

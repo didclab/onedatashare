@@ -17,24 +17,52 @@ export default class OauthProcessComponent extends Component{
 	constructor(props){
 			
 		super(props);
-		const {id} = this.props.match.params;
-		this.state={
-			id: id,
-		}
-		
-		let queryString = this.props.location.search;
-		console.log(this.props.match.params, queryString);
+		const {tag} = this.props.match.params;
 
-		if(id === "ExistingCredGoogleDrive"){
+		if(tag === 'uuid'){
+			console.log('User has opted to save auth tokens at ODS servers');
+			console.log('UUID received');
+		}
+		else if(tag === 'dropbox' ){
+			let qs = this.props.location.search;
+			console.log('Dropbox identifier received');
+			
+			let qsObj = JSON.parse(decodeURIComponent(qs.substring(qs.indexOf('=') + 1)));
+			let dropboxCreds = cookies.get("DropboxCreds") || 0;
+			console.log("Dropbox creds - ", dropboxCreds);
+			if(dropboxCreds !== 0){
+				let parsedJSON = JSON.parse(dropboxCreds);
+				parsedJSON.push({name : qsObj.name.split(":+")[1], token : qsObj.token });
+				cookies.set("DropboxCreds", JSON.stringify(parsedJSON));
+			}
+			else{
+				cookies.set("DropboxCreds", JSON.stringify([{name : qsObj.name.split(":+")[1], token : qsObj.token }]));
+			}
+		}
+		else if(tag === 'googledrive'){
+
+		}
+		else if(tag === 'gridftp'){
+
+		}
+
+		// this.state={
+		// 	: id,
+		// }
+		
+//		let queryString = this.props.location.search;
+//		console.log(this.props.match.params, queryString);
+
+		if(tag === "ExistingCredGoogleDrive"){
             setTimeout( () => {eventEmitter.emit(
                "errorOccured","Credential for the endpoint already Exists. Please logout from Google Drive and try again."
             )}, 500);
-		}else if(id === "ExistingCredDropbox"){
+		}else if(tag === "ExistingCredDropbox"){
             setTimeout( () => { eventEmitter.emit(
                 "errorOccured","Credential for the endpoint already Exists. Please logout from Dropbox and try again."
             )}, 500);
         }else{
-            endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: id});
+            endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: tag});
 	    }
 	}
 
@@ -47,15 +75,16 @@ export default class OauthProcessComponent extends Component{
 		//   cookies.set("OAUTH", oauthId);
 		// }
 		
-		const {id} = this.state;
+		// const {id} = this.state;
 		return <div>
-			<Redirect from={oauthPreUrl+id} to={transferPageUrl}></Redirect>
+			{/* from={oauthPreUrl+id} */}
+			<Redirect  to={transferPageUrl}></Redirect>
 			<h1> 
 				Wait a second, You will be redirected.
 			</h1>
-			<h2>
+			{/* <h2>
 				ID: {id}
-			</h2>
+			</h2> */}
 		</div>
 	}
 }
