@@ -6,7 +6,7 @@ import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropb
 import {store} from "../../App";
 import {endpointProgress} from "../../model/actions"
 import PropTypes from "prop-types";
-import {cookies} from "../model/reducers.js";
+import {cookies} from "../../model/reducers.js";
 
 
 import LinearProgress from '@material-ui/core/LinearProgress';
