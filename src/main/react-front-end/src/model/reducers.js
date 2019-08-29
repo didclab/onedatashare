@@ -21,7 +21,8 @@ const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
-	hash: cookies.get('hash') || null,
+  hash: cookies.get('hash') || null,
+  saveOAuthOption: false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
@@ -55,14 +56,16 @@ export function onedatashareModel(state = initialState, action) {
   switch (action.type) {
     case LOGIN:
     	console.log('logging in')
-   		const {email, hash} = action.credential;
+   		const {email, hash, saveOAuthOption} = action.credential;
       console.log(email);
     	cookies.set('email', email, {maxAge: 7200});
-		  cookies.set('hash', hash, {maxAge: 7200});
+      cookies.set('hash', hash, {maxAge: 7200});
+      cookies.set('saveOAuthOption', saveOAuthOption, {maxAge: 7200})
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
-    		hash: hash,
+        hash: hash,
+        saveOAuthOption: saveOAuthOption
     	});
     case LOGOUT:
       console.log("logging out");
@@ -71,13 +74,15 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
+      cookies.remove('saveOAuthOption');
       window.location.replace('/');
 
       return Object.assign({}, state, {
         login: false,
         admin: false,
         hash: "",
-        email: "noemail"
+        email: "noemail",
+        saveOAuthOption: false
       });
     case PROMOTE:
       return Object.assign({}, state, {
