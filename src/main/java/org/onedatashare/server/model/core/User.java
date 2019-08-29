@@ -261,11 +261,13 @@ public class User {
     public class UserLogin {
         public String email;
         public String hash;
+        public boolean saveOAuthOption;
 
 
-        public UserLogin(String email, String hash) {
+        public UserLogin(String email, String hash, boolean saveOAuthOption) {
             this.email = email;
             this.hash = hash;
+            this.saveOAuthOption = saveOAuthOption;
         }
     }
 
