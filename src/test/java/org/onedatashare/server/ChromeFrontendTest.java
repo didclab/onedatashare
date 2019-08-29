@@ -11,6 +11,7 @@ import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.springframework.context.annotation.DependsOn;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 
 import java.util.concurrent.ExecutorService;
@@ -26,6 +27,7 @@ import static org.junit.Assert.assertTrue;
  *
  *
  */
+@Ignore
 public class ChromeFrontendTest {
     private String baseUrl;
     private int msWaitShort = 1000;
