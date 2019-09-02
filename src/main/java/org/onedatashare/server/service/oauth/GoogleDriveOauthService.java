@@ -5,27 +5,19 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import lombok.Data;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.module.googledrive.GoogleDriveConfig;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
-import org.onedatashare.server.service.GoogleDriveConfigService;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -37,41 +29,23 @@ public class GoogleDriveOauthService{
     private UserService userService;
 
     @Autowired
-    private GoogleDriveConfigService driveConfigService;
+    private GoogleDriveConfig driveConfig;
 
-    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
-    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
-    private static final HttpTransport HTTP_TRANSPORT;
-    private static final FileDataStoreFactory DATA_STORE_FACTORY;
-
-    static{
-        try {
-            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
-    }
-
-    @PostConstruct
-    public void initClientSecrets() {
-
-
-    }
+    private final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
 
     private String getUrl() {
         String url;
         try {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                            HTTP_TRANSPORT, JSON_FACTORY,  driveConfigService.getDriveClientSecrets(), SCOPES)
+                            driveConfig.getHttpTransport(), driveConfig.getJSON_FACTORY(),
+                            driveConfig.getDriveClientSecrets(), SCOPES)
                             .setAccessType("offline").setApprovalPrompt("force")
-                            .setDataStoreFactory(DATA_STORE_FACTORY)
+                            .setDataStoreFactory(driveConfig.getDataStoreFactory())
                             .build();
 
             AuthorizationCodeRequestUrl authorizationUrl =
-                    flow.newAuthorizationUrl().setRedirectUri(driveConfigService.getRedirectUri()).setState(flow.getClientId());
+                    flow.newAuthorizationUrl().setRedirectUri(driveConfig.getRedirectUri()).setState(flow.getClientId());
 
             url = authorizationUrl.toURL().toString();
         }
@@ -82,19 +56,19 @@ public class GoogleDriveOauthService{
     }
 
     public synchronized String start() {
-        GoogleClientSecrets cs = driveConfigService.getDriveClientSecrets();
+        GoogleClientSecrets cs = driveConfig.getDriveClientSecrets();
         GoogleClientSecrets.Details dt = cs.getDetails();
 
-        if (driveConfigService.getRedirectUri() == null)
+        if (driveConfig.getRedirectUri() == null)
             throw new RuntimeException("Google Drive config missing");
         return getUrl();
     }
 
     private OAuthCredential storeCredential(String code) {
         try {
-            GoogleAuthorizationCodeFlow flow = driveConfigService.getFlow();
+            GoogleAuthorizationCodeFlow flow = driveConfig.getFlow();
             // Build flow and trigger user authorization request.
-            TokenResponse response = flow.newTokenRequest(code).setRedirectUri(driveConfigService.getRedirectUri()).execute();
+            TokenResponse response = flow.newTokenRequest(code).setRedirectUri(driveConfig.getRedirectUri()).execute();
 
             OAuthCredential oauth = new OAuthCredential(response.getAccessToken());
             oauth.refreshToken = response.getRefreshToken();
