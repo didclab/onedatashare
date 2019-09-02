@@ -322,7 +322,7 @@ export async function deleteEndpointId(ged, accept, fail){
 /*
 	Desc: List credentials for dropbox and googledrive
 */
-export async function dropboxCredList(accept, fail){
+export async function savedCredList(accept, fail){
 	var callback = accept;
 	axios.get(url+'cred?action=list')
 	.then((response) => {

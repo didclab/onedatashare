@@ -82,15 +82,14 @@ export default class AccountControlComponent extends Component {
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
-  }
-  componentWillMount(){
-
-  }
+	}
+	
 	componentDidMount() {
 		window.addEventListener("resize", this.resize.bind(this));
 		this.setState({loading: false});
 		this.resize();
 	}
+
 	resize() {
 		if(this.state.isSmall && window.innerWidth > 640){
 			this.setState({isSmall: false});
@@ -98,6 +97,7 @@ export default class AccountControlComponent extends Component {
 			this.setState({isSmall: true});
 		}
 	}
+
 	userSigningIn(email, password, remember, fail){
 		login(email, password,
 	    	(success) => {
@@ -107,6 +107,7 @@ export default class AccountControlComponent extends Component {
 	    	(error) => {fail(error)}
 	    );
 	}
+	
 	getInnerCard() {
 		return(
 		<Switch>

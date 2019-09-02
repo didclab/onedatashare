@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList, 
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList, 
 		listFiles, deleteCredential, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
@@ -72,7 +72,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	credentialListUpdateFromBackend = () => {
 		this.props.setLoading(true);
 
-		dropboxCredList((data) =>{
+		savedCredList((data) =>{
 			this.setState({credList: data});
 			this.props.setLoading(false);
 		}, (error) =>{

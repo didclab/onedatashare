@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
 import {endpointProgress} from "../../model/actions"
 import PropTypes from "prop-types";
@@ -88,28 +88,21 @@ export default class BrowseModuleComponent extends Component {
 	_handleError = (msg) =>{
     	eventEmitter.emit("errorOccured", msg);
 	}
+
 	componentDidMount(){
 		loadCSS(
 	      'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
 	      document.querySelector('#font-awesome-css'),
 	    );
 	}
+
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-		if(!store.getState().saveOAuthOption){
-			
-			let creds = cookies.get(containsType) || 0;
-			console.log("creds", creds);
-			if(creds !== 0){
-				creds= JSON.parse(creds);
-				console.log("Parsed creds - ", creds);
-				succeed(creds);
-			}
-			else
-				failed();
-		}
-		else{
-			dropboxCredList((data) => {
+
+		if(store.getState().saveOAuthOption){
+			// If the user has opted to store tokens on ODS server,
+			// query backed for saved credentials
+			savedCredList((data) => {
 				if(Object.keys(data).some(id => {
 					return data[id].name.toLowerCase().
 					indexOf(containsType.toLowerCase()) != -1 
@@ -124,6 +117,22 @@ export default class BrowseModuleComponent extends Component {
 				failed();
 				this.setLoading(false);
 			});
+		}
+		else{
+			// If the user has opted not to store tokens on ODS server,
+			// query cookies for saved credentials
+			let creds = cookies.get(containsType) || 0;
+			console.log("creds", creds);
+			if(creds !== 0){
+				creds= JSON.parse(creds);
+				console.log("Parsed creds - ", creds);
+				succeed(creds);
+				this.setLoading(false);
+			}
+			else{
+				failed();
+				this.setLoading(false);
+			}
 		}
 	}
 

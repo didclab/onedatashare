@@ -11,6 +11,7 @@ queue
 
 import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH } from './actions';
 import { transferOptimizations } from "./actions";
+import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 
 export const cookies = require("js-cookie");
 
@@ -75,6 +76,8 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
       cookies.remove('saveOAuthOption');
+      cookies.remove(DROPBOX_NAME);
+      cookies.remove(GOOGLEDRIVE_NAME);
       window.location.replace('/');
 
       return Object.assign({}, state, {

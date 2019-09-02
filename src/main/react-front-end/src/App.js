@@ -69,7 +69,7 @@ class App extends Component {
 
         <Switch>
           <Route path='/account' component={AccountControlComponent}/>
-          <Route path='/oauth/creds/:tag' component={OauthProcessComponent}/>
+          <Route path='/oauth/:tag' component={OauthProcessComponent}/>
           <Route exact path='/*/' component={MainComponent}/>
         </Switch>
 
