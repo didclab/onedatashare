@@ -21,13 +21,10 @@ import java.util.Map;
 @Service
 public class DbxOauthService  {
 
-    @Value("${dropbox.key}")
-    private String key;
+    private String key = System.getenv("ods_dropbox_key");
+    private String secret = System.getenv("ods_dropbox_secret");
 
-    @Value("${dropbox.secret}")
-    private String secret;
-
-    @Value("${dropbox.redirect}")
+    @Value("${dropbox.redirect.uri}")
     private String finishURI;
 
     @Autowired
