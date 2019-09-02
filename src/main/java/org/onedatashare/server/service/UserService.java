@@ -363,9 +363,9 @@ public class UserService {
 
   public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
     final UUID uuid = UUID.randomUUID();
-    return  getLoggedInUser(cookie).map(user -> {
-              if(user.isSaveOAuthTokens())
-                user.getCredentials().put(uuid, credential);
+    return  getLoggedInUser(cookie)
+            .map(user -> {
+              user.getCredentials().put(uuid, credential);
               return user;
             })
             .flatMap(userRepository::save)
@@ -431,9 +431,8 @@ public class UserService {
         // Remove the saved credentials
         if(!saveOAuthCredentials)
           user.setCredentials(new HashMap<>());
-        return userRepository.save(user).subscribe();
-        }
-    ).then() ;
+          return userRepository.save(user).subscribe();
+        }).then() ;
   }
 
   public Mono<Boolean> isAdmin(String cookie){

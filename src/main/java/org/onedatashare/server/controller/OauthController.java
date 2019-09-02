@@ -42,6 +42,9 @@ public class OauthController {
   @Autowired
   private GridftpAuthService gridftpAuthService;
 
+
+  ObjectMapper objectMapper = new ObjectMapper();
+
   static final String googledrive = "googledrive";
   static final String dropbox = "dropbox";
   static final String gridftp = "gridftp";
@@ -59,17 +62,14 @@ public class OauthController {
   public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return userService.getLoggedInUser(cookie).flatMap(user -> {
-              // If the user allows to save the tokens, send back the UUID
               if(user.isSaveOAuthTokens())
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
-                        .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
+                        .map(oauthCred -> userService.saveCredential(cookie, oauthCred))
                         .map(uuid -> Rendering.redirectTo("/oauth/uuid/" + uuid).build())
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
-              // Else send back the tokens
               else
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
                         .map(oAuthCredential -> {
-                          ObjectMapper objectMapper = new ObjectMapper();
                           try {
                               return  "/oauth/dropbox?creds="  + URLEncoder.encode(objectMapper.writeValueAsString(oAuthCredential) , StandardCharsets.UTF_8.toString());
                           } catch (IOException e) {
@@ -77,9 +77,7 @@ public class OauthController {
                           }
                           return null;
                         })
-                        .map(oauthCred -> {
-                          return Rendering.redirectTo(oauthCred).build();
-                        })
+                        .map(oauthCred -> Rendering.redirectTo(oauthCred).build())
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox" ).build()));
             });
   }
