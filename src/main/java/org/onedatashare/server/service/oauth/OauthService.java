@@ -18,13 +18,11 @@ import java.util.Map;
 
 @Service
 public class OauthService {
-  @Value("${dropbox.key}")
-  private String key;
 
-  @Value("${dropbox.secret}")
-  private String secret;
+  private String key = System.getenv("ods_dropbox_key");
+  private String secret = System.getenv("ods_dropbox_secret");
 
-  @Value("${dropbox.redirect}")
+  @Value("${dropbox.redirect.uri}")
   private String finishURI;
 
   @Autowired
