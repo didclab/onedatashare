@@ -27,6 +27,8 @@ import {changePassword, getUser, updateSaveOAuth} from '../../APICalls/APICalls'
 import {eventEmitter, store} from '../../App.js';
 
 import { updateHashAction, accountPreferenceToggledAction } from '../../model/actions';
+import { cookies } from '../../model/reducers';
+import { DROPBOX_NAME, GOOGLEDRIVE_NAME} from "../../constants";
 
 export default class UserAccountComponent extends Component{
 
@@ -87,14 +89,26 @@ export default class UserAccountComponent extends Component{
 			// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
 			// TODO: change the confirmation box to material ui
 			if(currentSaveStatus)
-				confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
+				confirm = window.confirm("This will delete the saved OAuth tokens. Are you sure?");
+			else
+				confirm = window.confirm("By opting to store your OAuth tokens with OneDataShare," +
+												"all tokens in your current session will be deleted and you will need to log in to your accounts once again. " +
+												"Continue?");
 			
 			// Request the change to backend and change it in the front-end
 			if(confirm){
 				currentSaveStatus = !currentSaveStatus;
-				this.setState({saveOAuthTokens : currentSaveStatus});
 				updateSaveOAuth(this.state.email, currentSaveStatus, () =>{
 					store.dispatch(accountPreferenceToggledAction(currentSaveStatus));
+
+					if(currentSaveStatus){
+						// if the user opted to switch from saving tokens on browser to 
+						// storing tokens on the server, we clear all saved tokens in the current browser session.
+						cookies.remove(DROPBOX_NAME);
+      			cookies.remove(GOOGLEDRIVE_NAME);
+					}
+					
+					this.setState({saveOAuthTokens : currentSaveStatus});
 				});
 				
 			}

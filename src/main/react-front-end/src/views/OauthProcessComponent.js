@@ -1,9 +1,6 @@
 import React, { Component, Text } from 'react';
 
-import PropTypes from 'prop-types';
-
 import  { Redirect } from 'react-router-dom';
-import {store} from '../App';
 import {transferPageUrl, oauthPreUrl,
 		DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE,
 		sideLeft, sideRight, DROPBOX_NAME, GOOGLEDRIVE_NAME, GRIDFTP_NAME
