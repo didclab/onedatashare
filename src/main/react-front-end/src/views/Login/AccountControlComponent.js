@@ -26,13 +26,13 @@ export default class AccountControlComponent extends Component {
 
   static propTypes = {}
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthOption){
+  userLogin(email, hash, remember, saveOAuthTokens){
 	  this.state.accounts[email] = {hash: hash};
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
 	
-	store.dispatch(loginAction(email, hash, remember, saveOAuthOption));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
   componentWillUnmount(){
@@ -102,7 +102,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 	    	(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthOption);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
 	    	},
 	    	(error) => {fail(error)}
 	    );

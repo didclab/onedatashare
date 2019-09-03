@@ -32,10 +32,9 @@ export default class OauthProcessComponent extends Component{
             )}, 500);
         }
 		else if(tag === 'uuid'){
-			console.log('User has opted to save auth tokens at ODS servers');
-			console.log('UUID received');
+			console.log('User has opted to save auth tokens at ODS servers. UUID received');
 			let qs = this.props.location.search;
-			let identifier = JSON.parse(decodeURIComponent(qs.substring(qs.indexOf('=') + 1)));
+			let identifier = decodeURIComponent(qs.substring(qs.indexOf('=') + 1));
 			endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: identifier});
 		}
 		else{

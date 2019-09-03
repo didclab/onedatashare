@@ -13,25 +13,20 @@ import CardActions from '@material-ui/core/CardActions';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
-import Grid from '@material-ui/core/Grid';
 
 import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {changePassword, getUser, updateSaveOAuth} from '../../APICalls/APICalls';
 import {eventEmitter, store} from '../../App.js';
 
-import { updateHashAction } from '../../model/actions';
-
-
+import { updateHashAction, accountPreferenceToggledAction } from '../../model/actions';
 
 export default class UserAccountComponent extends Component{
 
@@ -66,7 +61,8 @@ export default class UserAccountComponent extends Component{
         });
    		this.getInnerCard = this.getInnerCard.bind(this);
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
-   		this.accountDetails = this.accountDetails.bind(this);
+			 this.accountDetails = this.accountDetails.bind(this);
+			 this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
@@ -83,6 +79,28 @@ export default class UserAccountComponent extends Component{
 		})
 	}
 
+	handleAccountPreferenceToggle(){
+		{
+			let confirm = true;
+			let currentSaveStatus = this.state.saveOAuthTokens;
+			
+			// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
+			// TODO: change the confirmation box to material ui
+			if(currentSaveStatus)
+				confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
+			
+			// Request the change to backend and change it in the front-end
+			if(confirm){
+				currentSaveStatus = !currentSaveStatus;
+				this.setState({saveOAuthTokens : currentSaveStatus});
+				updateSaveOAuth(this.state.email, currentSaveStatus, () =>{
+					store.dispatch(accountPreferenceToggledAction(currentSaveStatus));
+				});
+				
+			}
+		}
+	}
+
 	accountDetails() {
     		return(
                   <div>
@@ -92,8 +110,6 @@ export default class UserAccountComponent extends Component{
                        <Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
                           Account Details <br/>
                         </Typography>
-
-
 
                        <ListItem>
                        <ListItemText classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
@@ -125,38 +141,22 @@ export default class UserAccountComponent extends Component{
 				<List>
 					<Card style={{minWidth: 275}}>
 						<CardContent>
-						<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
-                          Account Preferences <br/>
-                        </Typography>
-						<FormGroup>
-						<FormControlLabel
-							value="new_source"
-							control={<Switch
+							<Typography style={{fontSize: "1.6em", marginBottom: "0.6em"}}>
+														Account Preferences <br/>
+													</Typography>
+							<FormGroup>
+							<FormControlLabel
+								value="new_source"
+								control={
+									<Switch
 										checked={this.state.saveOAuthTokens}
-										onClick={() => {
-											let confirm = true;
-											let currentSaveStatus = this.state.saveOAuthTokens;
-											
-											// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
-											// TODO: change the confirmation box to material ui
-											if(currentSaveStatus)
-												confirm = window.confirm("This will delete the saved OAuth credentials. Are you sure?");
-											
-											// Request the change to backend and change it in the front-end
-											if(confirm){
-												currentSaveStatus = !currentSaveStatus;
-												this.setState({saveOAuthTokens : currentSaveStatus});
-												updateSaveOAuth(this.state.email, currentSaveStatus);
-												}
-											}
-										}
+										onClick={()=>this.handleAccountPreferenceToggle()}
 										value="saveOAuthTokenSwitch"
 										color="primary"
 									/>
-							}
-							label={"Save OAuth tokens"}
+								}
+								label={"Save OAuth tokens"}
 							/>
-
 							</FormGroup>
 						</CardContent>
 					</Card>

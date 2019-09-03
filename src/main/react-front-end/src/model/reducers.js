@@ -9,7 +9,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 
@@ -23,7 +23,7 @@ const initialState = {
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
-  saveOAuthOption: (cookies.get('saveOAuthOption') != undefined)? JSON.parse(cookies.get('saveOAuthOption')) : false,
+  saveOAuthTokens: (cookies.get('saveOAuthTokens') != undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
@@ -57,17 +57,18 @@ export function onedatashareModel(state = initialState, action) {
   switch (action.type) {
     case LOGIN:
     	console.log('logging in')
-   		const {email, hash, saveOAuthOption} = action.credential;
+   		const {email, hash, saveOAuthTokens} = action.credential;
       console.log(email);
     	cookies.set('email', email, {maxAge: 7200});
       cookies.set('hash', hash, {maxAge: 7200});
-      cookies.set('saveOAuthOption', saveOAuthOption, {maxAge: 7200})
+      cookies.set('saveOAuthTokens', saveOAuthTokens, {maxAge: 7200})
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
         hash: hash,
-        saveOAuthOption: saveOAuthOption
-    	});
+        saveOAuthTokens: saveOAuthTokens
+      });
+      
     case LOGOUT:
       console.log("logging out");
       cookies.remove('email');
@@ -75,7 +76,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
-      cookies.remove('saveOAuthOption');
+      cookies.remove('saveOAuthTokens');
       cookies.remove(DROPBOX_NAME);
       cookies.remove(GOOGLEDRIVE_NAME);
       window.location.replace('/');
@@ -85,12 +86,14 @@ export function onedatashareModel(state = initialState, action) {
         admin: false,
         hash: "",
         email: "noemail",
-        saveOAuthOption: false
+        saveOAuthTokens: undefined
       });
+
     case PROMOTE:
       return Object.assign({}, state, {
         admin: true,
       });
+
     case ENDPOINT_PROGRESS:
       if(action.side == "left")
         return Object.assign({}, state, {
@@ -100,6 +103,7 @@ export function onedatashareModel(state = initialState, action) {
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, loginProgress: action.progress},
         });
+
     case ENDPOINT_UPDATE:
       if(action.side == "left"){
         console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
@@ -114,13 +118,18 @@ export function onedatashareModel(state = initialState, action) {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
-    case UPDATE_HASH:
-        cookies.remove('hash');
-     cookies.set('hash',  action.hash, {maxAge: 7200});
-         return Object.assign({}, state, {
-                  hash: action.hash
-                });
 
+    case UPDATE_HASH:
+      cookies.remove('hash');
+      cookies.set('hash',  action.hash, {maxAge: 7200});
+      return Object.assign({}, state, {
+        hash: action.hash
+      });
+    
+    case ACCOUNT_PREFERENCE_TOGGLED:
+      cookies.set('saveOAuthTokens', action.saveOAuthTokens);
+      return Object.assign({}, state, {saveOAuthTokens: action.saveOAuthTokens});
+    
     default:
       return state
   }

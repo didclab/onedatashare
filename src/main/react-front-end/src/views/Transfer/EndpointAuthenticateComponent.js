@@ -203,37 +203,8 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		if(!store.getState().saveOAuthOption){
-			return credList.map((cred) =>
 
-			<ListItem button onClick={() => {
-					const endpointSet = {
-						uri: endpoint.uri,
-						login: true,
-						credential: {name: cred.name},
-						side: endpoint.side
-					}
-					loginSuccess(endpointSet);
-				}}>
-					<ListItemIcon>
-							<DataIcon/>
-						</ListItemIcon>
-							<ListItemText primary={cred.name} />
-							<ListItemSecondaryAction>
-								<IconButton aria-label="Delete" onClick={() => {
-									deleteCredential(cred, (accept) => {
-										this.credentialListUpdateFromBackend();
-									}, (error) => {
-										this._handleError("Delete Credential Failed");
-									});
-								}}>
-									<DeleteIcon />
-								</IconButton>
-							</ListItemSecondaryAction>
-				</ListItem>
-			);
-		}
-		else{
+		if(store.getState().saveOAuthTokens){
 			return Object.keys(credList).filter(id => {
 				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
 							&& !getCred().includes(id))})
@@ -265,7 +236,39 @@ export default class EndpointAuthenticateComponent extends Component {
 						</ListItem>
 			);
 		}
+		else{
+			return credList.map((cred) =>
+
+			<ListItem button onClick={() => {
+					const endpointSet = {
+						uri: endpoint.uri,
+						login: true,
+						credential: {name: cred.name},
+						side: endpoint.side
+					}
+					loginSuccess(endpointSet);
+				}}>
+					<ListItemIcon>
+							<DataIcon/>
+						</ListItemIcon>
+							<ListItemText primary={cred.name} />
+							<ListItemSecondaryAction>
+								<IconButton aria-label="Delete" onClick={() => {
+									deleteCredential(cred, (accept) => {
+										this.credentialListUpdateFromBackend();
+									}, (error) => {
+										this._handleError("Delete Credential Failed");
+									});
+								}}>
+									<DeleteIcon />
+								</IconButton>
+							</ListItemSecondaryAction>
+				</ListItem>
+			);
+		}
+		
 	}
+
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {

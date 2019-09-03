@@ -84,7 +84,7 @@ public class OauthController {
     return userService.getLoggedInUser(cookie).flatMap(user -> {
               if(user.isSaveOAuthTokens())
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
-                        .map(oauthCred -> userService.saveCredential(cookie, oauthCred))
+                        .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                         .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
               else
@@ -138,7 +138,6 @@ public class OauthController {
   public Object handleDup(DuplicateCredentialException dce) {
     ODSLoggerService.logError(dce.status.toString());
     return Rendering.redirectTo("/transfer").build();
-    //return new ResponseEntity<>(notfound, notfound.status);
   }
 }
 

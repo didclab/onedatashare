@@ -2,7 +2,6 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
-import * as JsEncryptModule from 'jsencrypt';
 
 import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
@@ -598,18 +597,15 @@ export async function getUser(email, accept, fail){
     })
 }
 
-export async function updateSaveOAuth(email, saveOAuth){
+export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	axios.post(url + 'user', {
 		action: "updateSaveOAuth",
 		email: email,
 		saveOAuth: saveOAuth
 	})
 	.then((response) => {
-		if(!(response.status === 200))
-			return false;
-		else{
-			return true;
-		}
+		if(response.status === 200)
+			successCallback();
 	})
 	.catch((error) => {
 			console.log("Error encountered while updating the user.");
@@ -744,12 +740,6 @@ export async function openGridFtpOAuth(){
 export async function openOAuth(url){
 	window.location = url;
 }
-
-
-export async function getOrganization(){
-
-}
-
 
 export async function registerUser(emailId, firstName, lastName, organization) {
 

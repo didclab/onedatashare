@@ -356,9 +356,7 @@ public class UserService {
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash)
-      .flatMap(userLoggedIn -> {
-        return getUser(userLogin.email);
-      });
+      .flatMap(userLoggedIn -> getUser(userLogin.email));
   }
 
   public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
