@@ -34,7 +34,9 @@ export default class OauthProcessComponent extends Component{
 		else if(tag === 'uuid'){
 			console.log('User has opted to save auth tokens at ODS servers');
 			console.log('UUID received');
-			endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: tag});
+			let qs = this.props.location.search;
+			let identifier = JSON.parse(decodeURIComponent(qs.substring(qs.indexOf('=') + 1)));
+			endpointLogin(DROPBOX_TYPE, sideLeft, {uuid: identifier});
 		}
 		else{
 			let qs = this.props.location.search;
@@ -59,9 +61,17 @@ export default class OauthProcessComponent extends Component{
 		let creds = cookies.get(protocolType) || 0;
 		if(creds !== 0){
 			let parsedJSON = JSON.parse(creds);
-			
-			parsedJSON.push({name : qsObj.name.split(":+")[1], token : qsObj.token });
-			cookies.set(protocolType, JSON.stringify(parsedJSON));
+			let accountId = qsObj.name.split(":+")[1];
+			let oAuthToken = qsObj.token;
+
+			let existingToken = parsedJSON.some(obj => obj.name == accountId);
+			if(existingToken){
+				console.log("Auth token for " + accountId + " already exists in session.");
+			}
+			else{
+				parsedJSON.push({name : accountId, token : oAuthToken });
+				cookies.set(protocolType, JSON.stringify(parsedJSON));
+			}
 		}
 		else{
 			cookies.set(protocolType, JSON.stringify([{name : qsObj.name.split(":+")[1], token : qsObj.token }]));

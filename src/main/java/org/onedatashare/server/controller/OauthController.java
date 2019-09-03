@@ -52,10 +52,30 @@ public class OauthController {
   @GetMapping(value = "/googledrive")
   public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
     String cookie = headers.getFirst(ODSConstants.COOKIE);
-    return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
-            .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
-            .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive" ).build()));
+
+    return userService.getLoggedInUser(cookie)
+            .flatMap(user -> {
+              if(user.isSaveOAuthTokens()){
+                return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
+                        .flatMap(oAuthCred -> userService.saveCredential(cookie, oAuthCred))
+                        .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
+                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive" ).build()));
+              }
+              else{
+                return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
+                        .map(oAuthCred -> {
+                          try {
+                            return  "/oauth/googledrive?creds="  +
+                                    URLEncoder.encode(objectMapper.writeValueAsString(oAuthCred) , StandardCharsets.UTF_8.toString());
+                          } catch (IOException e) {
+                            e.printStackTrace();
+                          }
+                          return null;
+                        })
+                        .map(oAuthCredLink -> Rendering.redirectTo(oAuthCredLink).build())
+                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive" ).build()));
+              }
+            });
   }
 
   @GetMapping(value = "/dropbox")
@@ -65,7 +85,7 @@ public class OauthController {
               if(user.isSaveOAuthTokens())
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
                         .map(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                        .map(uuid -> Rendering.redirectTo("/oauth/uuid/" + uuid).build())
+                        .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
                         .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
               else
                 return dbxOauthService.finish(queryParameters.get("code"), cookie)
