@@ -59,6 +59,7 @@ export default class OauthProcessComponent extends Component{
 		let creds = cookies.get(protocolType) || 0;
 		if(creds !== 0){
 			let parsedJSON = JSON.parse(creds);
+			
 			parsedJSON.push({name : qsObj.name.split(":+")[1], token : qsObj.token });
 			cookies.set(protocolType, JSON.stringify(parsedJSON));
 		}

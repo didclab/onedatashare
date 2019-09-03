@@ -102,6 +102,8 @@ export default class BrowseModuleComponent extends Component {
 		if(store.getState().saveOAuthOption){
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
+			console.log("Checking backend for " + containsType + " credentials");
+
 			savedCredList((data) => {
 				if(Object.keys(data).some(id => {
 					return data[id].name.toLowerCase().
@@ -121,6 +123,8 @@ export default class BrowseModuleComponent extends Component {
 		else{
 			// If the user has opted not to store tokens on ODS server,
 			// query cookies for saved credentials
+			console.log("Checking cookies for " + containsType + " credentials");
+			
 			let creds = cookies.get(containsType) || 0;
 			console.log("creds", creds);
 			if(creds !== 0){

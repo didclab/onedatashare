@@ -23,7 +23,7 @@ const initialState = {
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
-  saveOAuthOption: cookies.get('saveOAuthOption'),
+  saveOAuthOption: (cookies.get('saveOAuthOption') != undefined)? JSON.parse(cookies.get('saveOAuthOption')) : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
