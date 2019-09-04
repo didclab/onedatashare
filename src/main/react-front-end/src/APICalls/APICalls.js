@@ -675,7 +675,7 @@ export async function cancelJob(jobID, accept, fail){
     });
 }
 
-export async function deleteCredential(uri, accept, fail){
+export async function deleteCredentialFromServer(uri, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {

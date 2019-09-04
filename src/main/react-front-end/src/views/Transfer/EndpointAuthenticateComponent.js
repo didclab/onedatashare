@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList, 
-		listFiles, deleteCredential, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
+		listFiles, deleteCredentialFromServer, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 import {store} from "../../App";
@@ -12,6 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
+import {cookies} from "../../model/reducers.js";
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
@@ -79,6 +80,25 @@ export default class EndpointAuthenticateComponent extends Component {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
+	}
+
+	deleteCredentialFromLocal(cred, type){
+		this.props.setLoading(true);
+
+		let parsedCredsArr = JSON.parse(cookies.get(type));
+		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+														return curObj.name != cred.name;
+												});
+		if(filteredCredsArr.length === 0){
+			cookies.remove(type);
+		}
+		else{
+			cookies.set(type, JSON.stringify(filteredCredsArr));
+		}
+
+		this.setState({credList: filteredCredsArr});
+
+		this.props.setLoading(false);
 	}
 
 	endpointIdsListUpdateFromBackend = () => {
@@ -205,41 +225,46 @@ export default class EndpointAuthenticateComponent extends Component {
 		const {loginSuccess} = this.props;
 
 		if(store.getState().saveOAuthTokens){
+			// If the user has opted to store tokens on ODS server
+			// Note - Backend returns stored credentials as a nested JSON object
 			return Object.keys(credList).filter(id => {
 				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
 							&& !getCred().includes(id))})
 				.map((v) =>
-				<ListItem button key={v} onClick={() => {
-					const endpointSet = {
-						uri: endpoint.uri,
-						login: true,
-						credential: {uuid: v, name: credList[v].name},
-						side: endpoint.side
-					}
-					loginSuccess(endpointSet);
-				}}>
+				<ListItem button key={v} 
+					onClick={() => {
+						const endpointSet = {
+							uri: endpoint.uri,
+							login: true,
+							credential: {uuid: v, name: credList[v].name},
+							side: endpoint.side
+						}
+						loginSuccess(endpointSet);
+					}}>
 					<ListItemIcon>
-							<DataIcon/>
-						</ListItemIcon>
-							<ListItemText primary={credList[v].name} />
-							<ListItemSecondaryAction>
-								<IconButton aria-label="Delete" onClick={() => {
-									deleteCredential(v, (accept) => {
-										this.credentialListUpdateFromBackend();
-									}, (error) => {
-										this._handleError("Delete Credential Failed");
-									});
-								}}>
-									<DeleteIcon />
-								</IconButton>
-							</ListItemSecondaryAction>
-						</ListItem>
+						<DataIcon/>
+					</ListItemIcon>
+					<ListItemText primary={credList[v].name} />
+					<ListItemSecondaryAction>
+						<IconButton aria-label="Delete" onClick={() => {
+							deleteCredentialFromServer(v, (accept) => {
+								this.credentialListUpdateFromBackend();
+							}, (error) => {
+								this._handleError("Delete Credential Failed");
+							});
+						}}>
+							<DeleteIcon />
+						</IconButton>
+					</ListItemSecondaryAction>
+				</ListItem>
 			);
 		}
 		else{
+			// If the user has opted not to store tokens on ODS server
+			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-
-			<ListItem button onClick={() => {
+			<ListItem button 
+				onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
@@ -248,21 +273,16 @@ export default class EndpointAuthenticateComponent extends Component {
 					}
 					loginSuccess(endpointSet);
 				}}>
-					<ListItemIcon>
-							<DataIcon/>
-						</ListItemIcon>
-							<ListItemText primary={cred.name} />
-							<ListItemSecondaryAction>
-								<IconButton aria-label="Delete" onClick={() => {
-									deleteCredential(cred, (accept) => {
-										this.credentialListUpdateFromBackend();
-									}, (error) => {
-										this._handleError("Delete Credential Failed");
-									});
-								}}>
-									<DeleteIcon />
-								</IconButton>
-							</ListItemSecondaryAction>
+				<ListItemIcon>
+					<DataIcon/>
+				</ListItemIcon>
+				<ListItemText primary={cred.name} />
+				<ListItemSecondaryAction>
+					<IconButton aria-label="Delete" onClick={() =>
+						this.deleteCredentialFromLocal(cred, type)}>
+						<DeleteIcon />
+					</IconButton>
+				</ListItemSecondaryAction>
 				</ListItem>
 			);
 		}

@@ -4,7 +4,6 @@ import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
 import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
-import {endpointProgress} from "../../model/actions"
 import PropTypes from "prop-types";
 import {cookies} from "../../model/reducers.js";
 
