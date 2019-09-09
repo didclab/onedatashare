@@ -177,10 +177,6 @@ export default class UserAccountComponent extends Component{
 	componentDidMount(){
 
 		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
 		this.resize();
 	}
 
