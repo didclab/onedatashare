@@ -115,7 +115,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	historyListUpdateFromBackend = () => {
 		this.props.setLoading(true);
 		history("",-1, (data) =>{
-			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) == 0 })});
+			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })});
 			this.props.setLoading(false);
 		}, (error) => {
 			this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
@@ -155,7 +155,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
 		// If the Url already doesn't contain the portnumber append it else no change
-		if(colonCount==1)
+		if(colonCount===1)
 			url = url + ":" + portNum;
 
 		let endpointSet = {
@@ -365,7 +365,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
 		globusEndpointIds({},(data) =>{
-			this.state.endpointIdsList = data;
+			this.setState({endpointIdsList: data});
 			this.endpointModalLogin(endpoint);
 			this.props.setLoading(false);
 		}, (error) =>{
@@ -415,27 +415,27 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary="Back" />
 		        </ListItem>
 		        <ListItem button onClick={() => {
-		        	if(loginType == DROPBOX_TYPE){
+		        	if(loginType === DROPBOX_TYPE){
 		        		openDropboxOAuth();
-		        	}else if(loginType == GOOGLEDRIVE_TYPE){
+		        	}else if(loginType === GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
-		        	}else if(loginType == FTP_TYPE){
+		        	}else if(loginType === FTP_TYPE){
 		        		let loginUri = "ftp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType == SFTP_TYPE){
+		        	}else if(loginType === SFTP_TYPE){
 		        		let loginUri = "sftp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType == HTTP_TYPE){
+		        	}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType == SCP_TYPE){
+		        	}else if(loginType === SCP_TYPE){
 		        		let loginUri = "scp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType == GRIDFTP_TYPE){
+		        	}else if(loginType === GRIDFTP_TYPE){
 		        		this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
 		        	}
 		        }}>
@@ -445,9 +445,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType == DROPBOX_TYPE || loginType == GOOGLEDRIVE_TYPE) && cloudList}
-		        {loginType == GRIDFTP_TYPE && endpointsList}
-		        {loginType != DROPBOX_TYPE && loginType != GOOGLEDRIVE_TYPE && loginType != GRIDFTP_TYPE && 
+		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && cloudList}
+		        {loginType === GRIDFTP_TYPE && endpointsList}
+		        {loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
 		        	histList}
 		    </List>}
 	    	<Modal

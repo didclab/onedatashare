@@ -68,7 +68,7 @@ export default class OauthProcessComponent extends Component {
       let accountId = qsObj.name.split(":+")[1];
       let oAuthToken = qsObj.token;
 
-      let existingToken = parsedJSON.some(obj => obj.name == accountId);
+      let existingToken = parsedJSON.some(obj => obj.name === accountId);
       if (existingToken) {
         console.log(
           "Auth token for " + accountId + " already exists in session."

@@ -1,5 +1,6 @@
 {
   "main.css": "/static/css/main.2773af2c.chunk.css",
+<<<<<<< HEAD
   "main.js": "/static/js/main.fd3bfbe2.chunk.js",
   "main.js.map": "/static/js/main.fd3bfbe2.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
@@ -8,6 +9,16 @@
   "static/js/2.026fa9d1.chunk.js.map": "/static/js/2.026fa9d1.chunk.js.map",
   "index.html": "/index.html",
   "precache-manifest.fb4f01b97e2bd50390b9189cb2d46560.js": "/precache-manifest.fb4f01b97e2bd50390b9189cb2d46560.js",
+=======
+  "main.js": "/static/js/main.a6035a3f.chunk.js",
+  "main.js.map": "/static/js/main.a6035a3f.chunk.js.map",
+  "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
+  "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
+  "static/js/2.06349d76.chunk.js": "/static/js/2.06349d76.chunk.js",
+  "static/js/2.06349d76.chunk.js.map": "/static/js/2.06349d76.chunk.js.map",
+  "index.html": "/index.html",
+  "precache-manifest.4e2462f150223cf2417eda6ee562590a.js": "/precache-manifest.4e2462f150223cf2417eda6ee562590a.js",
+>>>>>>> master
   "service-worker.js": "/service-worker.js",
   "static/css/main.2773af2c.chunk.css.map": "/static/css/main.2773af2c.chunk.css.map",
   "static/media/NSF_Logo.png": "/static/media/NSF_Logo.0f6f085b.png",

@@ -23,7 +23,7 @@ const initialState = {
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
-  saveOAuthTokens: (cookies.get('saveOAuthTokens') != undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
+  saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
@@ -95,7 +95,7 @@ export function onedatashareModel(state = initialState, action) {
       });
 
     case ENDPOINT_PROGRESS:
-      if(action.side == "left")
+      if(action.side === "left")
         return Object.assign({}, state, {
           endpoint1: {...state.endpoint1, loginProgress: action.progress},
         });
@@ -105,7 +105,7 @@ export function onedatashareModel(state = initialState, action) {
         });
 
     case ENDPOINT_UPDATE:
-      if(action.side == "left"){
+      if(action.side === "left"){
         console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
         cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}), {maxAge: 7200});
           return Object.assign({}, state, {

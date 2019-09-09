@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
 
 import FolderIcon from "@material-ui/icons/Folder";
 import FileIcon from "@material-ui/icons/Note";
-import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
 import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "../initialize_dnd";
-import { screenIsSmall } from "../utils.js";
 
 /**
 	Component for file and directory
@@ -98,7 +95,7 @@ export default class FileNodeCompact extends Component {
 	arraysEqual(a, b) {
 	  if (a === b) return true;
 	  if (a == null || b == null) return false;
-	  if (a.length != b.length) return false;
+	  if (a.length !== b.length) return false;
 
 	  // If you don't care about the order of the elements inside
 	  // the array, you should sort both arrays here.
@@ -241,7 +238,7 @@ export default class FileNodeCompact extends Component {
 		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns} = this.props;
 		const {name, dir, perm, time, size, children} = this.props.file;
 		const {isDragging} = this.state;
-		const hasAttr = (time != 0 || perm || size != 0);
+		const hasAttr = (time !== 0 || perm || size !== 0);
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
 		const pstyle =  {textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden", marginLeft: "10px",textAlign: "left", display: "inline-block"};

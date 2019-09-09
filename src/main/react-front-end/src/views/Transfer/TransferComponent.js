@@ -1,24 +1,10 @@
 import React, { Component } from 'react';
 import { Panel, Col, Row, Glyphicon} from 'react-bootstrap';
 
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import PropTypes from 'prop-types';
 import {store} from '../../App';
 import BrowseModuleComponent from './BrowseModuleComponent';
 import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import InputLabel from '@material-ui/core/InputLabel';
-
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
 
 import FormControl from '@material-ui/core/FormControl';
 import Radio from '@material-ui/core/Radio';
@@ -81,7 +67,7 @@ export default class TransferComponent extends Component {
   }
 
   sendFile = (processed) => {
-    if(processed.selectedTasks.length == 0){
+    if(processed.selectedTasks.length === 0){
       eventEmitter.emit("errorOccured", "You did not select any files!");
       return 0;
     }
@@ -179,7 +165,7 @@ export default class TransferComponent extends Component {
   }
 
   updateBrowseOne(object){
-      if(object.mode == undefined){
+      if(object.mode === undefined){
         object.mode = 0
       }
       this.setState({endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode});
@@ -188,7 +174,7 @@ export default class TransferComponent extends Component {
   }
 
   updateBrowseTwo(object){
-      if(object.mode == undefined){
+      if(object.mode === undefined){
         object.mode = 0
       }
       this.setState({endpoint2: object.endpoint || this.state.endpoint2, mode2: object.mode});
@@ -227,7 +213,7 @@ export default class TransferComponent extends Component {
       destination,
     });
 
-    if(processed.fromTo[0] == processed.fromTo[1]){
+    if(processed.fromTo[0] === processed.fromTo[1]){
       setBeforeTransferReorder(processed);
     }else{  
       this.sendFile(processed);
