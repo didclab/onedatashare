@@ -2,14 +2,12 @@ package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.service.oauth.DbxOauthService;
 import org.onedatashare.server.service.oauth.GridftpAuthService;
-import org.onedatashare.server.service.oauth.OauthService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +37,6 @@ public class OauthController {
     @Autowired
     private GridftpAuthService gridftpAuthService;
 
-
     ObjectMapper objectMapper = new ObjectMapper();
 
     static final String googledrive = "googledrive";
@@ -50,8 +47,19 @@ public class OauthController {
     public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
 
-        if(!queryParameters.containsKey("code"))
-            return Mono.just(Rendering.redirectTo("/transfer").build());
+        if (!queryParameters.containsKey("code")) {
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (queryParameters.containsKey("error")) {
+                try {
+                    errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error"), "UTF-8"));
+                    errorStringBuilder.insert(0, "?error=");
+                } catch (UnsupportedEncodingException e) {
+                    ODSLoggerService.logError("Invalid error message received from Google Drive " +
+                            "oauth after cancellation" + queryParameters.get("error_description"));
+                }
+            }
+            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+        }
 
         return userService.getLoggedInUser(cookie)
                 .flatMap(user -> {
@@ -81,8 +89,19 @@ public class OauthController {
     public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
 
-        if(!queryParameters.containsKey("code"))
-            return Mono.just(Rendering.redirectTo("/transfer").build());
+        if (!queryParameters.containsKey("code")) {
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (queryParameters.containsKey("error_description")) {
+                try {
+                    errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error_description"), "UTF-8"));
+                    errorStringBuilder.insert(0, "?error=");
+                } catch (UnsupportedEncodingException e) {
+                    ODSLoggerService.logError("Invalid error message received from DropBox " +
+                            "oauth after cancellation" + queryParameters.get("error_description"));
+                }
+            }
+            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+        }
 
         return userService.getLoggedInUser(cookie).flatMap(user -> {
             if (user.isSaveOAuthTokens())
