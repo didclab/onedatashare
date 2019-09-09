@@ -475,42 +475,31 @@ export default class EndpointBrowseComponent extends Component {
 			
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<ButtonGroup style={buttonGroupStyle}>
-				  <OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-				  	<BootStrapButton style={buttonStyle} onClick={() => {
-				  		this.handleClickOpenAddFolder()
-				  	}}>
-				  		<NewFolderIcon style={iconStyle}/>
-				  	</BootStrapButton>
-				  </OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
+						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
+						onClick={() => {
+							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
+								const taskList = getSelectedTasksFromSide(endpoint);
+								if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
+									getDownload(downloadUrl, endpoint.credential, taskList);
+								}
+								else if(getType(endpoint) == HTTP_TYPE){
+									window.open(downloadUrl);
+								}
+								else{
+								download(downloadUrl, endpoint.credential, taskList[0].id)
+							}
+						}}
+						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
+						<BootStrapButton>
+							<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
 
-				  <OverlayTrigger placement="top" 
-						overlay={tooltip("Upload")}>
-						<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
-				  </OverlayTrigger>
-				  <OverlayTrigger placement="top" 
-				  	overlay={tooltip("Delete")}>
-				  	<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
-				  		this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
-				  	}}
-				  	style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
-				  </OverlayTrigger>
-					  	<OverlayTrigger placement="top" overlay={tooltip("Download")}>
-					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
-					  		onClick={() => {
-					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-									const taskList = getSelectedTasksFromSide(endpoint);
-									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
-										getDownload(downloadUrl, endpoint.credential, taskList);
-									}
-									else if(getType(endpoint) == HTTP_TYPE){
-										window.open(downloadUrl);
-									}
-									else{
-						  			download(downloadUrl, endpoint.credential, taskList[0].id)
-						  		}
-					  		}}
-					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
-						</OverlayTrigger>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
 						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
@@ -529,6 +518,23 @@ export default class EndpointBrowseComponent extends Component {
 				  			<LinkButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
+					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
+						<BootStrapButton style={buttonStyle} onClick={() => {
+							this.handleClickOpenAddFolder()
+						}}>
+							<NewFolderIcon style={iconStyle}/>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Delete")}>
+						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
+							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
+						}}
+						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+
+
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
 				  		<BootStrapButton style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
@@ -537,6 +543,7 @@ export default class EndpointBrowseComponent extends Component {
 				  			<RefreshButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
 				  		<BootStrapButton bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
