@@ -7,7 +7,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 
-
+import {Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle} from "@material-ui/core"
 import Button from '@material-ui/core/Button';
 import CardActions from '@material-ui/core/CardActions';
 
@@ -45,6 +45,7 @@ export default class UserAccountComponent extends Component{
     	    fName: "...",
 			lName: "...",
 			redirect: false,
+			openAlertDialog: false,
 			saveOAuthTokens: false
     	};
     	getUser(this.state.userEmail,  (resp) => {
@@ -63,8 +64,10 @@ export default class UserAccountComponent extends Component{
         });
    		this.getInnerCard = this.getInnerCard.bind(this);
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
-			 this.accountDetails = this.accountDetails.bind(this);
-			 this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
+		this.accountDetails = this.accountDetails.bind(this);
+		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
+		this.handleAlertClose = this.handleAlertClose.bind(this);
+		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
@@ -81,43 +84,60 @@ export default class UserAccountComponent extends Component{
 		})
 	}
 
-	handleAccountPreferenceToggle(){
-		{
-			let confirm = true;
-			let currentSaveStatus = this.state.saveOAuthTokens;
-			
-			// Get confirmation if the user wants to delete the existing OAuth credentials (if toggling to off)
-			// TODO: change the confirmation box to material ui
-			if(currentSaveStatus)
-				confirm = window.confirm("This will delete the saved OAuth tokens. Are you sure?");
-			else
-				confirm = window.confirm("By opting to store your OAuth tokens with OneDataShare," +
-												"all tokens in your current session will be deleted and you will need to log in to your accounts once again. " +
-												"Continue?");
-			
-			// Request the change to backend and change it in the front-end
-			if(confirm){
-				currentSaveStatus = !currentSaveStatus;
-				updateSaveOAuth(this.state.email, currentSaveStatus, () =>{
-					store.dispatch(accountPreferenceToggledAction(currentSaveStatus));
+	handleAccountPreferenceToggle(){		
+		this.setState({openAlertDialog : true});
+	}
 
-					if(currentSaveStatus){
-						// if the user opted to switch from saving tokens on browser to 
-						// storing tokens on the server, we clear all saved tokens in the current browser session.
-						cookies.remove(DROPBOX_NAME);
-      			cookies.remove(GOOGLEDRIVE_NAME);
-					}
-					
-					this.setState({saveOAuthTokens : currentSaveStatus});
-				});
-				
+	handleAlertClose(){
+		this.setState({openAlertDialog: false});
+	}
+
+	handleAlertCloseYes(){
+		this.handleAlertClose();
+		let currentSaveStatus = this.state.saveOAuthTokens;
+
+		//Toggle the change
+		currentSaveStatus = !currentSaveStatus;
+		updateSaveOAuth(this.state.email, currentSaveStatus, () =>{
+			store.dispatch(accountPreferenceToggledAction(currentSaveStatus));
+			if(currentSaveStatus){
+				// if the user opted to switch from saving tokens on browser to 
+				// storing tokens on the server, we clear all saved tokens in the current browser session.
+				cookies.remove(DROPBOX_NAME);
+				cookies.remove(GOOGLEDRIVE_NAME);
 			}
-		}
+			//Update the variables
+			this.setState({saveOAuthTokens : currentSaveStatus});
+		});				
+
+
 	}
 
 	accountDetails() {
     		return(
                   <div>
+						<Dialog
+							open={this.state.openAlertDialog}
+							onClose={this.handleAlertClose}
+							aria-labelledby="alert-dialog-title"
+							aria-describedby="alert-dialog-description"
+						>
+							<DialogTitle id="alert-dialog-title">{"Change how OAuth tokens are saved?"}</DialogTitle>
+							<DialogContent>
+							<DialogContentText id="alert-dialog-description">
+								Warning! This might delete all your existing credentials and may interrupt ongoing transfers. Are you sure?
+							</DialogContentText>
+							</DialogContent>
+							<DialogActions>
+							<Button onClick={this.handleAlertCloseYes} color="primary">
+								Yes
+							</Button>
+							<Button onClick={this.handleAlertClose} color="primary" autoFocus>
+								No
+							</Button>
+							</DialogActions>
+						</Dialog>
+
                       <List>
     		          <Card style={{minWidth: 275}}>
                        <CardContent>
