@@ -182,13 +182,7 @@ export default class AccountControlComponent extends Component {
 		  };
 
 		console.log(addAccountUrl);
-		this.setState({
-			creatingAccount: false,
-			validateEmailPressed: false,
-			loggingAccount: false,
-			signIn: false
-		});
-
+		
   		const height = window.innerHeight+"px";
 	    return (
 
