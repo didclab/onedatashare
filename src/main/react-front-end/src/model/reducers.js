@@ -88,7 +88,7 @@ export function onedatashareModel(state = initialState, action) {
         admin: true,
       });
     case ENDPOINT_PROGRESS:
-      if(action.side == "left")
+      if(action.side === "left")
         return Object.assign({}, state, {
           endpoint1: {...state.endpoint1, loginProgress: action.progress},
         });
@@ -97,7 +97,7 @@ export function onedatashareModel(state = initialState, action) {
           endpoint2: {...state.endpoint2, loginProgress: action.progress},
         });
     case ENDPOINT_UPDATE:
-      if(action.side == "left"){
+      if(action.side === "left"){
         console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
         cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}), {maxAge: 7200});
           return Object.assign({}, state, {
