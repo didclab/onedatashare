@@ -64,7 +64,7 @@ class QueueComponent extends Component {
 		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
 		let responsesToDisplay = [];
-		if(this.state.page == 0){
+		if(this.state.page === 0){
 			responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
 		}
 		else{
@@ -116,7 +116,7 @@ class QueueComponent extends Component {
 
 	infoButtonOnClick(jobID){
 		var row = document.getElementById("info_" + jobID);
-        		if(this.selectedJobInfo === jobID && row.style.display != "none"){
+        		if(this.selectedJobInfo === jobID && row.style.display !== "none"){
         			row.style.display = "none";
         		}
         		else{
@@ -141,7 +141,7 @@ class QueueComponent extends Component {
 	closeAllInfoRows(){
 		for(var i=0 ; i < this.infoRowsIds.length; i++){
 			var infoRow = document.getElementById(this.infoRowsIds[i]);
-			if(infoRow.style.display != 'none')
+			if(infoRow.style.display !== 'none')
 				infoRow.style.display = 'none';
 		}
 		this.setState({selectedTab: 0});
@@ -171,7 +171,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status == 'processing' &&
+				{status === 'processing' &&
 				<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -301,8 +301,6 @@ class QueueComponent extends Component {
 	};
 
 	handleChangeRowsPerPage = event => {		
-		this.state.page=0
-		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 		this.queueFunc()
 	};
@@ -315,8 +313,6 @@ class QueueComponent extends Component {
       order = 'asc';
     }
 		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
 		this.queueFunc()
   };
 

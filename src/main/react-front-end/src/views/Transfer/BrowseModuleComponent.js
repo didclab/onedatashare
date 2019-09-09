@@ -2,9 +2,8 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, dropboxCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, dropboxCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
-import {endpointProgress} from "../../model/actions"
 import PropTypes from "prop-types";
 
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -17,7 +16,6 @@ import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
-import SvgIcon from '@material-ui/core/SvgIcon';
 
 const pickModule = 0;
 const inModule = 1;
@@ -49,7 +47,7 @@ export default class BrowseModuleComponent extends Component {
 		let constructState = store.getState();
 
 		this.state={
-			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) == 0 }),
+			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) === 0 }),
 			creds: {},
 			endpoint: props.endpoint, 
 			mode: props.mode,
@@ -63,7 +61,7 @@ export default class BrowseModuleComponent extends Component {
 			// Check if either side is logged in as GRID_FTP
 			let oneSideIsLoggedInAsGrid = checkIfOneSideIsLoggedInAsGrid(currentState);
 			let gridftpIsOpen = checkIfGridftpIsOpen(currentState);
-			if(oneSideIsLoggedInAsGrid != this.state.oneSideIsLoggedInAsGridftp || gridftpIsOpen != this.state.gridftpIsOpen){
+			if(oneSideIsLoggedInAsGrid !== this.state.oneSideIsLoggedInAsGridftp || gridftpIsOpen !== this.state.gridftpIsOpen){
 				this.setState({oneSideIsLoggedInAsGridftp: oneSideIsLoggedInAsGrid, gridftpIsOpen: gridftpIsOpen});
 			}
     	});
@@ -96,8 +94,7 @@ export default class BrowseModuleComponent extends Component {
 		this.setLoading(true);
 		dropboxCredList((data) => {
 			if(Object.keys(data).some(id => {
-				return data[id].name.toLowerCase().
-				indexOf(containsType.toLowerCase()) != -1 
+				return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1;
 			})){
 				succeed(data);
 			}else{
@@ -117,7 +114,7 @@ export default class BrowseModuleComponent extends Component {
 		const loginPrep = (uri) => (data) => {
 
 			this.setState({mode: inModule, history: this.props.history.filter(
-				(v) => { return v.indexOf(uri) == 0 }),
+				(v) => { return v.indexOf(uri) === 0 }),
 				endpoint: {...endpoint, uri: uri},
 				creds: data
 			});
@@ -134,7 +131,7 @@ export default class BrowseModuleComponent extends Component {
 	    // saved credential
 	    // login manually
 	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
-	      	{(!endpoint.login && mode == pickModule) &&
+	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
 	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
@@ -180,7 +177,7 @@ export default class BrowseModuleComponent extends Component {
 	      		</Button>
 		    </div>}
 
-		    {(!endpoint.login && mode == inModule) &&
+		    {(!endpoint.login && mode === inModule) &&
 	      	<div>
 	      		{loading && <LinearProgress/>}
 		      	<EndpointAuthenticateComponent endpoint={endpoint} 
