@@ -5,7 +5,6 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import CreateAccountComponent from './CreateAccountComponent';
-import  { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import {resendVerificationCode} from '../../APICalls/APICalls'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import {eventEmitter} from '../../App';

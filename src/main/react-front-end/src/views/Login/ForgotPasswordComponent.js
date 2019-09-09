@@ -75,7 +75,7 @@ export default class ForgotPasswordComponent extends Component {
 		return (
 		<div className="enter-from-right slide-in">
 
-			{state == beforeCode &&
+			{state === beforeCode &&
 				<div>
 					<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
 			          Account recovery
@@ -100,7 +100,7 @@ export default class ForgotPasswordComponent extends Component {
 				</div>
 			}
 
-			{state == codeSent &&
+			{state === codeSent &&
 				<div>
 			        
 			        <Typography style={{fontSize: "0.8em", marginBottom: "0.4em"}}>
@@ -132,7 +132,7 @@ export default class ForgotPasswordComponent extends Component {
 				</div>
 			}
 
-			{state == codeVerified &&
+			{state === codeVerified &&
 				<div>
 			        <Typography style={{fontSize: "1.0em", marginBottom: "0.4em"}}>
 			          Code is Verified, Reset your password here:
