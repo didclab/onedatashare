@@ -551,13 +551,13 @@ export default class EndpointBrowseComponent extends Component {
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
-					<FormControl placeholder="Search"
+					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
+						<Button id={endpoint.side + "IgnoreCase"} style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
 						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
 							var propertyStatus = this.state.ignoreCase;
@@ -574,7 +574,7 @@ export default class EndpointBrowseComponent extends Component {
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
+						<Button id={endpoint.side + "Regex"} style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
 						 onClick={() => {
 							var propertyStatus = this.state.regex;
 							var property = document.getElementById("regex");
@@ -656,6 +656,7 @@ export default class EndpointBrowseComponent extends Component {
 									key={fileId}
 									index={index}
 									file={file}
+									id={fileId}
 									selectionCount={selectedTasks.length}
 									onClick={this.fileNodeClicked}
 									onDoubleClick={this.fileNodeDoubleClicked}

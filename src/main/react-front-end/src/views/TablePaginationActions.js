@@ -44,6 +44,8 @@ class TablePaginationActions extends React.Component {
     return (
       <div className={classes.root}>
         <IconButton
+
+          id={"queueFirstPageButton"}
           onClick={this.handleFirstPageButtonClick}
           disabled={page === 0}
           aria-label="First Page"
@@ -51,6 +53,7 @@ class TablePaginationActions extends React.Component {
           {theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
         </IconButton>
         <IconButton
+          id={"queuePrevButton"}
           onClick={this.handleBackButtonClick}
           disabled={page === 0}
           aria-label="Previous Page"
@@ -58,6 +61,7 @@ class TablePaginationActions extends React.Component {
           {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
         </IconButton>
         <IconButton
+          id={"queueNextButton"}
           onClick={this.handleNextButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Next Page"
@@ -65,6 +69,7 @@ class TablePaginationActions extends React.Component {
           {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
         </IconButton>
         <IconButton
+          id={"queueLastPageButton"}
           onClick={this.handleLastPageButtonClick}
           disabled={page >= Math.ceil(count / rowsPerPage) - 1}
           aria-label="Last Page"

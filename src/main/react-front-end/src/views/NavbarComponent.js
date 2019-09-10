@@ -31,7 +31,6 @@ class NavbarComponent extends Component {
 				console.log(error);
 			});
 		}
-
 		this.unsubscribe = store.subscribe(()=>{
 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
@@ -39,7 +38,7 @@ class NavbarComponent extends Component {
 	componentWillUnmount(){
 		this.unsubscribe();
 	}
-  render() {
+    render() {
     return (
     	<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar">
     		
@@ -49,42 +48,39 @@ class NavbarComponent extends Component {
 		      </Navbar.Brand>
 		      <Navbar.Toggle/>
 		    </Navbar.Header>
-
 	      	
 	    	<Navbar.Collapse>
 	      	{(this.state.login ) &&
 		      <Nav>
-				<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl}>Transfer</NavItem>
-		        <NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl}>Queue</NavItem>
+				<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
+		        <NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
 		      
 		      	{this.state.admin &&
 			    	<NavDropdown title="Admin" id="Navbar Dropdown">
-			        	<NavItem componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
+			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
 			        		Clients Information
 			        	</NavItem>
-			        	<NavItem componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
+			        	<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
 			        	{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
-			        	<NavItem componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
+			        	<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 			    	</NavDropdown>
 		    	}
 		    </Nav>}
 
 		    <Nav pullRight>
 		        {this.state.login &&
-			        <NavItem componentClass={Link} to={userPageUrl} href={userPageUrl}>{this.state.email}</NavItem>
+			        <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
 		    	}
 		        {!this.state.login &&
-			        <NavItem componentClass={Link} to={accountPageUrl} href={accountPageUrl}>Sign in</NavItem>
+			        <NavItem id="NavSignIn" componentClass={Link} to={accountPageUrl} href={accountPageUrl}>Sign in</NavItem>
 			    }
 		        {!this.state.login &&
-			        <NavItem componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
+			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
-
 		        {this.state.login && 
-			        <NavItem onClick={()=>{store.dispatch(logoutAction())}}>
+			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
 			            <span>Log out</span>
 							</NavItem>}
-					
 						<NavItem component={Link} href="/support">
 							<Tooltip title="Report an issue" placement="top">
 									<ContactSupportOutlined />

@@ -40,7 +40,6 @@ class App extends Component {
   };
 
   componentDidMount(){
-    document.title = "OneDataShare - Home";
     this.setState({loaded: true});
     eventEmitter.on("errorOccured", this.handleOpen); 
   }

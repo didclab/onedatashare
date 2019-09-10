@@ -91,7 +91,6 @@ export default class TransferComponent extends Component {
     const srcUrls = [] 
     const fileIds = [] 
     const destUrls = []
-    console.log(processed.selectedTasks);
     processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
@@ -107,12 +106,13 @@ export default class TransferComponent extends Component {
       id: fileId,
       uri: encodeURI(srcUrl)
     }
+
     const dest = {
       credential:endpointDest.credential,
       id: getCurrentFolderId(endpointDest),
       uri: encodeURI(destUrl)
     }
-
+    
     var optionParsed = {}
     Object.keys(options).map((v)=>{
       var value = options[v];

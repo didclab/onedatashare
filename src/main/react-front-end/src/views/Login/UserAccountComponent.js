@@ -92,20 +92,24 @@ export default class UserAccountComponent extends Component{
                        <ListItem>
                        <ListItemText classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
                         primary="Email"
+                        id="UserEmail"
                         secondary= {this.state.userEmail}
                          />
 
                         <Divider/>
-                        <ListItemText  classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
+                        <ListItemText classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
                         primary="First Name"
+                        id="UserFirstName"
                         secondary= {this.state.fName} />
                         <Divider/>
                          <ListItemText  classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
                           primary="Last Name"
+                          id="UserLastName"
                           secondary= {this.state.lName} />
                         <Divider/>
                          <ListItemText  classes={{primary:"userDescThemeFont", secondary: "userDescValueFont"}}
                          primary="Organization"
+                         id="UserOrganization"
                          secondary= {this.state.userOrganization} />
                         </ListItem>
 
@@ -177,12 +181,8 @@ export default class UserAccountComponent extends Component{
 	}
 
 	componentDidMount(){
-
+    	document.title = "OneDataShare - User";
 		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
 		this.resize();
 	}
 

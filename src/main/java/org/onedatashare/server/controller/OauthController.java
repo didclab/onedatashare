@@ -19,7 +19,6 @@ import reactor.core.publisher.Mono;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/api/stork/oauth")
 public class OauthController {
   @Autowired
   public UserService userService;
@@ -40,7 +39,7 @@ public class OauthController {
   static final String dropbox = "dropbox";
   static final String gridftp = "gridftp";
 
-  @GetMapping(value = "/googledrive")
+  @GetMapping("/api/stork/oauth/googledrive")
   public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return googleDriveOauthService.finish(queryParameters.get("code"), cookie)
@@ -49,16 +48,21 @@ public class OauthController {
             .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive" ).build()));
   }
 
-  @GetMapping(value = "/dropbox")
+  @GetMapping("/api/stork/oauth/dropbox")
   public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
+    ODSLoggerService.logInfo("dropboxOauthFinish Reached");
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return dbxOauthService.finish(queryParameters.get("code"), cookie)
             .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-            .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
+            .map(uuid -> {
+
+              ODSLoggerService.logDebug("finish success" );
+              return Rendering.redirectTo("/oauth/" + uuid).build();
+            })
             .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox" ).build()));
   }
 
-  @GetMapping(value = "/gridftp")
+  @GetMapping("/api/stork/oauth/gridftp")
   public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return gridftpAuthService.finish(queryParameters.get("code"))
@@ -66,10 +70,11 @@ public class OauthController {
             .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
   }
 
-  @GetMapping
+  @GetMapping("/api/stork/oauth/handle")
   public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-    String cookie = headers.getFirst(ODSConstants.COOKIE);
+    ODSLoggerService.logInfo("HANDLEING");
 
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
       if(queryParameters.get("type").equals(googledrive) ){
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
@@ -80,7 +85,6 @@ public class OauthController {
         return userService.userLoggedIn(cookie)
                 .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
       }else return Mono.error(new NotFound());
-
   }
 
   @ExceptionHandler(NotFound.class)

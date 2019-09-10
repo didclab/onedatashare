@@ -53,6 +53,7 @@ export default class GlobusEndpointListingComponent extends Component {
 		close: PropTypes.func,
 		endpointAdded: PropTypes.func
 	}
+
 	constructor(props){
 	    super(props);
 	    this.state={
@@ -60,7 +61,6 @@ export default class GlobusEndpointListingComponent extends Component {
 	    	data:[],
 	    	loading: false,
 	    }
-
 	}
 
 	getEndpointListAsData(){

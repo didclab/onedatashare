@@ -238,7 +238,7 @@ export default class FileNodeCompact extends Component {
 	}
 
 	render(){
-		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns} = this.props;
+		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns, fileId} = this.props;
 		const {name, dir, perm, time, size, children} = this.props.file;
 		const {isDragging} = this.state;
 		const hasAttr = (time != 0 || perm || size != 0);
@@ -250,6 +250,7 @@ export default class FileNodeCompact extends Component {
 			{(provided : DraggableProvided, snapshot : DraggableStateSnapshot) => {
 				const selectionCount = getSelectionCount(endpoint);
 				const shouldShowSelection: boolean = snapshot.isDragging && selectionCount > 1;
+
 				return (
 					<FileDiv
 						onDoubleClick={() => {
@@ -276,22 +277,22 @@ export default class FileNodeCompact extends Component {
 							{columns[0] && <td style={{ float: "left", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
 								{dir && <FolderIcon style={{width: 40}}/>}
 								{!dir && <FileIcon style={{width: 40}}/>}
-								<p style={{...pstyle, width: posit0-40, minWidth: "50"}} > {name} </p>
+								<p id={"filename"+endpoint.side+fileId} style={{...pstyle, width: posit0-40, minWidth: "50"}} > {name} </p>
 								
 							</td>}
 							{columns[1] && <td style={{borderLeft: "1px solid lightgray", whiteSpace: "nowrap", overflow: "hidden"}}>
 
-								<p style={{...pstyle, width: posit1}}>
+								<p id={"date"+endpoint.side+fileId} style={{...pstyle, width: posit1}}>
 									{time === 0? "Not Available" : new Intl.DateTimeFormat('en-US', options).format(date)}
 								</p>
 								
 							</td>}
 
 							{columns[2] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit2}}> {perm? perm: "N\/A"} </p>
+								<p id={"perm"+endpoint.side+fileId} style={{...pstyle, width: posit2}}> {perm? perm: "N\/A"} </p>
 							</td>}
 							{columns[3] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit3}}> {size===0 ? "N\/A" : this.humanFileSize(size)} </p>
+								<p id={"size"+endpoint.side+fileId} style={{...pstyle, width: posit3}}> {size===0 ? "N\/A" : this.humanFileSize(size)} </p>
 							</td>}
 					</FileDiv>
 			)}}
