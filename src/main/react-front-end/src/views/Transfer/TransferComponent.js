@@ -25,11 +25,12 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import queryString from 'query-string';
 
 export default class TransferComponent extends Component {
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
 
     this.state = {
       endpoint1: store.getState().endpoint1,
@@ -56,6 +57,8 @@ export default class TransferComponent extends Component {
           endpoint2: store.getState().endpoint2,
         });
     });
+
+    this.printError = this.printError.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
     this._returnBrowseComponent1 = this._returnBrowseComponent1.bind(this);
     this._returnBrowseComponent2 = this._returnBrowseComponent2.bind(this);
@@ -64,6 +67,17 @@ export default class TransferComponent extends Component {
     this.sendFile = this.sendFile.bind(this);
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
+
+    this.printError();
+  }
+
+  printError(){
+    const error = queryString.parse(this.props.location.search);
+    console.log("error is", error);
+    if(error && error["error"])
+      setTimeout(() => {
+        eventEmitter.emit("errorOccured", error["error"]);
+      }, 500);
   }
 
   sendFile = (processed) => {
@@ -357,6 +371,7 @@ export default class TransferComponent extends Component {
 
     const { alignment } = this.state;
     console.log(alignment)
+
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
