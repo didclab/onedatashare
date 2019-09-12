@@ -454,9 +454,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
                 BoxFolder folder = new BoxFolder(getSession().client, parentid);
                 if(!isSmall){
-                    sessionInfo = folder.createUploadSession(name, totalSize);
-                    parts = new ArrayList<BoxFileUploadSessionPart>();
-                    session = sessionInfo.getResource();
+                    try {
+                        sessionInfo = folder.createUploadSession(name, totalSize);
+                        parts = new ArrayList<BoxFileUploadSessionPart>();
+                        session = sessionInfo.getResource();
+                    } catch(Exception e){
+                        //Already Exists
+                    }
                 }
 
 
@@ -474,14 +478,22 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                 if (isSmall) {
                     chunk.write(slice.asBytes());
                 } else {
-                    part_size = sessionInfo.getPartSize();
+                    try {
+                        part_size = sessionInfo.getPartSize();
+                    } catch(NullPointerException npe){
+
+                    }
                     chunk.write(slice.asBytes());
                     if (chunk.size() == part_size) {
-                        BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
-                        parts.add(part);
-                        sizeUploaded = sizeUploaded + chunk.size();
-                        sha1.update(chunk.toByteArray());
-                        chunk = new ByteArrayOutputStream();
+                        try {
+                            BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
+                            parts.add(part);
+                            sizeUploaded = sizeUploaded + chunk.size();
+                            sha1.update(chunk.toByteArray());
+                            chunk = new ByteArrayOutputStream();
+                        }catch(Exception e){
+                            //Part already exists
+                        }
                     }
 
                 }
@@ -497,23 +509,38 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             try {
                 if (isSmall) {
                     BoxFolder folder = new BoxFolder(getSession().client, getId());
+                    Iterable<BoxItem.Info> children = folder.getChildren();
+                    for (BoxItem.Info child : children) {
+                        if(child.getName().equals(fileName)){
+                            return;
+                        }
+                    }
+
                     smallFileStream = new ByteArrayInputStream(chunk.toByteArray());
                     BoxFile.Info smallFile = folder.uploadFile(smallFileStream, fileName);
                     smallFileStream.close();
 
                 } else {
                     if (chunk.size() > 0) {
-                        BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
-                        parts.add(part);
-                        sizeUploaded = sizeUploaded + chunk.size();
-                        sha1.update(chunk.toByteArray());
+                        try {
+                            BoxFileUploadSessionPart part = session.uploadPart(chunk.toByteArray(), sizeUploaded, chunk.size(), totalSize);
+                            parts.add(part);
+                            sizeUploaded = sizeUploaded + chunk.size();
+                            sha1.update(chunk.toByteArray());
+                        }catch(Exception e){
+
+                        }
                     }
 
                     byte[] digestBytes = sha1.digest();
 
                     //Base64 encoding of the hash
                     String digestStr = Base64.getEncoder().encodeToString(digestBytes);
-                    BoxFile.Info largeFile = session.commit(digestStr, parts, null, null, null);
+                    try {
+                        BoxFile.Info largeFile = session.commit(digestStr, parts, null, null, null);
+                    }catch(Exception e){
+                        
+                    }
                 }
             }
             catch(Exception e){
