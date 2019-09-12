@@ -398,18 +398,22 @@ public class UserService {
 
   public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
     //Updating the access token for googledrive using refresh token
-          getLoggedInUser(cookie)
-            .doOnSuccess(user -> {
-                Map<UUID,Credential> credsTemporary = user.getCredentials();
-                for(UUID uid : credsTemporary.keySet()){
+        getLoggedInUser(cookie)
+          .doOnSuccess(user -> {
+              Map<UUID,Credential> credsTemporary = user.getCredentials();
+              for(UUID uid : credsTemporary.keySet()){
+                if(credential.refreshTokenExp){
+//                  credsTemporary.remove(uid);
+                }else{
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
                     user.setCredentials(credsTemporary);
-                    userRepository.save(user).subscribe();
                   }
                 }
-            }).subscribe();
+                userRepository.save(user).subscribe();
+              }
+          }).subscribe();
 
     return credential;
   }

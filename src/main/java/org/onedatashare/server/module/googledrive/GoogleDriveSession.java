@@ -133,10 +133,14 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
 
             driveConfig.getFlow().createAndStoreCredential(response, cred.token);
             ODSLoggerService.logInfo("New AccessToken:"+response.getAccessToken()+" RefreshToken:"+cred.refreshToken);
-        }catch (IOException e){
+        } catch(com.google.api.client.auth.oauth2.TokenResponseException te){
+            cred.refreshTokenExp = true;
+            te.printStackTrace();
+            System.out.println("TokenResponseException");
+        } catch (IOException e){
             e.printStackTrace();
+            System.out.println("IOException");
         }
-
         return cred;
     }
 }
