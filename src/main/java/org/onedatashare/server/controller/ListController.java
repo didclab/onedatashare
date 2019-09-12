@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.requestdata.ListRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,10 @@ public class ListController {
 
 
     @PostMapping
-    public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+    public Object list(@RequestHeader HttpHeaders headers, @RequestBody ListRequestData listReqData) {
         String cookie = headers.getFirst("cookie");
+        UserAction userAction = UserAction.convertToUserAction(listReqData);
+
         if(userAction.getCredential() == null) {
             switch (userAction.getType()) {
                 case ODSConstants.DROPBOX_URI_SCHEME:
@@ -66,3 +69,4 @@ public class ListController {
         return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
     }
 }
+

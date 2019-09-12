@@ -3,6 +3,7 @@ package org.onedatashare.server.model.useraction;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.onedatashare.module.globusapi.EndPoint;
+import org.onedatashare.server.model.requestdata.ListRequestData;
 
 import java.util.ArrayList;
 
@@ -23,7 +24,6 @@ public class UserAction {
   private String code;
   private String confirmPassword;
   private String newPassword;
-  private int depth;
   private UserActionResource src;
   private UserActionResource dest;
   private UserActionCredential credential;
@@ -41,4 +41,14 @@ public class UserAction {
   private String sortOrder;
 
   private String portNumber;
+
+  public static UserAction convertToUserAction(ListRequestData listReqData){
+    UserAction ua = new UserAction();
+    ua.setUri(listReqData.getUri());
+    ua.setId(listReqData.getId());
+    ua.setPortNumber(listReqData.getPortNumber());
+    ua.setType(listReqData.getType());
+    ua.setCredential(listReqData.getCredential());
+    return ua;
+  }
 }

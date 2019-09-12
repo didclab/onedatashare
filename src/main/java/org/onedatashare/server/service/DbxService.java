@@ -1,6 +1,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.dropbox.DbxResource;
@@ -24,13 +25,26 @@ public class DbxService implements ResourceService<DbxResource>{
   private JobService jobService;
 
   public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
-    final String path = pathFromDbxUri(userAction.getUri());
-    return userService.getLoggedInUser(cookie)
-            .map(User::getCredentials)
-            .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-            .map(credential -> new DbxSession(URI.create(userAction.getUri()), credential))
-            .flatMap(DbxSession::initialize)
-            .flatMap(dbxSession -> dbxSession.select(path));
+    if(userAction.getCredential().isOAuthTokenSaved()) {
+      return userService.getLoggedInUser(cookie)
+              .map(User::getCredentials)
+              .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+              .map(credential -> new DbxSession(URI.create(userAction.getUri()), credential))
+              .flatMap(DbxSession::initialize)
+              .flatMap(dbxSession -> {
+                String path = pathFromDbxUri(userAction.getUri());
+                return dbxSession.select(path);
+              });
+    }
+    else{
+      return Mono.just(new OAuthCredential(userAction.getCredential().getCode()))
+              .map(oAuthCred -> new DbxSession(URI.create(userAction.getUri()), oAuthCred))
+              .flatMap(DbxSession::initialize)
+              .flatMap(dbxSession -> {
+                String path = pathFromDbxUri(userAction.getUri());
+                return dbxSession.select(path);
+              });
+    }
   }
 
   public Mono<DbxResource> getDbxResourceWithJobSourceOrDestination(String cookie, UserActionResource userActionResource) {

@@ -139,8 +139,8 @@ export default class BrowseModuleComponent extends Component {
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		const loginPrep = (uri) => (data) => {
 
+		const loginPrep = (uri) => (data) => {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
 				endpoint: {...endpoint, uri: uri},
@@ -149,13 +149,15 @@ export default class BrowseModuleComponent extends Component {
 			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 		}
 
-		const backHome = (uri, type) => {
+		const backHome = () => {
 			this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
+
 		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
 		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
-	    return (
+		
+	  return (
 	    // saved credential
 	    // login manually
 	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>

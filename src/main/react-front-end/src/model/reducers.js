@@ -18,6 +18,7 @@ export const cookies = require("js-cookie");
 export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
+
 const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: false,
@@ -29,14 +30,15 @@ const initialState = {
 		login: false,
 		credential: {},
 		uri: "",
-        side: "left"
+    side: "left"
 	},
 
 	endpoint2: cookies.get('endpoint2') ? JSON.parse(cookies.get('endpoint2')) : {
     login: false,
 		credential: {},
 		uri: "",
-        side: "right"
+    side: "right",
+
 	},
 
 	queue: [],

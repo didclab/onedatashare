@@ -401,10 +401,8 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 export async function listFiles(uri, endpoint, id, accept, fail){
 	var body = {
 	    uri: encodeURI(uri),
-	    depth: 1,
 	    id: id,
 	    portNumber: endpoint.portNumber,
-	    //map: getMapFromEndpoint(endpoint),
 	    type: getTypeFromUri(uri)
 	  };
 
