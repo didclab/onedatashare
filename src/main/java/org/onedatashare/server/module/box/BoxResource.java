@@ -364,7 +364,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
     public BoxDrain sink(Stat stat, boolean isDir){
         String path = isDir ? getPath() + stat.getName() : getPath();
-        return new BoxDrain().start(path, stat.getSize());
+        return new BoxDrain().start(path, stat.getSize(), isDir);
     }
 
     /**
@@ -397,8 +397,9 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         ByteArrayInputStream smallFileStream;
         boolean isSmall;
 
-        public BoxDrain start(String drainPath, long size){
+        public BoxDrain start(String drainPath, long size, boolean isDir){
             totalSize = size;
+            this.isDirTransfer = isDir;
             isSmall = (totalSize < 20971520) ? true : false;
             try{
                 sha1 = MessageDigest.getInstance("SHA-1");
@@ -412,7 +413,6 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         @Override
         public BoxDrain start(String drainPath) {
             this.drainPath = drainPath;
-            this.isDirTransfer = true;
             return start();
         }
 

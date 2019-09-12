@@ -157,7 +157,7 @@ export default class BrowseModuleComponent extends Component {
 			      	<Button style={buttonStyle} onClick={() => {
 			      		this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
 			      	}}>
-				      	<Icon className={'fab fa-box'} style={iconStyle}/>
+				      	<Icon className={'fas fa-box-open'} style={iconStyle}/>
 				      	Box
 			      	</Button>
 			    }

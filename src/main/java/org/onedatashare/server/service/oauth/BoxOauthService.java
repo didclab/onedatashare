@@ -6,6 +6,7 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -59,19 +60,19 @@ public class BoxOauthService {
         oauth.token = client.getAccessToken();
         oauth.refreshToken = client.getRefreshToken();
         try{
-        return userService.getCredentials(cookie).flatMap(val -> {
-            for (Credential value : val.values()) {
-                OAuthCredential oauthVal = ((OAuthCredential) value);
-                if ((oauthVal.name != null && oauthVal.name.equals(oauth.name))) { //Checks if the ID already matches
-                    return Mono.empty(); //Account already exists
+            return userService.getCredentials(cookie).flatMap(val -> {
+                for (Credential value : val.values()) {
+                    OAuthCredential oauthVal = ((OAuthCredential) value);
+                    if ((oauthVal.name != null && oauthVal.name.equals(oauth.name))) { //Checks if the ID already matches
+                        return Mono.empty(); //Account already exists
+                    }
                 }
-            }
-            return Mono.just(oauth);
-        });
-            } catch(Exception e) {
-                 System.out.println("Runtime exception occurred while finishing initializing Box oauth session");
-                 throw new RuntimeException(e);
-             }
+                return Mono.just(oauth);
+            });
+        } catch(Exception e) {
+            System.out.println("Runtime exception occurred while finishing initializing Box oauth session");
+            throw new RuntimeException(e);
+        }
 
     }
 
