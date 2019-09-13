@@ -532,7 +532,7 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 	
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin, {maxAge: 1});
+	cookies.set("SFTPAUTH", strin);
 
 
 	window.location = url + "download/file";
