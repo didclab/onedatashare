@@ -5,7 +5,7 @@ import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';
-import  { Route, Switch, Redirect } from 'react-router-dom';
+import  { Route, Switch} from 'react-router-dom';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
@@ -46,7 +46,7 @@ class App extends Component {
   }
 
   render() {
-    const { loggedIn,vertical,horizontal, error, open } = this.state;
+    const { vertical,horizontal, error, open } = this.state;
 
     return (
       <div>

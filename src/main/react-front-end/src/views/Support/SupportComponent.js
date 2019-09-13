@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import { submitIssue } from '../../APICalls/APICalls';
-import { eventEmitter } from '../../App';
 import {store} from '../../App';
 
 import Card from '@material-ui/core/Card';
@@ -10,9 +9,8 @@ import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import ReCAPTCHA from "react-google-recaptcha";
 
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import { ValidatorForm } from 'react-material-ui-form-validator';
 
 export default class SupportComponent extends Component{
 

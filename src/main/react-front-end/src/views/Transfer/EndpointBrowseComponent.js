@@ -1,11 +1,9 @@
 
 import { multiSelectTo as multiSelect } from './utils';
-
-import memoizeOne from 'memoize-one';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import {Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -23,25 +21,22 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import SearchIcon from '@material-ui/icons/Search';
-
-import InputBase from '@material-ui/core/InputBase';
 
 import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import {share, mkdir, deleteCall, download, getDownload, getSharableLink} from "../../APICalls/APICalls";
+import {mkdir, deleteCall, download, getDownload, getSharableLink} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
-		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
-		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, getMapFromEndpoint} from "./initialize_dnd";
+import {getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
+		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
+		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
 import {eventEmitter} from "../../App";
 
 import {getType} from '../../constants.js';
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -86,7 +81,7 @@ export default class EndpointBrowseComponent extends Component {
 		
 		this.sortBy = this.sortBy.bind(this);
 		
-		if(this.state.directoryPath.length == 0)
+		if(this.state.directoryPath.length === 0)
 			this.getFilesFromBackend(props.endpoint);
 	}
 
@@ -358,7 +353,7 @@ export default class EndpointBrowseComponent extends Component {
     			deleteCall( fileName, endpoint,  file.id, (response) => {
     				console.log("delete after success", directoryPath, ids)
     				i++;
-    				if(i == len){
+    				if(i === len){
     					this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
     				}
     			}, (error) => {
@@ -475,42 +470,31 @@ export default class EndpointBrowseComponent extends Component {
 			
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<ButtonGroup style={buttonGroupStyle}>
-				  <OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-				  	<BootStrapButton style={buttonStyle} onClick={() => {
-				  		this.handleClickOpenAddFolder()
-				  	}}>
-				  		<NewFolderIcon style={iconStyle}/>
-				  	</BootStrapButton>
-				  </OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
+						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
+						onClick={() => {
+							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
+								const taskList = getSelectedTasksFromSide(endpoint);
+								if(getType(endpoint) === SFTP_TYPE || getType(endpoint) === SCP_TYPE){
+									getDownload(downloadUrl, endpoint.credential, taskList);
+								}
+								else if(getType(endpoint) === HTTP_TYPE){
+									window.open(downloadUrl);
+								}
+								else{
+								download(downloadUrl, endpoint.credential, taskList[0].id)
+							}
+						}}
+						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
+						<BootStrapButton>
+							<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
 
-				  <OverlayTrigger placement="top" 
-						overlay={tooltip("Upload")}>
-						<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
-				  </OverlayTrigger>
-				  <OverlayTrigger placement="top" 
-				  	overlay={tooltip("Delete")}>
-				  	<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
-				  		this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
-				  	}}
-				  	style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
-				  </OverlayTrigger>
-					  	<OverlayTrigger placement="top" overlay={tooltip("Download")}>
-					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
-					  		onClick={() => {
-					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-									const taskList = getSelectedTasksFromSide(endpoint);
-									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
-										getDownload(downloadUrl, endpoint.credential, taskList);
-									}
-									else if(getType(endpoint) == HTTP_TYPE){
-										window.open(downloadUrl);
-									}
-									else{
-						  			download(downloadUrl, endpoint.credential, taskList[0].id)
-						  		}
-					  		}}
-					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
-						</OverlayTrigger>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
 						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
@@ -529,6 +513,23 @@ export default class EndpointBrowseComponent extends Component {
 				  			<LinkButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
+					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
+						<BootStrapButton style={buttonStyle} onClick={() => {
+							this.handleClickOpenAddFolder()
+						}}>
+							<NewFolderIcon style={iconStyle}/>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Delete")}>
+						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
+							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
+						}}
+						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+
+
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
 				  		<BootStrapButton style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
@@ -537,6 +538,7 @@ export default class EndpointBrowseComponent extends Component {
 				  			<RefreshButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
 				  		<BootStrapButton bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
@@ -584,25 +586,25 @@ export default class EndpointBrowseComponent extends Component {
 						{...provided.droppableProps}
 						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "320px"}}
 					>
-						{!loading && Object.keys(list).length == 0 &&
+						{!loading && Object.keys(list).length === 0 &&
 							<h2>
 								This directory is EMPTY
 							</h2>
 						}
 
-						{loading && Object.keys(list).length == 0 &&
+						{loading && Object.keys(list).length === 0 &&
 							<h2>
 								LOADING
 							</h2>
 						}
 
-						{!loading && displayList.length == 0 && Object.keys(list).length > 0 &&
+						{!loading && displayList.length === 0 && Object.keys(list).length > 0 &&
 							<h2>
 								No Search Result
 							</h2>
 						}
 
-						{displayStyle == "compact" && !loading && displayList.length != 0 &&
+						{displayStyle === "compact" && !loading && displayList.length !== 0 &&
 							<CompactFileNodeWrapper 
 								sortFunctions = {[{"Asc": this.filenameAscendingOrderSort, "Desc" : this.filenameDescendingOrderSort}, 
 												  {"Asc": this.dateAscendingOrderSort, "Desc":this.dateDescendingOrderSort},
@@ -623,10 +625,10 @@ export default class EndpointBrowseComponent extends Component {
 						}
 
 
-						{displayStyle == "comfort" && displayList.map((fileId, index) => {
+						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
 							const isSelected: boolean = Boolean(
-			                  selectedTasks.indexOf(file)!=-1,
+			                  selectedTasks.indexOf(file)!==-1,
 			                );
 			                const isGhosting: boolean =
 			                  isSelected &&

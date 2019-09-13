@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import {Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
-import Button from '@material-ui/core/Button';
-import { PropTypes } from 'prop-types';
-import { Redirect, Link} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import ContactSupportOutlined  from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import {transferPageUrl,queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, managementPageUrl, dataPageUrl} from '../constants';
+import {transferPageUrl,queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl} from '../constants';
 import {store} from '../App';
 import {logoutAction, isAdminAction} from '../model/actions';
 import {isAdmin} from '../APICalls/APICalls';

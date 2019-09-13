@@ -13,14 +13,12 @@ import CardActions from '@material-ui/core/CardActions';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {changePassword, getUser} from '../../APICalls/APICalls';
 import {eventEmitter, store} from '../../App.js';
 
@@ -179,10 +177,6 @@ export default class UserAccountComponent extends Component{
 	componentDidMount(){
 
 		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
 		this.resize();
 	}
 
