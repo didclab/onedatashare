@@ -101,16 +101,12 @@ Graduate Student, University at Buffalo
 
 Ramandeep Singh  
 Application Developer  
-Graduate Student, University at Buffalo  
-
-Rohit Bhalke  
-Application Developer  
-Graduate Student, University at Buffalo  
+Graduate Student, University at Buffalo
 
 Javier Falca  
 Application Developer  
 Undergraduate Student, University at Buffalo  
 
-Ryan Dils  
+Dhayanidhi Gunasekaran
 Application Developer  
-Undergraduate Student, University at Buffalo  
+Graduate Student, University at Buffalo
