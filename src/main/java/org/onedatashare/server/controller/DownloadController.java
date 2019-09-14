@@ -38,12 +38,9 @@ public class DownloadController {
     @Autowired
     private ResourceServiceImpl resourceService;
 
-    @Autowired
-    private UserService userService;
-
-
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+
         String cookie = headers.getFirst(ODSConstants.COOKIE);
         if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
             return dbxService.getDownloadURL(cookie, userAction);
