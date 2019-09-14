@@ -43,18 +43,27 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         final String path = pathFromUri(userAction.getUri());
         String id = userAction.getId();
         ArrayList<IdMap> idMap = userAction.getMap();
-        return userService.getLoggedInUser(cookie)
-                .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                .flatMap(GoogleDriveSession::initialize)
-                .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                    Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
-                            .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                            .flatMap(GoogleDriveSession::initialize)
-                            .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                );
+
+        if (userAction.isSaveOAuth()) {
+            return userService.getLoggedInUser(cookie)
+                    .map(User::getCredentials)
+                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .flatMap(GoogleDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+                            Mono.just(userService.updateCredential(cookie, ((TokenExpiredException) throwable).cred))
+                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                                    .flatMap(GoogleDriveSession::initialize)
+                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    );
+        }
+        else {
+            return Mono.just(new OAuthCredential(userAction.getCredential().getCode()))
+                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred, false))
+                    .flatMap(GoogleDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
+        }
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
