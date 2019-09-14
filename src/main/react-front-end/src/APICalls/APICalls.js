@@ -1,12 +1,12 @@
 import { url } from '../constants';
-import {logoutAction} from "../model/actions.js";
-import {store} from "../App.js";
+import { logoutAction } from "../model/actions.js";
+import { store } from "../App.js";
 import Axios from "axios";
 
-import {getType, getTypeFromUri} from '../constants.js';
-import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
+import { getType, getTypeFromUri } from '../constants.js';
+import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-import {cookies} from "../model/reducers.js";
+import { cookies } from "../model/reducers.js";
 const FETCH_TIMEOUT = 10000;
 
 
@@ -532,7 +532,7 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 	
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin);
+	cookies.set("SFTPAUTH", strin, { expires : 10});
 
 
 	window.location = url + "download/file";
