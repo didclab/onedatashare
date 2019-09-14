@@ -290,15 +290,11 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
-
 		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
 
 	handleChangeRowsPerPage = event => {		
-		this.state.page=0
-		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 		this.queueFunc()
 	};
@@ -311,8 +307,6 @@ class QueueComponent extends Component {
       order = 'asc';
     }
 		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
 		this.queueFunc()
   };	
 

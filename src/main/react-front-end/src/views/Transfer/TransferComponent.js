@@ -81,7 +81,7 @@ export default class TransferComponent extends Component {
   }
 
   sendFile = (processed) => {
-    if(processed.selectedTasks.length == 0){
+    if(processed.selectedTasks.length === 0){
       eventEmitter.emit("errorOccured", "You did not select any files!");
       return 0;
     }
@@ -179,7 +179,7 @@ export default class TransferComponent extends Component {
   }
 
   updateBrowseOne(object){
-      if(object.mode == undefined){
+      if(object.mode === undefined){
         object.mode = 0
       }
       this.setState({endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode});
@@ -188,7 +188,7 @@ export default class TransferComponent extends Component {
   }
 
   updateBrowseTwo(object){
-      if(object.mode == undefined){
+      if(object.mode === undefined){
         object.mode = 0
       }
       this.setState({endpoint2: object.endpoint || this.state.endpoint2, mode2: object.mode});
@@ -227,7 +227,7 @@ export default class TransferComponent extends Component {
       destination,
     });
 
-    if(processed.fromTo[0] == processed.fromTo[1]){
+    if(processed.fromTo[0] === processed.fromTo[1]){
       setBeforeTransferReorder(processed);
     }else{  
       this.sendFile(processed);

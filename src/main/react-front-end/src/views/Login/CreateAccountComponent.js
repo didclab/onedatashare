@@ -109,8 +109,6 @@ export default class CreateAccountComponent extends Component {
     }
 
   onEmailNextClicked(){
-  		var { email } = this.state;
-
       checkLogin(this.state.email,
         (success)=>{
           this.setState({error: true, errorMessage: "Email is already there on the server."});
@@ -122,7 +120,7 @@ export default class CreateAccountComponent extends Component {
   	}
 
 	render(){
-    const { create, backToSignin, loadVerifyCode} = this.props;
+    const { backToSignin } = this.props;
     const {emailError, emailErrorMessage,  email, firstNameError, firstNameErrorMessage, lastNameError, lastNameErrorMessage} = this.state;
     const properties = this.props
 		const handleChange = name => event => {

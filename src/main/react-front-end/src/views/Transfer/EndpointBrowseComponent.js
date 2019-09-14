@@ -99,7 +99,8 @@ export default class EndpointBrowseComponent extends Component {
 	componentWillUnmount() {
 	    window.removeEventListener('click', this.onWindowClick);
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
-	    window.removeEventListener('touchend', this.onWindowTouchEnd);
+		window.removeEventListener('touchend', this.onWindowTouchEnd);
+		this.unselectAll();
 	}
 	
 
@@ -181,10 +182,6 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 	
-	componentWillUnmount(){
-		this.unselectAll();
-	}
-
 	fileNodeClicked(filename){
 	}
 

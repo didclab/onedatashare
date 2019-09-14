@@ -13,7 +13,6 @@ import ubImage from '../assets/ub.png';
 
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
-const buttonStyle = {float: 'left', marginTop: '5vw'};
 const headerStyle = {...textStyle,fontWeight: 200, fontSize: '4em'};
 const cardStyle = {margin: '8vw'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
@@ -23,7 +22,7 @@ const subHeaderStyle = {...textStyle, fontSize: '2em'}
 const subTextStyle = {...textStyle, fontSize: '1.1em'}
 
 function CustomNextArrow(props) {
-  const { className, style, onClick } = props;
+  const { style, onClick } = props;
   return (
     <div
       className="slick-next"
@@ -36,7 +35,7 @@ function CustomNextArrow(props) {
 }
 
 function CustomPrevArrow(props) {
-  const { className, style, onClick } = props;
+  const { style, onClick } = props;
   return (
     <div
       className="slick-prev"

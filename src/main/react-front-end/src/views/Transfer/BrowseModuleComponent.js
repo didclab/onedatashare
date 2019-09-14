@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, savedCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
 import {cookies} from "../../model/reducers.js";
@@ -104,8 +104,7 @@ export default class BrowseModuleComponent extends Component {
 
 			savedCredList((data) => {
 				if(Object.keys(data).some(id => {
-					return data[id].name.toLowerCase().
-					indexOf(containsType.toLowerCase()) !== -1 
+					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1 
 				})){
 					succeed(data);
 				}else{
