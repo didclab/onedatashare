@@ -12,8 +12,8 @@ queue
 import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH } from './actions';
 import { transferOptimizations } from "./actions";
 
+// import {cookie} from "react-cookies";
 export const cookies = require("js-cookie");
-
 export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;

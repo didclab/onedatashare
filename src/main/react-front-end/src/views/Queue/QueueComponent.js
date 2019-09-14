@@ -21,9 +21,11 @@ import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
-import TablePagination from '@material-ui/core/TablePagination'
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from '../TablePaginationActions'
+import TablePagination from '@material-ui/core/TablePagination';
+import TableFooter from '@material-ui/core/TableFooter';
+import TablePaginationActions from '../TablePaginationActions';
+
+import { updateGAPageView } from '../../analytics/ga';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -60,6 +62,8 @@ class QueueComponent extends Component {
 		var selectedJobInfo = 0;
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.queueFunc = this.queueFunc.bind(this);
+
+		updateGAPageView();
 	}
 
 	componentWillUnmount(){

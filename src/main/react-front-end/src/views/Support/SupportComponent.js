@@ -11,7 +11,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 
 import { ValidatorForm } from 'react-material-ui-form-validator';
-
+import { updateGAPageView } from "../../analytics/ga";
 export default class SupportComponent extends Component{
 
   constructor(){
@@ -20,6 +20,8 @@ export default class SupportComponent extends Component{
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleCaptchaEvent = this.handleCaptchaEvent.bind(this);
+
+    updateGAPageView();
   }
 
   handleCaptchaEvent(value){

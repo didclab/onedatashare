@@ -13,6 +13,8 @@ import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { checkLogin } from '../../APICalls/APICalls.js';
 
+import {updateGAPageView} from "../../analytics/ga";
+
 export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
@@ -50,6 +52,7 @@ export default class CreateAccountComponent extends Component {
       this.registerAccount = this.registerAccount.bind(this);
       this.verifyAccount = this.verifyAccount.bind(this);
       this.login = this.login.bind(this);
+      updateGAPageView();
 	}
 
 	registerAccount() {

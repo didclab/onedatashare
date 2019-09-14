@@ -25,6 +25,7 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import { updateGAPageView } from '../../analytics/ga';
 
 export default class TransferComponent extends Component {
 
@@ -64,6 +65,8 @@ export default class TransferComponent extends Component {
     this.sendFile = this.sendFile.bind(this);
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
+
+    updateGAPageView();
   }
 
   sendFile = (processed) => {

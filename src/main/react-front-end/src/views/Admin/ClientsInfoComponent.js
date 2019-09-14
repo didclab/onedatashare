@@ -25,9 +25,13 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
+import { updateGAPageView } from '../../analytics/ga';
+
 import { withStyles } from '@material-ui/core';
 
+
 import './ClientsInfoComponent.css';
+
 const styles = theme => ({
 	root:{
 		width:'fit-content'
@@ -62,10 +66,12 @@ class ClientsInfoComponent extends Component{
 			 adminTblRowsPerPageOptions : [10, 20, 50, 100],
 			 adminTblOrder : 'asc',
 			 adminTblOrderBy : 'email'};
-		this.getUserInfo = this.getUserInfo.bind(this)
-		this.getAdminInfo = this.getAdminInfo.bind(this)
-		this.getUserInfo()
-		this.getAdminInfo()
+		this.getUserInfo = this.getUserInfo.bind(this);
+		this.getAdminInfo = this.getAdminInfo.bind(this);
+		this.getUserInfo();
+		this.getAdminInfo();
+
+		updateGAPageView();
 	}
 
 	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
