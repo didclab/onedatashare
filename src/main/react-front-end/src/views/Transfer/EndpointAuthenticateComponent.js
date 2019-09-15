@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList, 
 		listFiles, deleteCredentialFromServer, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, DROPBOX_NAME, GOOGLEDRIVE_NAME} from "../../constants";
 import {store} from "../../App";
 
 import List from '@material-ui/core/List';
@@ -223,12 +223,14 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-
-		if(store.getState().saveOAuthTokens){
+		
+		type = type.toLowerCase();
+		
+		if(store.getState().saveOAuthTokens || (type !== DROPBOX_NAME.toLocaleLowerCase() && type != GOOGLEDRIVE_NAME.toLowerCase)){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return Object.keys(credList).filter(id => {
-				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) != -1 
+				return (credList[id].name.toLowerCase().indexOf(type) != -1 
 							&& !getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v} 
