@@ -60,7 +60,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
 		this.breadcrumbClicked = this.breadcrumbClicked.bind(this);
-		this.fileNodeClicked = this.fileNodeClicked.bind(this);
 		this.toggleSelection = this.toggleSelection.bind(this);
 		this.toggleSelectionInGroup = this.toggleSelectionInGroup.bind(this);
 		this.multiSelectTo = this.multiSelectTo.bind(this);
@@ -159,7 +158,7 @@ export default class EndpointBrowseComponent extends Component {
 		unselectAll();
 	};
 
-	onWindowKeyDown = (event: KeyboardEvent) => {
+	onWindowKeyDown = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -169,22 +168,19 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 
-	onWindowClick = (		event: KeyboardEvent) => {
+	onWindowClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	    //this.unselectAll();
 	};
 
-	onWindowTouchEnd = (event: TouchEvent) => {
+	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	};
 	
-	fileNodeClicked(filename){
-	}
-
 	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
 		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);

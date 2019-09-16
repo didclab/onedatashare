@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, history, savedCredList, 
-		listFiles, deleteCredentialFromServer, deleteHistory, listEndpoints, globusEndpointIds, deleteEndpointId, 
+import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList, 
+		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, DROPBOX_NAME, GOOGLEDRIVE_NAME} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
 import {store} from "../../App";
 
 import List from '@material-ui/core/List';
@@ -87,7 +87,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		let parsedCredsArr = JSON.parse(cookies.get(type));
 		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
-														return curObj.name != cred.name;
+														return curObj.name !== cred.name;
 												});
 		if(filteredCredsArr.length === 0){
 			cookies.remove(type);
@@ -224,13 +224,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
 		
-		type = type.toLowerCase();
 		
-		if(store.getState().saveOAuthTokens || (type !== DROPBOX_NAME.toLocaleLowerCase() && type != GOOGLEDRIVE_NAME.toLowerCase)){
+		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return Object.keys(credList).filter(id => {
-				return (credList[id].name.toLowerCase().indexOf(type) != -1 
+				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1 
 							&& !getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v} 
@@ -399,9 +398,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);
-		const histList = this.getHistoryListComponentFromList(historyList);
 
-		const cloudList = this.getCredentialListComponentFromList(credList, type)
 		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 
@@ -447,10 +444,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && cloudList}
+		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
 		        {loginType === GRIDFTP_TYPE && endpointsList}
 		        {loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
-		        	histList}
+		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
 	    	  aria-labelledby="simple-modal-title"
