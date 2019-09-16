@@ -119,7 +119,6 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
         // Updating the access token for googledrive using refresh token
         OAuthCredential cred = (OAuthCredential) getCredential();
         try{
-            ODSLoggerService.logInfo("Old AccessToken: "+cred.token+"\tRefresh token: "+cred.refreshToken);
             //GoogleCredential refreshTokenCredential = new GoogleCredential.Builder().setJsonFactory(JSON_FACTORY).setTransport(HTTP_TRANSPORT).setClientSecrets(c.client_id, c.client_secret).build().setRefreshToken(cred.refreshToken);
             TokenResponse response = new GoogleRefreshTokenRequest(new NetHttpTransport(), new JacksonFactory(),
                     cred.refreshToken, driveConfig.getClientId(), driveConfig.getClientSecret()).execute();
@@ -135,11 +134,10 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             ODSLoggerService.logInfo("New AccessToken:"+response.getAccessToken()+" RefreshToken:"+cred.refreshToken);
         } catch(com.google.api.client.auth.oauth2.TokenResponseException te){
             cred.refreshTokenExp = true;
-            te.printStackTrace();
-            System.out.println("TokenResponseException");
+            ODSLoggerService.logInfo("Refresh token for the user has expired");
         } catch (IOException e){
             e.printStackTrace();
-            System.out.println("IOException");
+            ODSLoggerService.logInfo("IOException");
         }
         return cred;
     }
