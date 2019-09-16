@@ -40,7 +40,7 @@ function statusHandle(response, callback){
 	      callback(`Timeout 10000ms`)
 	      return;
 	    }
-		console.log(response)
+		// console.log(response)
 		//const errorText = JSON.stringify(response.response.data);
 		callback(`500`);
 	}
@@ -59,7 +59,6 @@ export async function checkLogin(email, accept, fail){
 	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
-		console.log("login response", response)
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
@@ -121,7 +120,6 @@ export async function resetPasswordVerifyCode(email,code, accept, fail){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-
 export async function resetPassword(email,code,password, cpassword, accept, fail){
 	var callback = accept;
 
@@ -168,10 +166,8 @@ export async function setPassword(emailId, code, password, confirmPassword) {
     		else {
                     return response;
                 }
-            //statusHandle(response, callback);
     	})
     	.catch((error) => {
-          //statusHandle(error, fail);
           return {status : 500}
         });
 }
@@ -373,7 +369,7 @@ export async function submitIssue(reqBody, success, fail){
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
-	console.log(src)
+	// console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
 	if(Object.keys( src0.credential ).length === 0){
@@ -401,10 +397,8 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 export async function listFiles(uri, endpoint, id, accept, fail){
 	var body = {
 	    uri: encodeURI(uri),
-	    depth: 1,
 	    id: id,
 	    portNumber: endpoint.portNumber,
-	    //map: getMapFromEndpoint(endpoint),
 	    type: getTypeFromUri(uri)
 	  };
 
@@ -496,7 +490,6 @@ async function getDownloadLink(uri, credential, _id){
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-		//	console.log(response.data, encodeURI(response.data));
 			return response.data
 		}
 	})

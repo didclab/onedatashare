@@ -68,6 +68,10 @@ class ClientsInfoComponent extends Component{
 		this.getAdminInfo()
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - Client Info";
+	}
+
 	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 		//success
 		this.setState({users:resp.users, totalUsersCount: resp.totalCount});

@@ -98,7 +98,7 @@ export function onedatashareModel(state = initialState, action) {
         });
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
+        // console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
         cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
