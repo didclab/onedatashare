@@ -15,6 +15,8 @@ export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
+export const termsUrl = "/terms";
+export const policyUrl = "/policy"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
