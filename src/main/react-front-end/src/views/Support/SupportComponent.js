@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 
 import { submitIssue } from '../../APICalls/APICalls';
-import { eventEmitter } from '../../App';
 import {store} from '../../App';
 
 import Card from '@material-ui/core/Card';
@@ -9,16 +8,21 @@ import CardHeader from '@material-ui/core/CardHeader';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
+import { eventEmitter } from "../../App";
+import ReCAPTCHA from 'react-google-recaptcha';
 
-import ReCAPTCHA from "react-google-recaptcha";
 
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
+import { ValidatorForm } from 'react-material-ui-form-validator';
 
 export default class SupportComponent extends Component{
 
   constructor(){
     super();
-    this.state = { captchaVerified : false, captchaVerificationValue : null };
+    this.state = { 
+      captchaVerified : false, 
+      captchaVerificationValue : null,
+      email : (store.getState().email === "noemail" ? "" : store.getState().email)
+    };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleCaptchaEvent = this.handleCaptchaEvent.bind(this);
@@ -36,7 +40,7 @@ export default class SupportComponent extends Component{
   }
 
   handleSubmit(){
-    // if(this.state.captchaVerified){
+    if(this.state.captchaVerified){
       var progressBarDiv = document.getElementById('progress-bar');
       progressBarDiv.style.visibility = 'visible';
 
@@ -48,7 +52,7 @@ export default class SupportComponent extends Component{
         phone : this.state.phone,
         subject : this.state.subject,
         description : this.state.description,
-        // captchaVerificationValue : this.state.captchaVerificationValue
+        captchaVerificationValue : this.state.captchaVerificationValue
       };
 
       submitIssue(reqBody,
@@ -66,9 +70,9 @@ export default class SupportComponent extends Component{
           msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again.";
           msgDiv.style.visibility = 'visible';
         });
-      // }
-      // else
-      //   eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
+      }
+      else
+        eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
   }
 
 
@@ -76,7 +80,7 @@ export default class SupportComponent extends Component{
     
     const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' }
     const divStyle = { margin : '2% 5%' }
-    // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' }
+    const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' }
 
     return(
         <Card style={cardStyle}>
@@ -97,7 +101,7 @@ export default class SupportComponent extends Component{
                 required
                 label = 'Email Address'
                 name = 'email'
-                value = { (store.getState().email === "noemail" ? "" : store.getState().email) }
+                value = { this.state.email }
                 onChange = {this.handleChange}
                 style = {{ marginRight : '5%', width :'30%' }}
               />
@@ -124,11 +128,11 @@ export default class SupportComponent extends Component{
                 style={{ width : '70%' }}
               />
             </div>
-            {/* 
+            
             <div style={ captchaStyle }>
                 <ReCAPTCHA sitekey="6LfXVKIUAAAAAICqn4qGgNtf44QqQ-4CEVWiU_u8" onChange={this.handleCaptchaEvent} />
             </div> 
-            */}
+           
 
             <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
               <LinearProgress />

@@ -1,28 +1,18 @@
 import React, {Component} from 'react';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
-import CardActions from '@material-ui/core/CardActions';
-import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
-
-
 
 import Paper from '@material-ui/core/Paper';
 import InputBase from '@material-ui/core/InputBase';
-import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
-import DirectionsIcon from '@material-ui/icons/Directions';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import {globusListEndpoints, globusEndpointIds, globusEndpointDetail} from '../../APICalls/APICalls';
+import {globusListEndpoints, globusEndpointIds} from '../../APICalls/APICalls';
 import {eventEmitter} from "../../App";
 
 const styles = {

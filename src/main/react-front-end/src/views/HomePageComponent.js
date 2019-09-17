@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
-//import { PropTypes } from 'prop-types';
+import {Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
 import Slider from "react-slick";
 
 import fastImage from '../assets/fast.png';
@@ -51,6 +50,10 @@ function CustomPrevArrow(props) {
 
 
 export default class HomePageComponent extends Component {
+
+	componentDidMount(){
+		document.title = "OneDataShare - Home";
+	}
 
 	render(){
 		var settings = {

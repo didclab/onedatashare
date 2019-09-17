@@ -58,9 +58,9 @@ export function onedatashareModel(state = initialState, action) {
     	console.log('logging in')
    		const {email, hash, publicKey} = action.credential;
       console.log(email);
-    	cookies.set('email', email, {maxAge: 7200});
-		  cookies.set('hash', hash, {maxAge: 7200});
-      cookies.set('publicKey', publicKey, {maxAge: 7200});
+    	cookies.set('email', email);
+		  cookies.set('hash', hash);
+      cookies.set('publicKey', publicKey);
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
@@ -88,7 +88,7 @@ export function onedatashareModel(state = initialState, action) {
         admin: true,
       });
     case ENDPOINT_PROGRESS:
-      if(action.side == "left")
+      if(action.side === "left")
         return Object.assign({}, state, {
           endpoint1: {...state.endpoint1, loginProgress: action.progress},
         });
@@ -97,22 +97,22 @@ export function onedatashareModel(state = initialState, action) {
           endpoint2: {...state.endpoint2, loginProgress: action.progress},
         });
     case ENDPOINT_UPDATE:
-      if(action.side == "left"){
-        console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}), {maxAge: 7200});
+      if(action.side === "left"){
+        // console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
+        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), {maxAge: 7200});
+        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}));
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
     case UPDATE_HASH:
         cookies.remove('hash');
-     cookies.set('hash',  action.hash, {maxAge: 7200});
+     cookies.set('hash',  action.hash);
          return Object.assign({}, state, {
                   hash: action.hash
                 });

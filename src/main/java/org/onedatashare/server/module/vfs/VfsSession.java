@@ -59,7 +59,7 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
   @Override
   public Mono<VfsResource> select(String path, String portNum) {
       FileObject fo = null;
-
+      path = path.replace(" ", "%20");
       String pathWithPort = getURIWithPortNumber(URI.create(path), portNum).toString();
       try {
           fo = fileSystemManager.resolveFile(pathWithPort, fileSystemOptions);
