@@ -4,11 +4,8 @@ import ReactGA from "react-ga";
  * Initializes the google analytics library 
  */ 
 export function initializeReactGA() {
-  if(process.env.REACT_APP_ENV === 'production'){
+  if(process.env.REACT_APP_GA_KEY !== undefinded){
     ReactGA.initialize('UA-147970452-1');
-  }
-  else if(process.env.REACT_APP_ENV === 'development'){
-    ReactGA.initialize('UA-147976263-1');    
   }
 }
 
@@ -16,7 +13,7 @@ export function initializeReactGA() {
  * Updates the user's current page view in Google analytics
  */ 
 export function updateGAPageView() {
-  if(process.env.REACT_APP_ENV === 'production' || process.env.REACT_APP_ENV === 'development'){
+  if(process.env.REACT_APP_GA_KEY !== undefined){
     ReactGA.pageview(window.location.pathname);
   }
 }
