@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 // ui import
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -11,11 +10,9 @@ import CreateAccountComponent from './CreateAccountComponent';
 import ValidateEmailComponent from './ValidateEmailComponent';
 import ForgotPasswordComponent from './ForgotPasswordComponent';
 
-import { TransitionGroup, CSSTransition } from "react-transition-group";
-
 import  { Route, Switch, Redirect } from 'react-router-dom';
 
-import { login, isAdmin } from '../../APICalls/APICalls.js';
+import { login} from '../../APICalls/APICalls.js';
 
 import {addAccountUrl, transferPageUrl} from "../../constants";
 import {store} from '../../App.js';
@@ -48,7 +45,7 @@ export default class AccountControlComponent extends Component {
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-    const accounts = cookieSaved == 0 ? {} : JSON.parse(cookieSaved);
+    const accounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent 
 					accounts={accounts} 
 					login={(email) => {
@@ -174,22 +171,9 @@ export default class AccountControlComponent extends Component {
 
   	render() {
 
-	    const {isSmall, loading, accounts, screen, authenticated, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
-	    console.log(forgotPasswordPressed)
-	    const isNewUser = Object.keys(accounts).length == 0;
-	    const handleChange = name => event => {
-		    this.setState({
-		      [name]: event.target.value,
-		    });
-		  };
-
-		console.log(addAccountUrl);
-		this.state.creatingAccount = false;
-		this.state.validateEmailPressed = false;
-		this.state.loggingAccount = false;
-		this.state.signIn = false;
-
-  		const height = window.innerHeight+"px";
+	    const {isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
+			const height = window.innerHeight+"px";
+			
 	    return (
 
   		  <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height}}>

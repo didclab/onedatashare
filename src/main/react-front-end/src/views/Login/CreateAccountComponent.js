@@ -1,6 +1,5 @@
 
 import React, {Component} from 'react';
-import { Redirect } from 'react-router-dom'
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
@@ -14,6 +13,8 @@ import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { checkLogin } from '../../APICalls/APICalls.js';
 
+import {updateGAPageView} from "../../analytics/ga";
+
 export default class CreateAccountComponent extends Component {
 	static propTypes = {
 	  	create : PropTypes.func,
@@ -23,7 +24,7 @@ export default class CreateAccountComponent extends Component {
       super(props);
 
 	    this.state = {
-	    	email: props.email != "" ? props.email: "",
+	    	email: props.email !== "" ? props.email: "",
 	    	password: "",
 	    	cpassword: "",
 	    	code : "",
@@ -51,6 +52,7 @@ export default class CreateAccountComponent extends Component {
       this.registerAccount = this.registerAccount.bind(this);
       this.verifyAccount = this.verifyAccount.bind(this);
       this.login = this.login.bind(this);
+      updateGAPageView();
 	}
 
 	registerAccount() {
@@ -60,10 +62,10 @@ export default class CreateAccountComponent extends Component {
         let organization = this.state.organization;
 
         registerUser(email, firstName, lastName, organization).then((response)=>{
-            if(response.status == 200 ){
+            if(response.status === 200 ){
               this.setState({screen: "verifyCode", verificationError: "", loading: false});
             }
-            else if(response.status == 302) {
+            else if(response.status === 302) {
               this.setState({emaildError: "User with same Email Id already exists",
                 verificationError: "User with same Email Id already exists",
                 loading: false
@@ -78,7 +80,7 @@ export default class CreateAccountComponent extends Component {
         let verificationCode = this.state.verificationCode;
         verifyRegistraionCode(email, verificationCode).then((response) =>{
             let state = self.state;
-            if(response.status == 200 ) {
+            if(response.status === 200 ) {
                 state.screen = "setPassword";
                 state.code = response.data;                
                 self.setState({state});
@@ -98,7 +100,7 @@ export default class CreateAccountComponent extends Component {
       let code = this.state.code;
       let state = self.state;
 
-      if(password!=confirmPassword){
+      if(password !== confirmPassword){
           state.passwordError = "Password Doesn't Match";
           self.setState({state});
       }
@@ -221,11 +223,11 @@ export default class CreateAccountComponent extends Component {
                       </Typography>
                       <TextField
                           id="code"
-                          label={this.state.verificationError=="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
+                          label={this.state.verificationError==="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
                           value={this.state.verificationCode}
                           style={{width: '100%', marginBottom: '50px'}}
                           onChange={ handleChange('verificationCode') }
-                          error = {this.state.verificationError=="Please Enter Valid Verification Code"}
+                          error = {this.state.verificationError==="Please Enter Valid Verification Code"}
                       />
 
                       <CardActions style={spaceBetweenStyle,{float:'right'}}>

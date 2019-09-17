@@ -2,9 +2,8 @@ import { url } from '../constants';
 import {logoutAction} from "../model/actions.js";
 import {store} from "../App.js";
 import Axios from "axios";
-import * as JsEncryptModule from 'jsencrypt';
 
-import {getType, getName, getTypeFromUri, getNameFromUri} from '../constants.js';
+import {getType, getTypeFromUri} from '../constants.js';
 import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
 
 import {cookies} from "../model/reducers.js";
@@ -31,7 +30,7 @@ function statusHandle(response, callback){
 		callback(`${response.status} ${response.statusText}`);
 	}else{
 		// 500 error code
-		if(response.name == "PermissionDenied" && store.getState().login){
+		if(response.name === "PermissionDenied" && store.getState().login){
 			if (window.confirm('You have been logged out. Login again?'))
 			{
 				store.dispatch(logoutAction());
@@ -41,7 +40,7 @@ function statusHandle(response, callback){
 	      callback(`Timeout 10000ms`)
 	      return;
 	    }
-		console.log(response)
+		// console.log(response)
 		//const errorText = JSON.stringify(response.response.data);
 		callback(`500`);
 	}
@@ -60,7 +59,6 @@ export async function checkLogin(email, accept, fail){
 	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
-		console.log("login response", response)
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
@@ -122,7 +120,6 @@ export async function resetPasswordVerifyCode(email,code, accept, fail){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-
 export async function resetPassword(email,code,password, cpassword, accept, fail){
 	var callback = accept;
 
@@ -169,10 +166,8 @@ export async function setPassword(emailId, code, password, confirmPassword) {
     		else {
                     return response;
                 }
-            //statusHandle(response, callback);
     	})
     	.catch((error) => {
-          //statusHandle(error, fail);
           return {status : 500}
         });
 }
@@ -374,13 +369,13 @@ export async function submitIssue(reqBody, success, fail){
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
 	var callback = accept;
-	console.log(src)
+	// console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
-	if(Object.keys( src0.credential ).length == 0){
+	if(Object.keys( src0.credential ).length === 0){
 		delete src0["credential"];
 	}
-	if(Object.keys( dest0.credential ).length == 0){
+	if(Object.keys( dest0.credential ).length === 0){
 		delete dest0["credential"];
 	}
 
@@ -402,10 +397,8 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 export async function listFiles(uri, endpoint, id, accept, fail){
 	var body = {
 	    uri: encodeURI(uri),
-	    depth: 1,
 	    id: id,
 	    portNumber: endpoint.portNumber,
-	    //map: getMapFromEndpoint(endpoint),
 	    type: getTypeFromUri(uri)
 	  };
 
@@ -497,7 +490,6 @@ async function getDownloadLink(uri, credential, _id){
 		if(!(response.status === 200))
 			console.log("Error in download API call");
 		else{
-		//	console.log(response.data, encodeURI(response.data));
 			return response.data
 		}
 	})
@@ -533,7 +525,7 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 	
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin, {maxAge: 1});
+	cookies.set("SFTPAUTH", strin);
 
 
 	window.location = url + "download/file";
@@ -746,7 +738,7 @@ export async function registerUser(emailId, firstName, lastName, organization) {
 				organization : organization
 		})
 		.then((response) => {
-	if(response.data && response.data.status && response.data.status == 302) {
+	if(response.data && response.data.status && response.data.status === 302) {
 						console.log("User already exists");
 						return {status : 302}
 				}

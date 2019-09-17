@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import {Button, Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
-//import { PropTypes } from 'prop-types';
+import {Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
 import Slider from "react-slick";
 
 import fastImage from '../assets/fast.png';
@@ -11,10 +10,10 @@ import intopImage from '../assets/interoperation.png';
 
 import nsfImage from '../assets/NSF_Logo.png';
 import ubImage from '../assets/ub.png';
+import {updateGAPageView} from "../analytics/ga";
 
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
-const buttonStyle = {float: 'left', marginTop: '5vw'};
 const headerStyle = {...textStyle,fontWeight: 200, fontSize: '4em'};
 const cardStyle = {margin: '8vw'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
@@ -51,6 +50,14 @@ function CustomPrevArrow(props) {
 
 
 export default class HomePageComponent extends Component {
+	constructor(){
+		super();
+		updateGAPageView();
+	}
+
+	componentDidMount(){
+		document.title = "OneDataShare - Home";
+	}
 
 	render(){
 		var settings = {
