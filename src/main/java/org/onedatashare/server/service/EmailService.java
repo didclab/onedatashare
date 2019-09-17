@@ -39,7 +39,6 @@ public class EmailService {
      */
 
     public void sendEmail(String emailTo, String subject, String emailText){
-        //Get system properties
         try {
             AmazonSimpleEmailService client =
                     AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new AWSCredentialsProvider() {

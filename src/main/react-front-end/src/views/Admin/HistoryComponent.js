@@ -62,6 +62,10 @@ class QueueComponent extends Component {
 		updateGAPageView();
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - History";
+	}
+
 	queueFunc = () => {
 		let isHistory = true;
 

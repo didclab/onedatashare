@@ -66,6 +66,10 @@ class QueueComponent extends Component {
 		updateGAPageView();
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - Queue";
+	}
+
 	componentWillUnmount(){
 		clearInterval(this.interval);
 	}

@@ -69,6 +69,12 @@ export default class TransferComponent extends Component {
     updateGAPageView();
   }
 
+  componentDidMount(){
+    document.title = "OneDataShare - Transfer";
+    window.addEventListener("resize", this.updateDimensions);
+    this.setState({width: window.innerWidth, height: window.innerHeight});
+  }
+
   sendFile = (processed) => {
     if(processed.selectedTasks.length === 0){
       eventEmitter.emit("errorOccured", "You did not select any files!");
@@ -131,17 +137,7 @@ export default class TransferComponent extends Component {
     }
   }
 
-  componentDidMount(){
-    document.title = "OneDataShare - Transfer";
-    window.addEventListener("resize", this.updateDimensions);
-    this.setState({width: window.innerWidth, height: window.innerHeight});
-  }
 
-  componentWillUnmount(){
-
-    document.title = "OneDataShare - Home";
-//    this.unsubcribe();
-  }
 
   _returnBrowseComponent1(){
      const {mode1, endpoint1,history, compact} = this.state;
@@ -185,11 +181,11 @@ export default class TransferComponent extends Component {
         store.dispatch(endpointUpdate(object.endpoint.side, {...this.state.endpoint2, ...object.endpoint}));
   }
 
-  onDragStart = (start: DragStart) => {
+  onDragStart = (start) => {
     var task = JSON.parse(start.draggableId.slice(start.draggableId.indexOf(" ")));
     var selectedSide = start.source.droppableId;
     const selected = getSelectedTasks()[selectedSide].find(
-      (listTask): boolean => listTask.name === task.name,
+      (listTask) => listTask.name === task.name,
     );
 
     // if dragging an item that is not selected - unselect all items
@@ -199,9 +195,9 @@ export default class TransferComponent extends Component {
     setDraggingTask(task);
   };
 
-  onDragEnd = (result: DropResult) => {
-    const destination: ?DraggableLocation = result.destination;
-    const source: DraggableLocation = result.source;
+  onDragEnd = (result) => {
+    const destination = result.destination;
+    const source = result.source;
     // nothing to do
 
     if (!destination || result.reason === 'CANCEL') {
@@ -209,7 +205,7 @@ export default class TransferComponent extends Component {
       return;
     }
     console.log(getSelectedTasks(), result.source, result.destination)
-    const processed: ReorderResult = mutliDragAwareReorder({
+    const processed = mutliDragAwareReorder({
       entities: getEntities(),
       selectedTasks: getSelectedTasks(),
       source,
@@ -358,8 +354,6 @@ export default class TransferComponent extends Component {
       this.setState({ [name]: event.target.checked });
     };
 
-    const { alignment } = this.state;
-    console.log(alignment)
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>

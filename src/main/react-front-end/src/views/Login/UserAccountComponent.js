@@ -50,7 +50,6 @@ export default class UserAccountComponent extends Component{
                lName: resp.lastName,
                loading: false
             });
-            console.log(resp)
             }, (resp) => {
             //failed
             this.setState({loading: false})
@@ -60,6 +59,12 @@ export default class UserAccountComponent extends Component{
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
    		this.accountDetails = this.accountDetails.bind(this);
 		updateGAPageView();
+	}
+
+	componentDidMount(){
+		document.title = "OneDataShare - History";
+		window.addEventListener("resize", this.resize.bind(this));
+		this.resize();
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
@@ -173,12 +178,6 @@ export default class UserAccountComponent extends Component{
 			    </CardActions>
 	        </div>
 		);
-	}
-
-	componentDidMount(){
-
-		window.addEventListener("resize", this.resize.bind(this));
-		this.resize();
 	}
 
 	resize() {

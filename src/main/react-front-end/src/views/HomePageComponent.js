@@ -55,6 +55,10 @@ export default class HomePageComponent extends Component {
 		updateGAPageView();
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - Home";
+	}
+
 	render(){
 		var settings = {
 			dots: true,
