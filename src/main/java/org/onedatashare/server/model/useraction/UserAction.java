@@ -39,4 +39,5 @@ public class UserAction {
   private String sortOrder;
 
   private String portNumber;
+  private String captchaVerificationValue;
 }

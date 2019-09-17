@@ -728,31 +728,27 @@ export async function getOrganization(){
 }
 
 
-export async function registerUser(emailId, firstName, lastName, organization) {
+export async function registerUser(requestBody) {
 
-	return axios.post(url+'user', {
-				action: "register",
-				email : emailId,
-				firstName : firstName,
-				lastName : lastName,
-				organization : organization
-		})
-		.then((response) => {
-	if(response.data && response.data.status && response.data.status === 302) {
-						console.log("User already exists");
-						return {status : 302}
-				}
-			if(!(response.status === 200))
-				throw new Error("Failed to register user")
-			else {
-					return response
-			}
-		})
-		.catch((error) => {
-				//statusHandle(error, fail);
-				console.error("Error while registering user");
-				return {status : 500}
-			});
+	return axios.post(url+'user', {action: "register", ...requestBody})
+				.then((response) => {
+						if(response.data && response.data.status && response.data.status === 302) {
+							console.log("User already exists");
+							return {status : 302}
+						}
+						if(!(response.status === 200))
+							throw new Error("Failed to register user")
+						else {
+								return response
+						}
+					}
+				)
+				.catch((error) => {
+						//statusHandle(error, fail);
+						console.error("Error while registering user");
+						return {status : 500}
+					}
+				);
 }
 
 

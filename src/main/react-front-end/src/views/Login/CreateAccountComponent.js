@@ -10,6 +10,9 @@ import {registerUser,verifyRegistraionCode,setPassword} from '../../APICalls/API
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 
+import { eventEmitter } from "../../App";
+import ReCAPTCHA from 'react-google-recaptcha';
+
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { checkLogin } from '../../APICalls/APICalls.js';
 
@@ -40,91 +43,121 @@ export default class CreateAccountComponent extends Component {
         emailErrorMessage: null,
         firstNameErrorMessage: null,
         lastNameErrorMessage: null,
-
+        captchaVerified : false, 
+        captchaVerificationValue : null
       }
       this.firstNameValidationMsg = "Please Enter Your First Name"
       this.lastNameValidationMsg = "Please Enter Your Last Name"
       this.emailValidationMsg = "Please Enter EmailId"
-      this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
+      this.captchaRef = null;
 
+      this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
       this.registerAccount = this.registerAccount.bind(this);
       this.verifyAccount = this.verifyAccount.bind(this);
       this.login = this.login.bind(this);
+      this.handleCaptchaEvent = this.handleCaptchaEvent.bind(this);
+      this.resetCaptcha = this.resetCaptcha.bind(this);
 	}
 
 	registerAccount() {
-        let email = this.state.email;
-        let firstName = this.state.firstName;
-        let lastName = this.state.lastName;
-        let organization = this.state.organization;
+    if(this.state.captchaVerified){
+      this.setState({loading: true});
+      let reqBody = {
+        email : this.state.email,
+        firstName : this.state.firstName,
+        lastName : this.state.lastName,
+        organization : this.state.organization,
+        description : this.state.description,
+        captchaVerificationValue : this.state.captchaVerificationValue
+      } 
 
-        registerUser(email, firstName, lastName, organization).then((response)=>{
-            if(response.status === 200 ){
-              this.setState({screen: "verifyCode", verificationError: "", loading: false});
-            }
-            else if(response.status === 302) {
-              this.setState({emaildError: "User with same Email Id already exists",
-                verificationError: "User with same Email Id already exists",
-                loading: false
-              });
+      registerUser(reqBody)
+        .then((response)=>{
+          if(response.status === 200 ){
+            this.setState({screen: "verifyCode", verificationError: "", loading: false});
           }
-       })
-    }
-
-    verifyAccount() {
-        let email = this.state.email;
-        let self = this;
-        let verificationCode = this.state.verificationCode;
-        verifyRegistraionCode(email, verificationCode).then((response) =>{
-            let state = self.state;
-            if(response.status === 200 ) {
-                state.screen = "setPassword";
-                state.code = response.data;                
-                self.setState({state});
-            }
-            else {
-                state.verificationError = "Please Enter Valid Verification Code";
-                self.setState({state});
-            }
+          else if(response.status === 302) {
+            this.setState({emaildError: "User with same Email ID already exists",
+              verificationError: "User with same Email ID already exists",
+              loading: false
+            });
+            eventEmitter.emit("errorOccured", "User with same Email ID already exists");
+          }
+          this.resetCaptcha();
         });
     }
+    else{
+      eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
+    }
+  }
 
-    login() {
-      let email = this.state.email;
-      let password = this.state.password;
-      let confirmPassword = this.state.cpassword;
-      let self = this;
-      let code = this.state.code;
+  verifyAccount() {
+    let email = this.state.email;
+    let self = this;
+    let verificationCode = this.state.verificationCode;
+    verifyRegistraionCode(email, verificationCode).then((response) =>{
       let state = self.state;
+      if(response.status === 200 ) {
+        state.screen = "setPassword";
+        state.code = response.data;                
+        self.setState({state});
+      }
+      else {
+        state.verificationError = "Please Enter Valid Verification Code";
+        self.setState({state});
+      }
+    });
+  }
 
-      if(password !== confirmPassword){
-          state.passwordError = "Password Doesn't Match";
-          self.setState({state});
-      }
-      else{
-        setPassword(email, code, password, confirmPassword).then((response) =>{
-          self.props.history.push('/account/signIn')
-        });
-      }
+  login() {
+    let email = this.state.email;
+    let password = this.state.password;
+    let confirmPassword = this.state.cpassword;
+    let self = this;
+    let code = this.state.code;
+    let state = self.state;
+
+    if(password !== confirmPassword){
+      state.passwordError = "Password Doesn't Match";
+      self.setState({state});
     }
+    else{
+      setPassword(email, code, password, confirmPassword).then((response) =>{
+        self.props.history.push('/account/signIn')
+      });
+    }
+  }
 
   onEmailNextClicked(){
-  		var { email } = this.state;
+    checkLogin(this.state.email,
+      (success)=>{
+        this.setState({error: true, errorMessage: "Email is already there on the server."});
+      },
+      (error)=>{
+        this.registerAccount();
+      }
+    );
+  }
 
-      checkLogin(this.state.email,
-        (success)=>{
-          this.setState({error: true, errorMessage: "Email is already there on the server."});
-        },
-        (error)=>{
-          this.registerAccount();
-        }
-      );
-  	}
+  handleCaptchaEvent(value){
+    this.setState({ captchaVerified : true, captchaVerificationValue : value});
+  }
+
+  resetCaptcha(){
+    this.setState({ captchaVerified : false, captchaVerificationValue : null});
+    this.captchaRef.reset();
+  }
 
 	render(){
-    const { create, backToSignin, loadVerifyCode} = this.props;
-    const {emailError, emailErrorMessage,  email, firstNameError, firstNameErrorMessage, lastNameError, lastNameErrorMessage} = this.state;
-    const properties = this.props
+    const { backToSignin } = this.props;
+    const { emailError, emailErrorMessage,  email, firstNameError, 
+            firstNameErrorMessage, lastNameError, lastNameErrorMessage } = this.state;
+    const properties = this.props;
+    const divStyle = { margin : '2% 5%' };
+    const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
+    var screen = this.state.screen;
+    const showLoader = this.state.loading;
+
 		const handleChange = name => event => {
 		   this.setState({
 		   emailError: false,
@@ -132,38 +165,39 @@ export default class CreateAccountComponent extends Component {
         [name]: event.target.value,
       });
     };
-    var screen = this.state.screen;
-    const showLoader = this.state.loading;
-      if(screen === "validateEmail"){
+    
+    if(screen === "validateEmail"){
 
-        return(
-          <div className="enter-from-right slide-in">
-            <ValidateEmailComponent {...properties} email = {this.state.email}></ValidateEmailComponent>
-          </div>
-        )
-      }
-      if(screen === "registration"){
-        return (
-          <div className="enter-from-right slide-in">
-            <div>{showLoader && <LinearProgress></LinearProgress>}</div>
-            <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-              Create your OneDataShare Account
-            </Typography>
+      return(
+        <div className="enter-from-right slide-in">
+          <ValidateEmailComponent {...properties} email = {this.state.email}></ValidateEmailComponent>
+        </div>
+      )
+    }
 
-            <ValidatorForm
-              ref="email"
-              onSubmit={this.onEmailNextClicked}>
-              <TextValidator
-                error = {emailError}
-                helperText = {emailErrorMessage}
-                label="Email"
-                onChange={handleChange('email')}
-                name="email"
-                value={email}
-                validators={['required', 'isEmail']}
-                errorMessages={['Please put email here', 'Can not understand email format']}
-                style={{width: '100%', marginBottom: '50px'}}
-             />
+    if(screen === "registration"){
+      const textBoxStyle = {width: '100%', marginBottom: '4%'}
+      return (
+        <div className="enter-from-right slide-in">
+          <div>{showLoader && <LinearProgress></LinearProgress>}</div>
+          <Typography style={{fontSize: "1.6em", marginBottom: "0.4em", textAlign: "center"}}>
+            Create Your OneDataShare Account
+          </Typography>
+
+          <ValidatorForm
+            ref="email"
+            onSubmit={this.onEmailNextClicked}>
+            <TextValidator
+              error = {emailError}
+              helperText = {emailErrorMessage}
+              label="Email"
+              onChange={handleChange('email')}
+              name="email"
+              value={email}
+              validators={['required', 'isEmail']}
+              errorMessages={['Please enter your email address', 'Can not understand email format']}
+              style={textBoxStyle}
+            />
 
             <TextValidator
               error = {firstNameError}
@@ -174,7 +208,7 @@ export default class CreateAccountComponent extends Component {
               id="FirstName"
               validators={['required']}
               errorMessages={['Please Enter Your First Name']}
-              style={{width: '100%', marginBottom: '50px'}}
+              style={textBoxStyle}
               onChange={ handleChange('firstName') }
             />
 
@@ -187,7 +221,7 @@ export default class CreateAccountComponent extends Component {
               id="LastName"
               validators={['required']}
               errorMessages={['Please Enter Your Last Name']}
-              style={{width: '100%', marginBottom: '50px'}}
+              style={textBoxStyle}
               onChange={ handleChange('lastName') }
             />
 
@@ -195,93 +229,110 @@ export default class CreateAccountComponent extends Component {
               id="Organization"
               label={"Organization"}
               value={this.state.organization}
-              style={{width: '100%', marginBottom: '50px'}}
+              style={textBoxStyle}
               onChange={ handleChange('organization') }
             />
 
+            <div style={ captchaStyle }>
+              <ReCAPTCHA 
+                sitekey="6LfXVKIUAAAAAICqn4qGgNtf44QqQ-4CEVWiU_u8" 
+                onChange={this.handleCaptchaEvent} 
+                ref = { r => this.captchaRef = r}
+              />
+            </div> 
 
-             <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                  <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                    Sign in Instead
-                  </Button>
-                  <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} type="submit" onClick={this.registerAccount}>
-                    Next
-                  </Button>
-              </CardActions>
+            <CardActions style={{...spaceBetweenStyle, float:'center'}}>
+              <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
+                Sign in Instead
+              </Button>
+              <Button 
+                size="medium" 
+                variant="contained" 
+                color="primary" 
+                style={{marginLeft: '4vw'}} 
+                type="submit" 
+                onClick={this.registerAccount}>
+                Next
+              </Button>
+            </CardActions>
 
-             </ValidatorForm>
-          </div>);
-      }
-          if(screen === "verifyCode") {
-              return (
-                  <div className="enter-from-right slide-in">
-                      <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                        Please check {this.state.email} for authorization code
-                      </Typography>
-                      <TextField
-                          id="code"
-                          label={this.state.verificationError==="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
-                          value={this.state.verificationCode}
-                          style={{width: '100%', marginBottom: '50px'}}
-                          onChange={ handleChange('verificationCode') }
-                          error = {this.state.verificationError==="Please Enter Valid Verification Code"}
-                      />
+          </ValidatorForm>
+        </div>);
+    }
 
-                      <CardActions style={spaceBetweenStyle,{float:'right'}}>
-                          <Button size="medium" variant="outlined" color="primary" onClick={() =>{
-                            if(this.state.isLostVerifyCode){
-                             this.setState({screen:"validateEmail"})
-                            }
-                            else{
-                              this.setState({screen: "registration"});
-                            }
-                          }}>
-                            Back
-                          </Button>
-                          <Button size="large" variant="contained" color="primary" type="submit" style={{marginLeft: '4vw'}} onClick={this.verifyAccount}>
-                            Next
-                          </Button>
-                      </CardActions>
-                  </div>);
-          }
-          if(screen === "setPassword") {
-              return (
-                  <div className="enter-from-right slide-in">
-                      <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-                        Code Verified! Please set password for your account
-                      </Typography>
+    if(screen === "verifyCode") {
+        return (
+          <div className="enter-from-right slide-in">
+            <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
+              Please check {this.state.email} for authorization code
+            </Typography>
+            <TextField
+                id="code"
+                label={this.state.verificationError==="" ? "Enter Verification Code": "Please Enter Valid Verification Code"}
+                value={this.state.verificationCode}
+                style={{width: '100%', marginBottom: '50px'}}
+                onChange={ handleChange('verificationCode') }
+                error = {this.state.verificationError==="Please Enter Valid Verification Code"}
+            />
 
-                      <TextField
-                        id="Password"
-                        label="Password"
-                        type="password"
-                        value={this.state.password}
-                        style={{width: '100%', marginBottom: '50px'}}
-                        onChange={ handleChange('password') }
-                      />
+            <CardActions style={{...spaceBetweenStyle, float:'right'}}>
+                <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                  if(this.state.isLostVerifyCode){
+                    this.setState({screen:"validateEmail"})
+                  }
+                  else{
+                    this.setState({screen: "registration"});
+                  }
+                }}>
+                  Back
+                </Button>
+                <Button size="large" variant="contained" color="primary" type="submit" style={{marginLeft: '4vw'}} onClick={this.verifyAccount}>
+                  Next
+                </Button>
+            </CardActions>
+          </div>
+        );
+    }
 
-                      <TextField
-                        id="Cpassword"
-                        type="password"
-                        label={this.state.passwordError === "Password Doesn't Match" ? "Password Doesn't Match" : "Confirm Password"}
-                        value={this.state.cpassword}
-                        style={{width: '100%', marginBottom: '50px'}}
-                        onChange={ handleChange('cpassword') }
-                        error = {this.state.passwordError === "Password Doesn't Match"}
-                      />
+    if(screen === "setPassword") {
+      return (
+        <div className="enter-from-right slide-in">
+          <Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
+            Code Verified! Please set password for your account
+          </Typography>
 
-                      <CardActions style={spaceBetweenStyle, {float:'right'}}>
-                          <Button size="medium" variant="outlined" color="primary" onClick={() =>{
-                            this.setState({screen: "verifyCode"});
-                          }}>
-                            Back
-                          </Button>
-                          <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.login}>
-                            Next
-                          </Button>
-                      </CardActions>
-                  </div>);
-          }
-          }
+          <TextField
+            id="Password"
+            label="Password"
+            type="password"
+            value={this.state.password}
+            style={{width: '100%', marginBottom: '50px'}}
+            onChange={ handleChange('password') }
+          />
+
+          <TextField
+            id="Cpassword"
+            type="password"
+            label={this.state.passwordError === "Password Doesn't Match" ? "Password Doesn't Match" : "Confirm Password"}
+            value={this.state.cpassword}
+            style={{width: '100%', marginBottom: '50px'}}
+            onChange={ handleChange('cpassword') }
+            error = {this.state.passwordError === "Password Doesn't Match"}
+          />
+
+          <CardActions style={{...spaceBetweenStyle, float:'right'}}>
+              <Button size="medium" variant="outlined" color="primary" onClick={() =>{
+                this.setState({screen: "verifyCode"});
+              }}>
+                Back
+              </Button>
+              <Button size="large" variant="contained" color="primary" style={{marginLeft: '4vw'}} onClick={this.login}>
+                Next
+              </Button>
+          </CardActions>
+        </div>
+      );
+    }
+  }
 
 } 
