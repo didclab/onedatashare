@@ -38,7 +38,7 @@ Recommended IDEs (used by ODS team for development):
 1. Clone OneDataShare GitHub repository.
 	Open command prompt (Windows OS) or terminal (Unix-based OS)  
 	Run following command –  
-	git clone https://github.com/didclab/onedatashare-spring.git
+	git clone https://github.com/didclab/onedatashare.git
 
 2. Open the cloned repository in IntelliJ and import it as a Maven project.
 
