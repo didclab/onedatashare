@@ -58,6 +58,10 @@ class QueueComponent extends Component {
 		this.toggleTabs = this.toggleTabs.bind(this);
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - History";
+	}
+
 	queueFunc = () => {
 		let isHistory = true;
 

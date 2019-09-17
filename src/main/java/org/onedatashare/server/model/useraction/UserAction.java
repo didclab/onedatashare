@@ -23,7 +23,6 @@ public class UserAction {
   private String code;
   private String confirmPassword;
   private String newPassword;
-  private int depth;
   private UserActionResource src;
   private UserActionResource dest;
   private UserActionCredential credential;
