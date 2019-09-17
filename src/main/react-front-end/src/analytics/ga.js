@@ -5,7 +5,7 @@ import ReactGA from "react-ga";
  */ 
 export function initializeReactGA() {
   if(process.env.REACT_APP_GA_KEY !== undefinded){
-    ReactGA.initialize('UA-147970452-1');
+    ReactGA.initialize(process.env.REACT_APP_GA_KEY);
   }
 }
 
