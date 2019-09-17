@@ -9,6 +9,7 @@ import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
@@ -96,17 +97,34 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
-                userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)){
-            return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-        }else if(userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)){
-            return userActionResource.getUploader();
-        }else if(userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)){
-
-            GlobusClient gc = userService.getGlobusClientFromUser(user);
-            return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+        if(user.isSaveOAuthTokens()) {
+            if (userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                    userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)) {
+                return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
+            } else if (userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)) {
+                return userActionResource.getUploader();
+            } else if (userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)) {
+                GlobusClient gc = userService.getGlobusClientFromUser(user);
+                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+            }else
+                return new UserInfoCredential(userActionResource.getCredential());
         }
-        else return new UserInfoCredential(userActionResource.getCredential());
+        else{
+            if (userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                    userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)) {
+                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getCode());
+                return credential;
+            }
+            //TODO: Fix uploads
+            else if (userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)) {
+                return userActionResource.getUploader();
+            } else if (userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)) {
+
+                GlobusClient gc = userService.getGlobusClientFromUser(user);
+                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+            }else
+                return new UserInfoCredential(userActionResource.getCredential());
+        }
     }
 
 
