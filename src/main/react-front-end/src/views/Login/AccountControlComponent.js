@@ -21,22 +21,7 @@ import {cookies} from '../../model/reducers';
 
 export default class AccountControlComponent extends Component {
 
-  static propTypes = {}
-  // Called when user clicked login
-  userLogin(email, hash, publicKey, remember){
-  	this.state.accounts[email] = {hash: hash, publicKey: publicKey};
-	if(remember){
-		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
-	}
-	
-	store.dispatch(loginAction(email, hash, publicKey, remember));
-	//this.setState({authenticated : true});
-  }
-  componentWillUnmount(){
-  	this.unsubscribe();
-  }
-
-  constructor(props){
+	constructor(props){
 		super(props);
     // redux login action
     this.unsubscribe = store.subscribe(() => {
@@ -80,14 +65,30 @@ export default class AccountControlComponent extends Component {
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
   }
-  componentWillMount(){
 
-  }
 	componentDidMount() {
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.setState({loading: false});
 		this.resize();
 	}
+
+	static propTypes = {}
+	
+  // Called when user clicked login
+  userLogin(email, hash, publicKey, remember){
+  	this.state.accounts[email] = {hash: hash, publicKey: publicKey};
+	if(remember){
+		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
+	}
+	
+	store.dispatch(loginAction(email, hash, publicKey, remember));
+	//this.setState({authenticated : true});
+  }
+  componentWillUnmount(){
+  	this.unsubscribe();
+  }
+
 	resize() {
 		if(this.state.isSmall && window.innerWidth > 640){
 			this.setState({isSmall: false});

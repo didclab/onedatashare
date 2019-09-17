@@ -11,6 +11,7 @@ queue
 
 import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH } from './actions';
 import { transferOptimizations } from "./actions";
+import { maxCookieAge } from '../constants';
 
 export const cookies = require("js-cookie");
 export const beforeLogin = 0;
@@ -57,9 +58,9 @@ export function onedatashareModel(state = initialState, action) {
     	console.log('logging in')
    		const {email, hash, publicKey} = action.credential;
       console.log(email);
-    	cookies.set('email', email);
-		  cookies.set('hash', hash);
-      cookies.set('publicKey', publicKey);
+    	cookies.set('email', email, { expires : maxCookieAge });
+		  cookies.set('hash', hash, { expires : maxCookieAge });
+      cookies.set('publicKey', publicKey, { expires : maxCookieAge });
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
@@ -73,7 +74,6 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
-      cookies.remove("publicKey");
       window.location.replace('/');
 
       return Object.assign({}, state, {
@@ -97,24 +97,24 @@ export function onedatashareModel(state = initialState, action) {
         });
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        // console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}));
+        console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
+        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge }));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}));
+        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { expires : maxCookieAge });
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
     case UPDATE_HASH:
         cookies.remove('hash');
-     cookies.set('hash',  action.hash);
-         return Object.assign({}, state, {
-                  hash: action.hash
-                });
+        cookies.set('hash',  action.hash, { expires : maxCookieAge });
+        return Object.assign({}, state, {
+              hash: action.hash
+            });
 
     default:
       return state

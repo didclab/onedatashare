@@ -1,12 +1,12 @@
 import { url } from '../constants';
-import {logoutAction} from "../model/actions.js";
-import {store} from "../App.js";
+import { logoutAction } from "../model/actions.js";
+import { store } from "../App.js";
 import Axios from "axios";
 
-import {getType, getTypeFromUri} from '../constants.js';
-import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
+import { getType, getTypeFromUri } from '../constants.js';
+import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-import {cookies} from "../model/reducers.js";
+import { cookies } from "../model/reducers.js";
 const FETCH_TIMEOUT = 10000;
 
 
@@ -525,7 +525,7 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 	
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin);
+	cookies.set("SFTPAUTH", strin, { expires : 10});
 
 
 	window.location = url + "download/file";
@@ -728,31 +728,27 @@ export async function getOrganization(){
 }
 
 
-export async function registerUser(emailId, firstName, lastName, organization) {
+export async function registerUser(requestBody) {
 
-	return axios.post(url+'user', {
-				action: "register",
-				email : emailId,
-				firstName : firstName,
-				lastName : lastName,
-				organization : organization
-		})
-		.then((response) => {
-	if(response.data && response.data.status && response.data.status === 302) {
-						console.log("User already exists");
-						return {status : 302}
-				}
-			if(!(response.status === 200))
-				throw new Error("Failed to register user")
-			else {
-					return response
-			}
-		})
-		.catch((error) => {
-				//statusHandle(error, fail);
-				console.error("Error while registering user");
-				return {status : 500}
-			});
+	return axios.post(url+'user', {action: "register", ...requestBody})
+				.then((response) => {
+						if(response.data && response.data.status && response.data.status === 302) {
+							console.log("User already exists");
+							return {status : 302}
+						}
+						if(!(response.status === 200))
+							throw new Error("Failed to register user")
+						else {
+								return response
+						}
+					}
+				)
+				.catch((error) => {
+						//statusHandle(error, fail);
+						console.error("Error while registering user");
+						return {status : 500}
+					}
+				);
 }
 
 
