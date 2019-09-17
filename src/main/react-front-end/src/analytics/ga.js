@@ -4,7 +4,7 @@ import ReactGA from "react-ga";
  * Initializes the google analytics library 
  */ 
 export function initializeReactGA() {
-  if(process.env.REACT_APP_GA_KEY !== undefinded){
+  if(process.env.REACT_APP_GA_KEY !== undefined){
     ReactGA.initialize(process.env.REACT_APP_GA_KEY);
   }
 }
