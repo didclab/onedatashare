@@ -1,5 +1,5 @@
 
-<h3><strong>Privacy Policy</strong></h3>
+<center><h1>Privacy Policy</h1></center>
 OneDataShare respects your privacy and knows that you care about how your personal information is used and shared. This document provides our policies and procedures for collecting, using, and disclosing your information. By using OneDataShare (the “Service”  which can be accessed through the website) on devices including but not limited to mobiles, tablets, and PCs, you accept the practices described in this Privacy Policy.
 
 We reserve the right to update this Privacy policy and will notify you of any changes by using the website or via an email and including the “Updated on” date in the privacy policy page. You will need to agree to the updated policy to continue using the Service once the policy is updated and you have been notified about those updates.

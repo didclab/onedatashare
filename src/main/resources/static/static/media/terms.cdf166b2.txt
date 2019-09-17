@@ -1,5 +1,5 @@
 
-<h3>Terms of Service</h3>
+<center><h1>Terms of Service</h1></center>
 This is an agreement between OneDataShare, an NSF-funded project at the University at Buffalo, and you (the user of OneDataShare services). It governs the use and access of all the services and software provided by OneDataShare. By using the provided service, you agree to be bound by the OneDataShare’s Terms of Service and Privacy Policy. If you do not accept OneDataShare’s Terms of Service or Privacy Policy, you are requested to stop using the service and the software.
 
 OneDataShare also reserves the right to revise the Terms of Service and Privacy Policy with each revision posted on the site marked with a revision date. Once registered, you will be notified by email about changes in the Privacy policy and the Terms of Service. You will need to agree to the updated policy to continue using the Service once the policy is updated and you have been notified about those updates.

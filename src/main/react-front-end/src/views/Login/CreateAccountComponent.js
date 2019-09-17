@@ -12,8 +12,14 @@ import { registerUser, verifyRegistraionCode, setPassword } from '../../APICalls
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ValidateEmailComponent from '../Login/ValidateEmailComponent'
 import { Link } from 'react-router-dom';
+
+import { eventEmitter } from "../../App";
+import ReCAPTCHA from 'react-google-recaptcha';
+
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import { checkLogin } from '../../APICalls/APICalls.js';
+
+import { updateGAPageView } from "../../analytics/ga";
 
 export default class CreateAccountComponent extends Component {
   static propTypes = {
@@ -42,37 +48,56 @@ export default class CreateAccountComponent extends Component {
       emailErrorMessage: null,
       firstNameErrorMessage: null,
       lastNameErrorMessage: null,
+      captchaVerified: false,
+      captchaVerificationValue: null,
       confirmation: false
-
     }
     this.firstNameValidationMsg = "Please Enter Your First Name"
     this.lastNameValidationMsg = "Please Enter Your Last Name"
     this.emailValidationMsg = "Please Enter EmailId"
-    this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
+    this.captchaRef = null;
 
+    this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
     this.registerAccount = this.registerAccount.bind(this);
     this.verifyAccount = this.verifyAccount.bind(this);
     this.login = this.login.bind(this);
+
+    updateGAPageView();
+    this.handleCaptchaEvent = this.handleCaptchaEvent.bind(this);
+    this.resetCaptcha = this.resetCaptcha.bind(this);
   }
 
   registerAccount() {
-    let email = this.state.email;
-    let firstName = this.state.firstName;
-    let lastName = this.state.lastName;
-    let organization = this.state.organization;
+    if (this.state.captchaVerified) {
+      this.setState({ loading: true });
+      let reqBody = {
+        email: this.state.email,
+        firstName: this.state.firstName,
+        lastName: this.state.lastName,
+        organization: this.state.organization,
+        description: this.state.description,
+        captchaVerificationValue: this.state.captchaVerificationValue
+      }
 
-    registerUser(email, firstName, lastName, organization).then((response) => {
-      if (response.status === 200) {
-        this.setState({ screen: "verifyCode", verificationError: "", loading: false });
-      }
-      else if (response.status === 302) {
-        this.setState({
-          emaildError: "User with same Email Id already exists",
-          verificationError: "User with same Email Id already exists",
-          loading: false
+      registerUser(reqBody)
+        .then((response) => {
+          if (response.status === 200) {
+            this.setState({ screen: "verifyCode", verificationError: "", loading: false });
+          }
+          else if (response.status === 302) {
+            this.setState({
+              emaildError: "User with same Email ID already exists",
+              verificationError: "User with same Email ID already exists",
+              loading: false
+            });
+            eventEmitter.emit("errorOccured", "User with same Email ID already exists");
+          }
+          this.resetCaptcha();
         });
-      }
-    })
+    }
+    else {
+      eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
+    }
   }
 
   verifyAccount() {
@@ -113,8 +138,6 @@ export default class CreateAccountComponent extends Component {
   }
 
   onEmailNextClicked() {
-    var { email } = this.state;
-
     checkLogin(this.state.email,
       (success) => {
         this.setState({ error: true, errorMessage: "Email is already there on the server." });
@@ -125,10 +148,28 @@ export default class CreateAccountComponent extends Component {
     );
   }
 
+  handleCaptchaEvent(value) {
+    this.setState({ captchaVerified: true, captchaVerificationValue: value });
+  }
+
+  resetCaptcha() {
+    if (this.captchaRef !== null) {
+      this.setState({ captchaVerified: false, captchaVerificationValue: null });
+      this.captchaRef.reset();
+    }
+  }
+
   render() {
-    const { create, backToSignin, loadVerifyCode } = this.props;
-    const { emailError, emailErrorMessage, email, firstNameError, firstNameErrorMessage, lastNameError, lastNameErrorMessage, confirmation } = this.state;
-    const properties = this.props
+    const { backToSignin } = this.props;
+    const { emailError, emailErrorMessage, email, firstNameError,
+      firstNameErrorMessage, lastNameError, lastNameErrorMessage, confirmation } = this.state;
+    const disclaimer = <div style={{ fontSize: '12px' }}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
+    const properties = this.props;
+    const divStyle = { margin: '2% 5%' };
+    const captchaStyle = { ...divStyle, textAlign: 'center', display: 'inline-block' };
+    var screen = this.state.screen;
+    const showLoader = this.state.loading;
+
     const handleChange = name => event => {
       this.setState({
         emailError: false,
@@ -136,25 +177,23 @@ export default class CreateAccountComponent extends Component {
         [name]: event.target.value,
       });
     };
-    var screen = this.state.screen;
-    const showLoader = this.state.loading;
-    const disclaimer = <div style={{ fontSize: '12px' }}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
-    let remember = false;
-    if (screen === "validateEmail") {
 
+    if (screen === "validateEmail") {
       return (
         <div className="enter-from-right slide-in">
           <ValidateEmailComponent {...properties} email={this.state.email}></ValidateEmailComponent>
         </div>
       )
     }
+
     if (screen === "registration") {
+      const textBoxStyle = { width: '100%', marginBottom: '4%' }
       return (
         <div className="enter-from-right slide-in">
           <div>{showLoader && <LinearProgress></LinearProgress>}</div>
-          <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
-            Create your OneDataShare Account
-            </Typography>
+          <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em", textAlign: "center" }}>
+            Create Your OneDataShare Account
+          </Typography>
 
           <ValidatorForm
             ref="email"
@@ -167,8 +206,8 @@ export default class CreateAccountComponent extends Component {
               name="email"
               value={email}
               validators={['required', 'isEmail']}
-              errorMessages={['Please put email here', 'Can not understand email format']}
-              style={{ width: '100%', marginBottom: '50px' }}
+              errorMessages={['Please enter your email address', 'Can not understand email format']}
+              style={textBoxStyle}
             />
 
             <TextValidator
@@ -180,7 +219,7 @@ export default class CreateAccountComponent extends Component {
               id="FirstName"
               validators={['required']}
               errorMessages={['Please Enter Your First Name']}
-              style={{ width: '100%', marginBottom: '50px' }}
+              style={textBoxStyle}
               onChange={handleChange('firstName')}
             />
 
@@ -193,7 +232,7 @@ export default class CreateAccountComponent extends Component {
               id="LastName"
               validators={['required']}
               errorMessages={['Please Enter Your Last Name']}
-              style={{ width: '100%', marginBottom: '50px' }}
+              style={textBoxStyle}
               onChange={handleChange('lastName')}
             />
 
@@ -201,7 +240,7 @@ export default class CreateAccountComponent extends Component {
               id="Organization"
               label={"Organization"}
               value={this.state.organization}
-              style={{ width: '100%', marginBottom: '50px' }}
+              style={textBoxStyle}
               onChange={handleChange('organization')}
             />
 
@@ -215,12 +254,19 @@ export default class CreateAccountComponent extends Component {
                 />
               } label={disclaimer} />
 
+            <div style={captchaStyle}>
+              <ReCAPTCHA
+                sitekey={process.env.REACT_APP_GC_CLIENT_KEY}
+                onChange={this.handleCaptchaEvent}
+                ref={r => this.captchaRef = r}
+              />
+            </div>
 
-            <CardActions style={spaceBetweenStyle, { float: 'right' }}>
+            <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
               <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                 Sign in Instead
                   </Button>
-              <Button size="large" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit" onClick={this.registerAccount}>
+              <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit" onClick={this.registerAccount}>
                 Next
                   </Button>
             </CardActions>
@@ -228,12 +274,13 @@ export default class CreateAccountComponent extends Component {
           </ValidatorForm>
         </div>);
     }
+
     if (screen === "verifyCode") {
       return (
         <div className="enter-from-right slide-in">
-          <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
+          <Typography style={{ fontSize: "1.1em", margin: "2%", overflowWrap: 'break-word' }}>
             Please check {this.state.email} for authorization code
-                      </Typography>
+            </Typography>
           <TextField
             id="code"
             label={this.state.verificationError === "" ? "Enter Verification Code" : "Please Enter Valid Verification Code"}
@@ -243,7 +290,7 @@ export default class CreateAccountComponent extends Component {
             error={this.state.verificationError === "Please Enter Valid Verification Code"}
           />
 
-          <CardActions style={spaceBetweenStyle, { float: 'right' }}>
+          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
             <Button size="medium" variant="outlined" color="primary" onClick={() => {
               if (this.state.isLostVerifyCode) {
                 this.setState({ screen: "validateEmail" })
@@ -253,19 +300,21 @@ export default class CreateAccountComponent extends Component {
               }
             }}>
               Back
-                          </Button>
+                </Button>
             <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
               Next
-                          </Button>
+                </Button>
           </CardActions>
-        </div>);
+        </div>
+      );
     }
+
     if (screen === "setPassword") {
       return (
         <div className="enter-from-right slide-in">
           <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
             Code Verified! Please set password for your account
-                      </Typography>
+          </Typography>
 
           <TextField
             id="Password"
@@ -286,18 +335,18 @@ export default class CreateAccountComponent extends Component {
             error={this.state.passwordError === "Password Doesn't Match"}
           />
 
-          <CardActions style={spaceBetweenStyle, { float: 'right' }}>
+          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
             <Button size="medium" variant="outlined" color="primary" onClick={() => {
               this.setState({ screen: "verifyCode" });
             }}>
               Back
-                          </Button>
+              </Button>
             <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login}>
               Next
-                          </Button>
+              </Button>
           </CardActions>
-        </div>);
+        </div>
+      );
     }
   }
-
 } 

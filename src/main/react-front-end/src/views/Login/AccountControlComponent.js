@@ -21,21 +21,6 @@ import { cookies } from '../../model/reducers';
 
 export default class AccountControlComponent extends Component {
 
-	static propTypes = {}
-	// Called when user clicked login
-	userLogin(email, hash, publicKey, remember) {
-		this.state.accounts[email] = { hash: hash, publicKey: publicKey };
-		if (remember) {
-			cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
-		}
-
-		store.dispatch(loginAction(email, hash, publicKey, remember));
-		//this.setState({authenticated : true});
-	}
-	componentWillUnmount() {
-		this.unsubscribe();
-	}
-
 	constructor(props) {
 		super(props);
 		// redux login action
@@ -80,14 +65,30 @@ export default class AccountControlComponent extends Component {
 		this.userLogin = this.userLogin.bind(this);
 		this.userSigningIn = this.userSigningIn.bind(this);
 	}
-	componentWillMount() {
 
-	}
 	componentDidMount() {
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.setState({ loading: false });
 		this.resize();
 	}
+
+	static propTypes = {}
+
+	// Called when user clicked login
+	userLogin(email, hash, publicKey, remember) {
+		this.state.accounts[email] = { hash: hash, publicKey: publicKey };
+		if (remember) {
+			cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
+		}
+
+		store.dispatch(loginAction(email, hash, publicKey, remember));
+		//this.setState({authenticated : true});
+	}
+	componentWillUnmount() {
+		this.unsubscribe();
+	}
+
 	resize() {
 		if (this.state.isSmall && window.innerWidth > 640) {
 			this.setState({ isSmall: false });
@@ -173,34 +174,34 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-	    const {isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
-			const height = window.innerHeight+"px";
-			
-	    return (
+		const { isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed } = this.state;
+		const height = window.innerHeight + "px";
 
-  		  <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height}}>
-		    <div style={{width: '450px', marginTop: '30px', marginLeft: '30px',marginRight: '30px', alignSelf:  isSmall ? 'flex-start': 'center'}}>
-		    
-		    {store.getState().login && <Redirect to={transferPageUrl}/>}
-				{creatingAccount && <Redirect to={"/account/register"}/>}
-				{validateEmailPressed && <Redirect to={{pathname :"/account/lostValidationCode"}}/>}
-		    {loggingAccount && <Redirect to={"/account"}/>}
-		    {signIn && <Redirect to={"/account/signIn"}/>}
-		    {loading && <LinearProgress  />}
+		return (
 
-		    {isSmall &&
-		    	this.getInnerCard() 
-		    }
-		    {!isSmall &&
-		      <Card>
-		      	<CardContent style={{padding: '3em'}}>
-		      		{this.getInnerCard() }
-		      	</CardContent>
-		      </Card>
-		  	}
-		    </div>
-		    </div>
+			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
+				<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
 
-	    );
-  	}
+					{store.getState().login && <Redirect to={transferPageUrl} />}
+					{creatingAccount && <Redirect to={"/account/register"} />}
+					{validateEmailPressed && <Redirect to={{ pathname: "/account/lostValidationCode" }} />}
+					{loggingAccount && <Redirect to={"/account"} />}
+					{signIn && <Redirect to={"/account/signIn"} />}
+					{loading && <LinearProgress />}
+
+					{isSmall &&
+						this.getInnerCard()
+					}
+					{!isSmall &&
+						<Card>
+							<CardContent style={{ padding: '3em' }}>
+								{this.getInnerCard()}
+							</CardContent>
+						</Card>
+					}
+				</div>
+			</div>
+
+		);
+	}
 }

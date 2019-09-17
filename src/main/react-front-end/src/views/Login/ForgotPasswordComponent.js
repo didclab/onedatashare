@@ -4,6 +4,8 @@ import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
+import {updateGAPageView} from "../../analytics/ga";
+
 
 import {spaceBetweenStyle} from '../../constants.js';
 import {resetPasswordSendCode, resetPasswordVerifyCode, resetPassword} from '../../APICalls/APICalls.js';
@@ -26,7 +28,8 @@ export default class ForgotPasswordComponent extends Component {
 	    	confirmedPassword: "",
 	    	state: beforeCode,
 	    	code: "",
-	    }
+		}
+		updateGAPageView();
 	}
 
 	SetPassword = ()=>{
