@@ -12,6 +12,8 @@ public class IndexFilter implements WebFilter {
   public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
     if (exchange.getRequest().getURI().getPath().equals("/") ||
             exchange.getRequest().getURI().getPath().equals("/transfer") ||
+            exchange.getRequest().getURI().getPath().equals("/terms") ||
+            exchange.getRequest().getURI().getPath().equals("/policy") ||
             exchange.getRequest().getURI().getPath().equals("/user") ||
             exchange.getRequest().getURI().getPath().equals("/queue") ||
             exchange.getRequest().getURI().getPath().equals("/clientsInfo") ||
