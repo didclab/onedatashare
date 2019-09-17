@@ -76,8 +76,8 @@ export default class MainComponent extends Component {
             }
             {isLoggedIn &&
               <Route exact path='/queue' render=
-                {(props) =>
-                  <QueueComponent />
+                { (props) => 
+                  <QueueComponent {...props} />
                 }
               />
             }
@@ -97,8 +97,8 @@ export default class MainComponent extends Component {
             }
             {isLoggedIn &&
               <Route exact path='/user' render=
-                {(props) =>
-                  <UserAccountComponent />
+                { (props) => 
+                  <UserAccountComponent {...props} />
                 }
               />
             }

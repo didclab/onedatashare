@@ -206,5 +206,3 @@ export default class BrowseModuleComponent extends Component {
 	    );
   	}
 }
-
-

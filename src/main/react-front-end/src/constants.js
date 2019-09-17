@@ -79,6 +79,9 @@ export const defaultPort={
 	https : 443
 }
 
+export const maxCookieAge = 7;
+
+
 export function getType(endpoint){
 	return getTypeFromUri(endpoint.uri)
 }

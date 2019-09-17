@@ -173,43 +173,34 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, accounts, screen, authenticated, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed } = this.state;
-		console.log(forgotPasswordPressed)
-		const isNewUser = Object.keys(accounts).length === 0;
-		const handleChange = name => event => {
-			this.setState({
-				[name]: event.target.value,
-			});
-		};
+	    const {isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
+			const height = window.innerHeight+"px";
+			
+	    return (
 
-		console.log(addAccountUrl);
+  		  <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height}}>
+		    <div style={{width: '450px', marginTop: '30px', marginLeft: '30px',marginRight: '30px', alignSelf:  isSmall ? 'flex-start': 'center'}}>
+		    
+		    {store.getState().login && <Redirect to={transferPageUrl}/>}
+				{creatingAccount && <Redirect to={"/account/register"}/>}
+				{validateEmailPressed && <Redirect to={{pathname :"/account/lostValidationCode"}}/>}
+		    {loggingAccount && <Redirect to={"/account"}/>}
+		    {signIn && <Redirect to={"/account/signIn"}/>}
+		    {loading && <LinearProgress  />}
 
-		const height = window.innerHeight + "px";
-		return (
+		    {isSmall &&
+		    	this.getInnerCard() 
+		    }
+		    {!isSmall &&
+		      <Card>
+		      	<CardContent style={{padding: '3em'}}>
+		      		{this.getInnerCard() }
+		      	</CardContent>
+		      </Card>
+		  	}
+		    </div>
+		    </div>
 
-			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-				<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
-
-					{store.getState().login && <Redirect to={transferPageUrl} />}
-					{creatingAccount && <Redirect to={"/account/register"} />}
-					{validateEmailPressed && <Redirect to={{ pathname: "/account/lostValidationCode" }} />}
-					{loggingAccount && <Redirect to={"/account"} />}
-					{signIn && <Redirect to={"/account/signIn"} />}
-					{loading && <LinearProgress />}
-
-					{isSmall &&
-						this.getInnerCard()
-					}
-					{!isSmall &&
-						<Card>
-							<CardContent style={{ padding: '3em' }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					}
-				</div>
-			</div>
-
-		);
-	}
+	    );
+  	}
 }
