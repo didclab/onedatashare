@@ -31,8 +31,7 @@ export default class PolicyComponent extends Component {
         return (
             <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '15%', paddingRight: '15%', margin: '10px', display: 'flex', flex: 1, alignItems: 'left', textAlign: 'left' }} >
                 <p>
-                    <span>
-                        {`${this.state.termsData}`}
+                    <span dangerouslySetInnerHTML={{__html: this.state.termsData}} >
                     </span>
                 </p>
             </div>

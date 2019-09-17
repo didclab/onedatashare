@@ -15,7 +15,7 @@ export default class TermsComponent extends Component {
                     var allText = rawFile.responseText;
                     console.log("allText: ", allText);
                     this.setState({
-                        termsData: allText
+                        termsData: (allText)
                     });
                 }
             }
@@ -31,8 +31,7 @@ export default class TermsComponent extends Component {
         return (
             <div style={{ whiteSpace: 'pre-wrap', paddingLeft: '15%', paddingRight: '15%', margin: '10px', display: 'flex', flex: 1, alignItems: 'left', textAlign: 'left' }} >
                 <p>
-                    <span>
-                        {`${this.state.termsData}`}
+                    <span dangerouslySetInnerHTML={{__html: this.state.termsData}} >
                     </span>
                 </p>
             </div>

@@ -138,7 +138,7 @@ export default class CreateAccountComponent extends Component {
     };
     var screen = this.state.screen;
     const showLoader = this.state.loading;
-    const disclaimer = <div style={{fontSize:'12px'}}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
+    const disclaimer = <div style={{ fontSize: '12px' }}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
     let remember = false;
     if (screen === "validateEmail") {
 
