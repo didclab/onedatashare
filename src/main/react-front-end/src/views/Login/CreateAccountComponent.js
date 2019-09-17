@@ -235,7 +235,7 @@ export default class CreateAccountComponent extends Component {
 
             <div style={ captchaStyle }>
               <ReCAPTCHA 
-                sitekey="6LfXVKIUAAAAAICqn4qGgNtf44QqQ-4CEVWiU_u8" 
+                sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                 onChange={this.handleCaptchaEvent} 
                 ref = { r => this.captchaRef = r}
               />

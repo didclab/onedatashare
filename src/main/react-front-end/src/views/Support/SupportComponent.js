@@ -80,7 +80,7 @@ export default class SupportComponent extends Component{
           progressBarDiv.style.visibility = 'hidden';
           msgDiv.style.border = '1px solid red';
           msgDiv.style.color = "red";
-          msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again.";
+          msgDiv.innerHTML = "There was an error while creating the support ticket. Please try again or email us at <a href=\"mailto:admin@onedatashare.org\">admin@onedatashare.org</a>";
           msgDiv.style.visibility = 'visible';
           this.resetCaptcha();
         });
@@ -143,7 +143,7 @@ export default class SupportComponent extends Component{
           
           <div style={ captchaStyle }>
               <ReCAPTCHA 
-                sitekey="6LfXVKIUAAAAAICqn4qGgNtf44QqQ-4CEVWiU_u8" 
+                sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                 onChange={this.handleCaptchaEvent}
                 ref = { r => this.captchaRef = r}
               />
