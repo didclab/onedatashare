@@ -14,10 +14,10 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { login } from '../../APICalls/APICalls.js';
 
-import { addAccountUrl, transferPageUrl } from "../../constants";
+import { transferPageUrl } from "../../constants";
 import { store } from '../../App.js';
-import { loginAction, isAdminAction } from '../../model/actions';
-import { cookies } from '../../model/reducers';
+import { loginAction } from '../../model/actions';
+import {cookies} from '../../model/reducers';
 
 export default class AccountControlComponent extends Component {
 

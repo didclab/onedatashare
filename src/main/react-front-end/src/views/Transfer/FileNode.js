@@ -171,7 +171,6 @@ export default class FileNode extends Component {
 
 	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
 		const {
-		  file,
 		  toggleSelection,
 		  toggleSelectionInGroup,
 		  multiSelectTo,
