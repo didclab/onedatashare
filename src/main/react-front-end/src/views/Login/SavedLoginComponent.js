@@ -42,9 +42,9 @@ export default class SavedLoginComponent extends Component {
 			this.setState({accounts: accounts});
 			this.props.removedAccount(accounts);
 		}
-		const addAccount = () => {
-			useAnotherAccount();
-		}
+		// const addAccount = () => {
+		// 	useAnotherAccount();
+		// }
 		return (
 		<div className="enter-from-right slide-in">
 			
