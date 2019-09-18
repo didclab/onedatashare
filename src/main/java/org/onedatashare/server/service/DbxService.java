@@ -25,7 +25,7 @@ public class DbxService implements ResourceService<DbxResource>{
   private JobService jobService;
 
   public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
-    if(userAction.getCredential().isOAuthTokenSaved()) {
+    if(userAction.getCredential().isTokenSaved()) {
       return userService.getLoggedInUser(cookie)
               .map(User::getCredentials)
               .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
@@ -37,7 +37,7 @@ public class DbxService implements ResourceService<DbxResource>{
               });
     }
     else{
-      return Mono.just(new OAuthCredential(userAction.getCredential().getCode()))
+      return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
               .map(oAuthCred -> new DbxSession(URI.create(userAction.getUri()), oAuthCred))
               .flatMap(DbxSession::initialize)
               .flatMap(dbxSession -> {

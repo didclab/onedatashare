@@ -237,7 +237,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
-							credential: {uuid: v, name: credList[v].name, oAuthTokenSaved: true},
+							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
 							side: endpoint.side
 						}
 						loginSuccess(endpointSet);
@@ -269,7 +269,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
-						credential: {name: cred.name, oAuthTokenSaved: false, code: cred.token},
+						credential: {name: cred.name, tokenSaved: false, token: cred.token},
 						side: endpoint.side
 					}
 					loginSuccess(endpointSet);

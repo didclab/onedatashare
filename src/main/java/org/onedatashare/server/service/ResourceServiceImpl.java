@@ -45,7 +45,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         String id = userAction.getId();
         ArrayList<IdMap> idMap = userAction.getMap();
 
-        if (userAction.isSaveOAuth()) {
+        if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
                     .map(User::getCredentials)
                     .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
@@ -60,7 +60,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                     );
         }
         else {
-            return Mono.just(new OAuthCredential(userAction.getCredential().getCode()))
+            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
                     .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred, false))
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
@@ -112,7 +112,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         else{
             if (userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
                     userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)) {
-                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getCode());
+                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getToken());
                 return credential;
             }
             //TODO: Fix uploads
