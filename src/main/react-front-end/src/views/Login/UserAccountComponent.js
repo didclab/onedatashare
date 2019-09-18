@@ -24,7 +24,7 @@ import {eventEmitter, store} from '../../App.js';
 
 import { updateHashAction } from '../../model/actions';
 
-
+import {updateGAPageView} from '../../analytics/ga'
 
 export default class UserAccountComponent extends Component{
 
@@ -58,6 +58,7 @@ export default class UserAccountComponent extends Component{
    		this.getInnerCard = this.getInnerCard.bind(this);
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
    		this.accountDetails = this.accountDetails.bind(this);
+		updateGAPageView();
 	}
 
 	componentDidMount(){

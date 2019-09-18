@@ -10,6 +10,7 @@ import intopImage from '../assets/interoperation.png';
 
 import nsfImage from '../assets/NSF_Logo.png';
 import ubImage from '../assets/ub.png';
+import {updateGAPageView} from "../analytics/ga";
 
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
@@ -49,6 +50,10 @@ function CustomPrevArrow(props) {
 
 
 export default class HomePageComponent extends Component {
+	constructor(){
+		super();
+		updateGAPageView();
+	}
 
 	componentDidMount(){
 		document.title = "OneDataShare - Home";

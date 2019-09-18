@@ -1,0 +1,54 @@
+
+<center><h1>Terms of Service</h1></center>
+This is an agreement between OneDataShare, an NSF-funded project at the University at Buffalo, and you (the user of OneDataShare services). It governs the use and access of all the services and software provided by OneDataShare. By using the provided service, you agree to be bound by the OneDataShare’s Terms of Service and Privacy Policy. If you do not accept OneDataShare’s Terms of Service or Privacy Policy, you are requested to stop using the service and the software.
+
+OneDataShare also reserves the right to revise the Terms of Service and Privacy Policy with each revision posted on the site marked with a revision date. Once registered, you will be notified by email about changes in the Privacy policy and the Terms of Service. You will need to agree to the updated policy to continue using the Service once the policy is updated and you have been notified about those updates.
+
+OneDataShare reserves the right to modify, suspend, or discontinue, temporarily or permanently, the Service or software at any time, at our sole discretion.
+
+<h4>Services</h4>
+OneDataShare - a Managed File Transfer System, which can be accessed using a supported web browser enables you to manage data (files and folders) on multiple end-points, including accessing, viewing, monitoring, deleting, sharing and transferring data between two end-points.
+
+<h4>Accounts</h4>
+You are required to create a OneDataShare account using a verifiable email address and a password for using our service.
+
+You should notify OneDataShare of any unauthorized use of your account. You are fully responsible for all actions or activities performed using your account on the Service, unless it is identified that your account was improperly accessed or hacked.
+
+OneDataShare reserves the right to deactivate your account and terminate this Agreement immediately on the breach of any term of this agreement without any notice.
+
+<h4>Ownership of User Data and Copyright policy</h4>
+OneDataShare does not claim any ownership rights for any of your data managed through the Service.
+
+<h4>Responsibility for Data loss or Corruption</h4>
+OneDataShare is not liable for any claims for corruption or loss of your data managed using the Service and strongly recommends that you backup all your data before using our Service. You agree that you are solely responsible for all the data managed using the Service.
+
+<h4>General Prohibitions</h4>
+OneDataShare prohibits using the Service for the management of data that violates this agreement and reserves the right to terminate your account on identification of illegal or unethical use of the Service. A non-exhaustive list of such prohibitions are listed below:
+
+1. You agree not to use the Service to access or modify any data
+        (i) that infringes intellectual property rights
+        (ii) that you have no lawful right to copy, transmit, distribute and display
+        (iii) that violates privacy rights of a third party
+        (iv) that promotes bigotry, racism, hatred or any kind of violence or harm against an individual or a group of individuals
+        (v) that contains any sensitive information or information concerning national security
+        (vi) that contains any obscene, pornographic or defamatory content
+        (vii) that violates or encourages any conduct that would violate any applicable law or regulation, or could give rise to civil liability.
+2. You agree not to make any attempt to probe, scan, test the vulnerability of the Service, or breach any security or authentication measures used in the Service without prior written consent from OneDataShare.
+3. You agree not to interfere with the access of any user, host or network, including without limitation sending a virus, overloading, flooding, spamming, or mail-bombing the Service or using the Service;
+
+<h3>DISCLAIMER</h3>
+OneDataShare provides the service on an "AS-IS" basis to the fullest extent permitted by the law without warranty of any kind, either expressed or implied. Onedatashare explicitly disclaims all warranties of merchantability, fitness for a particular purpose and non-infringement.
+
+OneDataShare does not guarantee about the availability, performance, and security of the Service. You may use the Service at your own risk and are responsible for maintaining and backing up any data before using our Service. You agree and acknowledge that OneDataShare will not be responsible for any damages to your device or device belonging to a third party that may result from the use of the Service.
+
+<h4>Indemnity</h4>
+You will defend, indemnify, and hold OneDataShare harmless against any claims, liabilities, damages, losses, and expenses to the maximum extent permitted by the law. This includes, without any limitation, legal fees and costs arising out of your use of the Service, and third party claims for the data managed by the Service that infringes or misappropriates the intellectual property rights, privacy rights, publicity rights, or moral rights of a third party.
+
+<h4>Limitation of Liability</h4>
+In no event will OneDataShare be liable to you or to any third party for any direct, indirect, special, incidental, consequential or punitive damages arising out of this Agreement, or from the use of or inability to use the Service, or any user data managed by the Service, and whether or not OneDataShare or any of its affiliates have been informed of the possibility of such damage, even if any limited remedy set forth herein is found to have failed of its essential purpose.
+
+<h4>Controlling Law and Jurisdiction</h4>
+This Agreement shall be governed by and construed in accordance with the laws of the State of New York and applicable federal laws of the United States of America. The exclusive jurisdiction and venue of any action with respect to the subject matter of this Agreement will be with the courts located in Erie County, New York, and you waive any objection to jurisdiction and venue in such courts.
+
+<h4>Trademarks</h4>
+The OneDataShare trademark and OneDataShare logos appearing on the Service are owned by DIDCLab at The State University of New York at Buffalo. All other trademarks, service marks, product names, and logos appearing on the Service are the property of their respective owners. You may not use or display any trademark, service mark, product name, trade name, or logo appearing on the Service without the owner’s prior written consent.

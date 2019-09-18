@@ -14,7 +14,6 @@ import { transferOptimizations } from "./actions";
 import { maxCookieAge } from '../constants';
 
 export const cookies = require("js-cookie");
-
 export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
