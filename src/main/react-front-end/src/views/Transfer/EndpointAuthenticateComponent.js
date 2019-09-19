@@ -190,8 +190,6 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	getEndpointListComponentFromList(endpointIdsList){
-		const {endpoint} = this.state;
-		const {loginSuccess} = this.props;
 		return Object.keys(endpointIdsList)
 			.map((v) =>
 			<ListItem button key={v} onClick={() => {
@@ -391,10 +389,8 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 	
 	render(){
-
-		const {historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint} = this.state;
-		const { back, loginSuccess, setLoading} = this.props;
-		const {uri} = endpoint;
+		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
+		const { back } = this.props;
 		
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);

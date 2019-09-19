@@ -21,9 +21,11 @@ import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
-import TablePagination from '@material-ui/core/TablePagination'
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from '../TablePaginationActions'
+import TablePagination from '@material-ui/core/TablePagination';
+import TableFooter from '@material-ui/core/TableFooter';
+import TablePaginationActions from '../TablePaginationActions';
+
+import { updateGAPageView } from '../../analytics/ga';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -56,10 +58,10 @@ class QueueComponent extends Component {
 						orderBy : 'job_id'};
 		this.queueFunc();
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
-		var infoRowsIds= [];
-		var selectedJobInfo = 0;
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.queueFunc = this.queueFunc.bind(this);
+
+		updateGAPageView();
 	}
 
 	componentDidMount(){
@@ -315,8 +317,7 @@ class QueueComponent extends Component {
   };	
 
 	render(){
-		const height = window.innerHeight+"px";
-		const {response, totalCount, responsesToDisplay} = this.state;
+		const {totalCount, responsesToDisplay} = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;

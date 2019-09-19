@@ -26,6 +26,7 @@ import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import queryString from 'query-string';
+import { updateGAPageView } from '../../analytics/ga';
 
 export default class TransferComponent extends Component {
 
@@ -69,6 +70,9 @@ export default class TransferComponent extends Component {
     this.onSendToLeft = this.onSendToLeft.bind(this);
 
     this.printError();
+
+    updateGAPageView();
+
   }
 
   printError(){

@@ -360,7 +360,7 @@ export default class EndpointBrowseComponent extends Component {
 
 	render(){
 		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
-		const {directoryPath, displayMode, searchText, compactStylePos} = this.state;
+		const {directoryPath, searchText} = this.state;
 		
 
 		const list = getFilesFromMemory(endpoint) || [];

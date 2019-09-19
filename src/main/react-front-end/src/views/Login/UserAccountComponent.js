@@ -43,6 +43,8 @@ import {
 import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
+import {updateGAPageView} from '../../analytics/ga'
+
 export default class UserAccountComponent extends Component {
 	constructor() {
 		super();
@@ -80,6 +82,7 @@ export default class UserAccountComponent extends Component {
 		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
 		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
+		updateGAPageView();
 	}
 
 	componentDidMount(){

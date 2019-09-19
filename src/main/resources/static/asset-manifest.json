@@ -1,5 +1,6 @@
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
   "main.css": "/static/css/main.aec1d5f9.chunk.css",
   "main.js": "/static/js/main.1a9d23de.chunk.js",
   "main.js.map": "/static/js/main.1a9d23de.chunk.js.map",
@@ -13,21 +14,35 @@
   "main.css": "/static/css/main.4edb8cf5.chunk.css",
   "main.js": "/static/js/main.95d5fa61.chunk.js",
   "main.js.map": "/static/js/main.95d5fa61.chunk.js.map",
+=======
+  "main.css": "/static/css/main.aec1d5f9.chunk.css",
+  "main.js": "/static/js/main.a4fbc391.chunk.js",
+  "main.js.map": "/static/js/main.a4fbc391.chunk.js.map",
+>>>>>>> 4ef0cce9ee5c52670a17e576b3d9678a5a6ddc4d
   "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
   "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
-  "static/js/2.c74fa37a.chunk.js": "/static/js/2.c74fa37a.chunk.js",
-  "static/js/2.c74fa37a.chunk.js.map": "/static/js/2.c74fa37a.chunk.js.map",
+  "static/css/2.247a9a35.chunk.css": "/static/css/2.247a9a35.chunk.css",
+  "static/js/2.69d80608.chunk.js": "/static/js/2.69d80608.chunk.js",
+  "static/js/2.69d80608.chunk.js.map": "/static/js/2.69d80608.chunk.js.map",
   "index.html": "/index.html",
+<<<<<<< HEAD
   "precache-manifest.ef4265752954afd948e41897dead0343.js": "/precache-manifest.ef4265752954afd948e41897dead0343.js",
 >>>>>>> master
+=======
+  "precache-manifest.2f6a56b3799e296494b582d6d848f50c.js": "/precache-manifest.2f6a56b3799e296494b582d6d848f50c.js",
+>>>>>>> 4ef0cce9ee5c52670a17e576b3d9678a5a6ddc4d
   "service-worker.js": "/service-worker.js",
-  "static/css/main.4edb8cf5.chunk.css.map": "/static/css/main.4edb8cf5.chunk.css.map",
+  "static/css/2.247a9a35.chunk.css.map": "/static/css/2.247a9a35.chunk.css.map",
+  "static/css/main.aec1d5f9.chunk.css.map": "/static/css/main.aec1d5f9.chunk.css.map",
   "static/media/NSF_Logo.png": "/static/media/NSF_Logo.0f6f085b.png",
   "static/media/easy.png": "/static/media/easy.c3ec87a7.png",
   "static/media/endtoend.png": "/static/media/endtoend.84514f60.png",
   "static/media/fast.png": "/static/media/fast.94fb7985.png",
+  "static/media/bootstrap.min.css": "/static/media/glyphicons-halflings-regular.fa277232.woff",
   "static/media/interoperation.png": "/static/media/interoperation.2558a942.png",
   "static/media/precise.png": "/static/media/precise.fcfd05a0.png",
+  "static/media/privacy.txt": "/static/media/privacy.99e0e744.txt",
   "static/media/App.css": "/static/media/s6.86c1f97a.png",
+  "static/media/terms.txt": "/static/media/terms.cdf166b2.txt",
   "static/media/ub.png": "/static/media/ub.ac8a9d3e.png"
 }
