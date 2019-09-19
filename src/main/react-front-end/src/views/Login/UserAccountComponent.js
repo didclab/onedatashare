@@ -47,68 +47,57 @@ export default class UserAccountComponent extends Component {
 	constructor() {
 		super();
 		this.state = {
-			isSmall: window.innerWidth <= 640,
-			loading: true,
-			oldPassword: "",
-			newPassword: "",
-			conformNewPassword: "",
-			userEmail: store.getState().email,
-			userOrganization: "...",
-			fName: "...",
-			lName: "...",
-			redirect: false,
+    		isSmall: window.innerWidth <= 640,
+    		loading: true,
+    		oldPassword: "",
+    		newPassword: "",
+    		conformNewPassword: "",
+    	    userEmail: store.getState().email,
+    	    userOrganization: "...",
+    	    fName: "...",
+    	    lName: "...",
+    	    redirect: false,
 			openAlertDialog: false,
 			saveOAuthTokens: false
-		};
-		getUser(
-			this.state.userEmail,
-			resp => {
-				//success
-				this.setState({
-					userOrganization: resp.organization,
-					fName: resp.firstName,
-					lName: resp.lastName,
-					saveOAuthTokens: resp.saveOAuthTokens,
-					loading: false
-				});
-			},
-			resp => {
-				//failed
-				this.setState({ loading: false });
-				console.log("Error encountered in getUser request to API layer");
-			}
-		);
-		this.getInnerCard = this.getInnerCard.bind(this);
-		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
+    	};
+    	getUser(this.state.userEmail,  (resp) => {
+            //success
+            this.setState({
+               userOrganization: resp.organization,
+               fName: resp.firstName,
+               lName: resp.lastName,
+			   saveOAuthTokens: resp.saveOAuthTokens,
+               loading: false
+            });
+            }, (resp) => {
+            //failed
+            this.setState({ loading: false });
+            console.log('Error encountered in getUser request to API layer');
+        });
+   		this.getInnerCard = this.getInnerCard.bind(this);
+   		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
 		this.accountDetails = this.accountDetails.bind(this);
-		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(
-			this
-		);
+		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
 		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
 	}
 
-	onPasswordUpdate(oldPass, newPass, confPass) {
-		changePassword(
-			oldPass,
-			newPass,
-			confPass,
-			hash => {
-				store.dispatch(updateHashAction(hash));
-				this.setState({ redirect: true });
-				console.log(hash);
-			},
-			error => {
-				if (
-					error &&
-					error.response &&
-					error.response.data &&
-					error.response.data.message
-				) {
-					eventEmitter.emit("errorOccured", error.response.data.message);
-				} else {
-					eventEmitter.emit("errorOccured", "Unknown Error");
-				}
+	componentDidMount(){
+		document.title = "OneDataShare - History";
+		window.addEventListener("resize", this.resize.bind(this));
+		this.resize();
+	}
+
+	onPasswordUpdate(oldPass, newPass, confPass){
+		changePassword(oldPass, newPass,confPass, (hash)=>{
+		    store.dispatch(updateHashAction(hash))
+			this.setState({redirect:true});
+			console.log(hash);
+		}, (error)=>{
+			if(error && error.response && error.response.data && error.response.data.message){
+				eventEmitter.emit("errorOccured", error.response.data.message); 
+			}else{
+				eventEmitter.emit("errorOccured", "Unknown Error"); 
 			}
 		);
 	}
@@ -302,11 +291,6 @@ export default class UserAccountComponent extends Component {
 				</CardActions>
 			</div>
 		);
-	}
-
-	componentDidMount() {
-		window.addEventListener("resize", this.resize.bind(this));
-		this.resize();
 	}
 
 	resize() {

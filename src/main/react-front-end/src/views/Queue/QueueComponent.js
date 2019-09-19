@@ -62,6 +62,10 @@ class QueueComponent extends Component {
 		this.queueFunc = this.queueFunc.bind(this);
 	}
 
+	componentDidMount(){
+		document.title = "OneDataShare - Queue";
+	}
+
 	componentWillUnmount(){
 		clearInterval(this.interval);
 	}

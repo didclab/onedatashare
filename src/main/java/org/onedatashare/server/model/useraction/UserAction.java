@@ -41,6 +41,7 @@ public class UserAction {
   private String sortOrder;
 
   private String portNumber;
+  private String captchaVerificationValue;
 
   public static UserAction convertToUserAction(ListRequestData listReqData){
     UserAction ua = new UserAction();
@@ -51,4 +52,5 @@ public class UserAction {
     ua.setCredential(listReqData.getCredential());
     return ua;
   }
+    
 }

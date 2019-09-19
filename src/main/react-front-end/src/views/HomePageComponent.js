@@ -50,6 +50,10 @@ function CustomPrevArrow(props) {
 
 export default class HomePageComponent extends Component {
 
+	componentDidMount(){
+		document.title = "OneDataShare - Home";
+	}
+
 	render(){
 		var settings = {
 			dots: true,
