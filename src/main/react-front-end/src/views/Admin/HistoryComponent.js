@@ -55,7 +55,7 @@ class QueueComponent extends Component {
 
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
-		setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		var infoRowsIds= [];
 		this.toggleTabs = this.toggleTabs.bind(this);
@@ -64,6 +64,10 @@ class QueueComponent extends Component {
 
 	componentDidMount(){
 		document.title = "OneDataShare - History";
+	}
+
+	componentWillUnmount(){
+		clearInterval(this.interval);
 	}
 
 	queueFunc = () => {
