@@ -52,5 +52,5 @@ public class UserAction {
     ua.setCredential(listReqData.getCredential());
     return ua;
   }
-    
+
 }

@@ -99,7 +99,7 @@ export default class UserAccountComponent extends Component {
 			}else{
 				eventEmitter.emit("errorOccured", "Unknown Error"); 
 			}
-		);
+		});
 	}
 
 	handleAccountPreferenceToggle() {

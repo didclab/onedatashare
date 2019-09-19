@@ -21,26 +21,7 @@ import {cookies} from '../../model/reducers';
 
 export default class AccountControlComponent extends Component {
 
-<<<<<<< HEAD
-  static propTypes = {}
-  // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
-	  this.state.accounts[email] = {hash: hash};
-	if(remember){
-		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
-	}
-	
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
-	//this.setState({authenticated : true});
-  }
-  componentWillUnmount(){
-  	this.unsubscribe();
-  }
-
-  constructor(props){
-=======
 	constructor(props){
->>>>>>> master
 		super(props);
     // redux login action
     this.unsubscribe = store.subscribe(() => {
@@ -83,13 +64,8 @@ export default class AccountControlComponent extends Component {
    	this.getInnerCard = this.getInnerCard.bind(this);
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
-<<<<<<< HEAD
 	}
 	
-=======
-  }
-
->>>>>>> master
 	componentDidMount() {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
@@ -97,25 +73,22 @@ export default class AccountControlComponent extends Component {
 		this.resize();
 	}
 
-<<<<<<< HEAD
-=======
 	static propTypes = {}
 	
   // Called when user clicked login
-  userLogin(email, hash, publicKey, remember){
-  	this.state.accounts[email] = {hash: hash, publicKey: publicKey};
+  userLogin(email, hash, remember, saveOAuthTokens){
+  	this.state.accounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
 	
-	store.dispatch(loginAction(email, hash, publicKey, remember));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
   componentWillUnmount(){
   	this.unsubscribe();
   }
 
->>>>>>> master
 	resize() {
 		if(this.state.isSmall && window.innerWidth > 640){
 			this.setState({isSmall: false});
@@ -201,24 +174,9 @@ export default class AccountControlComponent extends Component {
 
   	render() {
 
-<<<<<<< HEAD
-	    const {isSmall, loading, accounts, screen, authenticated, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
-	    console.log(forgotPasswordPressed)
-	    const isNewUser = Object.keys(accounts).length === 0;
-	    const handleChange = name => event => {
-		    this.setState({
-		      [name]: event.target.value,
-		    });
-		  };
-
-		console.log(addAccountUrl);
-		
-  		const height = window.innerHeight+"px";
-=======
 	    const {isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed} = this.state;
 			const height = window.innerHeight+"px";
 			
->>>>>>> master
 	    return (
 
   		  <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height}}>

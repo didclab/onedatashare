@@ -64,7 +64,6 @@ export function onedatashareModel(state = initialState, action) {
       
       cookies.set('email', email, { expires : maxCookieAge });
 		  cookies.set('hash', hash, { expires : maxCookieAge });
-      cookies.set('publicKey', publicKey, { expires : maxCookieAge });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
     	return Object.assign({}, state, {
     		login: true,
