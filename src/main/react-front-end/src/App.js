@@ -11,6 +11,9 @@ import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
 
 import EventEmitter from 'eventemitter3';
+
+import { initializeReactGA } from './analytics/ga';
+
 export const eventEmitter = new EventEmitter();
 
 
@@ -26,6 +29,8 @@ class App extends Component {
       horizontal: 'center',
       error: "null"
     };
+
+    initializeReactGA();
   }
 
 
@@ -45,6 +50,7 @@ class App extends Component {
     eventEmitter.on("errorOccured", this.handleOpen); 
   }
 
+  
   render() {
     const { vertical,horizontal, error, open } = this.state;
 
