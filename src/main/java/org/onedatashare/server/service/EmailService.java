@@ -76,6 +76,7 @@ public class EmailService {
         }
         catch (Exception ex) {
             ODSLoggerService.logError("Failure in sending email with " + subject + " to " + emailTo, ex);
+            return ;
         }
         ODSLoggerService.logInfo("Sent email with subject \"" + subject + "\" to \""+ emailTo + "\" successfully.");
     }
