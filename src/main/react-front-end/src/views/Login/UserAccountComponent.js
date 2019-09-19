@@ -38,7 +38,7 @@ import { eventEmitter, store } from "../../App.js";
 
 import {
 	updateHashAction,
-	accountPreferenceToggledAction
+	accountPreferenceToggledAction,
 } from "../../model/actions";
 import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
@@ -117,7 +117,7 @@ export default class UserAccountComponent extends Component {
 		this.handleAlertClose();
 		let currentSaveStatus = this.state.saveOAuthTokens;
 
-		//Toggle the change
+		// Toggle the change
 		currentSaveStatus = !currentSaveStatus;
 		updateSaveOAuth(this.state.email, currentSaveStatus, () => {
 			store.dispatch(accountPreferenceToggledAction(currentSaveStatus));

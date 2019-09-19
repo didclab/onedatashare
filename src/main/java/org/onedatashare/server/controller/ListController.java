@@ -38,7 +38,6 @@ public class ListController {
     @PostMapping
     public Object list(@RequestHeader HttpHeaders headers, @RequestBody ListRequestData listReqData) {
         String cookie = headers.getFirst("cookie");
-        System.out.println(listReqData.toString());
         UserAction userAction = UserAction.convertToUserAction(listReqData);
 
         if(userAction.getCredential() == null) {
