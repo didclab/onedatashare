@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.requestdata.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -31,7 +32,8 @@ public class DeleteController {
   private GridftpService gridService;
 
   @PostMapping
-  public Object delete(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+  public Object delete(@RequestHeader HttpHeaders headers, @RequestBody OperationRequestData operationRequestData) {
+    UserAction userAction = UserAction.convertToUserAction(operationRequestData);
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     if(userAction.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME)) {
       if(userAction.getCredential() == null) {

@@ -4,6 +4,7 @@ import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.requestdata.UserRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
@@ -23,9 +24,9 @@ public class UserController {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   @PostMapping
-  public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-
+  public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserRequestData userRequestData) {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
+    UserAction userAction = UserAction.convertToUserAction(userRequestData);
     switch(userAction.getAction()) {
       case "login":
         return userService.login(userAction.getEmail(), userAction.getPassword());

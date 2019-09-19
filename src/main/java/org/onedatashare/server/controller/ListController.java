@@ -2,7 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.requestdata.ListRequestData;
+import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-
-import java.util.HashMap;
-
 
 @RestController
 @RequestMapping("/api/stork/ls")
@@ -36,9 +32,9 @@ public class ListController {
 
 
     @PostMapping
-    public Object list(@RequestHeader HttpHeaders headers, @RequestBody ListRequestData listReqData) {
+    public Object list(@RequestHeader HttpHeaders headers, @RequestBody RequestData requestData) {
         String cookie = headers.getFirst("cookie");
-        UserAction userAction = UserAction.convertToUserAction(listReqData);
+        UserAction userAction = UserAction.convertToUserAction(requestData);
 
         if(userAction.getCredential() == null) {
             switch (userAction.getType()) {

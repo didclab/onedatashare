@@ -4,7 +4,9 @@ import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.DbxService;
@@ -39,9 +41,10 @@ public class DownloadController {
     private ResourceServiceImpl resourceService;
 
     @PostMapping
-    public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+    public Object download(@RequestHeader HttpHeaders headers, @RequestBody RequestData requestData) {
 
         String cookie = headers.getFirst(ODSConstants.COOKIE);
+        UserAction userAction = UserAction.convertToUserAction(requestData);
         if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if (ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
