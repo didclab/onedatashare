@@ -10,55 +10,73 @@ import java.util.ArrayList;
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAction {
+    // For selecting action on the endpoint
     private String action;
-    private String email;
+
+    // For handling registration
     private String firstName;
     private String lastName;
     private String organization;
-    private String password;
-    private String uri;
-    private String id;
-    private ArrayList<IdMap> map;
-    private String type;
-    private String uuid;
-    private String code;
-    private String confirmPassword;
-    private String newPassword;
-    private UserActionResource src;
-    private UserActionResource dest;
-    private UserActionCredential credential;
-    private Integer job_id;
+    private String captchaVerificationValue;
 
-    private boolean saveOAuth;
-    private String filter_fulltext;
-    private EndPoint globusEndpoint;
+    // For handling endpoint login
     private String username;
+
+    // User Admin Flag
     private boolean isAdmin;
 
+    // For handling login and password change
+    private String email;
+    private String password;
+    private String confirmPassword;
+    private String newPassword;
+    private String code;
+
+    // User preferences
+    private boolean saveOAuth;
+
+    private String uuid;
+
+    // For handling endpoint list and file operations
+    private String type;
+    private String uri;
+    private String id;
+    private String portNumber;
+    private UserActionCredential credential;
+    private ArrayList<IdMap> map;
+
+    // For handling transfers
+    private UserActionResource src;
+    private UserActionResource dest;
+    private TransferOptions transferOptions;
+
+    // For queue page
+    private Integer job_id;
     private int pageNo;
     private int pageSize;
     private String sortBy;
     private String sortOrder;
 
-    private String portNumber;
-    private String captchaVerificationValue;
+    // Misc
+    private String filter_fulltext;
+    private EndPoint globusEndpoint;
 
     public static UserAction convertToUserAction(RequestData requestData){
         UserAction ua = new UserAction();
+        ua.setType(requestData.getType());
         ua.setUri(requestData.getUri());
         ua.setId(requestData.getId());
         ua.setPortNumber(requestData.getPortNumber());
-        ua.setType(requestData.getType());
         ua.setCredential(requestData.getCredential());
         return ua;
     }
 
     public static UserAction convertToUserAction(OperationRequestData operationRequestData){
         UserAction ua = new UserAction();
+        ua.setType(operationRequestData.getType());
         ua.setUri(operationRequestData.getUri());
         ua.setId(operationRequestData.getId());
         ua.setPortNumber(operationRequestData.getPortNumber());
-        ua.setType(operationRequestData.getType());
         ua.setCredential(operationRequestData.getCredential());
         ua.setMap(operationRequestData.getMap());
         return ua;
@@ -74,20 +92,25 @@ public class UserAction {
         UserAction ua = new UserAction();
         ua.setSrc(transferRequestData.getSrc());
         ua.setDest(transferRequestData.getDest());
+        ua.setTransferOptions(transferRequestData.getTransferOptions());
         return ua;
     }
 
     public static UserAction convertToUserAction(UserRequestData userRequestData){
         UserAction ua = new UserAction();
         ua.setAction(userRequestData.getAction());
+
         ua.setEmail(userRequestData.getEmail());
+        ua.setPassword(userRequestData.getPassword());
+        ua.setConfirmPassword(userRequestData.getConfirmPassword());
+        ua.setNewPassword(userRequestData.getNewPassword());
+
         ua.setFirstName(userRequestData.getFirstName());
         ua.setLastName(userRequestData.getLastName());
         ua.setOrganization(userRequestData.getOrganization());
         ua.setUri(userRequestData.getUri());
         ua.setUuid(userRequestData.getUuid());
         ua.setCode(userRequestData.getCode());
-        ua.setConfirmPassword(userRequestData.getConfirmPassword());
         ua.setSaveOAuth(userRequestData.isSaveOAuth());
         ua.setAdmin(userRequestData.isAdmin());
         ua.setPageNo(userRequestData.getPageNo());

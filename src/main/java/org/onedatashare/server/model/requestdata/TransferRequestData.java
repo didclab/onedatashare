@@ -7,4 +7,5 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 public class TransferRequestData {
     UserActionResource src;
     UserActionResource dest;
+    TransferOptions transferOptions;
 }
