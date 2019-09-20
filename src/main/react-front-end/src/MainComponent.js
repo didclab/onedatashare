@@ -12,7 +12,7 @@ import QueueComponent from './views/Queue/QueueComponent.js';
 import UserAccountComponent from './views/Login/UserAccountComponent.js';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent.js';
 import SupportComponent from './views/Support/SupportComponent.js';
-import TermsComponent from './views/TermsComponent';
+import TermsComponent from './views/termsComponent.js'
 import PolicyComponent from './views/PolicyComponent';
 
 export default class MainComponent extends Component {

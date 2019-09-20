@@ -11,6 +11,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
@@ -408,16 +409,29 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
 		    		<div>
-			    	<TextField
-			    	  style={{width: "60%"}}
-			          id="outlined-name"
+					<ValidatorForm
+						ref="form"
+						onSubmit={authFunction}
+						onError={errors => console.log(errors)}
+					>
+			    	<TextValidator
+						required
+					  style={{width: "60%"}}
+			          id="outlined-required"
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  autoFocus={true}
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							authFunction()
+						  }
+					  }}
 			        />
-			        <TextField
+			        <TextValidator
+					required
 			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  id="outlined-pnum"
 					  disabled = {!this.state.portNumField}
@@ -425,8 +439,14 @@ export default class EndpointAuthenticateComponent extends Component {
 			          value={this.state.portNumField? this.state.portNum : "-"} 
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							authFunction()
+						  }
+					  }}
 			        />
+					</ValidatorForm>
 			        </div>
 		    	}
 
@@ -434,25 +454,37 @@ export default class EndpointAuthenticateComponent extends Component {
 		        
 		        {needPassword &&
 		        	<div>
-			        <TextField
+					<ValidatorForm
+						ref="form"
+						onError={errors => console.log(errors)}
+					>
+			        <TextValidator
+					  required
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id="outlined-required"
 			          label="Username"
 			          value={this.state.username}
 			          onChange={this.handleChange('username')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
 			        />
-			        <TextField
+			        <TextValidator
+					  required
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id="outlined-required"
 			          label="Password"
 			          type="password"
 			          value={this.state.password}
 			          onChange={this.handleChange('password')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter' && this.state.password.length !== 0 && this.state.username.length !== 0) {
+							authFunction()
+						  }
+					  }}
 			        />
+					</ValidatorForm>
 			        </div>
 		    	}
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
