@@ -43,7 +43,7 @@ check_error()
 }
 
 # Configurations
-admin_email="kprabhak@buffalo.edu"
+admin_email=$ODS_ADMIN_EMAIL
 email_subject="ODS DB Backup Report"
 no_of_backups=5 # Number of backups to maintain in s3 bucket. Backups older than 'no_of_backups' will be removed on every job execution
 s3_bucket_name='ods-db-backups'
