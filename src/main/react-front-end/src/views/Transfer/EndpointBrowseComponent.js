@@ -3,8 +3,6 @@ import { multiSelectTo as multiSelect } from './utils';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
-import  { logoutFromEndpoints } from "../../model/actions" 
-
 import {Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
@@ -35,10 +33,10 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
-import { eventEmitter, store } from "../../App";
+import { eventEmitter } from "../../App";
 
 import { getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE, sideLeft, sideRight } from "../../constants";
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -81,17 +79,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.permissionDescendingOrderSort = this.permissionDescendingOrderSort.bind(this);
 		
 		this.sortBy = this.sortBy.bind(this);
-		
-		// if(store.getState().logoutFromEndpoints){
-		// 	console.log("Logging out from endpoints !!!");
-		// 	emptyFileNodesData(sideLeft);
-		// 	emptyFileNodesData(sideRight);
-		// 	this.unselectAll();
-		// 	this.props.back();	
-		// 	store.dispatch(logoutFromEndpoints());
-		// 	console.log("store.getState().logoutFromEndpoints", store.getState().logoutFromEndpoints)
-		// }
-
 
 		if(this.state.directoryPath.length === 0)
 			this.getFilesFromBackend(props.endpoint);

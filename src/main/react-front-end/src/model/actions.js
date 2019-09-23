@@ -132,14 +132,6 @@ export function accountPreferenceToggledAction(newState) {
   }
 }
 
-export const LOGOUT_FROM_ENDPOINTS = 'LOGOUT_FROM_ENDPOINTS';
-export function logoutFromEndpoints() {
-  return {
-    type : LOGOUT_FROM_ENDPOINTS,
-    logoutFromEndpoints : false
-  }
-}
-
 export const transferOptimizations = {
   None : "NONE",
   SecondOrder : "2ndOrder",
