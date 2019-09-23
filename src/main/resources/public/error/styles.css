@@ -5,6 +5,7 @@
 body {
     background-repeat: no-repeat;
     background-size: cover;
+    background-attachment: fixed;
     background-image:url(/static/media/s1.be1fb98e.png);
     height: 100%;
     width: 100%;
