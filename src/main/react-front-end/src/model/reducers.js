@@ -9,7 +9,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED, LOGOUT_FROM_ENDPOINTS } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import { maxCookieAge } from '../constants';
@@ -25,6 +25,7 @@ const initialState = {
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
   saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
+  logoutFromEndpoints : (cookies.get('logoutFromEndpoints') !== undefined)? cookies.get('logoutFromEndpoints') : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
@@ -64,11 +65,12 @@ export function onedatashareModel(state = initialState, action) {
       cookies.set('email', email, { expires : maxCookieAge });
 		  cookies.set('hash', hash, { expires : maxCookieAge });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
+      
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
         hash: hash,
-        saveOAuthTokens: saveOAuthTokens
+        saveOAuthTokens: saveOAuthTokens,
       });
       
     case LOGOUT:
@@ -79,6 +81,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
       cookies.remove('saveOAuthTokens');
+      cookies.remove('logoutFromEndpoints');
       cookies.remove(DROPBOX_NAME);
       cookies.remove(GOOGLEDRIVE_NAME);
       window.location.replace('/');
@@ -124,13 +127,28 @@ export function onedatashareModel(state = initialState, action) {
     case UPDATE_HASH:
       cookies.remove('hash');
       cookies.set('hash',  action.hash, { expires : maxCookieAge });
-          return Object.assign({}, state, {
-                    hash: action.hash
-                  });
+      return Object.assign({}, state, {
+                hash: action.hash
+              });
     
     case ACCOUNT_PREFERENCE_TOGGLED:
       cookies.set('saveOAuthTokens', action.saveOAuthTokens);
-      return Object.assign({}, state, {saveOAuthTokens: action.saveOAuthTokens});
+      cookies.set('logoutFromEndpoints', true);
+
+      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
+      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
+      return Object.assign({}, state, { 
+        saveOAuthTokens: action.saveOAuthTokens,
+        endpoint1 : { ...state.endpoint1, login : false },
+        endpoint2 : { ...state.endpoint2, login : false },
+        logoutFromEndpoints : true
+      });
+
+    case LOGOUT_FROM_ENDPOINTS:
+        cookies.set('logoutFromEndpoints', false);
+        return Object.assign({}, state, {
+          logoutFromEndpoints : false
+        });
     
     default:
       return state

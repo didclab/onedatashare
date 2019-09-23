@@ -440,7 +440,7 @@ public class UserService {
         if(!saveOAuthCredentials)
           user.setCredentials(new HashMap<>());
           return userRepository.save(user).subscribe();
-        }).then() ;
+        }).then();
   }
 
   public Mono<Boolean> isAdmin(String cookie){

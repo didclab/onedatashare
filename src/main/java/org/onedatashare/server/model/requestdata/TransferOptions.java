@@ -1,6 +1,5 @@
 package org.onedatashare.server.model.requestdata;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import lombok.Data;
 
 @Data

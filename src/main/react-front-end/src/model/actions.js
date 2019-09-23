@@ -75,14 +75,6 @@ export function endpointLogin(loginType, side, credential) {
   }
 }
 
-export const ENDPOINT_LOGOUT = 'ENDPOINT_LOGOUT';
-export function endpointLogout(side) {
-  return {
-    type: ENDPOINT_LOGOUT,
-    side,
-  }
-}
-
 export const ENDPOINT_TRANSFER = 'ENDPOINT_TRANSFER';
 export function endpointTransfer(sourceSide) {
   return {
@@ -135,7 +127,16 @@ export const ACCOUNT_PREFERENCE_TOGGLED = 'ACCOUNT_PREFERENCE_TOGGLED';
 export function accountPreferenceToggledAction(newState) {
   return {
     type: ACCOUNT_PREFERENCE_TOGGLED,
-    saveOAuthTokens : newState
+    saveOAuthTokens : newState,
+    logoutFromEndpoints : true
+  }
+}
+
+export const LOGOUT_FROM_ENDPOINTS = 'LOGOUT_FROM_ENDPOINTS';
+export function logoutFromEndpoints() {
+  return {
+    type : LOGOUT_FROM_ENDPOINTS,
+    logoutFromEndpoints : false
   }
 }
 

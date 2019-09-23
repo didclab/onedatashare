@@ -126,6 +126,7 @@ export default class UserAccountComponent extends Component {
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
+
 			}
 			//Update the variables
 			this.setState({ saveOAuthTokens: currentSaveStatus });

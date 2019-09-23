@@ -48,7 +48,7 @@ public class UserAction {
     // For handling transfers
     private UserActionResource src;
     private UserActionResource dest;
-    private TransferOptions transferOptions;
+    private TransferOptions options;
 
     // For queue page
     private Integer job_id;
@@ -92,7 +92,7 @@ public class UserAction {
         UserAction ua = new UserAction();
         ua.setSrc(transferRequestData.getSrc());
         ua.setDest(transferRequestData.getDest());
-        ua.setTransferOptions(transferRequestData.getTransferOptions());
+        ua.setOptions(transferRequestData.getOptions());
         return ua;
     }
 

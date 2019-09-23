@@ -77,7 +77,6 @@ export default class TransferComponent extends Component {
 
   printError(){
     const error = queryString.parse(this.props.location.search);
-    console.log("error is", error);
     if(error && error["error"])
       setTimeout(() => {
         eventEmitter.emit("errorOccured", error["error"]);
@@ -158,9 +157,9 @@ export default class TransferComponent extends Component {
      const {mode1, endpoint1,history, compact} = this.state;
     return <BrowseModuleComponent 
       id="browserleft"
-      mode={mode1} 
-      endpoint={endpoint1} 
-      history={history} 
+      mode={mode1}
+      endpoint={endpoint1}
+      history={history}
       displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseOne}/>
   }
