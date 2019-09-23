@@ -143,7 +143,7 @@ export function getPathFromMemory(endpoint){
 }
 
 export function emptyFileNodesData(endpoint){
-	if(endpoint.side === "left" || endpoint === "left"){
+	if(endpoint.side === "left"){
 		column1 = {
 			id: "left",
 			title: "",
@@ -154,7 +154,7 @@ export function emptyFileNodesData(endpoint){
 			selectedTasks : [],
 
 		};
-	}else if(endpoint.side === "right" || endpoint === "right"){
+	}else if(endpoint.side === "right"){
 		column2 = {
 			id: "right",
 			title: "",

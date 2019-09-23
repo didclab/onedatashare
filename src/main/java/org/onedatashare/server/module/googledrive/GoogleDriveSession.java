@@ -73,8 +73,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                 }
                 if(!checkExpiry) {
                     if(service==null) {
-                        // TODO: proper error message
-                        s.error(new Exception("Innvalid token"));
+                        s.error(new Exception("Invalid token"));
                     }
                     else{
                         s.success(this);

@@ -128,7 +128,6 @@ export function accountPreferenceToggledAction(newState) {
   return {
     type: ACCOUNT_PREFERENCE_TOGGLED,
     saveOAuthTokens : newState,
-    logoutFromEndpoints : true
   }
 }
 
