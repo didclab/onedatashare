@@ -4,6 +4,8 @@ import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
+import {updateGAPageView} from "../../analytics/ga";
+
 
 import {spaceBetweenStyle} from '../../constants.js';
 import {resetPasswordSendCode, resetPasswordVerifyCode, resetPassword} from '../../APICalls/APICalls.js';
@@ -26,7 +28,8 @@ export default class ForgotPasswordComponent extends Component {
 	    	confirmedPassword: "",
 	    	state: beforeCode,
 	    	code: "",
-	    }
+		}
+		updateGAPageView();
 	}
 
 	SetPassword = ()=>{
@@ -75,7 +78,7 @@ export default class ForgotPasswordComponent extends Component {
 		return (
 		<div className="enter-from-right slide-in">
 
-			{state == beforeCode &&
+			{state === beforeCode &&
 				<div>
 					<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
 			          Account recovery
@@ -100,7 +103,7 @@ export default class ForgotPasswordComponent extends Component {
 				</div>
 			}
 
-			{state == codeSent &&
+			{state === codeSent &&
 				<div>
 			        
 			        <Typography style={{fontSize: "0.8em", marginBottom: "0.4em"}}>
@@ -132,7 +135,7 @@ export default class ForgotPasswordComponent extends Component {
 				</div>
 			}
 
-			{state == codeVerified &&
+			{state === codeVerified &&
 				<div>
 			        <Typography style={{fontSize: "1.0em", marginBottom: "0.4em"}}>
 			          Code is Verified, Reset your password here:

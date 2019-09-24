@@ -13,20 +13,18 @@ import CardActions from '@material-ui/core/CardActions';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
 
 import  { Redirect } from 'react-router-dom';
 import {transferPageUrl, userPageUrl} from "../../constants";
 
-import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {changePassword, getUser} from '../../APICalls/APICalls';
 import {eventEmitter, store} from '../../App.js';
 
 import { updateHashAction } from '../../model/actions';
 
-
+import {updateGAPageView} from '../../analytics/ga'
 
 export default class UserAccountComponent extends Component{
 
@@ -52,7 +50,6 @@ export default class UserAccountComponent extends Component{
                lName: resp.lastName,
                loading: false
             });
-            console.log(resp)
             }, (resp) => {
             //failed
             this.setState({loading: false})
@@ -61,6 +58,13 @@ export default class UserAccountComponent extends Component{
    		this.getInnerCard = this.getInnerCard.bind(this);
    		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
    		this.accountDetails = this.accountDetails.bind(this);
+		updateGAPageView();
+	}
+
+	componentDidMount(){
+		document.title = "OneDataShare - History";
+		window.addEventListener("resize", this.resize.bind(this));
+		this.resize();
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
@@ -174,16 +178,6 @@ export default class UserAccountComponent extends Component{
 			    </CardActions>
 	        </div>
 		);
-	}
-
-	componentDidMount(){
-
-		window.addEventListener("resize", this.resize.bind(this));
-
-
-
-
-		this.resize();
 	}
 
 	resize() {

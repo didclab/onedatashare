@@ -24,7 +24,7 @@ export var draggingTask = null;
 
 export function getMapFromEndpoint(endpoint){
 
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 //		console.log(column1.ids);
 //		console.log(column1.path);
 		return column1.ids.map(function(e, i) {
@@ -41,7 +41,7 @@ export function getMapFromEndpoint(endpoint){
 }
 
 export function getIdsFromEndpoint(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.ids;
 	}else{
 		return column2.ids;
@@ -67,12 +67,12 @@ export function setDraggingTask(task){
 export function makeFileNameFromPath(initial, path, name){
 //	console.log(initial, path, name)
 	var pathstr;
-	if(path.length == 0){
+	if(path.length === 0){
 		pathstr = initial;
 	}else{
 		pathstr = initial + (initial[initial.length-1] === '/' ? "" : "/") + path.reduce((a, v) =>  a+"/"+v);
 	}
-	pathstr = (pathstr + ((name.length === 0 || pathstr[pathstr.length-1] == '/') ? name : "/"+name));
+	pathstr = (pathstr + ((name.length === 0 || pathstr[pathstr.length-1] === '/') ? name : "/"+name));
 	return pathstr;
 }
 
@@ -92,7 +92,7 @@ export function getCred(){
 
 
 export function setFilesWithPathList(files, path, endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		column1.tasks = files;
 		column1.title = endpoint.uri;
 		column1.path = path;
@@ -104,7 +104,7 @@ export function setFilesWithPathList(files, path, endpoint){
 }
 
 export function setFilesWithPathListAndId(files, path, ids, endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		column1.tasks = files;
 		column1.title = endpoint.uri;
 		column1.path = path;
@@ -119,7 +119,7 @@ export function setFilesWithPathListAndId(files, path, ids, endpoint){
 
 
 export function getCurrentFolderId(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.ids[column1.ids.length-1];
 	}else{
 		return column2.ids[column2.ids.length-1];
@@ -127,7 +127,7 @@ export function getCurrentFolderId(endpoint){
 }
 
 export function getFilesFromMemory(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.tasks;
 	}else{
 		return column2.tasks;
@@ -135,7 +135,7 @@ export function getFilesFromMemory(endpoint){
 }
 
 export function getPathFromMemory(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.path;
 	}else{
 		return column2.path;
@@ -143,7 +143,7 @@ export function getPathFromMemory(endpoint){
 }
 
 export function emptyFileNodesData(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		column1 = {
 			id: "left",
 			title: "",
@@ -179,7 +179,7 @@ export function setBeforeTransferReorder(reorderResult){
 		column2.tasks = reorderResult["right"].tasks;
 	}
 
-	if(reorderResult.fromTo[1].id == "left"){
+	if(reorderResult.fromTo[1].id === "left"){
 		column1.selectedTasks = reorderResult.selectedTasks;
 	}else{
 		column2.selectedTasks = reorderResult.selectedTasks;	
@@ -191,10 +191,10 @@ export function setBeforeTransferReorder(reorderResult){
 
 /*export function findTaskFromId(id){
 	const find1 = column1.tasks.find((task)=>{
-		return task.name == id
+		return task.name === id
 	})
 	const find2 = column2.tasks.find((task)=>{
-		return task.name == id
+		return task.name === id
 	})
 	return find1 || find2
 }*/
@@ -206,7 +206,7 @@ export function setSelectedTasks(selTasksLeft, selTasksRight){
 }
 
 export function getSelectedTasksFromSide(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.selectedTasks;
 	}else{
 		return column2.selectedTasks;
@@ -214,21 +214,21 @@ export function getSelectedTasksFromSide(endpoint){
 }
 /*
 export function getTaskFromId(endpoint, id){
-	if(endpoint.side == "left"){
-		return column1.tasks.find((task)=>task.name+endpoint.side==id);
+	if(endpoint.side === "left"){
+		return column1.tasks.find((task)=>task.name+endpoint.side===id);
 	}else{
-		return column2.tasks.find((task)=>task.name+endpoint.side==id);
+		return column2.tasks.find((task)=>task.name+endpoint.side===id);
 	}
 }*/
 export function setSelectedTasksForSide(tasks, endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		setSelectedTasks(tasks, column2.selectedTasks);
 	}else{
 		setSelectedTasks(column1.selectedTasks, tasks);
 	}
 }
 export function getEndpointFromColumn(column){
-	if(column.id == "left"){
+	if(column.id === "left"){
 		return store.getState().endpoint1;
 	}else{
 		return store.getState().endpoint2;
@@ -240,7 +240,7 @@ export function getSelectedTasks(){
 }
 
 export function getSelectionCount(endpoint){
-	if(endpoint.side == "left"){
+	if(endpoint.side === "left"){
 		return column1.selectedTasks.length;
 	}else{
 		return column2.selectedTasks.length;

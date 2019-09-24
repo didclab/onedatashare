@@ -38,7 +38,7 @@ Recommended IDEs (used by ODS team for development):
 1. Clone OneDataShare GitHub repository.
 	Open command prompt (Windows OS) or terminal (Unix-based OS)  
 	Run following command –  
-	git clone https://github.com/didclab/onedatashare-spring.git
+	git clone https://github.com/didclab/onedatashare.git
 
 2. Open the cloned repository in IntelliJ and import it as a Maven project.
 
@@ -101,16 +101,12 @@ Graduate Student, University at Buffalo
 
 Ramandeep Singh  
 Application Developer  
-Graduate Student, University at Buffalo  
-
-Rohit Bhalke  
-Application Developer  
-Graduate Student, University at Buffalo  
+Graduate Student, University at Buffalo
 
 Javier Falca  
 Application Developer  
 Undergraduate Student, University at Buffalo  
 
-Ryan Dils  
+Dhayanidhi Gunasekaran  
 Application Developer  
-Undergraduate Student, University at Buffalo  
+Graduate Student, University at Buffalo

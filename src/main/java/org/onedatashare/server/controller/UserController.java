@@ -30,7 +30,7 @@ public class UserController {
         return userService.login(userAction.getEmail(), userAction.getPassword());
       case "register":
         return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
-                                      userAction.getOrganization());
+                                      userAction.getOrganization(), userAction.getCaptchaVerificationValue());
       case "validate":
         return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
