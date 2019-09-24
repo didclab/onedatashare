@@ -31,7 +31,7 @@ check_error()
 {
 	if [ $? -ne 0 ]; then
 		# echo "Caught Exception $1"
-		echo "$1 Exception occured after the above operation." | mail -s "$2" "$3"
+		echo "$1 Exception occured after the above operation." | mail -s "Error: $2" "$3"
 		# clean up
 		cd "/home"		
 		if [ -d "backup" ]; then
@@ -86,5 +86,5 @@ backup_msg="$backup_msg Removed the local backup folder."$'\n'
 backup_msg="$backup_msg The backup operation is completed successfully!"$'\n'
 
 # send success email
-echo "$backup_msg" | mail -s "$email_subject" "$admin_email"
+echo "$backup_msg" | mail -s "Success: $email_subject" "$admin_email"
 
