@@ -1,16 +1,12 @@
 // @flow
-import type { DraggableLocation } from 'react-beautiful-dnd';
-import PropTypes from 'prop-types';
-import {getColumn, getEntities,getTaskFromId} from "./initialize_dnd.js"
-import {store} from "../../App.js"
+import {getColumn} from "./initialize_dnd.js"
 
-export default reorder;
 export function screenIsSmall(){
     return window.innerWidth <= 760;
 }
 
 // a little function to help us with reordering the result
-const reorder = (list: any[], startIndex: number, endIndex: number): any[] => {
+export const reorder = (list: any[], startIndex: number, endIndex: number): any[] => {
   const result = Array.from(list);
   const [removed] = result.splice(startIndex, 1);
   result.splice(endIndex, 0, removed);
@@ -47,7 +43,7 @@ const reorderSingleDrag = ({
 
     const selected = selectedTasks[source.droppableId];
 
-    if(selected.length == 0){
+    if(selected.length === 0){
       selected.push(task);
     }
 
@@ -75,7 +71,7 @@ const reorderSingleDrag = ({
   if(foundDup){
     console.log(foundDup);
   };*/
-  if(!newForeignTasks.find((value) => {return value.name == task.name;})){
+  if(!newForeignTasks.find((value) => {return value.name === task.name;})){
    // console.log(task);
    // console.log(newForeignTasks);
     newForeignTasks.splice(destination.index, 0, task);
@@ -88,7 +84,7 @@ const reorderSingleDrag = ({
     [foreign.id]: withNewTasks(foreign, newForeignTasks),
   };
   const selected = selectedTasks[source.droppableId];
-  if(selected.length == 0){
+  if(selected.length === 0){
     selected.push(task);
   }
   //console.log(selected);
@@ -226,7 +222,6 @@ const reorderMultiDrag = ({
   
 
   const finalCol = withRemovedTasks[destination.droppableId];
-  const sourceCol = entities[source.droppableId];
   const withInserted = (() => {
     const base: {} = {...finalCol};
     base.tasks.splice(insertAtIndex, 0, ...orderedSelectedTasks);

@@ -3,15 +3,9 @@ import FineUploaderTraditional from 'fine-uploader-wrappers';
 import {makeFileNameFromPath, getMapFromEndpoint} from "./initialize_dnd";
 
 import FileInput from 'react-fine-uploader/file-input';
-
-import IconButton from '@material-ui/core/IconButton';
-import { Button } from 'react-bootstrap';
 import UploadButton from "@material-ui/icons/CloudUpload";
 import {eventEmitter} from "../../App";
 export default class UploaderWrapper extends Component {
-	constructor(props){
-		super(props);
-	}
 
 	shouldComponentUpdate(nextProps, nextState) { 
 

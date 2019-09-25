@@ -171,7 +171,6 @@ export default class FileNode extends Component {
 
 	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
 		const {
-		  file,
 		  toggleSelection,
 		  toggleSelectionInGroup,
 		  multiSelectTo,
@@ -216,7 +215,7 @@ export default class FileNode extends Component {
 		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
 		const {name, dir, perm, time, size, children} = this.props.file;
 		const {isDragging} = this.state;
-		const hasAttr = (time != 0 || perm || size != 0);
+		const hasAttr = (time !== 0 || perm || size !== 0);
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
 		
@@ -264,9 +263,9 @@ export default class FileNode extends Component {
 							{hasAttr && 
 								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between"}}>
 							
-									{time != 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
+									{time !== 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
 									{perm && <p > {perm} </p>}
-									{size != 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
+									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
 								</div>
 							}
 					</FileDiv>
