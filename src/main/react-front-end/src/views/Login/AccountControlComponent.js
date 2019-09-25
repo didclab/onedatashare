@@ -118,7 +118,7 @@ export default class AccountControlComponent extends Component {
 						}}
 						backToSignin={() => {
 							console.log("click");
-							this.setState({ loggingAccount: true });
+							this.setState({ signIn: true });
 						}}
 					/>}>
 				</Route>
@@ -126,39 +126,47 @@ export default class AccountControlComponent extends Component {
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
 						back={() => {
-							this.setState({ loading: false, loggingAccount: true, validateEmailPressed: false });
+							this.setState({ test:true, loading: false, signIn: true, validateEmailPressed: false });
 						}} />}>
 				</Route>
-
+				<Route exact path={'/account/forgotPassword'}
+					render={(props) => <ForgotPasswordComponent {...props} back={() => {
+						this.setState({ loading: false, screen: this.newLogin, signIn:true, forgotPasswordPressed: false });
+					}} email={this.state.email} />}>
+				</Route>
 				<Route exact path={'/account/signIn'}
 					render={(props) =>
 						<div>
-							{(this.state.forgotPasswordPressed || this.state.validateEmailPressed) &&
+							{/* {(this.state.forgotPasswordPressed) &&
 								<Redirect to='/account' />
-							}
+							} */}
 							<NewLoginComponent email={this.props.email}
 								isLoading={(loading) => {
 									this.setState({ loading: loading });
 								}}
 
 								createAccountPressed={() => {
-									this.setState({ loading: false, createAccount: true, creatingAccount: true });
+									this.setState({ loading: false, creatingAccount: true });
 								}}
 
 								validateEmailPressed={(email) => {
 									this.setState({
 										loading: false,
 										validateEmailPressed: true,
+										signIn:false,
 										email: email
 									});
 								}}
 
 								forgotPasswordPressed={(email) => {
 									this.setState({
-										loading: false, screen:
-											<ForgotPasswordComponent back={() => {
-												this.setState({ loading: false, screen: this.newLogin, forgotPasswordPressed: false });
-											}} email={email} />,
+										loading: false, 
+										// screen:
+										// 	<ForgotPasswordComponent back={() => {
+										// 		this.setState({ loading: false, screen: this.newLogin, signIn:true, forgotPasswordPressed: false });
+										// 	}} email={email} />,
+										signIn:false,
+										email:email,
 										forgotPasswordPressed: true
 									});
 								}}
@@ -176,32 +184,38 @@ export default class AccountControlComponent extends Component {
 
 		const { isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed } = this.state;
 		const height = window.innerHeight + "px";
+		
+			return (
 
-		return (
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
+					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+						{ console.log(store.getState().login  + "-" + creatingAccount +"-"+validateEmailPressed+ "-" + signIn)}
+						{validateEmailPressed && <Redirect to={"/account/lostValidationCode"} />}
+						{store.getState().login && <Redirect to={transferPageUrl} />}
+						{creatingAccount && <Redirect to={"/account/register"} />}
+						{forgotPasswordPressed && <Redirect to={"/account/forgotPassword"} />}
+						{/* {loggingAccount && <Redirect to={"/account"} />} */}
+						{signIn && <Redirect to={"/account/signIn"} />}
+						{loading && <LinearProgress />}
 
-			<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-				<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+						{console.log("executing after redirect.")}
 
-					{store.getState().login && <Redirect to={transferPageUrl} />}
-					{creatingAccount && <Redirect to={"/account/register"} />}
-					{validateEmailPressed && <Redirect to={{ pathname: "/account/lostValidationCode" }} />}
-					{loggingAccount && <Redirect to={"/account"} />}
-					{signIn && <Redirect to={"/account/signIn"} />}
-					{loading && <LinearProgress />}
-
-					{isSmall &&
-						this.getInnerCard()
-					}
-					{!isSmall &&
-						<Card>
-							<CardContent style={{ padding: '3em' }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					}
+						{isSmall &&
+							this.getInnerCard()
+						}
+						{!isSmall &&
+							<Card>
+								<CardContent style={{ padding: '3em' }}>
+									{this.getInnerCard()}
+								</CardContent>
+							</Card>
+						}
+					</div>
 				</div>
-			</div>
+	
+			);
+		
 
-		);
+		
 	}
 }
