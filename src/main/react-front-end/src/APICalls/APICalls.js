@@ -317,7 +317,7 @@ export async function deleteEndpointId(ged, accept, fail){
 /*
 	Desc: List credentials for dropbox and googledrive
 */
-export async function dropboxCredList(accept, fail){
+export async function savedCredList(accept, fail){
 	var callback = accept;
 	axios.get(url+'cred?action=list')
 	.then((response) => {
@@ -601,9 +601,21 @@ export async function getUser(email, accept, fail){
     .catch((error) => {
         statusHandle(error, fail);
     })
+}
 
-
-
+export async function updateSaveOAuth(email, saveOAuth, successCallback){
+	axios.post(url + 'user', {
+		action: "updateSaveOAuth",
+		email: email,
+		saveOAuth: saveOAuth
+	})
+	.then((response) => {
+		if(response.status === 200)
+			successCallback();
+	})
+	.catch((error) => {
+			console.log("Error encountered while updating the user.");
+	});
 }
 
 export async function updateAdminRightsApiCall(email, isAdmin){
@@ -669,7 +681,7 @@ export async function cancelJob(jobID, accept, fail){
     });
 }
 
-export async function deleteCredential(uri, accept, fail){
+export async function deleteCredentialFromServer(uri, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
@@ -733,11 +745,6 @@ export async function openGridFtpOAuth(){
 
 export async function openOAuth(url){
 	window.location = url;
-}
-
-
-export async function getOrganization(){
-
 }
 
 

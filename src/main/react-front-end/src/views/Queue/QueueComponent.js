@@ -58,8 +58,6 @@ class QueueComponent extends Component {
 						orderBy : 'job_id'};
 		this.queueFunc();
 		this.interval = setInterval(this.update, 2000);    //making a queue request every 2 seconds
-		var infoRowsIds= [];
-		var selectedJobInfo = 0;
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.queueFunc = this.queueFunc.bind(this);
 		this.update = this.update.bind(this);
@@ -82,7 +80,7 @@ class QueueComponent extends Component {
 			updateJobStatus(jobIds, resp => {
 				resp.map(job => {
 					let existingData = [...this.state.responsesToDisplay]
-					let existingJob = existingData.find(item => item.uuid == job.uuid)
+					let existingJob = existingData.find(item => item.uuid === job.uuid)
 					existingJob.status = job.status
 					existingJob.bytes.total = job.bytes.total
 					existingJob.bytes.done = job.bytes.done
@@ -321,15 +319,12 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
 
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.setState({ page: page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
 
 	handleChangeRowsPerPage = event => {		
-		this.state.page=0
-		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 		this.queueFunc()
 	};
@@ -342,14 +337,11 @@ class QueueComponent extends Component {
       order = 'asc';
     }
 		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
 		this.queueFunc()
   };	
 
 	render(){
-		const height = window.innerHeight+"px";
-		const {response, totalCount, responsesToDisplay} = this.state;
+		const { totalCount, responsesToDisplay } = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
