@@ -11,7 +11,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 import { eventEmitter } from "../../App";
 import ReCAPTCHA from 'react-google-recaptcha';
 
-
+import './support.css'
 import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
 export default class SupportComponent extends Component{
@@ -105,6 +105,7 @@ export default class SupportComponent extends Component{
           <div style={divStyle}>
             <TextField
               required
+              classes={{label:'support'}}
               label = 'Name'
               name = 'name' 
               onChange = {this.handleChange}
