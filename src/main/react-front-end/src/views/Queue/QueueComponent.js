@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue, cancelJob, restartJob, deleteJob} from '../../APICalls/APICalls';
+import { queue, cancelJob, restartJob, deleteJob, updateJobStatus} from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
@@ -57,9 +57,10 @@ class QueueComponent extends Component {
 						order : 'desc',
 						orderBy : 'job_id'};
 		this.queueFunc();
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		this.interval = setInterval(this.update, 2000);    //making a queue request every 2 seconds
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.queueFunc = this.queueFunc.bind(this);
+		this.update = this.update.bind(this);
 
 		updateGAPageView();
 	}
@@ -70,6 +71,28 @@ class QueueComponent extends Component {
 
 	componentWillUnmount(){
 		clearInterval(this.interval);
+	}
+
+	update = () =>{
+		let jobIds = this.state.responsesToDisplay.filter(job => job.status !== "complete" && job.status !== "failed" && job.status !== "removed")
+		.map(job => job.uuid)
+		if(jobIds.length > 0){
+			updateJobStatus(jobIds, resp => {
+				resp.map(job => {
+					let existingData = [...this.state.responsesToDisplay]
+					let existingJob = existingData.find(item => item.uuid === job.uuid)
+					existingJob.status = job.status
+					existingJob.bytes.total = job.bytes.total
+					existingJob.bytes.done = job.bytes.done
+					existingJob.bytes.avg = job.bytes.avg
+					this.setState({
+						responsesToDisplay : existingData
+					})
+				})
+			}, fail =>{
+					console.log('Failed to get job updates')
+			})
+		}
 	}
 
 	queueFunc = () => {
@@ -190,7 +213,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status === 'processing' && 
+				{status === 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -296,7 +319,8 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+
+		this.setState({ page: page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
 
@@ -317,7 +341,7 @@ class QueueComponent extends Component {
   };	
 
 	render(){
-		const {totalCount, responsesToDisplay} = this.state;
+		const { totalCount, responsesToDisplay } = this.state;
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;

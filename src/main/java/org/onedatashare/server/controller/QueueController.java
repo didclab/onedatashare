@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.core.JobDetails;
@@ -10,9 +11,15 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+<<<<<<< HEAD
 /**
  * Controller for handling GET requests from queue page
  */
+=======
+import java.util.List;
+import java.util.UUID;
+
+>>>>>>> master
 @RestController
 @RequestMapping("/api/stork/q")
 public class QueueController {
@@ -30,6 +37,13 @@ public class QueueController {
   public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return jobService.getJobsForUserOrAdmin(cookie, jobDetails)
+            .subscribeOn(Schedulers.elastic());
+  }
+
+  @PostMapping("/update")
+  public Mono<List<Job>> update(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
+    String cookie = headers.getFirst(ODSConstants.COOKIE);
+    return jobService.getUpdates(cookie, jobIds)
             .subscribeOn(Schedulers.elastic());
   }
 }
