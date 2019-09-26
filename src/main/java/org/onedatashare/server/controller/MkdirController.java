@@ -15,6 +15,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Controller for handling make directory requests on endpoints
+ */
 @RestController
 @RequestMapping("/api/stork/mkdir")
 public class MkdirController {
@@ -31,6 +34,12 @@ public class MkdirController {
   @Autowired
   private GridftpService gridService;
 
+  /**
+   * Handler that returns Mono of the stats(file information) in the given path of the endpoint
+   * @param headers - Incoming request headers
+   * @param operationRequestData - Request data needed to make a directory
+   * @return Mono\<Stat\> containing the file/ folder information
+   */
   @PostMapping
   public Object mkdir(@RequestHeader HttpHeaders headers, @RequestBody OperationRequestData operationRequestData) {
 

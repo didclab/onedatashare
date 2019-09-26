@@ -22,6 +22,9 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+/**
+ * Controller for handling OAuth control requests
+ */
 @Controller
 @RequestMapping("/api/stork/oauth")
 public class OauthController {
@@ -43,6 +46,12 @@ public class OauthController {
     static final String dropbox = "dropbox";
     static final String gridftp = "gridftp";
 
+    /**
+     * Handler for google drive oauth requests
+     * @param headers - Incoming request headers
+     * @param queryParameters - Query parameters
+     * @return Mono\<String\>
+     */
     @GetMapping(value = "/googledrive")
     public Object googledriveOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
@@ -85,6 +94,12 @@ public class OauthController {
                 });
     }
 
+    /**
+     * Handler for google drive oauth requests
+     * @param headers - Incoming request headers
+     * @param queryParameters - Query parameters
+     * @return Mono\<String\>
+     */
     @GetMapping(value = "/dropbox")
     public Object dropboxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
@@ -124,6 +139,12 @@ public class OauthController {
         });
     }
 
+    /**
+     * Handler for GridFTP requests
+     * @param headers - Incoming request headers
+     * @param queryParameters - Query parameters
+     * @return Mono\<String\>
+     */
     @GetMapping(value = "/gridftp")
     public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);

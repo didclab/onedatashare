@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+/**
+ * Controller for handling GET requests from queue page
+ */
 @RestController
 @RequestMapping("/api/stork/q")
 public class QueueController {
@@ -17,6 +20,12 @@ public class QueueController {
   @Autowired
   private JobService jobService;
 
+  /**
+   * Handler for queue GET requests
+   * @param headers - Incoming request headers
+   * @param jobDetails - Request data needed for fetching Jobs
+   * @return Mono\<JobDetails\>
+   */
   @PostMapping
   public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
