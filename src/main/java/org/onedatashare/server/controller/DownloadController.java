@@ -26,7 +26,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
+/**
+ * Controller that request to cancel a transfer that is in progress.
+ */
 @RestController
 @RequestMapping("/api/stork/download")
 public class DownloadController {
@@ -40,6 +42,12 @@ public class DownloadController {
     @Autowired
     private ResourceServiceImpl resourceService;
 
+    /**
+     * Handler that returns the download link for the requested file in requestData
+     * @param headers - Incoming request headers
+     * @param requestData - Request data needed to generate the download link
+     * @return - Mono\<String\> containing the download link
+     */
     @PostMapping
     public Object download(@RequestHeader HttpHeaders headers, @RequestBody RequestData requestData) {
 
