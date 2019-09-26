@@ -20,7 +20,10 @@ import Cancel from '@material-ui/icons/Cancel';
 import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
+import { updateGAPageView } from "../../analytics/ga";
+
 import { withStyles } from '@material-ui/core';
+
 const styles = theme => ({
 		root:{
 			width:'fit-content'
@@ -52,14 +55,19 @@ class QueueComponent extends Component {
 
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
-		setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		var infoRowsIds= [];
 		this.toggleTabs = this.toggleTabs.bind(this);
+		updateGAPageView();
 	}
 
 	componentDidMount(){
 		document.title = "OneDataShare - History";
+	}
+
+	componentWillUnmount(){
+		clearInterval(this.interval);
 	}
 
 	queueFunc = () => {

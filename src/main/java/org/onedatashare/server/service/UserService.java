@@ -37,6 +37,9 @@ public class UserService {
   @Autowired
   private EmailService emailService;
 
+  @Autowired
+  CaptchaService captchaService;
+
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
@@ -57,27 +60,34 @@ public class UserService {
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
-  public Object register(String email, String firstName, String lastName, String organization) {
+  public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
 
-    return doesUserExists(email).flatMap(user -> {
+    return captchaService.verifyValue(captchaVerificationValue)
+            .flatMap(captchaVerified-> {
 
-      String password = User.salt(20);
-      /*
-        This would be a same temporary password for each user while creating,
-        once the user goes through the whole User creation workflow, he/she can change the password.
-      */
-      // Means admin user exists in the DB
-      if(user.getEmail() != null && user.getEmail().equals(email)) {
-        ODSLoggerService.logWarning("User with email " + email + " already exists.");
-        if(!user.isValidated()){
-          return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
-        }else{
-          return Mono.just(new Response("Account already exists",302));
-        }
-      }
-      return createUser(new User(email, firstName, lastName, organization, password))
-                  .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
-    });
+              if (captchaVerified){
+                return doesUserExists(email).flatMap(user -> {
+
+                  // This would be a same temporary password for each user while creating,
+                  // once the user goes through the whole User creation workflow, he/she can change the password.
+                  String password = User.salt(20);
+
+                  if(user.getEmail() != null && user.getEmail().equals(email)) {
+                    ODSLoggerService.logWarning("User with email " + email + " already exists.");
+                    if(!user.isValidated()){
+                      return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+                    }else{
+                      return Mono.just(new Response("Account already exists",302));
+                    }
+                  }
+                  return createUser(new User(email, firstName, lastName, organization, password))
+                          .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
+                });
+              }
+              else{
+                return Mono.error(new Exception("Captcha verification failed"));
+              }
+            });
   }
 
   public Mono<User> doesUserExists(String email) {
@@ -344,9 +354,6 @@ public class UserService {
   }
 
   public Mono<Object> verifyEmail(String email) {
-
-//    User user = new User("arnabdas@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
     return userRepository.existsById(email).flatMap( bool -> {
       if (bool) {
         return Mono.just(true);

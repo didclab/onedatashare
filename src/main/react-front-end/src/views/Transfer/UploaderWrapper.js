@@ -6,9 +6,6 @@ import FileInput from 'react-fine-uploader/file-input';
 import UploadButton from "@material-ui/icons/CloudUpload";
 import {eventEmitter} from "../../App";
 export default class UploaderWrapper extends Component {
-	constructor(props){
-		super(props);
-	}
 
 	shouldComponentUpdate(nextProps, nextState) { 
 
