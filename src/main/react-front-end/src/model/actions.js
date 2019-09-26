@@ -1,17 +1,16 @@
 export const LOGIN = 'LOGIN';
-export function loginAction(username, hash, publicKey) {
+export function loginAction(username, hash, remember, saveOAuthTokens) {
   return {
     type: LOGIN,
     credential: {
     	email: username,
-    	hash: hash,
-      publicKey: publicKey
+      hash: hash,
+      saveOAuthTokens: saveOAuthTokens
     }
   }
 }
 
 export const REGISTER = 'REGISTER';
-
 export function register(email, username, password) {
   return {
     type: REGISTER,
@@ -50,7 +49,6 @@ export function logoutAction() {
 }
 
 export const SETTING_CHANGED = 'SETTING_CHANGED';
-
 export function settingsChanged(settings) {
   return {
     type: SETTING_CHANGED,
@@ -68,7 +66,6 @@ export function endpointProgress(progress, side) {
 }
 
 export const ENDPOINT_LOGIN = 'ENDPOINT_LOGIN';
-
 export function endpointLogin(loginType, side, credential) {
   return {
     type: ENDPOINT_LOGIN,
@@ -78,17 +75,7 @@ export function endpointLogin(loginType, side, credential) {
   }
 }
 
-export const ENDPOINT_LOGOUT = 'ENDPOINT_LOGOUT';
-
-export function endpointLogout(side) {
-  return {
-    type: ENDPOINT_LOGOUT,
-    side,
-  }
-}
-
 export const ENDPOINT_TRANSFER = 'ENDPOINT_TRANSFER';
-
 export function endpointTransfer(sourceSide) {
   return {
     type: ENDPOINT_TRANSFER,
@@ -106,7 +93,6 @@ export function endpointUpdate(side, endpoint) {
 }
 
 export const ENDPOINT_SELECT = 'ENDPOINT_SELECT';
-
 export function endpointSelect(side, file) {
   return {
     type: ENDPOINT_SELECT,
@@ -116,7 +102,6 @@ export function endpointSelect(side, file) {
 }
 
 export const ENDPOINT_UNSELECT = 'ENDPOINT_UNSELECT';
-
 export function endpointUnselect(side, file) {
   return {
     type: ENDPOINT_UNSELECT,
@@ -127,7 +112,6 @@ export function endpointUnselect(side, file) {
 
 
 export const TRANSFER = 'TRANSFER';
-
 export function transfer(email, username, password) {
   return {
     type: SETTING_CHANGED,
@@ -136,6 +120,14 @@ export function transfer(email, username, password) {
     	username: username,
     	password: password
     }
+  }
+}
+
+export const ACCOUNT_PREFERENCE_TOGGLED = 'ACCOUNT_PREFERENCE_TOGGLED';
+export function accountPreferenceToggledAction(newState) {
+  return {
+    type: ACCOUNT_PREFERENCE_TOGGLED,
+    saveOAuthTokens : newState,
   }
 }
 
