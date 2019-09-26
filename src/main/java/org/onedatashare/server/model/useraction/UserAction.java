@@ -61,6 +61,11 @@ public class UserAction {
     private String filter_fulltext;
     private EndPoint globusEndpoint;
 
+    /**
+     * Factory method for returning an object of type request data
+     * @param requestData - data for making a request on the endpoints
+     * @return UserAction
+     */
     public static UserAction convertToUserAction(RequestData requestData){
         UserAction ua = new UserAction();
         ua.setType(requestData.getType());
@@ -71,6 +76,11 @@ public class UserAction {
         return ua;
     }
 
+    /**
+     * Factory method for returning an object of type request data
+     * @param operationRequestData - data for performing an operation on the endpoints
+     * @return UserAction
+     */
     public static UserAction convertToUserAction(OperationRequestData operationRequestData){
         UserAction ua = new UserAction();
         ua.setType(operationRequestData.getType());
@@ -82,12 +92,22 @@ public class UserAction {
         return ua;
     }
 
+    /**
+     * Factory method for returning an object of type request data
+     * @param jobRequestData - data for making a job request
+     * @return UserAction
+     */
     public static UserAction convertToUserAction(JobRequestData jobRequestData){
         UserAction ua = new UserAction();
         ua.setJob_id(jobRequestData.getJob_id());
         return ua;
     }
 
+    /**
+     * Factory method for returning an object of type request data
+     * @param transferRequestData - data for making a transfer request
+     * @return UserAction
+     */
     public static UserAction convertToUserAction(TransferRequestData transferRequestData){
         UserAction ua = new UserAction();
         ua.setSrc(transferRequestData.getSrc());
@@ -96,6 +116,11 @@ public class UserAction {
         return ua;
     }
 
+    /**
+     * Factory method for returning an object of type request data
+     * @param userRequestData - data for making a user request
+     * @return UserAction
+     */
     public static UserAction convertToUserAction(UserRequestData userRequestData){
         UserAction ua = new UserAction();
         ua.setAction(userRequestData.getAction());
