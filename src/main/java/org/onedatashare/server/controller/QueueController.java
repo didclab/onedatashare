@@ -10,16 +10,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-<<<<<<< HEAD
-/**
- * Controller for handling GET requests from queue page
- */
-=======
 import java.util.List;
 import java.util.UUID;
 
->>>>>>> master
+/**
+ * Controller for handling GET requests from queue page
+ */
 @RestController
 @RequestMapping("/api/stork/q")
 public class QueueController {
