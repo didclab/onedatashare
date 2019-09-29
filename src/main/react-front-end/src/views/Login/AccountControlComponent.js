@@ -48,41 +48,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	this.state = {
-    	isSmall: window.innerWidth <= 640,
-    	password: "",
-    	loading: true,
-        rememberMeAccounts: rememberMeAccounts,
-    	authenticated: store.getState().login,
-    	screen: this.newLogin,
-    	creatingAccount: false,
-    	loggingAccount: false,
-        // When signIn is set, it launches /account/signIn url
-        // In all back function's, that are sent as props to the child components, this flag is set to true
-        // and the flag for the corresponding components is set to false
-        // Eg: { signIn: true, creatingAccount: false } in props of 'CreateAccountComponent' component
-        signIn: false || Object.keys(rememberMeAccounts).length === 0,
-    	forgotPasswordPressed: false,
-    	validateEmailPressed: false
-		const cookieSaved = cookies.get('SavedUsers') || 0;
-		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-		this.newLogin = <SavedLoginComponent
-			accounts={rememberMeAccounts}
-			login={(email) => {
-				const user = JSON.parse(cookies.get('SavedUsers'))[email];
-				this.userLogin(email, user.hash, user.publicKey, false);
-			}}
-			removedAccount={(accounts) => {
-				cookies.set('SavedUsers', JSON.stringify(accounts));
-				this.setState({ loading: false, accounts: accounts });
-			}}
-			useAnotherAccount={() => {
-				this.setState({ signIn: true });
-			}}
-			isLoading={(loading) => {
-				this.setState({ loading: loading });
-			}}
-		/>;
+	
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
