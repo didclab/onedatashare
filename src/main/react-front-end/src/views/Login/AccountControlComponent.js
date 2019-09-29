@@ -30,9 +30,9 @@ export default class AccountControlComponent extends Component {
 
 
 		const cookieSaved = cookies.get('SavedUsers') || 0;
-		const rememberedAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
+		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
 		this.newLogin = <SavedLoginComponent
-			accounts={rememberedAccounts}
+			accounts={rememberMeAccounts}
 			login={(email) => {
 				const user = JSON.parse(cookies.get('SavedUsers'))[email];
 				this.userLogin(email, user.hash, user.publicKey, false);
@@ -52,12 +52,16 @@ export default class AccountControlComponent extends Component {
 			isSmall: window.innerWidth <= 640,
 			password: "",
 			loading: true,
-			rememberedAccounts: rememberedAccounts,
+			rememberMeAccounts: rememberMeAccounts,
 			authenticated: store.getState().login,
 			screen: this.newLogin,
 			creatingAccount: false,
 			loggingAccount: false,
-			signIn: false || Object.keys(rememberedAccounts).length === 0,
+			// When signIn is set, it launches /account/signIn url
+			// In all back function's, that are sent as props to the child components, this flag is set to true
+			// and the flag for the corresponding components is set to false
+			// Eg: { signIn: true, creatingAccount: false } in props of 'CreateAccountComponent' component
+			signIn: false || Object.keys(rememberMeAccounts).length === 0,
 			forgotPasswordPressed: false,
 			validateEmailPressed: false
 		}
@@ -77,9 +81,9 @@ export default class AccountControlComponent extends Component {
 
 	// Called when user clicked login
 	userLogin(email, hash, publicKey, remember) {
-		this.state.rememberedAccounts[email] = { hash: hash, publicKey: publicKey };
+		this.state.rememberMeAccounts[email] = { hash: hash, publicKey: publicKey };
 		if (remember) {
-			cookies.set('SavedUsers', JSON.stringify(this.state.rememberedAccounts));
+			cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 		}
 
 		store.dispatch(loginAction(email, hash, publicKey, remember));
@@ -105,13 +109,16 @@ export default class AccountControlComponent extends Component {
 			(error) => { fail(error) }
 		);
 	}
+	// Switches to a route and renders a component based on the redirect set inside render method.
+	// So this method is called after setting the redirect inside render method
 	getInnerCard() {
 		return (
 			<Switch>
 				<Route exact path={'/account'}
 					render={(props) => this.state.screen}>
 				</Route>
-				<Route exact path={'/account/register'}
+
+				<Route exact path={registerPageUrl}
 					render={(props) => <CreateAccountComponent {...props}
 						create={(email, password) => {
 
@@ -121,6 +128,7 @@ export default class AccountControlComponent extends Component {
 						}}
 					/>}>
 				</Route>
+
 				<Route exact path={lostValidationCodeUrl}
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
@@ -128,17 +136,22 @@ export default class AccountControlComponent extends Component {
 							this.setState({ loading: false, signIn: true, validateEmailPressed: false });
 						}} />}>
 				</Route>
+				
+				<Route exact path={forgotPasswordUrl}
+					render={(props) => <ForgotPasswordComponent {...props} back={() => {
+						this.setState({ loading: false, screen: this.newLogin, signIn:true, forgotPasswordPressed: false });
+					}} email={this.state.email} />}>
+				</Route>
+
 				<Route exact path={signInUrl}
-					render={(props) =>
-							<NewLoginComponent email={this.props.email}
+					render={(props) => <NewLoginComponent 
+								email={this.props.email}
 								isLoading={(loading) => {
 									this.setState({ loading: loading });
 								}}
-
 								createAccountPressed={() => {
 									this.setState({ loading: false, creatingAccount: true, signIn: false });
 								}}
-
 								validateEmailPressed={(email) => {
 									this.setState({
 										loading: false,
@@ -147,7 +160,6 @@ export default class AccountControlComponent extends Component {
 										email: email
 									});
 								}}
-
 								forgotPasswordPressed={(email) => {
 									this.setState({
 										loading: false, 
@@ -156,17 +168,10 @@ export default class AccountControlComponent extends Component {
 										forgotPasswordPressed: true
 									});
 								}}
-
 								userLoggedIn={this.userSigningIn}
 							/>
 						
 					}>
-				</Route>
-				
-				<Route exact path={forgotPasswordUrl}
-					render={(props) => <ForgotPasswordComponent {...props} back={() => {
-						this.setState({ loading: false, screen: this.newLogin, signIn:true, forgotPasswordPressed: false });
-					}} email={this.state.email} />}>
 				</Route>
 			</Switch>
 		);
@@ -174,7 +179,7 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, creatingAccount, loggingAccount, signIn, forgotPasswordPressed, validateEmailPressed, rememberedAccounts } = this.state;
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, validateEmailPressed, rememberMeAccounts } = this.state;
 		const height = window.innerHeight + "px";
 		const currentRoute = this.props.location.pathname
 			return (
@@ -182,15 +187,14 @@ export default class AccountControlComponent extends Component {
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
 					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+validateEmailPressed+ "-" + signIn + "-" + Object.keys(rememberedAccounts).length )} */}
+						{/* At any point of time only one among below should be true */}
 						{(currentRoute !== lostValidationCodeUrl && validateEmailPressed) && <Redirect to={lostValidationCodeUrl} />}
 						{store.getState().login && <Redirect to={transferPageUrl} />}
 						{(currentRoute !== registerPageUrl && creatingAccount) && <Redirect to={registerPageUrl} />}
 						{(currentRoute !== forgotPasswordUrl && forgotPasswordPressed) && <Redirect to={forgotPasswordUrl} />}
-						{/* {loggingAccount && <Redirect to={"/account"} />} */}
 						{(currentRoute !== signInUrl && signIn)  && <Redirect to={signInUrl} />}
 						{loading && <LinearProgress />}
 
-						{/* {console.log("executing after redirect. The route is.. " + this.props.location.pathname)} */}
 
 						{isSmall &&
 							this.getInnerCard()
