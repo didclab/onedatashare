@@ -110,7 +110,6 @@ export default class AccountControlComponent extends Component {
 		);
 	}
 	// Switches to a route and renders a component based on the redirect set inside render method.
-	// So this method is called after setting the redirect inside render method
 	getInnerCard() {
 		return (
 			<Switch>
