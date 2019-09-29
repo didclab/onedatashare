@@ -177,7 +177,6 @@
             <systemPath>${project.basedir}/lib/globus-api-1.1-SNAPSHOT.jar</systemPath>
         </dependency>
 
-
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>

@@ -8,10 +8,10 @@ import { store } from './App.js';
 
 import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
-import QueueComponent from './views/Queue/QueueComponent.js';
-import UserAccountComponent from './views/Login/UserAccountComponent.js';
-import ClientsInfoComponent from './views/Admin/ClientsInfoComponent.js';
-import SupportComponent from './views/Support/SupportComponent.js';
+import QueueComponent from './views/Queue/QueueComponent';
+import UserAccountComponent from './views/Login/UserAccountComponent';
+import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
+import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 
@@ -37,11 +37,9 @@ export default class MainComponent extends Component {
 
   render() {
     const { isLoggedIn, admin } = this.state;
-    const showTerms = false;
     return (
       <div className="App">
-
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+        
         <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
 
