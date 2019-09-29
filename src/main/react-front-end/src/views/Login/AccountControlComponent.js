@@ -94,21 +94,7 @@ export default class AccountControlComponent extends Component {
   	this.unsubscribe();
   }
 
-	// Called when user clicked login
-	userLogin(email, hash, publicKey, remember) {
-		this.state.rememberMeAccounts[email] = { hash: hash, publicKey: publicKey };
-		if (remember) {
-			cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
-		}
-
-		store.dispatch(loginAction(email, hash, publicKey, remember));
-		//this.setState({authenticated : true});
-	}
-	componentWillUnmount() {
-		this.unsubscribe();
-	}
-
-	resize() {
+  resize() {
 		if (this.state.isSmall && window.innerWidth > 640) {
 			this.setState({ isSmall: false });
 		} else if (!this.state.isSmall && window.innerWidth <= 640) {
