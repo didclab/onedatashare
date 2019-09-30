@@ -1,4 +1,4 @@
-export const spaceBetweenStyle = {display: 'flex', justifyContent:"space-between"};
+export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-between" };
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
@@ -11,6 +11,7 @@ export const registerPageUrl = "/account/register";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
+export const notificationPageUrl = "/sendNotifications";
 export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
@@ -46,58 +47,58 @@ export const SCP = "scp";
 export const sideLeft = "left";
 export const sideRight = "right";
 
-export const showText={
+export const showText = {
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
-	ftp : FTP_NAME,
-	sftp : SFTP_NAME,
-	http : HTTP_NAME,
-	gsiftp : GRIDFTP_NAME,
-	scp : SCP_NAME,
-	https : HTTP_NAME
+	ftp: FTP_NAME,
+	sftp: SFTP_NAME,
+	http: HTTP_NAME,
+	gsiftp: GRIDFTP_NAME,
+	scp: SCP_NAME,
+	https: HTTP_NAME
 }
 
-export const showType={
+export const showType = {
 	dropbox: DROPBOX_TYPE,
 	googledrive: GOOGLEDRIVE_TYPE,
-	ftp : FTP_TYPE,
-	sftp : SFTP_TYPE,
-	http : HTTP_TYPE,
-	gsiftp : GRIDFTP_TYPE,
-	scp : SCP_TYPE,
-	https : HTTP_TYPE
+	ftp: FTP_TYPE,
+	sftp: SFTP_TYPE,
+	http: HTTP_TYPE,
+	gsiftp: GRIDFTP_TYPE,
+	scp: SCP_TYPE,
+	https: HTTP_TYPE
 }
 
-export const defaultPort={
+export const defaultPort = {
 	dropbox: -1,
 	googledrive: -1,
-	ftp : 21,
-	sftp : 22,
-	http : 80,
-	gsiftp : -1,
-	scp : 22,
-	https : 443
+	ftp: 21,
+	sftp: 22,
+	http: 80,
+	gsiftp: -1,
+	scp: 22,
+	https: 443
 }
 
 export const maxCookieAge = 7;
 
 
-export function getType(endpoint){
+export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)
 }
 
-export function getDefaultPortFromUri(uri){
+export function getDefaultPortFromUri(uri) {
 	return defaultPort[uri.split(":")[0].toLowerCase()]
 }
 
-export function getTypeFromUri(uri){
+export function getTypeFromUri(uri) {
 	return showType[uri.split(":")[0].toLowerCase()]
 }
 
-export function getName(endpoint){
+export function getName(endpoint) {
 	return showText[endpoint.uri.split(":")[0].toLowerCase()]
 }
 
-export function getNameFromUri(uri){
+export function getNameFromUri(uri) {
 	return showText[uri.split(":")[0].toLowerCase()]
 }
