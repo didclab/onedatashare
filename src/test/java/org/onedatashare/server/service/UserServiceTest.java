@@ -1,79 +1,57 @@
 package org.onedatashare.server.service;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.onedatashare.server.model.core.User;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @Autowired
     private UserService userService;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
-    public void createUser_givenBlankEmailAndPassword_throwsRuntimeExceptionAndDisplaysCorrectMessage() throws Exception {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("No password was provided");
-        User user = new User("","");
-        userService.createUser(user).subscribe();
+    @DisplayName("UserService.createUser")
+    @Disabled
+    // Check the test cases
+    public void createUserTest() {
+        // No email and password provided
+
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("", ""));
+                }, "allows creation of user with no email and password provided"
+        );
+        // Only password provided
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("", "abcdefgh")).subscribe();
+                }, "allows creation of user with no email provided"
+        );
+        // Only email provided
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("a@e.com", "")).subscribe();
+                }, "allows creation of user with no password provided"
+        );
+        // Short password provided
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("", "abcd")).subscribe();
+                }, "allows creation of user with short password"
+        );
+
+        // Invalid email format provided
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("invalidEmail", "abcdefgh")).subscribe();
+                }, "allows creation of user with invalid email format"
+        );
+
+        assertThrows(NullPointerException.class, () -> {
+                    userService.createUser(new User("abcdefgh@gmail.com", "helloWorld")).subscribe();
+                }, "allows creation of user with email and password provided"
+        );
     }
 
-    @Test
-    public void createUser_givenRandomEmailAndBlankPassword_throwsRuntimeExceptionAndDisplaysCorrectMessage() throws Exception {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("No password was provided");
-        User user = new User("ryandils@buffalo.edu","");
-        userService.createUser(user).subscribe();
-    }
 
-    @Test
-    public void createUser_givenBlankEmailAndRandomPassword_throwsNullPointerException() throws Exception {
-        thrown.expect(NullPointerException.class);
-        User user = new User("","password");
-        userService.createUser(user).subscribe();
-    }
-
-    @Test
-    public void createUser_givenRandomEmailAndPassword_noExceptionThrown() throws Exception {
-
-    }
-
-    @Test
-    public void getGlobusClient_givenGlobusClient_returnsGlobsuClient() {
-
-    }
-
-    @Test
-    public void removeIfExpired_givenExpiredObject_successfullyRemoves() {
-
-    }
-
-    @Test
-    public void verifyEmail_givenValidEmail_successfullyVerifiesEmail() {
-
-    }
-
-    @Test
-    public void verifyEmail_givenInvalidEmail_unsuccessfullyVerifiesEmail() {
-
-    }
-
-    @Test
-    public void isAdmin_givenAdmin_returnsTrue() {
-
-    }
-
-    @Test
-    public void isAdmin_givenSomeoneThatIsNotAdmin_returnsFalse() {
-
-    }
-
-    @Test
-    public void getGlobusClient_givenNoCredentials_returnsNull() {
-
-    }
 }
