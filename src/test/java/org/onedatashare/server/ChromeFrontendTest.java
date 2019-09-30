@@ -1,8 +1,5 @@
 package org.onedatashare.server;
 
-import javafx.concurrent.Task;
-import org.junit.After;
-import org.onedatashare.server.model.core.User;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeDriverService;
@@ -214,7 +211,7 @@ public class ChromeFrontendTest {
 
             if(driver.findElement(By.id("queueNextButton")).isEnabled()) {
                 for(int i = 0; i < 9; i++) {
-                    assertTrue(Integer.parseInt(driver.findElement(By.id("queueid" + i)).getText()) > Integer.parseInt(driver.findElement(By.id("queueid" + (i + 1))).getText()));
+                    assertTrue(Integer.parseInt(driver.findElement(By.id("queueid" + i)).getText()) >= Integer.parseInt(driver.findElement(By.id("queueid" + (i + 1))).getText()));
                 }
                 driver.findElement(By.id("queueNextButton")).click();
             }
@@ -376,7 +373,7 @@ public class ChromeFrontendTest {
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("queueNextButton")));
             if(driver.findElement(By.id("queueNextButton")).isEnabled()) {
                 for(int i = 0; i < 9; i++) {
-                    assertTrue(Integer.parseInt(driver.findElement(By.id("queueid" + i)).getText()) > Integer.parseInt(driver.findElement(By.id("queueid" + (i + 1))).getText()));
+                    assertTrue(Integer.parseInt(driver.findElement(By.id("queueid" + i)).getText()) >= Integer.parseInt(driver.findElement(By.id("queueid" + (i + 1))).getText()));
                 }
                     driver.findElement(By.id("queueNextButton")).click();
             }
@@ -488,7 +485,11 @@ public class ChromeFrontendTest {
             driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
 
             wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("leftFTP")));
+            assertEquals(driver.getTitle(), "OneDataShare - Transfer");
+            assertEquals(driver.findElement(By.id("leftFTP")).getText(), "FTP");
+
             driver.findElement(By.id("leftFTP")).click();
+
             driver.findElement(By.id("leftAdd")).click();
             driver.findElement(By.id("leftLoginURI")).click();
             driver.findElement(By.id("leftLoginURI")).clear();
@@ -500,32 +501,45 @@ public class ChromeFrontendTest {
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000gb");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertTrue(driver.findElements(By.id("filenameright0")).isEmpty());
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000");
             driver.findElement(By.id("leftIgnoreCase")).click();
             driver.findElement(By.id("leftSearch")).click();
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000gb");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("10*");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertTrue(driver.findElements(By.id("filenameright0")).isEmpty());
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("");
             driver.findElement(By.id("leftRegex")).click();
             driver.findElement(By.id("leftSearch")).click();
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "upload");
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000*");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
             driver.findElement(By.id("leftSearch")).clear();
             driver.findElement(By.id("leftSearch")).sendKeys("1000gb.zipa*");
             driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("leftSearch")).clear();
-            driver.findElement(By.id("leftSearch")).sendKeys("");
-            driver.findElement(By.id("leftSearch")).sendKeys(Keys.ENTER);
+            assertTrue(driver.findElements(By.id("filenameright0")).isEmpty());
+
         }catch(Exception e){
             e.printStackTrace();
             throw e;
@@ -536,8 +550,103 @@ public class ChromeFrontendTest {
     /** Front end test for right side search bar
      * @throws Exception
      */
-    //@Test(dependsOnMethods = {"LoginTest"})
+    @Test(dependsOnMethods = {"LoginTest"})
     public void SearchingTestRight() throws Exception {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, msWaitLong);
+
+        try{
+            driver.get(baseUrl);
+            driver.findElement(By.linkText("Sign in")).click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+            assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
+            driver.findElement(By.id("email")).click();
+            driver.findElement(By.id("email")).clear();
+            driver.findElement(By.id("email")).sendKeys("vanditsa@buffalo.edu");
+            driver.findElement(By.id("email")).sendKeys(Keys.ENTER);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("Password")));
+            driver.findElement(By.id("Password")).click();
+            driver.findElement(By.id("Password")).clear();
+            driver.findElement(By.id("Password")).sendKeys("asdasd");
+            driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("rightFTP")));
+            assertEquals(driver.getTitle(), "OneDataShare - Transfer");
+            assertEquals(driver.findElement(By.id("rightFTP")).getText(), "FTP");
+
+            driver.findElement(By.id("rightFTP")).click();
+            driver.findElement(By.id("rightAdd")).click();
+            driver.findElement(By.id("rightLoginURI")).click();
+            driver.findElement(By.id("rightLoginURI")).clear();
+            driver.findElement(By.id("rightLoginURI")).sendKeys("speedtest.tele2.net");
+            driver.findElement(By.id("rightLoginAuth")).click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("rightSearch")));
+            assertEquals(driver.getTitle(), "OneDataShare - Transfer");
+            assertEquals(driver.findElement(By.id("leftFTP")).getText(), "FTP");
+
+            driver.findElement(By.id("rightSearch")).click();
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000gb");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            assertTrue(driver.findElements(By.id("filenameright0")).isEmpty());
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000");
+            driver.findElement(By.id("rightIgnoreCase")).click();
+            driver.findElement(By.id("rightSearch")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000gb");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("10*");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("");
+            driver.findElement(By.id("rightRegex")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "upload");
+
+            driver.findElement(By.id("rightSearch")).click();
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000*");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertEquals(driver.findElement(By.id("filenameright0")).getText(), "1000GB.zip");
+
+            driver.findElement(By.id("rightSearch")).clear();
+            driver.findElement(By.id("rightSearch")).sendKeys("1000gb.zipa*");
+            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameright0")));
+            assertTrue(driver.findElements(By.id("filenameright0")).isEmpty());
+
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }finally{
+            driver.quit();
+        }
+    }
+
+    @Test(dependsOnMethods = {"LoginTest"})
+    public void SingleTransferLeft() throws Exception {
         WebDriver driver = new ChromeDriver();
         WebDriverWait wait = new WebDriverWait(driver, msWaitLong);
 
@@ -563,40 +672,29 @@ public class ChromeFrontendTest {
             driver.findElement(By.id("rightAdd")).click();
             driver.findElement(By.id("rightLoginURI")).click();
             driver.findElement(By.id("rightLoginURI")).clear();
-            driver.findElement(By.id("rightLoginURI")).sendKeys("speedtest.tele2.net");
+            driver.findElement(By.id("rightLoginURI")).sendKeys("speedtest.tele2.net/upload");
             driver.findElement(By.id("rightLoginAuth")).click();
 
-            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("rightSearch")));
-            driver.findElement(By.id("rightSearch")).click();
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000gb");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000");
-            driver.findElement(By.id("rightIgnoreCase")).click();
-            driver.findElement(By.id("rightSearch")).click();
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000gb");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("10*");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("");
-            driver.findElement(By.id("rightRegex")).click();
-            driver.findElement(By.id("rightSearch")).click();
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000*");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("1000gb.zipa*");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
-            driver.findElement(By.id("rightSearch")).clear();
-            driver.findElement(By.id("rightSearch")).sendKeys("");
-            driver.findElement(By.id("rightSearch")).sendKeys(Keys.ENTER);
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("leftFTP")));
+            driver.findElement(By.id("leftFTP")).click();
+
+            driver.findElement(By.id("leftAdd")).click();
+            driver.findElement(By.id("leftLoginURI")).click();
+            driver.findElement(By.id("leftLoginURI")).clear();
+            driver.findElement(By.id("leftLoginURI")).sendKeys("speedtest.tele2.net");
+            driver.findElement(By.id("leftLoginAuth")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("filenameleft4")));
+            //Transfer
+            driver.findElement(By.id("filenameleft4")).click();
+            driver.findElement(By.id("sendFromLeftToRight")).click();
+
+            driver.findElement(By.id("NavQueue")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("queueprocess0")));
+            assertEquals(driver.getCurrentUrl(), "http://localhost:8080/queue");
+            assertEquals(driver.getTitle(), "OneDataShare - Queue");
+
+            assertTrue(!driver.findElement(By.id("queueprocess0")).getText().equals("Completed"));
+
         }catch(Exception e){
             e.printStackTrace();
             throw e;
@@ -604,6 +702,65 @@ public class ChromeFrontendTest {
             driver.quit();
         }
     }
+
+    @Test(dependsOnMethods = {"LoginTest"})
+    public void SingleTransferRight() throws Exception {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, msWaitLong);
+
+        try{
+            driver.get(baseUrl);
+            driver.findElement(By.linkText("Sign in")).click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("email")));
+            assertEquals(driver.getCurrentUrl(), "http://localhost:8080/account/signIn");
+            driver.findElement(By.id("email")).click();
+            driver.findElement(By.id("email")).clear();
+            driver.findElement(By.id("email")).sendKeys("vanditsa@buffalo.edu");
+            driver.findElement(By.id("email")).sendKeys(Keys.ENTER);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("Password")));
+            driver.findElement(By.id("Password")).click();
+            driver.findElement(By.id("Password")).clear();
+            driver.findElement(By.id("Password")).sendKeys("asdasd");
+            driver.findElement(By.id("Password")).sendKeys(Keys.ENTER);
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("rightFTP")));
+            driver.findElement(By.id("rightFTP")).click();
+            driver.findElement(By.id("rightAdd")).click();
+            driver.findElement(By.id("rightLoginURI")).click();
+            driver.findElement(By.id("rightLoginURI")).clear();
+            driver.findElement(By.id("rightLoginURI")).sendKeys("speedtest.tele2.net/upload");
+            driver.findElement(By.id("rightLoginAuth")).click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("leftFTP")));
+            driver.findElement(By.id("leftFTP")).click();
+
+            driver.findElement(By.id("leftAdd")).click();
+            driver.findElement(By.id("leftLoginURI")).click();
+            driver.findElement(By.id("leftLoginURI")).clear();
+            driver.findElement(By.id("leftLoginURI")).sendKeys("speedtest.tele2.net");
+            driver.findElement(By.id("leftLoginAuth")).click();
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("leftSearch")));
+            //Transfer
+            driver.findElement(By.id("filenameleft4")).click();
+            driver.findElement(By.id("sendFromLeftToRight")).click();
+            driver.findElement(By.id("NavQueue")).click();
+
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("queueprocess0")));
+            assertEquals(driver.getCurrentUrl(), "http://localhost:8080/queue");
+            assertEquals(driver.getTitle(), "OneDataShare - Queue");
+
+            assertTrue(!driver.findElement(By.id("queueprocess0")).getText().equals("Completed"));
+
+        }catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }finally{
+            driver.quit();
+        }
+    }
+
 
     /** Initialize 30 random clicks for 5 times on the page after login
      * @throws Exception
