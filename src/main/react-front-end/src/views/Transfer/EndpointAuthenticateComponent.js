@@ -396,6 +396,10 @@ export default class EndpointAuthenticateComponent extends Component {
     		});
 		}
 	}
+
+	handleClick = (e) => {
+		this.inputElement.click();
+	}
 	
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
@@ -489,7 +493,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					  autoFocus={true}
 					  onKeyPress={(e) => {
 						if (e.key === 'Enter') {
-							authFunction()
+							// authFunction()
+							this.handleClick()
 						  }
 					  }}
 			        />
@@ -505,7 +510,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  variant="outlined"
 					  onKeyPress={(e) => {
 						if (e.key === 'Enter') {
-							authFunction()
+							this.handleClick()
 						  }
 					  }}
 			        />
@@ -533,7 +538,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  autoFocus={(this.state.url !== 'sftp://') }
 					  onKeyPress={(e) => {
 						if (e.key === 'Enter') {
-							authFunction()
+							this.handleClick()
 						  }
 					  }}
 			        />
@@ -549,14 +554,14 @@ export default class EndpointAuthenticateComponent extends Component {
 					  variant="outlined"
 					  onKeyPress={(e) => {
 						if (e.key === 'Enter') {
-							authFunction()
+							this.handleClick()
 						  }
 					  }}
 			        />
 					</ValidatorForm>
 			        </div>
 		    	}
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+		    	<Button ref={input => this.inputElement = input} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
 		    	</div>
 		    }
       	</div>);
