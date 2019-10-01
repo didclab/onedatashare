@@ -2,7 +2,7 @@
 
 OneDataShare (abbreviated as ODS) is a cloud-based managed file transfer system that performs inter-protocol data transfers in a reliable and efficient manner.
 
-ODS provides the end-user with an interface which can be used to intitate file transfers and monitor them simultaenously. ODS guarantees efficiency in data transfer by performing software level optimizations (for example - chunking of data into a byte stream of fixed size).
+ODS provides the end-user with an interface which can be used to initiate file transfers and monitor them simultanously. ODS guarantees efficiency in data transfer by performing software level optimizations (for example - chunking of data into a byte stream of fixed size).
 
 OneDataShare beta version is a publicly available for use and can be accessed using https://www.onedatashare.org/.
 

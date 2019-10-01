@@ -35,10 +35,17 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
 
+    private boolean checkExpiry = false;
+
     public GoogleDriveSession(){}
 
     public GoogleDriveSession(URI uri, Credential credential) {
         super(uri, credential);
+    }
+
+    public GoogleDriveSession(URI uri, Credential credential, Boolean checkExpiry) {
+        super(uri, credential);
+        this.checkExpiry = checkExpiry;
     }
 
     @Override
@@ -64,13 +71,23 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                 } catch (Throwable t) {
                     s.error(t);
                 }
-                Date currentTime = new Date();
-                if(service !=null && ((OAuthCredential) getCredential()).expiredTime != null &&
-                        currentTime.before(((OAuthCredential) getCredential()).expiredTime))
-                    s.success(this);
-                else {
-                    OAuthCredential newCredential = updateToken();
-                    s.error(new TokenExpiredException(401, newCredential));
+                if(!checkExpiry) {
+                    if(service==null) {
+                        s.error(new Exception("Invalid token"));
+                    }
+                    else{
+                        s.success(this);
+                    }
+                }
+                else{
+                    Date currentTime = new Date();
+                    if (service != null && ((OAuthCredential) getCredential()).expiredTime != null &&
+                            currentTime.before(((OAuthCredential) getCredential()).expiredTime))
+                        s.success(this);
+                    else {
+                        OAuthCredential newCredential = updateToken();
+                        s.error(new TokenExpiredException(401, newCredential));
+                    }
                 }
             }
             else s.error(new AuthenticationRequired("oauth"));

@@ -58,16 +58,16 @@ const getTextColor = (isSelected, isGhosting): string => {
 	return "#333333";
 };
 
-const getExtraStyle = (isDragging, isGhosting): string => {
-	if(isDragging){
-		return {boxShadow: "3px 3px 1px #333"};
-	}
-	if(isGhosting){
-		return {opacity: 0.2};
-	}
+// const getExtraStyle = (isDragging, isGhosting): string => {
+// 	if(isDragging){
+// 		return {boxShadow: "3px 3px 1px #333"};
+// 	}
+// 	if(isGhosting){
+// 		return {opacity: 0.2};
+// 	}
 
-	return {};
-};
+// 	return {};
+// };
 
 const keyCodes = {
 	enter: 13,
@@ -212,9 +212,8 @@ export default class FileNode extends Component {
 	}
 
 	render(){
-		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
-		const {name, dir, perm, time, size, children} = this.props.file;
-		const {isDragging} = this.state;
+		const {index, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
+		const {name, dir, perm, time, size} = this.props.file;
 		const hasAttr = (time !== 0 || perm || size !== 0);
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);

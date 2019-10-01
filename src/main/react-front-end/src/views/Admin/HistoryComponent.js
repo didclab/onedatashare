@@ -57,7 +57,6 @@ class QueueComponent extends Component {
 		this.queueFunc();
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
-		var infoRowsIds= [];
 		this.toggleTabs = this.toggleTabs.bind(this);
 		updateGAPageView();
 	}
@@ -109,7 +108,7 @@ class QueueComponent extends Component {
 	}
 
 	renderSpeed(speedInBps){
-		var displaySpeed = "";
+		let displaySpeed = "";
 		if(speedInBps > 1000000000){
 			displaySpeed = (speedInBps/1000000000).toFixed(2) + " GB/s";
 		}
@@ -208,25 +207,6 @@ class QueueComponent extends Component {
 	decodeURIComponent(url) {
 	    return decodeURIComponent(url);
 	}
-
-
-	renderSpeed(speedInBps){
-    		var displaySpeed = "";
-    		if(speedInBps > 1000000000){
-    			displaySpeed = (speedInBps/1000000000).toFixed(2) + " GB/s";
-    		}
-    		else if(speedInBps > 1000000){
-    			displaySpeed = (speedInBps/1000000).toFixed(2) + " MB/s";
-    		}
-    		else if(speedInBps > 1000){
-    			displaySpeed = (speedInBps/1000).toFixed(2) + " KB/s";
-    		}
-    		else{
-    			displaySpeed = speedInBps + " B/s";
-    		}
-
-    		return displaySpeed;
-    	}
 
 
 	renderTabContent(resp){
@@ -330,8 +310,7 @@ class QueueComponent extends Component {
 
 
 	render(){
-		const height = window.innerHeight+"px";
-		const {response, totalCount, responsesToDisplay} = this.state;
+		const {totalCount, responsesToDisplay} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy} = this.state;
 		const {classes} = this.props;

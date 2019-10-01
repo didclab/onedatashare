@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
+/**
+ * Controller for handling list requests on endpoints
+ */
 @RestController
 @RequestMapping("/api/stork/ls")
 public class ListController {
@@ -30,10 +33,17 @@ public class ListController {
     @Autowired
     private HttpFileService httpService;
 
-
+    /**
+     * Handler that returns Mono of the stats(file information) in the given path of the endpoint
+     * @param headers - Incoming request headers
+     * @param requestData - Request data needed to generate the download link
+     * @return Mono\<Stat\> containing the file/ folder information
+     */
     @PostMapping
-    public Object list(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+    public Object list(@RequestHeader HttpHeaders headers, @RequestBody RequestData requestData) {
         String cookie = headers.getFirst("cookie");
+        UserAction userAction = UserAction.convertToUserAction(requestData);
+
         if(userAction.getCredential() == null) {
             switch (userAction.getType()) {
                 case ODSConstants.DROPBOX_URI_SCHEME:
@@ -66,3 +76,4 @@ public class ListController {
         return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
     }
 }
+

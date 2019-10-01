@@ -5,7 +5,7 @@ export default class ErrorMessagesConsole extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			errorMessages: [{msg: "Thank you for using onedatashare, currently we do not support transfer between gridftp and other modules, Gridftp can only transfer to gridftp.", color: "black"},]
+			errorMessages: [{msg: "Thank you for using OneDataShare. Currently we do not support transfers between GridFTP and other modules, GridFTP can only transfer to GridFTP.", color: "black"},]
 		}
 		this.onErrorOccured = this.onErrorOccured.bind(this);
 		this.onMessageOccurred = this.onMessageOccurred.bind(this);
