@@ -190,8 +190,8 @@ export default class AccountControlComponent extends Component {
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
 					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
-						{ console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
-						{console.log(currentRoute)}
+						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
+						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}
 						{(currentRoute !== lostValidationCodeUrl && lostValidationCodePressed) && <Redirect to={lostValidationCodeUrl} />}
 						{store.getState().login && <Redirect to={transferPageUrl} />}
