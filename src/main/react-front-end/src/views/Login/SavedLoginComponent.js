@@ -21,7 +21,7 @@ export default class SavedLoginComponent extends Component {
 	  	login : PropTypes.func,
 	}
 	constructor(props){
-	    super(props);
+		super(props);
 	    this.state = {
 	    	accounts: this.props.accounts,
 	    }
@@ -30,9 +30,6 @@ export default class SavedLoginComponent extends Component {
 	render(){
 		const { accounts } = this.state;
 		const {useAnotherAccount, isLoading, login} = this.props;
-		if(Object.keys(accounts).length === 0){
-			useAnotherAccount();
-		}
 		const handleLogin = (email) => {
 			login(email);
 		}
