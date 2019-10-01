@@ -54,16 +54,16 @@ const getTextColor = (isSelected, isGhosting): string => {
 	return "#333333";
 };
 
-const getExtraStyle = (isDragging, isGhosting): string => {
-	if(isDragging){
-		return {boxShadow: "3px 3px 1px #333"};
-	}
-	if(isGhosting){
-		return {opacity: 0.2};
-	}
+// const getExtraStyle = (isDragging, isGhosting): string => {
+// 	if(isDragging){
+// 		return {boxShadow: "3px 3px 1px #333"};
+// 	}
+// 	if(isGhosting){
+// 		return {opacity: 0.2};
+// 	}
 
-	return {};
-};
+// 	return {};
+// };
 
 const keyCodes = {
 	enter: 13,
@@ -192,7 +192,6 @@ export default class FileNodeCompact extends Component {
 
 	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
 		const {
-		  file,
 		  toggleSelection,
 		  toggleSelectionInGroup,
 		  multiSelectTo,
@@ -235,10 +234,8 @@ export default class FileNodeCompact extends Component {
 	}
 
 	render(){
-		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns} = this.props;
-		const {name, dir, perm, time, size, children} = this.props.file;
-		const {isDragging} = this.state;
-		const hasAttr = (time !== 0 || perm || size !== 0);
+		const {index, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns} = this.props;
+		const {name, dir, perm, time, size } = this.props.file;
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
 		const pstyle =  {textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden", marginLeft: "10px",textAlign: "left", display: "inline-block"};
@@ -285,10 +282,10 @@ export default class FileNodeCompact extends Component {
 							</td>}
 
 							{columns[2] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit2}}> {perm? perm: "N\/A"} </p>
+								<p style={{...pstyle, width: posit2}}> {perm? perm: "N/A"} </p>
 							</td>}
 							{columns[3] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit3}}> {size===0 ? "N\/A" : this.humanFileSize(size)} </p>
+								<p style={{...pstyle, width: posit3}}> {size===0 ? "N/A" : this.humanFileSize(size)} </p>
 							</td>}
 					</FileDiv>
 			)}}

@@ -26,18 +26,18 @@ import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import {mkdir, deleteCall, download, getDownload, getSharableLink} from "../../APICalls/APICalls";
+import { mkdir, deleteCall, download, getDownload, getSharableLink } from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import {getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
+import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
-import {eventEmitter} from "../../App";
+import { eventEmitter } from "../../App";
 
-import {getType} from '../../constants.js';
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { getType } from '../../constants.js';
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -60,7 +60,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
 		this.breadcrumbClicked = this.breadcrumbClicked.bind(this);
-		this.fileNodeClicked = this.fileNodeClicked.bind(this);
 		this.toggleSelection = this.toggleSelection.bind(this);
 		this.toggleSelectionInGroup = this.toggleSelectionInGroup.bind(this);
 		this.multiSelectTo = this.multiSelectTo.bind(this);
@@ -80,7 +79,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.permissionDescendingOrderSort = this.permissionDescendingOrderSort.bind(this);
 		
 		this.sortBy = this.sortBy.bind(this);
-		
+
 		if(this.state.directoryPath.length === 0)
 			this.getFilesFromBackend(props.endpoint);
 	}
@@ -99,7 +98,8 @@ export default class EndpointBrowseComponent extends Component {
 	componentWillUnmount() {
 	    window.removeEventListener('click', this.onWindowClick);
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
-	    window.removeEventListener('touchend', this.onWindowTouchEnd);
+		window.removeEventListener('touchend', this.onWindowTouchEnd);
+		this.unselectAll();
 	}
 	
 
@@ -158,7 +158,7 @@ export default class EndpointBrowseComponent extends Component {
 		unselectAll();
 	};
 
-	onWindowKeyDown = (event: KeyboardEvent) => {
+	onWindowKeyDown = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -168,26 +168,19 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 
-	onWindowClick = (		event: KeyboardEvent) => {
+	onWindowClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	    //this.unselectAll();
 	};
 
-	onWindowTouchEnd = (event: TouchEvent) => {
+	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	};
 	
-	componentWillUnmount(){
-		this.unselectAll();
-	}
-
-	fileNodeClicked(filename){
-	}
-
 	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
 		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);
@@ -367,7 +360,7 @@ export default class EndpointBrowseComponent extends Component {
 
 	render(){
 		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
-		const {directoryPath, displayMode, searchText, compactStylePos} = this.state;
+		const {directoryPath, searchText} = this.state;
 		
 
 		const list = getFilesFromMemory(endpoint) || [];
@@ -496,7 +489,7 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 							const taskList = getSelectedTasksFromSide(endpoint);
@@ -559,15 +552,15 @@ export default class EndpointBrowseComponent extends Component {
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" style={{backgroundColor : "white", color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
-						 border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
+						<Button id="ignoreCase" style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
+						 border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
 						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
 							}
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{backgroundColor : "white", color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
+						<Button id="regex" style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
 						 border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
 						 onClick={() => {
 							this.setState({regex : !this.state.regex})

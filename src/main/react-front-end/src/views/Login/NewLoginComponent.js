@@ -8,7 +8,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 import PropTypes from 'prop-types';
 
-import { checkLogin, login } from '../../APICalls/APICalls.js';
+import { checkLogin} from '../../APICalls/APICalls.js';
 
 
 import {spaceBetweenStyle} from '../../constants.js';
@@ -52,7 +52,6 @@ export default class NewLoginComponent extends Component {
 
 	onEmailNextClicked(){
 		const { isLoading } = this.props;
-		var { email } = this.state;
 		isLoading(true);
 
 	    checkLogin(this.state.email,
@@ -81,7 +80,7 @@ export default class NewLoginComponent extends Component {
 
 	render(){
 		const { createAccountPressed, validateEmailPressed, forgotPasswordPressed } = this.props; 
-		const { emailChecked, email, password, error, errorMessage, remember, isAuthenticated } = this.state;
+		const { emailChecked, email, password, error, errorMessage, remember } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
 		      error: false,

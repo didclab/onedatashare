@@ -6,6 +6,7 @@ import com.dropbox.core.v2.users.FullAccount;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,7 +45,7 @@ public class DbxOauthService  {
         if (secrets == null) {
             throw new RuntimeException("Dropbox OAuth is disabled.");
         } if (auth != null) {
-            //throw new IllegalStateException("Don't call this twice.");
+//            throw new IllegalStateException("Don't call this twice.");
         } try {
             auth = new DbxWebAuth(config, secrets);
             // Authorize the DbxWebAuth auth as well as redirect the user to the finishURI, done this way to appease OAuth 2.0

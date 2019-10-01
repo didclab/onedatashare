@@ -1,12 +1,12 @@
 import { url } from '../constants';
-import {logoutAction} from "../model/actions.js";
-import {store} from "../App.js";
+import { logoutAction } from "../model/actions.js";
+import { store } from "../App.js";
 import Axios from "axios";
 
-import {getType, getTypeFromUri} from '../constants.js';
-import {getMapFromEndpoint, getIdsFromEndpoint} from '../views/Transfer/initialize_dnd.js';
+import { getType, getTypeFromUri } from '../constants.js';
+import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-import {cookies} from "../model/reducers.js";
+import { cookies } from "../model/reducers.js";
 const FETCH_TIMEOUT = 10000;
 
 
@@ -317,7 +317,7 @@ export async function deleteEndpointId(ged, accept, fail){
 /*
 	Desc: List credentials for dropbox and googledrive
 */
-export async function dropboxCredList(accept, fail){
+export async function savedCredList(accept, fail){
 	var callback = accept;
 	axios.get(url+'cred?action=list')
 	.then((response) => {
@@ -343,6 +343,19 @@ export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fa
         sortBy: sortBy,
         sortOrder: order
 	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
+export async function updateJobStatus(jobIds,accept, fail){
+	var callback = accept;
+	axios.post(url+'q/update', jobIds)
 	.then((response) => {
 		if(!(response.status === 200))
 			callback = fail;
@@ -525,7 +538,7 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 	
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin);
+	cookies.set("SFTPAUTH", strin, { expires : 10});
 
 
 	window.location = url + "download/file";
@@ -588,9 +601,21 @@ export async function getUser(email, accept, fail){
     .catch((error) => {
         statusHandle(error, fail);
     })
+}
 
-
-
+export async function updateSaveOAuth(email, saveOAuth, successCallback){
+	axios.post(url + 'user', {
+		action: "updateSaveOAuth",
+		email: email,
+		saveOAuth: saveOAuth
+	})
+	.then((response) => {
+		if(response.status === 200)
+			successCallback();
+	})
+	.catch((error) => {
+			console.log("Error encountered while updating the user.");
+	});
 }
 
 export async function updateAdminRightsApiCall(email, isAdmin){
@@ -656,7 +681,7 @@ export async function cancelJob(jobID, accept, fail){
     });
 }
 
-export async function deleteCredential(uri, accept, fail){
+export async function deleteCredentialFromServer(uri, accept, fail){
 	var callback = accept;
 
 	axios.post(url+'user', {
@@ -723,36 +748,27 @@ export async function openOAuth(url){
 }
 
 
-export async function getOrganization(){
+export async function registerUser(requestBody) {
 
-}
-
-
-export async function registerUser(emailId, firstName, lastName, organization) {
-
-	return axios.post(url+'user', {
-				action: "register",
-				email : emailId,
-				firstName : firstName,
-				lastName : lastName,
-				organization : organization
-		})
-		.then((response) => {
-	if(response.data && response.data.status && response.data.status === 302) {
-						console.log("User already exists");
-						return {status : 302}
-				}
-			if(!(response.status === 200))
-				throw new Error("Failed to register user")
-			else {
-					return response
-			}
-		})
-		.catch((error) => {
-				//statusHandle(error, fail);
-				console.error("Error while registering user");
-				return {status : 500}
-			});
+	return axios.post(url+'user', {action: "register", ...requestBody})
+				.then((response) => {
+						if(response.data && response.data.status && response.data.status === 302) {
+							console.log("User already exists");
+							return {status : 302}
+						}
+						if(!(response.status === 200))
+							throw new Error("Failed to register user")
+						else {
+								return response
+						}
+					}
+				)
+				.catch((error) => {
+						//statusHandle(error, fail);
+						console.error("Error while registering user");
+						return {status : 500}
+					}
+				);
 }
 
 
