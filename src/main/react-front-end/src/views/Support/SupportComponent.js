@@ -105,6 +105,7 @@ export default class SupportComponent extends Component{
           <div style={divStyle}>
             <TextField
               required
+              classes={{label:'support'}}
               label = 'Name'
               name = 'name' 
               onChange = {this.handleChange}
