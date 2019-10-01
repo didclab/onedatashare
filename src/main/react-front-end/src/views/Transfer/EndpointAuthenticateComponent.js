@@ -265,17 +265,25 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	regularSignIn = () => {
-		const { needPassword} = this.state;
-		
-		if(!needPassword){
-    		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-    			this.setState({needPassword: true});
-    		});
-    	}else{
-    		this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
-    			this._handleError("Authentication Failed");
-    		});
-    	}
+	const {url, username, password, needPassword} = this.state;
+	if(url.substr(url.length - 3) === '://') {
+		this._handleError("Enter the correct URL")
+		return
+	}
+	if(!needPassword){
+		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+			console.log('setting need pwd to ture..')
+			this.setState({needPassword: true});
+		});
+    }else{
+			if(username.length == 0 || password.length == 0) {
+				this._handleError("Incorrect username or password")
+				return
+			}
+			this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
+				this._handleError("Authentication Failed");
+			});
+		}
 	}
 
 	globusSignIn = () => {
@@ -467,6 +475,12 @@ export default class EndpointAuthenticateComponent extends Component {
 			          onChange={this.handleChange('username')}
 			          margin="normal"
 					  variant="outlined"
+					  autoFocus={(this.state.url !== 'sftp://') }
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							authFunction()
+						  }
+					  }}
 			        />
 			        <TextValidator
 					  required
@@ -479,7 +493,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			          margin="normal"
 					  variant="outlined"
 					  onKeyPress={(e) => {
-						if (e.key === 'Enter' && this.state.password.length !== 0 && this.state.username.length !== 0) {
+						if (e.key === 'Enter') {
 							authFunction()
 						  }
 					  }}
