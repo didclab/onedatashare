@@ -12,18 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * This controller class is only responsible for showing error page if swagger-ui.html is not loaded because of application is running in profiles other than local.
+ * Currently Swagger-ui.html does not have any authentication based on user or ip but it will load only for local profile.
+ * To know what profile is please see @Profile in SpringBoot.
+ * @version 1.0
+ * @since 10-01-2019
+ */
 
-@Profile("!local")
+@Profile("!local")// if profile is not local.
+@RestController
+@Slf4j
 public class SwaggerController {
 
-    @Profile("!dev")
-    @RestController
-    @Slf4j
-    public static class NoDevConfig {
-
-        @RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)
-        public void getSwagger(HttpServletResponse httpResponse) throws IOException {
-            httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        }
+    @RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)
+    public void getSwagger(HttpServletResponse httpResponse) throws IOException {
+        httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
     }
 }
