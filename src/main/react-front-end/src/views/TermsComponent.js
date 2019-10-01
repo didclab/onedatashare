@@ -11,7 +11,7 @@ export default class TermsComponent extends Component {
         rawFile.open("GET", file, false);
         rawFile.onreadystatechange = () => {
             if (rawFile.readyState === 4) {
-                if (rawFile.status === 200 || rawFile.status == 0) {
+                if (rawFile.status === 200 || rawFile.status === 0) {
                     var allText = rawFile.responseText;
                     this.setState({
                         termsData: (allText)

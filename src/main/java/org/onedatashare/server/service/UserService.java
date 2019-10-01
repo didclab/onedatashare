@@ -55,7 +55,7 @@ public class UserService {
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.getPublicKey()))
+            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
@@ -366,14 +366,13 @@ public class UserService {
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash)
-      .flatMap(userLoggedIn -> {
-        return getUser(userLogin.email);
-      });
+      .flatMap(userLoggedIn -> getUser(userLogin.email));
   }
 
   public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
     final UUID uuid = UUID.randomUUID();
-    return  getLoggedInUser(cookie).map(user -> {
+    return  getLoggedInUser(cookie)
+            .map(user -> {
               user.getCredentials().put(uuid, credential);
               return user;
             })
@@ -412,8 +411,10 @@ public class UserService {
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
-                    user.setCredentials(credsTemporary);
-                    userRepository.save(user).subscribe();
+                    if(user.isSaveOAuthTokens()) {
+                      user.setCredentials(credsTemporary);
+                      userRepository.save(user).subscribe();
+                    }
                   }
                 }
             }).subscribe();
@@ -430,6 +431,16 @@ public class UserService {
         }
         return Mono.error(new NotFound());
       }).then();
+  }
+
+  public Mono<Void> updateSaveOAuth(String cookie, boolean saveOAuthCredentials){
+    return getLoggedInUser(cookie).map(user -> {
+      user.setSaveOAuthTokens(saveOAuthCredentials);
+        // Remove the saved credentials
+        if(!saveOAuthCredentials)
+          user.setCredentials(new HashMap<>());
+          return userRepository.save(user).subscribe();
+        }).then();
   }
 
   public Mono<Boolean> isAdmin(String cookie){
@@ -467,7 +478,8 @@ public class UserService {
 
   public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
     return getLoggedInUser(cookie).map(user -> {
-      user.setCredentials(creds);
+      if(user.isSaveOAuthTokens())
+        user.setCredentials(creds);
       return userRepository.save(user);
     }).flatMap(repo -> repo.map(user -> user.getCredentials()));
   }
@@ -488,6 +500,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash(), user.getPublicKey());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens());
   }
 }

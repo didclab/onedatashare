@@ -25,12 +25,13 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
 
 export default class TransferComponent extends Component {
 
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
 
     this.state = {
       endpoint1: store.getState().endpoint1,
@@ -57,6 +58,8 @@ export default class TransferComponent extends Component {
           endpoint2: store.getState().endpoint2,
         });
     });
+
+    this.printError = this.printError.bind(this);
     this.updateDimensions = this.updateDimensions.bind(this);
     this._returnBrowseComponent1 = this._returnBrowseComponent1.bind(this);
     this._returnBrowseComponent2 = this._returnBrowseComponent2.bind(this);
@@ -66,7 +69,18 @@ export default class TransferComponent extends Component {
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
 
+    this.printError();
+
     updateGAPageView();
+
+  }
+
+  printError(){
+    const error = queryString.parse(this.props.location.search);
+    if(error && error["error"])
+      setTimeout(() => {
+        eventEmitter.emit("errorOccured", error["error"]);
+      }, 500);
   }
 
   componentDidMount(){
@@ -143,9 +157,9 @@ export default class TransferComponent extends Component {
      const {mode1, endpoint1,history, compact} = this.state;
     return <BrowseModuleComponent 
       id="browserleft"
-      mode={mode1} 
-      endpoint={endpoint1} 
-      history={history} 
+      mode={mode1}
+      endpoint={endpoint1}
+      history={history}
       displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseOne}/>
   }

@@ -1,6 +1,8 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.model.requestdata.JobRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +24,13 @@ public class CancelController {
      * Handler that invokes the service to cancel an ongoing job.
      *
      * @param headers - Incoming request headers
-     * @param userAction - Model containing the job ID of the transfer job to be stopped
+     * @param jobRequestData - Model containing the job ID of the transfer job to be stopped
      * @return Object - Mono of job that was stopped
      */
     @PostMapping
-    public Object cancel(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+    public Object cancel(@RequestHeader HttpHeaders headers, @RequestBody JobRequestData jobRequestData) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
+        UserAction userAction = UserAction.convertToUserAction(jobRequestData);
         return resourceService.cancel(cookie, userAction);
     }
 }
