@@ -415,13 +415,19 @@ public class UserService {
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
                     credsTemporary.replace(uid, credential);
 <<<<<<< HEAD
+<<<<<<< HEAD
                     user.setCredentials(credsTemporary);
 =======
+=======
+>>>>>>> df10e51eae5d18a6cb9b6cc346881480a642464e
                     if(user.isSaveOAuthTokens()) {
                       user.setCredentials(credsTemporary);
                       userRepository.save(user).subscribe();
                     }
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> df10e51eae5d18a6cb9b6cc346881480a642464e
                   }
                 }
                 userRepository.save(user).subscribe();
