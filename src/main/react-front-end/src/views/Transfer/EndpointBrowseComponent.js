@@ -3,7 +3,7 @@ import { multiSelectTo as multiSelect } from './utils';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
-import {Droppable } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -11,7 +11,8 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import {listFiles} from "../../APICalls/APICalls";
+import Code from '@material-ui/icons/ArrowForward';
+import { listFiles } from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
 import {InputGroup, FormControl} from "react-bootstrap";
@@ -36,7 +37,7 @@ import {getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 import {eventEmitter} from "../../App";
 
 import {getType} from '../../constants.js';
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE, FTP_TYPE} from "../../constants";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -106,7 +107,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTaskIds = getSelectedTasksFromSide(endpoint);
-	    const wasSelected: boolean = selectedTaskIds.includes(task);
+	    const wasSelected = selectedTaskIds.includes(task);
 	    const newTasks = (() => {
 	      // Task was not previously selected
 	      // now will be the only selected item
@@ -128,7 +129,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelectionInGroup = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTasks = getSelectedTasksFromSide(endpoint);
-	    const index: number = selectedTasks.indexOf(task);
+	    const index = selectedTasks.indexOf(task);
 	    // if not selected - add it to the selected items
 	    if (index === -1) {
 	      setSelectedTasksForSide([...selectedTasks, task], endpoint);
@@ -158,7 +159,7 @@ export default class EndpointBrowseComponent extends Component {
 		unselectAll();
 	};
 
-	onWindowKeyDown = (event: KeyboardEvent) => {
+	onWindowKeyDown = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -168,14 +169,14 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 
-	onWindowClick = (		event: KeyboardEvent) => {
+	onWindowClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	    //this.unselectAll();
 	};
 
-	onWindowTouchEnd = (event: TouchEvent) => {
+	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -469,7 +470,17 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 			
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+
 				<ButtonGroup style={buttonGroupStyle}>
+
+					{ new Set([SFTP_TYPE, FTP_TYPE, SCP_TYPE]).has(getType(endpoint)) &&
+						<OverlayTrigger placement="top" overlay={tooltip("Console")}>
+							<BootStrapButton onClick={() => {}} style={buttonStyle}>
+								<Code style={iconStyle} />
+							</BootStrapButton>
+						</OverlayTrigger>
+					}
+
 					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
 						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 						onClick={() => {
@@ -485,7 +496,9 @@ export default class EndpointBrowseComponent extends Component {
 								download(downloadUrl, endpoint.credential, taskList[0].id)
 							}
 						}}
-						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+						style={buttonStyle}>
+							<DownloadButton style={iconStyle}/>
+						</BootStrapButton>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
@@ -580,7 +593,7 @@ export default class EndpointBrowseComponent extends Component {
 
 			
 			<Droppable droppableId={endpoint.side} > 
-				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
@@ -627,10 +640,10 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
-							const isSelected: boolean = Boolean(
+							const isSelected = Boolean(
 			                  selectedTasks.indexOf(file)!==-1,
 			                );
-			                const isGhosting: boolean =
+			                const isGhosting =
 			                  isSelected &&
 			                  Boolean(draggingTask) &&
 			                  draggingTask.name !== file.name;

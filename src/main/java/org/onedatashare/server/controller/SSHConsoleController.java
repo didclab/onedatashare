@@ -14,11 +14,11 @@ public class SSHConsoleController {
 
     @Autowired
     SSHConsoleService consoleService;
-
-    @PostMapping
-    public Object runCommand(@RequestHeader  HttpHeaders headers){
-
-    }
+//
+//    @PostMapping
+//    public Object runCommand(@RequestHeader  HttpHeaders headers){
+//
+//    }
 
 
 }
