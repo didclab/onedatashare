@@ -11,7 +11,7 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import Code from '@material-ui/icons/ArrowForward';
+import Code from '@material-ui/icons/Code';
 import { listFiles } from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
