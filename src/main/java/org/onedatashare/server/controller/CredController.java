@@ -28,11 +28,10 @@ public class CredController {
    * User account is identified by the user email and password hash passed in the request header as a cookie
    *
    * @param headers - Request header
-   * @param queryParameters - Request query parameters
    * @return a map containing all the endpoint credentials linked to the user account as a Mono
    */
   @GetMapping
-  public Mono<Map<UUID, Credential>> listCredentials(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
+  public Mono<Map<UUID, Credential>> listCredentials(@RequestHeader HttpHeaders headers) {
     return userService.getCredentials(headers.getFirst(ODSConstants.COOKIE));
   }
 

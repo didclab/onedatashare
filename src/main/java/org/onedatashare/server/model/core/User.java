@@ -51,6 +51,9 @@ public class User {
     /** Set to true if user is administrator. */
     private boolean isAdmin = false;
 
+    /** Set to true if user want to save OAuth credentials */
+    private boolean saveOAuthTokens = false;
+
     /** Token for reset password. */
     private String authToken;
 
@@ -69,31 +72,11 @@ public class User {
     /** Job UUIDs with indices corresponding to job IDs. */
     private HashSet<UUID> jobs = new HashSet<>();
 
-    /** No. of bits in the KeyPair */
-    private static final int keyPairLen = 2048;
-
-    // Key pair for encypting the messages between the end user and the server
-    /** RSA public key */
-    private String publicKey;
-    /** RSA private key */
-    private String privateKey;
-
     /** The minimum allowed password length. */
     public static final int PASS_LEN = 6;
 
     /** Used to hold session connections for reuse. */
     private transient Map<Session, Session> sessions = new HashMap<>();
-
-    protected static KeyPair getNewRSAKeyPair() {
-        try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-            keyPairGenerator.initialize(keyPairLen);
-            return keyPairGenerator.generateKeyPair();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     /**
      * Create an anonymous user.
@@ -110,9 +93,6 @@ public class User {
         this.lastName = lastName;
         this.organization = organization;
         this.setPassword(password);
-        KeyPair keyPair = getNewRSAKeyPair();
-        this.publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
-        this.privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
     }
 
     /**
@@ -281,13 +261,13 @@ public class User {
     public class UserLogin {
         public String email;
         public String hash;
-        public String publicKey;
+        public boolean saveOAuthTokens;
 
 
-        public UserLogin(String email, String hash, String publicKey) {
+        public UserLogin(String email, String hash, boolean saveOAuthTokens) {
             this.email = email;
             this.hash = hash;
-            this.publicKey = publicKey;
+            this.saveOAuthTokens = saveOAuthTokens;
         }
     }
 
@@ -311,8 +291,5 @@ public class User {
             long t = date.getTimeInMillis();
             this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
         }
-
     }
 }
-
-
