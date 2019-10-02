@@ -2,6 +2,7 @@ package org.onedatashare.server.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import springfox.documentation.builders.PathSelectors;
@@ -22,12 +23,14 @@ import java.util.Optional;
  *      https://youtu.be/Bgn4V8wpVDY
  *      http://springfox.github.io/springfox/docs/snapshot/#getting-started
  */
+@Profile({"local"}) // This class will execute in local environment only otherwise swagger-ui.html will not load.
 @Configuration
 @EnableSwagger2WebFlux
 public class SwaggerConfig {
 
     @Bean
     public Docket api(){
+
         return new Docket(DocumentationType.SWAGGER_2)
                         .select()
                         .apis(RequestHandlerSelectors.basePackage("org.onedatashare.server.controller"))
@@ -51,4 +54,5 @@ public class SwaggerConfig {
                     null,
                     Collections.EMPTY_LIST);
     }
+
 }
