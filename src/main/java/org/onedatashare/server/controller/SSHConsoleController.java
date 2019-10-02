@@ -1,10 +1,13 @@
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.model.requestdata.SSHCommandData;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.SSHConsoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -14,11 +17,14 @@ public class SSHConsoleController {
 
     @Autowired
     SSHConsoleService consoleService;
-//
-//    @PostMapping
-//    public Object runCommand(@RequestHeader  HttpHeaders headers){
-//
-//    }
+
+    @PostMapping
+    public Object runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
+
+        UserAction ua = UserAction.convertToUserAction(commandData);
+        consoleService.runCommand(ua);
+
+    }
 
 
 }

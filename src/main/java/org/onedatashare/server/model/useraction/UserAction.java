@@ -145,4 +145,17 @@ public class UserAction {
         return ua;
     }
 
+    /**
+     * Factory method that converts the SSH command request data to UserAction
+     * @param commandData - SSH command request data
+     * @return ua - UserAction object containing data received in the request
+     */
+    public static UserAction convertToUserAction(SSHCommandData commandData){
+        UserAction ua = new UserAction();
+        ua.setType(commandData.getType());
+        ua.setUri(commandData.getHost());
+        ua.setCredential(commandData.getCredential());
+        return ua;
+    }
+
 }
