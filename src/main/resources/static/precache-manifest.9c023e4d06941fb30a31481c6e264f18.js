@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/static/media/privacy.960a95f3.txt"
   },
   {
-    "revision": "c2c576cd0a3b0b3d9054",
+    "revision": "94fd73d1460eaa964937",
     "url": "/static/css/main.d443423d.chunk.css"
   },
   {
@@ -52,8 +52,16 @@ self.__precacheManifest = [
     "url": "/static/media/terms.9e6de21a.txt"
   },
   {
-    "revision": "c2c576cd0a3b0b3d9054",
-    "url": "/static/js/main.aece145c.chunk.js"
+    "revision": "94fd73d1460eaa964937",
+    "url": "/static/js/main.798b9208.chunk.js"
+  },
+  {
+    "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
+    "url": "/static/media/s3.240cb46b.png"
+  },
+  {
+    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
+    "url": "/static/media/s2.d37df03f.png"
   },
   {
     "revision": "0066c9f5fb6311639ceff2d8b1fc8813",
@@ -64,16 +72,8 @@ self.__precacheManifest = [
     "url": "/static/media/s4.b79f2dc0.png"
   },
   {
-    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
-    "url": "/static/media/s2.d37df03f.png"
-  },
-  {
     "revision": "86c1f97abb212a6b0c9b751b6a42a067",
     "url": "/static/media/s6.86c1f97a.png"
-  },
-  {
-    "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
-    "url": "/static/media/s3.240cb46b.png"
   },
   {
     "revision": "be1fb98e0bf2939c9e44c2d150b952f3",
@@ -84,12 +84,12 @@ self.__precacheManifest = [
     "url": "/static/media/glyphicons-halflings-regular.f4769f9b.eot"
   },
   {
-    "revision": "448c34a56d699c29117adc64c43affeb",
-    "url": "/static/media/glyphicons-halflings-regular.448c34a5.woff2"
-  },
-  {
     "revision": "fa2772327f55d8198301fdb8bcfc8158",
     "url": "/static/media/glyphicons-halflings-regular.fa277232.woff"
+  },
+  {
+    "revision": "448c34a56d699c29117adc64c43affeb",
+    "url": "/static/media/glyphicons-halflings-regular.448c34a5.woff2"
   },
   {
     "revision": "e18bbf611f2a2e43afc071aa2f4e1512",
@@ -100,7 +100,7 @@ self.__precacheManifest = [
     "url": "/static/css/2.fe12b158.chunk.css"
   },
   {
-    "revision": "eed6f960a3cc1e759fc80bba35d4c5f4",
+    "revision": "c08bfb39e800ba225af7cbb627abaa94",
     "url": "/index.html"
   }
 ];
