@@ -20,7 +20,7 @@ export default class NewLoginComponent extends Component {
 	static propTypes = {
 	  	email : PropTypes.string,
 	  	createAccountPressed: PropTypes.func,
-	  	validateEmailPressed: PropTypes.func,
+	  	lostValidationCodePressed: PropTypes.func,
 	  	forgotPasswordPressed: PropTypes.func,
 	  	isLoading: PropTypes.func,
 	  	userLoggedIn: PropTypes.func
@@ -79,7 +79,7 @@ export default class NewLoginComponent extends Component {
 	}
 
 	render(){
-		const { createAccountPressed, validateEmailPressed, forgotPasswordPressed } = this.props; 
+		const { createAccountPressed, lostValidationCodePressed, forgotPasswordPressed } = this.props; 
 		const { emailChecked, email, password, error, errorMessage, remember } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
@@ -166,7 +166,7 @@ export default class NewLoginComponent extends Component {
 		          Forgot Password?
 		        </Button>
 		        <Button size="small" color="primary"
-		        	onClick={()=>validateEmailPressed(email)}>
+		        	onClick={()=>lostValidationCodePressed(email)}>
 		          Lost Validation Email?
 		        </Button>
 		    </CardActions>
