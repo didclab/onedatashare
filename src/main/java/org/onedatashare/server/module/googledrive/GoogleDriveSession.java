@@ -35,7 +35,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
 
-    private boolean checkExpiry = false;
+    private boolean checkExpiry = true;
 
     public GoogleDriveSession(){}
 
@@ -86,7 +86,8 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                         s.success(this);
                     else {
                         OAuthCredential newCredential = updateToken();
-                        s.error(new TokenExpiredException(401, newCredential));
+                        if(newCredential.refreshToken !=null)
+                            s.error(new TokenExpiredException(401, newCredential));
                     }
                 }
             }

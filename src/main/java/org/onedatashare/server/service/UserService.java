@@ -409,7 +409,9 @@ public class UserService {
               Map<UUID,Credential> credsTemporary = user.getCredentials();
               for(UUID uid : credsTemporary.keySet()){
                 if(credential.refreshTokenExp){
-//                  credsTemporary.remove(uid);
+                  credsTemporary.remove(uid);
+                  userRepository.save(user).subscribe();
+                  user.setCredentials(credsTemporary);
                 }else{
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){

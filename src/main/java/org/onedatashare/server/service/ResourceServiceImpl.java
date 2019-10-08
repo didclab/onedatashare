@@ -58,7 +58,6 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                                     .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
                                     .flatMap(GoogleDriveSession::initialize)
                                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
-//                                    .onErrorResume(error -> error instanceof TokenExpiredException, error->Mono.error(new Exception("Bad request")))
                     );
         }
         else {
