@@ -6,6 +6,8 @@ import HomePageComponent from './views/HomePageComponent';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { store } from './App.js';
 
+import AccountControlComponent from "./views/Login/AccountControlComponent.js";
+
 import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
@@ -48,6 +50,7 @@ export default class MainComponent extends Component {
 
         <div style={{ marginTop: '50px', display: 'block' }}>
           <Switch>
+            <Route path='/account' component={AccountControlComponent}/>
             <Route exact path='/' render={(props) =>
               <HomePageComponent  {...props} store={store} />
             } />
