@@ -4,6 +4,7 @@ import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.requestdata.UserRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
@@ -11,7 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
+/**
+ * Controller for handling GET requests to User DB
+ */
 @RestController
 @RequestMapping("/api/stork/user")
 public class UserController {
@@ -21,16 +26,22 @@ public class UserController {
 
   final int TIMEOUT_IN_MINUTES = 1440;
 
+  /**
+   * Handler for user information/ perference requests
+   * @param headers - Incoming request headers
+   * @param userRequestData - Data needed to make a user request
+   * @return Object
+   */
   @PostMapping
-  public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
-
+  public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserRequestData userRequestData) {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
+    UserAction userAction = UserAction.convertToUserAction(userRequestData);
     switch(userAction.getAction()) {
       case "login":
         return userService.login(userAction.getEmail(), userAction.getPassword());
       case "register":
         return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
-                                      userAction.getOrganization());
+                                      userAction.getOrganization(), userAction.getCaptchaVerificationValue());
       case "validate":
         return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
@@ -53,6 +64,8 @@ public class UserController {
       case "resetPassword":
         return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
                                                   userAction.getConfirmPassword());
+      case "updateSaveOAuth":
+        return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
       case "deleteCredential":
         return userService.deleteCredential(cookie, userAction.getUuid());
       case "deleteHistory":

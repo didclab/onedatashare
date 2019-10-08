@@ -15,6 +15,8 @@ export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
+export const termsUrl = "/terms";
+export const policyUrl = "/policy"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
@@ -76,6 +78,9 @@ export const defaultPort={
 	scp : 22,
 	https : 443
 }
+
+export const maxCookieAge = 7;
+
 
 export function getType(endpoint){
 	return getTypeFromUri(endpoint.uri)

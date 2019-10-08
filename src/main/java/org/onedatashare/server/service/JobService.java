@@ -89,6 +89,10 @@ public class JobService {
         });
     }
 
+    public Mono<List<Job>> getUpdates(String cookie, List<UUID> jobIds){
+        return jobRepository.findAllById(jobIds).collectList();
+    }
+
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
         return getAllJobsForUser(cookie).map(jobs -> {
             Job job = new Job(null, null);

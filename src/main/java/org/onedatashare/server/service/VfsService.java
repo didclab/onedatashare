@@ -23,40 +23,22 @@ public class VfsService implements ResourceService<VfsResource> {
     @Autowired
     private JobService jobService;
 
-    private final Integer FTP_URL_OFFSET = 6;
-
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        fixSCPUri(userAction);
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
             .map(user -> new UserInfoCredential(userAction.getCredential()))
             .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
-            .flatMap(vfsSession -> vfsSession.initialize(userAction.getPortNumber()))
+            .flatMap(vfsSession -> vfsSession.initialize())
             .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
-        fixSCPUri(userActionResource);
         final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
                 .map(user -> new UserInfoCredential(userActionResource.getCredential()))
                 .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
-    }
-
-    public void fixSCPUri(UserAction userAction){
-        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
-            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
-            userAction.setUri(ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(6));
-        }
-    }
-
-    public void fixSCPUri(UserActionResource userAction){
-        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
-            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
-            userAction.setUri( ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(FTP_URL_OFFSET) );
-        }
     }
 
     public String pathFromUri(String uri) {
@@ -129,6 +111,6 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
-        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::getSftpObject);
+        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
     }
 }

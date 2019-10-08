@@ -21,13 +21,10 @@ import java.util.Map;
 @Service
 public class DbxOauthService  {
 
-    @Value("${dropbox.key}")
-    private String key;
+    private String key = System.getenv("ods_dropbox_key");
+    private String secret = System.getenv("ods_dropbox_secret");
 
-    @Value("${dropbox.secret}")
-    private String secret;
-
-    @Value("${dropbox.redirect}")
+    @Value("${dropbox.redirect.uri}")
     private String finishURI;
 
     @Autowired
@@ -48,7 +45,7 @@ public class DbxOauthService  {
         if (secrets == null) {
             throw new RuntimeException("Dropbox OAuth is disabled.");
         } if (auth != null) {
-            //throw new IllegalStateException("Don't call this twice.");
+//            throw new IllegalStateException("Don't call this twice.");
         } try {
             auth = new DbxWebAuth(config, secrets);
             // Authorize the DbxWebAuth auth as well as redirect the user to the finishURI, done this way to appease OAuth 2.0

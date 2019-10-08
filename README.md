@@ -2,7 +2,7 @@
 
 OneDataShare (abbreviated as ODS) is a cloud-based managed file transfer system that performs inter-protocol data transfers in a reliable and efficient manner.
 
-ODS provides the end-user with an interface which can be used to intitate file transfers and monitor them simultaenously. ODS guarantees efficiency in data transfer by performing software level optimizations (for example - chunking of data into a byte stream of fixed size).
+ODS provides the end-user with an interface which can be used to initiate file transfers and monitor them simultanously. ODS guarantees efficiency in data transfer by performing software level optimizations (for example - chunking of data into a byte stream of fixed size).
 
 OneDataShare beta version is a publicly available for use and can be accessed using https://www.onedatashare.org/.
 
@@ -38,7 +38,7 @@ Recommended IDEs (used by ODS team for development):
 1. Clone OneDataShare GitHub repository.
 	Open command prompt (Windows OS) or terminal (Unix-based OS)  
 	Run following command –  
-	git clone https://github.com/didclab/onedatashare-spring.git
+	git clone https://github.com/didclab/onedatashare.git
 
 2. Open the cloned repository in IntelliJ and import it as a Maven project.
 
@@ -101,16 +101,12 @@ Graduate Student, University at Buffalo
 
 Ramandeep Singh  
 Application Developer  
-Graduate Student, University at Buffalo  
-
-Rohit Bhalke  
-Application Developer  
-Graduate Student, University at Buffalo  
+Graduate Student, University at Buffalo
 
 Javier Falca  
 Application Developer  
 Undergraduate Student, University at Buffalo  
 
-Ryan Dils  
+Dhayanidhi Gunasekaran  
 Application Developer  
-Undergraduate Student, University at Buffalo  
+Graduate Student, University at Buffalo

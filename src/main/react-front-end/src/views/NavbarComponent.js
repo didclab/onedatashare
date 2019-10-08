@@ -1,33 +1,31 @@
 import React, { Component } from 'react';
-import {Navbar, Nav, NavItem, NavDropdown} from 'react-bootstrap';
-import Button from '@material-ui/core/Button';
-import { PropTypes } from 'prop-types';
-import { Redirect, Link} from 'react-router-dom';
-import ContactSupportOutlined  from '@material-ui/icons/ContactSupportOutlined';
+import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import {transferPageUrl,queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, managementPageUrl, dataPageUrl} from '../constants';
-import {store} from '../App';
-import {logoutAction, isAdminAction} from '../model/actions';
-import {isAdmin} from '../APICalls/APICalls';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl } from '../constants';
+import { store } from '../App';
+import { logoutAction, isAdminAction } from '../model/actions';
+import { isAdmin } from '../APICalls/APICalls';
 
 class NavbarComponent extends Component {
-	
-	constructor(props){
+
+	constructor(props) {
 		super(props);
-		this.state={
-		  login: store.getState().login,
-		  email: store.getState().email,
-		  admin: store.getState().admin
+		this.state = {
+			login: store.getState().login,
+			email: store.getState().email,
+			admin: store.getState().admin
 		};
-		if(this.state.login){
-			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin)=>{
-				if(userIsAdmin){
-				    store.dispatch(isAdminAction())
-				}else{
+		if (this.state.login) {
+			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin) => {
+				if (userIsAdmin) {
+					store.dispatch(isAdminAction())
+				} else {
 					console.log("not admin")
 				}
-			}, (error)=>{
+			}, (error) => {
 				console.log(error);
 			});
 		}
@@ -35,7 +33,7 @@ class NavbarComponent extends Component {
 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
 	}
-	componentWillUnmount(){
+	componentWillUnmount() {
 		this.unsubscribe();
 	}
     render() {
@@ -56,7 +54,7 @@ class NavbarComponent extends Component {
 		        <NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
 		      
 		      	{this.state.admin &&
-			    	<NavDropdown title="Admin" id="Navbar Dropdown">
+			    	<NavDropdown title="Admin" id="NavDropdown">
 			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
 			        		Clients Information
 			        	</NavItem>
@@ -80,17 +78,17 @@ class NavbarComponent extends Component {
 		        {this.state.login && 
 			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
 			            <span>Log out</span>
-							</NavItem>}
-						<NavItem component={Link} href="/support">
-							<Tooltip title="Report an issue" placement="top">
-									<ContactSupportOutlined />
-							</Tooltip>
-						</NavItem>
-		      </Nav>
-		    </Navbar.Collapse>
-		</Navbar>
-    );
-  }
+					</NavItem>}
+					<NavItem component={Link} href="/support">
+						<Tooltip title="Report an issue" placement="top">
+							<ContactSupportOutlined />
+						</Tooltip>
+					</NavItem>
+					</Nav>
+				</Navbar.Collapse>
+			</Navbar>
+		);
+	}
 }
 
 

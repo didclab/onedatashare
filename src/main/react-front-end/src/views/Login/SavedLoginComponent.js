@@ -1,18 +1,15 @@
 import React, {Component} from 'react';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
-import ListSubheader from '@material-ui/core/ListSubheader';
 import Divider from '@material-ui/core/Divider';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-const spaceBetweenStyle = {display: 'flex', justifyContent:"space-between"};
 
 export default class SavedLoginComponent extends Component {
 
@@ -33,7 +30,7 @@ export default class SavedLoginComponent extends Component {
 	render(){
 		const { accounts } = this.state;
 		const {useAnotherAccount, isLoading, login} = this.props;
-		if(Object.keys(accounts).length == 0){
+		if(Object.keys(accounts).length === 0){
 			useAnotherAccount();
 		}
 		const handleLogin = (email) => {
@@ -45,9 +42,9 @@ export default class SavedLoginComponent extends Component {
 			this.setState({accounts: accounts});
 			this.props.removedAccount(accounts);
 		}
-		const addAccount = () => {
-			useAnotherAccount();
-		}
+		// const addAccount = () => {
+		// 	useAnotherAccount();
+		// }
 		return (
 		<div className="enter-from-right slide-in">
 			

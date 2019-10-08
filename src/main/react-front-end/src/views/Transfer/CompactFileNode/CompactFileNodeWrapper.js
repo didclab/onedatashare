@@ -3,7 +3,6 @@ import FileNodeCompact from "./FileNodeCompact.js";
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import CheckIcon from "@material-ui/icons/Check";
-import Button from '@material-ui/core/Button';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 
 export default class CompactFileNodeWrapper extends Component {
@@ -33,8 +32,6 @@ export default class CompactFileNodeWrapper extends Component {
 	    }
 
 		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
 		this.queueFunc()
 	};	
 
@@ -69,7 +66,7 @@ export default class CompactFileNodeWrapper extends Component {
 
 	onMouseMove = (e) => {
 		let rect = document.getElementById("browser"+this.props.endpoint.side).getBoundingClientRect();
-		if(this.target != undefined){
+		if(this.target !== undefined){
 			let temp = this.state.headerCompactStylePos;
 			temp[this.target] += (e.pageX - this.pageX);
 			if(temp[this.target] < 70){
@@ -100,7 +97,7 @@ export default class CompactFileNodeWrapper extends Component {
 	}
 
 	flippingChange = (change) => {
-		if(change == "Asc"){
+		if(change === "Asc"){
 			return "Desc";
 		}else{
 			return "Asc";
@@ -110,7 +107,7 @@ export default class CompactFileNodeWrapper extends Component {
 	handleRequestSort = (id) => () => {
 		let { orderBy, columnsOrder } = this.state;
 
-		if(orderBy != id){
+		if(orderBy !== id){
 			orderBy = id;
 		}else{
 			columnsOrder[orderBy] = this.flippingChange(columnsOrder[orderBy]);
@@ -194,7 +191,7 @@ export default class CompactFileNodeWrapper extends Component {
 						displayList.map((fileId, index) => {
 						const file = list[fileId];
 						const isSelected: boolean = Boolean(
-		                  selectedTasks.indexOf(file)!=-1,
+		                  selectedTasks.indexOf(file)!==-1,
 		                );
 		                const isGhosting: boolean = isSelected &&
 		                    Boolean(draggingTask) &&

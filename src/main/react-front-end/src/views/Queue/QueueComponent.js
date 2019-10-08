@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue, cancelJob, restartJob, deleteJob} from '../../APICalls/APICalls';
+import { queue, cancelJob, restartJob, deleteJob, updateJobStatus} from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
@@ -21,9 +21,11 @@ import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
-import TablePagination from '@material-ui/core/TablePagination'
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from '../TablePaginationActions'
+import TablePagination from '@material-ui/core/TablePagination';
+import TableFooter from '@material-ui/core/TableFooter';
+import TablePaginationActions from '../TablePaginationActions';
+
+import { updateGAPageView } from '../../analytics/ga';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -55,19 +57,42 @@ class QueueComponent extends Component {
 						order : 'desc',
 						orderBy : 'job_id'};
 		this.queueFunc();
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
-		var infoRowsIds= [];
-		var selectedJobInfo = 0;
+		this.interval = setInterval(this.update, 2000);    //making a queue request every 2 seconds
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.queueFunc = this.queueFunc.bind(this);
+		this.update = this.update.bind(this);
+
+		updateGAPageView();
+	}
+
+	componentDidMount(){
+		document.title = "OneDataShare - Queue";
 	}
 
 	componentWillUnmount(){
 		clearInterval(this.interval);
 	}
 
-	componentDidMount(){
-    	document.title = "OneDataShare - Queue";
+	update = () =>{
+		let jobIds = this.state.responsesToDisplay.filter(job => job.status !== "complete" && job.status !== "failed" && job.status !== "removed")
+		.map(job => job.uuid)
+		if(jobIds.length > 0){
+			updateJobStatus(jobIds, resp => {
+				resp.map(job => {
+					let existingData = [...this.state.responsesToDisplay]
+					let existingJob = existingData.find(item => item.uuid === job.uuid)
+					existingJob.status = job.status
+					existingJob.bytes.total = job.bytes.total
+					existingJob.bytes.done = job.bytes.done
+					existingJob.bytes.avg = job.bytes.avg
+					this.setState({
+						responsesToDisplay : existingData
+					})
+				})
+			}, fail =>{
+					console.log('Failed to get job updates')
+			})
+		}
 	}
 
 	queueFunc = () => {
@@ -75,7 +100,7 @@ class QueueComponent extends Component {
 	    queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
 		let responsesToDisplay = [];
-		if(this.state.page == 0){
+		if(this.state.page === 0){
 			responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
 		}
 		else{
@@ -121,7 +146,7 @@ class QueueComponent extends Component {
 
 	infoButtonOnClick(jobID){
 		var row = document.getElementById("info_" + jobID);
-		if(this.selectedJobInfo === jobID && row.style.display != "none"){
+		if(this.selectedJobInfo === jobID && row.style.display !== "none"){
 			row.style.display = "none";
 		}
 		else{
@@ -188,7 +213,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status == 'processing' && 
+				{status === 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -197,7 +222,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' &&
+				{status !== 'processing' &&
 					<Tooltip TransitionComponent={Zoom} title="Restart">
 						<Button onClick={() => {this.restartButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -206,7 +231,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status != 'processing' && !deleted &&
+				{status !== 'processing' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
 						<Button onClick={() => {this.deleteButtonOnClick(jobID)}} variant="contained" size="small" color="primary" 
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%', 
@@ -294,15 +319,12 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
 
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.setState({ page: page, response: this.state.response, responsesToDisplay: nextRecords});
 		this.queueFunc()
 	};
 
 	handleChangeRowsPerPage = event => {		
-		this.state.page=0
-		this.state.rowsPerPage = parseInt(event.target.value)
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) });
 		this.queueFunc()
 	};
@@ -315,14 +337,12 @@ class QueueComponent extends Component {
       order = 'asc';
     }
 		this.setState({ order:order, orderBy:orderBy });
-		this.state.order=order
-		this.state.orderBy = orderBy
 		this.queueFunc()
-  	};
+  };	
+
 	render(){
-		const height = window.innerHeight+"px";
-		const {response, totalCount, responsesToDisplay} = this.state;
-		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy} = this.state;
+		const { totalCount, responsesToDisplay } = this.state;
+		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
 		const tbcellStyle= {textAlign: 'center'}
 		const {classes} = this.props;
 		const sortableColumns = {
@@ -355,7 +375,7 @@ class QueueComponent extends Component {
 	      	tableRows.push(
 	      	 	<TableRow id={"info_" + resp.job_id} style={{ display: 'none'}}>
 	            	<TableCell colSpan={5} style={{...tbcellStyle, width: '10%',  fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
-	            		<div id="infoBox" style={{ marginBottom : '0.5%' }}>
+	            		<div id="infoBox" style={{ marginBottom : '0.5%'}}>
 		            		<AppBar position="static" style={{ boxShadow: 'unset' }}>
 								<Tabs value={this.state.selectedTab} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
 									<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
