@@ -163,14 +163,15 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
 		if(colonCount===1 && !standardPort){
-			let i, count;
-			for(i=0, count=0; i<url.length; i++){
-				if(url[i]==="/") {
+			let count=0;
+			for(let i=0; i<url.length; i++){
+				if(url[i] === "/") {
 					count++;
 				}
-				if( count===3 ){
-					url = url.slice(0,i) + ":" + portNum + url.slice(i);
-					break;
+				if( count === 3 ){
+					let tempUrl = new URL(url);
+					tempUrl.port = portNum.toString;
+					url = tempUrl.toString();
 				}
 			}
 		}
