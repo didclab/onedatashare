@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Date;
 
 /**
  *author: Javier Falca
@@ -59,6 +60,9 @@ public class BoxOauthService {
         oauth.name = "Box: " + userInfo.getLogin();
         oauth.token = client.getAccessToken();
         oauth.refreshToken = client.getRefreshToken();
+        Date currentTime = new Date();
+        oauth.lastRefresh = new Date(currentTime.getTime());
+        oauth.expiredTime = new Date(currentTime.getTime() + client.getExpires());
         try{
             return userService.getCredentials(cookie).flatMap(val -> {
                 for (Credential value : val.values()) {
@@ -74,14 +78,6 @@ public class BoxOauthService {
             throw new RuntimeException(e);
         }
 
-    }
-
-    public class BoxClient extends BoxAPIConnection{
-
-        public BoxClient(String accessToken) {
-
-            super(accessToken);
-        }
     }
 
 }

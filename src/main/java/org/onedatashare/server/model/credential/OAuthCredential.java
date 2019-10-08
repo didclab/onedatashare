@@ -11,6 +11,7 @@ public class OAuthCredential extends Credential {
   public String dropboxID;
   public String refreshToken;
   public Date expiredTime;
+  public Date lastRefresh;
 
   public OAuthCredential(String token) {
     this.type = CredentialType.OAUTH;
