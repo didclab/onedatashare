@@ -178,9 +178,8 @@ export default class SupportComponent extends Component{
           </div>
 
         </ValidatorForm>
-        {/*</Panel.Body>*/}
       </Panel>
-          </Col>d
+          </Col>
         </div>
     );
   }
