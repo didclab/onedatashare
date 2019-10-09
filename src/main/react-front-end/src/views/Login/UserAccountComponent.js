@@ -86,7 +86,7 @@ export default class UserAccountComponent extends Component {
 	}
 
 	componentDidMount(){
-		document.title = "OneDataShare - History";
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
 	}
