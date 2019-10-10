@@ -374,7 +374,6 @@ public class UserService {
     return  getLoggedInUser(cookie)
             .map(user -> {
               user.getCredentials().put(uuid, credential);
-              ODSLoggerService.logDebug("finish user cred: " + user.getCredentials());
               return user;
             })
             .flatMap(userRepository::save)

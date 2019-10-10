@@ -59,7 +59,6 @@ public class DbxOauthService  {
         Map<String,String[]> map = new HashMap();
         map.put("state", new String[] {this.key});
         map.put("code", new String[] {token});
-        ODSLoggerService.logDebug("finish dropbox mapped");
         try {
             DbxAuthFinish finish = auth.finishFromRedirect(finishURI, sessionStore, map);
             OAuthCredential cred = new OAuthCredential(finish.getAccessToken());
@@ -75,7 +74,6 @@ public class DbxOauthService  {
                     }
                 }
 
-                ODSLoggerService.logDebug("finish create cred: " + cred.token);
                 return Mono.just(cred);            //Account is not in the database, store as new
             });
         } catch (Exception e) {
