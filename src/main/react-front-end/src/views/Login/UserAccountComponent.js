@@ -150,6 +150,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
+                        			id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -160,6 +161,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
+                        			id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -169,6 +171,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
+                          			id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -178,6 +181,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Organization"
+									id="UserOrganization"
 									secondary={this.state.userOrganization}
 								/>
 							</ListItem>

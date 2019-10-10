@@ -442,20 +442,20 @@ export default class EndpointBrowseComponent extends Component {
 	          <DialogContent>
 	            <TextField
 	              autoFocus
-	              id="name"
+	              id={endpoint.side+"MkdirName"}
 	              label="name"
 	              onChange={this._handleAddFolderTextFieldChange}
 	              fullWidth
 	            />
 	          </DialogContent>
 	          <DialogActions>
-	            <Button onClick={this.handleCloseWithFolderAdded} color="primary">
+	            <Button id={endpoint.side+"MkdirSubmit"} onClick={this.handleCloseWithFolderAdded} color="primary">
 	              Add
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
 			<div style={{display: "flex",alighSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
-				<Breadcrumb style={{  float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>
+				<Breadcrumb style={{float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>
 				  <Breadcrumb.Item key={endpoint.uri} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(0)}>{endpoint.uri}</Button></Breadcrumb.Item>
 				  {directoryPath.map((item, index) => <Breadcrumb.Item key={item+index} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Button></Breadcrumb.Item>)}
 				</Breadcrumb>
@@ -464,7 +464,7 @@ export default class EndpointBrowseComponent extends Component {
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<ButtonGroup style={buttonGroupStyle}>
 					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
-						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
+						<BootStrapButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 						onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 								const taskList = getSelectedTasksFromSide(endpoint);
@@ -482,14 +482,13 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
-						<BootStrapButton>
+						<BootStrapButton id={endpoint.side + "UploadButton"} >
 							<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
-
 						</BootStrapButton>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						<BootStrapButton id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 							const taskList = getSelectedTasksFromSide(endpoint);
@@ -508,7 +507,7 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-						<BootStrapButton style={buttonStyle} onClick={() => {
+						<BootStrapButton id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {
 							this.handleClickOpenAddFolder()
 						}}>
 							<NewFolderIcon style={iconStyle}/>
@@ -516,7 +515,7 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Delete")}>
-						<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
+						<BootStrapButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
 							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
 						}}
 						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
@@ -524,7 +523,7 @@ export default class EndpointBrowseComponent extends Component {
 
 
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
-				  		<BootStrapButton style={buttonStyle}  onClick={() => {
+				  		<BootStrapButton id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
 				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 				  		}}>
@@ -533,7 +532,7 @@ export default class EndpointBrowseComponent extends Component {
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
-				  		<BootStrapButton bsStyle="primary" style={buttonStyle} onClick={() =>
+				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
 				  			emptyFileNodesData(endpoint);
 				  			this.unselectAll();
@@ -546,13 +545,13 @@ export default class EndpointBrowseComponent extends Component {
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
-					<FormControl placeholder="Search"
+					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
+						<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
 						 border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
 						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
@@ -560,12 +559,11 @@ export default class EndpointBrowseComponent extends Component {
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
-						 border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
-						 onClick={() => {
+						<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
+						  border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
+						  onClick={() => {
 							this.setState({regex : !this.state.regex})
-							}
-						}><b>*.</b></Button>
+						  }}><b>*.</b></Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
@@ -633,6 +631,8 @@ export default class EndpointBrowseComponent extends Component {
 									key={fileId}
 									index={index}
 									file={file}
+									id={fileId}
+									fileId={fileId}
 									selectionCount={selectedTasks.length}
 									onClick={this.fileNodeClicked}
 									onDoubleClick={this.fileNodeDoubleClicked}

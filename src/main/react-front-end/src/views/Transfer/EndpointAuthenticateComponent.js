@@ -419,7 +419,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		          </ListItemIcon>
 		          <ListItemText primary="Back" />
 		        </ListItem>
-		        <ListItem button onClick={() => {
+
+		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
 		        	if(loginType === DROPBOX_TYPE){
 		        		openDropboxOAuth();
 		        	}else if(loginType === GOOGLEDRIVE_TYPE){
@@ -475,7 +476,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		    		<div>
 			    	<TextField
 			    	  style={{width: "60%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
@@ -484,7 +485,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        <TextField
 			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
-					  id="outlined-pnum"
+					  id={endpoint.side+"LoginPort"}
 					  disabled = {!this.state.portNumField}
 			          label="Port Number"
 			          value={this.state.portNumField? this.state.portNum : "-"} 
@@ -501,7 +502,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	<div>
 			        <TextField
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginUsername"}
 			          label="Username"
 			          value={this.state.username}
 			          onChange={this.handleChange('username')}
@@ -510,7 +511,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        <TextField
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginPassword"}
 			          label="Password"
 			          type="password"
 			          value={this.state.password}
@@ -520,7 +521,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        </div>
 		    	}
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+		    	<Button id={endpoint.side + "LoginAuth"} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
 		    	</div>
 		    }
       	</div>);
