@@ -732,15 +732,15 @@ export async function deleteJob(jobID, accept, fail){
 }
 
 export async function openDropboxOAuth(){
-	openOAuth("/api/stork/oauth/handle?type=dropbox");
+	openOAuth("/api/stork/oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth(){
-	openOAuth("/api/stork/oauth/handle?type=googledrive");
+	openOAuth("/api/stork/oauth?type=googledrive");
 }
 
 export async function openGridFtpOAuth(){
-	openOAuth("/api/stork/oauth/handle?type=gridftp");
+	openOAuth("/api/stork/oauth?type=gridftp");
 }
 
 export async function openOAuth(url){

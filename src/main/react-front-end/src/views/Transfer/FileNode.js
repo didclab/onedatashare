@@ -212,7 +212,7 @@ export default class FileNode extends Component {
 	}
 
 	render(){
-		const {index, onDoubleClick, isSelected, isGhosting, endpoint, fileId} = this.props;
+		const {index, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
 		const {name, dir, perm, time, size} = this.props.file;
 		const hasAttr = (time !== 0 || perm || size !== 0);
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric'};
