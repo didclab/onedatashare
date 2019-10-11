@@ -93,11 +93,12 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		if(newPass == "" || oldPass == ""){
-			eventEmitter.emit("print", "Password field cannot be empty");
+		console.log(newPass, confPass, oldPass);
+		if(newPass === "" || oldPass === "" || confPass === ""){
+			eventEmitter.emit("Error", "Password field cannot be empty");
 		}
-        else if(newPass !==  confPass) {
-			eventEmitter.emit("print", "passwords do not match");
+		else if(newPass !== confPass){
+			eventEmitter.emit("Error", "Passwords and Confimation Password do not match");
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{

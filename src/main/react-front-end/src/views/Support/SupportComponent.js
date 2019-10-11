@@ -3,8 +3,6 @@ import React, { Component } from 'react';
 import { submitIssue } from '../../APICalls/APICalls';
 import {store} from '../../App';
 
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -14,9 +12,6 @@ import ReCAPTCHA from 'react-google-recaptcha';
 
 import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
 export default class SupportComponent extends Component{
 
@@ -98,7 +93,7 @@ export default class SupportComponent extends Component{
 
   render(){
     
-    const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
+    // const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
     const divStyle = { margin : '2% 5%' };
     const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
