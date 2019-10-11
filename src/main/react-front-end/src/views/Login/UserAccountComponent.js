@@ -89,20 +89,29 @@ export default class UserAccountComponent extends Component {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
+
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		changePassword(oldPass, newPass,confPass, (hash)=>{
-		    store.dispatch(updateHashAction(hash))
-			this.setState({redirect:true});
-			console.log(hash);
-		}, (error)=>{
-			if(error && error.response && error.response.data && error.response.data.message){
-				eventEmitter.emit("errorOccured", error.response.data.message); 
-			}else{
-				eventEmitter.emit("errorOccured", "Unknown Error"); 
-			}
-		});
+		if(newPass == "" || oldPass == ""){
+			eventEmitter.emit("print", "Password field cannot be empty");
+		}
+        else if(newPass !==  confPass) {
+			eventEmitter.emit("print", "passwords do not match");
+		}
+		else{
+			changePassword(oldPass, newPass,confPass, (hash)=>{
+				store.dispatch(updateHashAction(hash));
+				this.setState({redirect:true});
+				console.log(hash);
+			}, (error)=>{
+				if( error && error.response && error.response.data && error.response.data.message ){
+					eventEmitter.emit("errorOccured", error.response.data.message);
+				}else{
+					eventEmitter.emit("errorOccured", "Unknown Error");
+				}
+			});
+		}
 	}
 
 	handleAccountPreferenceToggle() {
