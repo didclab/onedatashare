@@ -14,6 +14,10 @@ import ReCAPTCHA from 'react-google-recaptcha';
 
 import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Typography from "@material-ui/core/Typography";
+import {Col, Panel} from "react-bootstrap";
 export default class SupportComponent extends Component{
 
   constructor(){
@@ -99,8 +103,14 @@ export default class SupportComponent extends Component{
     const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
-      <Card style={cardStyle}>
-        <CardHeader title="Report an Issue" />
+        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
+          <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
+        <Panel bsStyle="primary">
+          <Panel.Heading>
+            <p>
+              Report an Issue
+            </p>
+          </Panel.Heading>
         <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
           <div style={divStyle}>
             <TextField
@@ -168,7 +178,9 @@ export default class SupportComponent extends Component{
           </div>
 
         </ValidatorForm>
-      </Card>
+      </Panel>
+          </Col>
+        </div>
     );
   }
 }
