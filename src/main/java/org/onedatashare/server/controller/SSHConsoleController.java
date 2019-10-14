@@ -6,6 +6,7 @@ import org.onedatashare.server.service.SSHConsoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping(value = "/api/stork/ssh/console")
@@ -15,11 +16,10 @@ public class SSHConsoleController {
     SSHConsoleService consoleService;
 
     @PostMapping
-    public Object runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
+    public Flux<String> runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
 
         UserAction ua = UserAction.convertToUserAction(commandData);
-        consoleService.runCommand(ua);
-
+        return consoleService.runCommand(ua, commandData.getCommandWithPath());
     }
 
 
