@@ -86,7 +86,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                         s.success(this);
                     else {
                         OAuthCredential newCredential = updateToken();
-                        if(newCredential.refreshToken !=null)
+                        if(newCredential.refreshToken != null)
                             s.error(new TokenExpiredException(401, newCredential));
                     }
                 }
