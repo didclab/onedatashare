@@ -1,4 +1,3 @@
-
 import { multiSelectTo as multiSelect } from './utils';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
@@ -11,7 +10,6 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import {listFiles, openGoogleDriveOAuth} from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
 import {InputGroup, FormControl} from "react-bootstrap";
@@ -26,7 +24,7 @@ import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import { mkdir, deleteCall, download, getDownload, getSharableLink, openDropboxOAuth } from "../../APICalls/APICalls";
+import { listFiles, mkdir, deleteCall, download, getDownload, getSharableLink, openDropboxOAuth, openGoogleDriveOAuth } from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
@@ -38,7 +36,6 @@ import { eventEmitter } from "../../App";
 import { getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { logoutAction } from '../../model/actions';
 
 export default class EndpointBrowseComponent extends Component {
 

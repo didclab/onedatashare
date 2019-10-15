@@ -93,6 +93,7 @@ export default class AccountControlComponent extends Component {
 	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
+  
   componentWillUnmount(){
   	this.unsubscribe();
   }

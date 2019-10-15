@@ -69,13 +69,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		this._handleError = this._handleError.bind(this);
 		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
-		
 	}
-
-	attemptEndpointLogin = (endpointSet, successCallback, failureCallBack) => {		
-		successCallback(endpointSet);
-	}
-
 
 	credentialListUpdateFromBackend = () => {
 		this.props.setLoading(true);
@@ -254,7 +248,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
 							side: endpoint.side
 						}				
-						this.attemptEndpointLogin(endpointSet, loginSuccess, undefined);
+						loginSuccess(endpointSet);
 					}}>
 					<ListItemIcon>
 						<DataIcon/>
