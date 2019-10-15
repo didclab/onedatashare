@@ -152,9 +152,9 @@ public class UserAction {
      */
     public static UserAction convertToUserAction(SSHCommandData commandData){
         UserAction ua = new UserAction();
-        ua.setType(commandData.getType());
         ua.setUri(commandData.getHost());
         ua.setCredential(commandData.getCredential());
+        ua.setPortNumber(commandData.getPort());
         return ua;
     }
 

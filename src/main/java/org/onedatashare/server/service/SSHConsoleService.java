@@ -2,24 +2,28 @@ package org.onedatashare.server.service;
 
 import com.jcraft.jsch.*;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 @Service
 public class SSHConsoleService {
 
-    @Autowired
     JSch jsch;
+
+    public SSHConsoleService(){
+        jsch = new JSch();
+    }
 
     public Mono<Session> createSession(String uri, String userName, String password, Integer port) {
         return Mono.create(sink -> {
             Session session = null;
             try {
-                session = jsch.getSession(uri, userName, port);
+                session = jsch.getSession(userName, uri, port);
             } catch (Exception e) {
                 ODSLoggerService.logError("Error occurred while trying to create SSH session for " + userName);
                 sink.error(new Exception("Failed to create SSH session"));
@@ -53,20 +57,42 @@ public class SSHConsoleService {
     }
 
     public Flux<String> readData(InputStream in){
-        return Flux.generate(sink ->{
-                    try {
-                        while (in.available() > 0) {
-                            byte[] tmp = new byte[1024];
-                            int bytes = in.read(tmp, 0, 1024);
-                            sink.next(new String(tmp, 0, bytes));
-                        }
-                    }
-                    catch(Exception e){
-                        ODSLoggerService.logError("Error occurred while reading result of SSH command execution");
-                        sink.error(new Exception("Error occurred while reading result of SSH command execution"));
-                    }
-                    sink.complete();
-                });
+        String result = new String();
+        try {
+            while (in.available() > 0) {
+                byte[] tmp = new byte[1024];
+                int bytes = in.read(tmp, 0, 1024);
+                result += new String(tmp, 0, bytes);
+            }
+
+
+//            BufferedReader br =  new BufferedReader(new InputStreamReader(in));
+//            String input = "";
+//            while((input = br.readLine()) != null){
+//                result += input;
+//            }
+
+        }
+        catch(Exception e){
+            ODSLoggerService.logError("Error occurred while reading result of SSH command execution");
+        }
+        ODSLoggerService.logInfo("Result : " + result);
+        return Flux.just(result);
+
+//        return Flux.generate(sink ->{
+//                    try {
+//                        while (in.available() > 0) {
+//                            byte[] tmp = new byte[1024];
+//                            int bytes = in.read(tmp, 0, 1024);
+//                            sink.next(new String(tmp, 0, bytes));
+//                        }
+//                    }
+//                    catch(Exception e){
+//                        ODSLoggerService.logError("Error occurred while reading result of SSH command execution");
+//                        sink.error(new Exception("Error occurred while reading result of SSH command execution"));
+//                    }
+//                    sink.complete();
+//                });
     }
 }
 

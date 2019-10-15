@@ -16,7 +16,7 @@ public class SSHConsoleController {
     SSHConsoleService consoleService;
 
     @PostMapping
-    public Flux<String> runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
+    public Flux<Object> runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
 
         UserAction ua = UserAction.convertToUserAction(commandData);
         return consoleService.runCommand(ua, commandData.getCommandWithPath());

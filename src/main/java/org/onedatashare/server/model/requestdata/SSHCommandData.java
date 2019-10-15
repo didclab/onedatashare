@@ -6,8 +6,8 @@ import org.onedatashare.server.model.useraction.UserActionCredential;
 @Data
 public class SSHCommandData {
 
-    private String type;
     private String host;
     private UserActionCredential credential;
     private String commandWithPath;
+    private String port;
 }
