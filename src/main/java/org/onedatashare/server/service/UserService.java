@@ -12,6 +12,7 @@ import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
@@ -154,17 +155,28 @@ public class UserService {
 
   public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
     return getLoggedInUser(cookie).flatMap(user-> {
+      //OldPwdMatchingException oldPwd = new OldPwdMatchingException()
+      //System.out.println("oldpassword "+oldpassword);
       if(!newpassword.equals(passwordConfirm)){
         ODSLoggerService.logError("Passwords don't match.");
-        return Mono.error(new Exception("Passwords don't match."));
+        throw new  OldPwdMatchingException("Passwords don't match.");
       }else if(!user.checkPassword(oldpassword)){
         ODSLoggerService.logError("Old Password is incorrect.");
-        return Mono.error(new Exception("Old Password is incorrect."));
+       // return Mono.error(new Exception("Old Password is incorrect."));
+        throw new  OldPwdMatchingException("Old Password is incorrect.");
       }else{
+        try{
         user.setPassword(newpassword);
         userRepository.save(user).subscribe();
         ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
         return Mono.just(user.getHash());
+        }
+        catch (RuntimeException e)
+        {
+          throw  new OldPwdMatchingException(e.getMessage());
+        }
+
+
       }
     });
   }

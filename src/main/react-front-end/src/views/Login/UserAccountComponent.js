@@ -93,19 +93,23 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		console.log(newPass, confPass, oldPass);
-		if(newPass === "" || oldPass === "" || confPass === ""){
-			eventEmitter.emit("Error", "Password field cannot be empty");
-		}
+
+		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
+		    eventEmitter.emit("errorOccured", "Password must be 6+ characters.");
+		    }
+	     else if(newPass === "" || oldPass === "" || confPass === ""){
+			eventEmitter.emit("errorOccured", "All Password field cannot be empty");
+			}
 		else if(newPass !== confPass){
-			eventEmitter.emit("Error", "Passwords and Confimation Password do not match");
+			eventEmitter.emit("errorOccured", "Passwords and Confimation Password do not match");
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{
 				store.dispatch(updateHashAction(hash));
 				this.setState({redirect:true});
-				console.log(hash);
+
 			}, (error)=>{
+
 				if( error && error.response && error.response.data && error.response.data.message ){
 					eventEmitter.emit("errorOccured", error.response.data.message);
 				}else{
@@ -274,7 +278,7 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					id="Password"
+					ionPasswordUpdated="Password"
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
