@@ -408,10 +408,10 @@ public class UserService {
           .doOnSuccess(user -> {
               Map<UUID,Credential> credsTemporary = user.getCredentials();
               for(UUID uid : credsTemporary.keySet()){
-                if(credential.refreshTokenExp){
+                if(credential.refreshTokenExp && false){
                   credsTemporary.remove(uid);
-                  userRepository.save(user).subscribe();
                   user.setCredentials(credsTemporary);
+                  userRepository.save(user).subscribe();
                 }else{
                   OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
                   if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
