@@ -104,7 +104,7 @@ export default class UserAccountComponent extends Component {
 			eventEmitter.emit("errorOccured", "Passwords and Confimation Password do not match");
 		}
 		else{
-			changePassword(oldPass, newPass,confPass, (hash)=>{
+			git changePassword(oldPass, newPass,confPass, (hash)=>{
 				store.dispatch(updateHashAction(hash));
 				this.setState({redirect:true});
 
