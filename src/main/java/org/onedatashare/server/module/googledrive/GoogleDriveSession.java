@@ -18,6 +18,7 @@ import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -30,6 +31,9 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
 
     @Autowired
     GoogleDriveConfig driveConfig;
+
+    @Value("{drive.application.name}")
+    private String appName;
 
     private Drive service;
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
@@ -86,7 +90,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
                         s.success(this);
                     else {
                         OAuthCredential newCredential = updateToken();
-                        if(newCredential.refreshToken !=null)
+                        if(newCredential.refreshToken != null)
                             s.error(new TokenExpiredException(401, newCredential));
                     }
                 }
@@ -97,8 +101,10 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
 
     public com.google.api.client.auth.oauth2.Credential authorize(String token) throws IOException {
         // Load client secrets.
-        if(driveConfig == null)
+        if(driveConfig == null) {
             driveConfig = new GoogleDriveConfig();
+            driveConfig.setApplicationName(appName);
+        }
         com.google.api.client.auth.oauth2.Credential credential = driveConfig.getFlow().loadCredential(token);
         return credential;
     }
@@ -149,13 +155,13 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
             cred.expiredTime = calendar.getTime();
 
             driveConfig.getFlow().createAndStoreCredential(response, cred.token);
-            ODSLoggerService.logInfo("New AccessToken:"+response.getAccessToken()+" RefreshToken:"+cred.refreshToken);
+            ODSLoggerService.logInfo("New AccessToken and RefreshToken fetched");
         } catch(com.google.api.client.auth.oauth2.TokenResponseException te){
             cred.refreshTokenExp = true;
-            ODSLoggerService.logInfo("Refresh token for the user has expired");
+            ODSLoggerService.logError("Refresh token for the user has expired");
         } catch (IOException e){
             e.printStackTrace();
-            ODSLoggerService.logInfo("IOException");
+            ODSLoggerService.logError("IOException in update Token");
         }
         return cred;
     }

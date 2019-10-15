@@ -404,23 +404,22 @@ public class UserService {
   }
 
   public OAuthCredential updateCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
-    //Updating the access token for googledrive using refresh token
-
-        getLoggedInUser(cookie)
-          .doOnSuccess(user -> {
-              Map<UUID,Credential> credsTemporary = user.getCredentials();
-              UUID uid = UUID.fromString(userActionCredential.getUuid());
-              OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
-              if(credential.refreshTokenExp){
-                credsTemporary.remove(uid);
-              }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
-                credsTemporary.replace(uid, credential);
-              }
-              if(user.isSaveOAuthTokens()) {
-                user.setCredentials(credsTemporary);
-                userRepository.save(user).subscribe();
-              }
-          }).subscribe();
+    //Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
+      getLoggedInUser(cookie)
+        .doOnSuccess(user -> {
+            Map<UUID,Credential> credsTemporary = user.getCredentials();
+            UUID uid = UUID.fromString(userActionCredential.getUuid());
+            OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+            if(credential.refreshTokenExp){
+              credsTemporary.remove(uid);
+            }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+              credsTemporary.replace(uid, credential);
+            }
+            if(user.isSaveOAuthTokens()) {
+              user.setCredentials(credsTemporary);
+              userRepository.save(user).subscribe();
+            }
+        }).subscribe();
 
     return credential;
   }
