@@ -13,6 +13,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -402,26 +403,22 @@ public class UserService {
       }).then();
   }
 
-  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
+  public OAuthCredential updateCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
     //Updating the access token for googledrive using refresh token
+
         getLoggedInUser(cookie)
           .doOnSuccess(user -> {
               Map<UUID,Credential> credsTemporary = user.getCredentials();
-              for(UUID uid : credsTemporary.keySet()){
-                if(credential.refreshTokenExp){
-                  credsTemporary.remove(uid);
-                  userRepository.save(user).subscribe();
-                  user.setCredentials(credsTemporary);
-                }else{
-                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
-                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
-                    credsTemporary.replace(uid, credential);
-                    if(user.isSaveOAuthTokens()) {
-                      user.setCredentials(credsTemporary);
-                      userRepository.save(user).subscribe();
-                    }
-                  }
-                }
+              UUID uid = UUID.fromString(userActionCredential.getUuid());
+              OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+              if(credential.refreshTokenExp){
+                credsTemporary.remove(uid);
+              }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+                credsTemporary.replace(uid, credential);
+              }
+              if(user.isSaveOAuthTokens()) {
+                user.setCredentials(credsTemporary);
+                userRepository.save(user).subscribe();
               }
           }).subscribe();
 

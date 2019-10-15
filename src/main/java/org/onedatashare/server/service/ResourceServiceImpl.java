@@ -54,7 +54,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                            Mono.just(userService.updateCredential(cookie, ((TokenExpiredException) throwable).cred))
+                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
                                     .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
                                     .flatMap(GoogleDriveSession::initialize)
                                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
