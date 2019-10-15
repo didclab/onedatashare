@@ -154,7 +154,7 @@ export function emptyFileNodesData(endpoint){
 			selectedTasks : [],
 
 		};
-	}else{
+	}else if(endpoint.side === "right"){
 		column2 = {
 			id: "right",
 			title: "",

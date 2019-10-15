@@ -43,6 +43,7 @@ export default class GlobusEndpointListingComponent extends Component {
 		close: PropTypes.func,
 		endpointAdded: PropTypes.func
 	}
+
 	constructor(props){
 	    super(props);
 	    this.state={
@@ -50,7 +51,6 @@ export default class GlobusEndpointListingComponent extends Component {
 	    	data:[],
 	    	loading: false,
 	    }
-
 	}
 
 	getEndpointListAsData(){
@@ -73,7 +73,6 @@ export default class GlobusEndpointListingComponent extends Component {
 	}
 
 	render(){
-		const { close } = this.props;
 		const { search_text, loading, data } = this.state;
 		const greatDiscoveryList = data.map((v) =>
     		<ListItem button key={v.canonical_name} style={{background: "white", height: 40}} onClick={() => {

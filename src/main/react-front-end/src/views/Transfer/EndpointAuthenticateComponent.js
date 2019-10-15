@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, dropboxCredList, 
-		listFiles, deleteCredential, deleteHistory, globusEndpointIds, deleteEndpointId, 
+import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList, 
+		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId, 
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, HTTPS_TYPE} from "../../constants";
+import {store} from "../../App";
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -11,6 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
+import {cookies} from "../../model/reducers.js";
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
@@ -60,24 +62,44 @@ export default class EndpointAuthenticateComponent extends Component {
 		let loginType = getType(props.endpoint);
 		if(loginType === GRIDFTP_TYPE){
 			this.endpointIdsListUpdateFromBackend();
-		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE){
+		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE){
 		    this.historyListUpdateFromBackend();
 		}
 		this.handleChange = this.handleChange.bind(this);
 		this._handleError = this._handleError.bind(this);
+		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 	}
 
 	credentialListUpdateFromBackend = () => {
 		this.props.setLoading(true);
 
-		dropboxCredList((data) =>{
+		savedCredList((data) =>{
 			this.setState({credList: data});
 			this.props.setLoading(false);
 		}, (error) =>{
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
+	}
+
+	deleteCredentialFromLocal(cred, type){
+		this.props.setLoading(true);
+
+		let parsedCredsArr = JSON.parse(cookies.get(type));
+		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+														return curObj.name !== cred.name;
+												});
+		if(filteredCredsArr.length === 0){
+			cookies.remove(type);
+		}
+		else{
+			cookies.set(type, JSON.stringify(filteredCredsArr));
+		}
+
+		this.setState({credList: filteredCredsArr});
+
+		this.props.setLoading(false);
 	}
 
 	endpointIdsListUpdateFromBackend = () => {
@@ -108,7 +130,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	handleChange = name => event => {
       this.setState({
-        [name]: event.target.value,
+        [name]: event.target.value
       });
 	};
 	
@@ -121,9 +143,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		this.setState({
 			"portNumField": colonCount>=2 ? false : true,
-			[name] : event.target.value
-		})
-		
+			"url" : event.target.value
+		});
 	}
 
 	endpointCheckin=(url, portNum, credential, callback) => {
@@ -133,9 +154,19 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
-		// If the Url already doesn't contain the portnumber append it else no change
-		if(colonCount===1)
-			url = url + ":" + portNum;
+
+		// Find if the port is a standard port
+		let standardPort = portNum === getDefaultPortFromUri(url);
+		if(getTypeFromUri(url) === HTTP_TYPE){
+			standardPort = portNum === getDefaultPortFromUri(HTTP_TYPE) || portNum === getDefaultPortFromUri(HTTPS_TYPE);
+		}
+
+		// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
+		if(colonCount===1 && !standardPort){
+			let tempUrl = new URL(url);
+			tempUrl.port = portNum.toString;
+			url = tempUrl.toString();
+		}
 
 		let endpointSet = {
 			uri: url,
@@ -200,37 +231,73 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		return Object.keys(credList).filter(id => {
-			return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1 
-						&& !getCred().includes(id))})
-			.map((v) =>
-			<ListItem button key={v} onClick={() => {
-				const endpointSet = {
-					uri: endpoint.uri,
-					login: true,
-					credential: {uuid: v, name: credList[v].name},
-					side: endpoint.side
-				}
-				loginSuccess(endpointSet);
-			}}>
-			  <ListItemIcon>
-		        <DataIcon/>
-		      </ListItemIcon>
-	          <ListItemText primary={credList[v].name} />
-	          <ListItemSecondaryAction>
-	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteCredential(v, (accept) => {
-	            		this.credentialListUpdateFromBackend();
-	            	}, (error) => {
-	            		this._handleError("Delete Credential Failed");
-	            	});
-	            }}>
-	              <DeleteIcon />
-	            </IconButton>
-	          </ListItemSecondaryAction>
-	        </ListItem>
-		);
+		
+		
+		if(store.getState().saveOAuthTokens){
+			// If the user has opted to store tokens on ODS server
+			// Note - Backend returns stored credentials as a nested JSON object
+			return Object.keys(credList).filter(id => {
+				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1 
+							&& !getCred().includes(id))})
+				.map((v) =>
+				<ListItem button key={v} 
+					onClick={() => {
+						const endpointSet = {
+							uri: endpoint.uri,
+							login: true,
+							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
+							side: endpoint.side
+						}
+						loginSuccess(endpointSet);
+					}}>
+					<ListItemIcon>
+						<DataIcon/>
+					</ListItemIcon>
+					<ListItemText primary={credList[v].name} />
+					<ListItemSecondaryAction>
+						<IconButton aria-label="Delete" onClick={() => {
+							deleteCredentialFromServer(v, (accept) => {
+								this.credentialListUpdateFromBackend();
+							}, (error) => {
+								this._handleError("Delete Credential Failed");
+							});
+						}}>
+							<DeleteIcon />
+						</IconButton>
+					</ListItemSecondaryAction>
+				</ListItem>
+			);
+		}
+		else{
+			// If the user has opted not to store tokens on ODS server
+			// Note - Local storage returns credentials as array of objects
+			return credList.map((cred) =>
+			<ListItem button 
+				onClick={() => {
+					const endpointSet = {
+						uri: endpoint.uri,
+						login: true,
+						credential: {name: cred.name, tokenSaved: false, token: cred.token},
+						side: endpoint.side
+					}
+					loginSuccess(endpointSet);
+				}}>
+				<ListItemIcon>
+					<DataIcon/>
+				</ListItemIcon>
+				<ListItemText primary={cred.name} />
+				<ListItemSecondaryAction>
+					<IconButton aria-label="Delete" onClick={() =>
+						this.deleteCredentialFromLocal(cred, type)}>
+						<DeleteIcon />
+					</IconButton>
+				</ListItemSecondaryAction>
+				</ListItem>
+			);
+		}
+		
 	}
+
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {
@@ -337,9 +404,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);
-		const histList = this.getHistoryListComponentFromList(historyList);
 
-		const cloudList = this.getCredentialListComponentFromList(credList, type)
 		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 
@@ -354,7 +419,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		          </ListItemIcon>
 		          <ListItemText primary="Back" />
 		        </ListItem>
-		        <ListItem button onClick={() => {
+
+		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
 		        	if(loginType === DROPBOX_TYPE){
 		        		openDropboxOAuth();
 		        	}else if(loginType === GOOGLEDRIVE_TYPE){
@@ -385,10 +451,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && cloudList}
+		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
 		        {loginType === GRIDFTP_TYPE && endpointsList}
 		        {loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
-		        	histList}
+		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
 	    	  aria-labelledby="simple-modal-title"
@@ -410,7 +476,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		    		<div>
 			    	<TextField
 			    	  style={{width: "60%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
@@ -419,7 +485,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        <TextField
 			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
-					  id="outlined-pnum"
+					  id={endpoint.side+"LoginPort"}
 					  disabled = {!this.state.portNumField}
 			          label="Port Number"
 			          value={this.state.portNumField? this.state.portNum : "-"} 
@@ -436,7 +502,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        	<div>
 			        <TextField
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginUsername"}
 			          label="Username"
 			          value={this.state.username}
 			          onChange={this.handleChange('username')}
@@ -445,7 +511,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        <TextField
 			    	  style={{width: "80%"}}
-			          id="outlined-name"
+			          id={endpoint.side+"LoginPassword"}
 			          label="Password"
 			          type="password"
 			          value={this.state.password}
@@ -455,7 +521,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 			        </div>
 		    	}
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+		    	<Button id={endpoint.side + "LoginAuth"} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
 		    	</div>
 		    }
       	</div>);

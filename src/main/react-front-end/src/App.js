@@ -45,7 +45,6 @@ class App extends Component {
   };
 
   componentDidMount(){
-    document.title = "OneDataShare - Home";
     this.setState({loaded: true});
     eventEmitter.on("errorOccured", this.handleOpen); 
   }
@@ -74,8 +73,8 @@ class App extends Component {
         />
 
         <Switch>
-          <Route path='/account' component={AccountControlComponent}/>
-          <Route path='/oauth/:id' component={OauthProcessComponent}/>
+          {/*<Route path='/account' component={AccountControlComponent}/>*/}
+          <Route path='/oauth/:tag' component={OauthProcessComponent}/>
           <Route exact path='/*/' component={MainComponent}/>
         </Switch>
 

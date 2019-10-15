@@ -2,9 +2,11 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, dropboxCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, savedCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
+import {cookies} from "../../model/reducers.js";
+
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
@@ -84,35 +86,60 @@ export default class BrowseModuleComponent extends Component {
 	_handleError = (msg) =>{
     	eventEmitter.emit("errorOccured", msg);
 	}
+
 	componentDidMount(){
 		loadCSS(
 	      'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
 	      document.querySelector('#font-awesome-css'),
 	    );
 	}
+
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-		dropboxCredList((data) => {
-			if(Object.keys(data).some(id => {
-				return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1;
-			})){
-				succeed(data);
-			}else{
+
+		if(store.getState().saveOAuthTokens){
+			// If the user has opted to store tokens on ODS server,
+			// query backed for saved credentials
+			console.log("Checking backend for " + containsType + " credentials");
+
+			savedCredList((data) => {
+				if(Object.keys(data).some(id => {
+					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1 
+				})){
+					succeed(data);
+				}else{
+					failed();
+				}
+				this.setLoading(false);
+			}, (error) =>{
+				this._handleError("Could not get credential from our server. Maybe check your internet connection.");
 				failed();
+				this.setLoading(false);
+			});
+		}
+		else{
+			// If the user has opted not to store tokens on ODS server,
+			// query cookies for saved credentials
+			console.log("Checking cookies for " + containsType + " credentials");
+			
+			let creds = cookies.get(containsType) || 0;
+			if(creds !== 0){
+				creds= JSON.parse(creds);
+				succeed(creds);
+				this.setLoading(false);
 			}
-			this.setLoading(false);
-		}, (error) =>{
-			this._handleError("Could not get credential from our server. Maybe check your internet connection.");
-			failed();
-			this.setLoading(false);
-		});
+			else{
+				failed();
+				this.setLoading(false);
+			}
+		}
 	}
 
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		const loginPrep = (uri) => (data) => {
 
+		const loginPrep = (uri) => (data) => {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
 				endpoint: {...endpoint, uri: uri},
@@ -121,55 +148,61 @@ export default class BrowseModuleComponent extends Component {
 			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 		}
 
-		const backHome = (uri, type) => {
+		const backHome = () => {
 			this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
+
 		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
 		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
-	    return (
+		
+	  return (
 	    // saved credential
 	    // login manually
 	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
-	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
 		      	}}>
 		      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
 		      		DropBox
 		      	</Button>
-	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+	      		<Button id={endpoint.side + "FTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		loginPrep(FTP_TYPE)()
 		      	}}>
 		      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
 		      		FTP
 	      		</Button>
-		      	<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+		      	<Button id={endpoint.side + "GoogleDrive"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+
 		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
 		      	}}>
 			      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
 			      	Google Drive
 		      	</Button>
-	      		<Button style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
+	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
 	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 	      		}}>
 	      			<Icon className={'fas fa-server'} style={iconStyle}/>
 	      		Grid FTP
 		      	</Button>
-				  <Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+
+				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>
 		      		<Icon className={'fas fa-globe'} style={iconStyle}/>
 		      		HTTP/HTTPS
 	      		</Button>
-		      	<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+
+		      	<Button id={endpoint.side + "SFTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
 		      	}}>
 		      		<Icon className={'fas fa-folder-open'} style={iconStyle}/>
 		      		SFTP
-		      	</Button>	      		
-	      		<Button style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+		      	</Button>
+		      	
+	      		<Button id={endpoint.side + "SSH"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(SCP_TYPE)()
 	      		}}>
 	      			<Icon className={'fas fa-terminal'} style={iconStyle}/>

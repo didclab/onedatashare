@@ -10,13 +10,10 @@ public abstract class Credential {
     OAUTH("oauth"),
     USERINFO("userinfo"),
     GLOBUS("globus");
-
     private final String text;
-
     CredentialType(final String text){
       this.text = text;
     }
-
     @Override
     public String toString() {
       return text;

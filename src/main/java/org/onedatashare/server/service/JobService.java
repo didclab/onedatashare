@@ -50,12 +50,12 @@ public class JobService {
                 for (int i = 0; i < numberOfItrs; i++) {
                     int pageNo = request.pageNo + i;
                     jobs = jobs.flatMap(jobs1 -> jobRepository.findAllBy(PageRequest.of(pageNo,
-                            request.pageSize, Sort.by(direction, request.sortBy)))
-                            .collectList()
-                            .map(jobs2 -> {
-                                jobs1.addAll(jobs2);
-                                return jobs1;
-                            }));
+                        request.pageSize, Sort.by(direction, request.sortBy)))
+                        .collectList()
+                        .map(jobs2 -> {
+                            jobs1.addAll(jobs2);
+                            return jobs1;
+                        }));
                 }
 
                 return jobs.flatMap(jobs1 -> jobRepository.count()
@@ -87,6 +87,10 @@ public class JobService {
                         }));
             }
         });
+    }
+
+    public Mono<List<Job>> getUpdates(String cookie, List<UUID> jobIds){
+        return jobRepository.findAllById(jobIds).collectList();
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {
