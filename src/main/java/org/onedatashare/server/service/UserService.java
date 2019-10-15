@@ -408,7 +408,7 @@ public class UserService {
           .doOnSuccess(user -> {
               Map<UUID,Credential> credsTemporary = user.getCredentials();
               for(UUID uid : credsTemporary.keySet()){
-                if(credential.refreshTokenExp && false){
+                if(credential.refreshTokenExp){
                   credsTemporary.remove(uid);
                   user.setCredentials(credsTemporary);
                   userRepository.save(user).subscribe();

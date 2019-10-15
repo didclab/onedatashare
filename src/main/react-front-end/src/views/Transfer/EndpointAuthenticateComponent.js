@@ -72,13 +72,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 	}
 
-	attemptEndpointLogin = (endpoint, v, isTokenSaved, cred, successCallback, failureCallBack) => {
-		const endpointSet = {
-			uri: endpoint.uri,
-			login: true,
-			credential: {uuid: v, name: cred.name, tokenSaved: isTokenSaved},
-			side: endpoint.side
-		}
+	attemptEndpointLogin = (endpointSet, successCallback, failureCallBack) => {		
 		successCallback(endpointSet);
 	}
 
@@ -253,7 +247,15 @@ export default class EndpointAuthenticateComponent extends Component {
 							&& !getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v} 
-					onClick= {() => this.attemptEndpointLogin(endpoint, v, credList[v], true, loginSuccess, undefined)}>
+					onClick= {() => {
+						const endpointSet = {
+							uri: endpoint.uri,
+							login: true,
+							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
+							side: endpoint.side
+						}				
+						this.attemptEndpointLogin(endpointSet, loginSuccess, undefined);
+					}}>
 					<ListItemIcon>
 						<DataIcon/>
 					</ListItemIcon>
@@ -276,8 +278,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted not to store tokens on ODS server
 			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-			<ListItem button 
-				onClick={() => {
+			<ListItem button onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,

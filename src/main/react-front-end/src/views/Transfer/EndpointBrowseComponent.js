@@ -11,7 +11,7 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import {listFiles} from "../../APICalls/APICalls";
+import {listFiles, openGoogleDriveOAuth} from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
 import {InputGroup, FormControl} from "react-bootstrap";
@@ -26,7 +26,7 @@ import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import { mkdir, deleteCall, download, getDownload, getSharableLink } from "../../APICalls/APICalls";
+import { mkdir, deleteCall, download, getDownload, getSharableLink, openDropboxOAuth } from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
@@ -38,6 +38,7 @@ import { eventEmitter } from "../../App";
 import { getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import { logoutAction } from '../../model/actions';
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -283,8 +284,18 @@ export default class EndpointBrowseComponent extends Component {
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
-			this._handleError(error);
+			this._handleError("Login Failed. Re-directing to OAuth page");
 			setLoading(false);
+			emptyFileNodesData(endpoint);
+			this.unselectAll();
+			this.props.back();		
+			
+			setTimeout(()=> {
+			if(getType(endpoint) === DROPBOX_TYPE)
+				openDropboxOAuth();
+			else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+				openGoogleDriveOAuth();
+			}, 2000);	
 		});
 	};
 
