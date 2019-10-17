@@ -8,6 +8,9 @@ export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
 export const accountPageUrl = "/account";
 export const registerPageUrl = "/account/register";
+export const signInUrl = "/account/signIn";
+export const forgotPasswordUrl = "/account/forgotPassword";
+export const lostValidationCodeUrl = "/account/lostValidationCode";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
@@ -25,6 +28,7 @@ export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
+export const HTTPS_TYPE = "https://";
 export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
