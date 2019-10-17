@@ -30,16 +30,10 @@ export default class AccountControlComponent extends Component {
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-<<<<<<< HEAD
-    const accounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-    this.newLogin = <SavedLoginComponent
-					accounts={accounts}
-=======
 	const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
 	const currentRoute = this.props.location.pathname
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
->>>>>>> 87734486d81d62482b038700e88523f348240bc4
 					login={(email) => {
 						const user = JSON.parse(cookies.get('SavedUsers'))[email];
 						this.userLogin(email, user.hash, false);
@@ -55,7 +49,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	
+
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
@@ -90,25 +84,16 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-<<<<<<< HEAD
   userLogin(email, hash, remember, saveOAuthTokens, prefersCompactView){
-  	this.state.accounts[email] = { hash: hash };
-=======
-  userLogin(email, hash, remember, saveOAuthTokens){
   	this.state.rememberMeAccounts[email] = { hash: hash };
->>>>>>> 87734486d81d62482b038700e88523f348240bc4
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-<<<<<<< HEAD
-		cookies.set('compact', prefersCompactView);
-=======
->>>>>>> 87734486d81d62482b038700e88523f348240bc4
-
+	cookies.set('compact', prefersCompactView);
 	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
-  
+
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -130,11 +115,7 @@ export default class AccountControlComponent extends Component {
 	    	(error) => {fail(error)}
 	    );
 	}
-<<<<<<< HEAD
-
-=======
 	// Switches to a route and renders a component based on the redirect set inside render method.
->>>>>>> 87734486d81d62482b038700e88523f348240bc4
 	getInnerCard() {
 		return (
 			<Switch>

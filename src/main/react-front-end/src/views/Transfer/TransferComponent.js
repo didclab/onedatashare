@@ -74,7 +74,6 @@ export default class TransferComponent extends Component {
 
     updateGAPageView();
 
-    //console.log("Constructor called");
   }
 
   printError(){
