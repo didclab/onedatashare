@@ -422,7 +422,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
-		        <TableBody style={{height:'620px', overflowY: 'scroll', display: "block"}}>
+		        <TableBody style={{height:'100%', display: "block"}}>
 		            {tableRows}
 
 		        </TableBody>
