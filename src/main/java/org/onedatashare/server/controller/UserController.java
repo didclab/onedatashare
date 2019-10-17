@@ -74,6 +74,8 @@ public class UserController {
         return userService.isAdmin(cookie);
       case "resendVerificationCode":
         return userService.resendVerificationCode(userAction.getEmail());
+      case "updateViewPreference":
+        return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewPreferred());
       default:
         return null;
     }

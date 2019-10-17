@@ -31,8 +31,8 @@ export default class AccountControlComponent extends Component {
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
     const accounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-    this.newLogin = <SavedLoginComponent 
-					accounts={accounts} 
+    this.newLogin = <SavedLoginComponent
+					accounts={accounts}
 					login={(email) => {
 						const user = JSON.parse(cookies.get('SavedUsers'))[email];
 						this.userLogin(email, user.hash, false);
@@ -65,7 +65,7 @@ export default class AccountControlComponent extends Component {
    	this.userLogin = this.userLogin.bind(this);
    	this.userSigningIn = this.userSigningIn.bind(this);
 	}
-	
+
 	componentDidMount() {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
@@ -74,14 +74,15 @@ export default class AccountControlComponent extends Component {
 	}
 
 	static propTypes = {}
-	
+
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
+  userLogin(email, hash, remember, saveOAuthTokens, prefersCompactView){
   	this.state.accounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.accounts));
 	}
-	
+		cookies.set('compact', prefersCompactView);
+
 	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
@@ -101,12 +102,12 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.prefersCompactView);
 	    	},
 	    	(error) => {fail(error)}
 	    );
 	}
-	
+
 	getInnerCard() {
 		return (
 			<Switch>

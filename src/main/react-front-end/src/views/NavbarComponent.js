@@ -8,7 +8,8 @@ import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPag
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
-
+import { updateViewPreference } from '../APICalls/APICalls.js';
+import {cookies} from '../model/reducers';
 class NavbarComponent extends Component {
 
 	constructor(props) {
@@ -37,6 +38,18 @@ class NavbarComponent extends Component {
 	componentWillUnmount() {
 		this.unsubscribe();
 	}
+	logout(){
+		let viewPreference = cookies.get('compact') == 'true';
+		let email = store.getState().email;
+		updateViewPreference(email, viewPreference,
+			(success) => {
+				console.log("updateViewPreference Succesfully", success);
+				store.dispatch(logoutAction());
+	    	},
+	    	(error) => {console.log("ERROR in updation"+error)}
+	    );
+	}
+
 	render() {
 		return (
 			<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar">
@@ -78,7 +91,7 @@ class NavbarComponent extends Component {
 							<NavItem componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 						}
 						{this.state.login &&
-							<NavItem onClick={() => { store.dispatch(logoutAction()) }}>
+							<NavItem onClick={() => { this.logout() }}>
 								<span>Log out</span>
 							</NavItem>}
 

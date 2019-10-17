@@ -78,6 +78,9 @@ public class User {
     /** Used to hold session connections for reuse. */
     private transient Map<Session, Session> sessions = new HashMap<>();
 
+    /** Makes sure that view of user in transfer page is consistent with his/her preference. */
+    private boolean prefersCompactView = false;
+
     /**
      * Create an anonymous user.
      */
@@ -262,12 +265,14 @@ public class User {
         public String email;
         public String hash;
         public boolean saveOAuthTokens;
+        public boolean prefersCompactView;
 
 
-        public UserLogin(String email, String hash, boolean saveOAuthTokens) {
+        public UserLogin(String email, String hash, boolean saveOAuthTokens, boolean prefersCompactView) {
             this.email = email;
             this.hash = hash;
             this.saveOAuthTokens = saveOAuthTokens;
+            this.prefersCompactView = prefersCompactView;
         }
     }
 
