@@ -54,7 +54,6 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                 String client_id = System.getenv("BOX_CLIENT_ID");
                 String client_secret = System.getenv("BOX_CLIENT_SECRET");
                 client = new BoxAPIConnection(client_id, client_secret, oauth.getToken(), oauth.getRefreshToken());
-               // client.setLastRefresh(oauth.lastRefresh.getTime());
                 client.setExpires(oauth.expiredTime.getTime());
                 Date time = new Date();
                 System.out.println(oauth.expiredTime);
@@ -62,14 +61,11 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                     s.success(this);
                 }
                 else{
-                    client.setAccessToken(oauth.getToken());
-                    client.setRefreshToken(oauth.getRefreshToken());
-                    client.refresh();
-                    Date currentTime = new Date();
-                    oauth.lastRefresh = currentTime;
-                    oauth.expiredTime = new Date(currentTime.getTime() + client.getExpires());
-                    oauth.setToken(client.getAccessToken());
-                    oauth.setRefreshToken(client.getRefreshToken());
+//                    Date currentTime = new Date();
+//                    oauth.lastRefresh = currentTime;
+//                    oauth.expiredTime = new Date(currentTime.getTime() + client.getExpires());
+//                    oauth.setToken(client.getAccessToken());
+//                    oauth.setRefreshToken(client.getRefreshToken());
                     s.error(new TokenExpiredException(401, oauth));
                 }
 
