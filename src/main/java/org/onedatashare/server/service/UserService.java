@@ -155,14 +155,11 @@ public class UserService {
 
   public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
     return getLoggedInUser(cookie).flatMap(user-> {
-      //OldPwdMatchingException oldPwd = new OldPwdMatchingException()
-      //System.out.println("oldpassword "+oldpassword);
       if(!newpassword.equals(passwordConfirm)){
         ODSLoggerService.logError("Passwords don't match.");
         throw new  OldPwdMatchingException("Passwords don't match.");
       }else if(!user.checkPassword(oldpassword)){
         ODSLoggerService.logError("Old Password is incorrect.");
-       // return Mono.error(new Exception("Old Password is incorrect."));
         throw new  OldPwdMatchingException("Old Password is incorrect.");
       }else{
         try{
