@@ -163,18 +163,16 @@ public class UserService {
         throw new  OldPwdMatchingException("Old Password is incorrect.");
       }else{
         try{
-        user.setPassword(newpassword);
-        userRepository.save(user).subscribe();
-        ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
-        return Mono.just(user.getHash());
-        }
+            user.setPassword(newpassword);
+            userRepository.save(user).subscribe();
+            ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
+            return Mono.just(user.getHash());
+          }
         catch (RuntimeException e)
         {
           throw  new OldPwdMatchingException(e.getMessage());
         }
-
-
-      }
+        }
     });
   }
 
