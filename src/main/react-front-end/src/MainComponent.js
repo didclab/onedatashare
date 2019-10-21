@@ -50,38 +50,51 @@ export default class MainComponent extends Component {
 
         <div style={{ marginTop: '50px', display: 'block' }}>
           <Switch>
-            <Route path='/account' component={AccountControlComponent}/>
-            <Route exact path='/' render={(props) =>
-              <HomePageComponent  {...props} store={store} />
-            } />
 
-            <Route exact path='/terms' render={() =>
-              <TermsComponent />
-            }
+            <Route path='/account' 
+              render={(props) => <AccountControlComponent {...props} /> }
             />
 
-            <Route exact path='/policy' render={() =>
-              <PolicyComponent />
-            }
+            <Route exact path='/' 
+              render={(props) =>
+                <HomePageComponent  {...props} store={store} />
+              } 
             />
-            <Route exact path="/support" render={() =>
-              <SupportComponent />
-            } />
+
+            <Route exact path='/terms' 
+              render={() =>
+                <TermsComponent />
+              }
+            />
+
+            <Route exact path='/policy' 
+              render={() =>
+                <PolicyComponent />
+              }
+            />
+
+            <Route exact path="/support" 
+              render={() =>
+               <SupportComponent />
+              } 
+            />
 
             {isLoggedIn &&
-              <Route exact path='/transfer' render=
-                {(props) =>
+              <Route exact path='/transfer' 
+                render={(props) =>
                   <TransferComponent  {...props} store={store} />
                 }
               />
             }
+
             {isLoggedIn &&
-              <Route exact path='/queue' render=
-                { (props) => 
+              <Route exact path='/queue' 
+                render={ (props) => 
                   <QueueComponent {...props} />
                 }
               />
             }
+
             {isLoggedIn && admin &&
               <Route exact path='/history' render=
                 {(props) =>
@@ -90,19 +103,21 @@ export default class MainComponent extends Component {
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/clientsInfo' render=
-                {(props) =>
+              <Route exact path='/clientsInfo' 
+                render={(props) =>
                   <ClientsInfoComponent {...props} store={store} />
                 }
               />
             }
+
             {isLoggedIn &&
-              <Route exact path='/user' render=
-                { (props) => 
+              <Route exact path='/user' 
+              render={ (props) => 
                   <UserAccountComponent {...props} />
                 }
               />
             }
+
             {(isLoggedIn) &&
               <h1 to='/transfer'>Page Not Found</h1>
             }
