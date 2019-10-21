@@ -241,13 +241,13 @@ export default class EndpointAuthenticateComponent extends Component {
 							&& !getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v} 
-					onClick={() => {
+					onClick= {() => {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
 							side: endpoint.side
-						}
+						}				
 						loginSuccess(endpointSet);
 					}}>
 					<ListItemIcon>
@@ -272,8 +272,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted not to store tokens on ODS server
 			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-			<ListItem button 
-				onClick={() => {
+			<ListItem button onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
@@ -405,11 +404,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);
 
-		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 
 		return(
-		<div > 
+		<div >
 			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
 		        <ListItem button onClick={() =>{
 		        	back()
@@ -451,9 +449,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
-		        {loginType === GRIDFTP_TYPE && endpointsList}
-		        {loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
+				{/* Google Drive and Dropbox login handler */}
+				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/* GridFTP OAuth handler */}
+				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
+				{/* Other login handlers*/}
+				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
