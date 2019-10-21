@@ -53,7 +53,7 @@ export default class UserAccountComponent extends Component {
     		loading: true,
     		oldPassword: "",
     		newPassword: "",
-    		conformNewPassword: "",
+    		confirmNewPassword: "",
     	    userEmail: store.getState().email,
     	    userOrganization: "...",
     	    fName: "...",
@@ -95,13 +95,13 @@ export default class UserAccountComponent extends Component {
 	onPasswordUpdate(oldPass, newPass, confPass){
 
 		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must be 6+ characters.");
+		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
 		    }
 	     else if(newPass === "" || oldPass === "" || confPass === ""){
-			eventEmitter.emit("errorOccured", "All Password field cannot be empty");
+			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
 			}
 		else if(newPass !== confPass){
-			eventEmitter.emit("errorOccured", "Passwords and Confimation Password do not match");
+			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{
@@ -262,7 +262,8 @@ export default class UserAccountComponent extends Component {
 				[name]: event.target.value
 			});
 		};
-		let confirmed = this.state.newPassword !== this.state.conformNewPassword;
+
+		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
 				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
@@ -278,7 +279,6 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					ionPasswordUpdated="Password"
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
@@ -290,9 +290,9 @@ export default class UserAccountComponent extends Component {
 					id="Cpassword"
 					type="password"
 					label="Confirm Your New Password"
-					value={this.state.conformNewPassword}
+					value={this.state.confirmNewPassword}
 					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("conformNewPassword")}
+					onChange={handleChange("confirmNewPassword")}
 				/>
 
 				<CardActions style={{ marginBottom: "0px" }}>
@@ -304,7 +304,7 @@ export default class UserAccountComponent extends Component {
 							this.onPasswordUpdate(
 								this.state.oldPassword,
 								this.state.newPassword,
-								this.state.conformNewPassword
+								this.state.confirmNewPassword
 							)
 						}
 					>
