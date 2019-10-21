@@ -17,7 +17,6 @@ import { eventEmitter } from "../../App";
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { checkLogin } from '../../APICalls/APICalls.js';
 
 import { updateGAPageView } from "../../analytics/ga";
 

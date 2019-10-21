@@ -28,6 +28,7 @@ export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
+export const HTTPS_TYPE = "https://";
 export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
