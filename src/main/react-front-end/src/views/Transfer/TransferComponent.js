@@ -357,6 +357,7 @@ export default class TransferComponent extends Component {
 
     </Panel>
   }
+
   render() {
 
     const isSmall = screenIsSmall();
@@ -435,15 +436,8 @@ export default class TransferComponent extends Component {
               />
               <Panel.Heading>
                 <p>
-                  Browse and Transfer Files
-
-
-          </p>
-
-
+                  Browse and Transfer Files</p>
               </Panel.Heading>
-
-
               <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>
                 <Row style={{ flexDirection: 'column' }}>
                   <DragDropContext
@@ -460,16 +454,14 @@ export default class TransferComponent extends Component {
                     <Row style={panelStyle}>
                       {this._returnBrowseComponent2()}
                     </Row>
-                    <div> </div>
-                    <ErrorMessagesConsole />
+                  </DragDropContext>
+                </Row>
+                <div> </div>
+                <ErrorMessagesConsole />
               </Panel.Body>
-            </Panel>
-                }
-      
+            </Panel>}
         </Col>
       </div>
-
     );
-                    }
-                  }
-                  
+  }
+}
