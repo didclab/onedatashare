@@ -325,22 +325,22 @@ class QueueComponent extends Component {
 		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
-		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
+		            <TableCell id={"historyusername" + tableRows.length / 2} component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
 		              {resp.owner}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyid" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
 		            	{resp.job_id}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyprocess" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
                         {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
                     </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
+		            <TableCell id={"historyspeed" + tableRows.length / 2} style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historysource" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyaction" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
 									{this.renderActions(resp.job_id, resp.status,resp.owner)}
                 </TableCell>
 	          	</TableRow>
@@ -374,6 +374,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.userName}
 											direction={order}
+											id={"HistoryUsername"}
 											onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
 											Username
 										</TableSortLabel>
@@ -384,6 +385,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.jobId}
 											direction={order}
+											id={"HistoryJobID"}
 											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
 											Job ID
 										</TableSortLabel>
@@ -394,6 +396,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.status}
 											direction={order}
+											id={"HistoryProgress"}
 											onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
 											Progress
 										</TableSortLabel>
@@ -404,6 +407,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.avgSpeed}
 											direction={order}
+											id={"HistorySpeed"}
 											onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
 											Average Speed
 										</TableSortLabel>
@@ -414,6 +418,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.source}
 											direction={order}
+											id={"HistorySD"}
 											onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
 											Source/Destination
 										</TableSortLabel>
@@ -422,7 +427,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
-		        <TableBody style={{height:'620px', overflowY: 'scroll', display: "block"}}>
+		        <TableBody style={{height:'100%', display: "block"}}>
 		            {tableRows}
 
 		        </TableBody>

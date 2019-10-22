@@ -99,13 +99,11 @@ export default class TransferComponent extends Component {
     const srcUrls = []
     const fileIds = []
     const destUrls = []
-    console.log(processed.selectedTasks);
     processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
-
 
     var optionParsed = {}
     Object.keys(options).map((v) => {
@@ -408,8 +406,8 @@ export default class TransferComponent extends Component {
                   </DragDropContext>
                 </Row>
                 <Row style={{ display: 'block', }}>
-                  <Button style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
-                  <Button style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+                  <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                  <Button id="sendFromLeftToRight" style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
 
 
@@ -456,27 +454,22 @@ export default class TransferComponent extends Component {
                       {this._returnBrowseComponent1()}
                     </Col>
                     <Row style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                      <Button style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
-                      <Button style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+                      <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
+                      <Button id="sendFromLeftToRight" style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
                     </Row>
                     <Row style={panelStyle}>
                       {this._returnBrowseComponent2()}
                     </Row>
-
-                    {/*  <Row> {this.getSettingComponent(isSmall)} </Row> */}
-                  </DragDropContext>
-
-                </Row>
-                <div> </div>
-                <ErrorMessagesConsole />
+                    <div> </div>
+                    <ErrorMessagesConsole />
               </Panel.Body>
             </Panel>
-          }
-
+                }
+      
         </Col>
       </div>
 
     );
-  }
-}
-
+                    }
+                  }
+                  

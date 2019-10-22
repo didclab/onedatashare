@@ -93,6 +93,7 @@ export default class AccountControlComponent extends Component {
 	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
 	//this.setState({authenticated : true});
   }
+  
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -183,7 +184,7 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts } = this.state;
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed } = this.state;
 		const height = window.innerHeight + "px";
 		const currentRoute = this.props.location.pathname
 			return (

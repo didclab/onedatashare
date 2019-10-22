@@ -53,7 +53,7 @@ export default class UserAccountComponent extends Component {
     		loading: true,
     		oldPassword: "",
     		newPassword: "",
-    		conformNewPassword: "",
+    		confirmNewPassword: "",
     	    userEmail: store.getState().email,
     	    userOrganization: "...",
     	    fName: "...",
@@ -86,23 +86,37 @@ export default class UserAccountComponent extends Component {
 	}
 
 	componentDidMount(){
-		document.title = "OneDataShare - History";
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
+
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		changePassword(oldPass, newPass,confPass, (hash)=>{
-		    store.dispatch(updateHashAction(hash))
-			this.setState({redirect:true});
-			console.log(hash);
-		}, (error)=>{
-			if(error && error.response && error.response.data && error.response.data.message){
-				eventEmitter.emit("errorOccured", error.response.data.message); 
-			}else{
-				eventEmitter.emit("errorOccured", "Unknown Error"); 
+
+		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
+		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
+		    }
+	     else if(newPass === "" || oldPass === "" || confPass === ""){
+			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
 			}
-		});
+		else if(newPass !== confPass){
+			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
+		}
+		else{
+			changePassword(oldPass, newPass,confPass, (hash)=>{
+				store.dispatch(updateHashAction(hash));
+				this.setState({redirect:true});
+
+			}, (error)=>{
+
+				if( error && error.response && error.response.data && error.response.data.message ){
+					eventEmitter.emit("errorOccured", error.response.data.message);
+				}else{
+					eventEmitter.emit("errorOccured", "Unknown Error");
+				}
+			});
+		}
 	}
 
 	handleAccountPreferenceToggle() {
@@ -150,6 +164,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
+                        			id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -160,6 +175,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
+                        			id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -169,6 +185,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
+                          			id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -178,6 +195,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Organization"
+									id="UserOrganization"
 									secondary={this.state.userOrganization}
 								/>
 							</ListItem>
@@ -244,7 +262,8 @@ export default class UserAccountComponent extends Component {
 				[name]: event.target.value
 			});
 		};
-		let confirmed = this.state.newPassword !== this.state.conformNewPassword;
+
+		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
 				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
@@ -260,7 +279,6 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					id="Password"
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
@@ -272,9 +290,9 @@ export default class UserAccountComponent extends Component {
 					id="Cpassword"
 					type="password"
 					label="Confirm Your New Password"
-					value={this.state.conformNewPassword}
+					value={this.state.confirmNewPassword}
 					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("conformNewPassword")}
+					onChange={handleChange("confirmNewPassword")}
 				/>
 
 				<CardActions style={{ marginBottom: "0px" }}>
@@ -286,7 +304,7 @@ export default class UserAccountComponent extends Component {
 							this.onPasswordUpdate(
 								this.state.oldPassword,
 								this.state.newPassword,
-								this.state.conformNewPassword
+								this.state.confirmNewPassword
 							)
 						}
 					>
