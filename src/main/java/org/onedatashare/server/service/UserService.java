@@ -388,6 +388,19 @@ public class UserService {
             .map(user -> uuid);
   }
 
+
+public Mono<Map<UUID, Credential>> saveUserCredentials(String cookie, List<OAuthCredential> credentials) {
+    return getLoggedInUser(cookie)
+            .map(user -> {
+                for(OAuthCredential credential : credentials) {
+                    final UUID uuid = UUID.randomUUID();
+                    user.getCredentials().put(uuid, credential);
+                }
+                return user;
+            })
+            .flatMap(userRepository::save).map(user -> user.getCredentials());
+}
+
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
     return getUser(email).doOnSuccess(user -> {
            user.setLastActivity(lastActivity);

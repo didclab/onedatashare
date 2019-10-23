@@ -147,7 +147,7 @@ export async function resendVerificationCode(emailId){
 		return response
 	})
 	.catch((error) =>{
-		
+
 	});
 }
 
@@ -192,7 +192,7 @@ export async function login(email, password, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -209,7 +209,7 @@ export async function isAdmin(email, hash, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -326,7 +326,7 @@ export async function savedCredList(accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -402,7 +402,7 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -445,7 +445,7 @@ export async function share(uri, endpoint, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -486,7 +486,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -536,7 +536,7 @@ export async function getDownload(uri, credential, _id, succeed){
 		uri: encodeURI(uri),
 		id: "",
 	}
-	
+
 	const strin = JSON.stringify(json_to_send);
 	cookies.set("SFTPAUTH", strin, { expires : 10});
 
@@ -557,7 +557,7 @@ export async function upload(uri, credential, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -581,7 +581,7 @@ export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fa
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -618,6 +618,20 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	});
 }
 
+export async function saveOAuthCredentials(credentials,accept, fail){
+	var callback = accept;
+  console.log(credentials);
+	axios.post(url+'cred/saveCredentials', credentials)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
 export async function updateAdminRightsApiCall(email, isAdmin){
 	return axios.put(url+'user', {
 		action: "updateAdminRights",
@@ -644,7 +658,7 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 
 	axios.post(url+'user', {
 		action: "resetPassword",
-	    password: oldPassword, 
+	    password: oldPassword,
 	    newPassword: newPassword,
 	    confirmPassword: confirmPassword
 
@@ -672,7 +686,7 @@ export async function cancelJob(jobID, accept, fail){
 	  }),
 	})
 	.then((response) => {
-		if(!response.ok) 
+		if(!response.ok)
 			callback = fail;
 		statusHandle(response, callback);
 	})
@@ -710,7 +724,7 @@ export async function restartJob(jobID, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -801,8 +815,7 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
-
