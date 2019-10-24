@@ -59,12 +59,12 @@ export async function checkLogin(email, accept, fail){
 	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		if((response.data === true)){
+			statusHandle(response, accept);
+		}else if(response.data === false){
+			statusHandle(response, fail);
+		}
+	});
 }
 
 

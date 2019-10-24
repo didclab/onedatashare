@@ -366,7 +366,7 @@ public class UserService {
       if (bool) {
         return Mono.just(true);
       }else{
-        return Mono.error(new Exception("Invalid email"));
+        return Mono.just(false);
      }
     });
   }
