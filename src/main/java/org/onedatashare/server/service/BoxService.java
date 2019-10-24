@@ -65,11 +65,11 @@ public class BoxService implements ResourceService<BoxResource> {
                 .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
                 .flatMap(BoxSession::initialize)
                 .flatMap(boxSession -> boxSession.select(path, id, idMap)
-                        .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                                Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
-                                        .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
-                                        .flatMap(BoxSession::initialize)
-                                        .flatMap(driveSession -> driveSession.select(path,id, idMap)))
+//                        .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+//                                Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
+//                                        .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
+//                                        .flatMap(BoxSession::initialize)
+//                                        .flatMap(driveSession -> driveSession.select(path,id, idMap)))
                 );
     }
 
