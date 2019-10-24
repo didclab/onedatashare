@@ -64,6 +64,9 @@ export async function checkLogin(email, accept, fail){
 		}else if(response.data === false){
 			statusHandle(response, fail);
 		}
+	})
+	.catch((error) => {      
+		statusHandle(error, fail);
 	});
 }
 
