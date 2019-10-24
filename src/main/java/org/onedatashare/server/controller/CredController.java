@@ -37,8 +37,15 @@ public class CredController {
     return userService.getCredentials(headers.getFirst(ODSConstants.COOKIE));
   }
 
+  /**
+   * Handler for the POST request for saving the OAuth Credentials once the user toggles it in account preferences
+   * to save it.
+   * @param headers - Request header
+   * @param credentials - List of Credentials to save
+   * @return
+   */
   @PostMapping("/saveCredentials")
-  public Mono<Map<UUID, Credential>> saveCredentials(@RequestHeader HttpHeaders headers, @RequestBody List<OAuthCredential> credentials){
+  public Mono<Void> saveCredentials(@RequestHeader HttpHeaders headers, @RequestBody List<OAuthCredential> credentials){
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     return userService.saveUserCredentials(cookie,credentials);
   }

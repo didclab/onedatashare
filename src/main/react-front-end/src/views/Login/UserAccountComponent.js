@@ -154,7 +154,10 @@ export default class UserAccountComponent extends Component {
 					});
 					credentials.push(...dropBoxCredentials);
 				}
-				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{console.log("Error in saving credentials")});
+				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+					console.log("Error in saving credentials", error);
+					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+				});
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 

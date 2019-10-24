@@ -618,9 +618,16 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	});
 }
 
+/*
+	Desc: Call the backend to save the OAuth Credentials when the user toggles
+        the button in account preferences to save credentials
+	input: Array of OAuth credentials
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
 export async function saveOAuthCredentials(credentials,accept, fail){
 	var callback = accept;
-  console.log(credentials);
 	axios.post(url+'cred/saveCredentials', credentials)
 	.then((response) => {
 		if(!(response.status === 200))
