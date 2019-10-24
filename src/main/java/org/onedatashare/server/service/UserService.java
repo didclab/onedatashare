@@ -388,6 +388,24 @@ public class UserService {
             .map(user -> uuid);
   }
 
+    /**
+     * Saves the OAuth Credentials in user collection when the user toggles the preference button.
+     * @param cookie Browser cookie string passed in the HTTP request to the controller
+     * @param credentials The list of Oauth Credentials
+     * @return
+     */
+    public Mono<Void> saveUserCredentials(String cookie, List<OAuthCredential> credentials) {
+    return getLoggedInUser(cookie)
+            .map(user -> {
+                for(OAuthCredential credential : credentials) {
+                    final UUID uuid = UUID.randomUUID();
+                    user.getCredentials().put(uuid, credential);
+                }
+                return user;
+            })
+            .flatMap(userRepository::save).then();
+}
+
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
     return getUser(email).doOnSuccess(user -> {
            user.setLastActivity(lastActivity);
