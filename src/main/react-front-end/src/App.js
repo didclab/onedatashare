@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import MainComponent from "./MainComponent";
-import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';

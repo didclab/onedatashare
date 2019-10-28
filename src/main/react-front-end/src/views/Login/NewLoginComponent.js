@@ -128,7 +128,7 @@ export default class NewLoginComponent extends Component {
 	    {emailChecked &&
 	    	<div className="enter-from-right slide-in">
 	    	<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-	          Hey {email.substring(0, email.indexOf('@'))}!
+	          Hi {email.substring(0, email.indexOf('@'))}!
 	        </Typography>
 	        <Button size="large" style={{borderRadius: '20px'}} variant="outlined" color="primary" onClick={()=>this.setState({emailChecked: false})}>
 	          {email}
