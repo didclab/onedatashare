@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -13,23 +12,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 @Service
 public class VfsService implements ResourceService<VfsResource> {
@@ -39,93 +23,22 @@ public class VfsService implements ResourceService<VfsResource> {
     @Autowired
     private JobService jobService;
 
-    private final Integer FTP_URL_OFFSET = 6;
-
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        fixSCPUri(userAction);
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
             .map(user -> new UserInfoCredential(userAction.getCredential()))
             .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
-            .flatMap(vfsSession -> vfsSession.initialize(userAction.getPortNumber()))
+            .flatMap(vfsSession -> vfsSession.initialize())
             .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
-    public Mono<VfsResource> getResourceWithUserActionUri(String cookie, String userActionString) {
-        List<String> path = new ArrayList<>();
-        return userService.getLoggedInUser(cookie)
-                .map(user -> {
-                    byte[] encryptedString = Base64.getDecoder().decode(userActionString);
-                    byte[] privateKeyString = Base64.getDecoder().decode(user.getPrivateKey());
-                    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(privateKeyString);
-                    KeyFactory fact = null;
-                    try {
-                        fact = KeyFactory.getInstance("RSA");
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    }
-                    PrivateKey privateKey = null;
-                    try {
-                        privateKey = fact.generatePrivate(spec);
-                    } catch (InvalidKeySpecException e) {
-                        e.printStackTrace();
-                    }
-                    Cipher decrypt = null;
-                    try {
-                        decrypt = Cipher.getInstance("RSA");
-                        decrypt.init(Cipher.DECRYPT_MODE, privateKey);
-                    } catch (NoSuchAlgorithmException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchPaddingException e) {
-                        e.printStackTrace();
-                    } catch (InvalidKeyException e) {
-                        e.printStackTrace();
-                    }
-                    String decryptedMessage = null;
-                    try {
-                        decryptedMessage = new String(decrypt.doFinal(encryptedString), StandardCharsets.UTF_8);
-                    } catch (IllegalBlockSizeException e) {
-                        e.printStackTrace();
-                    } catch (BadPaddingException e) {
-                        e.printStackTrace();
-                    }
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    UserActionResource userActionResource = null;
-                    try {
-                        userActionResource = objectMapper.readValue(decryptedMessage, UserActionResource.class);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    UserInfoCredential userInfoCredential = new UserInfoCredential(userActionResource.getCredential());
-                    VfsSession vfsSession = new VfsSession(URI.create(userActionResource.getUri()), userInfoCredential);
-                    path.add(pathFromUri(userActionResource.getUri()));
-                    return vfsSession;
-                }).flatMap(VfsSession::initialize)
-                .flatMap(vfsSession -> vfsSession.select(path.get(0)));
-    }
-
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
-        fixSCPUri(userActionResource);
         final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
                 .map(user -> new UserInfoCredential(userActionResource.getCredential()))
                 .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
-    }
-
-    public void fixSCPUri(UserAction userAction){
-        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
-            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
-            userAction.setUri(ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(6));
-        }
-    }
-
-    public void fixSCPUri(UserActionResource userAction){
-        if(userAction.getType().equals(ODSConstants.SCP_URI_SCHEME)){
-            userAction.setType(ODSConstants.SFTP_URI_SCHEME);
-            userAction.setUri( ODSConstants.SFTP_URI_SCHEME + userAction.getUri().substring(FTP_URL_OFFSET) );
-        }
     }
 
     public String pathFromUri(String uri) {
@@ -198,6 +111,6 @@ public class VfsService implements ResourceService<VfsResource> {
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
-        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::getSftpObject);
+        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
     }
 }

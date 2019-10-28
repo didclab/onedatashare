@@ -1,13 +1,10 @@
 import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
 
 import FolderIcon from "@material-ui/icons/Folder";
 import FileIcon from "@material-ui/icons/Note";
-import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
 import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "../initialize_dnd";
-import { screenIsSmall } from "../utils.js";
 
 /**
 	Component for file and directory
@@ -57,16 +54,16 @@ const getTextColor = (isSelected, isGhosting): string => {
 	return "#333333";
 };
 
-const getExtraStyle = (isDragging, isGhosting): string => {
-	if(isDragging){
-		return {boxShadow: "3px 3px 1px #333"};
-	}
-	if(isGhosting){
-		return {opacity: 0.2};
-	}
+// const getExtraStyle = (isDragging, isGhosting): string => {
+// 	if(isDragging){
+// 		return {boxShadow: "3px 3px 1px #333"};
+// 	}
+// 	if(isGhosting){
+// 		return {opacity: 0.2};
+// 	}
 
-	return {};
-};
+// 	return {};
+// };
 
 const keyCodes = {
 	enter: 13,
@@ -98,7 +95,7 @@ export default class FileNodeCompact extends Component {
 	arraysEqual(a, b) {
 	  if (a === b) return true;
 	  if (a == null || b == null) return false;
-	  if (a.length != b.length) return false;
+	  if (a.length !== b.length) return false;
 
 	  // If you don't care about the order of the elements inside
 	  // the array, you should sort both arrays here.
@@ -148,7 +145,7 @@ export default class FileNodeCompact extends Component {
 	    // we are using the event for selection
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
@@ -164,7 +161,7 @@ export default class FileNodeCompact extends Component {
 	    // marking the event as used
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	};
@@ -195,7 +192,6 @@ export default class FileNodeCompact extends Component {
 
 	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
 		const {
-		  file,
 		  toggleSelection,
 		  toggleSelectionInGroup,
 		  multiSelectTo,
@@ -238,10 +234,8 @@ export default class FileNodeCompact extends Component {
 	}
 
 	render(){
-		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns} = this.props;
-		const {name, dir, perm, time, size, children} = this.props.file;
-		const {isDragging} = this.state;
-		const hasAttr = (time != 0 || perm || size != 0);
+		const {index, onDoubleClick, isSelected, isGhosting, endpoint, posit0,posit1,posit2,posit3, columns, fileId} = this.props;
+		const {name, dir, perm, time, size } = this.props.file;
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
 		const pstyle =  {textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden", marginLeft: "10px",textAlign: "left", display: "inline-block"};
@@ -250,6 +244,7 @@ export default class FileNodeCompact extends Component {
 			{(provided : DraggableProvided, snapshot : DraggableStateSnapshot) => {
 				const selectionCount = getSelectionCount(endpoint);
 				const shouldShowSelection: boolean = snapshot.isDragging && selectionCount > 1;
+
 				return (
 					<FileDiv
 						onDoubleClick={() => {
@@ -260,9 +255,9 @@ export default class FileNodeCompact extends Component {
 						ref={provided.innerRef}
 						width={"100px"}
 						onClick={this.onClick}
-		                onTouchEnd={(e)=>{this.onTouchEnd(e)}}
-		                onTouchStart={(e)=>{this.onTouchStart(e)}}
-		                onTouchMove={(e)=>{this.onTouchMove(e)}}
+		                onTouchEnd={(e) => {this.onTouchEnd(e)}}
+		                onTouchStart={(e) => {this.onTouchStart(e)}}
+		                onTouchMove={(e) => {this.onTouchMove(e)}}
 		                onKeyDown={(event: KeyboardEvent) =>
 		                  this.onKeyDown(event, provided, snapshot)
 		                }
@@ -276,18 +271,21 @@ export default class FileNodeCompact extends Component {
 							{columns[0] && <td style={{ float: "left", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
 								{dir && <FolderIcon style={{width: 40}}/>}
 								{!dir && <FileIcon style={{width: 40}}/>}
-								<p style={{...pstyle, width: posit0-40, minWidth: "50"}} > {name} </p>
-								
+								<p id={"filename"+endpoint.side+fileId} style={{...pstyle, width: posit0-40, minWidth: "50"}} > {name} </p>
 							</td>}
 							{columns[1] && <td style={{borderLeft: "1px solid lightgray", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit1}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>
+
+								<p id={"date"+endpoint.side+fileId} style={{...pstyle, width: posit1}}>
+									{time === 0? "Not Available" : new Intl.DateTimeFormat('en-US', options).format(date)}
+								</p>
+								
 							</td>}
 
 							{columns[2] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit2}}> {perm} </p>
+								<p id={"perm"+endpoint.side+fileId} style={{...pstyle, width: posit2}}> {perm? perm: "N/A"} </p>
 							</td>}
 							{columns[3] && <td style={{borderLeft: "1px solid lightgray", textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden"}}>
-								<p style={{...pstyle, width: posit3}}> {this.humanFileSize(size)} </p>
+								<p id={"size"+endpoint.side+fileId} style={{...pstyle, width: posit3}}> {size===0 ? "N/A" : this.humanFileSize(size)} </p>
 							</td>}
 					</FileDiv>
 			)}}

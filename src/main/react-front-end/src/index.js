@@ -2,8 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
-import registerServiceWorker, {unregister} from './registerServiceWorker';
+import {unregister} from './registerServiceWorker';
 import { BrowserRouter } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 ReactDOM.render(
 	<BrowserRouter>

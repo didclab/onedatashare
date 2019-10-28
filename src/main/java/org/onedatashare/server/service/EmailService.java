@@ -37,8 +37,8 @@ public class EmailService {
      * @param emailText - content of the email
      * @throws MessagingException - throws an exception if there was an error in sending email. Must be caught in referenced classes.
      */
+
     public void sendEmail(String emailTo, String subject, String emailText){
-        //Get system properties
         try {
             AmazonSimpleEmailService client =
                     AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new AWSCredentialsProvider() {
@@ -73,10 +73,10 @@ public class EmailService {
                                     .withCharset("UTF-8").withData(subject)))
                     .withSource(EMAIL_USERNAME);
             client.sendEmail(request);
+            ODSLoggerService.logInfo("Sent email with subject \"" + subject + "\" to \""+ emailTo + "\" successfully.");
         }
         catch (Exception ex) {
             ODSLoggerService.logError("Failure in sending email with " + subject + " to " + emailTo, ex);
         }
-        ODSLoggerService.logInfo("Sent email with subject \"" + subject + "\" to \""+ emailTo + "\" successfully.");
     }
 }

@@ -5,14 +5,15 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import CreateAccountComponent from './CreateAccountComponent';
-import  { Route, BrowserRouter, Switch, Redirect } from 'react-router-dom';
 import {resendVerificationCode} from '../../APICalls/APICalls'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import {eventEmitter} from '../../App';
+import { updateGAPageView } from "../../analytics/ga";
+
 
 export default class ValidateEmailComponent extends Component {
 	static propTypes = {
-		back: PropTypes.func,
+		backToSignin: PropTypes.func,
 		email: PropTypes.string
 	}
 	constructor(props){
@@ -22,7 +23,8 @@ export default class ValidateEmailComponent extends Component {
 				loadVerifyCode:false,
         loading: false,
 			}
-			this.next = this.next.bind(this);
+		this.next = this.next.bind(this);
+		updateGAPageView();
 	}
 	next(){
 		this.setState({loading:true})
@@ -38,7 +40,7 @@ export default class ValidateEmailComponent extends Component {
 	}
 
 	render(){
-		const { back } = this.props;
+		const { backToSignin } = this.props;
 		const properties = this.props
 		const { email } = this.state;
 		const loadVerifyCode = this.state.loadVerifyCode;
@@ -70,7 +72,7 @@ export default class ValidateEmailComponent extends Component {
 					<CardActions className="flexSpaceBetween">
 						{"\n"}
 						
-						<Button size="small" variant="outlined" color="primary" onClick={back}>
+						<Button size="small" variant="outlined" color="primary" onClick={backToSignin}>
 							Back to Sign in Page
 						</Button>
 						<Button size="large" variant="contained" color="primary" onClick={() => this.next()} style={{marginLeft: '4vw'}}>

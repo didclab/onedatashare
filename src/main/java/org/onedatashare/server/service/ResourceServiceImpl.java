@@ -1,21 +1,23 @@
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxSession;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
-import org.onedatashare.server.module.googledrive.GoogleDriveResource;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
 import org.onedatashare.server.module.gridftp.GridftpSession;
+import org.onedatashare.server.module.http.HttpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,15 +25,12 @@ import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Logger;
 
 @Service
 public class ResourceServiceImpl implements ResourceService<Resource>  {
@@ -47,18 +46,27 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         final String path = pathFromUri(userAction.getUri());
         String id = userAction.getId();
         ArrayList<IdMap> idMap = userAction.getMap();
-        return userService.getLoggedInUser(cookie)
-                .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                .flatMap(GoogleDriveSession::initialize)
-                .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                    Mono.just(userService.updateCredential(cookie,((TokenExpiredException)throwable).cred))
-                            .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                            .flatMap(GoogleDriveSession::initialize)
-                            .flatMap(driveSession -> driveSession.select(path,id, idMap))
-                );
+
+        if (userAction.getCredential().isTokenSaved()) {
+            return userService.getLoggedInUser(cookie)
+                    .map(User::getCredentials)
+                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .flatMap(GoogleDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
+                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                                    .flatMap(GoogleDriveSession::initialize)
+                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    );
+        }
+        else {
+            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
+                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred, false))
+                    .flatMap(GoogleDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
+        }
     }
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
@@ -75,11 +83,12 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
     public String pathFromUri(String uri) {
         String path = "";
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
             path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
-        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+        else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME))
             path = uri.substring(ODSConstants.DRIVE_URI_SCHEME.length() - 1);
-        }else path = uri;
+        else
+            path = uri;
 
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
@@ -90,31 +99,52 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if(userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
-                userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME) || userActionResource.getUri().contains(ODSConstants.BOX_URI_SCHEME)){
-            return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-        }else if(userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)){
-            return userActionResource.getUploader();
-        }else if(userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)){
-            GlobusClient gc = userService.getGlobusClientFromUser(user);
-            return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+        if(user.isSaveOAuthTokens()) {
+            if (userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                    userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME) || userActionResource.getUri().contains(ODSConstants.BOX_URI_SCHEME)) {
+                return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
+            } else if (userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)) {
+                return userActionResource.getUploader();
+            } else if (userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)) {
+                GlobusClient gc = userService.getGlobusClientFromUser(user);
+                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+            }else
+                return new UserInfoCredential(userActionResource.getCredential());
         }
-        else return new UserInfoCredential(userActionResource.getCredential());
+        else{
+            if (userActionResource.getUri().contains(ODSConstants.DROPBOX_URI_SCHEME) ||
+                    userActionResource.getUri().contains(ODSConstants.DRIVE_URI_SCHEME)) {
+                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getToken());
+                return credential;
+            }
+            //TODO: Fix uploads
+            else if (userActionResource.getUri().equals(ODSConstants.UPLOAD_IDENTIFIER)) {
+                return userActionResource.getUploader();
+            } else if (userActionResource.getUri().startsWith(ODSConstants.GRIDFTP_URI_SCHEME)) {
+
+                GlobusClient gc = userService.getGlobusClientFromUser(user);
+                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+            }else
+                return new UserInfoCredential(userActionResource.getCredential());
+        }
     }
 
 
     public Session createSession(String uri, Credential credential) {
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
+        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
             return new DbxSession(URI.create(uri), credential);
-        }else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)){
-            UploadCredential upc = (UploadCredential)credential;
+        else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)) {
+            UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        }else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME)){
+        }
+        else if(uri.contains(ODSConstants.DRIVE_URI_SCHEME))
             return new GoogleDriveSession(URI.create(uri), credential);
-        }else if(credential instanceof GlobusWebClientCredential){
-            return new GridftpSession(URI.create(uri), credential);
-        } else if(uri.contains(ODSConstants.BOX_URI_SCHEME))
+        else if(uri.contains(ODSConstants.BOX_URI_SCHEME))
             return new BoxSession(URI.create(uri), credential);
+        else if(credential instanceof GlobusWebClientCredential)
+            return new GridftpSession(URI.create(uri), credential);
+        else if(uri.startsWith(ODSConstants.HTTPS_URI_SCHEME) || uri.startsWith(ODSConstants.HTTP_URI_SCHEME))
+            return new HttpSession(URI.create(uri));
         else return new VfsSession(URI.create(uri), credential);
     }
 
@@ -248,10 +278,10 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         return null;
     }
 
-    public void processTransferFromJob(Job job, String cookie) {
+    public void processTransferFromJob(Job job, final String cookie) {
         Transfer<Resource, Resource> transfer = new Transfer<>();
         Disposable ongoingJob = getResourceWithUserActionResource(cookie, job.getSrc())
-            .map(transfer::setSource)
+                .map(transfer::setSource)
             .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
@@ -280,7 +310,6 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         @Override
         public void run() {
             job.setStatus(JobStatus.removed);
-//            ongoingJobs.remove(job.uuid);
         }
     }
 }

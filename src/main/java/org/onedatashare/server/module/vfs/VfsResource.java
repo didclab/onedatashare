@@ -48,13 +48,11 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
     }
 
     public Mono<VfsResource> delete() {
-        return initialize().doOnSuccess(vfsResource -> {
-            try {
-                fileObject.deleteAll();
-            } catch (FileSystemException e) {
-                e.printStackTrace();
-            }
-        });
+        try {
+            fileObject.deleteAll();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }return Mono.just(this);
     }
 
     @Override
@@ -180,7 +178,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return directorySize;
     }
 
-    class VfsTap implements Tap {
+    public class VfsTap implements Tap {
         FileContent fileContent;
         long size;
 
@@ -200,7 +198,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
-            int sizeInt = Math.toIntExact(size);
             InputStream inputStream = null;
             try {
                 inputStream = fileContent.getInputStream();
@@ -211,25 +208,30 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             return Flux.generate(
                     () -> 0,
                     (state, sink) -> {
-                        if (state + sliceSizeInt < sizeInt) {
+                        if (state + sliceSizeInt < size) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
-                                finalInputStream.read(b, 0, sliceSizeInt);
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
+                                for(int offset = 0; offset < sliceSizeInt; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
                             sink.next(new Slice(b));
                         } else {
-                            int remaining = sizeInt - state;
+                            int remaining = Math.toIntExact(size - state);
                             byte[] b = new byte[remaining];
                             try {
-                                finalInputStream.read(b, 0, remaining);
-//                                finalInputStream.close();
+                                // Fix for buggy PDF files - Else the PDF files are corrupted
+                                for(int offset = 0; offset < remaining; offset+=1)
+                                    finalInputStream.read(b, offset, 1);
+                                finalInputStream.close();
+                                sink.next(new Slice(b));
+                                sink.complete();
+
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
-                            sink.next(new Slice(b));
-                            sink.complete();
                         }
                         return state + sliceSizeInt;
                     });
@@ -301,7 +303,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         return Mono.just(downloadLink);
     }
 
-    public Mono<ResponseEntity> getSftpObject() {
+    public Mono<ResponseEntity> sftpObject() {
 
         InputStream inputStream = null;
         try {

@@ -1,11 +1,8 @@
-
 import { multiSelectTo as multiSelect } from './utils';
-
-import memoizeOne from 'memoize-one';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import {Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -13,7 +10,6 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import {listFiles} from "../../APICalls/APICalls";
 import Button from '@material-ui/core/Button';
 
 import {InputGroup, FormControl} from "react-bootstrap";
@@ -23,26 +19,23 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import SearchIcon from '@material-ui/icons/Search';
-
-import InputBase from '@material-ui/core/InputBase';
 
 import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import {share, mkdir, deleteCall, download, getDownload, getSharableLink} from "../../APICalls/APICalls";
+import { listFiles, mkdir, deleteCall, download, getDownload, getSharableLink, openDropboxOAuth, openGoogleDriveOAuth } from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
-import {getFilesFromMemory, getIdsFromEndpoint, setFilesWithPathList, getPathFromMemory, 
-		emptyFileNodesData, getEntities, setSelectedTasks, setSelectedTasksForSide,getSelectedTasks, getSelectedTasksFromSide, 
-		unselectAll, getTaskFromId, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, getMapFromEndpoint} from "./initialize_dnd";
+import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
+		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
+		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
-import {eventEmitter} from "../../App";
+import { eventEmitter } from "../../App";
 
-import {getType} from '../../constants.js';
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE} from "../../constants";
-import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { getType } from '../../constants.js';
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -65,7 +58,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
 		this.breadcrumbClicked = this.breadcrumbClicked.bind(this);
-		this.fileNodeClicked = this.fileNodeClicked.bind(this);
 		this.toggleSelection = this.toggleSelection.bind(this);
 		this.toggleSelectionInGroup = this.toggleSelectionInGroup.bind(this);
 		this.multiSelectTo = this.multiSelectTo.bind(this);
@@ -74,9 +66,19 @@ export default class EndpointBrowseComponent extends Component {
 		this.onWindowClick = this.onWindowClick.bind(this);
 		this.fileChangeHandler = this.fileChangeHandler.bind(this);
 		this._handleAddFolderTextFieldChange = this._handleAddFolderTextFieldChange.bind(this);
+		
+		this.filenameAscendingOrderSort = this.filenameAscendingOrderSort.bind(this);
+		this.sizeAscendingOrderSort = this.sizeAscendingOrderSort.bind(this);
+		this.dateAscendingOrderSort = this.dateAscendingOrderSort.bind(this);
+		this.permissionAscendingOrderSort = this.permissionAscendingOrderSort.bind(this);
+		this.filenameDescendingOrderSort = this.filenameDescendingOrderSort.bind(this);
+		this.sizeDescendingOrderSort = this.sizeDescendingOrderSort.bind(this);
+		this.dateDescendingOrderSort = this.dateDescendingOrderSort.bind(this);
+		this.permissionDescendingOrderSort = this.permissionDescendingOrderSort.bind(this);
+		
+		this.sortBy = this.sortBy.bind(this);
 
-		//this.props.setLoading(true);
-		if(this.state.directoryPath.length == 0)
+		if(this.state.directoryPath.length === 0)
 			this.getFilesFromBackend(props.endpoint);
 	}
 
@@ -94,7 +96,8 @@ export default class EndpointBrowseComponent extends Component {
 	componentWillUnmount() {
 	    window.removeEventListener('click', this.onWindowClick);
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
-	    window.removeEventListener('touchend', this.onWindowTouchEnd);
+		window.removeEventListener('touchend', this.onWindowTouchEnd);
+		this.unselectAll();
 	}
 	
 
@@ -153,7 +156,7 @@ export default class EndpointBrowseComponent extends Component {
 		unselectAll();
 	};
 
-	onWindowKeyDown = (event: KeyboardEvent) => {
+	onWindowKeyDown = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -163,23 +166,19 @@ export default class EndpointBrowseComponent extends Component {
 	    }
 	};
 
-	onWindowClick = (event: KeyboardEvent) => {
+	onWindowClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 	    //this.unselectAll();
 	};
 
-	onWindowTouchEnd = (event: TouchEvent) => {
+	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
-	    //this.unselectAll();
 	};
 	
-	fileNodeClicked(filename){
-	}
-
 	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
 		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);
@@ -197,6 +196,79 @@ export default class EndpointBrowseComponent extends Component {
 		this.getFilesFromBackendWithPath(endpoint, [], [null]);
 	}
 
+	filenameAscendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.dir && !b.dir){
+				return -1;
+			}else if(!a.dir && b.dir){
+				return 1;
+			}else{
+				return a.name.localeCompare(b.name);
+			}
+		});
+	}
+
+	filenameDescendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.dir && !b.dir){
+				return -1;
+			}else if(!a.dir && b.dir){
+				return 1;
+			}else{
+				return b.name.localeCompare(a.name);
+			}
+		});
+	}
+
+	dateAscendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return a.time - b.time;
+		});
+	}
+
+	dateDescendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return b.time - a.time;
+		});
+	}
+
+	sizeAscendingOrderSort (files){
+		return files.sort((a, b) => { 
+			return a.size - b.size;
+		});
+	}
+
+	sizeDescendingOrderSort(files){
+		return files.sort((a, b) => { 
+			return b.size - a.size;
+		});
+	}
+
+	permissionAscendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.perm && b.perm)
+				return a.perm.localeCompare(b.perm);
+			return 0;
+		});
+	}
+
+	permissionDescendingOrderSort = (files) => {
+		return files.sort((a, b) => { 
+			if(a.perm && b.perm)
+				return b.perm.localeCompare(a.perm);
+			return 0;
+		});
+	}
+
+	sortBy = (sortingFunc) => {
+		const {endpoint} = this.props;
+		const {directoryPath, ids} = this.state;
+		let files = getFilesFromMemory(endpoint);
+		let sortedfiles = sortingFunc(files);
+		setFilesWithPathListAndId(sortedfiles, directoryPath, ids, endpoint);
+		this.setState({directoryPath: directoryPath, ids: ids});
+	}
+
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
 		const {setLoading} = this.props;
@@ -204,41 +276,46 @@ export default class EndpointBrowseComponent extends Component {
 		uri = makeFileNameFromPath(uri, path, "");
 
 		listFiles(uri, endpoint, id[id.length-1], (data) =>{
-			let sortedfiles = data.files.sort((a, b) => { 
-				if(a.dir && !b.dir){
-					return -1;
-				}else if(!a.dir && b.dir){
-					return 1;
-				}else{
-					return a.name.localeCompare(b.name);
-				}
-			});
+			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
-			this._handleError(error);
+			this._handleError("Login Failed. Re-directing to OAuth page");
 			setLoading(false);
+			emptyFileNodesData(endpoint);
+			this.unselectAll();
+			this.props.back();		
+			
+			setTimeout(()=> {
+			if(getType(endpoint) === DROPBOX_TYPE)
+				openDropboxOAuth();
+			else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+				openGoogleDriveOAuth();
+			}, 2000);	
 		});
-	}
+	};
+
 	handleClickOpen = (url) => {
 		this.setState({ openShare: true, shareUrl: url });
 	};
+
 	handleClickOpenAddFolder = () => {
 		this.setState({ openAFolder: true });
 	};
+
 	handleClose = () => {
 		this.setState({ openShare: false, openAFolder: false });
 	};
+
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
-
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
 		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
-			dirName =  addFolderName;
+			dirName = addFolderName;
 		}
 		//make api call
 		mkdir(dirName,dirType, endpoint, (response) => {
@@ -248,6 +325,7 @@ export default class EndpointBrowseComponent extends Component {
 			this._handleError(error);
 		})
 	}
+
 	_handleError = (error) =>{
 		eventEmitter.emit("errorOccured", error);
 	}
@@ -276,7 +354,7 @@ export default class EndpointBrowseComponent extends Component {
     			deleteCall( fileName, endpoint,  file.id, (response) => {
     				console.log("delete after success", directoryPath, ids)
     				i++;
-    				if(i == len){
+    				if(i === len){
     					this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
     				}
     			}, (error) => {
@@ -290,7 +368,7 @@ export default class EndpointBrowseComponent extends Component {
 
 	render(){
 		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
-		const {directoryPath, displayMode, searchText, compactStylePos} = this.state;
+		const {directoryPath, searchText} = this.state;
 		
 
 		const list = getFilesFromMemory(endpoint) || [];
@@ -372,20 +450,20 @@ export default class EndpointBrowseComponent extends Component {
 	          <DialogContent>
 	            <TextField
 	              autoFocus
-	              id="name"
+	              id={endpoint.side+"MkdirName"}
 	              label="name"
 	              onChange={this._handleAddFolderTextFieldChange}
 	              fullWidth
 	            />
 	          </DialogContent>
 	          <DialogActions>
-	            <Button onClick={this.handleCloseWithFolderAdded} color="primary">
+	            <Button id={endpoint.side+"MkdirSubmit"} onClick={this.handleCloseWithFolderAdded} color="primary">
 	              Add
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
 			<div style={{display: "flex",alighSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
-				<Breadcrumb style={{  float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>
+				<Breadcrumb style={{float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>
 				  <Breadcrumb.Item key={endpoint.uri} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(0)}>{endpoint.uri}</Button></Breadcrumb.Item>
 				  {directoryPath.map((item, index) => <Breadcrumb.Item key={item+index} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Button></Breadcrumb.Item>)}
 				</Breadcrumb>
@@ -393,40 +471,32 @@ export default class EndpointBrowseComponent extends Component {
 			
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<ButtonGroup style={buttonGroupStyle}>
-				  <OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-				  	<BootStrapButton style={buttonStyle} onClick={() => {
-				  		this.handleClickOpenAddFolder()
-				  	}}>
-				  		<NewFolderIcon style={iconStyle}/>
-				  	</BootStrapButton>
-				  </OverlayTrigger>
-
-				  <OverlayTrigger placement="top" 
-						overlay={tooltip("Upload")}>
-						<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
-				  </OverlayTrigger>
-				  <OverlayTrigger placement="top" 
-				  	overlay={tooltip("Delete")}>
-				  	<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
-				  		this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
-				  	}}
-				  	style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
-				  </OverlayTrigger>
-					  	<OverlayTrigger placement="top" overlay={tooltip("Download")}>
-					  		<BootStrapButton disabled={getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
-					  		onClick={() => {
-					  			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-									const taskList = getSelectedTasksFromSide(endpoint);
-									if(getType(endpoint) === SFTP_TYPE || getType(endpoint) == SCP_TYPE){
-										getDownload(downloadUrl, endpoint.credential, taskList[0].id);
-									}else{
-						  			download(downloadUrl, endpoint.credential, taskList[0].id)
-						  		}
-					  		}}
-					  		style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
-						</OverlayTrigger>
+					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
+						<BootStrapButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
+						onClick={() => {
+							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
+								const taskList = getSelectedTasksFromSide(endpoint);
+								if(getType(endpoint) === SFTP_TYPE || getType(endpoint) === SCP_TYPE){
+									getDownload(downloadUrl, endpoint.credential, taskList);
+								}
+								else if(getType(endpoint) === HTTP_TYPE){
+									window.open(downloadUrl);
+								}
+								else{
+								download(downloadUrl, endpoint.credential, taskList[0].id)
+							}
+						}}
+						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
+						<BootStrapButton id={endpoint.side + "UploadButton"} >
+							<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-						<BootStrapButton disabled = {getSelectedTasksFromSide(endpoint).length != 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						<BootStrapButton id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 							const taskList = getSelectedTasksFromSide(endpoint);
@@ -443,16 +513,34 @@ export default class EndpointBrowseComponent extends Component {
 				  			<LinkButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
+					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
+						<BootStrapButton id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {
+							this.handleClickOpenAddFolder()
+						}}>
+							<NewFolderIcon style={iconStyle}/>
+						</BootStrapButton>
+					</OverlayTrigger>
+					
+					<OverlayTrigger placement="top" overlay={tooltip("Delete")}>
+						<BootStrapButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
+							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
+						}}
+						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
+					</OverlayTrigger>
+
+
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
-				  		<BootStrapButton style={buttonStyle}  onClick={() => {
+				  		<BootStrapButton id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
 				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 				  		}}>
 				  			<RefreshButton style={iconStyle}/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
+
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
-				  		<BootStrapButton bsStyle="primary" style={buttonStyle} onClick={() =>
+				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
 				  			emptyFileNodesData(endpoint);
 				  			this.unselectAll();
@@ -465,44 +553,25 @@ export default class EndpointBrowseComponent extends Component {
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
 				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
-					<FormControl placeholder="Search"
+					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
 						}}/>
 					<InputGroup.Button>	
 					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id="ignoreCase" style={{backgroundColor : "white", border: "1px solid #ccc",fontFamily : "Arial", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
+						<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
+						 border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
 						onClick={() => {
 							this.setState({ignoreCase : !this.state.ignoreCase})
-							var propertyStatus = this.state.ignoreCase;
-							var property = document.getElementById("ignoreCase");
-							if(!propertyStatus){
-								property.style.backgroundColor = "#337AB6";
-								property.style.color = "white";
 							}
-							else{
-								property.style.color = "black";
-								property.style.backgroundColor = "white";
-								}
-							} 
 						}>Aa</Button>
 					</OverlayTrigger>
 					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id="regex" style={{backgroundColor : "white", border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
-						 onClick={() => {
-							var propertyStatus = this.state.regex;
-							var property = document.getElementById("regex");
-							if(!propertyStatus){
-								property.style.backgroundColor = "#337AB6";
-								property.style.color = "white";
-							}
-							else{
-								property.style.color = "black";
-								property.style.backgroundColor = "white";
-							}
-						this.setState({regex : !this.state.regex})
-							} 
-						}><b>*.</b></Button>
+						<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
+						  border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
+						  onClick={() => {
+							this.setState({regex : !this.state.regex})
+						  }}><b>*.</b></Button>
 					</OverlayTrigger>
 					</InputGroup.Button>
 				</InputGroup>
@@ -516,26 +585,31 @@ export default class EndpointBrowseComponent extends Component {
 						{...provided.droppableProps}
 						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "320px"}}
 					>
-						{!loading && Object.keys(list).length == 0 &&
+						{!loading && Object.keys(list).length === 0 &&
 							<h2>
 								This directory is EMPTY
 							</h2>
 						}
 
-						{loading && Object.keys(list).length == 0 &&
+						{loading && Object.keys(list).length === 0 &&
 							<h2>
 								LOADING
 							</h2>
 						}
 
-						{!loading && displayList.length == 0 && Object.keys(list).length > 0 &&
+						{!loading && displayList.length === 0 && Object.keys(list).length > 0 &&
 							<h2>
 								No Search Result
 							</h2>
 						}
 
-						{displayStyle == "compact" && !loading && displayList.length != 0 &&
+						{displayStyle === "compact" && !loading && displayList.length !== 0 &&
 							<CompactFileNodeWrapper 
+								sortFunctions = {[{"Asc": this.filenameAscendingOrderSort, "Desc" : this.filenameDescendingOrderSort}, 
+												  {"Asc": this.dateAscendingOrderSort, "Desc":this.dateDescendingOrderSort},
+												  {"Asc": this.permissionAscendingOrderSort, "Desc":this.permissionDescendingOrderSort},
+												  {"Asc": this.sizeAscendingOrderSort, "Desc":this.sizeDescendingOrderSort}]}
+								sortBy = {this.sortBy}
 								list={list} 
 								displayList={displayList} 
 								selectedTasks={selectedTasks} 
@@ -550,10 +624,10 @@ export default class EndpointBrowseComponent extends Component {
 						}
 
 
-						{displayStyle == "comfort" && displayList.map((fileId, index) => {
+						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
 							const isSelected: boolean = Boolean(
-			                  selectedTasks.indexOf(file)!=-1,
+			                  selectedTasks.indexOf(file)!==-1,
 			                );
 			                const isGhosting: boolean =
 			                  isSelected &&
@@ -565,6 +639,8 @@ export default class EndpointBrowseComponent extends Component {
 									key={fileId}
 									index={index}
 									file={file}
+									id={fileId}
+									fileId={fileId}
 									selectionCount={selectedTasks.length}
 									onClick={this.fileNodeClicked}
 									onDoubleClick={this.fileNodeDoubleClicked}

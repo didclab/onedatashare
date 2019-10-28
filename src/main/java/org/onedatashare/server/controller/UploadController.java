@@ -35,15 +35,12 @@ public class UploadController {
                                @RequestPart("qqfile") Mono<FilePart> filePart){
 
         String cookie = headers.getFirst(ODSConstants.COOKIE);
-        if(directoryPath.startsWith(ODSConstants.SCP_URI_SCHEME)){
-            directoryPath = directoryPath.replace(ODSConstants.SCP_URI_SCHEME, ODSConstants.SFTP_URI_SCHEME);
-            idMap = idMap.replace(ODSConstants.SCP_URI_SCHEME, ODSConstants.SFTP_URI_SCHEME);
-        }
         return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
             filePart, credential, directoryPath, fileName,
-            Long.parseLong(totalFileSize), googledriveid, idMap).map(job -> {
+            Long.parseLong(totalFileSize), googledriveid, idMap).map(success -> {
                 FineUploaderResponse resp = new FineUploaderResponse();
-                resp.success = true;
+                resp.success = success;
+                resp.error = !success;
                 return resp;
             });
     }

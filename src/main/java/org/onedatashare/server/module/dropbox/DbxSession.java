@@ -13,9 +13,14 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.ArrayList;
 
-@Data
+import static org.onedatashare.server.model.core.ODSConstants.DROPBOX_CLIENT_IDENTIFIER;
+
 public class DbxSession extends Session<DbxSession, DbxResource> {
   private DbxClientV2 client;
+
+  protected DbxClientV2 getClient(){
+    return client;
+  }
 
   public DbxSession(URI uri, Credential cred) {
     super(uri, cred);
@@ -41,7 +46,7 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
       if(getCredential() instanceof OAuthCredential){
         OAuthCredential oauth = (OAuthCredential) getCredential();
         DbxRequestConfig config =
-                DbxRequestConfig.newBuilder("OneDataShare-DIDCLab").build();
+                DbxRequestConfig.newBuilder(DROPBOX_CLIENT_IDENTIFIER).build();
         client = new DbxClientV2(config, oauth.token);
         s.success(this);
       }

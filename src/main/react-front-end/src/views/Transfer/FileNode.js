@@ -58,16 +58,16 @@ const getTextColor = (isSelected, isGhosting): string => {
 	return "#333333";
 };
 
-const getExtraStyle = (isDragging, isGhosting): string => {
-	if(isDragging){
-		return {boxShadow: "3px 3px 1px #333"};
-	}
-	if(isGhosting){
-		return {opacity: 0.2};
-	}
+// const getExtraStyle = (isDragging, isGhosting): string => {
+// 	if(isDragging){
+// 		return {boxShadow: "3px 3px 1px #333"};
+// 	}
+// 	if(isGhosting){
+// 		return {opacity: 0.2};
+// 	}
 
-	return {};
-};
+// 	return {};
+// };
 
 const keyCodes = {
 	enter: 13,
@@ -125,7 +125,7 @@ export default class FileNode extends Component {
 	    // we are using the event for selection
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
@@ -141,7 +141,7 @@ export default class FileNode extends Component {
 	    // marking the event as used
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey;
+	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
 	    const wasShiftKeyUsed: boolean = event.shiftKey;
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	  };
@@ -171,7 +171,6 @@ export default class FileNode extends Component {
 
 	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
 		const {
-		  file,
 		  toggleSelection,
 		  toggleSelectionInGroup,
 		  multiSelectTo,
@@ -213,10 +212,9 @@ export default class FileNode extends Component {
 	}
 
 	render(){
-		const {index, side, onClick, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
-		const {name, dir, perm, time, size, children} = this.props.file;
-		const {isDragging} = this.state;
-		const hasAttr = (time != 0 || perm || size != 0);
+		const {index, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
+		const {name, dir, perm, time, size} = this.props.file;
+		const hasAttr = (time !== 0 || perm || size !== 0);
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
 		
@@ -264,9 +262,9 @@ export default class FileNode extends Component {
 							{hasAttr && 
 								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between"}}>
 							
-									{time != 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
+									{time !== 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
 									{perm && <p > {perm} </p>}
-									{size != 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
+									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
 								</div>
 							}
 					</FileDiv>

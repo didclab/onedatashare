@@ -8,6 +8,9 @@ export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
 export const accountPageUrl = "/account";
 export const registerPageUrl = "/account/register";
+export const signInUrl = "/account/signIn";
+export const forgotPasswordUrl = "/account/forgotPassword";
+export const lostValidationCodeUrl = "/account/lostValidationCode";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
@@ -15,6 +18,8 @@ export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
+export const termsUrl = "/terms";
+export const policyUrl = "/policy"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
@@ -24,6 +29,7 @@ export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
+export const HTTPS_TYPE = "https://";
 export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
@@ -81,6 +87,9 @@ export const defaultPort={
 	scp : 22,
 	https : 443
 }
+
+export const maxCookieAge = 7;
+
 
 export function getType(endpoint){
 	return getTypeFromUri(endpoint.uri)

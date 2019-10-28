@@ -25,9 +25,13 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
+import { updateGAPageView } from '../../analytics/ga';
+
 import { withStyles } from '@material-ui/core';
 
+
 import './ClientsInfoComponent.css';
+
 const styles = theme => ({
 	root:{
 		width:'fit-content'
@@ -62,10 +66,16 @@ class ClientsInfoComponent extends Component{
 			 adminTblRowsPerPageOptions : [10, 20, 50, 100],
 			 adminTblOrder : 'asc',
 			 adminTblOrderBy : 'email'};
-		this.getUserInfo = this.getUserInfo.bind(this)
-		this.getAdminInfo = this.getAdminInfo.bind(this)
-		this.getUserInfo()
-		this.getAdminInfo()
+		this.getUserInfo = this.getUserInfo.bind(this);
+		this.getAdminInfo = this.getAdminInfo.bind(this);
+		this.getUserInfo();
+		this.getAdminInfo();
+
+		updateGAPageView();
+	}
+
+	componentDidMount(){
+		document.title = "OneDataShare - Client Info";
 	}
 
 	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
@@ -125,9 +135,9 @@ class ClientsInfoComponent extends Component{
 		this.getUserInfo()
 	};
 
-	handleUserTblChangeRowsPerPage = event => {		
+	handleUserTblChangeRowsPerPage = event => {	
 		this.state.userTblPage=0
-		this.state.userTblRowsPerPage = parseInt(event.target.value)
+		this.state.userTblRowsPerPage = parseInt(event.target.value)	
 		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) });
 		this.getUserInfo()
 	};
@@ -138,24 +148,23 @@ class ClientsInfoComponent extends Component{
 		if (this.state.userTblOrderBy === property && this.state.userTblOrder === 'desc') {
 		order = 'asc';
 		}
+		this.state.userTblOrder=order;
+		this.state.userTblOrderBy=orderBy; 
 		this.setState({ userTblOrder:order, userTblOrderBy:orderBy });
-		this.state.userTblOrder=order
-		this.state.userTblOrderBy = orderBy
-		this.getUserInfo()
-		
+		this.getUserInfo()		
 	};
 	
 	handleAdminsTblChangePage = (event, page) => {
 		this.state.adminTblPage=page
 		this.setState({ adminTblPage: page });
-		this.getAdminInfo()
+		this.getAdminInfo();
 	};
 
-	handleAdminsTblChangeRowsPerPage = event => {		
+	handleAdminsTblChangeRowsPerPage = event => {
 		this.state.adminTblPage=0
 		this.state.adminTblRowsPerPage = parseInt(event.target.value)
-		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value) });
-		this.getAdminInfo()
+		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value)});
+		this.getAdminInfo();
 	};
 
 	handleAdminsTblRequestSort = (property) => {
@@ -164,23 +173,19 @@ class ClientsInfoComponent extends Component{
 		if (this.state.adminTblOrderBy === property && this.state.adminTblOrder === 'desc') {
 		order = 'asc';
 		}
+		this.state.adminTblOrder=order;
+		this.state.adminTblOrderBy=orderBy; 
 		this.setState({ adminTblOrder:order, adminTblOrderBy:orderBy });
-		this.state.adminTblOrder=order
-		this.state.adminTblOrderBy = orderBy
-		this.getAdminInfo()
-		
+		this.getAdminInfo();		
   	};
 
 	render(){
-		const height = window.innerHeight+"px";
 		const {classes} = this.props;
 		const {users} = this.state;
 		const {admins} = this.state;
 		const {userTblRowsPerPage, userTblRowsPerPageOptions, userTblPage, userTblOrder, userTblOrderBy, totalUsersCount} = this.state;
 		const {adminTblRowsPerPage, adminTblRowsPerPageOptions, adminTblPage, adminTblOrder, adminTblOrderBy, totalAdminsCount} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
-		const usersTable = 'usersTable'
-		const adminsTable = 'adminsTable'
 		const sortableColumns = {
 			email: 'email',
 			firstName: 'firstName',

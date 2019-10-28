@@ -12,7 +12,9 @@ import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.*;
-import javax.mail.*;
 
 /**
  * Service class for all operations related to users' information.
@@ -37,6 +38,9 @@ public class UserService {
 
   @Autowired
   private EmailService emailService;
+
+  @Autowired
+  CaptchaService captchaService;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
@@ -53,32 +57,39 @@ public class UserService {
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.getPublicKey()))
+            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
-  public Object register(String email, String firstName, String lastName, String organization) {
+  public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
 
-    return doesUserExists(email).flatMap(user -> {
+    return captchaService.verifyValue(captchaVerificationValue)
+            .flatMap(captchaVerified-> {
 
-      String password = User.salt(20);
-      /*
-        This would be a same temporary password for each user while creating,
-        once the user goes through the whole User creation workflow, he/she can change the password.
-      */
-      // Means admin user exists in the DB
-      if(user.getEmail() != null && user.getEmail().equals(email)) {
-        ODSLoggerService.logWarning("User with email " + email + " already exists.");
-        if(!user.isValidated()){
-          return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
-        }else{
-          return Mono.just(new Response("Account already exists",302));
-        }
-      }
-      return createUser(new User(email, firstName, lastName, organization, password))
-                  .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
-    });
+              if (captchaVerified){
+                return doesUserExists(email).flatMap(user -> {
+
+                  // This would be a same temporary password for each user while creating,
+                  // once the user goes through the whole User creation workflow, he/she can change the password.
+                  String password = User.salt(20);
+
+                  if(user.getEmail() != null && user.getEmail().equals(email)) {
+                    ODSLoggerService.logWarning("User with email " + email + " already exists.");
+                    if(!user.isValidated()){
+                      return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+                    }else{
+                      return Mono.just(new Response("Account already exists",302));
+                    }
+                  }
+                  return createUser(new User(email, firstName, lastName, organization, password))
+                          .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
+                });
+              }
+              else{
+                return Mono.error(new Exception("Captcha verification failed"));
+              }
+            });
   }
 
   public Mono<User> doesUserExists(String email) {
@@ -147,16 +158,22 @@ public class UserService {
     return getLoggedInUser(cookie).flatMap(user-> {
       if(!newpassword.equals(passwordConfirm)){
         ODSLoggerService.logError("Passwords don't match.");
-        return Mono.error(new Exception("Passwords don't match."));
+        throw new  OldPwdMatchingException("Passwords don't match.");
       }else if(!user.checkPassword(oldpassword)){
         ODSLoggerService.logError("Old Password is incorrect.");
-        return Mono.error(new Exception("Old Password is incorrect."));
+        throw new  OldPwdMatchingException("Old Password is incorrect.");
       }else{
-        user.setPassword(newpassword);
-        userRepository.save(user).subscribe();
-        ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
-        return Mono.just(user.getHash());
-      }
+        try{
+            user.setPassword(newpassword);
+            userRepository.save(user).subscribe();
+            ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
+            return Mono.just(user.getHash());
+          }
+        catch (RuntimeException e)
+        {
+          throw  new OldPwdMatchingException(e.getMessage());
+        }
+        }
     });
   }
 
@@ -345,14 +362,11 @@ public class UserService {
   }
 
   public Mono<Object> verifyEmail(String email) {
-
-//    User user = new User("arnabdas@buffalo.edu", "asdasd");
-//    createUser(user).subscribe(System.out::println);
     return userRepository.existsById(email).flatMap( bool -> {
       if (bool) {
         return Mono.just(true);
       }else{
-        return Mono.error(new Exception("Invalid email"));
+        return Mono.just(false);
      }
     });
   }
@@ -360,20 +374,37 @@ public class UserService {
   public Mono<User> getLoggedInUser(String cookie) {
     final User.UserLogin userLogin = cookieToUserLogin(cookie);
     return userLoggedIn(userLogin.email, userLogin.hash)
-      .flatMap(userLoggedIn -> {
-        return getUser(userLogin.email);
-      });
+      .flatMap(userLoggedIn -> getUser(userLogin.email));
   }
 
   public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
     final UUID uuid = UUID.randomUUID();
-    return  getLoggedInUser(cookie).map(user -> {
+    return  getLoggedInUser(cookie)
+            .map(user -> {
               user.getCredentials().put(uuid, credential);
               return user;
             })
             .flatMap(userRepository::save)
             .map(user -> uuid);
   }
+
+    /**
+     * Saves the OAuth Credentials in user collection when the user toggles the preference button.
+     * @param cookie Browser cookie string passed in the HTTP request to the controller
+     * @param credentials The list of Oauth Credentials
+     * @return
+     */
+    public Mono<Void> saveUserCredentials(String cookie, List<OAuthCredential> credentials) {
+    return getLoggedInUser(cookie)
+            .map(user -> {
+                for(OAuthCredential credential : credentials) {
+                    final UUID uuid = UUID.randomUUID();
+                    user.getCredentials().put(uuid, credential);
+                }
+                return user;
+            })
+            .flatMap(userRepository::save).then();
+}
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
     return getUser(email).doOnSuccess(user -> {
@@ -397,20 +428,23 @@ public class UserService {
       }).then();
   }
 
-  public OAuthCredential updateCredential(String cookie, OAuthCredential credential) {
-    //Updating the access token for googledrive using refresh token
-          getLoggedInUser(cookie)
-            .doOnSuccess(user -> {
-                Map<UUID,Credential> credsTemporary = user.getCredentials();
-                for(UUID uid : credsTemporary.keySet()){
-                  OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
-                  if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
-                    credsTemporary.replace(uid, credential);
-                    user.setCredentials(credsTemporary);
-                    userRepository.save(user).subscribe();
-                  }
-                }
-            }).subscribe();
+  public OAuthCredential updateCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
+    //Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
+      getLoggedInUser(cookie)
+        .doOnSuccess(user -> {
+            Map<UUID,Credential> credsTemporary = user.getCredentials();
+            UUID uid = UUID.fromString(userActionCredential.getUuid());
+            OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+            if(credential.refreshTokenExp){
+              credsTemporary.remove(uid);
+            }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+              credsTemporary.replace(uid, credential);
+            }
+            if(user.isSaveOAuthTokens()) {
+              user.setCredentials(credsTemporary);
+              userRepository.save(user).subscribe();
+            }
+        }).subscribe();
 
     return credential;
   }
@@ -424,6 +458,16 @@ public class UserService {
         }
         return Mono.error(new NotFound());
       }).then();
+  }
+
+  public Mono<Void> updateSaveOAuth(String cookie, boolean saveOAuthCredentials){
+    return getLoggedInUser(cookie).map(user -> {
+      user.setSaveOAuthTokens(saveOAuthCredentials);
+        // Remove the saved credentials
+        if(!saveOAuthCredentials)
+          user.setCredentials(new HashMap<>());
+          return userRepository.save(user).subscribe();
+        }).then();
   }
 
   public Mono<Boolean> isAdmin(String cookie){
@@ -461,7 +505,8 @@ public class UserService {
 
   public Mono<Map<UUID, Credential>> saveCredToUser(Map<UUID, Credential> creds, String cookie){
     return getLoggedInUser(cookie).map(user -> {
-      user.setCredentials(creds);
+      if(user.isSaveOAuthTokens())
+        user.setCredentials(creds);
       return userRepository.save(user);
     }).flatMap(repo -> repo.map(user -> user.getCredentials()));
   }
@@ -482,6 +527,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash(), user.getPublicKey());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens());
   }
 }

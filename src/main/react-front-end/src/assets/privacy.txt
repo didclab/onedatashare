@@ -1,0 +1,53 @@
+
+<center><h1>Privacy Policy</h1></center>
+OneDataShare respects your privacy and knows that you care about how your personal information is used and shared. This document provides our policies and procedures for collecting, using, and disclosing your information. By using OneDataShare (the “Service”  which can be accessed through the website) on devices including but not limited to mobiles, tablets, and PCs, you accept the practices described in this Privacy Policy.
+
+We reserve the right to update this Privacy policy and will notify you of any changes by using the website or via an email and including the “Updated on” date in the privacy policy page. You will need to agree to the updated policy to continue using the Service once the policy is updated and you have been notified about those updates.
+
+For concerns or queries regarding the privacy policy and processing of personally identifiable information by OneDataShare, please reach out to us at admin@onedatashare.org.
+
+<h3>Collected and Stored Information</h3>
+<h4>Personal Information:</h4>
+We (OneDataShare Service) may collect very limited personal information that is voluntarily provided by you at the time of registration such as your verifiable email ID, organization, along with your name which can be used to contact or identify you.
+
+<h4>Files:</h4>
+We may temporarily store parts of the files you upload, transfer, or download using the OneDataShare Service only if necessary for the operation you have requested. Once we have completed your requested operation, we automatically and permanently delete the stored files from our servers.
+
+<h4>Endpoint Credentials:</h4>
+We, by default, do not store any of your end-point login information (end-point URIs and OAuth tokens) that are used by you on our Service to facilitate operations requested by you. You have the option to opt for storing the login tokens on the OneDataShare server for a seamless and more convenient use of the Service.
+
+<h4>Log Files:</h4>
+We store information about any operation carried out via our Service in our log files along with the file metadata (e.g., size of the file, source and destination hosts, date of the operation etc.) for quality of service purposes. These log files do not store any file contents.
+
+<h4>Cookies</h4>
+We use cookies, a small data file that is created on your browser to save your account and session information. The information stored includes your login and endpoint data.
+
+<h3>Use of Information</h3>
+<h4>Personal Information:</h4>
+We may use the email address you provided during registration for communication purposes, offering assistance to your queries and for monitoring your use of our Service.
+
+<h4>Service Delivery:</h4>
+We use your Endpoint credentials to verify you have the authorization needed for the Service to process your requests, and to facilitate operations on the endpoints requested by you on our Service.
+
+<h4>Analytics</h4>
+We use the information collected via application logs and database updates, to monitor and analyze the use of the Service, for the Service's technical administration, to increase our Service's functionality and user-friendliness.
+
+<h3>Sharing and Disclosure of Information</h3>
+<h4>Sharing with third-parties:</h4>
+We do not rent or share your information with any third-party.
+
+<h4>Compliance with Laws and Law Enforcement Requests:</h4>
+We cooperate with government and law enforcement officials and may disclose your collected information where we are legally obligated to comply with the law and enforcement agencies including in response to public authorities to meet national security or requirements of law enforcement.
+
+<h4>Policy towards children</h4>
+Our Service is not targeted at children under the age of 13. We do not intentionally collect personally identifiable information from children under the age of 13. If a parent or guardian becomes aware that his or her child has provided us with personal Information without their consent, they should contact us at admin@onedatashare.org. If we become aware that a child under 13 has provided us with personal Information, we will take steps to delete such information from our Service.
+
+<h3>Phishing</h3>
+We do not request your credit card information, login credentials of other accounts, or your National Identification IDs over an unsolicited email. Please refrain from sharing this information.
+
+<h3>Data Retention Policy</h3>
+We retain your account information until a request for deleting the account has been made by the user which has to be submitted via an email to admin@onedatashare.org. Even after deleting your account, we may still retain your personal Information as long as required by the law. We retain log files for statistics and to improve our Service.
+
+<h3>Security</h3>
+We strive to use commercially acceptable means to protect your personal Information, but we cannot guarantee its absolute security.
+All communication between our servers and your browser are encrypted using secure socket layer technology (SSL). If you have any questions about security on our website, you can contact us at admin@onedatashare.org.

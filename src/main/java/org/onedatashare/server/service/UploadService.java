@@ -32,21 +32,22 @@ public class UploadService {
 
     private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
 
-    public Mono<Integer> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
+    public Mono<Boolean> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
                                  String directoryPath, String fileName, Long totalFileSize, String googleDriveId, String idmap) {
         if (ongoingUploads.containsKey(uuid)) {
-            return sendFilePart(filePart, ongoingUploads.get(uuid));
-        }
-        else {
+            if(ongoingUploads.get(uuid).isEmpty())
+                return sendFilePart(filePart, ongoingUploads.get(uuid)).map(size -> true);
+            else return Mono.just(false);
+        } else {
             UserAction ua = new UserAction();
             ua.setSrc(new UserActionResource());
             ua.getSrc().setUri(ODSConstants.UPLOAD_IDENTIFIER);
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
+
             ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
             ODSLoggerService.logInfo("Total upload file size - " + totalFileSize);
             ua.setDest( new UserActionResource());
             ua.getDest().setId( googleDriveId );
-
 
             try {
                 if(directoryPath.endsWith("/")) {
@@ -54,7 +55,6 @@ public class UploadService {
                 } else {
                     ua.getDest().setUri( directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8") );
                 }
-
                 ObjectMapper mapper = new ObjectMapper();
                 ua.getDest().setCredential( mapper.readValue(credential, UserActionCredential.class) );
                 IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
@@ -63,12 +63,13 @@ public class UploadService {
                 e.printStackTrace();
             }
             resourceService.submit(cookie, ua).subscribe();
-            return sendFilePart(filePart, uploadQueue).map(size -> {
-                if (size < totalFileSize) {
-                    ongoingUploads.put(uuid, uploadQueue);
-                }
-                return size;
-            });
+
+                return sendFilePart(filePart, uploadQueue).map(size -> {
+                    if (size < totalFileSize) {
+                        ongoingUploads.put(uuid, uploadQueue);
+                    }
+                    return true;
+                });
         }
     }
 

@@ -2,34 +2,30 @@ package org.onedatashare.server.controller;
 
 import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
-import org.apache.commons.vfs2.FileName;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.VfsResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-
+/**
+ * Controller that request to cancel a transfer that is in progress.
+ */
 @RestController
 @RequestMapping("/api/stork/download")
 public class DownloadController {
@@ -46,13 +42,17 @@ public class DownloadController {
     @Autowired
     private ResourceServiceImpl resourceService;
 
-    @Autowired
-    private UserService userService;
-
-
+    /**
+     * Handler that returns the download link for the requested file in requestData
+     * @param headers - Incoming request headers
+     * @param requestData - Request data needed to generate the download link
+     * @return - Mono\<String\> containing the download link
+     */
     @PostMapping
-    public Object download(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction) {
+    public Object download(@RequestHeader HttpHeaders headers, @RequestBody RequestData requestData) {
+
         String cookie = headers.getFirst(ODSConstants.COOKIE);
+        UserAction userAction = UserAction.convertToUserAction(requestData);
         if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
             return dbxService.getDownloadURL(cookie, userAction);
         } else if (ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
@@ -73,7 +73,7 @@ public class DownloadController {
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
         String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
 
-        Map<String,String> map = new HashMap<String,String>();
+        Map<String, String> map = new HashMap<String, String>();
         Set<Cookie> cookies = CookieDecoder.decode(cookie);
         for (Cookie c : cookies)
             map.put(c.getName(), c.getValue());
@@ -81,6 +81,7 @@ public class DownloadController {
         UserActionResource userActionResource = null;
         try {
             final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
+
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
         } catch (IOException e) {
             e.printStackTrace();
