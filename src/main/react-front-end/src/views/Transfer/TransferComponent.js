@@ -280,7 +280,9 @@ export default class TransferComponent extends Component {
     const formlabelstyle = {fontSize: "15px"}
     const formStyle = {marginLeft: "5%", marginRight: "5%"}
     return <Panel bsStyle="primary">
+              <div style={{ textAlign: "center" }}>
               <Panel.Heading>Transfer Setting</Panel.Heading>
+              </div>
               <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
                 <FormControl component="fieldset" style={formStyle}>
                   <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
@@ -362,6 +364,7 @@ export default class TransferComponent extends Component {
 
     const isSmall = screenIsSmall();
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
+    const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
       this.setState({ [name]: event.target.checked });
     };
@@ -386,11 +389,12 @@ export default class TransferComponent extends Component {
             label={<Typography style={{color: "white", fontSize: "12px"}}>Compact</Typography>}
           />
           <Panel.Heading>
-            <p>
-              Browse and Transfer Files
-            </p>
+            <div style={headerStyle}>
+              <p>
+                Browse and Transfer Files
+              </p>
+            </div>
             
-
             </Panel.Heading>
             <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
                 <Row style={{flexDirection: 'column'}}>
@@ -406,7 +410,7 @@ export default class TransferComponent extends Component {
                   </Col>
                   </DragDropContext>
                 </Row>
-                <Row style={{display: 'block', }}>
+                <Row style={{display: 'block', ...headerStyle}}>
                     <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
                     <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
