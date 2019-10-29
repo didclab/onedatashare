@@ -355,19 +355,19 @@ class QueueComponent extends Component {
 		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
-		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
+		            <TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} align='center'>
 		              {resp.job_id}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '1rem'}}>
+		            <TableCell id={"queueprocess" + tableRows.length / 2} style={{...tbcellStyle, width: '45%',  fontSize: '1rem'}}>
 		            	{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}}>
+		            <TableCell id={"queuespeed" + tableRows.length / 2} style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '25%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px"}}>
+		            <TableCell id={"queuesource" + tableRows.length / 2} style={{...tbcellStyle, width: '25%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px"}}>
 		            	{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
+		            <TableCell id={"queueaction" + tableRows.length / 2} style={{...tbcellStyle, width: '15%',  fontSize: '1rem'}}>
 		            	{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 		            </TableCell>
 	          	</TableRow>
@@ -375,7 +375,7 @@ class QueueComponent extends Component {
 	      	tableRows.push(
 	      	 	<TableRow id={"info_" + resp.job_id} style={{ display: 'none'}}>
 	            	<TableCell colSpan={5} style={{...tbcellStyle, width: '10%',  fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
-	            		<div id="infoBox" style={{ marginBottom : '0.5%' }}>
+	            		<div id="infoBox" style={{ marginBottom : '0.5%'}}>
 		            		<AppBar position="static" style={{ boxShadow: 'unset' }}>
 								<Tabs value={this.state.selectedTab} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
 									<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
@@ -399,6 +399,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
 									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
+											id="QueueID"
 											active={orderBy === sortableColumns.jobId}
 											direction={order}
 											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
@@ -409,6 +410,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>
 									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
+											id="QueueProgress"
 											active={orderBy === sortableColumns.status}
 											direction={order}
 											onClick={() => this.handleRequestSort(sortableColumns.status)}>
@@ -419,6 +421,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
+											id="QueueSpeed"
 											active={orderBy === sortableColumns.avgSpeed}
 											direction={order}
 											onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
@@ -429,6 +432,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
+											id="QueueSD"
 											active={orderBy === sortableColumns.source}
 											direction={order}
 											onClick={() => this.handleRequestSort(sortableColumns.source)}>

@@ -71,7 +71,8 @@ export default class HomePageComponent extends Component {
 			prevArrow: <CustomPrevArrow/>,
 			autoplay: false,
 			responsive: [{breakpoint: 500, settings: {arrows: false}}]
-	    };
+		};
+		
 		return(
 		<Col>
 			<Slider {...settings} >
