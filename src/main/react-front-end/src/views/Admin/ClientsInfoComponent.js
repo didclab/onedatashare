@@ -130,11 +130,14 @@ class ClientsInfoComponent extends Component{
 		this.setState({ showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 	};
 	handleUserTblChangePage = (event, page) => {
+		this.state.userTblPage=page
 		this.setState({ userTblPage: page });
 		this.getUserInfo()
 	};
 
-	handleUserTblChangeRowsPerPage = event => {		
+	handleUserTblChangeRowsPerPage = event => {	
+		this.state.userTblPage=0
+		this.state.userTblRowsPerPage = parseInt(event.target.value)	
 		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) });
 		this.getUserInfo()
 	};
@@ -145,17 +148,22 @@ class ClientsInfoComponent extends Component{
 		if (this.state.userTblOrderBy === property && this.state.userTblOrder === 'desc') {
 		order = 'asc';
 		}
+		this.state.userTblOrder=order;
+		this.state.userTblOrderBy=orderBy; 
 		this.setState({ userTblOrder:order, userTblOrderBy:orderBy });
 		this.getUserInfo()		
 	};
 	
 	handleAdminsTblChangePage = (event, page) => {
+		this.state.adminTblPage=page
 		this.setState({ adminTblPage: page });
 		this.getAdminInfo();
 	};
 
-	handleAdminsTblChangeRowsPerPage = event => {		
-		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value) });
+	handleAdminsTblChangeRowsPerPage = event => {
+		this.state.adminTblPage=0
+		this.state.adminTblRowsPerPage = parseInt(event.target.value)
+		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value)});
 		this.getAdminInfo();
 	};
 
@@ -165,6 +173,8 @@ class ClientsInfoComponent extends Component{
 		if (this.state.adminTblOrderBy === property && this.state.adminTblOrder === 'desc') {
 		order = 'asc';
 		}
+		this.state.adminTblOrder=order;
+		this.state.adminTblOrderBy=orderBy; 
 		this.setState({ adminTblOrder:order, adminTblOrderBy:orderBy });
 		this.getAdminInfo();		
   	};

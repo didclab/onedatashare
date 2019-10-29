@@ -4,6 +4,7 @@ import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.requestdata.UserRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ODSLoggerService;
@@ -109,5 +110,11 @@ public class UserController {
   public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
     ODSLoggerService.logError(fa.getMessage());
     return new ResponseEntity<>(fa, fa.status);
+  }
+
+  @ExceptionHandler(OldPwdMatchingException.class)
+  public ResponseEntity<OldPwdMatchingException> handle(OldPwdMatchingException oe){
+    ODSLoggerService.logError(oe.getMessage());
+    return new ResponseEntity<>(oe, oe.status);
   }
 }

@@ -17,7 +17,6 @@ import { eventEmitter } from "../../App";
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { checkLogin } from '../../APICalls/APICalls.js';
 
 import { updateGAPageView } from "../../analytics/ga";
 
@@ -57,7 +56,6 @@ export default class CreateAccountComponent extends Component {
     this.emailValidationMsg = "Please Enter EmailId"
     this.captchaRef = null;
 
-    this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
     this.registerAccount = this.registerAccount.bind(this);
     this.verifyAccount = this.verifyAccount.bind(this);
     this.login = this.login.bind(this);
@@ -93,6 +91,10 @@ export default class CreateAccountComponent extends Component {
             eventEmitter.emit("errorOccured", "User with same Email ID already exists");
           }
           this.resetCaptcha();
+        },
+        (error) => {
+          this.setState({ error: true });
+          eventEmitter.emit("errorOccured", "Error occured while registering the user" );
         });
     }
     else {
@@ -132,20 +134,9 @@ export default class CreateAccountComponent extends Component {
     }
     else {
       setPassword(email, code, password, confirmPassword).then((response) => {
-        self.props.history.push('/account/signIn')
+        this.props.backToSignin()
       });
     }
-  }
-
-  onEmailNextClicked() {
-    checkLogin(this.state.email,
-      (success) => {
-        this.setState({ error: true, errorMessage: "Email is already there on the server." });
-      },
-      (error) => {
-        this.registerAccount();
-      }
-    );
   }
 
   handleCaptchaEvent(value) {
@@ -197,7 +188,7 @@ export default class CreateAccountComponent extends Component {
 
           <ValidatorForm
             ref="email"
-            onSubmit={this.onEmailNextClicked}>
+            onSubmit={this.registerAccount}>
             <TextValidator
               error={emailError}
               helperText={emailErrorMessage}
@@ -266,7 +257,7 @@ export default class CreateAccountComponent extends Component {
               <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                 Sign in Instead
                   </Button>
-              <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit" onClick={this.registerAccount}>
+              <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
                   </Button>
             </CardActions>
