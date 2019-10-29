@@ -411,14 +411,12 @@ export default class TransferComponent extends Component {
                     <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
             
-
-              <ErrorMessagesConsole/>
+              {!isSmall && this.getSettingComponent(isSmall)}
+              {/* <ErrorMessagesConsole/> */}
             </Panel.Body>
-          </Panel>
-
-          
+          </Panel>          
         }
-        {/* !isSmall && this.getSettingComponent(isSmall) */}
+        
         {isSmall &&
         <Panel bsStyle="primary">
         <FormControlLabel
@@ -437,11 +435,7 @@ export default class TransferComponent extends Component {
         <Panel.Heading>
           <p>
             Browse and Transfer Files
-
-
           </p>
-
-
         </Panel.Heading>
 
 
@@ -462,12 +456,11 @@ export default class TransferComponent extends Component {
                   {this._returnBrowseComponent2()}  
                 </Row>
                 
-                 {/*  <Row> {this.getSettingComponent(isSmall)} </Row> */}
+                  <Row> {this.getSettingComponent(isSmall)} </Row>
               </DragDropContext>
               
             </Row>
-            <div> </div>
-            <ErrorMessagesConsole/>
+            {/* <ErrorMessagesConsole/> */}
             </Panel.Body>
             </Panel>
           }
