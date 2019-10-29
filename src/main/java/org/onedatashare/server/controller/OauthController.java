@@ -39,6 +39,9 @@ public class OauthController {
     @Autowired
     private GridftpAuthService gridftpAuthService;
 
+    @Autowired
+    private BoxOauthService boxOauthService;
+
     ObjectMapper objectMapper = new ObjectMapper();
 
     static final String googledrive = "googledrive";
@@ -160,7 +163,7 @@ public class OauthController {
      */
     @GetMapping(value = "/box")
     public Object boxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
-        String cookie = headers.getFirst("cookie");
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
         return boxOauthService.finish(queryParameters.get("code"), cookie)
                 .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())

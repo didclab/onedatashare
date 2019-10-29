@@ -34,9 +34,6 @@ public class ListController {
     @Autowired
     private BoxService boxService;
 
-  @Autowired
-  private ResourceServiceImpl resourceService;
-
     @Autowired
     private HttpFileService httpService;
 

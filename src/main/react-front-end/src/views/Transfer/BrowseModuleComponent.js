@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth, history, dropboxCredList} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth, savedCredList} from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
 import {cookies} from "../../model/reducers.js";
@@ -182,10 +182,10 @@ export default class BrowseModuleComponent extends Component {
 		      	</Button>
                 <Button id={endpoint.side + "Box"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
-                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openGoogleDriveOAuth);
+                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
                 }}>
                     <Icon className={'fab fa-box-open'} style={iconStyle}/>
-                    Google Drive
+                    Box
                 </Button>
 	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
 	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);

@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import { Redirect } from "react-router-dom";
 import {
   transferPageUrl,
   DROPBOX_TYPE,
@@ -8,11 +7,12 @@ import {
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
   GRIDFTP_NAME,
-    BOX_NAME
+  BOX_NAME
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
+import Redirect from "react-router/es/Redirect";
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
@@ -29,11 +29,13 @@ export default class OauthProcessComponent extends Component {
                 "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
             );
         }, 500);
-    }else if(id === "ExistingCredDropbox"){
-            setTimeout( () => { eventEmitter.emit(
+    }else if(tag === "ExistingCredDropbox"){
+            setTimeout( () => {
+              eventEmitter.emit(
                 "errorOccurred",
                 "Credential for that endpoint already exists. Please logout from Dropbox and try again."
-            )}, 500);
+            );
+              }, 500);
     } else if (tag === "ExistingCredBox") {
       setTimeout(() => {
         eventEmitter.emit(
@@ -63,11 +65,15 @@ export default class OauthProcessComponent extends Component {
       } else if (tag === "gridftp") {
         console.log("GridFTP oAuth identifier received");
         this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
+      } else if (tag === "box") {
+          console.log("Box oAuth identifier received");
+          this.updateLocalCredStore(BOX_NAME, qsObj);
+        }
       }
     }
   }
 
-  updateLocalCredStore(protocolType, qsObj) {
+  function updateLocalCredStore(protocolType, qsObj) {
     let creds = cookies.get(protocolType) || 0;
     if (creds !== 0) {
       let parsedJSON = JSON.parse(creds);
@@ -93,12 +99,11 @@ export default class OauthProcessComponent extends Component {
     }
   }
 
-  render() {
+  function render() {
     return (
       <div>
-        <Redirect to={transferPageUrl}></Redirect>
+        <Redirect to={transferPageUrl}/>
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );
-  }
 }
