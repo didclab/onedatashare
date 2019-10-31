@@ -27,7 +27,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
 import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl } from "../../constants";
+import { transferPageUrl, userPageUrl,validatePassword } from "../../constants";
 
 import {
 	changePassword,
@@ -94,29 +94,10 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-	    if(!(/[a-z]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must have atleast one lower character");
-		}
-		else if(!(/[A-Z]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must have atleast one upper character");
-		}
-		else if(!(/[0-9]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must have atleast one digit");
-		}
-		else if(!(/\W/.test(newPass)))
-		{
-			eventEmitter.emit("errorOccured", "Password must have atleast one special character");
-		}
-		else if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must have 6+ characters.");
-		}
-        else if(newPass === "" || oldPass === "" || confPass === ""){
+	    if(newPass === "" || oldPass === "" || confPass === ""){
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-        }
-		else if(newPass !== confPass){
-			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
 		}
-		else{
+		else if(validatePassword(newPass,confPass)){
 			changePassword(oldPass, newPass,confPass, (hash)=>{
 				store.dispatch(updateHashAction(hash));
 				this.setState({redirect:true});

@@ -7,7 +7,7 @@ import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
-import { spaceBetweenStyle } from '../../constants.js';
+import { spaceBetweenStyle,validatePassword } from '../../constants.js';
 import { registerUser, verifyRegistraionCode, setPassword } from '../../APICalls/APICalls.js'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ValidateEmailComponent from '../Login/ValidateEmailComponent'
@@ -127,24 +127,8 @@ export default class CreateAccountComponent extends Component {
     let self = this;
     let code = this.state.code;
     let state = self.state;
-    if(!(/[a-z]/.test(password))){
-			eventEmitter.emit("errorOccured", "Password must have atleast one lower character");
-		}
-		else if(!(/[A-Z]/.test(password))){
-			eventEmitter.emit("errorOccured", "Password must have atleast one upper character");
-		}
-		else if(!(/[0-9]/.test(password))){
-			eventEmitter.emit("errorOgccured", "Password must have atleast one digit");
-		}
-		else if(!(/\W/.test(password)))
-		{
-			eventEmitter.emit("errorOccured", "Password must have atleast one special character");
-		}
-    else if (password !== confirmPassword) {
-      eventEmitter.emit("errorOccured", "Password and Confirm Password should match");  
-    }
-    else {
-      setPassword(email, code, password, confirmPassword).then((response) => {
+    if(validatePassword(password,confirmPassword)){
+        setPassword(email, code, password, confirmPassword).then((response) => {
         this.props.backToSignin()
       });
     }

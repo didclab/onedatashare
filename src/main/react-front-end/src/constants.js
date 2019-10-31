@@ -1,3 +1,4 @@
+import { eventEmitter } from "./App";
 export const spaceBetweenStyle = {display: 'flex', justifyContent:"space-between"};
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
@@ -104,4 +105,32 @@ export function getName(endpoint){
 
 export function getNameFromUri(uri){
 	return showText[uri.split(":")[0].toLowerCase()]
+}
+
+export  function validatePassword(password,confirmPassword)
+{
+	if(!(/[a-z]/.test(password))){
+		eventEmitter.emit("errorOccured", "Password must have atleast one lower character");
+		return false;
+	}
+	else if(!(/[A-Z]/.test(password))){
+		eventEmitter.emit("errorOccured", "Password must have atleast one upper character");
+		return false;
+	}
+	else if(!(/[0-9]/.test(password))){
+		eventEmitter.emit("errorOccured", "Password must have atleast one digit");
+		return false;
+	}
+	else if(!(/\W/.test(password)))
+	{
+		eventEmitter.emit("errorOccured", "Password must have atleast one special character");
+		return false;
+	}
+	else if (password !== confirmPassword) {
+		eventEmitter.emit("errorOccured", "Password and Confirm Password should match"); 
+		return false; 
+	}
+
+	return true;
+
 }
