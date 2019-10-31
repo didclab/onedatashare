@@ -56,7 +56,7 @@ export default class HomePageComponent extends Component {
 	}
 
 	componentDidMount(){
-		document.title = "OneDataShare - Home";
+		document.title = "OneDataShare";
 	}
 
 	render(){
@@ -71,7 +71,8 @@ export default class HomePageComponent extends Component {
 			prevArrow: <CustomPrevArrow/>,
 			autoplay: false,
 			responsive: [{breakpoint: 500, settings: {arrows: false}}]
-	    };
+		};
+		
 		return(
 		<Col>
 			<Slider {...settings} >
