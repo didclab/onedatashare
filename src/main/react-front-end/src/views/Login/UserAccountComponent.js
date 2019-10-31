@@ -32,7 +32,8 @@ import { transferPageUrl, userPageUrl } from "../../constants";
 import {
 	changePassword,
 	getUser,
-	updateSaveOAuth
+	updateSaveOAuth,
+	saveOAuthCredentials
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
@@ -138,6 +139,25 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
+				let credentials = []
+				if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
+					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
+					googleDriveCredentials.forEach(function(element){
+						element.name = "GoogleDrive: " + element.name;
+					});
+					credentials.push(...googleDriveCredentials);
+				}
+				if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
+					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
+					dropBoxCredentials.forEach(function(element){
+						element.name = "Dropbox: " + element.name;
+					});
+					credentials.push(...dropBoxCredentials);
+				}
+				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+					console.log("Error in saving credentials", error);
+					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+				});
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 

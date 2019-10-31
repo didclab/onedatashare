@@ -56,7 +56,7 @@ export default class HomePageComponent extends Component {
 	}
 
 	componentDidMount(){
-		document.title = "OneDataShare - Home";
+		document.title = "OneDataShare";
 	}
 
 	render(){
