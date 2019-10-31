@@ -12,6 +12,7 @@ import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
@@ -157,16 +158,22 @@ public class UserService {
     return getLoggedInUser(cookie).flatMap(user-> {
       if(!newpassword.equals(passwordConfirm)){
         ODSLoggerService.logError("Passwords don't match.");
-        return Mono.error(new Exception("Passwords don't match."));
+        throw new  OldPwdMatchingException("Passwords don't match.");
       }else if(!user.checkPassword(oldpassword)){
         ODSLoggerService.logError("Old Password is incorrect.");
-        return Mono.error(new Exception("Old Password is incorrect."));
+        throw new  OldPwdMatchingException("Old Password is incorrect.");
       }else{
-        user.setPassword(newpassword);
-        userRepository.save(user).subscribe();
-        ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
-        return Mono.just(user.getHash());
-      }
+        try{
+            user.setPassword(newpassword);
+            userRepository.save(user).subscribe();
+            ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
+            return Mono.just(user.getHash());
+          }
+        catch (RuntimeException e)
+        {
+          throw  new OldPwdMatchingException(e.getMessage());
+        }
+        }
     });
   }
 
@@ -366,7 +373,7 @@ public class UserService {
       if (bool) {
         return Mono.just(true);
       }else{
-        return Mono.error(new Exception("Invalid email"));
+        return Mono.just(false);
      }
     });
   }
@@ -387,6 +394,24 @@ public class UserService {
             .flatMap(userRepository::save)
             .map(user -> uuid);
   }
+
+    /**
+     * Saves the OAuth Credentials in user collection when the user toggles the preference button.
+     * @param cookie Browser cookie string passed in the HTTP request to the controller
+     * @param credentials The list of Oauth Credentials
+     * @return
+     */
+    public Mono<Void> saveUserCredentials(String cookie, List<OAuthCredential> credentials) {
+    return getLoggedInUser(cookie)
+            .map(user -> {
+                for(OAuthCredential credential : credentials) {
+                    final UUID uuid = UUID.randomUUID();
+                    user.getCredentials().put(uuid, credential);
+                }
+                return user;
+            })
+            .flatMap(userRepository::save).then();
+}
 
   public Mono<Void> saveLastActivity(String email, Long lastActivity) {
     return getUser(email).doOnSuccess(user -> {

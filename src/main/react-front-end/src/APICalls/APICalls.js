@@ -59,12 +59,15 @@ export async function checkLogin(email, accept, fail){
 	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		if((response.data === true)){
+			statusHandle(response, accept);
+		}else if(response.data === false){
+			statusHandle(response, fail);
+		}
+	})
+	.catch((error) => {      
+		statusHandle(error, fail);
+	});
 }
 
 
@@ -616,6 +619,27 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	.catch((error) => {
 			console.log("Error encountered while updating the user.");
 	});
+}
+
+/*
+	Desc: Call the backend to save the OAuth Credentials when the user toggles
+        the button in account preferences to save credentials
+	input: Array of OAuth credentials
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function saveOAuthCredentials(credentials,accept, fail){
+	var callback = accept;
+	axios.post(url+'cred/saveCredentials', credentials)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
 }
 
 export async function updateAdminRightsApiCall(email, isAdmin){
