@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList, 
-		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId, 
+import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList,
+		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, HTTPS_TYPE} from "../../constants";
 import {store} from "../../App";
@@ -12,6 +12,7 @@ import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import TextField from '@material-ui/core/TextField';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
 
 import Divider from '@material-ui/core/Divider';
@@ -231,16 +232,16 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		
-		
+
+
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return Object.keys(credList).filter(id => {
-				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1 
+				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1
 							&& !getCred().includes(id))})
 				.map((v) =>
-				<ListItem button key={v} 
+				<ListItem button key={v}
 					onClick={() => {
 						const endpointSet = {
 							uri: endpoint.uri,
@@ -272,8 +273,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted not to store tokens on ODS server
 			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-			<ListItem button 
-				onClick={() => {
+			<ListItem button onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
@@ -295,7 +295,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				</ListItem>
 			);
 		}
-		
+
 	}
 
 	getHistoryListComponentFromList(historyList){
@@ -331,17 +331,25 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	regularSignIn = () => {
-		const { needPassword} = this.state;
-		
-		if(!needPassword){
-    		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-    			this.setState({needPassword: true});
-    		});
-    	}else{
-    		this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
-    			this._handleError("Authentication Failed");
-    		});
-    	}
+	const {url, username, password, needPassword} = this.state;
+	if(url.substr(url.length - 3) === '://') {
+		this._handleError("Enter the correct URL")
+		return
+	}
+	if(!needPassword){
+		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+			console.log('setting need pwd to ture..')
+			this.setState({needPassword: true});
+		});
+    }else{
+			if(username.length == 0 || password.length == 0) {
+				this._handleError("Incorrect username or password")
+				return
+			}
+			this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
+				this._handleError("Authentication Failed");
+			});
+		}
 	}
 
 	globusSignIn = () => {
@@ -397,7 +405,11 @@ export default class EndpointAuthenticateComponent extends Component {
     		});
 		}
 	}
-	
+
+	handleClick = (e) => {
+		this.inputElement.click();
+	}
+
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
 		const { back } = this.props;
@@ -405,11 +417,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		const type = getName(endpoint);
 		const loginType = getType(endpoint);
 
-		const endpointsList = this.getEndpointListComponentFromList(endpointIdsList);
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 
 		return(
-		<div > 
+		<div >
 			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
 		        <ListItem button onClick={() =>{
 		        	back()
@@ -451,9 +462,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-		        {(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
-		        {loginType === GRIDFTP_TYPE && endpointsList}
-		        {loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
+				{/* Google Drive and Dropbox login handler */}
+				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/* GridFTP OAuth handler */}
+				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
+				{/* Other login handlers*/}
+				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
@@ -474,16 +488,30 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
 		    		<div>
-			    	<TextField
-			    	  style={{width: "60%"}}
+					<ValidatorForm
+						ref="form"
+						onSubmit={authFunction}
+						onError={errors => console.log(errors)}
+					>
+			    	<TextValidator
+						required
+					  style={{width: "60%"}}
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  autoFocus={true}
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							// authFunction()
+							this.handleClick()
+						  }
+					  }}
 			        />
-			        <TextField
+			        <TextValidator
+					required
 			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  id={endpoint.side+"LoginPort"}
 					  disabled = {!this.state.portNumField}
@@ -491,8 +519,14 @@ export default class EndpointAuthenticateComponent extends Component {
 			          value={this.state.portNumField? this.state.portNum : "-"} 
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							this.handleClick()
+						  }
+					  }}
 			        />
+					</ValidatorForm>
 			        </div>
 		    	}
 
@@ -500,16 +534,28 @@ export default class EndpointAuthenticateComponent extends Component {
 		        
 		        {needPassword &&
 		        	<div>
-			        <TextField
+					<ValidatorForm
+						ref="form"
+						onError={errors => console.log(errors)}
+					>
+			        <TextValidator
+					  required
 			    	  style={{width: "80%"}}
 			          id={endpoint.side+"LoginUsername"}
 			          label="Username"
 			          value={this.state.username}
 			          onChange={this.handleChange('username')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  autoFocus={(this.state.url !== 'sftp://') }
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							this.handleClick()
+						  }
+					  }}
 			        />
-			        <TextField
+			        <TextValidator
+					  required
 			    	  style={{width: "80%"}}
 			          id={endpoint.side+"LoginPassword"}
 			          label="Password"
@@ -517,11 +563,17 @@ export default class EndpointAuthenticateComponent extends Component {
 			          value={this.state.password}
 			          onChange={this.handleChange('password')}
 			          margin="normal"
-			          variant="outlined"
+					  variant="outlined"
+					  onKeyPress={(e) => {
+						if (e.key === 'Enter') {
+							this.handleClick()
+						  }
+					  }}
 			        />
+					</ValidatorForm>
 			        </div>
 		    	}
-		    	<Button id={endpoint.side + "LoginAuth"} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+		    	<Button id={endpoint.side + "LoginAuth"}  ref={input => this.inputElement = input} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
 		    	</div>
 		    }
       	</div>);

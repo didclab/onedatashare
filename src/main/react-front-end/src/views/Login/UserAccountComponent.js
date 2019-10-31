@@ -94,25 +94,25 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		if(!(/[a-z]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
+	if(!(/[a-z]/.test(newPass))){
+			eventEmitter.emit("errorOccured", "Password must have atleast one lower character");
 		}
 		else if(!(/[A-Z]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one upper character");
+			eventEmitter.emit("errorOccured", "Password must have atleast one upper character");
 		}
 		else if(!(/[0-9]/.test(newPass))){
-			eventEmitter.emit("errorOgccured", "Password must be atleast one digit");
+			eventEmitter.emit("errorOgccured", "Password must have atleast one digit");
 		}
 		else if(!(/\W/.test(newPass)))
 		{
-			eventEmitter.emit("errorOccured", "Password must be atleast one special character");
+			eventEmitter.emit("errorOccured", "Password must have atleast one special character");
 		}
 		else if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must be 6+ characters.");
+		    eventEmitter.emit("errorOccured", "Password must have 6+ characters.");
 		}
-	     else if(newPass === "" || oldPass === "" || confPass === ""){
+    else if(newPass === "" || oldPass === "" || confPass === ""){
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-			}
+    }
 		else if(newPass !== confPass){
 			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
 		}
