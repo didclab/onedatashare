@@ -57,7 +57,7 @@ public class UserService {
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isPrefersCompactView()))
+            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isCompactViewEnabled()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
@@ -193,9 +193,9 @@ public class UserService {
     return userRepository.save(user);
   }
 
-  public Mono<Void> updateViewPreference(String email, boolean viewPreference){
+  public Mono<Void> updateViewPreference(String email, boolean isCompactViewEnabled){
     return getUser(email).map(user -> {
-      user.setPrefersCompactView(viewPreference);
+      user.setCompactViewEnabled(isCompactViewEnabled);
       return userRepository.save(user).subscribe();
     }).then();
   }
@@ -534,6 +534,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens(), user.isPrefersCompactView());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens(), user.isCompactViewEnabled());
   }
 }

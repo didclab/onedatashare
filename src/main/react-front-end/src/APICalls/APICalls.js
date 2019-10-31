@@ -65,7 +65,7 @@ export async function checkLogin(email, accept, fail){
 			statusHandle(response, fail);
 		}
 	})
-	.catch((error) => {      
+	.catch((error) => {
 		statusHandle(error, fail);
 	});
 }
@@ -762,12 +762,12 @@ export async function deleteJob(jobID, accept, fail){
 	fail: (errorMessage:string){}
 */
 
-export async function updateViewPreference(email, compactViewPreferred, accept, fail){
+export async function updateViewPreference(email, compactViewEnabled, accept, fail){
 	var callback = accept;
 	axios.post(url+'user', {
 	    action: 'updateViewPreference',
 	    email: email,
-      compactViewPreferred: compactViewPreferred
+      compactViewEnabled: compactViewEnabled
 	}).then((response) => {
 		if(!(response.status === 200))
 			callback = fail;

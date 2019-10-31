@@ -84,13 +84,12 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens, prefersCompactView){
+  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-	cookies.set('compact', prefersCompactView);
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});
   }
 
@@ -110,7 +109,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.prefersCompactView);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
 	    	},
 	    	(error) => {fail(error)}
 	    );

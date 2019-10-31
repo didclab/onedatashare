@@ -8,8 +8,6 @@ import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPag
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
-import { updateViewPreference } from '../APICalls/APICalls.js';
-import {cookies} from '../model/reducers'
 
 class NavbarComponent extends Component {
 
@@ -37,17 +35,6 @@ class NavbarComponent extends Component {
 	}
 	componentWillUnmount() {
 		this.unsubscribe();
-	}
-	logout(){
-		let viewPreference = cookies.get('compact') == 'true';
-		let email = store.getState().email;
-		updateViewPreference(email, viewPreference,
-			(success) => {
-				console.log("updateViewPreference Succesfully", success);
-				store.dispatch(logoutAction());
-	    	},
-	    	(error) => {console.log("ERROR in updation"+error)}
-	    );
 	}
     render() {
     return (
@@ -89,7 +76,7 @@ class NavbarComponent extends Component {
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
 		        {this.state.login &&
-			        <NavItem id="NavLogout" onClick={ this.logout() }>
+			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
 			            <span>Log out</span>
 					</NavItem>}
 					<NavItem component={Link} href="/support">

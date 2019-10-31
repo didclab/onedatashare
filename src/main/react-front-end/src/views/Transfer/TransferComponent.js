@@ -12,8 +12,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-import {submit} from "../../APICalls/APICalls";
-import {endpointUpdate} from "../../model/actions";
+import {submit, updateViewPreference} from "../../APICalls/APICalls";
+import {endpointUpdate, compactViewPreference} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
@@ -50,7 +50,7 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: cookies.get('compact') == 'true'
+      compact: store.getState().compactViewEnabled
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -88,7 +88,7 @@ export default class TransferComponent extends Component {
     document.title = "OneDataShare - Transfer";
     window.addEventListener("resize", this.updateDimensions);
     this.setState({width: window.innerWidth, height: window.innerHeight});
-    this.setState({compact: cookies.get('compact') == 'true'});
+    this.setState({compact: store.getState().compactViewEnabled});
 
   }
 
@@ -368,11 +368,25 @@ export default class TransferComponent extends Component {
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
     const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
-      cookies.set('compact',event.target.checked);
       this.setState({ [name]: event.target.checked }, ()=>{
         //console.log(this.state.compact);
       });
 
+    };
+
+    let updateCompactViewPreference = name => event =>{
+      this.setState({ [name]: event.target.checked }, ()=>{
+        //console.log(this.state.compact);
+      });
+      let compactViewEnabled = event.target.checked;
+		  let email = store.getState().email;
+		  updateViewPreference(email, compactViewEnabled,
+			(success) => {
+				console.log("Compact View Preference Switched Succesfully", success);
+        store.dispatch(compactViewPreference(compactViewEnabled));
+	    	},
+	    	(error) => {console.log("ERROR in updation"+error)}
+	    );
     };
 
     return (
@@ -388,7 +402,7 @@ export default class TransferComponent extends Component {
                 color="default"
                 style={{colorPrimary: "white", colorSecondary:"white"}}
                 checked={this.state.compact}
-                onChange={handleChange('compact')}
+                onChange={updateCompactViewPreference('compact')}
                 value="compact"
               />
             }
@@ -438,7 +452,7 @@ export default class TransferComponent extends Component {
                           color="default"
                           style={{colorPrimary: "white", colorSecondary:"white"}}
                           checked={this.state.compact}
-                          onChange={handleChange('compact')}
+                          onChange={updateCompactViewPreference('compact')}
                           value="compact"
                         />
                       }

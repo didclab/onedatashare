@@ -41,7 +41,7 @@ export default class MainComponent extends Component {
     const { isLoggedIn, admin } = this.state;
     return (
       <div className="App">
-        
+
         <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
 
@@ -51,36 +51,36 @@ export default class MainComponent extends Component {
         <div style={{ marginTop: '50px', display: 'block' }}>
           <Switch>
 
-            <Route path='/account' 
+            <Route path='/account'
               render={(props) => <AccountControlComponent {...props} /> }
             />
 
-            <Route exact path='/' 
+            <Route exact path='/'
               render={(props) =>
                 <HomePageComponent  {...props} store={store} />
-              } 
+              }
             />
 
-            <Route exact path='/terms' 
+            <Route exact path='/terms'
               render={() =>
                 <TermsComponent />
               }
             />
 
-            <Route exact path='/policy' 
+            <Route exact path='/policy'
               render={() =>
                 <PolicyComponent />
               }
             />
 
-            <Route exact path="/support" 
+            <Route exact path="/support"
               render={() =>
                <SupportComponent />
-              } 
+              }
             />
 
             {isLoggedIn &&
-              <Route exact path='/transfer' 
+              <Route exact path='/transfer'
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />
                 }
@@ -88,8 +88,8 @@ export default class MainComponent extends Component {
             }
 
             {isLoggedIn &&
-              <Route exact path='/queue' 
-                render={ (props) => 
+              <Route exact path='/queue'
+                render={ (props) =>
                   <QueueComponent {...props} />
                 }
               />
@@ -103,7 +103,7 @@ export default class MainComponent extends Component {
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/clientsInfo' 
+              <Route exact path='/clientsInfo'
                 render={(props) =>
                   <ClientsInfoComponent {...props} store={store} />
                 }
@@ -111,8 +111,8 @@ export default class MainComponent extends Component {
             }
 
             {isLoggedIn &&
-              <Route exact path='/user' 
-              render={ (props) => 
+              <Route exact path='/user'
+              render={ (props) =>
                   <UserAccountComponent {...props} />
                 }
               />

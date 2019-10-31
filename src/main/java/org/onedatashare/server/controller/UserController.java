@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 /**
  * Controller for handling GET requests to User DB
@@ -76,7 +75,7 @@ public class UserController {
       case "resendVerificationCode":
         return userService.resendVerificationCode(userAction.getEmail());
       case "updateViewPreference":
-        return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewPreferred());
+        return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
       default:
         return null;
     }
