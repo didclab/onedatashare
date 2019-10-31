@@ -128,17 +128,17 @@ export default class CreateAccountComponent extends Component {
     let code = this.state.code;
     let state = self.state;
     if(!(/[a-z]/.test(password))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
+			eventEmitter.emit("errorOccured", "Password must have atleast one lower character");
 		}
 		else if(!(/[A-Z]/.test(password))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one upper character");
+			eventEmitter.emit("errorOccured", "Password must have atleast one upper character");
 		}
 		else if(!(/[0-9]/.test(password))){
-			eventEmitter.emit("errorOgccured", "Password must be atleast one digit");
+			eventEmitter.emit("errorOgccured", "Password must have atleast one digit");
 		}
 		else if(!(/\W/.test(password)))
 		{
-			eventEmitter.emit("errorOccured", "Password must be atleast one special character");
+			eventEmitter.emit("errorOccured", "Password must have atleast one special character");
 		}
     else if (password !== confirmPassword) {
       state.passwordError = "Password Doesn't Match";
