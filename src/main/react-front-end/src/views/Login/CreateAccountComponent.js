@@ -141,8 +141,7 @@ export default class CreateAccountComponent extends Component {
 			eventEmitter.emit("errorOccured", "Password must have atleast one special character");
 		}
     else if (password !== confirmPassword) {
-      state.passwordError = "Password Doesn't Match";
-      self.setState({ state });
+      eventEmitter.emit("errorOccured", "Password and Confirm Password should match");  
     }
     else {
       setPassword(email, code, password, confirmPassword).then((response) => {
