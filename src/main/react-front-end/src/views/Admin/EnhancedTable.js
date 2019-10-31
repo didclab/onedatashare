@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { purple } from '@material-ui/core/colors';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
+import { Input } from '@material-ui/core';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
@@ -14,11 +15,19 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
+import { defaultCipherList } from 'constants';
 
-function createData(name, calories, fat, carbs, protein) {
-    return { name, calories, fat, carbs, protein };
+function createData(firstName, lastName, email, isAdmin) {
+    return { firstName, lastName, email, isAdmin };
 }
 
+function getFormattedObject(users) {
+    const row = []
+    for (let i = 0; i < users.length; i++) {
+        row.push(createData(users[i].firstName, users[i].lastName, users[i].email, users[i].isAdmin));
+    }
+    return row;
+}
 const rows = [
     createData('Aashish', 'Developer'),
     createData('Linus', 'Developer'),
@@ -170,6 +179,17 @@ const EnhancedTableToolbar = props => {
           </Typography>
                     )}
             </div>
+            <div style={{alignContent:'flex-end'}}>
+                <Input
+                    align="right"
+                    placeholder="Placeholder"
+                    className={classes.input}
+                    inputProps={{
+                        'aria-label': 'description',
+                    }}
+                />
+
+            </div>
             <div className={classes.spacer} />
         </Toolbar>
     );
@@ -207,7 +227,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-export default function EnhancedTable() {
+const EnhancedTable = (props) => {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
@@ -215,7 +235,8 @@ export default function EnhancedTable() {
     const [page, setPage] = React.useState(0);
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
-
+    const { users } = props;
+    const rows = getFormattedObject(users);
     const handleRequestSort = (event, property) => {
         const isDesc = orderBy === property && order === 'desc';
         setOrder(isDesc ? 'asc' : 'desc');
@@ -224,19 +245,19 @@ export default function EnhancedTable() {
 
     const handleSelectAllClick = event => {
         if (event.target.checked) {
-            const newSelecteds = rows.map(n => n.name);
+            const newSelecteds = rows.map(n => n.firstName);
             setSelected(newSelecteds);
             return;
         }
         setSelected([]);
     };
 
-    const handleClick = (event, name) => {
-        const selectedIndex = selected.indexOf(name);
+    const handleClick = (event, firstName) => {
+        const selectedIndex = selected.indexOf(firstName);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, name);
+            newSelected = newSelected.concat(selected, firstName);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -264,7 +285,7 @@ export default function EnhancedTable() {
         setDense(event.target.checked);
     };
 
-    const isSelected = name => selected.indexOf(name) !== -1;
+    const isSelected = firstName => selected.indexOf(firstName) !== -1;
 
     const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
@@ -291,17 +312,17 @@ export default function EnhancedTable() {
                             {stableSort(rows, getSorting(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.name);
+                                    const isItemSelected = isSelected(row.firstName);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={event => handleClick(event, row.name)}
+                                            onClick={event => handleClick(event, row.firstName)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}
-                                            key={row.name}
+                                            key={row.email}
                                             selected={isItemSelected}
                                         >
                                             <TableCell padding="checkbox">
@@ -311,9 +332,9 @@ export default function EnhancedTable() {
                                                 />
                                             </TableCell>
                                             <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.name}
+                                                {row.firstName + " " + row.lastName}
                                             </TableCell>
-                                            <TableCell align="right">{row.calories}</TableCell>
+                                            <TableCell align="right">{row.isAdmin ? "Admin" : "User"}</TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -344,3 +365,5 @@ export default function EnhancedTable() {
         </div>
     );
 }
+
+export default EnhancedTable;

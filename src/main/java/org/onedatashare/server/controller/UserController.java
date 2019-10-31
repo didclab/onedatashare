@@ -28,7 +28,7 @@ public class UserController {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   /**
-   * Handler for user information/ perference requests
+   * Handler for user information/ preference requests
    * @param headers - Incoming request headers
    * @param userRequestData - Data needed to make a user request
    * @return Object
