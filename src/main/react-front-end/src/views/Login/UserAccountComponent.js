@@ -97,10 +97,10 @@ export default class UserAccountComponent extends Component {
 			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
 		}
 		else if(!(/[A-Z]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
+			eventEmitter.emit("errorOccured", "Password must be atleast one upper character");
 		}
 		else if(!(/[0-9]/.test(newPass))){
-			eventEmitter.emit("errorOccured", "Password must be atleast one digit");
+			eventEmitter.emit("errorOgccured", "Password must be atleast one digit");
 		}
 		else if(!(/\W/.test(newPass)))
 		{
