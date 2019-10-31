@@ -93,8 +93,20 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-
-		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
+		if(!(/[a-z]/.test(newPass))){
+			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
+		}
+		else if(!(/[A-Z]/.test(newPass))){
+			eventEmitter.emit("errorOccured", "Password must be atleast one lower character");
+		}
+		else if(!(/[0-9]/.test(newPass))){
+			eventEmitter.emit("errorOccured", "Password must be atleast one digit");
+		}
+		else if(!(/\W/.test(newPass)))
+		{
+			eventEmitter.emit("errorOccured", "Password must be atleast one special character");
+		}
+		else if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
 		    eventEmitter.emit("errorOccured", "Password must be 6+ characters.");
 		    }
 	     else if(newPass === "" || oldPass === "" || confPass === ""){
