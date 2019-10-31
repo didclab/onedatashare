@@ -71,9 +71,8 @@ export default class OauthProcessComponent extends Component {
         }
       }
     }
-  }
 
-  function updateLocalCredStore(protocolType, qsObj) {
+  updateLocalCredStore(protocolType, qsObj) {
     let creds = cookies.get(protocolType) || 0;
     if (creds !== 0) {
       let parsedJSON = JSON.parse(creds);
@@ -99,11 +98,13 @@ export default class OauthProcessComponent extends Component {
     }
   }
 
-  function render() {
+
+  render() {
     return (
       <div>
         <Redirect to={transferPageUrl}/>
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );
+    }
 }
