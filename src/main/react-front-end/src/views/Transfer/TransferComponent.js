@@ -39,7 +39,7 @@ export default class TransferComponent extends Component {
       mode1: 0,
       mode2: 0,
       history: [],
-      width: window.innerWidth, 
+      width: window.innerWidth,
       height: window.innerHeight,
       settings:{
         optimizer: "None",
@@ -97,8 +97,8 @@ export default class TransferComponent extends Component {
     const endpointSrc = getEndpointFromColumn(processed.fromTo[0])
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
-    const srcUrls = [] 
-    const fileIds = [] 
+    const srcUrls = []
+    const fileIds = []
     const destUrls = []
     console.log(processed.selectedTasks);
     processed.selectedTasks.map((task) => {
@@ -131,20 +131,20 @@ export default class TransferComponent extends Component {
       src["id"] = fileIds[i];
       src["uri"] = srcUrls[i];
       dest["uri"] = destUrls[i];
-  
+
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
         eventEmitter.emit("messageOccured", "Transfer Scheduled!")
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
-      })  
+      })
     }
- 
+
   };
 
   updateDimensions() {
     const width = this.state.width;
-    
+
     // if screen size exceed certain treshhold
     if((width > 760 && screenIsSmall()) || (width <= 760 && !screenIsSmall())){
       this.setState({width: window.innerWidth, height: window.innerHeight});
@@ -155,7 +155,7 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent1(){
      const {mode1, endpoint1,history, compact} = this.state;
-    return <BrowseModuleComponent 
+    return <BrowseModuleComponent
       id="browserleft"
       mode={mode1}
       endpoint={endpoint1}
@@ -166,12 +166,12 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent2(){
      const {mode2, endpoint2, history, compact} = this.state;
-   
-    return <BrowseModuleComponent 
+
+    return <BrowseModuleComponent
       id="browserright"
       mode={mode2}
-      endpoint={endpoint2} 
-      history={history} 
+      endpoint={endpoint2}
+      history={history}
       displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseTwo}
     />
@@ -228,14 +228,14 @@ export default class TransferComponent extends Component {
 
     if(processed.fromTo[0] === processed.fromTo[1]){
       setBeforeTransferReorder(processed);
-    }else{  
+    }else{
       this.sendFile(processed);
     }
-    
+
     setDraggingTask(null)
   };
 
-  
+
   onSendToRight(){
 
     /*
@@ -249,10 +249,10 @@ export default class TransferComponent extends Component {
 
     if(processed.fromTo[0] == processed.fromTo[1]){
       setBeforeTransferReorder(processed);
-    }else{  
+    }else{
       this.sendFile(processed);
     }*/
-    
+
     const entity = getEntities();
     const processed = {
       fromTo: [entity.left, entity.right],
@@ -266,7 +266,7 @@ export default class TransferComponent extends Component {
       fromTo: [entity.right, entity.left],
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
-    
+
     console.log(processed);
     this.sendFile(processed);
   }
@@ -357,7 +357,7 @@ export default class TransferComponent extends Component {
                   <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
                 </FormControl>
               </Panel.Body>
-              
+
             </Panel>
   }
   render() {
@@ -371,8 +371,8 @@ export default class TransferComponent extends Component {
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
-          
-          {!isSmall && 
+
+          {!isSmall &&
           <Panel bsStyle="primary">
           <FormControlLabel
             style={{width: "200px", right: "10px", color: "white", position: "absolute"}}
@@ -391,12 +391,12 @@ export default class TransferComponent extends Component {
             <p>
               Browse and Transfer Files
             </p>
-            
+
 
             </Panel.Heading>
             <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
                 <Row style={{flexDirection: 'column'}}>
-                  <DragDropContext 
+                  <DragDropContext
                     onDragStart={this.onDragStart}
                     onDragEnd={this.onDragEnd}
                   >
@@ -404,7 +404,7 @@ export default class TransferComponent extends Component {
                     {this._returnBrowseComponent1()}
                   </Col>
                   <Col xs={6} style={panelStyle} >
-                    {this._returnBrowseComponent2()}  
+                    {this._returnBrowseComponent2()}
                   </Col>
                   </DragDropContext>
                 </Row>
@@ -412,13 +412,13 @@ export default class TransferComponent extends Component {
                     <Button style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
                     <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
                 </Row>
-            
+
 
               <ErrorMessagesConsole/>
             </Panel.Body>
           </Panel>
 
-          
+
         }
         {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
@@ -461,12 +461,12 @@ export default class TransferComponent extends Component {
                   <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
                 </Row>
                 <Row style={panelStyle}>
-                  {this._returnBrowseComponent2()}  
+                  {this._returnBrowseComponent2()}
                 </Row>
-                
+
                  {/*  <Row> {this.getSettingComponent(isSmall)} </Row> */}
               </DragDropContext>
-              
+
             </Row>
             <div> </div>
             <ErrorMessagesConsole/>
@@ -476,8 +476,7 @@ export default class TransferComponent extends Component {
 
         </Col>
       </div>
-        
+
     );
   }
 }
-

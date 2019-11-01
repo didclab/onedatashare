@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, signInUrl, registerPageUrl, accountPageUrl } from '../constants';
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
@@ -73,6 +73,7 @@ class NavbarComponent extends Component {
 						}
 						{!this.state.login &&
 							<NavItem componentClass={Link} to={accountPageUrl} href={accountPageUrl}>Sign in</NavItem>
+
 						}
 						{!this.state.login &&
 							<NavItem componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
