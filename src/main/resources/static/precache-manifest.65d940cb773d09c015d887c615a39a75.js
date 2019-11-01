@@ -4,8 +4,8 @@ self.__precacheManifest = [
     "url": "/static/media/privacy.960a95f3.txt"
   },
   {
-    "revision": "04076aea5c492b7b4567",
-    "url": "/static/css/main.f8398f3c.chunk.css"
+    "revision": "a761407cc5ad4931cb15",
+    "url": "/static/css/main.82bf6e4a.chunk.css"
   },
   {
     "revision": "42ac5946195a7306e2a5",
@@ -52,16 +52,20 @@ self.__precacheManifest = [
     "url": "/static/media/terms.9e6de21a.txt"
   },
   {
-    "revision": "04076aea5c492b7b4567",
-    "url": "/static/js/main.a81086d9.chunk.js"
+    "revision": "a761407cc5ad4931cb15",
+    "url": "/static/js/main.4f614598.chunk.js"
+  },
+  {
+    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
+    "url": "/static/media/s2.d37df03f.png"
   },
   {
     "revision": "be1fb98e0bf2939c9e44c2d150b952f3",
     "url": "/static/media/s1.be1fb98e.png"
   },
   {
-    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
-    "url": "/static/media/s2.d37df03f.png"
+    "revision": "0066c9f5fb6311639ceff2d8b1fc8813",
+    "url": "/static/media/s5.0066c9f5.png"
   },
   {
     "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
@@ -72,35 +76,31 @@ self.__precacheManifest = [
     "url": "/static/media/s4.b79f2dc0.png"
   },
   {
-    "revision": "0066c9f5fb6311639ceff2d8b1fc8813",
-    "url": "/static/media/s5.0066c9f5.png"
-  },
-  {
     "revision": "86c1f97abb212a6b0c9b751b6a42a067",
     "url": "/static/media/s6.86c1f97a.png"
-  },
-  {
-    "revision": "fa2772327f55d8198301fdb8bcfc8158",
-    "url": "/static/media/glyphicons-halflings-regular.fa277232.woff"
   },
   {
     "revision": "f4769f9bdb7466be65088239c12046d1",
     "url": "/static/media/glyphicons-halflings-regular.f4769f9b.eot"
   },
   {
-    "revision": "e18bbf611f2a2e43afc071aa2f4e1512",
-    "url": "/static/media/glyphicons-halflings-regular.e18bbf61.ttf"
-  },
-  {
     "revision": "448c34a56d699c29117adc64c43affeb",
     "url": "/static/media/glyphicons-halflings-regular.448c34a5.woff2"
+  },
+  {
+    "revision": "fa2772327f55d8198301fdb8bcfc8158",
+    "url": "/static/media/glyphicons-halflings-regular.fa277232.woff"
+  },
+  {
+    "revision": "e18bbf611f2a2e43afc071aa2f4e1512",
+    "url": "/static/media/glyphicons-halflings-regular.e18bbf61.ttf"
   },
   {
     "revision": "cc59c897a1edff5d0b5e",
     "url": "/static/css/2.fd6282fe.chunk.css"
   },
   {
-    "revision": "9b559d8ac74c89c7b247d6cd3337297e",
+    "revision": "e11879136911899f11fcec2b50e9996c",
     "url": "/index.html"
   }
 ];

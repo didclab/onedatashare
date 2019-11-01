@@ -116,7 +116,7 @@ export default class NewLoginComponent extends Component {
 		          	style={{width: "90%", margin: "5%"}}
                 />
 		        <CardActions style={spaceBetweenStyle}>
-			        <Button size="small" color="primary" onClick={createAccountPressed}>Create Account</Button>
+			        <Button size="large" color="primary" onClick={createAccountPressed}>Create Account</Button>
 			        <Button size="large" variant="contained" color="primary"  type="submit" >
 			          Next
 			        </Button>
