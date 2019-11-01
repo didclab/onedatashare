@@ -189,7 +189,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
-				console.log(suc)
+				// console.log(suc)
 			}, (error) => {
 				this._handleError(error);
 			})
@@ -487,94 +487,103 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div>
-					<ValidatorForm
-						ref="form"
-						onSubmit={authFunction}
-						onError={errors => console.log(errors)}
-					>
-			    	<TextValidator
-						required
-					  style={{width: "60%"}}
+		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+							<ValidatorForm
+								ref="form"
+								onSubmit={authFunction}
+								onError={errors => console.log(errors)}>
+
+			    		<TextValidator
+								required
+					  		style={{width: "80%"}}
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
 			          margin="normal"
-					  variant="outlined"
-					  autoFocus={true}
-					  onKeyPress={(e) => {
-						if (e.key === 'Enter') {
-							// authFunction()
-							this.handleClick()
-						  }
-					  }}
+					  		variant="outlined"
+					  		autoFocus={true}
+					  		onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										// authFunction()
+										this.handleClick()
+						  		}
+					  		}}
 			        />
+
 			        <TextValidator
-					required
-			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
-					  id={endpoint.side+"LoginPort"}
-					  disabled = {!this.state.portNumField}
+								required
+			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
+					  		id={endpoint.side+"LoginPort"}
+					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
 			          value={this.state.portNumField? this.state.portNum : "-"} 
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
-					  variant="outlined"
-					  onKeyPress={(e) => {
-						if (e.key === 'Enter') {
-							this.handleClick()
-						  }
-					  }}
+					  		variant="outlined"
+					  		onKeyPress={(e) => {
+								if (e.key === 'Enter') {
+									this.handleClick()
+									}
+								}}
 			        />
-					</ValidatorForm>
+							</ValidatorForm>
 			        </div>
-		    	}
+		    	}	
 
+		      {needPassword &&
+		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 
-		        
-		        {needPassword &&
-		        	<div>
-					<ValidatorForm
-						ref="form"
-						onError={errors => console.log(errors)}
-					>
-			        <TextValidator
-					  required
-			    	  style={{width: "80%"}}
-			          id={endpoint.side+"LoginUsername"}
-			          label="Username"
-			          value={this.state.username}
-			          onChange={this.handleChange('username')}
-			          margin="normal"
-					  variant="outlined"
-					  autoFocus={(this.state.url !== 'sftp://') }
-					  onKeyPress={(e) => {
-						if (e.key === 'Enter') {
-							this.handleClick()
-						  }
-					  }}
-			        />
-			        <TextValidator
-					  required
-			    	  style={{width: "80%"}}
-			          id={endpoint.side+"LoginPassword"}
-			          label="Password"
-			          type="password"
-			          value={this.state.password}
-			          onChange={this.handleChange('password')}
-			          margin="normal"
-					  variant="outlined"
-					  onKeyPress={(e) => {
-						if (e.key === 'Enter') {
-							this.handleClick()
-						  }
-					  }}
-			        />
-					</ValidatorForm>
-			        </div>
-		    	}
-		    	<Button id={endpoint.side + "LoginAuth"}  ref={input => this.inputElement = input} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+							<ValidatorForm
+								ref="form"
+								onError={errors => console.log(errors)}>
+			        
+								<TextValidator
+					  			required
+			    	  		style={{width: "100%"}}
+									id={endpoint.side+"LoginUsername"}
+									label="Username"
+									value={this.state.username}
+									onChange={this.handleChange('username')}
+									margin="normal"
+									variant="outlined"
+									autoFocus={(this.state.url !== 'sftp://') }
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+								/>
+
+			        	<TextValidator
+					  			required
+			    	  		style={{width: "100%"}}
+									id={endpoint.side+"LoginPassword"}
+									label="Password"
+									type="password"
+									value={this.state.password}
+									onChange={this.handleChange('password')}
+									margin="normal"
+									variant="outlined"
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+			        	/>
+
+							</ValidatorForm>
+			      </div>
+					}
+					
+					<Button id={endpoint.side + "LoginAuth"}  
+						ref={input => this.inputElement = input} 
+						style={{width: "100%", textAlign: "left"}} 
+						onClick={authFunction}>
+						Next
+					</Button>
 		    	</div>
+
 		    }
       	</div>);
 	}

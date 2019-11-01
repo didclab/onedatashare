@@ -173,7 +173,7 @@ export default class UserAccountComponent extends Component {
 				<List>
 					<Card style={{ minWidth: 275 }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
 							</Typography>
 
@@ -226,9 +226,9 @@ export default class UserAccountComponent extends Component {
 				<br />
 
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={{ minWidth: 275, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
 							<FormGroup>
@@ -242,7 +242,7 @@ export default class UserAccountComponent extends Component {
 											color="primary"
 										/>
 									}
-									label={"Save OAuth tokens"}
+									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
 							</FormGroup>
 						</CardContent>
@@ -286,7 +286,7 @@ export default class UserAccountComponent extends Component {
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
         </Typography>
 
@@ -317,6 +317,7 @@ export default class UserAccountComponent extends Component {
 
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
+						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
@@ -328,7 +329,7 @@ export default class UserAccountComponent extends Component {
 							)
 						}
 					>
-						Proceed with password Change
+						Update Password
           </Button>
 				</CardActions>
 			</div>
@@ -373,7 +374,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ padding: "3em" }}>
+							<CardContent style={{ paddingLeft: "3em", paddingRight: "3em" }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>

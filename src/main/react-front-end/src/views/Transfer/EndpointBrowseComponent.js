@@ -552,7 +552,7 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+				<InputGroup style={{flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
 					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
@@ -579,7 +579,7 @@ export default class EndpointBrowseComponent extends Component {
 
 			
 			<Droppable droppableId={endpoint.side} > 
-				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
@@ -587,13 +587,13 @@ export default class EndpointBrowseComponent extends Component {
 					>
 						{!loading && Object.keys(list).length === 0 &&
 							<h2>
-								This directory is EMPTY
+								This directory is empty.
 							</h2>
 						}
 
 						{loading && Object.keys(list).length === 0 &&
-							<h2>
-								LOADING
+							<h2 style={{ textAlign: 'center' }}>
+								Loading...
 							</h2>
 						}
 
@@ -626,10 +626,10 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
-							const isSelected: boolean = Boolean(
+							const isSelected = Boolean(
 			                  selectedTasks.indexOf(file)!==-1,
 			                );
-			                const isGhosting: boolean =
+			                const isGhosting =
 			                  isSelected &&
 			                  Boolean(draggingTask) &&
 			                  draggingTask.name !== file.name;
