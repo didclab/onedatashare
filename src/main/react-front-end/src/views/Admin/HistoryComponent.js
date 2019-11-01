@@ -281,9 +281,8 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
 		
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.setState({ page:page, response: this.state.response, responsesToDisplay: nextRecords});
         var x = document.getElementsByClassName("rohit");
 
                 for (var i = 0; i < x.length; i++) {

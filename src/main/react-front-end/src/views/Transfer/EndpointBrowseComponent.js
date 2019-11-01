@@ -104,7 +104,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTaskIds = getSelectedTasksFromSide(endpoint);
-	    const wasSelected: boolean = selectedTaskIds.includes(task);
+	    const wasSelected = selectedTaskIds.includes(task);
 	    const newTasks = (() => {
 	      // Task was not previously selected
 	      // now will be the only selected item
@@ -126,7 +126,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelectionInGroup = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTasks = getSelectedTasksFromSide(endpoint);
-	    const index: number = selectedTasks.indexOf(task);
+	    const index = selectedTasks.indexOf(task);
 	    // if not selected - add it to the selected items
 	    if (index === -1) {
 	      setSelectedTasksForSide([...selectedTasks, task], endpoint);

@@ -11,7 +11,6 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
-import TextField from '@material-ui/core/TextField';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
 
@@ -333,16 +332,15 @@ export default class EndpointAuthenticateComponent extends Component {
 	regularSignIn = () => {
 	const {url, username, password, needPassword} = this.state;
 	if(url.substr(url.length - 3) === '://') {
-		this._handleError("Enter the correct URL")
+		this._handleError("Please enter a valid URL")
 		return
 	}
 	if(!needPassword){
 		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-			console.log('setting need pwd to ture..')
 			this.setState({needPassword: true});
 		});
     }else{
-			if(username.length == 0 || password.length == 0) {
+			if(username.length === 0 || password.length === 0) {
 				this._handleError("Incorrect username or password")
 				return
 			}
@@ -576,10 +574,13 @@ export default class EndpointAuthenticateComponent extends Component {
 			      </div>
 					}
 					
-					<Button id={endpoint.side + "LoginAuth"}  
+					<Button 
+						id={endpoint.side + "LoginAuth"}  
 						ref={input => this.inputElement = input} 
-						style={{width: "100%", textAlign: "left"}} 
-						onClick={authFunction}>
+						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+						onClick={authFunction}
+						color="primary"
+						variant="contained">
 						Next
 					</Button>
 		    	</div>
