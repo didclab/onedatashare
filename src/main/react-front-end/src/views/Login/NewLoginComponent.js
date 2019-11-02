@@ -181,7 +181,7 @@ export default class NewLoginComponent extends Component {
 
 		    <Button size="large" variant="contained" color="primary" type="submit" style={{width: '100%'}}>
 	        	Next
-	       	</Button>
+	      </Button>
 
 		    </ValidatorForm>
 	        

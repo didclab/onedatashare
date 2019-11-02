@@ -61,6 +61,18 @@ body {
     100% { transform: translateX(0%); }
 } */
 
+.image-center{
+  display:block!important;
+  margin-left: auto !important;
+  margin-right: auto!important;
+  float: none !important;
+}
+
+.imagecentercontainer{
+  display: flex;
+  justify-content: center;
+}
+
 /* width */
 ::-webkit-scrollbar {
     width: 10px;
