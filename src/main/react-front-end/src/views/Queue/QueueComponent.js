@@ -26,6 +26,7 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
 
 import { updateGAPageView } from '../../analytics/ga';
+import { completeStatus } from '../../constants';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -284,18 +285,13 @@ class QueueComponent extends Component {
 						<Col md={6}><b>Started Time</b></Col>
 						<Col md={6}>{this.getFormattedDate(startedDate)}</Col>
 					</Row>
-					{
-						resp.status === "complete" &&
-							<div>
-								<Row>
-									<Col md={6}><b>Completed Time</b></Col>
-									<Col md={6}>{this.getFormattedDate(completedDate)}</Col>
-								</Row>
-								<Row>
-									<Col md={6}><b>Time Taken</b></Col>
-									<Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>								</Row>
-							</div>
-					}
+					<Row>
+						<Col md={6}><b>Completed Time</b></Col>
+						<Col md={6}>{(resp.status === completeStatus)? this.getFormattedDate(completedDate) : "-"}</Col>
+					</Row>
+					<Row>
+						<Col md={6}><b>Time Taken</b></Col>
+						<Col md={6}>{(resp.status === completeStatus)?((resp.times.completed - resp.times.started)/1000).toFixed(2)+ " sec" : "-"}</Col>								</Row>
 					<Row>
 						<Col md={6}><b>Attempts</b></Col>
 						<Col md={6}>{resp.attempts}</Col>

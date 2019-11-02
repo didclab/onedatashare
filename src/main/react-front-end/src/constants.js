@@ -50,6 +50,9 @@ export const SCP = "scp";
 export const sideLeft = "left";
 export const sideRight = "right";
 
+//Status
+export const completeStatus = "complete";
+
 export const showText={
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
