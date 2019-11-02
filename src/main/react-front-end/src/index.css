@@ -23,7 +23,7 @@ body {
 .userDescValueFont{
     font-size:0.8em !important;
 }
-/* .slick-prev {
+.slick-prev {
   left: 40px !important;
   z-index: 1;
 }
@@ -35,6 +35,8 @@ body {
   content: '' !important;
 }
 
+/* Commenting out following CSS configurations for PR 254 */
+/*
 .enter-from-right {
   width: 100%;
   -webkit-transition: transform 0.5s; /* For Safari 3.1 to 6.0 
