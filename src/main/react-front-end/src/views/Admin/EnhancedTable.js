@@ -28,21 +28,6 @@ function getFormattedObject(users) {
     }
     return row;
 }
-const rows = [
-    createData('Aashish', 'Developer'),
-    createData('Linus', 'Developer'),
-    createData('Yifu', 'Developer'),
-    createData('Kiran', 'Developer'),
-    createData('Praveen', 'Developer'),
-    createData('Asif', 'Stakeholder'),
-    createData('Atul', 'Developer'),
-    createData('Dev', 'Developer'),
-    createData('Ram', 'Developer'),
-    createData('Ramandeep', 'Developer'),
-    createData('Javier', 'Developer'),
-    createData('Dhaya', 'Developer'),
-    createData('Name', 'Developer'),
-];
 
 function desc(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -179,17 +164,6 @@ const EnhancedTableToolbar = props => {
           </Typography>
                     )}
             </div>
-            <div style={{alignContent:'flex-end'}}>
-                <Input
-                    align="right"
-                    placeholder="Placeholder"
-                    className={classes.input}
-                    inputProps={{
-                        'aria-label': 'description',
-                    }}
-                />
-
-            </div>
             <div className={classes.spacer} />
         </Toolbar>
     );
@@ -245,19 +219,21 @@ const EnhancedTable = (props) => {
 
     const handleSelectAllClick = event => {
         if (event.target.checked) {
-            const newSelecteds = rows.map(n => n.firstName);
+            const newSelecteds = rows.map(n => n.email);
             setSelected(newSelecteds);
+            props.getSelectedList(newSelecteds);
             return;
         }
+        props.getSelectedList([]);
         setSelected([]);
     };
 
-    const handleClick = (event, firstName) => {
-        const selectedIndex = selected.indexOf(firstName);
+    const handleClick = (event, email) => {
+        const selectedIndex = selected.indexOf(email);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, firstName);
+            newSelected = newSelected.concat(selected, email);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -268,7 +244,7 @@ const EnhancedTable = (props) => {
                 selected.slice(selectedIndex + 1),
             );
         }
-
+        props.getSelectedList(newSelected);
         setSelected(newSelected);
     };
 
@@ -312,13 +288,13 @@ const EnhancedTable = (props) => {
                             {stableSort(rows, getSorting(order, orderBy))
                                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                 .map((row, index) => {
-                                    const isItemSelected = isSelected(row.firstName);
+                                    const isItemSelected = isSelected(row.email);
                                     const labelId = `enhanced-table-checkbox-${index}`;
 
                                     return (
                                         <TableRow
                                             hover
-                                            onClick={event => handleClick(event, row.firstName)}
+                                            onClick={event => handleClick(event, row.email)}
                                             role="checkbox"
                                             aria-checked={isItemSelected}
                                             tabIndex={-1}

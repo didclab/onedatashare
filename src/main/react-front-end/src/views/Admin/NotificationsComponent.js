@@ -3,7 +3,7 @@ import { Container, Grid, Paper, TextField, makeStyles, Button, Icon } from '@ma
 import EnhancedTable from './EnhancedTable';
 import { titleBlue } from '../../color';
 import { purple } from '@material-ui/core/colors';
-import { getAllUsers } from '../../APICalls/APICalls';
+import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -28,7 +28,36 @@ class NotificationsComponent extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            users: []
+            users: [],
+            number: "No recipients selected",
+            selectedList: [],
+            subject: '',
+            message: ''
+        }
+    }
+
+    handleSubjectChange = (event) => {
+        this.setState({ subject: event.target.value });
+    }
+
+    handleMessageChange = (event) => {
+        this.setState({ message: event.target.value });
+    }
+
+    getSelectedList = (list) => {
+        console.log(list);
+        const value = list.length === 0 ? "No recipients selected" : `Selected ${list.length} users.`;
+        this.setState({ number: value, selectedList: list });
+    }
+
+    onSend = async () => {
+        const result = await sendEmailNotification(this.state.subject, this.state.message, this.state.selectedList)
+        console.log(result);
+    }
+
+    validateInputs = () => {
+        if (!this.state.subject) {
+            return false
         }
     }
 
@@ -62,7 +91,7 @@ class NotificationsComponent extends Component {
                     </Grid>
                     <Grid container spacing={3}>
                         <Grid item lg={6} xs={12} >
-                            <EnhancedTable users={users} />
+                            <EnhancedTable users={users} getSelectedList={this.getSelectedList} />
                         </Grid>
                         <Grid item lg={6} xs={12} >
                             <Grid
@@ -79,12 +108,25 @@ class NotificationsComponent extends Component {
                             </Grid>
                             <TextField
                                 id="standard-full-width"
+                                label="To"
+                                style={{ margin: 8 }}
+                                placeholder="Select the recipients"
+                                helperText=""
+                                fullWidth
+                                disabled
+                                margin="normal"
+                                value={this.state.number}
+                            />
+                            <TextField
+                                id="standard-full-width"
                                 label="Subject"
                                 style={{ margin: 8 }}
                                 placeholder="Enter the subject"
                                 helperText=""
                                 fullWidth
                                 margin="normal"
+                                value={this.state.subject}
+                                onChange={this.handleSubjectChange}
                             />
                             <TextField
                                 id="standard-textarea"
@@ -95,6 +137,8 @@ class NotificationsComponent extends Component {
                                 fullWidth
                                 rows={20}
                                 margin="normal"
+                                value={this.state.message}
+                                onChange={this.handleMessageChange}
                             />
                             <div>
                                 <input type="file"></input>
@@ -103,11 +147,11 @@ class NotificationsComponent extends Component {
                                 container
                                 direction="row"
                                 justify="flex-end"
-                                align="flex-end">
+                                align="flex-start">
                                 <Button variant="outlined" color="default" >
                                     Clear
                                 </Button>
-                                <Button variant="contained" color="primary" >
+                                <Button variant="contained" color="primary" onClick={this.onSend} >
                                     Send
                                 </Button>
                             </Grid>

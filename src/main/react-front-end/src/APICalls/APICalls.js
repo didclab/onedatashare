@@ -139,13 +139,28 @@ export async function getAllUsers(email) {
 	return axios.get('http://localhost:8080/api/stork/admin/getAllUsers', {
 		email: email,
 	}).then((response) => {
-		if(response.status===200 && response.data){
+		if (response.status === 200 && response.data) {
 			return response.data
 		}
 	}).catch((error) => {
-		
+
 	});
 }
+
+export async function sendEmailNotification(subject, message, emailList) {
+	return axios.post('http://localhost:8080/api/stork/admin/sendNotifications', {
+		subject: subject,
+		message: message,
+		emailList: emailList
+	})
+		.then((response) => {
+			return response
+		})
+		.catch((error) => {
+
+		});
+}
+
 
 export async function resendVerificationCode(emailId) {
 	return axios.post(url + 'user', {
