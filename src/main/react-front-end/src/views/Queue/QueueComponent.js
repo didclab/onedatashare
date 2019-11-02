@@ -121,8 +121,8 @@ class QueueComponent extends Component {
 			return(<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
 		}
 		else{
-			var percentCompleted = Math.ceil(((done/total) * 100));
-			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			let percentCompleted = Math.ceil(((done/total) * 100));
+			return(<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -284,14 +284,18 @@ class QueueComponent extends Component {
 						<Col md={6}><b>Started Time</b></Col>
 						<Col md={6}>{this.getFormattedDate(startedDate)}</Col>
 					</Row>
-					<Row>
-						<Col md={6}><b>Completed Time</b></Col>
-						<Col md={6}>{this.getFormattedDate(completedDate)}</Col>
-					</Row>
-					<Row>
-						<Col md={6}><b>Time Duration</b></Col>
-						<Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>
-					</Row>
+					{
+						resp.status.toLowerCase() === "complete" &&
+							<div>
+								<Row>
+									<Col md={6}><b>Completed Time</b></Col>
+									<Col md={6}>{this.getFormattedDate(completedDate)}</Col>
+								</Row>
+								<Row>
+									<Col md={6}><b>Time Taken</b></Col>
+									<Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>								</Row>
+							</div>
+					}
 					<Row>
 						<Col md={6}><b>Attempts</b></Col>
 						<Col md={6}>{resp.attempts}</Col>
