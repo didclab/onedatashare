@@ -163,11 +163,17 @@ export default class NewLoginComponent extends Component {
 	        } label="Remember"/>
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>forgotPasswordPressed(email)}>
 		          Forgot Password?
 		        </Button>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>lostValidationCodePressed(email)}>
 		          Lost Validation Email?
 		        </Button>

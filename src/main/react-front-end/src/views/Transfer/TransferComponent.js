@@ -370,7 +370,7 @@ export default class TransferComponent extends Component {
     };
 
     return (
-      <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
+      <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '5%'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
           
           {!isSmall && 
