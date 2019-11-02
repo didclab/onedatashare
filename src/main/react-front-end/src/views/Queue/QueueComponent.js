@@ -285,7 +285,7 @@ class QueueComponent extends Component {
 						<Col md={6}>{this.getFormattedDate(startedDate)}</Col>
 					</Row>
 					{
-						resp.status.toLowerCase() === "complete" &&
+						resp.status === "complete" &&
 							<div>
 								<Row>
 									<Col md={6}><b>Completed Time</b></Col>
