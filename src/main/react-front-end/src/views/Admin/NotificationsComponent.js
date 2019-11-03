@@ -89,8 +89,8 @@ class NotificationsComponent extends Component {
     }
 
     onClear = () => {
-        console.log("clear function");
-        console.log(this.refs.child.clearSelected());
+        //console.log("clear function");
+        // console.log(this.refs.child.clearSelected());
         this.setState({
             selectedList: [],
             subject: '',
