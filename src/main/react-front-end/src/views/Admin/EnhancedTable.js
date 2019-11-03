@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { purple } from '@material-ui/core/colors';
+import { purple, red } from '@material-ui/core/colors';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import { Input } from '@material-ui/core';
@@ -16,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import { defaultCipherList } from 'constants';
+import { titleBlue } from '../../color';
 
 function createData(firstName, lastName, email, isAdmin) {
     return { firstName, lastName, email, isAdmin };
@@ -72,6 +73,7 @@ function EnhancedTableHead(props) {
                         indeterminate={numSelected > 0 && numSelected < rowCount}
                         checked={numSelected === rowCount}
                         onChange={onSelectAllClick}
+                        color="primary"
                         inputProps={{ 'aria-label': 'select all desserts' }}
                     />
                 </TableCell>
@@ -113,9 +115,10 @@ EnhancedTableHead.propTypes = {
 
 const useToolbarStyles = makeStyles(theme => ({
     palette: {
+        red: red,
         primary: purple,
         secondary: {
-            main: '#f44336',
+            main: titleBlue,
         },
     },
     root: {
@@ -125,18 +128,18 @@ const useToolbarStyles = makeStyles(theme => ({
     highlight:
         theme.palette.type === 'light'
             ? {
-                color: theme.palette.secondary.main,
-                backgroundColor: lighten(theme.palette.secondary.light, 0.85),
+                color: theme.palette.primary.main,
+                backgroundColor: lighten(theme.palette.primary.light, 0.85),
             }
             : {
                 color: theme.palette.text.primary,
-                backgroundColor: theme.palette.secondary.dark,
+                backgroundColor: theme.palette.primary.dark,
             },
     spacer: {
         flex: '1 1 100%',
     },
     actions: {
-        color: theme.palette.text.secondary,
+        color: theme.palette.text.primary,
     },
     title: {
         flex: '0 0 auto',
@@ -201,7 +204,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const EnhancedTable = (props) => {
+const EnhancedTable = React.forwardRef((props, refs) => {
     const classes = useStyles();
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
@@ -227,6 +230,10 @@ const EnhancedTable = (props) => {
         props.getSelectedList([]);
         setSelected([]);
     };
+
+    const clearSelected = () => {
+        setSelected([]);
+    }
 
     const handleClick = (event, email) => {
         const selectedIndex = selected.indexOf(email);
@@ -304,6 +311,7 @@ const EnhancedTable = (props) => {
                                             <TableCell padding="checkbox">
                                                 <Checkbox
                                                     checked={isItemSelected}
+                                                    color="primary"
                                                     inputProps={{ 'aria-labelledby': labelId }}
                                                 />
                                             </TableCell>
@@ -340,6 +348,6 @@ const EnhancedTable = (props) => {
             </Paper>
         </div>
     );
-}
+})
 
 export default EnhancedTable;

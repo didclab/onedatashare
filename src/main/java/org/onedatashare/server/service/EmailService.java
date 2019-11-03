@@ -1,5 +1,7 @@
 package org.onedatashare.server.service;
 
+import com.amazonaws.services.simpleemail.model.*;
+import com.amazonaws.services.simpleemail.model.Message;
 import org.springframework.stereotype.Service;
 
 import javax.mail.*;
@@ -7,11 +9,6 @@ import javax.mail.*;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
-import com.amazonaws.services.simpleemail.model.Body;
-import com.amazonaws.services.simpleemail.model.Content;
-import com.amazonaws.services.simpleemail.model.Destination;
-import com.amazonaws.services.simpleemail.model.Message;
-import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 
@@ -78,5 +75,39 @@ public class EmailService {
         catch (Exception ex) {
             ODSLoggerService.logError("Failure in sending email with " + subject + " to " + emailTo, ex);
         }
+    }
+
+    /**
+     *  This method returns the sending limit from the past 24hrs period.
+     */
+    public GetSendQuotaResult getSendQuota(){
+        try{
+            AmazonSimpleEmailService client =
+                    AmazonSimpleEmailServiceClientBuilder.standard().withCredentials(new AWSCredentialsProvider() {
+                        @Override
+                        public AWSCredentials getCredentials() {
+                            return new AWSCredentials(){
+                                @Override
+                                public String getAWSSecretKey() {
+                                    return AWS_SECRET_KEY;
+                                }
+                                @Override
+                                public String getAWSAccessKeyId() {
+                                    return AWS_ACCESS_KEY;
+                                }
+                            };
+                        }
+                        @Override
+                        public void refresh() {
+
+                        }
+                    }).withRegion(Regions.US_EAST_1).build();
+            GetSendQuotaRequest request = new GetSendQuotaRequest();
+            GetSendQuotaResult response = client.getSendQuota(request);
+            return response;
+        }catch (Exception e){
+            ODSLoggerService.logError("Failure in getting email quota " , e);
+        }
+        return null;
     }
 }

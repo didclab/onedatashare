@@ -147,14 +147,16 @@ export async function getAllUsers(email) {
 	});
 }
 
-export async function sendEmailNotification(subject, message, emailList) {
+export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
 	return axios.post('http://localhost:8080/api/stork/admin/sendNotifications', {
+		senderEmail: senderEmail,
 		subject: subject,
 		message: message,
-		emailList: emailList
+		emailList: emailList,
+		isHtml: isHtml
 	})
 		.then((response) => {
-			return response
+			return response.data
 		})
 		.catch((error) => {
 
