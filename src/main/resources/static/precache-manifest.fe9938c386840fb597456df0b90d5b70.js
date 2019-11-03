@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/static/media/privacy.99e0e744.txt"
   },
   {
-    "revision": "f5ba43fb70db7d46d2d8",
+    "revision": "dbb4677eb38614af3157",
     "url": "/static/css/main.337c16d2.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = [
     "url": "/static/media/glyphicons-halflings-regular.89889688.svg"
   },
   {
-    "revision": "3285795442c3130edf8d",
-    "url": "/static/js/2.4daef274.chunk.js"
+    "revision": "5959a5396ed1e0d713a5",
+    "url": "/static/js/2.326c33d0.chunk.js"
   },
   {
     "revision": "94fb798542b7654eed3be71944f22495",
@@ -52,12 +52,12 @@ self.__precacheManifest = [
     "url": "/static/media/terms.cdf166b2.txt"
   },
   {
-    "revision": "f5ba43fb70db7d46d2d8",
-    "url": "/static/js/main.0d971ead.chunk.js"
+    "revision": "dbb4677eb38614af3157",
+    "url": "/static/js/main.542fa562.chunk.js"
   },
   {
-    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
-    "url": "/static/media/s2.d37df03f.png"
+    "revision": "b79f2dc0cf2628cee3e0afcaa22d0ce9",
+    "url": "/static/media/s4.b79f2dc0.png"
   },
   {
     "revision": "240cb46ba528e6b393e4e40dcd2f91fe",
@@ -72,8 +72,8 @@ self.__precacheManifest = [
     "url": "/static/media/s6.86c1f97a.png"
   },
   {
-    "revision": "b79f2dc0cf2628cee3e0afcaa22d0ce9",
-    "url": "/static/media/s4.b79f2dc0.png"
+    "revision": "d37df03f5a21b720f133e1d7bcca29b7",
+    "url": "/static/media/s2.d37df03f.png"
   },
   {
     "revision": "be1fb98e0bf2939c9e44c2d150b952f3",
@@ -84,23 +84,23 @@ self.__precacheManifest = [
     "url": "/static/media/glyphicons-halflings-regular.448c34a5.woff2"
   },
   {
-    "revision": "fa2772327f55d8198301fdb8bcfc8158",
-    "url": "/static/media/glyphicons-halflings-regular.fa277232.woff"
-  },
-  {
     "revision": "f4769f9bdb7466be65088239c12046d1",
     "url": "/static/media/glyphicons-halflings-regular.f4769f9b.eot"
+  },
+  {
+    "revision": "fa2772327f55d8198301fdb8bcfc8158",
+    "url": "/static/media/glyphicons-halflings-regular.fa277232.woff"
   },
   {
     "revision": "e18bbf611f2a2e43afc071aa2f4e1512",
     "url": "/static/media/glyphicons-halflings-regular.e18bbf61.ttf"
   },
   {
-    "revision": "3285795442c3130edf8d",
+    "revision": "5959a5396ed1e0d713a5",
     "url": "/static/css/2.cff56891.chunk.css"
   },
   {
-    "revision": "fc6aac823104071b9555a65fe60053d1",
+    "revision": "1c596d7c74f22de3debbf4970a9e3d58",
     "url": "/index.html"
   }
 ];
