@@ -66,9 +66,9 @@ class NotificationsComponent extends Component {
     getSelectedList = (list) => {
         console.log(list);
         let value, isValidRecipients;
+        isValidRecipients = true;
         if (list.length > 0) {
             value = `Selected ${list.length} users.`;
-            isValidRecipients = true;
         } else {
             value = "No recipients selected"
         }
