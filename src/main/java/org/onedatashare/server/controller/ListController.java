@@ -78,8 +78,8 @@ public class ListController {
     }
 
     @ExceptionHandler(TokenExpiredException.class)
-    public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
-        return new ResponseEntity<>("Refresh Token Expired",HttpStatus.BAD_REQUEST);
+    public ResponseEntity<TokenExpiredException> handle(TokenExpiredException tokenExpiredException) {
+        return new ResponseEntity<>(tokenExpiredException, tokenExpiredException.status);
     }
 }
 
