@@ -16,6 +16,7 @@ import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
+import GetStartedComponent from './views/GetStartedComponent';
 
 export default class MainComponent extends Component {
   constructor(props) {
@@ -77,6 +78,12 @@ export default class MainComponent extends Component {
               render={() =>
                <SupportComponent />
               } 
+            />
+
+            <Route excat path="/get-started"
+              render = { () =>
+                <GetStartedComponent />
+              }
             />
 
             {isLoggedIn &&

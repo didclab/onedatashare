@@ -11,6 +11,8 @@ import intopImage from '../assets/interoperation.png';
 import nsfImage from '../assets/NSF_Logo.png';
 import ubImage from '../assets/ub.png';
 import {updateGAPageView} from "../analytics/ga";
+import Button from '@material-ui/core/Button';
+import { Link } from 'react-router-dom';
 
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
@@ -72,6 +74,16 @@ export default class HomePageComponent extends Component {
 			autoplay: false,
 			responsive: [{breakpoint: 500, settings: {arrows: false}}]
 		};
+
+		let getStartedButton = (
+			<div style={{ marginTop : '5%', marginLeft : '2%'}}>
+				<Button variant="contained" color="primary" style={{ backgroundColor : 'rgb(45, 46, 48)', fontSize: '1.5rem'}}>
+					<Link to="/get-started" style={{ color:'white'  }}>
+						Get Started
+					</Link>
+				</Button>
+			</div>
+		);
 		
 		return(
 		<Col>
@@ -79,74 +91,77 @@ export default class HomePageComponent extends Component {
 				<div>
 					<Jumbotron className="homepage_section homepage_section1">
 						<Col style={cardStyle}>
-				            <h1 style={headerStyle}>OneDataShare&nbsp;
-				                <sup title="Beta">&beta;</sup>
-				            </h1>
-				            <p style={sideStyle}>OneDataShare is a reliable and fast data movement service in the cloud.</p>
-				            <h4 style={textStyle}>We aim to deliver:</h4>
-				            <ul style={textStyle}>
-				                <li>Robust multi-protocol data transfer as a service</li>
-				                <li>Remote file browsing in your web browser</li>
-				                <li>Advanced transfer optimization algorithms</li>
-				            </ul>
-				        </Col>
+							<h1 style={headerStyle}>OneDataShare&nbsp;
+								<sup title="Beta">&beta;</sup>
+							</h1>
+							<p style={sideStyle}>OneDataShare is a reliable and fast data movement service in the cloud.</p>
+							<h4 style={textStyle}>We aim to deliver:</h4>
+							<ul style={textStyle}>
+								<li>Robust multi-protocol data transfer as a service</li>
+								<li>Remote file browsing in your web browser</li>
+								<li>Advanced transfer optimization algorithms</li>
+							</ul>
+
+							{ getStartedButton }
+						</Col>
 					</Jumbotron>
-        		</div>
-	        	<div>
-		    		<Jumbotron className="homepage_section homepage_section2">
+        </div>
+	      <div>
+					<Jumbotron className="homepage_section homepage_section2">
 						<Col style={cardStyle}>
-				            <h1 style={headerStyle}>Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
-				            <p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
-			                        eliminate possible long delays in completion of a transfer operation and 
-			                        increase utilization of end-system and network resources by giving an 
-		                        opportunity to provision these resources in advance with great accuracy.</p>
-			            </Col>
+							<h1 style={headerStyle}>Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
+							<p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
+												eliminate possible long delays in completion of a transfer operation and 
+												increase utilization of end-system and network resources by giving an 
+												opportunity to provision these resources in advance with great accuracy.</p>
+							{ getStartedButton }
+						</Col>
 					</Jumbotron>
-		        </div>
-		        <div>
-		    		<Jumbotron className="homepage_section homepage_section3">
+		    </div>
+		    <div>
+		    	<Jumbotron className="homepage_section homepage_section3">
 						<Col style={cardStyle}>
-				            <h1 style={headerStyle}>Reduced Time to the Delivery of Data</h1>
-				            <p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
-			                        and drastically increases the end-to-end performance of 
-			                        data-intensive applications relying on remote data sources.</p>
-				            
-			            </Col>
+							<h1 style={headerStyle}>Reduced Time to the Delivery of Data</h1>
+							<p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
+												and drastically increases the end-to-end performance of 
+												data-intensive applications relying on remote data sources.</p>
+							{ getStartedButton }
+						</Col>
 					</Jumbotron>
-		        </div>
-		    	<div >
+		  	</div>
+		    <div >
 					<Jumbotron className="homepage_section homepage_section4">
 						<Col style={cardStyle}>
-			            <h1 style={headerStyle}>Interoperation Across Heterogeneous Data Resources</h1>
-			            <p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
-		                        and on-the-fly translation between different data transfer protocols. 
-		                        Sharing data between traditionally non-compatible data sources becomes 
-		                        very easy and convenient with OneDataShare.</p>
-			            
-			            </Col>
+							<h1 style={headerStyle}>Interoperation Across Heterogeneous Data Resources</h1>
+							<p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
+												and on-the-fly translation between different data transfer protocols. 
+												Sharing data between traditionally non-compatible data sources becomes 
+												very easy and convenient with OneDataShare.</p>
+							{ getStartedButton }
+						</Col>
 					</Jumbotron>
-		        </div>
-		        <div>
-		    		<Jumbotron className="homepage_section homepage_section5">
+		    </div>
+		    <div>
+		    	<Jumbotron className="homepage_section homepage_section5">
 						<Col style={cardStyle}>
-			            <h1 style={headerStyle}>Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
-			            <p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
-			            
-			            </Col>
+							<h1 style={headerStyle}>Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
+							<p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
+							{ getStartedButton }
+						</Col>
 					</Jumbotron>
-		        </div>
-		        <div>
-	        		<Jumbotron className="homepage_section homepage_section6">
+		    </div>
+		    <div>
+	        <Jumbotron className="homepage_section homepage_section6">
 						<Col style={cardStyle}>
 			            <h1 style={headerStyle}>End-to-end Data Sharing Solution</h1>
 			            <p style={sideStyle}>Anything that requires high-volume data transfer, 
 	                            from real-time weather conditions and natural disasters to 
 	                            sharing genomic maps and real-time consumer behavior analysis, 
 	                            will benefit from OneDataShare.</p>
-			            
-		      	    	</Col>
+							{ getStartedButton }
+		      	</Col>
 					</Jumbotron>
-	        	</div>
+	      </div>
 			</Slider>
 
 			<Row style={rowStyle}>
