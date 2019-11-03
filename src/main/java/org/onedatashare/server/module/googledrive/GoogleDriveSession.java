@@ -39,7 +39,7 @@ public class GoogleDriveSession  extends Session<GoogleDriveSession, GoogleDrive
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
 
-    private boolean checkExpiry = true;
+    private boolean checkExpiry = false;
 
     public GoogleDriveSession(){}
 

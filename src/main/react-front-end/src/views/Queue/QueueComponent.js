@@ -26,6 +26,7 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
 
 import { updateGAPageView } from '../../analytics/ga';
+import { completeStatus } from '../../constants';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -130,8 +131,8 @@ class QueueComponent extends Component {
 			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
 		}
 		else {
-			var percentCompleted = Math.ceil(((done / total) * 100));
-			return (<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			let percentCompleted = Math.ceil(((done / total) * 100));
+			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -303,12 +304,11 @@ class QueueComponent extends Component {
 					</Row>
 					<Row>
 						<Col md={6}><b>Completed Time</b></Col>
-						<Col md={6}>{this.getFormattedDate(completedDate)}</Col>
+						<Col md={6}>{(resp.status === completeStatus) ? this.getFormattedDate(completedDate) : "-"}</Col>
 					</Row>
 					<Row>
-						<Col md={6}><b>Time Duration</b></Col>
-						<Col md={6}>{((resp.times.completed - resp.times.started) / 1000).toFixed(2)} sec</Col>
-					</Row>
+						<Col md={6}><b>Time Taken</b></Col>
+						<Col md={6}>{(resp.status === completeStatus) ? ((resp.times.completed - resp.times.started) / 1000).toFixed(2) + " sec" : "-"}</Col>								</Row>
 					<Row>
 						<Col md={6}><b>Attempts</b></Col>
 						<Col md={6}>{resp.attempts}</Col>
@@ -317,7 +317,7 @@ class QueueComponent extends Component {
 						<Col md={6}><b>Status</b></Col>
 						<Col md={6}>{this.capitalizeFirstLetter(resp.status)}</Col>
 					</Row>
-				</Grid>
+				</Grid >
 			);
 		}
 		else if (this.state.selectedTab === 1) {

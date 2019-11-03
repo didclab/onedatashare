@@ -48,7 +48,7 @@ export default class MainComponent extends Component {
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div style={{ marginTop: '50px', display: 'block' }}>
+        <div style={{ display: 'block' }}>
           <Switch>
 
             <Route path='/account' 
