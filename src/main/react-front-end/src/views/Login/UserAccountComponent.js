@@ -172,10 +172,12 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
+		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
+
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={ cardStyles }>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
@@ -227,10 +229,8 @@ export default class UserAccountComponent extends Component {
 					</Card>
 				</List>
 
-				<br />
-
 				<List>
-					<Card style={{ minWidth: 275, paddingLeft: '2em', paddingRight: '2em' }}>
+					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
@@ -378,7 +378,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ paddingLeft: "3em", paddingRight: "3em" }}>
+							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em" }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>
