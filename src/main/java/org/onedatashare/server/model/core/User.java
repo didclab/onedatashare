@@ -167,7 +167,7 @@ public class User {
             job.uuid();
         }
         job.setOwner(normalizedEmail());
-        job.setJob_id(jobs.size());
+        job.setJob_id(jobs.size() + 1);
         jobs.add(job.getUuid());
         return job;
     }

@@ -139,25 +139,29 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
-				let credentials = []
-				if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
-					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
-					googleDriveCredentials.forEach(function(element){
-						element.name = "GoogleDrive: " + element.name;
-					});
-					credentials.push(...googleDriveCredentials);
-				}
-				if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
-					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
-					dropBoxCredentials.forEach(function(element){
-						element.name = "Dropbox: " + element.name;
-					});
-					credentials.push(...dropBoxCredentials);
-				}
-				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
-					console.log("Error in saving credentials", error);
-					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
-				});
+
+				// Temporarily commenting out code added in PR 249 for release
+				// Need to handle edge cases arising out of saving Drive token without refresh token
+				// let credentials = []
+				// if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
+				// 	var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
+				// 	googleDriveCredentials.forEach(function(element){
+				// 		element.name = "GoogleDrive: " + element.name;
+				// 	});
+				// 	credentials.push(...googleDriveCredentials);
+				// }
+				// if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
+				// 	var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
+				// 	dropBoxCredentials.forEach(function(element){
+				// 		element.name = "Dropbox: " + element.name;
+				// 	});
+				// 	credentials.push(...dropBoxCredentials);
+				// }
+				// saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+				// 	console.log("Error in saving credentials", error);
+				// 	eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+				// });
+				
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
@@ -168,12 +172,14 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
+		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
+
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={ cardStyles }>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
 							</Typography>
 
@@ -223,12 +229,10 @@ export default class UserAccountComponent extends Component {
 					</Card>
 				</List>
 
-				<br />
-
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
 							<FormGroup>
@@ -242,7 +246,7 @@ export default class UserAccountComponent extends Component {
 											color="primary"
 										/>
 									}
-									label={"Save OAuth tokens"}
+									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
 							</FormGroup>
 						</CardContent>
@@ -286,7 +290,7 @@ export default class UserAccountComponent extends Component {
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
         </Typography>
 
@@ -317,6 +321,7 @@ export default class UserAccountComponent extends Component {
 
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
+						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
@@ -328,7 +333,7 @@ export default class UserAccountComponent extends Component {
 							)
 						}
 					>
-						Proceed with password Change
+						Update Password
           </Button>
 				</CardActions>
 			</div>
@@ -373,7 +378,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ padding: "3em" }}>
+							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em" }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>

@@ -11,6 +11,7 @@ import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
+import org.onedatashare.server.model.error.InvalidLoginException;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -240,7 +241,7 @@ public class UserService {
   public Mono<Boolean> userLoggedIn(String email, String hash) {
     return getUser(email).map(user -> user.getHash().equals(hash))
             .filter(Boolean::booleanValue)
-            .switchIfEmpty(Mono.error(new Exception("Invalid login")));
+            .switchIfEmpty(Mono.error(new InvalidLoginException("Invalid username and password combination")));
   }
 
   public Mono<Object> resendVerificationCode(String email) {

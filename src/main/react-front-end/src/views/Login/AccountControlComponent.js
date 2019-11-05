@@ -184,12 +184,11 @@ export default class AccountControlComponent extends Component {
 	render() {
 
 		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed } = this.state;
-		const height = window.innerHeight + "px";
 		const currentRoute = this.props.location.pathname
 			return (
 
-				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingTop: '5%', paddingBottom: '5%'}}>
+					<div style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%', marginLeft: '1%', marginRight: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}

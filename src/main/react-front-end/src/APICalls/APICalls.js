@@ -52,9 +52,7 @@ function statusHandle(response, callback){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-
 export async function checkLogin(email, accept, fail){
-	var callback = accept;
 	axios.post(url+'user', {
 	    action: 'verifyEmail',
 	    email: email,
