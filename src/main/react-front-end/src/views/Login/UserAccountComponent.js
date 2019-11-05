@@ -140,28 +140,26 @@ export default class UserAccountComponent extends Component {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
 
-				// Temporarily commenting out code added in PR 249 for release
-				// Need to handle edge cases arising out of saving Drive token without refresh token
-				// let credentials = []
-				// if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
-				// 	var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
-				// 	googleDriveCredentials.forEach(function(element){
-				// 		element.name = "GoogleDrive: " + element.name;
-				// 	});
-				// 	credentials.push(...googleDriveCredentials);
-				// }
-				// if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
-				// 	var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
-				// 	dropBoxCredentials.forEach(function(element){
-				// 		element.name = "Dropbox: " + element.name;
-				// 	});
-				// 	credentials.push(...dropBoxCredentials);
-				// }
-				// saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
-				// 	console.log("Error in saving credentials", error);
-				// 	eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
-				// });
-				
+				let credentials = []
+				if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
+					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
+					googleDriveCredentials.forEach(function(element){
+						element.name = "GoogleDrive: " + element.name;
+					});
+					credentials.push(...googleDriveCredentials);
+				}
+				if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
+					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
+					dropBoxCredentials.forEach(function(element){
+						element.name = "Dropbox: " + element.name;
+					});
+					credentials.push(...dropBoxCredentials);
+				}
+				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+					console.log("Error in saving credentials", error);
+					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+				});
+
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
