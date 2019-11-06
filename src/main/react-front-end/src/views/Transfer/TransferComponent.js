@@ -368,16 +368,12 @@ export default class TransferComponent extends Component {
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
     const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
-      this.setState({ [name]: event.target.checked }, ()=>{
-        //console.log(this.state.compact);
-      });
+      this.setState({ [name]: event.target.checked });
 
     };
 
     let updateCompactViewPreference = name => event =>{
-      this.setState({ [name]: event.target.checked }, ()=>{
-        //console.log(this.state.compact);
-      });
+      this.setState({ [name]: event.target.checked }});
       let compactViewEnabled = event.target.checked;
 		  let email = store.getState().email;
 		  updateViewPreference(email, compactViewEnabled,
