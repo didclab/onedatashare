@@ -4,13 +4,15 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
 import Checkbox from '@material-ui/core/Checkbox';
+import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
-import { spaceBetweenStyle } from '../../constants.js';
+import { spaceBetweenStyle,validatePassword } from '../../constants.js';
 import { registerUser, verifyRegistraionCode, setPassword } from '../../APICalls/APICalls.js'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ValidateEmailComponent from '../Login/ValidateEmailComponent'
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import { Link } from 'react-router-dom';
 
 import { eventEmitter } from "../../App";
@@ -49,7 +51,9 @@ export default class CreateAccountComponent extends Component {
       lastNameErrorMessage: null,
       captchaVerified: false,
       captchaVerificationValue: null,
-      confirmation: false
+      confirmation: false,
+      validations: validatePassword("", ""),
+      canSubmit: false
     }
     this.firstNameValidationMsg = "Please Enter Your First Name"
     this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -120,6 +124,8 @@ export default class CreateAccountComponent extends Component {
     });
   }
 
+
+
   login() {
     let email = this.state.email;
     let password = this.state.password;
@@ -127,16 +133,9 @@ export default class CreateAccountComponent extends Component {
     let self = this;
     let code = this.state.code;
     let state = self.state;
-
-    if (password !== confirmPassword) {
-      state.passwordError = "Password Doesn't Match";
-      self.setState({ state });
-    }
-    else {
-      setPassword(email, code, password, confirmPassword).then((response) => {
-        this.props.backToSignin()
-      });
-    }
+    setPassword(email, code, password, confirmPassword).then((response) => {
+      this.props.backToSignin()
+    });
   }
 
   handleCaptchaEvent(value) {
@@ -149,6 +148,19 @@ export default class CreateAccountComponent extends Component {
       this.captchaRef.reset();
     }
   }
+
+  checkIfUserCanSubmit(){
+    let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
+      return criteria.containsError;
+    }).length;
+    console.log("unsatisfiedRequirements : ", unsatisfiedRequirements);
+    if(unsatisfiedRequirements>0){
+      this.setState({canSubmit : false});
+    }else{
+      this.setState({canSubmit : true});
+    }
+  }
+
 
   render() {
     const { backToSignin } = this.props;
@@ -167,7 +179,18 @@ export default class CreateAccountComponent extends Component {
         emailErrorMessage: null,
         [name]: event.target.value,
       });
+
     };
+
+    const passwordCheck = name => event=>{
+      this.setState({
+        [name]: event.target.value,
+      }, ()=>{
+        this.setState({validations: validatePassword(this.state.password, this.state.cpassword)}, ()=>{
+          this.checkIfUserCanSubmit();
+        })
+      });
+    }
 
     if (screen === "validateEmail") {
       return (
@@ -256,10 +279,10 @@ export default class CreateAccountComponent extends Component {
             <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
               <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                 Sign in Instead
-              </Button>
+                  </Button>
               <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
-              </Button>
+                  </Button>
             </CardActions>
 
           </ValidatorForm>
@@ -302,7 +325,7 @@ export default class CreateAccountComponent extends Component {
 
     if (screen === "setPassword") {
       return (
-        <div className="enter-from-right slide-in">
+        <div>
           <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
             Code Verified! Please set password for your account
           </Typography>
@@ -312,8 +335,8 @@ export default class CreateAccountComponent extends Component {
             label="Password"
             type="password"
             value={this.state.password}
-            style={{ width: '100%', marginBottom: '50px' }}
-            onChange={handleChange('password')}
+            style={{ width: '100%', marginBottom: '30px' }}
+            onChange={passwordCheck('password')}
           />
 
           <TextField
@@ -321,18 +344,20 @@ export default class CreateAccountComponent extends Component {
             type="password"
             label={this.state.passwordError === "Password Doesn't Match" ? "Password Doesn't Match" : "Confirm Password"}
             value={this.state.cpassword}
-            style={{ width: '100%', marginBottom: '50px' }}
-            onChange={handleChange('cpassword')}
+            style={{ width: '100%', marginBottom: '30px' }}
+            onChange={passwordCheck('cpassword')}
             error={this.state.passwordError === "Password Doesn't Match"}
           />
-
-          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
+        <PasswordRequirementsComponent
+          showList = {!this.state.canSubmit}
+          validations = {this.state.validations} />
+          <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
             <Button size="medium" variant="outlined" color="primary" onClick={() => {
               this.setState({ screen: "verifyCode" });
             }}>
               Back
               </Button>
-            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login}>
+            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!this.state.canSubmit}>
               Next
               </Button>
           </CardActions>
@@ -340,4 +365,4 @@ export default class CreateAccountComponent extends Component {
       );
     }
   }
-} 
+}
