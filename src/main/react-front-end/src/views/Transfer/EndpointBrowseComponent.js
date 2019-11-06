@@ -450,19 +450,19 @@ export default class EndpointBrowseComponent extends Component {
 	          onClose={this.handleClose}
 	          aria-labelledby="form-dialog-title"
 	        >
-	          <DialogTitle id="form-dialog-title">Add folder</DialogTitle>
+	          <DialogTitle id="form-dialog-title">Create directory</DialogTitle>
 	          <DialogContent>
 	            <TextField
 	              autoFocus
 	              id={endpoint.side+"MkdirName"}
-	              label="name"
+	              label="Directory Name"
 	              onChange={this._handleAddFolderTextFieldChange}
 	              fullWidth
 	            />
 	          </DialogContent>
 	          <DialogActions>
 	            <Button id={endpoint.side+"MkdirSubmit"} onClick={this.handleCloseWithFolderAdded} color="primary">
-	              Add
+	              Create
 	            </Button>
 	          </DialogActions>
 	        </Dialog>

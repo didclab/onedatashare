@@ -7,8 +7,8 @@ import gs1 from "../assets/gs1.png";
 import gs2 from "../assets/gs2.png";
 import gs3 from "../assets/gs3.png";
 import gs4 from "../assets/gs4.png";
-import gs5 from "../assets/gs5.png";
-import gs6 from "../assets/gs6.png";
+import gs5 from "../assets/gs5.gif";
+import gs6 from "../assets/gs6.gif";
 import gs7 from "../assets/gs7.png";
 
 import './GetStartedComponent.css';
@@ -53,7 +53,7 @@ export default class GetStartedComponent extends Component{
     render(){
 
         let carouselItemStyle = { width : '100%', height : '90%', textAlign : 'center'}
-        let imgStyle = {width : '70%', border: '1px black solid'}
+        let imgStyle = {maxWidth : '90%', maxHeight: '35vw', height: '800px', border: '1px black solid'}
 
         var carouselItems = [];
         this.data.map(item =>{
@@ -69,7 +69,7 @@ export default class GetStartedComponent extends Component{
             );
         })
         return(
-            <div style={{height: '800px', paddingTop : '5%', paddingBottom : '5%', backgroundImage: 'url(' + background + ')'}}>
+            <div style={{ paddingTop : '5%', paddingBottom : '5%', backgroundImage: 'url(' + background + ')'}}>
                 <Carousel >
                     {carouselItems}
                 </Carousel>
