@@ -756,7 +756,7 @@ export async function deleteJob(jobID, accept, fail){
 }
 
 /*
-	Desc: Before the user logs out update his View preference based on cookie
+	Store user's view preference in the backend on toggle
 	input: Email, viewPreference
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
