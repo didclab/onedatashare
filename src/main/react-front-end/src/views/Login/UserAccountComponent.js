@@ -165,12 +165,13 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
+		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={cardStyles}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
 							</Typography>
 
@@ -219,13 +220,11 @@ export default class UserAccountComponent extends Component {
 						</CardContent>
 					</Card>
 				</List>
-
-				<br />
-
+				
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
 							<FormGroup>
@@ -239,7 +238,7 @@ export default class UserAccountComponent extends Component {
 											color="primary"
 										/>
 									}
-									label={"Save OAuth tokens"}
+									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
 							</FormGroup>
 						</CardContent>
@@ -307,7 +306,7 @@ export default class UserAccountComponent extends Component {
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
         </Typography>
 
@@ -352,7 +351,7 @@ export default class UserAccountComponent extends Component {
 							)
 						}
 					>
-						Proceed with password Change
+						Update Password
           </Button>
 				</CardActions>
 			</div>
@@ -398,7 +397,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ padding: "3em" }}>
+							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em"  }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>

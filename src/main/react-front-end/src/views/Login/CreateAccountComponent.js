@@ -153,7 +153,6 @@ export default class CreateAccountComponent extends Component {
     let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
       return criteria.containsError;
     }).length;
-    console.log("unsatisfiedRequirements : ", unsatisfiedRequirements);
     if(unsatisfiedRequirements>0){
       this.setState({canSubmit : false});
     }else{
@@ -325,7 +324,7 @@ export default class CreateAccountComponent extends Component {
 
     if (screen === "setPassword") {
       return (
-        <div>
+        <div className="enter-from-right slide-in">
           <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
             Code Verified! Please set password for your account
           </Typography>
