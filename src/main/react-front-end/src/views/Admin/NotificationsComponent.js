@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { Container, Grid, TextField, makeStyles, Button, Avatar, Chip, FormControlLabel, Switch, Fab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import EnhancedTable from './EnhancedTable';
 import { titleBlue } from '../../color';
 import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
-import { borderColor } from '@material-ui/system';
-
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -68,13 +65,8 @@ class NotificationsComponent extends Component {
     }
 
     handleDialogBox = () => {
-        const htmlMsg = `<html><body style={{"backgroundColor:'purple'}}">
-        <h1>This is a heading</h1>
-        <p>This is a paragraph.</p>
-        </body>
-        </html>`;
-        this.externalWindow = window.open('', '', 'width=600,height=400,left=200,top=200');
-        this.externalWindow.document.write(htmlMsg);
+        this.externalWindow = window.open('', '', 'width=750,height=550,left=150,top=150');
+        this.externalWindow.document.write(this.state.message);
     }
 
     handleDialogClose = () => {
@@ -150,7 +142,7 @@ class NotificationsComponent extends Component {
     }
 
     async componentDidMount() {
-        const users = await getAllUsers("dhayanid@buffalo.edu")
+        const users = await getAllUsers(cookies.get('email'))
         if (users && users.length > 0) {
             this.setState({ users });
         } else {
@@ -178,15 +170,19 @@ class NotificationsComponent extends Component {
                             </h2>
                         </div>
                         {
-                            this.state.showErrorChip ? <div><Chip
-                                variant="outlined"
-                                size="large"
-                                avatar={<Avatar>E</Avatar>}
-                                label={this.state.errorMsg}
-                                clickable
-                                color="secondary"
-                                onDelete={this.clearChip}
-                            /></div> :
+                            this.state.showErrorChip ?
+                                <div>
+                                    <Chip
+                                        variant="outlined"
+                                        size="large"
+                                        avatar={<Avatar>E</Avatar>}
+                                        label={this.state.errorMsg}
+                                        clickable
+                                        color="secondary"
+                                        onDelete={this.clearChip}
+                                    />
+                                </div>
+                                :
                                 (this.state.showSuccessChip ? <div><Chip
                                     variant="outlined"
                                     size="large"
@@ -248,6 +244,7 @@ class NotificationsComponent extends Component {
                             >
                                 <div style={{ marginLeft: 8 }}>
                                     <FormControlLabel
+                                        label="Sending HTML mail?"
                                         control={
                                             <Switch
                                                 checked={this.state.isHtml}
@@ -256,11 +253,10 @@ class NotificationsComponent extends Component {
                                                 color="primary"
                                             />
                                         }
-                                        label="Sending Html Content?"
                                     />
                                 </div>
                                 {this.state.isHtml ? <div>
-                                    <Fab variant="outline" aria-label="like" color="primary" size={"small"} onClick={this.handleDialogBox} className={useStyles.fab}>
+                                    <Fab variant="extended" aria-label="like" color="primary" size={"small"} onClick={this.handleDialogBox} className={useStyles.fab}>
                                         preview
                                     </Fab>
                                     <Dialog
