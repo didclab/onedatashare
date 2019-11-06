@@ -377,7 +377,8 @@ export default class UserAccountComponent extends Component {
 					justifyContent: "center",
 					alignItems: "center",
 					width: "..",
-					height: height
+					height: height,
+					marginTop: "120px"
 				}}
 			>
 				<div
