@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
 import MainComponent from "./MainComponent";
-import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';
@@ -45,7 +44,6 @@ class App extends Component {
   };
 
   componentDidMount(){
-    document.title = "OneDataShare - Home";
     this.setState({loaded: true});
     eventEmitter.on("errorOccured", this.handleOpen); 
   }

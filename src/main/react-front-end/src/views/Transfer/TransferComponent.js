@@ -12,8 +12,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-import {submit} from "../../APICalls/APICalls";
-import {endpointUpdate} from "../../model/actions";
+import {submit, updateViewPreference} from "../../APICalls/APICalls";
+import {endpointUpdate, compactViewPreference} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
@@ -27,6 +27,7 @@ import Switch from '@material-ui/core/Switch';
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
+import { cookies } from "../../model/reducers";
 
 export default class TransferComponent extends Component {
 
@@ -49,7 +50,7 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: true
+      compact: store.getState().compactViewEnabled
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -87,6 +88,8 @@ export default class TransferComponent extends Component {
     document.title = "OneDataShare - Transfer";
     window.addEventListener("resize", this.updateDimensions);
     this.setState({width: window.innerWidth, height: window.innerHeight});
+    this.setState({compact: store.getState().compactViewEnabled});
+
   }
 
   sendFile = (processed) => {
@@ -100,13 +103,11 @@ export default class TransferComponent extends Component {
     const srcUrls = []
     const fileIds = []
     const destUrls = []
-    console.log(processed.selectedTasks);
     processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
-
 
     var optionParsed = {}
     Object.keys(options).map((v)=>{
@@ -282,7 +283,9 @@ export default class TransferComponent extends Component {
     const formlabelstyle = {fontSize: "15px"}
     const formStyle = {marginLeft: "5%", marginRight: "5%"}
     return <Panel bsStyle="primary">
+              <div style={{ textAlign: "center" }}>
               <Panel.Heading>Transfer Setting</Panel.Heading>
+              </div>
               <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
                 <FormControl component="fieldset" style={formStyle}>
                   <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
@@ -361,15 +364,28 @@ export default class TransferComponent extends Component {
             </Panel>
   }
   render() {
-
     const isSmall = screenIsSmall();
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
+    const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
       this.setState({ [name]: event.target.checked });
     };
 
+    let updateCompactViewPreference = name => event =>{
+      this.setState({ [name]: event.target.checked });
+      let compactViewEnabled = event.target.checked;
+		  let email = store.getState().email;
+		  updateViewPreference(email, compactViewEnabled,
+			(success) => {
+				console.log("Compact View Preference Switched Succesfully", success);
+        store.dispatch(compactViewPreference(compactViewEnabled));
+	    	},
+	    	(error) => {console.log("ERROR in updation"+error)}
+	    );
+    };
+
     return (
-      <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
+      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '5%' }}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
 
           {!isSmall &&
@@ -381,41 +397,40 @@ export default class TransferComponent extends Component {
                 color="default"
                 style={{colorPrimary: "white", colorSecondary:"white"}}
                 checked={this.state.compact}
-                onChange={handleChange('compact')}
+                onChange={updateCompactViewPreference('compact')}
                 value="compact"
               />
             }
             label={<Typography style={{color: "white", fontSize: "12px"}}>Compact</Typography>}
           />
           <Panel.Heading>
-            <p>
-              Browse and Transfer Files
-            </p>
+            <div style={headerStyle}>
+              <p>
+                Browse and Transfer Files
+              </p>
+            </div>
+          </Panel.Heading>
 
+          <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
+              <DragDropContext
+                onDragStart={this.onDragStart}
+                onDragEnd={this.onDragEnd}>
+                <Col xs={6} style={panelStyle}  >
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Col xs={6} style={panelStyle} >
+                  {this._returnBrowseComponent2()}
+                </Col>
+              </DragDropContext>
+            </Row>
+            <Row style={{display: 'block', ...headerStyle}}>
+                <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+            </Row>
 
-            </Panel.Heading>
-            <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-                <Row style={{flexDirection: 'column'}}>
-                  <DragDropContext
-                    onDragStart={this.onDragStart}
-                    onDragEnd={this.onDragEnd}
-                  >
-                  <Col xs={6} style={panelStyle}  >
-                    {this._returnBrowseComponent1()}
-                  </Col>
-                  <Col xs={6} style={panelStyle} >
-                    {this._returnBrowseComponent2()}
-                  </Col>
-                  </DragDropContext>
-                </Row>
-                <Row style={{display: 'block', }}>
-                    <Button style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
-                    <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
-                </Row>
-
-
-              <ErrorMessagesConsole/>
-            </Panel.Body>
+            <ErrorMessagesConsole/>
+          </Panel.Body>
           </Panel>
 
 
@@ -430,7 +445,7 @@ export default class TransferComponent extends Component {
                           color="default"
                           style={{colorPrimary: "white", colorSecondary:"white"}}
                           checked={this.state.compact}
-                          onChange={handleChange('compact')}
+                          onChange={updateCompactViewPreference('compact')}
                           value="compact"
                         />
                       }
@@ -439,11 +454,7 @@ export default class TransferComponent extends Component {
         <Panel.Heading>
           <p>
             Browse and Transfer Files
-
-
           </p>
-
-
         </Panel.Heading>
 
 
@@ -457,8 +468,8 @@ export default class TransferComponent extends Component {
                   {this._returnBrowseComponent1()}
                 </Col>
                 <Row style={{display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                  <Button style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
-                  <Button style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+                  <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
+                  <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
                 </Row>
                 <Row style={panelStyle}>
                   {this._returnBrowseComponent2()}

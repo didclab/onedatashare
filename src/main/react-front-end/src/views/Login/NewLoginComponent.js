@@ -108,6 +108,7 @@ export default class NewLoginComponent extends Component {
             		helperText = {errorMessage}
 								label="Email"
 								onChange={handleChange('email')}
+								id="email"
 								name="email"
 								value={email}
 								validators={['required', 'isEmail']}
@@ -115,8 +116,9 @@ export default class NewLoginComponent extends Component {
 		          	style={{width: "90%", margin: "5%"}}
                 />
 		        <CardActions style={spaceBetweenStyle}>
-			        
-			        <Button size="small" color="primary" onClick={createAccountPressed}>Create Account</Button>
+			        <Button size="large" variant="outlined" color="primary" onClick={createAccountPressed}>
+								Create Account
+							</Button>
 			        <Button size="large" variant="contained" color="primary"  type="submit" >
 			          Next
 			        </Button>
@@ -128,7 +130,7 @@ export default class NewLoginComponent extends Component {
 	    {emailChecked &&
 	    	<div className="enter-from-right slide-in">
 	    	<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-	          Hey {email.substring(0, email.indexOf('@'))}!
+	          Hi {email.substring(0, email.indexOf('@'))}!
 	        </Typography>
 	        <Button size="large" style={{borderRadius: '20px'}} variant="outlined" color="primary" onClick={()=>this.setState({emailChecked: false})}>
 	          {email}
@@ -161,18 +163,26 @@ export default class NewLoginComponent extends Component {
 	        } label="Remember"/>
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>forgotPasswordPressed(email)}>
 		          Forgot Password?
 		        </Button>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>lostValidationCodePressed(email)}>
 		          Lost Validation Email?
 		        </Button>
 		    </CardActions>
+
 		    <Button size="large" variant="contained" color="primary" type="submit" style={{width: '100%'}}>
 	        	Next
-	       	</Button>
+	      </Button>
+
 		    </ValidatorForm>
 	        
 		    </div>

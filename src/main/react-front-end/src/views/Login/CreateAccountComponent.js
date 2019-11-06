@@ -17,7 +17,6 @@ import { eventEmitter } from "../../App";
 import ReCAPTCHA from 'react-google-recaptcha';
 
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import { checkLogin } from '../../APICalls/APICalls.js';
 
 import { updateGAPageView } from "../../analytics/ga";
 
@@ -257,10 +256,10 @@ export default class CreateAccountComponent extends Component {
             <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
               <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
                 Sign in Instead
-                  </Button>
+              </Button>
               <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
-                  </Button>
+              </Button>
             </CardActions>
 
           </ValidatorForm>

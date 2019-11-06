@@ -32,7 +32,8 @@ import { transferPageUrl, userPageUrl } from "../../constants";
 import {
 	changePassword,
 	getUser,
-	updateSaveOAuth
+	updateSaveOAuth,
+	saveOAuthCredentials
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
@@ -53,7 +54,7 @@ export default class UserAccountComponent extends Component {
     		loading: true,
     		oldPassword: "",
     		newPassword: "",
-    		conformNewPassword: "",
+    		confirmNewPassword: "",
     	    userEmail: store.getState().email,
     	    userOrganization: "...",
     	    fName: "...",
@@ -86,23 +87,37 @@ export default class UserAccountComponent extends Component {
 	}
 
 	componentDidMount(){
-		document.title = "OneDataShare - History";
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
+
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-		changePassword(oldPass, newPass,confPass, (hash)=>{
-		    store.dispatch(updateHashAction(hash))
-			this.setState({redirect:true});
-			console.log(hash);
-		}, (error)=>{
-			if(error && error.response && error.response.data && error.response.data.message){
-				eventEmitter.emit("errorOccured", error.response.data.message); 
-			}else{
-				eventEmitter.emit("errorOccured", "Unknown Error"); 
+
+		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
+		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
+		    }
+	     else if(newPass === "" || oldPass === "" || confPass === ""){
+			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
 			}
-		});
+		else if(newPass !== confPass){
+			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
+		}
+		else{
+			changePassword(oldPass, newPass,confPass, (hash)=>{
+				store.dispatch(updateHashAction(hash));
+				this.setState({redirect:true});
+
+			}, (error)=>{
+
+				if( error && error.response && error.response.data && error.response.data.message ){
+					eventEmitter.emit("errorOccured", error.response.data.message);
+				}else{
+					eventEmitter.emit("errorOccured", "Unknown Error");
+				}
+			});
+		}
 	}
 
 	handleAccountPreferenceToggle() {
@@ -124,6 +139,29 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
+
+				// Temporarily commenting out code added in PR 249 for release
+				// Need to handle edge cases arising out of saving Drive token without refresh token
+				// let credentials = []
+				// if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
+				// 	var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
+				// 	googleDriveCredentials.forEach(function(element){
+				// 		element.name = "GoogleDrive: " + element.name;
+				// 	});
+				// 	credentials.push(...googleDriveCredentials);
+				// }
+				// if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
+				// 	var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
+				// 	dropBoxCredentials.forEach(function(element){
+				// 		element.name = "Dropbox: " + element.name;
+				// 	});
+				// 	credentials.push(...dropBoxCredentials);
+				// }
+				// saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+				// 	console.log("Error in saving credentials", error);
+				// 	eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+				// });
+				
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
@@ -134,12 +172,14 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
+		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
+
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={ cardStyles }>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
 							</Typography>
 
@@ -150,6 +190,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
+                        			id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -160,6 +201,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
+                        			id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -169,6 +211,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
+                          			id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -178,6 +221,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Organization"
+									id="UserOrganization"
 									secondary={this.state.userOrganization}
 								/>
 							</ListItem>
@@ -185,12 +229,10 @@ export default class UserAccountComponent extends Component {
 					</Card>
 				</List>
 
-				<br />
-
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
 							<FormGroup>
@@ -204,7 +246,7 @@ export default class UserAccountComponent extends Component {
 											color="primary"
 										/>
 									}
-									label={"Save OAuth tokens"}
+									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
 							</FormGroup>
 						</CardContent>
@@ -244,10 +286,11 @@ export default class UserAccountComponent extends Component {
 				[name]: event.target.value
 			});
 		};
-		let confirmed = this.state.newPassword !== this.state.conformNewPassword;
+
+		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
         </Typography>
 
@@ -260,7 +303,6 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					id="Password"
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
@@ -272,13 +314,14 @@ export default class UserAccountComponent extends Component {
 					id="Cpassword"
 					type="password"
 					label="Confirm Your New Password"
-					value={this.state.conformNewPassword}
+					value={this.state.confirmNewPassword}
 					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("conformNewPassword")}
+					onChange={handleChange("confirmNewPassword")}
 				/>
 
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
+						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
@@ -286,11 +329,11 @@ export default class UserAccountComponent extends Component {
 							this.onPasswordUpdate(
 								this.state.oldPassword,
 								this.state.newPassword,
-								this.state.conformNewPassword
+								this.state.confirmNewPassword
 							)
 						}
 					>
-						Proceed with password Change
+						Update Password
           </Button>
 				</CardActions>
 			</div>
@@ -335,7 +378,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ padding: "3em" }}>
+							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em" }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>

@@ -56,7 +56,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	
+
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
@@ -91,15 +91,15 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
+  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});
   }
+
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -116,7 +116,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
 	    	},
 	    	(error) => {fail(error)}
 	    );
@@ -191,9 +191,7 @@ export default class AccountControlComponent extends Component {
 	render() {
 
 		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts } = this.state;
-		const height = window.innerHeight + "px";
 		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
-		//var route = ;
 		this.state.creatingAccount = false;
 		this.state.lostValidationCodePressed = false;
 		this.state.forgotPasswordPressed = false;
@@ -201,8 +199,8 @@ export default class AccountControlComponent extends Component {
 		const currentRoute = this.props.location.pathname
 			return (
 
-				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingTop: '5%', paddingBottom: '5%'}}>
+					<div style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%', marginLeft: '1%', marginRight: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}

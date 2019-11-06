@@ -16,6 +16,7 @@ import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
+import GetStartedComponent from './views/GetStartedComponent';
 
 export default class MainComponent extends Component {
   constructor(props) {
@@ -41,47 +42,66 @@ export default class MainComponent extends Component {
     const { isLoggedIn, admin } = this.state;
     return (
       <div className="App">
-        
+
         <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
         <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
 
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div style={{ marginTop: '50px', display: 'block' }}>
+        <div style={{ display: 'block' }}>
           <Switch>
-            <Route path='/account' component={AccountControlComponent}/>
-            <Route exact path='/' render={(props) =>
-              <HomePageComponent  {...props} store={store} />
-            } />
 
-            <Route exact path='/terms' render={() =>
-              <TermsComponent />
-            }
+            <Route path='/account'
+              render={(props) => <AccountControlComponent {...props} /> }
             />
 
-            <Route exact path='/policy' render={() =>
-              <PolicyComponent />
-            }
+            <Route exact path='/'
+              render={(props) =>
+                <HomePageComponent  {...props} store={store} />
+              }
             />
-            <Route exact path="/support" render={() =>
-              <SupportComponent />
-            } />
+
+            <Route exact path='/terms'
+              render={() =>
+                <TermsComponent />
+              }
+            />
+
+            <Route exact path='/policy'
+              render={() =>
+                <PolicyComponent />
+              }
+            />
+
+            <Route exact path="/support"
+              render={() =>
+               <SupportComponent />
+              }
+            />
+
+            <Route excat path="/get-started"
+              render = { () =>
+                <GetStartedComponent />
+              }
+            />
 
             {isLoggedIn &&
-              <Route exact path='/transfer' render=
-                {(props) =>
+              <Route exact path='/transfer'
+                render={(props) =>
                   <TransferComponent  {...props} store={store} />
                 }
               />
             }
+
             {isLoggedIn &&
-              <Route exact path='/queue' render=
-                { (props) => 
+              <Route exact path='/queue'
+                render={ (props) =>
                   <QueueComponent {...props} />
                 }
               />
             }
+
             {isLoggedIn && admin &&
               <Route exact path='/history' render=
                 {(props) =>
@@ -90,19 +110,21 @@ export default class MainComponent extends Component {
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/clientsInfo' render=
-                {(props) =>
+              <Route exact path='/clientsInfo'
+                render={(props) =>
                   <ClientsInfoComponent {...props} store={store} />
                 }
               />
             }
+
             {isLoggedIn &&
-              <Route exact path='/user' render=
-                { (props) => 
+              <Route exact path='/user'
+              render={ (props) =>
                   <UserAccountComponent {...props} />
                 }
               />
             }
+
             {(isLoggedIn) &&
               <h1 to='/transfer'>Page Not Found</h1>
             }
