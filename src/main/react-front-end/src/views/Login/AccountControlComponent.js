@@ -49,7 +49,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	
+
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
@@ -84,16 +84,15 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
+  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});
   }
-  
+
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -110,7 +109,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
 	    	},
 	    	(error) => {fail(error)}
 	    );
