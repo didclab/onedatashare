@@ -86,7 +86,8 @@ export default class EndpointBrowseComponent extends Component {
 	    window.addEventListener('click', this.onWindowClick);
 	    window.addEventListener('keydown', this.onWindowKeyDown);
 	    window.addEventListener('touchend', this.onWindowTouchEnd);
-	    eventEmitter.on("fileChange", this.fileChangeHandler); 
+	    eventEmitter.on("fileChange", this.fileChangeHandler);
+		this.timestamp = Date.now();
 	}
 
 	fileChangeHandler(){
@@ -175,8 +176,11 @@ export default class EndpointBrowseComponent extends Component {
 
 	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
-	      return;
+	      	return;
 	    }
+	    if(Date.now() - this.timestamp < 200)
+			this.unselectAll();
+	    this.timestamp = Date.now();
 	};
 	
 	fileNodeDoubleClicked(filename, id){
