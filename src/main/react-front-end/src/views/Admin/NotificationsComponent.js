@@ -1,6 +1,5 @@
-import React, { Component, createRef } from 'react';
-import { Container, Grid, Paper, TextField, makeStyles, Button, Avatar, Chip, withStyles } from '@material-ui/core';
-import { ThemeProvider } from '@material-ui/styles';
+import React, { Component } from 'react';
+import { Container, Grid, TextField, makeStyles, Button, Avatar, Chip, FormControlLabel, Switch, Fab, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@material-ui/core';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import EnhancedTable from './EnhancedTable';
 import { titleBlue } from '../../color';
@@ -9,7 +8,7 @@ import { cookies } from "../../model/reducers";
 import { borderColor } from '@material-ui/system';
 
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
     root: {
         background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
         border: 0,
@@ -23,8 +22,14 @@ const useStyles = makeStyles({
         color: '#a8323a',
         backgroundColor: '#a8323a',
         borderColor: '#a8323a'
-    }
-});
+    },
+    fab: {
+        margin: theme.spacing(1),
+    },
+    extendedIcon: {
+        marginRight: theme.spacing(1),
+    },
+}));
 
 
 class NotificationsComponent extends Component {
@@ -43,8 +48,11 @@ class NotificationsComponent extends Component {
             showErrorChip: false,
             showSuccessChip: false,
             errorMsg: '',
-            successMsg: ''
+            successMsg: '',
+            isHtml: false,
+            open: false
         }
+        this.externalWindow = null;
         this.refs = React.createRef();
     }
 
@@ -53,6 +61,24 @@ class NotificationsComponent extends Component {
             this.setState({ isValidSubject: true })
         }
         this.setState({ subject: event.target.value });
+    }
+
+    handleIsHTMLChange = (event) => {
+        this.setState({ isHtml: event.target.checked })
+    }
+
+    handleDialogBox = () => {
+        const htmlMsg = `<html><body style={{"backgroundColor:'purple'}}">
+        <h1>This is a heading</h1>
+        <p>This is a paragraph.</p>
+        </body>
+        </html>`;
+        this.externalWindow = window.open('', '', 'width=600,height=400,left=200,top=200');
+        this.externalWindow.document.write(htmlMsg);
+    }
+
+    handleDialogClose = () => {
+        this.setState({ open: false });
     }
 
     clearChip = () => {
@@ -135,6 +161,7 @@ class NotificationsComponent extends Component {
 
     render() {
         const { users } = this.state
+        // const classes = useStyles();
         return (
 
             <div style={{ display: 'flex', flex: 1 }}>
@@ -213,13 +240,62 @@ class NotificationsComponent extends Component {
                                 value={this.state.subject}
                                 onChange={this.handleSubjectChange}
                             />
+                            <Grid
+                                container
+                                direction="row"
+                                justify="space-between"
+                                alignItems="center"
+                            >
+                                <div style={{ marginLeft: 8 }}>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={this.state.isHtml}
+                                                onChange={this.handleIsHTMLChange}
+                                                value="checkedB"
+                                                color="primary"
+                                            />
+                                        }
+                                        label="Sending Html Content?"
+                                    />
+                                </div>
+                                {this.state.isHtml ? <div>
+                                    <Fab variant="outline" aria-label="like" color="primary" size={"small"} onClick={this.handleDialogBox} className={useStyles.fab}>
+                                        preview
+                                    </Fab>
+                                    <Dialog
+                                        open={this.state.open}
+                                        onClose={this.handleDialogClose}
+                                        scroll={"paper"}
+                                        aria-labelledby="scroll-dialog-title"
+                                        aria-describedby="scroll-dialog-description"
+                                    >
+                                        <DialogTitle id="scroll-dialog-title">Content Preview</DialogTitle>
+                                        <DialogContent dividers={true}>
+                                            <DialogContentText
+                                                id="scroll-dialog-description"
+                                                tabIndex={-1}
+                                            >
+                                                <span dangerouslySetInnerHTML={{ __html: this.state.message }} >
+                                                </span>
+                                            </DialogContentText>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            <Button onClick={this.handleDialogClose} color="primary">
+                                                Close
+                                            </Button>
+                                        </DialogActions>
+                                    </Dialog>
+                                </div> : <div></div>}
+
+                            </Grid>
                             <TextField
                                 error={!this.state.isValidMessage}
                                 id="standard-textarea"
                                 label="Message"
                                 placeholder="Enter the message"
                                 helperText={this.state.isValidMessage ? "" : "Message cannot be empty."}
-                                style={{ margin: 8 }}
+                                style={{ marginLeft: 8, marginTop: 0 }}
                                 multiline
                                 fullWidth
                                 rows={20}
@@ -227,9 +303,6 @@ class NotificationsComponent extends Component {
                                 value={this.state.message}
                                 onChange={this.handleMessageChange}
                             />
-                            <div>
-                                <input type="file"></input>
-                            </div>
                             <Grid
                                 container
                                 direction="row"
