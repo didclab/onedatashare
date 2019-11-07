@@ -134,7 +134,7 @@ export default class TransferComponent extends Component {
       dest["uri"] = destUrls[i];
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Scheduled!")
+        eventEmitter.emit("messageOccured", "Transfer Initiated!")
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
@@ -385,7 +385,7 @@ export default class TransferComponent extends Component {
     };
 
     return (
-      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '5%' }}>
+      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
 
           {!isSmall &&

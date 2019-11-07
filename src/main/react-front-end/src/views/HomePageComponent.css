@@ -24,11 +24,3 @@
         margin-top : -20%;
     }
 }
-
-.carousel-control.right, .carousel-control.left{
-    background-image: unset !important;
-}
-
-.carousel-indicators{
-    bottom : -10% !important
-}
