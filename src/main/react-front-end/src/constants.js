@@ -124,15 +124,15 @@ export function validateField(regex, valueToEvaluate, messageToDisplay, validati
 export  function validatePassword(password,confirmPassword)
 {
 	let validations = []
-	validateField(/[a-z]/, password, "Password must have atleast one lower character", validations);
-	validateField(/[A-Z]/, password, "Password must have atleast one upper character", validations);
-	validateField(/[0-9]/, password, "Password must have atleast one digit", validations);
-	validateField(/\W/, password, "Password must have atleast one special character", validations);
+	validateField(/[a-z]/, password, "one lower character", validations);
+	validateField(/[A-Z]/, password, "one upper character", validations);
+	validateField(/[0-9]/, password, "one digit", validations);
+	validateField(/\W/, password, "one special character", validations);
 
 	if(password.length<validPasswordLength){
-		validations.push({containsError : true, msg: "Password Length should be atleast "+validPasswordLength.toString() + " characters"});
+		validations.push({containsError : true, msg: "Length should be atleast "+validPasswordLength.toString() + " characters"});
 	}else{
-		validations.push({containsError : false, msg: "Password Length should be atleast be "+validPasswordLength.toString()+ " characters"});
+		validations.push({containsError : false, msg: "Length should be atleast be "+validPasswordLength.toString()+ " characters"});
 	}
 
 	if (password === confirmPassword) {

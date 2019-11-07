@@ -220,7 +220,7 @@ export default class UserAccountComponent extends Component {
 						</CardContent>
 					</Card>
 				</List>
-				
+
 				<List>
 					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
@@ -331,7 +331,7 @@ export default class UserAccountComponent extends Component {
 					type="password"
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
-					style={{ width: "100%", marginBottom: "2em" }}
+					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={passwordCheck("confirmNewPassword")}
 				/>
 				<PasswordRequirementsComponent

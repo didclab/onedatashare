@@ -11,16 +11,10 @@ export default class PasswordRequirementsComponent extends Component {
     return (
       <div>
       { this.props.showList &&
-      <List>
+      <List style={{width: '100%',maxWidth: 360}}>
         {this.props.validations.map((item, key) =>
-          <ListItem style={{background: "white", height: 40}}>
-          <ListItemIcon>
-          <Checkbox
-            checked={!item.containsError}
-            disabled
-          />
-        </ListItemIcon>
-        <ListItemText primary={item.msg} />
+          <ListItem style={{display:'flex', justifyContent:'flex-end', background: "white", height: 15}}>
+        <ListItemText primary={item.msg}  style={{color: item.containsError ? 'red':'green'}}  edge="start"/>
         </ListItem>
         )}
         </List>
