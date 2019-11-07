@@ -79,7 +79,7 @@ export default class GetStartedComponent extends Component{
             );
         })
         return(
-            <div style={{ height: '800px', paddingTop : '5%', paddingBottom : '5%', backgroundImage: 'url(' + background + ')'}}>
+            <div class="adjustTop" style={{ height: '800px', paddingTop : '5%', paddingBottom : '5%', backgroundImage: 'url(' + background + ')'}}>
                 <Carousel style={{ height : '90%' }}>
                     {carouselItems}
 

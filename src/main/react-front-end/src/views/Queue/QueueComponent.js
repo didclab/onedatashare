@@ -409,7 +409,7 @@ class QueueComponent extends Component {
 		});
 
 		return (
-			<Paper className={classes.root} id="jobHistory" style={{ marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7' }}>
+			<Paper className={classes.root} id="jobHistory" style={{ marginLeft: '7.2%', marginRight: '7.2%', marginBottom: '10%', border: 'solid 2px #d9edf7' }}>
 				<Table>
 					<TableHead style={{ backgroundColor: '#d9edf7' }}>
 						<TableRow>
