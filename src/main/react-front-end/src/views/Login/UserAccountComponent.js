@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import LinearProgress from "@material-ui/core/LinearProgress";
-
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 
@@ -27,7 +27,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
 import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl } from "../../constants";
+import { transferPageUrl, userPageUrl,validatePassword } from "../../constants";
 
 import {
 	changePassword,
@@ -61,7 +61,9 @@ export default class UserAccountComponent extends Component {
     	    lName: "...",
     	    redirect: false,
 			openAlertDialog: false,
-			saveOAuthTokens: false
+			saveOAuthTokens: false,
+			validations: validatePassword("", ""),
+      canSubmit: false
     	};
     	getUser(this.state.userEmail,  (resp) => {
             //success
@@ -94,15 +96,10 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-
-		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
-		    }
-	     else if(newPass === "" || oldPass === "" || confPass === ""){
+	    if(newPass === "" || oldPass === "" || confPass === ""){
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-			}
-		else if(newPass !== confPass){
-			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
+		}else if(oldPass === newPass){
+			eventEmitter.emit("errorOccured", "Old and New Passwords cant be same");
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{
@@ -139,9 +136,6 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
-
-				// Temporarily commenting out code added in PR 249 for release
-				// Need to handle edge cases arising out of saving Drive token without refresh token
 				// let credentials = []
 				// if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
 				// 	var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
@@ -161,7 +155,6 @@ export default class UserAccountComponent extends Component {
 				// 	console.log("Error in saving credentials", error);
 				// 	eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
 				// });
-				
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
@@ -173,11 +166,10 @@ export default class UserAccountComponent extends Component {
 
 	accountDetails() {
 		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
-
 		return (
 			<div>
 				<List>
-					<Card style={ cardStyles }>
+					<Card style={cardStyles}>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
@@ -280,12 +272,36 @@ export default class UserAccountComponent extends Component {
 		);
 	}
 
+	checkIfUserCanSubmit(){
+		let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
+			return criteria.containsError;
+		}).length;
+		if(unsatisfiedRequirements>0){
+			this.setState({canSubmit : false});
+		}else{
+			this.setState({canSubmit : true});
+		}
+	}
+
+
 	getInnerCard() {
 		const handleChange = name => event => {
 			this.setState({
 				[name]: event.target.value
 			});
 		};
+
+		const passwordCheck = name => event=>{
+      this.setState({
+        [name]: event.target.value,
+      }, ()=>{
+        this.setState({validations: validatePassword(this.state.newPassword, this.state.confirmNewPassword)}, ()=>{
+          this.checkIfUserCanSubmit();
+        })
+      });
+    }
+
+
 
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
@@ -307,7 +323,7 @@ export default class UserAccountComponent extends Component {
 					type="password"
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={handleChange("newPassword")}
+					onChange={passwordCheck("newPassword")}
 				/>
 				<TextField
 					error={confirmed}
@@ -315,16 +331,18 @@ export default class UserAccountComponent extends Component {
 					type="password"
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
-					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("confirmNewPassword")}
+					style={{ width: "100%", marginBottom: "1em" }}
+					onChange={passwordCheck("confirmNewPassword")}
 				/>
-
+				<PasswordRequirementsComponent
+          showList = {!this.state.canSubmit}
+          validations = {this.state.validations} />
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
-						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
+						disabled={!this.state.canSubmit}
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
@@ -358,7 +376,8 @@ export default class UserAccountComponent extends Component {
 					justifyContent: "center",
 					alignItems: "center",
 					width: "..",
-					height: height
+					height: height,
+					marginTop: "120px"
 				}}
 			>
 				<div
@@ -378,7 +397,7 @@ export default class UserAccountComponent extends Component {
 
 					{!isSmall && (
 						<Card>
-							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em" }}>
+							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em"  }}>
 								{this.getInnerCard()}
 							</CardContent>
 						</Card>
