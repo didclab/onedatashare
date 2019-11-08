@@ -3,7 +3,6 @@ package org.onedatashare.server.model.core;
 import edu.emory.mathcs.backport.java.util.Arrays;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ODSConstants {
