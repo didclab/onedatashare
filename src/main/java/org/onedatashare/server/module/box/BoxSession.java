@@ -53,7 +53,7 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                 OAuthCredential oauth = (OAuthCredential) getCredential();
                 String client_id = System.getenv("BOX_CLIENT_ID");
                 String client_secret = System.getenv("BOX_CLIENT_SECRET");
-                client = new BoxAPIConnection(client_id, client_secret, oauth.getToken(), oauth.getRefreshToken());
+                client = new BoxAPIConnection(oauth.getToken());
                 client.setExpires(oauth.expiredTime.getTime());
                 Date time = new Date();
                 if(time.before(oauth.expiredTime)){
