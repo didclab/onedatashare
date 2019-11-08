@@ -5,6 +5,10 @@
         .content class in MainComponent.css  */
         margin-top : -5%;
     }
+
+    .adjustContent{
+        padding-top: 5%;
+    }
 }
 
 /* Tablet */
@@ -13,6 +17,14 @@
         /* For Homepage, reverting padding-top applied to entire page using 
         .content class in MainComponent.css  */
         margin-top : -10%;
+    }
+
+    .adjustContent{
+        padding-top: 10%;
+    }
+
+    img{
+        max-height: 55vh !important
     }
 }
 
@@ -23,6 +35,29 @@
         .content class in MainComponent.css  */
         margin-top : -20%;
     }
+
+    .adjustContent{
+        padding-top: 35% !important;
+    }
+
+    .carouselStyle{
+        height : 80% !important;
+    }
+
+    img{
+        max-height: 80vh !important
+    }
+}
+
+
+.content{
+    height: 100vh;
+    padding-top: 5%;
+    padding-bottom: 2%, 
+}
+
+.carouselStyle{
+    height : 90%;
 }
 
 .carousel-control.right, .carousel-control.left{
