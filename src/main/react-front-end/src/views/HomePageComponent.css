@@ -1,9 +1,26 @@
+.textStyle{
+    color:white !important; 
+    font-size: 1.2em;
+    text-align: left;
+}
+
+.headerStyle{
+    font-weight: 200;
+    font-size: 4em;
+}
+
 /* Desktop */
 @media screen and (min-width: 980px)  {
     .adjustTop{
         /* For Homepage, reverting padding-top applied to entire page using 
         .content class in MainComponent.css  */
         margin-top : -5%;
+    }
+
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 8vw;
     }
 }
 
@@ -14,6 +31,12 @@
         .content class in MainComponent.css  */
         margin-top : -10%;
     }
+
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 8vw;
+    }
 }
 
 /* Mobile */
@@ -22,5 +45,16 @@
         /* For Homepage, reverting padding-top applied to entire page using 
         .content class in MainComponent.css  */
         margin-top : -20%;
+    }
+
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 20vw;
+    }
+
+    .headerStyle{
+        font-weight: 600;
+        font-size: 3em;
     }
 }

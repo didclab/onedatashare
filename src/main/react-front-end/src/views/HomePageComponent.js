@@ -18,8 +18,6 @@ import './HomePageComponent.css';
 
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
-const headerStyle = {...textStyle,fontWeight: 200, fontSize: '4em'};
-const cardStyle = {marginLeft: '10vw', marginRight: '10vw', marginTop: '8vw'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
 const rowStyle = {background: '#579', padding: '4vw', width: '100%', margin: 0};
 
@@ -88,13 +86,13 @@ export default class HomePageComponent extends Component {
 		);
 		
 		return(
-			<div class="adjustTop">
+			<div className="adjustTop">
 				<Col>
 					<Slider {...settings} >
 						<div>
 							<Jumbotron className="homepage_section homepage_section1">
-								<Col style={cardStyle}>
-									<h1 style={headerStyle}>OneDataShare&nbsp;
+								<Col className="cardStyle">
+									<h1 className="textStyle headerStyle">OneDataShare&nbsp;
 										<sup title="Beta">&beta;</sup>
 									</h1>
 									<p style={sideStyle}>OneDataShare is a reliable and fast data movement service in the cloud.</p>
@@ -111,8 +109,8 @@ export default class HomePageComponent extends Component {
 						</div>
 						<div>
 							<Jumbotron className="homepage_section homepage_section2">
-								<Col style={cardStyle}>
-									<h1 style={headerStyle}>Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
+								<Col className="cardStyle">
+									<h1 className="textStyle headerStyle">Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
 									<p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
 														eliminate possible long delays in completion of a transfer operation and 
 														increase utilization of end-system and network resources by giving an 
@@ -123,8 +121,8 @@ export default class HomePageComponent extends Component {
 						</div>
 						<div>
 							<Jumbotron className="homepage_section homepage_section3">
-								<Col style={cardStyle}>
-									<h1 style={headerStyle}>Reduced Time to the Delivery of Data</h1>
+								<Col className="cardStyle">
+									<h1 className="textStyle headerStyle">Reduced Time to the Delivery of Data</h1>
 									<p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
 														and drastically increases the end-to-end performance of 
 														data-intensive applications relying on remote data sources.</p>
@@ -134,8 +132,8 @@ export default class HomePageComponent extends Component {
 						</div>
 						<div >
 							<Jumbotron className="homepage_section homepage_section4">
-								<Col style={cardStyle}>
-									<h1 style={headerStyle}>Interoperation Across Heterogeneous Data Resources</h1>
+								<Col className="cardStyle">
+									<h1 className="textStyle headerStyle">Interoperation Across Heterogeneous Data Resources</h1>
 									<p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
 														and on-the-fly translation between different data transfer protocols. 
 														Sharing data between traditionally non-compatible data sources becomes 
@@ -146,8 +144,8 @@ export default class HomePageComponent extends Component {
 						</div>
 						<div>
 							<Jumbotron className="homepage_section homepage_section5">
-								<Col style={cardStyle}>
-									<h1 style={headerStyle}>Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
+								<Col className="cardStyle">
+									<h1 className="textStyle headerStyle">Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
 									<p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
 									{ getStartedButton }
 								</Col>
@@ -155,8 +153,8 @@ export default class HomePageComponent extends Component {
 						</div>
 						<div>
 							<Jumbotron className="homepage_section homepage_section6">
-								<Col style={cardStyle}>
-											<h1 style={headerStyle}>End-to-end Data Sharing Solution</h1>
+								<Col className="cardStyle">
+											<h1 className="textStyle headerStyle">End-to-end Data Sharing Solution</h1>
 											<p style={sideStyle}>Anything that requires high-volume data transfer, 
 																	from real-time weather conditions and natural disasters to 
 																	sharing genomic maps and real-time consumer behavior analysis, 
