@@ -377,15 +377,12 @@ export default class UserAccountComponent extends Component {
 					alignItems: "center",
 					width: "..",
 					height: height,
-					marginTop: "120px"
+					marginBottom: '5%'
 				}}
 			>
 				<div
 					style={{
 						width: "450px",
-						marginTop: "30px",
-						marginLeft: "30px",
-						marginRight: "30px",
 						alignSelf: isSmall ? "flex-start" : "center"
 					}}
 				>

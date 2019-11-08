@@ -1,4 +1,3 @@
-import { eventEmitter } from "./App";
 export const spaceBetweenStyle = {display: 'flex', justifyContent:"space-between"};
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
@@ -124,21 +123,17 @@ export function validateField(regex, valueToEvaluate, messageToDisplay, validati
 export  function validatePassword(password,confirmPassword)
 {
 	let validations = []
-	validateField(/[a-z]/, password, "one lower character", validations);
-	validateField(/[A-Z]/, password, "one upper character", validations);
-	validateField(/[0-9]/, password, "one digit", validations);
-	validateField(/\W/, password, "one special character", validations);
+	validateField(/[a-z]/, password, "One lower character", validations);
+	validateField(/[A-Z]/, password, "One upper character", validations);
+	validateField(/[0-9]/, password, "One digit", validations);
+	validateField(/\W/, password, "One special character", validations);
 
 	if(password.length<validPasswordLength){
-		validations.push({containsError : true, msg: "Length should be atleast "+validPasswordLength.toString() + " characters"});
-	}else{
-		validations.push({containsError : false, msg: "Length should be atleast be "+validPasswordLength.toString()+ " characters"});
+		validations.push({containsError : true, msg: "Minimum "+ validPasswordLength.toString() + " characters"});
+	}
+	else {
+		validations.push({containsError : false, msg: "Minimum "+ validPasswordLength.toString() + " characters"});
 	}
 
-	if (password === confirmPassword) {
-		validations.push({containsError : false, msg: "Passwords Match"});
-	}else{
-		validations.push({containsError : true, msg: "Passwords Match"});
-	}
 	return validations;
 }
