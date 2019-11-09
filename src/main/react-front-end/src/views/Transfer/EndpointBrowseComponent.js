@@ -281,18 +281,23 @@ export default class EndpointBrowseComponent extends Component {
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
-			this._handleError("Login Failed. Re-directing to OAuth page");
-			setLoading(false);
-			emptyFileNodesData(endpoint);
-			this.unselectAll();
-			this.props.back();		
+
+			if(error === "500"){
+				this._handleError("Login Failed. Re-directing to OAuth page");
+				setLoading(false);
+				emptyFileNodesData(endpoint);
+				this.unselectAll();
+				this.props.back();
+				
+				setTimeout(()=> {
+				if(getType(endpoint) === DROPBOX_TYPE)
+					openDropboxOAuth();
+				else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+					openGoogleDriveOAuth();
+				}, 7500);	
+	
+			}
 			
-			setTimeout(()=> {
-			if(getType(endpoint) === DROPBOX_TYPE)
-				openDropboxOAuth();
-			else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-				openGoogleDriveOAuth();
-			}, 2000);	
 		});
 	};
 

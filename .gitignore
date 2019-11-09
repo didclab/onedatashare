@@ -92,3 +92,7 @@ output.log
 
 # DockerFile
 Dockerfile
+
+#Prod properties
+src/main/resources/application-prod.properties
+

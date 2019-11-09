@@ -256,8 +256,8 @@ export default class UserAccountComponent extends Component {
 					open={this.state.openAlertDialog}
 					onClose={this.handleAlertClose}
 					aria-labelledby="alert-dialog-title"
-					aria-describedby="alert-dialog-description"
-				>
+					aria-describedby="alert-dialog-description">
+						
 					<DialogTitle id="alert-dialog-title">
 						{"Change how OAuth tokens are saved?"}
 					</DialogTitle>
@@ -265,15 +265,15 @@ export default class UserAccountComponent extends Component {
 						<DialogContentText id="alert-dialog-description">
 							Warning! This might delete all your existing credentials and may
 							interrupt ongoing transfers. Are you sure?
-            </DialogContentText>
+            			</DialogContentText>
 					</DialogContent>
 					<DialogActions>
 						<Button onClick={this.handleAlertCloseYes} color="primary">
 							Yes
-            </Button>
+            			</Button>
 						<Button onClick={this.handleAlertClose} color="primary" autoFocus>
 							No
-            </Button>
+			            </Button>
 					</DialogActions>
 				</Dialog>
 			</div>
