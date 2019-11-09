@@ -4,6 +4,7 @@ import com.box.sdk.*;
 import com.box.sdk.http.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -11,6 +12,7 @@ import java.io.*;
 import org.onedatashare.server.model.core.ODSConstants;
 
 import java.net.URL;
+import java.nio.file.AccessDeniedException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -47,6 +49,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             rStat.setDir(true);
             rStat.setFile(false);
             rStat.setName("root");
+            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
+            if (permissions != null) {
+                rStat.setPermissions(permissions.toString());
+            }
             return rStat;
         }
         String type = "";
@@ -66,6 +72,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             stat.setDir(true);
             stat.setFile(false);
             stat.setName(folder.getInfo().getName());
+            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
+            if (permissions != null) {
+                stat.setPermissions(permissions.toString());
+            }
             return stat;
         }
         else{
@@ -186,7 +196,11 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
                     BoxFolder folder = new BoxFolder(resource.getSession().client, getId());
                     folder.delete(recursive);
                 }
-            } catch (Exception e) {
+            }catch(BoxAPIResponseException be){
+                if(be.getResponseCode() == 403){
+                    throw new ODSAccessDeniedException(403);
+                }
+            }catch(Exception e){
                 e.printStackTrace();
             }
 
@@ -200,6 +214,10 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             BoxFile file = new BoxFile(getSession().client, getId());
             url = file.getDownloadURL().toString();
 
+        }catch(BoxAPIResponseException be){
+            if(be.getResponseCode() == 403){
+                return Mono.error(new ODSAccessDeniedException(403));
+            }
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -300,9 +318,13 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
         @Override
         public Flux<Slice> tap(Stat stat, long sliceSize) {
             BoxFile file = new BoxFile(api, stat.getId());
-            URL downloadUrl = file.getDownloadURL();
             try {
+                URL downloadUrl = file.getDownloadURL();
                 req = new BoxAPIRequest(api, downloadUrl, HttpMethod.GET);
+            }catch(BoxAPIResponseException be){
+                if(be.getResponseCode() == 403){
+                    return Flux.error(be);
+                }
             }catch(Exception e){
                 e.printStackTrace();
             }

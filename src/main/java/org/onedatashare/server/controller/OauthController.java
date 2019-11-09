@@ -164,10 +164,42 @@ public class OauthController {
     @GetMapping(value = "/box")
     public Object boxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
         String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return boxOauthService.finish(queryParameters.get("code"), cookie)
-                .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
-                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox" ).build()));
+        if (!queryParameters.containsKey("code")) {
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (queryParameters.containsKey("error")) {
+                try {
+                    errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error"), "UTF-8"));
+                    errorStringBuilder.insert(0, "?error=");
+                } catch (UnsupportedEncodingException e) {
+                    ODSLoggerService.logError("Invalid error message received from Google Drive " +
+                            "oauth after cancellation" + queryParameters.get("error_description"));
+                }
+            }
+            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+        }
+
+        return userService.getLoggedInUser(cookie)
+                .flatMap(user -> {
+                    if (user.isSaveOAuthTokens()) {
+                        return boxOauthService.finish(queryParameters.get("code"), cookie)
+                                .flatMap(oAuthCred -> userService.saveCredential(cookie, oAuthCred))
+                                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
+                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
+                    } else {
+                        return boxOauthService.finish(queryParameters.get("code"), cookie)
+                                .map(oAuthCred -> {
+                                    try {
+                                        return "/oauth/box?creds=" +
+                                                URLEncoder.encode(objectMapper.writeValueAsString(oAuthCred), StandardCharsets.UTF_8.toString());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return null;
+                                })
+                                .map(oAuthCredLink -> Rendering.redirectTo(oAuthCredLink).build())
+                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
+                    }
+                });
     }
     @GetMapping
     public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {

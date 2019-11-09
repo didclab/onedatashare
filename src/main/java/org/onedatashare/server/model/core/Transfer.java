@@ -96,6 +96,7 @@ public class Transfer<S extends Resource, D extends Resource> {
                       .subscribeOn(Schedulers.elastic())
                       .map(this::addProgress)
                       .doOnComplete(drain::finish);
+
             }).doFinally(s -> done());
   }
 
