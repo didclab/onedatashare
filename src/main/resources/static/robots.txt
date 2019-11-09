@@ -1,0 +1,11 @@
+# robots.txt for OneDataShare
+
+User-agent: *
+Disallow: /transfer
+Disallow: /user
+Disallow: /queue
+Disallow: /clientsInfo
+Disallow: /history
+Disallow: /oauth
+
+Sitemap: https://www.onedatashare.org/sitemap.xml

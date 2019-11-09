@@ -63,7 +63,7 @@ export async function checkLogin(email, accept, fail){
 			statusHandle(response, fail);
 		}
 	})
-	.catch((error) => {      
+	.catch((error) => {
 		statusHandle(error, fail);
 	});
 }
@@ -752,6 +752,28 @@ export async function deleteJob(jobID, accept, fail){
     });
 }
 
+/*
+	Store user's view preference in the backend on toggle
+	input: Email, viewPreference
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function updateViewPreference(email, compactViewEnabled, accept, fail){
+	var callback = accept;
+	axios.post(url+'user', {
+	    action: 'updateViewPreference',
+	    email: email,
+      compactViewEnabled: compactViewEnabled
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+      statusHandle(error, fail);
+    });
+}
+
 export async function openDropboxOAuth(){
 	openOAuth("/api/stork/oauth?type=dropbox");
 }
@@ -769,7 +791,7 @@ export async function openOAuth(url){
 }
 
 
-export async function registerUser(requestBody) {
+export async function registerUser(requestBody, errorCallback) {
 
 	return axios.post(url+'user', {action: "register", ...requestBody})
 				.then((response) => {
@@ -787,7 +809,8 @@ export async function registerUser(requestBody) {
 				.catch((error) => {
 						//statusHandle(error, fail);
 						console.error("Error while registering user");
-						return {status : 500}
+						errorCallback();
+						return new Error({status: 500});
 					}
 				);
 }

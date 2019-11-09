@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, signInUrl, registerPageUrl, accountPageUrl } from '../constants';
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
@@ -39,20 +39,20 @@ class NavbarComponent extends Component {
     render() {
     return (
     	<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar">
-    		
+
 		    <Navbar.Header >
 		      <Navbar.Brand>
 		        <Link to="/">OneDataShare</Link>
 		      </Navbar.Brand>
 		      <Navbar.Toggle/>
 		    </Navbar.Header>
-	      	
+
 	    	<Navbar.Collapse>
 	      	{(this.state.login ) &&
 		      <Nav>
 				<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 		        <NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
-		      
+
 		      	{this.state.admin &&
 			    	<NavDropdown title="Admin" id="NavDropdown">
 			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
@@ -75,7 +75,7 @@ class NavbarComponent extends Component {
 		        {!this.state.login &&
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
-		        {this.state.login && 
+		        {this.state.login &&
 			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
 			            <span>Log out</span>
 					</NavItem>}
