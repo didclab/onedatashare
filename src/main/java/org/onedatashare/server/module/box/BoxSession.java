@@ -51,25 +51,26 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
         return Mono.create(s -> {
             if(getCredential() instanceof OAuthCredential){
                 OAuthCredential oauth = (OAuthCredential) getCredential();
-                String client_id = System.getenv("BOX_CLIENT_ID");
-                String client_secret = System.getenv("BOX_CLIENT_SECRET");
-                client = new BoxAPIConnection(oauth.getToken());
-                client.setExpires(oauth.expiredTime.getTime());
-                Date time = new Date();
-                if(time.before(oauth.expiredTime)){
-                    s.success(this);
-                }
-                else{
-//                    Date currentTime = new Date();
-//                    oauth.lastRefresh = currentTime;
-//                    oauth.expiredTime = new Date(currentTime.getTime() + client.getExpires());
-//                    oauth.setToken(client.getAccessToken());
-//                    oauth.setRefreshToken(client.getRefreshToken());
+                try{
+                    String client_id = System.getenv("BOX_CLIENT_ID");
+                    String client_secret = System.getenv("BOX_CLIENT_SECRET");
+                    client = new BoxAPIConnection(oauth.getToken());
+                    client.setExpires(oauth.expiredTime.getTime());
+                    Date time = new Date();
+                    if(time.before(oauth.expiredTime)){
+                        s.success(this);
+                    }else{
+                        System.out.println("Box Token Expiration.");
+                        s.error(new TokenExpiredException(401, oauth));
+                    }
+                }catch(Exception e){
+                    System.out.println("Box Token Expiration");
                     s.error(new TokenExpiredException(401, oauth));
                 }
             }
-            else s.error(new AuthenticationRequired("oauth"));
-
+            else{
+                s.error(new AuthenticationRequired("oauth"));
+            }
         });
     }
 }
