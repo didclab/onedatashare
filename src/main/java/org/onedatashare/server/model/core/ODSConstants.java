@@ -28,13 +28,8 @@ public class ODSConstants {
     public static final int REDIRECTHOSTINGPORT = 80;
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
-                                                                "/clientsInfo", "/history", "/account", "/oauth",
-                                                                "/support", "/get-started"};
-    public static final Set<String> ODS_URIS_SET = new HashSet<String>();
-
-    static{
-        ODS_URIS_SET.addAll(Arrays.asList(ODS_URIS_ARR));
-    }
-
-
+            "/clientsInfo", "/history", "/account", "/oauth",
+            "/support", "/get-started", "/oauth/uuid",
+            "/oauth/googledrive", "/oauth/dropbox", "/oauth/gridftp", "/oauth/box"};
+    public static final Set<String> ODS_URIS_SET = new HashSet<String>(Arrays.asList(ODS_URIS_ARR));
 }
