@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.requestdata.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -72,5 +73,10 @@ public class DeleteController {
   @ExceptionHandler(AuthenticationRequired.class)
   public ResponseEntity<AuthenticationRequired> handle(AuthenticationRequired authenticationRequired) {
     return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
+  }
+
+  @ExceptionHandler(ODSAccessDeniedException.class)
+  public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
+    return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
   }
 }

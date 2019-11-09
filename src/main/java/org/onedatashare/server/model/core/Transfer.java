@@ -1,7 +1,9 @@
 package org.onedatashare.server.model.core;
 
+import com.box.sdk.BoxAPIResponseException;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.util.Progress;
 import org.onedatashare.server.model.util.Throughput;
 import org.onedatashare.server.model.util.Time;
@@ -12,8 +14,10 @@ import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.http.HttpResource;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.nio.file.AccessDeniedException;
 import java.util.concurrent.TimeUnit;
 
 @NoArgsConstructor
@@ -95,7 +99,18 @@ public class Transfer<S extends Resource, D extends Resource> {
                       .doOnNext(drain::drain)
                       .subscribeOn(Schedulers.elastic())
                       .map(this::addProgress)
-                      .doOnComplete(drain::finish);
+                      .doOnComplete(drain::finish)
+                      .onErrorResume(throwable -> {
+                            throwable.printStackTrace();
+                            return Flux.create(s -> {
+                                TransferInfo ti = new TransferInfo();
+                                ti.done = 0;
+                                ti.reason = throwable.getMessage();
+                                s.next(ti);
+                                s.error(throwable);
+                            });
+                        });
+
             }).doFinally(s -> done());
   }
 

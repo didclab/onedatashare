@@ -2,6 +2,8 @@ package org.onedatashare.server.module.box;
 
 import ch.qos.logback.core.net.SyslogOutputStream;
 import com.box.sdk.BoxAPIConnection;
+import com.box.sdk.BoxAPIException;
+import com.box.sdk.BoxAPIResponseException;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.OAuthCredential;
@@ -52,8 +54,8 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
             if(getCredential() instanceof OAuthCredential){
                 OAuthCredential oauth = (OAuthCredential) getCredential();
                 try{
-                    String client_id = System.getenv("BOX_CLIENT_ID");
-                    String client_secret = System.getenv("BOX_CLIENT_SECRET");
+                    //String client_id = System.getenv("BOX_CLIENT_ID");
+                    //String client_secret = System.getenv("BOX_CLIENT_SECRET");
                     client = new BoxAPIConnection(oauth.getToken());
                     client.setExpires(oauth.expiredTime.getTime());
                     Date time = new Date();
@@ -63,9 +65,12 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                         System.out.println("Box Token Expiration.");
                         s.error(new TokenExpiredException(401, oauth));
                     }
-                }catch(Exception e){
-                    System.out.println("Box Token Expiration");
+                }catch(BoxAPIResponseException e){
+                    System.out.println("Box API Exception");
                     s.error(new TokenExpiredException(401, oauth));
+                }catch(Exception e){
+                    System.out.println("Box Other Exception");
+                    s.error(new AuthenticationRequired("oauth"));
                 }
             }
             else{

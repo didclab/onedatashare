@@ -6,6 +6,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -19,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -87,5 +89,10 @@ public class DownloadController {
             e.printStackTrace();
         }
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
+    }
+
+    @ExceptionHandler(ODSAccessDeniedException.class)
+    public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
+        return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
     }
 }
