@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
 import Checkbox from '@material-ui/core/Checkbox';
-import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
@@ -276,12 +275,14 @@ export default class CreateAccountComponent extends Component {
             </div>
 
             <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
-              <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                Sign in Instead
-                  </Button>
+              <Button size="medium" variant="outlined" color="primary">
+                <Link to="/account/signIn">
+                    Sign in
+                </Link>
+              </Button>
               <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
-                  </Button>
+              </Button>
             </CardActions>
 
           </ValidatorForm>
