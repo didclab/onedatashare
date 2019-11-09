@@ -66,6 +66,7 @@ export default class AccountControlComponent extends Component {
 			screen: this.newLogin,
 			creatingAccount: false,
 			loggingAccount: false,
+			redirectToSignIn: false,
 			// When signIn is set, it launches /account/signIn url
 			// In all back function's, that are sent as props to the child components, this flag is set to true
 			// and the flag for the corresponding components is set to false
@@ -135,7 +136,7 @@ export default class AccountControlComponent extends Component {
 
 						}}
 						backToSignin={() => {
-							this.setState({ signIn: true, creatingAccount: false });
+							this.setState({ redirectToSignIn: true });
 						}}
 					/>}>
 				</Route>
@@ -190,11 +191,12 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts } = this.state;
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
 		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
 		this.state.creatingAccount = false;
 		this.state.lostValidationCodePressed = false;
 		this.state.forgotPasswordPressed = false;
+		this.state.redirectToSignIn = false;
 
 		const currentRoute = this.props.location.pathname
 			return (
@@ -208,6 +210,7 @@ export default class AccountControlComponent extends Component {
 						{store.getState().login && <Redirect to={transferPageUrl} />}
 						{(currentRoute !== registerPageUrl && creatingAccount) && <Redirect to={registerPageUrl} />}
 						{(currentRoute !== forgotPasswordUrl && forgotPasswordPressed) && <Redirect to={forgotPasswordUrl} />}
+						{redirectToSignIn && <Redirect to={signInUrl} />}
 						{(currentRoute === accountPageUrl && signIn) && <Redirect from={accountPageUrl} to={signInUrl} />}
 						{loading && <LinearProgress />}
 
