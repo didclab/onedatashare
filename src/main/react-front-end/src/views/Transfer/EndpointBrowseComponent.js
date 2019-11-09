@@ -32,8 +32,8 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
 import { eventEmitter } from "../../App";
-
-import { getType } from '../../constants.js';
+import { cookies } from "../../model/reducers";
+import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
@@ -286,15 +286,36 @@ export default class EndpointBrowseComponent extends Component {
 				this._handleError("Login Failed. Re-directing to OAuth page");
 				setLoading(false);
 				emptyFileNodesData(endpoint);
+
+				// console.log("ENDPOINT", endpoint.credential);
+				
+				let type = getName(endpoint);
+				let cred = endpoint.credential;
+				let savedCreds = cookies.get(type);
+
+				// Delete the creds from the cookie if they exist
+				if(savedCreds !== undefined){
+					let parsedCredsArr = JSON.parse();
+					let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+																	return curObj.name !== cred.name;
+															});
+					if(filteredCredsArr.length === 0){
+						cookies.remove(type);
+					}
+					else{
+						cookies.set(type, JSON.stringify(filteredCredsArr));
+					}	
+				}
+
 				this.unselectAll();
 				this.props.back();
 				
 				setTimeout(()=> {
-				if(getType(endpoint) === DROPBOX_TYPE)
-					openDropboxOAuth();
-				else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-					openGoogleDriveOAuth();
-				}, 7500);	
+					if(getType(endpoint) === DROPBOX_TYPE)
+						openDropboxOAuth();
+					else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+						openGoogleDriveOAuth();
+				}, 3000);
 	
 			}
 			
