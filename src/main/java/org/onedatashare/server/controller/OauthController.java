@@ -166,7 +166,7 @@ public class OauthController {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
         return boxOauthService.finish(queryParameters.get("code"), cookie)
                 .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build())
+                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
                 .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox" ).build()));
     }
     @GetMapping

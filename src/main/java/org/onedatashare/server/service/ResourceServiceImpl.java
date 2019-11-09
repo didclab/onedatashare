@@ -1,5 +1,6 @@
 package org.onedatashare.server.service;
 
+import org.apache.commons.codec.net.URLCodec;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
@@ -27,6 +28,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -131,6 +133,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
 
     public Session createSession(String uri, Credential credential) {
+        
         if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
             return new DbxSession(URI.create(uri), credential);
         else if(uri.contains(ODSConstants.UPLOAD_IDENTIFIER)) {
