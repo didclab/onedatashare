@@ -63,7 +63,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
                     .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GoogleDriveSession::initializeTokenLess)
+                    .flatMap(GoogleDriveSession::initializeNotSaved)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }

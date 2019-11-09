@@ -61,7 +61,7 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         return Mono.just(new GoogleDriveResource(this, path, id));
     }
 
-    public Mono<GoogleDriveSession> initializeTokenLess() {
+    public Mono<GoogleDriveSession> initializeNotSaved() {
         return Mono.create(s -> {
             if (getCredential() instanceof OAuthCredential) {
                 try {
