@@ -8,11 +8,11 @@ import java.util.Arrays;
 public class TokenExpiredException extends ODSError {
 
     public OAuthCredential cred;
-    public TokenExpiredException(int err, OAuthCredential cred) {
-        super("Token Is Expired");
+    public TokenExpiredException(OAuthCredential cred, String message) {
+        super(message);
         type = "TokenExpired";
-        error = "Token Is Expired.";
-
+        error = "Token has expired.";
+        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
         this.cred = cred;
     }
 }
