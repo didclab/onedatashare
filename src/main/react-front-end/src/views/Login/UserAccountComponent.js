@@ -3,9 +3,11 @@ import React, { Component } from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import LinearProgress from "@material-ui/core/LinearProgress";
-
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+
+import './UserAccountComponent.css';
 
 import {
 	Dialog,
@@ -27,7 +29,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
 import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl } from "../../constants";
+import { transferPageUrl, userPageUrl,validatePassword } from "../../constants";
 
 import {
 	changePassword,
@@ -61,7 +63,9 @@ export default class UserAccountComponent extends Component {
     	    lName: "...",
     	    redirect: false,
 			openAlertDialog: false,
-			saveOAuthTokens: false
+			saveOAuthTokens: false,
+			validations: validatePassword("", ""),
+      canSubmit: false
     	};
     	getUser(this.state.userEmail,  (resp) => {
             //success
@@ -94,15 +98,10 @@ export default class UserAccountComponent extends Component {
 	}
 
 	onPasswordUpdate(oldPass, newPass, confPass){
-
-		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
-		    }
-	     else if(newPass === "" || oldPass === "" || confPass === ""){
+	    if(newPass === "" || oldPass === "" || confPass === ""){
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-			}
-		else if(newPass !== confPass){
-			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
+		}else if(oldPass === newPass){
+			eventEmitter.emit("errorOccured", "Old and New Passwords cant be same");
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{
@@ -170,12 +169,10 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
-		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
-
 		return (
 			<div>
 				<List>
-					<Card style={ cardStyles }>
+					<Card className="userAccCardStyle">
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
@@ -188,7 +185,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
-                        			id="UserEmail"
+                  id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -228,7 +225,7 @@ export default class UserAccountComponent extends Component {
 				</List>
 
 				<List>
-					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
+					<Card className="userAccCardStyle" style={{ paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
@@ -250,6 +247,7 @@ export default class UserAccountComponent extends Component {
 						</CardContent>
 					</Card>
 				</List>
+
 				<Dialog
 					open={this.state.openAlertDialog}
 					onClose={this.handleAlertClose}
@@ -278,12 +276,34 @@ export default class UserAccountComponent extends Component {
 		);
 	}
 
+	checkIfUserCanSubmit(){
+		let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
+			return criteria.containsError;
+		}).length;
+		if(unsatisfiedRequirements>0){
+			this.setState({canSubmit : false});
+		}else{
+			this.setState({canSubmit : true});
+		}
+	}
+
+
 	getInnerCard() {
 		const handleChange = name => event => {
 			this.setState({
 				[name]: event.target.value
 			});
 		};
+
+		const passwordCheck = name => event=>{
+      this.setState({
+        [name]: event.target.value,
+      }, ()=>{
+        this.setState({validations: validatePassword(this.state.newPassword, this.state.confirmNewPassword)}, ()=>{
+          this.checkIfUserCanSubmit();
+        })
+      });
+    }
 
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
@@ -305,7 +325,7 @@ export default class UserAccountComponent extends Component {
 					type="password"
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={handleChange("newPassword")}
+					onChange={passwordCheck("newPassword")}
 				/>
 				<TextField
 					error={confirmed}
@@ -313,16 +333,19 @@ export default class UserAccountComponent extends Component {
 					type="password"
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
-					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("confirmNewPassword")}
+					style={{ width: "100%", marginBottom: "1em" }}
+					onChange={passwordCheck("confirmNewPassword")}
 				/>
-
+				<PasswordRequirementsComponent
+          showList = {!this.state.canSubmit}
+          validations = {this.state.validations} />
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
-						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
+						disabled={!this.state.canSubmit}
+						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
@@ -356,15 +379,13 @@ export default class UserAccountComponent extends Component {
 					justifyContent: "center",
 					alignItems: "center",
 					width: "..",
-					height: height
+					height: height,
+					marginBottom: '5%'
 				}}
 			>
 				<div
 					style={{
 						width: "450px",
-						marginTop: "30px",
-						marginLeft: "30px",
-						marginRight: "30px",
 						alignSelf: isSmall ? "flex-start" : "center"
 					}}
 				>
@@ -372,15 +393,9 @@ export default class UserAccountComponent extends Component {
 
 					{this.accountDetails()}
 
-					{isSmall && this.getInnerCard()}
-
-					{!isSmall && (
-						<Card>
-							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em" }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					)}
+					<Card className="userAccCardStyle resetPasswordCard">
+						{this.getInnerCard()}
+					</Card>
 
 					{redirect && (
 						<Redirect from={userPageUrl} to={transferPageUrl}></Redirect>

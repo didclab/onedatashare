@@ -14,7 +14,16 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { login } from '../../APICalls/APICalls.js';
 
-import { transferPageUrl, signInUrl, registerPageUrl, forgotPasswordUrl , lostValidationCodeUrl } from "../../constants";
+import './AccountControlComponent.css';
+
+import {
+	transferPageUrl,
+	signInUrl,
+	registerPageUrl,
+	forgotPasswordUrl,
+	lostValidationCodeUrl,
+	accountPageUrl
+} from "../../constants";
 import { store } from '../../App.js';
 import { loginAction } from '../../model/actions';
 import {cookies} from '../../model/reducers';
@@ -40,7 +49,7 @@ export default class AccountControlComponent extends Component {
 					}}
 					removedAccount={(accounts) => {
 						cookies.set('SavedUsers', JSON.stringify(accounts));
-						this.setState({loading: false, accounts: accounts});
+						this.setState({loading: false, accounts: accounts, signIn:true});
 					}}
 					useAnotherAccount={() => {
 						this.setState({signIn: true});
@@ -59,13 +68,14 @@ export default class AccountControlComponent extends Component {
 			screen: this.newLogin,
 			creatingAccount: false,
 			loggingAccount: false,
+			redirectToSignIn: false,
 			// When signIn is set, it launches /account/signIn url
 			// In all back function's, that are sent as props to the child components, this flag is set to true
 			// and the flag for the corresponding components is set to false
 			// Eg: { signIn: true, creatingAccount: false } in props of 'CreateAccountComponent' component
 			// If the user clicks register on navbar, then check the route and redirect to register page. So, the signIn
 			// flag should be false
-			signIn: false || (Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl),
+			signIn: false,
 			forgotPasswordPressed: false,
 			lostValidationCodePressed: false
 		}
@@ -124,11 +134,8 @@ export default class AccountControlComponent extends Component {
 
 				<Route exact path={registerPageUrl}
 					render={(props) => <CreateAccountComponent {...props}
-						create={(email, password) => {
-
-						}}
 						backToSignin={() => {
-							this.setState({ signIn: true, creatingAccount: false });
+							this.setState({ redirectToSignIn: true });
 						}}
 					/>}>
 				</Route>
@@ -183,12 +190,18 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed } = this.state;
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
+		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
+		this.state.creatingAccount = false;
+		this.state.lostValidationCodePressed = false;
+		this.state.forgotPasswordPressed = false;
+		this.state.redirectToSignIn = false;
+
 		const currentRoute = this.props.location.pathname
 			return (
 
-				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingTop: '5%', paddingBottom: '5%'}}>
-					<div style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%', marginLeft: '1%', marginRight: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
+					<div className="accCardStyle" style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}
@@ -196,7 +209,8 @@ export default class AccountControlComponent extends Component {
 						{store.getState().login && <Redirect to={transferPageUrl} />}
 						{(currentRoute !== registerPageUrl && creatingAccount) && <Redirect to={registerPageUrl} />}
 						{(currentRoute !== forgotPasswordUrl && forgotPasswordPressed) && <Redirect to={forgotPasswordUrl} />}
-						{(currentRoute !== signInUrl && signIn)  && <Redirect to={signInUrl} />}
+						{redirectToSignIn && <Redirect to={signInUrl} />}
+						{(currentRoute === accountPageUrl && signIn) && <Redirect from={accountPageUrl} to={signInUrl} />}
 						{loading && <LinearProgress />}
 
 

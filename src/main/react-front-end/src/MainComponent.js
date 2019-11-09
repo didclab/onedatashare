@@ -18,6 +18,8 @@ import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
 
+import "./MainComponent.css"
+
 export default class MainComponent extends Component {
   constructor(props) {
     super(props);
@@ -49,7 +51,7 @@ export default class MainComponent extends Component {
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div style={{ display: 'block' }}>
+        <div class="content" style={{ display: 'block'}}>
           <Switch>
 
             <Route path='/account'

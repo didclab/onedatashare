@@ -86,7 +86,8 @@ export default class EndpointBrowseComponent extends Component {
 	    window.addEventListener('click', this.onWindowClick);
 	    window.addEventListener('keydown', this.onWindowKeyDown);
 	    window.addEventListener('touchend', this.onWindowTouchEnd);
-	    eventEmitter.on("fileChange", this.fileChangeHandler); 
+	    eventEmitter.on("fileChange", this.fileChangeHandler);
+		this.timestamp = Date.now();
 	}
 
 	fileChangeHandler(){
@@ -175,8 +176,11 @@ export default class EndpointBrowseComponent extends Component {
 
 	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
-	      return;
+	      	return;
 	    }
+	    if(Date.now() - this.timestamp < 200)
+			this.unselectAll();
+	    this.timestamp = Date.now();
 	};
 	
 	fileNodeDoubleClicked(filename, id){
@@ -446,19 +450,19 @@ export default class EndpointBrowseComponent extends Component {
 	          onClose={this.handleClose}
 	          aria-labelledby="form-dialog-title"
 	        >
-	          <DialogTitle id="form-dialog-title">Add folder</DialogTitle>
+	          <DialogTitle id="form-dialog-title">Create directory</DialogTitle>
 	          <DialogContent>
 	            <TextField
 	              autoFocus
 	              id={endpoint.side+"MkdirName"}
-	              label="name"
+	              label="Directory Name"
 	              onChange={this._handleAddFolderTextFieldChange}
 	              fullWidth
 	            />
 	          </DialogContent>
 	          <DialogActions>
 	            <Button id={endpoint.side+"MkdirSubmit"} onClick={this.handleCloseWithFolderAdded} color="primary">
-	              Add
+	              Create
 	            </Button>
 	          </DialogActions>
 	        </Dialog>

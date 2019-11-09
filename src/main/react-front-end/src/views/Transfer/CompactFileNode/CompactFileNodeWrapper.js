@@ -190,10 +190,10 @@ export default class CompactFileNodeWrapper extends Component {
 					{
 						displayList.map((fileId, index) => {
 						const file = list[fileId];
-						const isSelected: boolean = Boolean(
+						const isSelected = Boolean(
 		                  selectedTasks.indexOf(file)!==-1,
 		                );
-		                const isGhosting: boolean = isSelected &&
+		                const isGhosting = isSelected &&
 		                    Boolean(draggingTask) &&
 		                    draggingTask.name !== file.name;
 						    return(<FileNodeCompact 

@@ -134,7 +134,7 @@ export default class TransferComponent extends Component {
       dest["uri"] = destUrls[i];
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Scheduled!")
+        eventEmitter.emit("messageOccured", "Transfer Initiated!")
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
@@ -368,16 +368,11 @@ export default class TransferComponent extends Component {
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
     const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
-      this.setState({ [name]: event.target.checked }, ()=>{
-        //console.log(this.state.compact);
-      });
-
+      this.setState({ [name]: event.target.checked });
     };
 
     let updateCompactViewPreference = name => event =>{
-      this.setState({ [name]: event.target.checked }, ()=>{
-        //console.log(this.state.compact);
-      });
+      this.setState({ [name]: event.target.checked });
       let compactViewEnabled = event.target.checked;
 		  let email = store.getState().email;
 		  updateViewPreference(email, compactViewEnabled,
@@ -390,7 +385,7 @@ export default class TransferComponent extends Component {
     };
 
     return (
-      <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '5%'}}>
+      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
 
           {!isSmall &&
@@ -414,30 +409,28 @@ export default class TransferComponent extends Component {
                 Browse and Transfer Files
               </p>
             </div>
+          </Panel.Heading>
 
-            </Panel.Heading>
-            <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-                <Row style={{flexDirection: 'column'}}>
-                  <DragDropContext
-                    onDragStart={this.onDragStart}
-                    onDragEnd={this.onDragEnd}
-                  >
-                  <Col xs={6} style={panelStyle}  >
-                    {this._returnBrowseComponent1()}
-                  </Col>
-                  <Col xs={6} style={panelStyle} >
-                    {this._returnBrowseComponent2()}
-                  </Col>
-                  </DragDropContext>
-                </Row>
-                <Row style={{display: 'block', ...headerStyle}}>
-                    <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
-                    <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
-                </Row>
+          <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
+              <DragDropContext
+                onDragStart={this.onDragStart}
+                onDragEnd={this.onDragEnd}>
+                <Col xs={6} style={panelStyle}  >
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Col xs={6} style={panelStyle} >
+                  {this._returnBrowseComponent2()}
+                </Col>
+              </DragDropContext>
+            </Row>
+            <Row style={{display: 'block', ...headerStyle}}>
+                <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+            </Row>
 
-
-              <ErrorMessagesConsole/>
-            </Panel.Body>
+            <ErrorMessagesConsole/>
+          </Panel.Body>
           </Panel>
 
 

@@ -206,7 +206,7 @@ class ClientsInfoComponent extends Component{
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginTop: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
+				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>

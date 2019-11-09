@@ -1,3 +1,14 @@
+.textStyle{
+    color:white !important; 
+    font-size: 1.2em;
+    text-align: left;
+}
+
+.headerStyle{
+    font-weight: 200;
+    font-size: 4em;
+}
+
 /* Desktop */
 @media screen and (min-width: 980px)  {
     .adjustTop{
@@ -6,8 +17,10 @@
         margin-top : -5%;
     }
 
-    .adjustContent{
-        padding-top: 5%;
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 8vw;
     }
 }
 
@@ -19,12 +32,10 @@
         margin-top : -10%;
     }
 
-    .adjustContent{
-        padding-top: 10%;
-    }
-
-    img{
-        max-height: 55vh !important
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 8vw;
     }
 }
 
@@ -36,34 +47,14 @@
         margin-top : -20%;
     }
 
-    .adjustContent{
-        padding-top: 35% !important;
+    .cardStyle{
+        margin-left: 10vw;
+        margin-right: 10vw;
+        margin-top: 20vw;
     }
 
-    .carouselStyle{
-        height : 80% !important;
+    .headerStyle{
+        font-weight: 600;
+        font-size: 3em;
     }
-
-    img{
-        max-height: 80vh !important
-    }
-}
-
-
-.content{
-    height: 100vh;
-    padding-top: 5%;
-    padding-bottom: 2%, 
-}
-
-.carouselStyle{
-    height : 90%;
-}
-
-.carousel-control.right, .carousel-control.left{
-    background-image: unset !important;
-}
-
-.carousel-indicators{
-    bottom : -10% !important
 }
