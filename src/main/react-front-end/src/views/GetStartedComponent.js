@@ -20,7 +20,7 @@ export default class GetStartedComponent extends Component{
     constructor(){
         super();
 
-        let imgStyle = { maxWidth : '90%', maxHeight: '35vw',  border: '1px black solid', marginTop: '2vw' }
+        let imgStyle = { maxWidth : '90%', maxHeight: '70vh',  border: '1px black solid', marginTop: '2vw' }
 
         this.data = [
             {
@@ -79,8 +79,9 @@ export default class GetStartedComponent extends Component{
             );
         })
         return(
-            <div class="adjustTop" style={{ height: '800px', paddingTop : '5%', paddingBottom : '5%', backgroundImage: 'url(' + background + ')'}}>
-                <Carousel style={{ height : '90%' }}>
+            <div className="adjustTop adjustContent content" 
+                style={{ backgroundImage: 'url(' + background + ')'}}>
+                <Carousel className="carouselStyle">
                     {carouselItems}
 
                     <Carousel.Item style={ carouselItemStyle }>
