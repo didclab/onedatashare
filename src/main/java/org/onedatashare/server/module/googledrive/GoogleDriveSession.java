@@ -61,6 +61,10 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         return Mono.just(new GoogleDriveResource(this, path, id));
     }
 
+    /**
+     * This method is used for initializing googleDriveSession when OAuth tokens are not saved in the backend
+     * It skips refresh token check as refresh tokens are not stored in the front-end
+     */
     public Mono<GoogleDriveSession> initializeNotSaved() {
         return Mono.create(s -> {
             if (getCredential() instanceof OAuthCredential) {
