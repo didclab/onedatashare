@@ -1,8 +1,6 @@
 package org.onedatashare.server.module.box;
 
-import ch.qos.logback.core.net.SyslogOutputStream;
 import com.box.sdk.BoxAPIConnection;
-import com.box.sdk.BoxAPIException;
 import com.box.sdk.BoxAPIResponseException;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
@@ -10,7 +8,6 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
-import org.onedatashare.server.service.oauth.BoxOauthService;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;

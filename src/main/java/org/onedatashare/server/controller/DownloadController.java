@@ -4,7 +4,6 @@ import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.requestdata.RequestData;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;

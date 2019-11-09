@@ -164,11 +164,6 @@ public class OauthController {
     @GetMapping(value = "/box")
     public Object boxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
         String cookie = headers.getFirst(ODSConstants.COOKIE);
-//        return boxOauthService.finish(queryParameters.get("code"), cookie)
-//                .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-//                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
-//                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox" ).build()));
-
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
