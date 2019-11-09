@@ -14,7 +14,14 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { login } from '../../APICalls/APICalls.js';
 
-import { transferPageUrl, signInUrl, registerPageUrl, forgotPasswordUrl , lostValidationCodeUrl } from "../../constants";
+import {
+	transferPageUrl,
+	signInUrl,
+	registerPageUrl,
+	forgotPasswordUrl,
+	lostValidationCodeUrl,
+	accountPageUrl
+} from "../../constants";
 import { store } from '../../App.js';
 import { loginAction } from '../../model/actions';
 import {cookies} from '../../model/reducers';
@@ -40,7 +47,7 @@ export default class AccountControlComponent extends Component {
 					}}
 					removedAccount={(accounts) => {
 						cookies.set('SavedUsers', JSON.stringify(accounts));
-						this.setState({loading: false, accounts: accounts});
+						this.setState({loading: false, accounts: accounts, signIn:true});
 					}}
 					useAnotherAccount={() => {
 						this.setState({signIn: true});
@@ -49,7 +56,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	
+
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
@@ -65,7 +72,7 @@ export default class AccountControlComponent extends Component {
 			// Eg: { signIn: true, creatingAccount: false } in props of 'CreateAccountComponent' component
 			// If the user clicks register on navbar, then check the route and redirect to register page. So, the signIn
 			// flag should be false
-			signIn: false || (Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl),
+			signIn: false,
 			forgotPasswordPressed: false,
 			lostValidationCodePressed: false
 		}
@@ -84,16 +91,15 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
+  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});
   }
-  
+
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -110,7 +116,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
 	    	},
 	    	(error) => {fail(error)}
 	    );
@@ -184,13 +190,17 @@ export default class AccountControlComponent extends Component {
 
 	render() {
 
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed } = this.state;
-		const height = window.innerHeight + "px";
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts } = this.state;
+		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
+		this.state.creatingAccount = false;
+		this.state.lostValidationCodePressed = false;
+		this.state.forgotPasswordPressed = false;
+
 		const currentRoute = this.props.location.pathname
 			return (
 
-				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
+					<div style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%', marginLeft: '1%', marginRight: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}
@@ -198,7 +208,7 @@ export default class AccountControlComponent extends Component {
 						{store.getState().login && <Redirect to={transferPageUrl} />}
 						{(currentRoute !== registerPageUrl && creatingAccount) && <Redirect to={registerPageUrl} />}
 						{(currentRoute !== forgotPasswordUrl && forgotPasswordPressed) && <Redirect to={forgotPasswordUrl} />}
-						{(currentRoute !== signInUrl && signIn)  && <Redirect to={signInUrl} />}
+						{(currentRoute === accountPageUrl && signIn) && <Redirect from={accountPageUrl} to={signInUrl} />}
 						{loading && <LinearProgress />}
 
 

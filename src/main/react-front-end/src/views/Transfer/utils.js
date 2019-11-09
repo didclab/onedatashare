@@ -134,7 +134,7 @@ export const multiSelectTo = (
     return [];
   }
 
-  //console.log(selectedTaskIds); 
+  //console.log(selectedTaskIds);
 
   const isSelectingForwards = indexOfNew > indexOfLast;
   const start = isSelectingForwards ? indexOfLast : indexOfNew;
@@ -163,7 +163,7 @@ export const mutliDragAwareReorder = (args) => {
   if (args.selectedTasks["left"].length + args.selectedTasks["right"].length > 1) {
     return reorderMultiDrag(args);
   }
-  
+
   return reorderSingleDrag(args);
 };
 
@@ -173,8 +173,8 @@ const reorderMultiDrag = ({
   source,
   destination,
 }): Result => {
-  
-  
+
+
   const start = getColumn(source.droppableId);
   const dragged = start.tasks[source.index];
 
@@ -188,10 +188,15 @@ const reorderMultiDrag = ({
         return 1;
       }
 
+
       // sorting by their natural indexes
       const columnForA = getHomeColumn(entities, a);
-      const indexOfA = columnForA.tasks.indexOf(a);
       const columnForB = getHomeColumn(entities, b);
+      
+      if(!columnForA || !columnForB)
+        return -1;
+
+      const indexOfA = columnForA.tasks.indexOf(a);
       //console.log(columnForB)
       const indexOfB = columnForB.tasks.indexOf(b);
 
@@ -206,7 +211,7 @@ const reorderMultiDrag = ({
   selectedTasks[destination.droppableId] = [];
   const insertAtIndex = destination.index;
   //console.log(insertAtIndex);
-  
+
   const startSave = JSON.parse(JSON.stringify(start));
   // we need to remove all of the selected tasks from their columns
   const withRemovedTasks = Object.keys(entities).reduce(
@@ -219,7 +224,7 @@ const reorderMultiDrag = ({
     },
     entities,
   );
-  
+
 
   const finalCol = withRemovedTasks[destination.droppableId];
   const withInserted = (() => {

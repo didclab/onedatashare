@@ -96,7 +96,8 @@ export default class EndpointBrowseComponent extends Component {
 	    window.addEventListener('click', this.onWindowClick);
 	    window.addEventListener('keydown', this.onWindowKeyDown);
 	    window.addEventListener('touchend', this.onWindowTouchEnd);
-	    eventEmitter.on("fileChange", this.fileChangeHandler); 
+	    eventEmitter.on("fileChange", this.fileChangeHandler);
+		this.timestamp = Date.now();
 	}
 
 	fileChangeHandler(){
@@ -114,7 +115,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelection = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTaskIds = getSelectedTasksFromSide(endpoint);
-	    const wasSelected: boolean = selectedTaskIds.includes(task);
+	    const wasSelected = selectedTaskIds.includes(task);
 	    const newTasks = (() => {
 	      // Task was not previously selected
 	      // now will be the only selected item
@@ -136,7 +137,7 @@ export default class EndpointBrowseComponent extends Component {
   	toggleSelectionInGroup = (task) => {
   		const {endpoint} = this.props;
 	    const selectedTasks = getSelectedTasksFromSide(endpoint);
-	    const index: number = selectedTasks.indexOf(task);
+	    const index = selectedTasks.indexOf(task);
 	    // if not selected - add it to the selected items
 	    if (index === -1) {
 	      setSelectedTasksForSide([...selectedTasks, task], endpoint);
@@ -185,8 +186,11 @@ export default class EndpointBrowseComponent extends Component {
 
 	onWindowTouchEnd = (event) => {
 	    if (event.defaultPrevented) {
-	      return;
+	      	return;
 	    }
+	    if(Date.now() - this.timestamp < 200)
+			this.unselectAll();
+	    this.timestamp = Date.now();
 	};
 	
 	fileNodeDoubleClicked(filename, id){
@@ -458,19 +462,19 @@ export default class EndpointBrowseComponent extends Component {
 	          onClose={this.handleClose}
 	          aria-labelledby="form-dialog-title"
 	        >
-	          <DialogTitle id="form-dialog-title">Add folder</DialogTitle>
+	          <DialogTitle id="form-dialog-title">Create directory</DialogTitle>
 	          <DialogContent>
 	            <TextField
 	              autoFocus
 	              id={endpoint.side+"MkdirName"}
-	              label="name"
+	              label="Directory Name"
 	              onChange={this._handleAddFolderTextFieldChange}
 	              fullWidth
 	            />
 	          </DialogContent>
 	          <DialogActions>
 	            <Button id={endpoint.side+"MkdirSubmit"} onClick={this.handleCloseWithFolderAdded} color="primary">
-	              Add
+	              Create
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
@@ -564,7 +568,7 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{padding: "4px",marginLeft: 4, flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+				<InputGroup style={{flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
 					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
@@ -591,7 +595,7 @@ export default class EndpointBrowseComponent extends Component {
 
 			
 			<Droppable droppableId={endpoint.side} > 
-				{(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
+				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
@@ -599,13 +603,13 @@ export default class EndpointBrowseComponent extends Component {
 					>
 						{!loading && Object.keys(list).length === 0 &&
 							<h2>
-								This directory is EMPTY
+								This directory is empty.
 							</h2>
 						}
 
 						{loading && Object.keys(list).length === 0 &&
-							<h2>
-								LOADING
+							<h2 style={{ textAlign: 'center' }}>
+								Loading...
 							</h2>
 						}
 
@@ -638,10 +642,10 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
-							const isSelected: boolean = Boolean(
+							const isSelected = Boolean(
 			                  selectedTasks.indexOf(file)!==-1,
 			                );
-			                const isGhosting: boolean =
+			                const isGhosting =
 			                  isSelected &&
 			                  Boolean(draggingTask) &&
 			                  draggingTask.name !== file.name;
