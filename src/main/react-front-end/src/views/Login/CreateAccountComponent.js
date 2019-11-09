@@ -80,25 +80,24 @@ export default class CreateAccountComponent extends Component {
         captchaVerificationValue: this.state.captchaVerificationValue
       }
 
-      registerUser(reqBody)
-        .then((response) => {
-          if (response.status === 200) {
-            this.setState({ screen: "verifyCode", verificationError: "", loading: false });
-          }
-          else if (response.status === 302) {
-            this.setState({
-              emaildError: "User with same Email ID already exists",
-              verificationError: "User with same Email ID already exists",
-              loading: false
-            });
-            eventEmitter.emit("errorOccured", "User with same Email ID already exists");
-          }
-          this.resetCaptcha();
-        },
-        (error) => {
-          this.setState({ error: true });
-          eventEmitter.emit("errorOccured", "Error occured while registering the user" );
-        });
+      registerUser(reqBody, ()=>{
+        this.setState({ error: true, loading : false });
+        eventEmitter.emit("errorOccured", "Error occured while registering the user" );
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          this.setState({ screen: "verifyCode", verificationError: "", loading: false });
+        }
+        else if (response.status === 302) {
+          this.setState({
+            emaildError: "User with same Email ID already exists",
+            verificationError: "User with same Email ID already exists",
+            loading: false
+          });
+          eventEmitter.emit("errorOccured", "User with same Email ID already exists");
+        }
+        this.resetCaptcha();
+      })
     }
     else {
       eventEmitter.emit("errorOccured", "Please verify you are not a robot!");

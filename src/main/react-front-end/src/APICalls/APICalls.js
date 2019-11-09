@@ -792,7 +792,7 @@ export async function openOAuth(url){
 }
 
 
-export async function registerUser(requestBody) {
+export async function registerUser(requestBody, errorCallback) {
 
 	return axios.post(url+'user', {action: "register", ...requestBody})
 				.then((response) => {
@@ -810,7 +810,8 @@ export async function registerUser(requestBody) {
 				.catch((error) => {
 						//statusHandle(error, fail);
 						console.error("Error while registering user");
-						return {status : 500}
+						errorCallback();
+						return new Error({status: 500});
 					}
 				);
 }
