@@ -160,9 +160,9 @@ export default class FileNode extends Component {
 	      return;
 	    }
 
-	    // marking the event as used
-	    // we would also need to add some extra logic to prevent the click
-	    // if this element was an anchor
+	//     // marking the event as used
+	//     // we would also need to add some extra logic to prevent the click
+	//     // if this element was an anchor
 	    event.preventDefault();
 
 	    this.props.toggleSelectionInGroup(this.props.file);
@@ -267,7 +267,7 @@ export default class FileNode extends Component {
 									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
 								</div>
 							}
-					</FileDiv>
+					 </FileDiv>
 			)}}
 		</Draggable>);
 	}

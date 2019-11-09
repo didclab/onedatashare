@@ -116,7 +116,9 @@ export default class NewLoginComponent extends Component {
 		          	style={{width: "90%", margin: "5%"}}
                 />
 		        <CardActions style={spaceBetweenStyle}>
-			        <Button size="small" color="primary" onClick={createAccountPressed}>Create Account</Button>
+			        <Button size="large" variant="outlined" color="primary" onClick={createAccountPressed}>
+								Create Account
+							</Button>
 			        <Button size="large" variant="contained" color="primary"  type="submit" >
 			          Next
 			        </Button>
@@ -161,11 +163,17 @@ export default class NewLoginComponent extends Component {
 	        } label="Remember"/>
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>forgotPasswordPressed(email)}>
 		          Forgot Password?
 		        </Button>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>lostValidationCodePressed(email)}>
 		          Lost Validation Email?
 		        </Button>
@@ -173,7 +181,7 @@ export default class NewLoginComponent extends Component {
 
 		    <Button size="large" variant="contained" color="primary" type="submit" style={{width: '100%'}}>
 	        	Next
-	       	</Button>
+	      </Button>
 
 		    </ValidatorForm>
 	        
