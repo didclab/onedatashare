@@ -7,6 +7,8 @@ import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponen
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 
+import './UserAccountComponent.css';
+
 import {
 	Dialog,
 	DialogActions,
@@ -165,11 +167,10 @@ export default class UserAccountComponent extends Component {
 	}
 
 	accountDetails() {
-		let cardStyles = { minWidth: 275, border: '2px #74bdf1 solid', borderRadius: '1%' };
 		return (
 			<div>
 				<List>
-					<Card style={cardStyles}>
+					<Card className="userAccCardStyle">
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
@@ -182,7 +183,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
-                        			id="UserEmail"
+                  id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -222,7 +223,7 @@ export default class UserAccountComponent extends Component {
 				</List>
 
 				<List>
-					<Card style={{ ...cardStyles, paddingLeft: '2em', paddingRight: '2em' }}>
+					<Card className="userAccCardStyle" style={{ paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
@@ -244,6 +245,7 @@ export default class UserAccountComponent extends Component {
 						</CardContent>
 					</Card>
 				</List>
+
 				<Dialog
 					open={this.state.openAlertDialog}
 					onClose={this.handleAlertClose}
@@ -301,8 +303,6 @@ export default class UserAccountComponent extends Component {
       });
     }
 
-
-
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
@@ -343,6 +343,7 @@ export default class UserAccountComponent extends Component {
 						color="primary"
 						style={{ width: "100%" }}
 						disabled={!this.state.canSubmit}
+						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
@@ -390,15 +391,9 @@ export default class UserAccountComponent extends Component {
 
 					{this.accountDetails()}
 
-					{isSmall && this.getInnerCard()}
-
-					{!isSmall && (
-						<Card>
-							<CardContent style={{ border: '2px #74bdf1 solid', borderRadius: '1%', paddingLeft: "3em", paddingRight: "3em"  }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					)}
+					<Card className="userAccCardStyle resetPasswordCard">
+						{this.getInnerCard()}
+					</Card>
 
 					{redirect && (
 						<Redirect from={userPageUrl} to={transferPageUrl}></Redirect>

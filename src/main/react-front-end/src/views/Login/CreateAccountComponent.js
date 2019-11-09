@@ -4,7 +4,6 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import CardActions from '@material-ui/core/CardActions';
 import Checkbox from '@material-ui/core/Checkbox';
-import Divider from '@material-ui/core/Divider';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
@@ -81,25 +80,24 @@ export default class CreateAccountComponent extends Component {
         captchaVerificationValue: this.state.captchaVerificationValue
       }
 
-      registerUser(reqBody)
-        .then((response) => {
-          if (response.status === 200) {
-            this.setState({ screen: "verifyCode", verificationError: "", loading: false });
-          }
-          else if (response.status === 302) {
-            this.setState({
-              emaildError: "User with same Email ID already exists",
-              verificationError: "User with same Email ID already exists",
-              loading: false
-            });
-            eventEmitter.emit("errorOccured", "User with same Email ID already exists");
-          }
-          this.resetCaptcha();
-        },
-        (error) => {
-          this.setState({ error: true });
-          eventEmitter.emit("errorOccured", "Error occured while registering the user" );
-        });
+      registerUser(reqBody, ()=>{
+        this.setState({ error: true, loading : false });
+        eventEmitter.emit("errorOccured", "Error occured while registering the user" );
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          this.setState({ screen: "verifyCode", verificationError: "", loading: false });
+        }
+        else if (response.status === 302) {
+          this.setState({
+            emaildError: "User with same Email ID already exists",
+            verificationError: "User with same Email ID already exists",
+            loading: false
+          });
+          eventEmitter.emit("errorOccured", "User with same Email ID already exists");
+        }
+        this.resetCaptcha();
+      })
     }
     else {
       eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
@@ -276,12 +274,14 @@ export default class CreateAccountComponent extends Component {
             </div>
 
             <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
-              <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                Sign in Instead
-                  </Button>
+              <Button size="medium" variant="outlined" color="primary">
+                <Link to="/account/signIn">
+                    Sign in
+                </Link>
+              </Button>
               <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
-                  </Button>
+              </Button>
             </CardActions>
 
           </ValidatorForm>
