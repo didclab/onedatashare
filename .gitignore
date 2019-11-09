@@ -92,3 +92,6 @@ output.log
 
 # DockerFile
 Dockerfile
+
+# UI build files
+src/main/resources/static
