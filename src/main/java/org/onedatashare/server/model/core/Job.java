@@ -80,6 +80,7 @@ public class Job {
       case processing:
         times.started = Time.now(); break;
       case removed:
+      case cancelled:
       case failed:
       case complete:
         times.completed = Time.now(); break;

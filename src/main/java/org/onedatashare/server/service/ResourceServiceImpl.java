@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
+
 @Service
 public class ResourceServiceImpl implements ResourceService<Resource>  {
     @Autowired
@@ -282,7 +284,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
             .map(transfer::setDestination)
             .flux()
-            .flatMap(transfer1 -> transfer1.start(1L << 20))
+            .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
             .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
             .doOnCancel(new RunnableCanceler(job))
             .doFinally(s -> {
