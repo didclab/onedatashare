@@ -17,13 +17,15 @@ public class TransferInfo {
   public double avg;
   /** Instantaneous throughput. */
   public double inst;
+  /** To Store Time **/
+  private long time;
 
   /** Update based on the given information. */
   public void update(Time time, Progress p, Throughput tp) {
+    this.time = time.elapsed();
     done = p.done();
 //    total = p.total();
     avg = p.rate(time).value();
-    inst = tp.value();
   }
 
   public TransferInfo(long total) {
