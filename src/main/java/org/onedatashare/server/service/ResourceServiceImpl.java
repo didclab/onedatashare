@@ -62,8 +62,8 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
         }
         else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred, false))
-                    .flatMap(GoogleDriveSession::initialize)
+                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(GoogleDriveSession::initializeNotSaved)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }
@@ -228,7 +228,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
                         .map(job -> {
                             ongoingJobs.get(job.getUuid()).dispose();
                             ongoingJobs.remove(job.getUuid());
-                            return job.setStatus(JobStatus.removed);
+                            return job.setStatus(JobStatus.cancelled);
                         }))
                 .subscribeOn(Schedulers.elastic());
     }
@@ -286,7 +286,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
             .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
             .doOnCancel(new RunnableCanceler(job))
             .doFinally(s -> {
-                if (job.getStatus() != JobStatus.removed)
+                if (job.getStatus() != JobStatus.cancelled)
                     job.setStatus(JobStatus.complete);
                 jobService.saveJob(job).subscribe();
                 ongoingJobs.remove(job.getUuid());
@@ -306,7 +306,7 @@ public class ResourceServiceImpl implements ResourceService<Resource>  {
 
         @Override
         public void run() {
-            job.setStatus(JobStatus.removed);
+            job.setStatus(JobStatus.cancelled);
         }
     }
 }

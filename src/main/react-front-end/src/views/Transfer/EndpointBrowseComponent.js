@@ -32,8 +32,8 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
 import { eventEmitter } from "../../App";
-
-import { getType } from '../../constants.js';
+import { cookies } from "../../model/reducers";
+import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
@@ -98,7 +98,7 @@ export default class EndpointBrowseComponent extends Component {
 	    window.removeEventListener('click', this.onWindowClick);
 	    window.removeEventListener('keydown', this.onWindowKeyDown);
 		window.removeEventListener('touchend', this.onWindowTouchEnd);
-		this.unselectAll();
+		unselectAll();
 	}
 	
 
@@ -153,17 +153,13 @@ export default class EndpointBrowseComponent extends Component {
 	    setSelectedTasksForSide(updated, endpoint);
 	};
 
-	unselectAll = () => {
-		unselectAll();
-	};
-
 	onWindowKeyDown = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
 
 	    if (event.key === 'Escape') {
-	      this.unselectAll();
+	      unselectAll();
 	    }
 	};
 
@@ -171,7 +167,6 @@ export default class EndpointBrowseComponent extends Component {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
-	    //this.unselectAll();
 	};
 
 	onWindowTouchEnd = (event) => {
@@ -179,14 +174,14 @@ export default class EndpointBrowseComponent extends Component {
 	      	return;
 	    }
 	    if(Date.now() - this.timestamp < 200)
-			this.unselectAll();
+			unselectAll();
 	    this.timestamp = Date.now();
 	};
 	
 	fileNodeDoubleClicked(filename, id){
 		this.props.setLoading(true);
 		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);
-		this.unselectAll();
+		unselectAll();
 	}
 
 	breadcrumbClicked(index){
@@ -285,18 +280,39 @@ export default class EndpointBrowseComponent extends Component {
 			this.setState({directoryPath: path, ids: id});
 			setLoading(false);
 		}, (error) =>{
-			this._handleError("Login Failed. Re-directing to OAuth page");
-			setLoading(false);
-			emptyFileNodesData(endpoint);
-			this.unselectAll();
-			this.props.back();		
-			
-			setTimeout(()=> {
-			if(getType(endpoint) === DROPBOX_TYPE)
-				openDropboxOAuth();
-			else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-				openGoogleDriveOAuth();
-			}, 2000);	
+			if(error === "500"){
+				this._handleError("Login Failed. Re-directing to OAuth page");
+				setLoading(false);
+				emptyFileNodesData(endpoint);
+				
+				let type = getName(endpoint);
+				let cred = endpoint.credential;
+				let savedCreds = cookies.get(type);
+
+				// Delete the creds from the cookie if they exist
+				if(savedCreds !== undefined){
+					let parsedCredsArr = JSON.parse();
+					let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+																	return curObj.name !== cred.name;
+															});
+					if(filteredCredsArr.length === 0){
+						cookies.remove(type);
+					}
+					else{
+						cookies.set(type, JSON.stringify(filteredCredsArr));
+					}	
+				}
+
+				this.unselectAll();
+				this.props.back();
+				
+				setTimeout(()=> {
+					if(getType(endpoint) === DROPBOX_TYPE)
+						openDropboxOAuth();
+					else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+						openGoogleDriveOAuth();
+				}, 3000);
+			}
 		});
 	};
 
@@ -339,36 +355,33 @@ export default class EndpointBrowseComponent extends Component {
 	}
 
 	_handleAddFolderTextFieldChange = (e) => {
-        this.setState({
-            addFolderName: e.target.value
-        });
-    }
+		this.setState({
+				addFolderName: e.target.value
+		});
+	}
 
-    handleCloseWithFileDeleted = (files) => {
-    	const {endpoint, setLoading} = this.props;
-    	const {directoryPath, ids} = this.state;
-    	const len = files.length;
-    	var i = 0;
-    	if(this._handleConfirmation("Are you sure you want to delete" + files.reduce((a, v) => a+"\n"+v.name, ""))){
-    		setLoading(true);
-    		files.map((file) => {
-    			const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-    			
-				console.log("delete before success", directoryPath, ids)
-    			deleteCall( fileName, endpoint,  file.id, (response) => {
-    				console.log("delete after success", directoryPath, ids)
-    				i++;
-    				if(i === len){
-    					this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
-    				}
-    			}, (error) => {
-    				this._handleError(error);
-    			});
-    		});
-    	}
-    }
+	handleCloseWithFileDeleted = (files) => {
+		const {endpoint, setLoading} = this.props;
+		const {directoryPath, ids} = this.state;
+		const len = files.length;
+		var i = 0;
+		if(this._handleConfirmation("Are you sure you want to delete" + files.reduce((a, v) => a+"\n"+v.name, ""))){
+			setLoading(true);
+			files.map((file) => {
+				const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
+				deleteCall( fileName, endpoint,  file.id, (response) => {
+					i++;
+					if(i === len){
+						this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
+					}
+				}, (error) => {
+					this._handleError(error);
+				});
+			});
 
-	
+			unselectAll();
+		}
+	}
 
 	render(){
 		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
@@ -399,7 +412,6 @@ export default class EndpointBrowseComponent extends Component {
 			}
 		} 
 		
-
 		const iconStyle = {fontSize: "15px", width: "100%"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
@@ -411,7 +423,6 @@ export default class EndpointBrowseComponent extends Component {
 		  	{name}
 		  </Tooltip>
 		);
-
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
@@ -547,7 +558,7 @@ export default class EndpointBrowseComponent extends Component {
 				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
 				  			emptyFileNodesData(endpoint);
-				  			this.unselectAll();
+				  			unselectAll();
 				  			back();
 				  		}}
 				  			><LogoutButton style={iconStyle}/></BootStrapButton>
@@ -590,7 +601,7 @@ export default class EndpointBrowseComponent extends Component {
 						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "320px"}}
 					>
 						{!loading && Object.keys(list).length === 0 &&
-							<h2>
+							<h2 style={{ textAlign: 'center' }}>
 								This directory is empty.
 							</h2>
 						}
@@ -630,15 +641,10 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
-							const isSelected = Boolean(
-			                  selectedTasks.indexOf(file)!==-1,
-			                );
-			                const isGhosting =
-			                  isSelected &&
-			                  Boolean(draggingTask) &&
-			                  draggingTask.name !== file.name;
+							const isSelected = Boolean(selectedTasks.indexOf(file)!==-1);
+			        const isGhosting = isSelected && Boolean(draggingTask) && draggingTask.name !== file.name;
 
-							  return(
+							return(
 								<FileNode
 									key={fileId}
 									index={index}
@@ -651,10 +657,10 @@ export default class EndpointBrowseComponent extends Component {
 									side={endpoint.side}
 									isSelected={isSelected}
 									endpoint={endpoint}
-				                    isGhosting={isGhosting}
-				                    toggleSelection={this.toggleSelection}
-				                    toggleSelectionInGroup={this.toggleSelectionInGroup}
-				                    multiSelectTo={this.multiSelectTo}
+									isGhosting={isGhosting}
+									toggleSelection={this.toggleSelection}
+									toggleSelectionInGroup={this.toggleSelectionInGroup}
+									multiSelectTo={this.multiSelectTo}
 							/>);
 						})}
 						{provided.placeHolder}

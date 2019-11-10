@@ -89,7 +89,6 @@ class QueueComponent extends Component {
 				resp.map(job => {
 					let existingData = [...this.state.responsesToDisplay]
 					let existingJob = existingData.find(item => item.uuid === job.uuid)
-					existingJob.status = this.capitalizeFirstLetter(job.status)
 					existingJob.bytes.total = job.bytes.total
 					existingJob.bytes.done = job.bytes.done
 					existingJob.bytes.avg = job.bytes.avg
@@ -127,8 +126,11 @@ class QueueComponent extends Component {
 		if (status === 'complete') {
 			return (<ProgressBar now={100} label={'Complete'} style={style} />);
 		}
-		else if (status === 'failed' || status === 'removed') {
+		else if (status === 'failed' ) {
 			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
+		}
+		else if (status === 'removed' || status === "cancelled") {
+			return (<ProgressBar bsStyle="danger" striped now={100} style={style} label={'Cancelled'} />);
 		}
 		else {
 			let percentCompleted = Math.ceil(((done / total) * 100));
@@ -225,7 +227,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status === 'processing' &&
+				{(status === 'processing' || status === 'scheduled') &&
 					<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => { this.cancelButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
@@ -236,7 +238,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status !== 'processing' &&
+				{status !== 'processing' && status !== 'scheduled' &&
 					<Tooltip TransitionComponent={Zoom} title="Restart">
 						<Button onClick={() => { this.restartButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
@@ -247,7 +249,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status !== 'processing' && !deleted &&
+				{status !== 'processing' && status !== 'scheduled' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
 						<Button onClick={() => { this.deleteButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
@@ -286,10 +288,10 @@ class QueueComponent extends Component {
 						<Col md={6}><b>Destination</b></Col>
 						<Col md={6}>{resp.dest.uri}</Col>
 					</Row>
-					<Row>
+					{/* <Row>
 						<Col md={6}><b>Instant Speed</b></Col>
 						<Col md={6}>{this.renderSpeed(resp.bytes.inst)}</Col>
-					</Row>
+					</Row> */}
 					<Row>
 						<Col md={6}><b>Average Speed</b></Col>
 						<Col md={6}>{this.renderSpeed(resp.bytes.avg)}</Col>
@@ -369,6 +371,7 @@ class QueueComponent extends Component {
 			source: "src.uri"
 		}
 		var tableRows = [];
+
 		responsesToDisplay.map(resp => {
 			tableRows.push(
 				<TableRow style={{ alignSelf: "stretch" }}>
