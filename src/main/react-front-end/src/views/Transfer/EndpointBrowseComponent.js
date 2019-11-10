@@ -303,7 +303,7 @@ export default class EndpointBrowseComponent extends Component {
 					}	
 				}
 
-				this.unselectAll();
+				unselectAll();
 				this.props.back();
 				
 				setTimeout(()=> {

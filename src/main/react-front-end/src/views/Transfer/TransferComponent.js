@@ -27,7 +27,6 @@ import Switch from '@material-ui/core/Switch';
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
-import { cookies } from "../../model/reducers";
 
 export default class TransferComponent extends Component {
 

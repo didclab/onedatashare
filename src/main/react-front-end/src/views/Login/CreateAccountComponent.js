@@ -129,6 +129,7 @@ export default class CreateAccountComponent extends Component {
     let password = this.state.password;
     let confirmPassword = this.state.cpassword;
     let code = this.state.code;
+
     setPassword(email, code, password, confirmPassword).then((response) => {
       this.props.backToSignin()
     });
