@@ -50,7 +50,7 @@ class NotificationsComponent extends Component {
             open: false
         }
         this.externalWindow = null;
-        this.refs = React.createRef();
+        this.child = React.createRef();
     }
 
     handleSubjectChange = (event) => {
@@ -99,6 +99,7 @@ class NotificationsComponent extends Component {
             const result = await sendEmailNotification(cookies.get('email'), this.state.subject, this.state.message, this.state.selectedList, false)
             if (result.status === 200) {
                 this.setState({ showSuccessChip: true, successMsg: "Mail sent successfully.", subject: '', message: '', selectedList: [], number: "No recipients selected" });
+                this.child.current.clearSelected();
             } else {
                 this.setState({ showErrorChip: true, errorMsg: result.response });
             }
@@ -107,8 +108,7 @@ class NotificationsComponent extends Component {
     }
 
     onClear = () => {
-        //console.log("clear function");
-        // console.log(this.refs.child.clearSelected());
+        this.child.current.clearSelected();
         this.setState({
             selectedList: [],
             subject: '',
@@ -152,8 +152,6 @@ class NotificationsComponent extends Component {
     }
 
     render() {
-        const { users } = this.state
-        // const classes = useStyles();
         return (
 
             <div style={{ display: 'flex', flex: 1 }}>
@@ -197,7 +195,7 @@ class NotificationsComponent extends Component {
                     </Grid>
                     <Grid container spacing={3}>
                         <Grid item lg={6} xs={12} >
-                            <EnhancedTable users={users} getSelectedList={this.getSelectedList} />
+                            <EnhancedTable users={this.state.users} ref={this.child} getSelectedList={this.getSelectedList} />
                         </Grid>
                         <Grid item lg={6} xs={12} >
                             <Grid

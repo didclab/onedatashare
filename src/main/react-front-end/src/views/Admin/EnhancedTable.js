@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { purple, red } from '@material-ui/core/colors';
@@ -17,6 +17,7 @@ import Paper from '@material-ui/core/Paper';
 import Checkbox from '@material-ui/core/Checkbox';
 import { defaultCipherList } from 'constants';
 import { titleBlue } from '../../color';
+import { withStyles } from '@material-ui/core';
 
 function createData(firstName, lastName, email, isAdmin) {
     return { firstName, lastName, email, isAdmin };
@@ -176,7 +177,7 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-const useStyles = makeStyles(theme => ({
+const useStyles = theme => ({
     root: {
         width: '100%',
         marginTop: theme.spacing(3),
@@ -202,40 +203,45 @@ const useStyles = makeStyles(theme => ({
         top: 20,
         width: 1,
     },
-}));
+});
 
-const EnhancedTable = React.forwardRef((props, refs) => {
-    const classes = useStyles();
-    const [order, setOrder] = React.useState('asc');
-    const [orderBy, setOrderBy] = React.useState('calories');
-    const [selected, setSelected] = React.useState([]);
-    const [page, setPage] = React.useState(0);
-    const [dense, setDense] = React.useState(false);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
-    const { users } = props;
-    const rows = getFormattedObject(users);
-    const handleRequestSort = (event, property) => {
-        const isDesc = orderBy === property && order === 'desc';
-        setOrder(isDesc ? 'asc' : 'desc');
-        setOrderBy(property);
-    };
-
-    const handleSelectAllClick = event => {
-        if (event.target.checked) {
-            const newSelecteds = rows.map(n => n.email);
-            setSelected(newSelecteds);
-            props.getSelectedList(newSelecteds);
-            return;
+class EnhancedTable extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            order: 'asc',
+            orderBy: 'name',
+            selected: [],
+            page: 0,
+            dense: false,
+            rows: [],
+            rowsPerPage: 10
         }
-        props.getSelectedList([]);
-        setSelected([]);
-    };
-
-    const clearSelected = () => {
-        setSelected([]);
     }
 
-    const handleClick = (event, email) => {
+    handleRequestSort = (event, property) => {
+        const isDesc = this.state.orderBy === property && this.state.order === 'desc';
+        this.setState({ order: isDesc ? 'asc' : 'desc', orderBy: property });
+    };
+
+    handleSelectAllClick = event => {
+        const { rows } = this.state;
+        if (event.target.checked) {
+            const newSelecteds = rows.map(n => n.email);
+            this.setState({ selected: newSelecteds });
+            this.props.getSelectedList(newSelecteds);
+            return;
+        }
+        this.props.getSelectedList([]);
+        this.setState({ selected: [] });
+    };
+
+    clearSelected = () => {
+        this.setState({ selected: [] });
+    }
+
+    handleClick = (event, email) => {
+        const { selected } = this.state;
         const selectedIndex = selected.indexOf(email);
         let newSelected = [];
 
@@ -251,103 +257,119 @@ const EnhancedTable = React.forwardRef((props, refs) => {
                 selected.slice(selectedIndex + 1),
             );
         }
-        props.getSelectedList(newSelected);
-        setSelected(newSelected);
+        this.props.getSelectedList(newSelected);
+        this.setState({ selected: newSelected });
     };
 
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
+    handleChangePage = (event, newPage) => {
+        this.setState({ page: newPage });
     };
 
-    const handleChangeRowsPerPage = event => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
+    handleChangeRowsPerPage = event => {
+        this.setState({ rowsPerPage: event.target.value, page: 0 });
     };
 
-    const handleChangeDense = event => {
-        setDense(event.target.checked);
+    handleChangeDense = event => {
+        this.setState({ dense: event.target.checked });
     };
 
-    const isSelected = firstName => selected.indexOf(firstName) !== -1;
+    componentDidMount() {
+        const { users } = this.props;
+        const rows = getFormattedObject(users);
+        this.setState({ rows });
+    }
 
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+    componentWillReceiveProps(props) {
+        if (props.users && props.users.length > 0) {
+            const { users } = props;
+            const rows = getFormattedObject(users);
+            this.setState({ rows });
+        }
+    }
 
-    return (
-        <div className={classes.root}>
-            <Paper className={classes.paper}>
-                <EnhancedTableToolbar numSelected={selected.length} />
-                <div className={classes.tableWrapper}>
-                    <Table
-                        className={classes.table}
-                        aria-labelledby="tableTitle"
-                        size={dense ? 'small' : 'medium'}
-                    >
-                        <EnhancedTableHead
-                            classes={classes}
-                            numSelected={selected.length}
-                            order={order}
-                            orderBy={orderBy}
-                            onSelectAllClick={handleSelectAllClick}
-                            onRequestSort={handleRequestSort}
-                            rowCount={rows.length}
-                        />
-                        <TableBody>
-                            {stableSort(rows, getSorting(order, orderBy))
-                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                .map((row, index) => {
-                                    const isItemSelected = isSelected(row.email);
-                                    const labelId = `enhanced-table-checkbox-${index}`;
+    render() {
+        //const classes = useStyles();
+        const { classes } = this.props;
+        const { order, orderBy, rowsPerPage, selected, page, dense, rows } = this.state;
+        const isSelected = firstName => selected.indexOf(firstName) !== -1;
+        const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+        return (
+            <div className={classes.root}>
+                <Paper className={classes.paper}>
+                    <EnhancedTableToolbar numSelected={selected.length} />
+                    <div className={classes.tableWrapper}>
+                        <Table
+                            className={classes.table}
+                            aria-labelledby="tableTitle"
+                            size={dense ? 'small' : 'medium'}
+                        >
+                            <EnhancedTableHead
+                                classes={classes}
+                                numSelected={selected.length}
+                                order={order}
+                                orderBy={orderBy}
+                                onSelectAllClick={this.handleSelectAllClick}
+                                onRequestSort={this.handleRequestSort}
+                                rowCount={rows.length}
+                            />
+                            <TableBody>
+                                {stableSort(rows, getSorting(order, orderBy))
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((row, index) => {
+                                        const isItemSelected = isSelected(row.email);
+                                        const labelId = `enhanced-table-checkbox-${index}`;
 
-                                    return (
-                                        <TableRow
-                                            hover
-                                            onClick={event => handleClick(event, row.email)}
-                                            role="checkbox"
-                                            aria-checked={isItemSelected}
-                                            tabIndex={-1}
-                                            key={row.email}
-                                            selected={isItemSelected}
-                                        >
-                                            <TableCell padding="checkbox">
-                                                <Checkbox
-                                                    checked={isItemSelected}
-                                                    color="primary"
-                                                    inputProps={{ 'aria-labelledby': labelId }}
-                                                />
-                                            </TableCell>
-                                            <TableCell component="th" id={labelId} scope="row" padding="none">
-                                                {row.firstName + " " + row.lastName}
-                                            </TableCell>
-                                            <TableCell align="right">{row.isAdmin ? "Admin" : "User"}</TableCell>
-                                        </TableRow>
-                                    );
-                                })}
-                            {emptyRows > 0 && (
-                                <TableRow style={{ height: 49 * emptyRows }}>
-                                    <TableCell colSpan={6} />
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <TablePagination
-                    rowsPerPageOptions={[10, 25]}
-                    component="div"
-                    count={rows.length}
-                    rowsPerPage={rowsPerPage}
-                    page={page}
-                    backIconButtonProps={{
-                        'aria-label': 'previous page',
-                    }}
-                    nextIconButtonProps={{
-                        'aria-label': 'next page',
-                    }}
-                    onChangePage={handleChangePage}
-                    onChangeRowsPerPage={handleChangeRowsPerPage}
-                />
-            </Paper>
-        </div>
-    );
-})
+                                        return (
+                                            <TableRow
+                                                hover
+                                                onClick={event => this.handleClick(event, row.email)}
+                                                role="checkbox"
+                                                aria-checked={isItemSelected}
+                                                tabIndex={-1}
+                                                key={row.email}
+                                                selected={isItemSelected}
+                                            >
+                                                <TableCell padding="checkbox">
+                                                    <Checkbox
+                                                        checked={isItemSelected}
+                                                        color="primary"
+                                                        inputProps={{ 'aria-labelledby': labelId }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell component="th" id={labelId} scope="row" padding="none">
+                                                    {row.firstName + " " + row.lastName}
+                                                </TableCell>
+                                                <TableCell align="right">{row.isAdmin ? "Admin" : "User"}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                {emptyRows > 0 && (
+                                    <TableRow style={{ height: 49 * emptyRows }}>
+                                        <TableCell colSpan={6} />
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <TablePagination
+                        rowsPerPageOptions={[10, 25]}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        backIconButtonProps={{
+                            'aria-label': 'previous page',
+                        }}
+                        nextIconButtonProps={{
+                            'aria-label': 'next page',
+                        }}
+                        onChangePage={this.handleChangePage}
+                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                    />
+                </Paper>
+            </div>
+        );
+    };
+}
 
-export default EnhancedTable;
+export default withStyles(useStyles)(EnhancedTable);
