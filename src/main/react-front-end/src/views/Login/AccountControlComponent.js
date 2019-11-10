@@ -35,12 +35,11 @@ export default class AccountControlComponent extends Component {
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
-    });
+  	});
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-	const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-	const currentRoute = this.props.location.pathname
+		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
 					login={(email) => {
@@ -198,6 +197,8 @@ export default class AccountControlComponent extends Component {
 		this.state.redirectToSignIn = false;
 
 		const currentRoute = this.props.location.pathname
+
+		console.log("current route", currentRoute)
 			return (
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
