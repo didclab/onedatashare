@@ -601,7 +601,7 @@ export default class EndpointBrowseComponent extends Component {
 						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "320px"}}
 					>
 						{!loading && Object.keys(list).length === 0 &&
-							<h2>
+							<h2 style={{ textAlign: 'center' }}>
 								This directory is empty.
 							</h2>
 						}
