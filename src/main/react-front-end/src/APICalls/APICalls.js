@@ -136,7 +136,7 @@ export async function resetPassword(email, code, password, cpassword, accept, fa
 }
 
 export async function getAllUsers(email) {
-	return axios.get('http://localhost:8080/api/stork/admin/getAllUsers', {
+	return axios.get(url + 'admin/getAllUsers', {
 		email: email,
 	}).then((response) => {
 		if (response.status === 200 && response.data) {
@@ -148,7 +148,7 @@ export async function getAllUsers(email) {
 }
 
 export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
-	return axios.post('http://localhost:8080/api/stork/admin/sendNotifications', {
+	return axios.post(url + 'admin/sendNotifications', {
 		senderEmail: senderEmail,
 		subject: subject,
 		message: message,
