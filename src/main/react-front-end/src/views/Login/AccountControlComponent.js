@@ -188,15 +188,14 @@ export default class AccountControlComponent extends Component {
 	}
 
 	render() {
-
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
-		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
-		this.state.creatingAccount = false;
-		this.state.lostValidationCodePressed = false;
-		this.state.forgotPasswordPressed = false;
-		this.state.redirectToSignIn = false;
-
 		const currentRoute = this.props.location.pathname
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
+		this.setState({signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl});
+		this.setState({creatingAccount: false});
+		this.setState({lostValidationCodePressed : false});
+		this.setState({forgotPasswordPressed : false});
+		this.setState({redirectToSignIn : false});
+
 			return (
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>

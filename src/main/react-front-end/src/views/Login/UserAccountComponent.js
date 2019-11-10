@@ -364,7 +364,7 @@ export default class UserAccountComponent extends Component {
 	}
 
 	render() {
-		const { isSmall, loading, redirect } = this.state;
+		const { isSmall, loading } = this.state;
 		const height = window.innerHeight + "px";
 		return (
 			<div
