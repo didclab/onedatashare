@@ -35,7 +35,6 @@ import {
 	changePassword,
 	getUser,
 	updateSaveOAuth,
-	saveOAuthCredentials
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
