@@ -197,8 +197,6 @@ export default class AccountControlComponent extends Component {
 		this.state.redirectToSignIn = false;
 
 		const currentRoute = this.props.location.pathname
-
-		console.log("current route", currentRoute)
 			return (
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
