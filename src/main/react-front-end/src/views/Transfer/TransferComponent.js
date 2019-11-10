@@ -130,8 +130,8 @@ export default class TransferComponent extends Component {
 
     for(let i=0; i < srcUrls.length; i++){
       src["id"] = fileIds[i];
-      src["uri"] = srcUrls[i];
-      dest["uri"] = destUrls[i];
+      src["uri"] = encodeURI(srcUrls[i]);
+      dest["uri"] = encodeURI(destUrls[i]);
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
         eventEmitter.emit("messageOccured", "Transfer Initiated!")
