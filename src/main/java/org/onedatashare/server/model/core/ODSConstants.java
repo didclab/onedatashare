@@ -19,6 +19,7 @@ public class ODSConstants {
     public static final String DROPBOX_CLIENT_IDENTIFIER = "OneDataShare-DIDCLab";
     public static final String UPLOAD_IDENTIFIER = "Upload";
 
+    public static final String DRIVE_APP_NAME = "OneDataShare";
     public static final String COOKIE = "cookie";
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
