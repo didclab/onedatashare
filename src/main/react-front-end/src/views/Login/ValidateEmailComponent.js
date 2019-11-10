@@ -60,7 +60,7 @@ export default class ValidateEmailComponent extends Component {
 				<div className="enter-from-right slide-in">
 					{this.state.loading && <LinearProgress></LinearProgress>}
 					<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-						Find your Stork Account
+						Find your OneDataShare Account
 					</Typography>
 					<TextField
 						id="Email"

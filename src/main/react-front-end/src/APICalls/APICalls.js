@@ -668,7 +668,6 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 	    password: oldPassword,
 	    newPassword: newPassword,
 	    confirmPassword: confirmPassword
-
 	})
 	.then((response) => {
 		if(!(response.status === 200))

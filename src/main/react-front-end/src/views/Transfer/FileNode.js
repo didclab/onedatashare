@@ -16,7 +16,7 @@ import {getSelectionCount} from "./initialize_dnd";
 	and you can click to enter
 */
 
-import type { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
+import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 
 const FileDiv = styled.div`
   outline: none;
@@ -36,7 +36,7 @@ const FileDiv = styled.div`
 `;
 
 
-const getBackgroundColor = (isSelected, isGhosting): string => {
+const getBackgroundColor = (isSelected, isGhosting) => {
 	if(isGhosting){
 		return "#888";
 	}
@@ -46,7 +46,7 @@ const getBackgroundColor = (isSelected, isGhosting): string => {
 	return "#ffffff";
 };
 
-const getTextColor = (isSelected, isGhosting): string => {
+const getTextColor = (isSelected, isGhosting) => {
 	if(isGhosting){
 		return "#888";
 	}
@@ -102,9 +102,9 @@ export default class FileNode extends Component {
     	return true;
   	}
 	onKeyDown = (
-	    event: KeyboardEvent,
-	    provided: DraggableProvided,
-	    snapshot: DraggableStateSnapshot,
+	    event,
+	    provided,
+	    snapshot,
 	) => {
 	    if (provided.dragHandleProps) {
 	      provided.dragHandleProps.onKeyDown(event);
@@ -124,13 +124,13 @@ export default class FileNode extends Component {
 	    // we are using the event for selection
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed: boolean = event.shiftKey;
+	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+	    const wasShiftKeyUsed = event.shiftKey;
 
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	};
 
-	onClick = (event: MouseEvent) => {
+	onClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -140,8 +140,8 @@ export default class FileNode extends Component {
 	    // marking the event as used
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed: boolean = event.shiftKey;
+	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+	    const wasShiftKeyUsed = event.shiftKey;
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	  };
 	onTouchStart = (event) => {
@@ -154,7 +154,7 @@ export default class FileNode extends Component {
 		this.setState({dragging: true});
 	}
 
-	onTouchEnd = (event: TouchEvent) => {
+	onTouchEnd = (event) => {
 	    if (event.defaultPrevented || this.state.dragging) {
 	      return;
 	    }
@@ -168,7 +168,7 @@ export default class FileNode extends Component {
 	    return false;
 	};
 
-	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
+	performAction = (wasMetaKeyUsed, wasShiftKeyUsed) => {
 		const {
 		  toggleSelection,
 		  toggleSelectionInGroup,
@@ -219,9 +219,9 @@ export default class FileNode extends Component {
 		
 		return (
 			<Draggable draggableId={ endpoint.side + " " +JSON.stringify(this.props.file) } index = {index}>
-			{(provided : DraggableProvided, snapshot : DraggableStateSnapshot) => {
+			{(provided, snapshot) => {
 				const selectionCount = getSelectionCount(endpoint);
-				const shouldShowSelection: boolean =
+				const shouldShowSelection =
 	            snapshot.isDragging && selectionCount > 1;
 				return (
 					<FileDiv
@@ -237,7 +237,7 @@ export default class FileNode extends Component {
 		                onTouchStart={(e)=>{this.onTouchStart(e)}}
 
 		                onTouchMove={(e)=>{this.onTouchMove(e)}}
-		                onKeyDown={(event: KeyboardEvent) =>
+		                onKeyDown={(event) =>
 		                  this.onKeyDown(event, provided, snapshot)
 		                }
 		                isSelected={isSelected}

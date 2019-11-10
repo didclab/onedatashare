@@ -129,8 +129,8 @@ export default class TransferComponent extends Component {
 
     for(let i=0; i < srcUrls.length; i++){
       src["id"] = fileIds[i];
-      src["uri"] = srcUrls[i];
-      dest["uri"] = destUrls[i];
+      src["uri"] = encodeURI(srcUrls[i]);
+      dest["uri"] = encodeURI(destUrls[i]);
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
         eventEmitter.emit("messageOccured", "Transfer Initiated!")
@@ -437,23 +437,24 @@ export default class TransferComponent extends Component {
         {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
         <Panel bsStyle="primary">
-        <FormControlLabel
-                      style={{width: "200px", float: "right", color: "white"}}
-                      control={
-                        <Switch
-                          color="default"
-                          style={{colorPrimary: "white", colorSecondary:"white"}}
-                          checked={this.state.compact}
-                          onChange={updateCompactViewPreference('compact')}
-                          value="compact"
-                        />
-                      }
-                      label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-                    />
-        <Panel.Heading>
+        <Panel.Heading style={{ textAlign: "center" }}>
           <p>
             Browse and Transfer Files
           </p>
+
+          <FormControlLabel
+            style={{ color: "white" }}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={updateCompactViewPreference('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+          />
         </Panel.Heading>
 
 
