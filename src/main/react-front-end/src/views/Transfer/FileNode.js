@@ -250,11 +250,11 @@ export default class FileNode extends Component {
 								{ dir && <FolderIcon/>}
 								{!dir && <FileIcon />  }
 								<p style={{marginLeft: "10px", flexGrow: 1, textAlign: "left"}} > {name} </p>
-								{(dir && screenIsSmall()) && <Button style={{width: "40px", float: "right"}} onTouchStart={() => {
+								<Button style={{width: "40px", float: "right"}} onTouchStart={() => {
 									onDoubleClick(this.props.file.name);
 								}}>
 									<InFolderIcon/>
-								</Button>} 
+								</Button>
 							</div>
 							{shouldShowSelection &&
 								<SelectionCount>{selectionCount}</SelectionCount>

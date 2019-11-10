@@ -403,7 +403,6 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-
       statusHandle(error, fail);
     });
 }
