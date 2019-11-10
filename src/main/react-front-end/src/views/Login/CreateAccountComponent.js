@@ -303,17 +303,18 @@ export default class CreateAccountComponent extends Component {
             error={this.state.verificationError === "Please Enter Valid Verification Code"}
           />
 
-          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
-            <Button size="medium" variant="outlined" color="primary" onClick={() => {
-              if (this.state.isLostVerifyCode) {
-                this.setState({ screen: "validateEmail" })
-              }
-              else {
-                this.setState({ screen: "registration" });
-              }
-            }}>
+          <CardActions style={{ ...spaceBetweenStyle }}>
+            <Button size="medium" variant="outlined" color="primary" 
+              onClick={() => {
+                if (this.state.isLostVerifyCode) {
+                  this.setState({ screen: "validateEmail" })
+                }
+                else {
+                  this.setState({ screen: "registration" });
+                }
+              }}>
               Back
-                </Button>
+            </Button>
             <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
               Next
                 </Button>

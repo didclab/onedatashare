@@ -69,9 +69,8 @@ export default class ValidateEmailComponent extends Component {
 						style={{width: '100%', marginBottom: '50px', borderRadius: '25px'}}
 						onChange={ handleChange('email') }
 					/>
-					<CardActions className="flexSpaceBetween">
-						{"\n"}
-						
+
+					<CardActions style={{ justifyContent: 'space-between'}}>						
 						<Button size="small" variant="outlined" color="primary" onClick={backToSignin}>
 							Back to Sign in Page
 						</Button>

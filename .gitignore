@@ -97,4 +97,4 @@ Dockerfile
 src/main/resources/application-prod.properties
 
 # UI build files
-src/main/resources/static
+src/main/resources/static/

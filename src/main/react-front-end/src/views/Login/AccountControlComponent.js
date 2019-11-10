@@ -35,12 +35,11 @@ export default class AccountControlComponent extends Component {
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
-    });
+  	});
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-	const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-	const currentRoute = this.props.location.pathname
+		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
 					login={(email) => {
@@ -144,13 +143,13 @@ export default class AccountControlComponent extends Component {
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
 						backToSignin={() => {
-							this.setState({ loading: false, signIn: true, lostValidationCodePressed: false });
+							this.setState({ loading: false, redirectToSignIn: true, lostValidationCodePressed: false });
 						}} />}>
 				</Route>
 
 				<Route exact path={forgotPasswordUrl}
 					render={(props) => <ForgotPasswordComponent {...props} back={() => {
-						this.setState({ loading: false, signIn:true, forgotPasswordPressed: false });
+						this.setState({ loading: false, redirectToSignIn: true, forgotPasswordPressed: false });
 					}} email={this.state.email} />}>
 				</Route>
 
@@ -198,6 +197,8 @@ export default class AccountControlComponent extends Component {
 		this.state.redirectToSignIn = false;
 
 		const currentRoute = this.props.location.pathname
+
+		console.log("current route", currentRoute)
 			return (
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
