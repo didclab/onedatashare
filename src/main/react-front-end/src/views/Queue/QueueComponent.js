@@ -82,7 +82,7 @@ class QueueComponent extends Component {
 	}
 
 	update = () => {
-		let jobIds = this.state.responsesToDisplay.filter(job => job.status !== "complete" && job.status !== "failed" && job.status !== "removed")
+		let jobIds = this.state.responsesToDisplay.filter(job => !["complete", "failed", "removed", "cancelled"].includes(job.status))
 			.map(job => job.uuid)
 		if (jobIds.length > 0) {
 			updateJobStatus(jobIds, resp => {
