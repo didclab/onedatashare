@@ -143,13 +143,13 @@ export default class AccountControlComponent extends Component {
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
 						backToSignin={() => {
-							this.setState({ loading: false, signIn: true, lostValidationCodePressed: false });
+							this.setState({ loading: false, redirectToSignIn: true, lostValidationCodePressed: false });
 						}} />}>
 				</Route>
 
 				<Route exact path={forgotPasswordUrl}
 					render={(props) => <ForgotPasswordComponent {...props} back={() => {
-						this.setState({ loading: false, signIn:true, forgotPasswordPressed: false });
+						this.setState({ loading: false, redirectToSignIn: true, forgotPasswordPressed: false });
 					}} email={this.state.email} />}>
 				</Route>
 
