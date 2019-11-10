@@ -87,11 +87,12 @@ class QueueComponent extends Component {
 		if (jobIds.length > 0) {
 			updateJobStatus(jobIds, resp => {
 				resp.map(job => {
-					let existingData = [...this.state.responsesToDisplay]
-					let existingJob = existingData.find(item => item.uuid === job.uuid)
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
+					let existingData = [...this.state.responsesToDisplay];
+					let existingJob = existingData.find(item => item.uuid === job.uuid);
+					existingJob.status = job.status;
+					existingJob.bytes.total = job.bytes.total;
+					existingJob.bytes.done = job.bytes.done;
+					existingJob.bytes.avg = job.bytes.avg;
 					this.setState({
 						responsesToDisplay: existingData
 					})
