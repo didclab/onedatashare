@@ -73,7 +73,7 @@ export default class GetStartedComponent extends Component{
                         {item.title}
                     </div>
                     <div>
-                        <img style={ item.imgStyle } src={ item.imgPath } />
+                        <img style={ item.imgStyle } src={ item.imgPath } alt="Get Started" />
                     </div>
                 </Carousel.Item>
             );

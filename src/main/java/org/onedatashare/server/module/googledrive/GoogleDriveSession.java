@@ -18,13 +18,12 @@ import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.*;
-
-import static org.onedatashare.server.model.core.ODSConstants.DRIVE_APP_NAME;
 
 @Getter(AccessLevel.PROTECTED)
 @Setter(AccessLevel.PUBLIC)
@@ -32,6 +31,9 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
 
     @Autowired
     GoogleDriveConfig driveConfig;
+
+    @Value("{drive.application.name}")
+    private String appName;
 
     private Drive service;
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
@@ -108,7 +110,7 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         // Load client secrets.
         if (driveConfig == null) {
             driveConfig = new GoogleDriveConfig();
-            driveConfig.setApplicationName(DRIVE_APP_NAME);
+            driveConfig.setApplicationName(appName);
         }
         com.google.api.client.auth.oauth2.Credential credential = driveConfig.getFlow().loadCredential(token);
         return credential;
