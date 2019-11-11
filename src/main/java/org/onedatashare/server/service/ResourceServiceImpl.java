@@ -105,7 +105,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
             if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
                     userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
                 return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-            } else if (userActionResource.getUri().startsWith(UPLOAD_IDENTIFIER)) {
+            } else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
                 return userActionResource.getUploader();
             } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
                 GlobusClient gc = userService.getGlobusClientFromUser(user);
@@ -119,7 +119,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 return credential;
             }
             //TODO: Fix uploads
-            else if (userActionResource.getUri().startsWith(UPLOAD_IDENTIFIER)) {
+            else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
                 return userActionResource.getUploader();
             } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
                 GlobusClient gc = userService.getGlobusClientFromUser(user);
@@ -133,7 +133,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     public Session createSession(String uri, Credential credential) {
         if (uri.startsWith(DROPBOX_URI_SCHEME))
             return new DbxSession(URI.create(uri), credential);
-        else if (uri.startsWith(UPLOAD_IDENTIFIER)) {
+        else if (uri.equals(UPLOAD_IDENTIFIER)) {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         } else if (uri.startsWith(DRIVE_URI_SCHEME))
@@ -215,7 +215,6 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
      * This method cancel an ongoing transfer.
      * User email and job id passed in the request is used to obtain the job UUID,
      * which is in turn used to access the ongoing job flux from the ongoingJobs map.
-     * <p>
      * This flux is then disposed and the job is evicted from the map to cancel the transfer.
      *
      * @param cookie
@@ -280,7 +279,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
                 .map(transfer::setDestination)
                 .flux()
-                .flatMap(transfer1 -> transfer1.start(1L << 20))
+                .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
                 .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
                 .doOnCancel(new RunnableCanceler(job))
                 .doFinally(s -> {

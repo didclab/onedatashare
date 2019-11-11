@@ -131,7 +131,7 @@ class QueueComponent extends Component {
 			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
 		}
 		else if (status === 'removed' || status === "cancelled") {
-			return (<ProgressBar bsStyle="danger" striped now={100} style={style} label={'Cancelled'} />);
+			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Cancelled'} />);
 		}
 		else {
 			let percentCompleted = Math.ceil(((done / total) * 100));
