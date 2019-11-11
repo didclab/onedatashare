@@ -49,19 +49,20 @@ function statusHandle(response, callback) {
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-
 export async function checkLogin(email, accept, fail) {
-	var callback = accept;
 	axios.post(url + 'user', {
 		action: 'verifyEmail',
 		email: email,
 	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	}).catch((error) => {
-		statusHandle(error, fail);
-	});
+		if ((response.data === true)) {
+			statusHandle(response, accept);
+		} else if (response.data === false) {
+			statusHandle(response, fail);
+		}
+	})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
 
@@ -426,11 +427,10 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options, acce
 		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
-	})
-		.catch((error) => {
+	}).catch((error) => {
 
-			statusHandle(error, fail);
-		});
+		statusHandle(error, fail);
+	});
 }
 
 export async function listFiles(uri, endpoint, id, accept, fail) {
@@ -642,6 +642,27 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback) {
 		});
 }
 
+/*
+	Desc: Call the backend to save the OAuth Credentials when the user toggles
+        the button in account preferences to save credentials
+	input: Array of OAuth credentials
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function saveOAuthCredentials(credentials, accept, fail) {
+	var callback = accept;
+	axios.post(url + 'cred/saveCredentials', credentials)
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
+}
+
 export async function updateAdminRightsApiCall(email, isAdmin) {
 	return axios.put(url + 'user', {
 		action: "updateAdminRights",
@@ -755,6 +776,28 @@ export async function deleteJob(jobID, accept, fail) {
 		});
 }
 
+/*
+	Store user's view preference in the backend on toggle
+	input: Email, viewPreference
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function updateViewPreference(email, compactViewEnabled, accept, fail) {
+	var callback = accept;
+	axios.post(url + 'user', {
+		action: 'updateViewPreference',
+		email: email,
+		compactViewEnabled: compactViewEnabled
+	}).then((response) => {
+		if (!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+		statusHandle(error, fail);
+	});
+}
+
 export async function openDropboxOAuth() {
 	openOAuth("/api/stork/oauth?type=dropbox");
 }
@@ -772,7 +815,7 @@ export async function openOAuth(url) {
 }
 
 
-export async function registerUser(requestBody) {
+export async function registerUser(requestBody, errorCallback) {
 
 	return axios.post(url + 'user', { action: "register", ...requestBody })
 		.then((response) => {
@@ -829,4 +872,3 @@ export async function globusListEndpoints(filter_fulltext, accept, fail) {
 			statusHandle(error, fail);
 		});
 }
-

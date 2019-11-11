@@ -51,7 +51,12 @@ export const SCP = "scp";
 export const sideLeft = "left";
 export const sideRight = "right";
 
-export const showText = {
+export const validPasswordLength = 6;
+
+//Status
+export const completeStatus = "complete";
+
+export const showText={
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
 	ftp: FTP_NAME,
@@ -105,4 +110,31 @@ export function getName(endpoint) {
 
 export function getNameFromUri(uri) {
 	return showText[uri.split(":")[0].toLowerCase()]
+}
+
+export function validateField(regex, valueToEvaluate, messageToDisplay, validationArray){
+	if(!(regex.test(valueToEvaluate))){
+		validationArray.push({containsError : true, msg: messageToDisplay});
+	}else{
+		validationArray.push({containsError : false, msg: messageToDisplay});
+	}
+}
+
+
+export  function validatePassword(password,confirmPassword)
+{
+	let validations = []
+	validateField(/[a-z]/, password, "One lower character", validations);
+	validateField(/[A-Z]/, password, "One upper character", validations);
+	validateField(/[0-9]/, password, "One digit", validations);
+	validateField(/\W/, password, "One special character", validations);
+
+	if(password.length<validPasswordLength){
+		validations.push({containsError : true, msg: "Minimum "+ validPasswordLength.toString() + " characters"});
+	}
+	else {
+		validations.push({containsError : false, msg: "Minimum "+ validPasswordLength.toString() + " characters"});
+	}
+
+	return validations;
 }

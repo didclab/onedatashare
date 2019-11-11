@@ -17,6 +17,9 @@ import NotificationsComponent from './views/Admin/NotificationsComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
+import GetStartedComponent from './views/GetStartedComponent';
+
+import "./MainComponent.css"
 
 export default class MainComponent extends Component {
   constructor(props) {
@@ -49,7 +52,7 @@ export default class MainComponent extends Component {
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div style={{ marginTop: '50px', display: 'block' }}>
+        <div class="content" style={{ display: 'block' }}>
           <Switch>
 
             <Route path='/account'
@@ -77,6 +80,12 @@ export default class MainComponent extends Component {
             <Route exact path="/support"
               render={() =>
                 <SupportComponent />
+              }
+            />
+
+            <Route excat path="/get-started"
+              render={() =>
+                <GetStartedComponent />
               }
             />
 

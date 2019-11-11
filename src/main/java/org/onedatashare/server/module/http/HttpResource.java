@@ -294,7 +294,6 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
          */
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
-            int sizeInt = Math.toIntExact(size);
             InputStream inputStream = null;
             try {
                 inputStream = fileContent.getInputStream();
@@ -305,7 +304,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
             return Flux.generate(
                     () -> 0,
                     (state, sink) -> {
-                        if (state + sliceSizeInt < sizeInt) {
+                        if (state + sliceSizeInt < size) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
                                 // Fix for buggy PDF files - Else the PDF files are corrupted
@@ -316,7 +315,7 @@ public class HttpResource extends Resource<HttpSession, HttpResource> {
                             }
                             sink.next(new Slice(b));
                         } else {
-                            int remaining = sizeInt - state;
+                            int remaining =  Math.toIntExact(size - state);
                             byte[] b = new byte[remaining];
                             try {
                                 // Fix for buggy PDF files - Else the PDF files are corrupted
