@@ -29,6 +29,8 @@ OneDataShare application is built using following technologies/frameworks:
 7. Spring Boot coupled with Reactive Web (commonly known as WebFlux) dependency.
 8. Docker
 
+Feature updates, project tasks and bug fixes are tracked using https://trello.com/b/H8Jmb1oY/onedatashare
+
 Recommended IDEs (used by ODS team for development):
 1. IntelliJ Idea Community Edition (for backend code)
 2. Visual Studio Code (for front-end code)

@@ -14,7 +14,16 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { login } from '../../APICalls/APICalls.js';
 
-import { transferPageUrl, signInUrl, registerPageUrl, forgotPasswordUrl , lostValidationCodeUrl } from "../../constants";
+import './AccountControlComponent.css';
+
+import {
+	transferPageUrl,
+	signInUrl,
+	registerPageUrl,
+	forgotPasswordUrl,
+	lostValidationCodeUrl,
+	accountPageUrl
+} from "../../constants";
 import { store } from '../../App.js';
 import { loginAction } from '../../model/actions';
 import {cookies} from '../../model/reducers';
@@ -26,12 +35,11 @@ export default class AccountControlComponent extends Component {
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
-    });
+  	});
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-	const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-	const currentRoute = this.props.location.pathname
+		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
 					login={(email) => {
@@ -40,7 +48,7 @@ export default class AccountControlComponent extends Component {
 					}}
 					removedAccount={(accounts) => {
 						cookies.set('SavedUsers', JSON.stringify(accounts));
-						this.setState({loading: false, accounts: accounts});
+						this.setState({loading: false, accounts: accounts, signIn:true});
 					}}
 					useAnotherAccount={() => {
 						this.setState({signIn: true});
@@ -49,7 +57,7 @@ export default class AccountControlComponent extends Component {
 						this.setState({loading: loading});
 					}}
 				/>;
-	
+
 		this.state = {
 			isSmall: window.innerWidth <= 640,
 			password: "",
@@ -59,13 +67,14 @@ export default class AccountControlComponent extends Component {
 			screen: this.newLogin,
 			creatingAccount: false,
 			loggingAccount: false,
+			redirectToSignIn: false,
 			// When signIn is set, it launches /account/signIn url
 			// In all back function's, that are sent as props to the child components, this flag is set to true
 			// and the flag for the corresponding components is set to false
 			// Eg: { signIn: true, creatingAccount: false } in props of 'CreateAccountComponent' component
 			// If the user clicks register on navbar, then check the route and redirect to register page. So, the signIn
 			// flag should be false
-			signIn: false || (Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl),
+			signIn: false,
 			forgotPasswordPressed: false,
 			lostValidationCodePressed: false
 		}
@@ -84,16 +93,15 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens){
+  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens));
+	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});
   }
-  
+
   componentWillUnmount(){
   	this.unsubscribe();
   }
@@ -110,7 +118,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens);
+	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
 	    	},
 	    	(error) => {fail(error)}
 	    );
@@ -125,11 +133,8 @@ export default class AccountControlComponent extends Component {
 
 				<Route exact path={registerPageUrl}
 					render={(props) => <CreateAccountComponent {...props}
-						create={(email, password) => {
-
-						}}
 						backToSignin={() => {
-							this.setState({ signIn: true, creatingAccount: false });
+							this.setState({ redirectToSignIn: true });
 						}}
 					/>}>
 				</Route>
@@ -138,13 +143,13 @@ export default class AccountControlComponent extends Component {
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
 						backToSignin={() => {
-							this.setState({ loading: false, signIn: true, lostValidationCodePressed: false });
+							this.setState({ loading: false, redirectToSignIn: true, lostValidationCodePressed: false });
 						}} />}>
 				</Route>
 
 				<Route exact path={forgotPasswordUrl}
 					render={(props) => <ForgotPasswordComponent {...props} back={() => {
-						this.setState({ loading: false, signIn:true, forgotPasswordPressed: false });
+						this.setState({ loading: false, redirectToSignIn: true, forgotPasswordPressed: false });
 					}} email={this.state.email} />}>
 				</Route>
 
@@ -183,14 +188,20 @@ export default class AccountControlComponent extends Component {
 	}
 
 	render() {
+		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
+		this.setState.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
+		this.setState.creatingAccount= false;
+		this.setState.lostValidationCodePressed= false;
+		this.setStateforgotPasswordPressed= false;
+		this.setState.redirectToSignIn= false;
 
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed } = this.state;
-		const height = window.innerHeight + "px";
+		
 		const currentRoute = this.props.location.pathname
+
 			return (
 
-				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', height: height }}>
-					<div style={{ width: '450px', marginTop: '30px', marginLeft: '30px', marginRight: '30px', alignSelf: isSmall ? 'flex-start' : 'center' }}>
+				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>
+					<div className="accCardStyle" style={{ width: '450px', border: '2px #74bdf1 solid', borderRadius: '1%',alignSelf: isSmall ? 'flex-start' : 'center' }}>
 						{/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
 						{/* At any point of time only one among below should be true */}
@@ -198,7 +209,8 @@ export default class AccountControlComponent extends Component {
 						{store.getState().login && <Redirect to={transferPageUrl} />}
 						{(currentRoute !== registerPageUrl && creatingAccount) && <Redirect to={registerPageUrl} />}
 						{(currentRoute !== forgotPasswordUrl && forgotPasswordPressed) && <Redirect to={forgotPasswordUrl} />}
-						{(currentRoute !== signInUrl && signIn)  && <Redirect to={signInUrl} />}
+						{redirectToSignIn && <Redirect to={signInUrl} />}
+						{(currentRoute === accountPageUrl && signIn) && <Redirect from={accountPageUrl} to={signInUrl} />}
 						{loading && <LinearProgress />}
 
 

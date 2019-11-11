@@ -12,8 +12,8 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-import {submit} from "../../APICalls/APICalls";
-import {endpointUpdate} from "../../model/actions";
+import {submit, updateViewPreference} from "../../APICalls/APICalls";
+import {endpointUpdate, compactViewPreference} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
 import {mutliDragAwareReorder, screenIsSmall } from "./utils.js";
@@ -39,7 +39,7 @@ export default class TransferComponent extends Component {
       mode1: 0,
       mode2: 0,
       history: [],
-      width: window.innerWidth, 
+      width: window.innerWidth,
       height: window.innerHeight,
       settings:{
         optimizer: "None",
@@ -49,7 +49,7 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: true
+      compact: store.getState().compactViewEnabled
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -87,6 +87,8 @@ export default class TransferComponent extends Component {
     document.title = "OneDataShare - Transfer";
     window.addEventListener("resize", this.updateDimensions);
     this.setState({width: window.innerWidth, height: window.innerHeight});
+    this.setState({compact: store.getState().compactViewEnabled});
+
   }
 
   sendFile = (processed) => {
@@ -97,8 +99,8 @@ export default class TransferComponent extends Component {
     const endpointSrc = getEndpointFromColumn(processed.fromTo[0])
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
-    const srcUrls = [] 
-    const fileIds = [] 
+    const srcUrls = []
+    const fileIds = []
     const destUrls = []
     processed.selectedTasks.map((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
@@ -127,22 +129,22 @@ export default class TransferComponent extends Component {
 
     for(let i=0; i < srcUrls.length; i++){
       src["id"] = fileIds[i];
-      src["uri"] = srcUrls[i];
-      dest["uri"] = destUrls[i];
-  
+      src["uri"] = encodeURI(srcUrls[i]);
+      dest["uri"] = encodeURI(destUrls[i]);
+
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Scheduled!")
+        eventEmitter.emit("messageOccured", "Transfer Initiated!")
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
-      })  
+      })
     }
- 
+
   };
 
   updateDimensions() {
     const width = this.state.width;
-    
+
     // if screen size exceed certain treshhold
     if((width > 760 && screenIsSmall()) || (width <= 760 && !screenIsSmall())){
       this.setState({width: window.innerWidth, height: window.innerHeight});
@@ -153,7 +155,7 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent1(){
      const {mode1, endpoint1,history, compact} = this.state;
-    return <BrowseModuleComponent 
+    return <BrowseModuleComponent
       id="browserleft"
       mode={mode1}
       endpoint={endpoint1}
@@ -164,12 +166,12 @@ export default class TransferComponent extends Component {
 
   _returnBrowseComponent2(){
      const {mode2, endpoint2, history, compact} = this.state;
-   
-    return <BrowseModuleComponent 
+
+    return <BrowseModuleComponent
       id="browserright"
       mode={mode2}
-      endpoint={endpoint2} 
-      history={history} 
+      endpoint={endpoint2}
+      history={history}
       displayStyle={compact ? "compact" : "comfort"}
       update={this.updateBrowseTwo}
     />
@@ -226,14 +228,14 @@ export default class TransferComponent extends Component {
 
     if(processed.fromTo[0] === processed.fromTo[1]){
       setBeforeTransferReorder(processed);
-    }else{  
+    }else{
       this.sendFile(processed);
     }
-    
+
     setDraggingTask(null)
   };
 
-  
+
   onSendToRight(){
 
     /*
@@ -247,10 +249,10 @@ export default class TransferComponent extends Component {
 
     if(processed.fromTo[0] == processed.fromTo[1]){
       setBeforeTransferReorder(processed);
-    }else{  
+    }else{
       this.sendFile(processed);
     }*/
-    
+
     const entity = getEntities();
     const processed = {
       fromTo: [entity.left, entity.right],
@@ -264,7 +266,7 @@ export default class TransferComponent extends Component {
       fromTo: [entity.right, entity.left],
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
-    
+
     console.log(processed);
     this.sendFile(processed);
   }
@@ -280,7 +282,9 @@ export default class TransferComponent extends Component {
     const formlabelstyle = {fontSize: "15px"}
     const formStyle = {marginLeft: "5%", marginRight: "5%"}
     return <Panel bsStyle="primary">
+              <div style={{ textAlign: "center" }}>
               <Panel.Heading>Transfer Setting</Panel.Heading>
+              </div>
               <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
                 <FormControl component="fieldset" style={formStyle}>
                   <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
@@ -355,22 +359,35 @@ export default class TransferComponent extends Component {
                   <FormLabel style={{marginTop: "20px", fontSize: "20px"}}>{this.state.settings.retry} Times</FormLabel>
                 </FormControl>
               </Panel.Body>
-              
+
             </Panel>
   }
   render() {
-
     const isSmall = screenIsSmall();
     const panelStyle = { height: "auto", margin: isSmall? "10px": "0px"};
+    const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
       this.setState({ [name]: event.target.checked });
     };
 
+    let updateCompactViewPreference = name => event =>{
+      this.setState({ [name]: event.target.checked });
+      let compactViewEnabled = event.target.checked;
+		  let email = store.getState().email;
+		  updateViewPreference(email, compactViewEnabled,
+			(success) => {
+				console.log("Compact View Preference Switched Succesfully", success);
+        store.dispatch(compactViewPreference(compactViewEnabled));
+	    	},
+	    	(error) => {console.log("ERROR in updation"+error)}
+	    );
+    };
+
     return (
-      <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
+      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
-          
-          {!isSmall && 
+
+          {!isSmall &&
           <Panel bsStyle="primary">
           <FormControlLabel
             style={{width: "200px", right: "10px", color: "white", position: "absolute"}}
@@ -379,69 +396,65 @@ export default class TransferComponent extends Component {
                 color="default"
                 style={{colorPrimary: "white", colorSecondary:"white"}}
                 checked={this.state.compact}
-                onChange={handleChange('compact')}
+                onChange={updateCompactViewPreference('compact')}
                 value="compact"
               />
             }
             label={<Typography style={{color: "white", fontSize: "12px"}}>Compact</Typography>}
           />
           <Panel.Heading>
-            <p>
-              Browse and Transfer Files
-            </p>
-            
+            <div style={headerStyle}>
+              <p>
+                Browse and Transfer Files
+              </p>
+            </div>
+          </Panel.Heading>
 
-            </Panel.Heading>
-            <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-                <Row style={{flexDirection: 'column'}}>
-                  <DragDropContext 
-                    onDragStart={this.onDragStart}
-                    onDragEnd={this.onDragEnd}
-                  >
-                  <Col xs={6} style={panelStyle}  >
-                    {this._returnBrowseComponent1()}
-                  </Col>
-                  <Col xs={6} style={panelStyle} >
-                    {this._returnBrowseComponent2()}  
-                  </Col>
-                  </DragDropContext>
-                </Row>
-                <Row style={{display: 'block', }}>
-                    <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
-                    <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
-                </Row>
-            
+          <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
+              <DragDropContext
+                onDragStart={this.onDragStart}
+                onDragEnd={this.onDragEnd}>
+                <Col xs={6} style={panelStyle}  >
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Col xs={6} style={panelStyle} >
+                  {this._returnBrowseComponent2()}
+                </Col>
+              </DragDropContext>
+            </Row>
+            <Row style={{display: 'block', ...headerStyle}}>
+                <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+            </Row>
 
-              <ErrorMessagesConsole/>
-            </Panel.Body>
+            <ErrorMessagesConsole/>
+          </Panel.Body>
           </Panel>
 
-          
+
         }
         {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
         <Panel bsStyle="primary">
-        <FormControlLabel
-                      style={{width: "200px", float: "right", color: "white"}}
-                      control={
-                        <Switch
-                          color="default"
-                          style={{colorPrimary: "white", colorSecondary:"white"}}
-                          checked={this.state.compact}
-                          onChange={handleChange('compact')}
-                          value="compact"
-                        />
-                      }
-                      label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-                    />
-        <Panel.Heading>
+        <Panel.Heading style={{ textAlign: "center" }}>
           <p>
             Browse and Transfer Files
-
-
           </p>
 
-
+          <FormControlLabel
+            style={{ color: "white" }}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={updateCompactViewPreference('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+          />
         </Panel.Heading>
 
 
@@ -459,12 +472,12 @@ export default class TransferComponent extends Component {
                   <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
                 </Row>
                 <Row style={panelStyle}>
-                  {this._returnBrowseComponent2()}  
+                  {this._returnBrowseComponent2()}
                 </Row>
-                
+
                  {/*  <Row> {this.getSettingComponent(isSmall)} </Row> */}
               </DragDropContext>
-              
+
             </Row>
             <div> </div>
             <ErrorMessagesConsole/>
@@ -474,8 +487,7 @@ export default class TransferComponent extends Component {
 
         </Col>
       </div>
-        
+
     );
   }
 }
-

@@ -10,8 +10,10 @@ public enum JobStatus {
   processing,
   /** The job has been paused by request. */
   paused,
-  /** The job has been removed by request. */
+  /** The job has been removed by request. Use of this status is deprecated */
   removed,
+  /** The job has been cancelled by user. This is updated version of removed */
+  cancelled,
   /** The job failed for some reason. */
   failed,
   /** The job has completed successfully. */
@@ -51,7 +53,7 @@ public enum JobStatus {
       case pending:
         return filter = EnumSet.of(scheduled, processing, paused);
       case done:
-        return filter = EnumSet.of(removed, failed, complete);
+        return filter = EnumSet.of(removed, cancelled ,failed, complete);
     } return filter;
   }
 
