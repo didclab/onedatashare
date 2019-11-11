@@ -1,0 +1,56 @@
+# $app_server1 should be set in the repository settings of onedatashare at https://travis-ci.com/ 
+# This is server on which the intermediate UI build is pushed during the deploy event of front-end stage and it is later pulled to the build server during the  before_script event of back-end stage.
+# This is done because Travis doesn't allow to share the data across stages. So the app_server1 is used for temporary storage. Read https://docs.travis-ci.com/user/build-stages/ for more info.
+
+sudo: true
+branches:
+  only:
+  - master
+jobs:
+  include:
+    - stage: front-end
+      language: node_js
+      node_js: 10
+      before_script:
+      - cd src/main/react-front-end
+      - npm install
+      script:
+      - npm run build
+      deploy:
+      - provider: script
+        skip_cleanup: true
+        script: sudo scp -i ../ods-prod.pem -o StrictHostKeyChecking=no -r build $app_server1:/home/Travis-ODS-UI
+      
+    - stage: back-end
+      language: java
+      jdk: openjdk8
+      install: true
+      before_script:
+      - echo "removing old build"
+      - rm -rf src/main/resources/static
+      - sudo scp -i ods-prod.pem -o StrictHostKeyChecking=no -r $app_server1:/home/Travis-ODS-UI/build src/main/resources/static    
+      script:
+      - mvn package
+      after_script:
+      - echo "Back-end build complete"
+      deploy:
+      - provider: script
+        skip_cleanup: true
+        script: bash ./deploy.sh
+stages:
+  - front-end
+  - back-end
+before_install:
+- echo "before_install"
+- openssl aes-256-cbc -K $encrypted_fb365c1216b5_key -iv $encrypted_fb365c1216b5_iv -in ods-prod.pem.enc -out ods-prod.pem -d
+- eval "$(ssh-agent -s)"
+- chmod 600 ods-prod.pem
+- ssh-add ods-prod.pem
+- chmod +x mvnw
+- mvn install:install-file -Dfile=./lib/globus-api-1.1-SNAPSHOT.jar -DgroupId=org.onedatashare.module -DartifactId=globus-api -Dversion=1.1-SNAPSHOT -Dpackaging=jar -DgeneratePom=true -B -V
+
+
+notifications:
+  email:
+    - admin@onedatashare.org
+
