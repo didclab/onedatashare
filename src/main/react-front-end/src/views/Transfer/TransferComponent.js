@@ -218,7 +218,7 @@ export default class TransferComponent extends Component {
       setDraggingTask(null);
       return;
     }
-    console.log(getSelectedTasks(), result.source, result.destination)
+    // console.log(getSelectedTasks(), result.source, result.destination)
     const processed = mutliDragAwareReorder({
       entities: getEntities(),
       selectedTasks: getSelectedTasks(),
@@ -267,7 +267,7 @@ export default class TransferComponent extends Component {
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
 
-    console.log(processed);
+    // console.log(processed);
     this.sendFile(processed);
   }
 

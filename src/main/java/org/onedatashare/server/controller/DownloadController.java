@@ -4,7 +4,6 @@ import io.netty.handler.codec.http.Cookie;
 import io.netty.handler.codec.http.CookieDecoder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.requestdata.RequestData;
@@ -12,7 +11,6 @@ import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.DbxService;
 import org.onedatashare.server.service.ResourceServiceImpl;
-import org.onedatashare.server.service.UserService;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -77,8 +75,8 @@ public class DownloadController {
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = null;
         try {
-            final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
-
+            /* Done to handle credentials with Double quotes */
+            final String credentials = URLDecoder.decode(URLDecoder.decode(map.get("CX"), "UTF-8"),"UTF-8");
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
         } catch (IOException e) {
             e.printStackTrace();

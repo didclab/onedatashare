@@ -50,7 +50,7 @@ export default class ForgotPasswordComponent extends Component {
 
 	VerifyCode = ()=>{
 		resetPasswordVerifyCode(this.props.email,this.state.code, (response)=>{
-			console.log(response)
+			// console.log(response)
 			this.setState({state: codeVerified, code: response})
 		}, (fail)=>{
 			//this.setState({state: codeVerified})
