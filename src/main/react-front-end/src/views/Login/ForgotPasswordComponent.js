@@ -138,7 +138,7 @@ export default class ForgotPasswordComponent extends Component {
 			{state === codeVerified &&
 				<div>
 			        <Typography style={{fontSize: "1.0em", marginBottom: "0.4em"}}>
-			          Code is Verified, Reset your password here:
+			          Code verified! Reset your password
 			        </Typography>
 			        <TextField
 			          style={{width: '100%'}}
