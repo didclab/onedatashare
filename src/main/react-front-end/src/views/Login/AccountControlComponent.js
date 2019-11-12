@@ -135,6 +135,7 @@ export default class AccountControlComponent extends Component {
 				<Route exact path={registerPageUrl}
 					render={(props) => <CreateAccountComponent {...props}
 						backToSignin={() => {
+
 							this.setState({ redirectToSignIn: true });
 						}}
 					/>}>
@@ -144,44 +145,41 @@ export default class AccountControlComponent extends Component {
 					render={(props) => <ValidateEmailComponent {...props}
 						email={this.state.email}
 						backToSignin={() => {
-							this.setState({ loading: false, signIn: true, lostValidationCodePressed: false });
+							this.setState({ loading: false, redirectToSignIn: true, lostValidationCodePressed: false });
 						}} />}>
 				</Route>
 
 				<Route exact path={forgotPasswordUrl}
 					render={(props) => <ForgotPasswordComponent {...props} back={() => {
-						this.setState({ loading: false, signIn:true, forgotPasswordPressed: false });
+						this.setState({ loading: false, redirectToSignIn:true, forgotPasswordPressed: false });
 					}} email={this.state.email} />}>
 				</Route>
 
 				<Route exact path={signInUrl}
 					render={(props) => <NewLoginComponent
-								email={this.props.email}
-								isLoading={(loading) => {
-									this.setState({ loading: loading });
-								}}
-								createAccountPressed={() => {
-									this.setState({ loading: false, creatingAccount: true, signIn: false });
-								}}
-								lostValidationCodePressed={(email) => {
-									this.setState({
-										loading: false,
-										lostValidationCodePressed: true,
-										signIn:false,
-										email: email
-									});
-								}}
-								forgotPasswordPressed={(email) => {
-									this.setState({
-										loading: false,
-										signIn:false,
-										email:email,
-										forgotPasswordPressed: true
-									});
-								}}
-								userLoggedIn={this.userSigningIn}
-							/>
-
+							email={this.props.email}
+							isLoading={(loading) => {
+								this.setState({ loading: loading });
+							}}
+							createAccountPressed={() => {
+								this.setState({ loading: false, creatingAccount: true, signIn: false });
+							}}
+							lostValidationCodePressed={(email) => {
+								this.setState({
+									loading: false,
+									lostValidationCodePressed: true,
+									email: email
+								});
+							}}
+							forgotPasswordPressed={(email) => {
+								this.setState({
+									loading: false,
+									email:email,
+									forgotPasswordPressed: true
+								});
+							}}
+							userLoggedIn={this.userSigningIn}
+						/>
 					}>
 				</Route>
 			</Switch>
