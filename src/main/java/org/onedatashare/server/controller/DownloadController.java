@@ -10,6 +10,7 @@ import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +69,15 @@ public class DownloadController {
     public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) throws IOException{
         String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
         Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
-        Map<String, String> map = new HashMap<>();
+        String cx = null;
         for (Cookie c : cookies)
-            map.put(c.name(), c.value());
-
-        final String userActionResourceString = URLDecoder.decode(map.get("CX"), "UTF-8");
+            if(c.name().equals("CX"))
+                cx = c.value();
+        if(cx == null) {
+            ODSLoggerService.logError("Cookie not found");
+            throw new RuntimeException("Missing Cookie");
+        }
+        final String userActionResourceString = URLDecoder.decode(cx, "UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = objectMapper.readValue(userActionResourceString, UserActionResource.class);
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
