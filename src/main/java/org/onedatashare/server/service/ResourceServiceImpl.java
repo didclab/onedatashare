@@ -229,6 +229,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                             ongoingJobs.remove(job.getUuid());
                             return job.setStatus(JobStatus.cancelled);
                         }))
+                .flatMap(jobService::saveJob)
                 .subscribeOn(Schedulers.elastic());
     }
 
@@ -283,7 +284,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
                 .doOnCancel(new RunnableCanceler(job))
                 .doFinally(s -> {
-                    if (job.getStatus() != JobStatus.cancelled)
+                    if (job.getStatus() != JobStatus.cancelled && job.getStatus() != JobStatus.failed)
                         job.setStatus(JobStatus.complete);
                     jobService.saveJob(job).subscribe();
                     ongoingJobs.remove(job.getUuid());
@@ -303,7 +304,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
         @Override
         public void run() {
-            job.setStatus(JobStatus.cancelled);
+            job.setStatus(JobStatus.failed);
         }
     }
 }
