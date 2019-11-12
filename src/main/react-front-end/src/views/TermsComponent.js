@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import terms from '../assets/terms.txt';
 
 export default class TermsComponent extends Component {
     state = {
         termsData: ''
     }
 
-    readTextFile = file => {
+    readTextFile = () => {
         var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, false);
+        rawFile.open("GET", 'https://ods-static-assets.s3.us-east-2.amazonaws.com/terms.txt', false);
         rawFile.onreadystatechange = () => {
             if (rawFile.readyState === 4) {
                 if (rawFile.status === 200 || rawFile.status === 0) {
@@ -23,7 +22,7 @@ export default class TermsComponent extends Component {
     };
 
     componentDidMount() {
-        this.readTextFile(terms);
+        this.readTextFile();
     }
 
     render() {

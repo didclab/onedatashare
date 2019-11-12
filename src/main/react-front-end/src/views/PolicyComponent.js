@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import terms from '../assets/privacy.txt';
 
 export default class PolicyComponent extends Component {
     state = {
         termsData: ''
     }
 
-    readTextFile = file => {
+    readTextFile = () => {
         var rawFile = new XMLHttpRequest();
-        rawFile.open("GET", file, false);
+        rawFile.open("GET", 'https://ods-static-assets.s3.us-east-2.amazonaws.com/privacy.txt', false);
         rawFile.onreadystatechange = () => {
             if (rawFile.readyState === 4) {
                 if (rawFile.status === 200 || rawFile.status === 0) {
@@ -23,7 +22,7 @@ export default class PolicyComponent extends Component {
     };
 
     componentDidMount() {
-        this.readTextFile(terms);
+        this.readTextFile();
     }
 
     render() {
