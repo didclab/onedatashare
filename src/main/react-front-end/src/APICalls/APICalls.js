@@ -7,7 +7,6 @@ import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
 import { cookies } from "../model/reducers.js";
-import { encode } from 'punycode';
 const FETCH_TIMEOUT = 10000;
 
 
