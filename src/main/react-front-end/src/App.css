@@ -36,27 +36,27 @@
 }
 
 .homepage_section1 {
-  background-image: url("./assets/s1.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s1.webp");
 }
 
 .homepage_section2 {
-  background-image: url("./assets/s2.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s2.webp");
 }
 
 .homepage_section3 {
-  background-image: url("./assets/s3.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s3.webp");
 }
 
 .homepage_section4 {
-  background-image: url("./assets/s4.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s4.webp");
 }
 
 .homepage_section5 {
-  background-image: url("./assets/s5.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s5.webp");
 }
 
 .homepage_section6 {
-  background-image: url("./assets/s6.png");
+  background-image: url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s6.webp");
 }
 
 .flexSpacebetween {

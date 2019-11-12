@@ -52,6 +52,24 @@ export const sideRight = "right";
 
 export const validPasswordLength = 6;
 
+//images
+export const fastImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/fast.png';
+export const easyImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/easy.png';
+export const eteImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/endtoend.png';
+export const precImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/precise.png';
+export const intopImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/interoperation.png';
+export const nsfImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/NSF_Logo.png';
+export const ubImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/ub.png';
+
+export const background = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.webp";
+export const gs1 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs1.png";
+export const gs2 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs2.png";
+export const gs3 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs3.png";
+export const gs4 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs4.png";
+export const gs5 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs5.gif";
+export const gs6 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs6.gif";
+export const gs7 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs7.png";
+
 //Status
 export const completeStatus = "complete";
 

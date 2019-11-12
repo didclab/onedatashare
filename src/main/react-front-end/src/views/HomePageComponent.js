@@ -2,20 +2,13 @@ import React, { Component } from 'react';
 import {Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
 import Slider from "react-slick";
 
-import fastImage from '../assets/fast.png';
-import easyImage from '../assets/easy.png';
-import eteImage from '../assets/endtoend.png';
-import precImage from '../assets/precise.png';
-import intopImage from '../assets/interoperation.png';
-
-import nsfImage from '../assets/NSF_Logo.png';
-import ubImage from '../assets/ub.png';
 import {updateGAPageView} from "../analytics/ga";
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 
 import './HomePageComponent.css';
 
+import {fastImage,easyImage,eteImage,precImage,intopImage,nsfImage,ubImage} from "../constants.js"
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
