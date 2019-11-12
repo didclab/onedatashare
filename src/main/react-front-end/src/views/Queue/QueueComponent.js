@@ -135,7 +135,7 @@ class QueueComponent extends Component {
 		}
 		else {
 			let percentCompleted = Math.ceil(((done / total) * 100));
-			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
 

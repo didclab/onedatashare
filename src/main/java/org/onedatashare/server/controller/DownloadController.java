@@ -78,7 +78,6 @@ public class DownloadController {
         UserActionResource userActionResource = null;
         try {
             final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
-
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
         } catch (IOException e) {
             e.printStackTrace();

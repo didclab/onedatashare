@@ -530,6 +530,7 @@ export async function download(uri, credential, _id){
 
 export async function getDownload(uri, credential, _id, succeed){
 
+	console.log("CREDENTIAL", credential);
 	let json_to_send = {
 		credential: credential,
 		type: getTypeFromUri(uri),
@@ -538,10 +539,12 @@ export async function getDownload(uri, credential, _id, succeed){
 	}
 
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin, { expires : 10});
-
+	cookies.set("SFTPAUTH", strin, { expires : 1});
 
 	window.location = url + "download/file";
+	setTimeout(() => {
+		cookies.remove("SFTPAUTH");
+	  }, 5000);
 }
 
 export async function upload(uri, credential, accept, fail){
