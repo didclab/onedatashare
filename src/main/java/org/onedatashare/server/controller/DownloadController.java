@@ -22,8 +22,10 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.net.HttpCookie;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -77,7 +79,8 @@ public class DownloadController {
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = null;
         try {
-            final String credentials = URLDecoder.decode(map.get("SFTPAUTH"), "UTF-8");
+            /* Done to handle credentials with Double quotes */
+            final String credentials = URLDecoder.decode(URLDecoder.decode(map.get("CX"), "UTF-8"),"UTF-8");
             userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
         } catch (IOException e) {
             e.printStackTrace();
