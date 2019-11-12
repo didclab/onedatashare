@@ -15,6 +15,8 @@ import reactor.core.scheduler.Schedulers;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
+import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
+
 @Service
 public class VfsService implements ResourceService<VfsResource> {
     @Autowired
@@ -95,8 +97,8 @@ public class VfsService implements ResourceService<VfsResource> {
                 .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
                 .map(transfer::setDestination)
                 .flux()
-                .flatMap(transfer1 -> transfer1.start(1L << 20))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+                .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
+                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
                 .doFinally(s -> {
                     job.setStatus(JobStatus.complete);
                     jobService.saveJob(job).subscribe();

@@ -442,7 +442,8 @@ export default class TransferComponent extends Component {
             Browse and Transfer Files
           </p>
 
-          <FormControlLabel
+          { /* Disabling compact mode toggle for mobile screens */
+            /* <FormControlLabel
             style={{ color: "white" }}
             control={
               <Switch
@@ -454,7 +455,7 @@ export default class TransferComponent extends Component {
               />
             }
             label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-          />
+          /> */}
         </Panel.Heading>
 
 

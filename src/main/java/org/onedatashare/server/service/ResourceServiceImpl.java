@@ -281,7 +281,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .map(transfer::setDestination)
                 .flux()
                 .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
                 .doOnCancel(new RunnableCanceler(job))
                 .doFinally(s -> {
                     if (job.getStatus() != JobStatus.cancelled && job.getStatus() != JobStatus.failed)
