@@ -251,7 +251,7 @@ public class UserService {
       }
       if(!user.isValidated()){
         return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
-      }else{
+      } else{
         return Mono.just(new Response("User account is already validated.",500));
       }
     });

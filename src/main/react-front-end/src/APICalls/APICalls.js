@@ -532,21 +532,20 @@ export async function getDownload(uri, credential, _id, succeed){
 
 	let json_to_send = {
 		credential: credential,
-		type: getTypeFromUri(uri),
-		uri: encodeURI(uri),
-		id: "",
+		uri: uri,
 	}
 
 	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin, { expires : 10});
-
+	cookies.set("CX", encodeURI(strin), { expires : 1});
 
 	window.location = url + "download/file";
+	setTimeout(() => {
+		cookies.remove("CX");
+	  }, 5000);
 }
 
 export async function upload(uri, credential, accept, fail){
 	var callback = accept;
-
 	axios.post(url+'share', {
 	    credential: credential,
 	    uri: encodeURI(uri),
@@ -668,7 +667,6 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 	    password: oldPassword,
 	    newPassword: newPassword,
 	    confirmPassword: confirmPassword
-
 	})
 	.then((response) => {
 		if(!(response.status === 200))

@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Modal } from 'react-bootstrap';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItemIcon';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import Checkbox from '@material-ui/core/Checkbox';
 
 export default class PasswordRequirementsComponent extends Component {
   render() {

@@ -35,12 +35,11 @@ export default class AccountControlComponent extends Component {
     // redux login action
     this.unsubscribe = store.subscribe(() => {
     	this.setState({authenticated : store.getState().login});
-    });
+  	});
 
 
     const cookieSaved = cookies.get('SavedUsers') || 0;
-	const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-	const currentRoute = this.props.location.pathname
+		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
 					login={(email) => {
@@ -187,15 +186,16 @@ export default class AccountControlComponent extends Component {
 	}
 
 	render() {
-
 		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
-		this.state.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
-		this.state.creatingAccount = false;
-		this.state.lostValidationCodePressed = false;
-		this.state.forgotPasswordPressed = false;
-		this.state.redirectToSignIn = false;
+		this.setState.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
+		this.setState.creatingAccount= false;
+		this.setState.lostValidationCodePressed= false;
+		this.setStateforgotPasswordPressed= false;
+		this.setState.redirectToSignIn= false;
 
+		
 		const currentRoute = this.props.location.pathname
+
 			return (
 
 				<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '..', paddingBottom: '5%'}}>

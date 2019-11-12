@@ -48,10 +48,10 @@ render(){
 					},
 					onStatusChange: function(id, old_status, new_status){
 						if(new_status === "submitted"){
-							eventEmitter.emit("messageOccured", "Upload Task has been submitted");
+							eventEmitter.emit("messageOccured", "Upload initiated!");
 						}
 						if(new_status === "upload successful"){
-							eventEmitter.emit("messageOccured", "Uploading succeed!");
+							eventEmitter.emit("messageOccured", "Upload complete!");
 						
 						}
 					}

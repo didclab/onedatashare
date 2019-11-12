@@ -68,7 +68,6 @@ public class ClientUploadResource extends Resource<ClientUploadSession, ClientUp
                         Slice s = getSession().flux.take();
                         sink.next(s);
 
-                        ODSLoggerService.logInfo("uploading" + s.length() + " " + state);
                         if(state - s.length() == 0){
                             sink.complete();
                         }

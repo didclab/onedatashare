@@ -29,19 +29,17 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
-import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl,validatePassword } from "../../constants";
+import { validatePassword } from "../../constants";
 
 import {
 	changePassword,
 	getUser,
 	updateSaveOAuth,
-	saveOAuthCredentials
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
 import {
-	updateHashAction,
+	logoutAction,
 	accountPreferenceToggledAction,
 } from "../../model/actions";
 import { cookies } from "../../model/reducers";
@@ -62,7 +60,6 @@ export default class UserAccountComponent extends Component {
     	    userOrganization: "...",
     	    fName: "...",
     	    lName: "...",
-    	    redirect: false,
 			openAlertDialog: false,
 			saveOAuthTokens: false,
 			validations: validatePassword("", ""),
@@ -106,11 +103,8 @@ export default class UserAccountComponent extends Component {
 		}
 		else{
 			changePassword(oldPass, newPass,confPass, (hash)=>{
-				store.dispatch(updateHashAction(hash));
-				this.setState({redirect:true});
-
+				store.dispatch(logoutAction());
 			}, (error)=>{
-
 				if( error && error.response && error.response.data && error.response.data.message ){
 					eventEmitter.emit("errorOccured", error.response.data.message);
 				}else{
@@ -369,7 +363,7 @@ export default class UserAccountComponent extends Component {
 	}
 
 	render() {
-		const { isSmall, loading, redirect } = this.state;
+		const { isSmall, loading } = this.state;
 		const height = window.innerHeight + "px";
 		return (
 			<div
@@ -395,10 +389,6 @@ export default class UserAccountComponent extends Component {
 					<Card className="userAccCardStyle resetPasswordCard">
 						{this.getInnerCard()}
 					</Card>
-
-					{redirect && (
-						<Redirect from={userPageUrl} to={transferPageUrl}></Redirect>
-					)}
 				</div>
 			</div>
 		);

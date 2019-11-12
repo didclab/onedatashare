@@ -135,5 +135,11 @@ export  function validatePassword(password,confirmPassword)
 		validations.push({containsError : false, msg: "Minimum "+ validPasswordLength.toString() + " characters"});
 	}
 
+	if (password === confirmPassword) {
+		validations.push({containsError : false, msg: "Passwords Match"});
+	}else{
+		validations.push({containsError : true, msg: "Passwords Match"});
+	}
+	
 	return validations;
 }

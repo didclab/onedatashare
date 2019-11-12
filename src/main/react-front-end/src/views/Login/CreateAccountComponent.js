@@ -128,9 +128,8 @@ export default class CreateAccountComponent extends Component {
     let email = this.state.email;
     let password = this.state.password;
     let confirmPassword = this.state.cpassword;
-    let self = this;
     let code = this.state.code;
-    let state = self.state;
+
     setPassword(email, code, password, confirmPassword).then((response) => {
       this.props.backToSignin()
     });
@@ -160,7 +159,6 @@ export default class CreateAccountComponent extends Component {
 
 
   render() {
-    const { backToSignin } = this.props;
     const { emailError, emailErrorMessage, email, firstNameError,
       firstNameErrorMessage, lastNameError, lastNameErrorMessage, confirmation } = this.state;
     const disclaimer = <div style={{ fontSize: '12px' }}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
@@ -303,17 +301,18 @@ export default class CreateAccountComponent extends Component {
             error={this.state.verificationError === "Please Enter Valid Verification Code"}
           />
 
-          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
-            <Button size="medium" variant="outlined" color="primary" onClick={() => {
-              if (this.state.isLostVerifyCode) {
-                this.setState({ screen: "validateEmail" })
-              }
-              else {
-                this.setState({ screen: "registration" });
-              }
-            }}>
+          <CardActions style={{ ...spaceBetweenStyle }}>
+            <Button size="medium" variant="outlined" color="primary" 
+              onClick={() => {
+                if (this.state.isLostVerifyCode) {
+                  this.setState({ screen: "validateEmail" })
+                }
+                else {
+                  this.setState({ screen: "registration" });
+                }
+              }}>
               Back
-                </Button>
+            </Button>
             <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
               Next
                 </Button>
