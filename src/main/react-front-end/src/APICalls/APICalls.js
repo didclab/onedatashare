@@ -532,7 +532,7 @@ export async function getDownload(uri, credential, _id, succeed){
 
 	let json_to_send = {
 		credential: credential,
-		uri: uri,
+		uri: encodeURI(uri),
 	}
 
 	const strin = JSON.stringify(json_to_send);
