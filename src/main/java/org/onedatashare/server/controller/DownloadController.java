@@ -70,9 +70,11 @@ public class DownloadController {
         String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
         Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
         String cx = null;
-        for (Cookie c : cookies)
-            if(c.name().equals("CX"))
+        for (Cookie c : cookies) {
+            if (c.name().equals("CX")) {
                 cx = c.value();
+            }
+        }
         if(cx == null) {
             ODSLoggerService.logError("Cookie not found");
             throw new RuntimeException("Missing Cookie");
