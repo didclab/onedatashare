@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 
 import './GetStartedComponent.css';
 
-import {background,gs1,gs2,gs3,gs4,gs5,gs6,gs7} from "../constants.js"
+import { bgTexture, gs1, gs2, gs3, gs4, gs5, gs6, gs7 } from "../constants.js"
 
 export default class GetStartedComponent extends Component{
 
@@ -76,7 +76,7 @@ export default class GetStartedComponent extends Component{
         })
         return(
             <div className="adjustTop adjustContent content" 
-                style={{ backgroundImage: 'url(' + background + ')'}}>
+                style={{ backgroundImage: 'url(' + bgTexture + ')'}}>
                 <Carousel className="carouselStyle">
                     {carouselItems}
 

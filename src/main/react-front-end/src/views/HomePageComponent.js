@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 import './HomePageComponent.css';
 
-import {fastImage,easyImage,eteImage,precImage,intopImage,nsfImage,ubImage} from "../constants.js"
+import { fastImage, easyImage, eteImage, precImage, intopImage, nsfImage, ubImage } from "../constants.js"
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};

@@ -61,7 +61,8 @@ export const intopImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/
 export const nsfImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/NSF_Logo.png';
 export const ubImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/ub.png';
 
-export const background = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.webp";
+// export const bgTexture = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.webp";
+export const bgTexture = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.png";
 export const gs1 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs1.png";
 export const gs2 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs2.png";
 export const gs3 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs3.png";
