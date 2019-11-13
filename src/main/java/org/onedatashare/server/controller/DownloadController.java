@@ -1,7 +1,7 @@
 package org.onedatashare.server.controller;
 
-import io.netty.handler.codec.http.Cookie;
-import io.netty.handler.codec.http.CookieDecoder;
+import io.netty.handler.codec.http.cookie.Cookie;
+import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
@@ -10,6 +10,7 @@ import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.DbxService;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,22 +66,22 @@ public class DownloadController {
     }
 
     @RequestMapping(value = "/file", method = RequestMethod.GET)
-    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) {
+    public Mono<ResponseEntity> getAcquisition(@RequestHeader HttpHeaders clientHttpHeaders) throws IOException{
         String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
-
-        Map<String, String> map = new HashMap<String, String>();
-        Set<Cookie> cookies = CookieDecoder.decode(cookie);
-        for (Cookie c : cookies)
-            map.put(c.getName(), c.getValue());
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserActionResource userActionResource = null;
-        try {
-            /* Done to handle credentials with Double quotes */
-            final String credentials = URLDecoder.decode(URLDecoder.decode(map.get("CX"), "UTF-8"),"UTF-8");
-            userActionResource = objectMapper.readValue(credentials, UserActionResource.class);
-        } catch (IOException e) {
-            e.printStackTrace();
+        Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
+        String cx = null;
+        for (Cookie c : cookies) {
+            if (c.name().equals("CX")) {
+                cx = c.value();
+            }
         }
+        if(cx == null) {
+            ODSLoggerService.logError("Cookie not found");
+            throw new RuntimeException("Missing Cookie");
+        }
+        final String userActionResourceString = URLDecoder.decode(cx, "UTF-8");
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserActionResource userActionResource = objectMapper.readValue(userActionResourceString, UserActionResource.class);
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
     }
 
