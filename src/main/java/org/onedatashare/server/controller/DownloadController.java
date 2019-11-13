@@ -79,7 +79,8 @@ public class DownloadController {
             ODSLoggerService.logError("Cookie not found");
             throw new RuntimeException("Missing Cookie");
         }
-        final String userActionResourceString = URLDecoder.decode(cx, "UTF-8");
+        // Added double decode to handle conversion to JSON (failing without it)
+        final String userActionResourceString = URLDecoder.decode(URLDecoder.decode(cx, "UTF-8"),"UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = objectMapper.readValue(userActionResourceString, UserActionResource.class);
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
