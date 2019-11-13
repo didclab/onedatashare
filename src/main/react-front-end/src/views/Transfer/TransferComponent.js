@@ -133,7 +133,7 @@ export default class TransferComponent extends Component {
       dest["uri"] = encodeURI(destUrls[i]);
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Initiated!")
+        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);

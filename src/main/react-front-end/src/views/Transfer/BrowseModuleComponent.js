@@ -206,7 +206,7 @@ export default class BrowseModuleComponent extends Component {
 	      			loginPrep(SCP_TYPE)()
 	      		}}>
 	      			<Icon className={'fas fa-terminal'} style={iconStyle}/>
-	      			SSH
+	      			SCP
 	      		</Button>
 		    </div>}
 
