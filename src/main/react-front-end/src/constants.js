@@ -71,6 +71,9 @@ export const gs5 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs5.gif
 export const gs6 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs6.gif";
 export const gs7 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs7.png";
 
+// RSA key for encryption
+export const ODS_PUBLIC_KEY = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAKL7349KYl9jec3Ee+UamFduBmwo9jZU7Ud5tOolcAhDd5gHMiNzJcooZf5vO2cm6+NvebfoYk9gJD9hA3amHrUCAwEAAQ==";
+
 //Status
 export const completeStatus = "complete";
 

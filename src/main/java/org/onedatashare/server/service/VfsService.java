@@ -3,6 +3,7 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
 import org.onedatashare.server.module.vfs.VfsSession;
@@ -25,23 +26,29 @@ public class VfsService implements ResourceService<VfsResource> {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private DecryptionService decryptionService;
+
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-            .map(user -> new UserInfoCredential(userAction.getCredential()))
-            .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
-            .flatMap(vfsSession -> vfsSession.initialize())
-            .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
+                .flatMap(user -> decryptionService.getDecryptedCredential(userAction.getCredential()))
+                .map(userActionCred -> new UserInfoCredential(userActionCred))
+                .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
+                .flatMap(vfsSession -> vfsSession.initialize())
+                .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userActionResource.getCredential()))
+                .flatMap(user -> decryptionService.getDecryptedCredential(userActionResource.getCredential()))
+                .map(userActionCred -> new UserInfoCredential(userActionCred))
                 .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
+
 
     public String pathFromUri(String uri) {
         String path = "";
