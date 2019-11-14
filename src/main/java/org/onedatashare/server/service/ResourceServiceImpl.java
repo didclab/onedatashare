@@ -101,32 +101,24 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     }
 
     public Credential createCredential(UserActionResource userActionResource, User user) {
-        if (user.isSaveOAuthTokens()) {
-            if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                    userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
+        if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
+                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
+            if (user.isSaveOAuthTokens()) {
                 return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-            } else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
-                return userActionResource.getUploader();
-            } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
-                GlobusClient gc = userService.getGlobusClientFromUser(user);
-                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
-            } else
-                return new UserInfoCredential(userActionResource.getCredential());
-        } else {
-            if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                    userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
-                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getToken());
-                return credential;
             }
-            //TODO: Fix uploads
-            else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
-                return userActionResource.getUploader();
-            } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
-                GlobusClient gc = userService.getGlobusClientFromUser(user);
-                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
-            } else
-                return new UserInfoCredential(userActionResource.getCredential());
+            else {
+                return new OAuthCredential(userActionResource.getCredential().getToken());
+            }
         }
+        else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
+            return userActionResource.getUploader();
+        }
+        else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
+            GlobusClient gc = userService.getGlobusClientFromUser(user);
+            return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
+        }
+        else
+            return new UserInfoCredential(userActionResource.getCredential());
     }
 
 

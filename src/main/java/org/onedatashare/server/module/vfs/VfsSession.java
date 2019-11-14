@@ -11,8 +11,6 @@ import org.onedatashare.server.model.core.Session;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
-import org.onedatashare.server.service.DecryptionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -20,7 +18,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 public class VfsSession extends Session<VfsSession, VfsResource> {
-
 
   FileSystemManager fileSystemManager;
   FileSystemOptions fileSystemOptions;
