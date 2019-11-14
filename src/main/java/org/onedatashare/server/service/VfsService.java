@@ -32,8 +32,16 @@ public class VfsService implements ResourceService<VfsResource> {
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-                .flatMap(user -> decryptionService.getDecryptedCredential(userAction.getCredential()))
-                .map(userActionCred -> new UserInfoCredential(userActionCred))
+                .flatMap(user -> {
+                    if(userAction.getCredential() == null){
+                        // Credentials for FTP will be null
+                        return Mono.just(new UserInfoCredential(null));
+                    }
+                    else {
+                        return decryptionService.getDecryptedCredential(userAction.getCredential())
+                                .map(userActionCred -> new UserInfoCredential(userActionCred));
+                    }
+                })
                 .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
                 .flatMap(vfsSession -> vfsSession.initialize())
                 .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
@@ -42,8 +50,16 @@ public class VfsService implements ResourceService<VfsResource> {
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
-                .flatMap(user -> decryptionService.getDecryptedCredential(userActionResource.getCredential()))
-                .map(userActionCred -> new UserInfoCredential(userActionCred))
+                .flatMap(user -> {
+                    if(userActionResource.getCredential() == null){
+                        // Credentials for FTP will be null
+                        return Mono.just(new UserInfoCredential(null));
+                    }
+                    else {
+                        return decryptionService.getDecryptedCredential(userActionResource.getCredential())
+                                .map(userActionCred -> new UserInfoCredential(userActionCred));
+                    }
+                })
                 .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
