@@ -63,7 +63,9 @@ public class UserService {
   }
 
   public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
-
+    if(!emailService.isValidEmail(email)){
+        return Mono.error(new Exception(" Email Verification Failed"));
+    }
     return captchaService.verifyValue(captchaVerificationValue)
             .flatMap(captchaVerified-> {
 
@@ -82,8 +84,8 @@ public class UserService {
                       return Mono.just(new Response("Account already exists",302));
                     }
                   }
-                  return createUser(new User(email, firstName, lastName, organization, password))
-                          .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
+                      return createUser(new User(email, firstName, lastName, organization, password))
+                              .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
                 });
               }
               else{
@@ -91,6 +93,7 @@ public class UserService {
               }
             });
   }
+
 
   public Mono<User> doesUserExists(String email) {
     User user = new User();
