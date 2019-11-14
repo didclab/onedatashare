@@ -1,79 +1,40 @@
 package org.onedatashare.server.service;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class UserServiceTest {
 
+    @MockBean
+    UserRepository userRepository;
+
     @Autowired
-    private UserService userService;
+    UserService userService;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void createUser_givenBlankEmailAndPassword_throwsRuntimeExceptionAndDisplaysCorrectMessage() throws Exception {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("No password was provided");
-        User user = new User("","");
-        userService.createUser(user).subscribe();
+    @BeforeAll
+    public static void initializeMocks(){
+        System.out.println("In before all");
     }
 
     @Test
-    public void createUser_givenRandomEmailAndBlankPassword_throwsRuntimeExceptionAndDisplaysCorrectMessage() throws Exception {
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("No password was provided");
-        User user = new User("ryandils@buffalo.edu","");
-        userService.createUser(user).subscribe();
-    }
-
-    @Test
-    public void createUser_givenBlankEmailAndRandomPassword_throwsNullPointerException() throws Exception {
-        thrown.expect(NullPointerException.class);
-        User user = new User("","password");
-        userService.createUser(user).subscribe();
-    }
-
-    @Test
-    public void createUser_givenRandomEmailAndPassword_noExceptionThrown() throws Exception {
-
-    }
-
-    @Test
-    public void getGlobusClient_givenGlobusClient_returnsGlobsuClient() {
-
-    }
-
-    @Test
-    public void removeIfExpired_givenExpiredObject_successfullyRemoves() {
-
-    }
-
-    @Test
-    public void verifyEmail_givenValidEmail_successfullyVerifiesEmail() {
-
-    }
-
-    @Test
-    public void verifyEmail_givenInvalidEmail_unsuccessfullyVerifiesEmail() {
-
-    }
-
-    @Test
-    public void isAdmin_givenAdmin_returnsTrue() {
-
-    }
-
-    @Test
-    public void isAdmin_givenSomeoneThatIsNotAdmin_returnsFalse() {
-
-    }
-
-    @Test
-    public void getGlobusClient_givenNoCredentials_returnsNull() {
+    public void getUser_test(){
+        String email = "linuscas@buffalo.edu";
+        when(userRepository.findById(email)).thenReturn(Mono.just(new User()));
+        userService.getUser("linuscas@buffalo.edu")
+        .doOnSuccess(user -> assertTrue(user instanceof User));
 
     }
 }
