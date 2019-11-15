@@ -3,7 +3,6 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
 import org.onedatashare.server.module.vfs.VfsSession;
@@ -15,6 +14,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 
 import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
@@ -42,7 +42,18 @@ public class VfsService implements ResourceService<VfsResource> {
                                 .map(userActionCred -> new UserInfoCredential(userActionCred));
                     }
                 })
-                .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
+                .map(credential -> {
+                    // Encoding the resource URI to avoid errors due to spaces in file/directory names
+                    String encodedURI = userAction.getUri();
+                    try {
+                        encodedURI = URLEncoder.encode(userAction.getUri(), "UTF-8");
+                    }
+                    catch(UnsupportedEncodingException uee){
+                        ODSLoggerService.logError("Exception encountered while encoding input URI");
+                        Mono.error(uee);
+                    }
+                    return new VfsSession(URI.create(encodedURI), credential);
+                })
                 .flatMap(vfsSession -> vfsSession.initialize())
                 .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
@@ -60,7 +71,18 @@ public class VfsService implements ResourceService<VfsResource> {
                                 .map(userActionCred -> new UserInfoCredential(userActionCred));
                     }
                 })
-                .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
+                .map(credential -> {
+                    // Encoding the resource URI to avoid errors due to spaces in file/directory names
+                    String encodedURI = userActionResource.getUri();
+                    try {
+                        encodedURI = URLEncoder.encode(userActionResource.getUri(), "UTF-8");
+                    }
+                    catch(UnsupportedEncodingException uee){
+                        ODSLoggerService.logError("Exception encountered while encoding input URI");
+                        Mono.error(uee);
+                    }
+                    return new VfsSession(URI.create(encodedURI), credential);
+                })
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
