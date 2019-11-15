@@ -1,8 +1,6 @@
 package org.onedatashare.server.service;
 
-import org.jetbrains.annotations.Contract;
 import org.onedatashare.server.model.useraction.UserActionCredential;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,6 +14,13 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import javax.crypto.Cipher;
 
+
+/**
+ * Service class responsible for decrypting the RSA encrypted data received by the controller.
+ * Primarily developed for password decryption for SFTP endpoint operations.
+ *
+ * Base code for generating the key pair can be found on the OneDataShare S3 bucket.
+ */
 @Service
 public class DecryptionService {
 
@@ -24,6 +29,10 @@ public class DecryptionService {
 
     private PrivateKey privateKey;
 
+    /**
+     * Method invoked after this service is initialized in the application context.
+     * Responsible for generating the privateKey object from the Base64 encoded odsPrivateKey string.
+     */
     @PostConstruct
     public void createPrivateKey(){
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(odsPrivateKey.getBytes()));
@@ -42,12 +51,25 @@ public class DecryptionService {
         }
     }
 
+    /**
+     * Method that updates the input UserActionCredential object containing the RSA encrypted password with
+     * the decrypted version of the password.
+     *
+     * @param cred - UserActionCredential object received in the HTTP request
+     * @return Mono of cred object containing the decrypted password
+     */
     public Mono<UserActionCredential> getDecryptedCredential(UserActionCredential cred){
         String encryptedPwd = cred.getPassword();
         cred.setPassword(getDecryptedPassword(encryptedPwd));
         return Mono.just(cred);
     }
 
+    /**
+     * Method that decrypted the input encrypted string.
+     *
+     * @param encryptedPwd - Base64 encoded encrypted password string
+     * @return String containing decrypted version of the input string
+     */
     public String getDecryptedPassword(String encryptedPwd){
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
