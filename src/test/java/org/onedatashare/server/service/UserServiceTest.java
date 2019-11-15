@@ -1,7 +1,6 @@
 package org.onedatashare.server.service;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.repository.UserRepository;
@@ -11,11 +10,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+@ExtendWith(SpringExtension.class)
+@DisplayName("User Service Tests")
 public class UserServiceTest {
 
     @MockBean
@@ -24,17 +25,76 @@ public class UserServiceTest {
     @Autowired
     UserService userService;
 
-    @BeforeAll
-    public static void initializeMocks(){
-        System.out.println("In before all");
+    User user;
+
+    @BeforeEach
+    public void initTest(){
+        user = new User();
+        user.setEmail("ods_test_user@test.com");
+        user.setFirstName("ODS_Test");
+        user.setLastName("User");
+        user.setAdmin(false);
     }
 
-    @Test
-    public void getUser_test(){
-        String email = "linuscas@buffalo.edu";
-        when(userRepository.findById(email)).thenReturn(Mono.just(new User()));
-        userService.getUser("linuscas@buffalo.edu")
-        .doOnSuccess(user -> assertTrue(user instanceof User));
+    @Nested
+    @DisplayName("getUser()")
+    class GetUserTest{
+        String validInputEmail = "ods_test_user@test.com";
+        String invalidInputEmail = "nonexistent_ods_test_user@test.com";
 
-    }
+        @BeforeEach
+        public void initGetUserTest(){
+            // Return values decided by referring official documentation of ReactiveCrudRepository
+            // https://docs.spring.io/spring-data/commons/docs/current/api/org/springframework/data/repository/reactive/ReactiveCrudRepository.html
+            when(userRepository.findById(user.getEmail())).thenReturn(Mono.just(user));
+            when(userRepository.findById(invalidInputEmail)).thenReturn(Mono.empty());
+            when(userRepository.findById("")).thenReturn(Mono.empty());
+            doThrow(IllegalArgumentException.class).when(userRepository).findById((String) null);
+        }
+
+        @Test
+        @DisplayName("Valid user email")
+        public void getUser_test_validEmail(){
+            userService.getUser(validInputEmail)
+                    .doOnSuccess(user -> {
+                        assertTrue(user instanceof User, "Expected to receive a User object");
+                        assertEquals(validInputEmail, user.getEmail(),"Did not retrieve the expected user");
+                    });
+        }
+
+        @Test
+        @DisplayName("Invalid user email")
+        public void getUser_test_invalidEmail(){
+            userService.getUser(invalidInputEmail)
+                    .doOnSuccess(user -> fail("Did not expect to retrieve any user"))
+                    .doOnError(error -> {
+                        assertTrue(error instanceof Exception, "Did not receive expected error");
+                        assertEquals(error.getMessage(), "No User found with Id: " + invalidInputEmail,"Expected error not encountered");
+                    });
+        }
+
+        @Test
+        @DisplayName("Blank user email")
+        public void getUser_test_blankEmail(){
+            userService.getUser("")
+                    .doOnSuccess(user -> fail("Did not expect to retrieve any user"))
+                    .doOnError(error -> {
+                        assertTrue(error instanceof Exception, "Did not receive expected error");
+                        assertEquals(error.getMessage(), "No User found with Id: " + invalidInputEmail,"Expected error not encountered");
+                    });
+        }
+
+
+        // Test case not handled in original code. Need to fix!!!!!!
+//        @Test
+//        @DisplayName("Null user email input")
+//        public void getUser_test_nullEmail(){
+//            userService.getUser(null)
+//                    .doOnSuccess(user -> fail("Did not expect to retrieve any user"))
+//                    .doOnError(error -> {
+//                        assertTrue(error instanceof IllegalArgumentException, "Did not receive expected error")
+//                    });
+//        }
+    }    // GetUserTest
+
 }
