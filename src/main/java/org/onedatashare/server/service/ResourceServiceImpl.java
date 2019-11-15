@@ -39,6 +39,9 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private DecryptionService decryptionService;
+
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
     public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
@@ -72,7 +75,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         String id = userActionResource.getId();
         ArrayList<IdMap> idMap = userActionResource.getMap();
         return userService.getLoggedInUser(cookie)
-                .map(user -> createCredential(userActionResource, user))
+                .flatMap(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> {
                     if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
@@ -100,33 +103,34 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return path;
     }
 
-    public Credential createCredential(UserActionResource userActionResource, User user) {
-        if (user.isSaveOAuthTokens()) {
-            if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                    userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
-                return user.getCredentials().get(UUID.fromString(userActionResource.getCredential().getUuid()));
-            } else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
-                return userActionResource.getUploader();
-            } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
-                GlobusClient gc = userService.getGlobusClientFromUser(user);
-                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
-            } else
-                return new UserInfoCredential(userActionResource.getCredential());
-        } else {
-            if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                    userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
-                OAuthCredential credential = new OAuthCredential(userActionResource.getCredential().getToken());
-                return credential;
+    public Mono<Credential> createCredential(UserActionResource userActionResource, User user) {
+        if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
+                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
+            if (user.isSaveOAuthTokens()) {
+                return Mono.just(
+                        user.getCredentials().get(
+                                UUID.fromString(userActionResource.getCredential()
+                                        .getUuid())
+                        ));
             }
-            //TODO: Fix uploads
-            else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
-                return userActionResource.getUploader();
-            } else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
-                GlobusClient gc = userService.getGlobusClientFromUser(user);
-                return new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc);
-            } else
-                return new UserInfoCredential(userActionResource.getCredential());
+            else {
+                return Mono.just( new OAuthCredential(userActionResource.getCredential().getToken()));
+            }
         }
+        else if (userActionResource.getUri().equals(UPLOAD_IDENTIFIER)) {
+            return Mono.just( userActionResource.getUploader() );
+        }
+        else if (userActionResource.getUri().startsWith(GRIDFTP_URI_SCHEME)) {
+            GlobusClient gc = userService.getGlobusClientFromUser(user);
+            return Mono.just(new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc));
+        }
+        else if (userActionResource.getUri().startsWith(SFTP_URI_SCHEME) ||
+                userActionResource.getUri().startsWith(SCP_URI_SCHEME)){
+            return decryptionService.getDecryptedCredential(userActionResource.getCredential())
+                    .map(cred -> new UserInfoCredential(cred));
+        }
+        else
+            return Mono.just(new UserInfoCredential(userActionResource.getCredential()));
     }
 
 

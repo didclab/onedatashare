@@ -70,6 +70,9 @@ export const gs5 = ODS_S3_BUCKET + "gs5.gif";
 export const gs6 = ODS_S3_BUCKET + "gs6.gif";
 export const gs7 = ODS_S3_BUCKET + "gs7.png";
 
+// RSA key for encryption
+export const ODS_PUBLIC_KEY = process.env.REACT_APP_ODS_RSA_PUBLIC_KEY;
+
 //Status
 export const completeStatus = "complete";
 
