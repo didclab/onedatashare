@@ -97,4 +97,52 @@ public class UserServiceTest {
 //        }
     }    // GetUserTest
 
+    @Nested
+    @DisplayName("login()")
+    class LoginTest{
+
+        @Test
+        @DisplayName("Valid email, Valid Password")
+        public void login_test_validInput(){
+
+        }
+
+        @Test
+        @DisplayName("Null email, Random Password")
+        public void login_test_nullEmail(){
+
+        }
+
+        @Test
+        @DisplayName("Valid email, Null password")
+        public void login_test_nullPwd(){
+
+        }
+
+        @Test
+        @DisplayName("Invalid email, Random Password")
+        public void login_test_invalidEmail(){
+
+        }
+
+        @Test
+        @DisplayName("Valid email, Invalid password")
+        public void login_test_invalidPwd(){
+
+        }
+
+        @Test
+        @DisplayName("Blank email, Random password")
+        public void login_test_blankEmail(){
+
+        }
+
+        @Test
+        @DisplayName("Valid email, Blank password")
+        public void login_test_blankPwd(){
+
+        }
+
+    }
+
 }
