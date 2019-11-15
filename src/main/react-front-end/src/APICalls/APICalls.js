@@ -40,8 +40,6 @@ function statusHandle(response, callback){
 	      callback(`Timeout 10000ms`)
 	      return;
 	    }
-		// console.log(response)
-		//const errorText = JSON.stringify(response.response.data);
 		callback(`500`);
 	}
 }
@@ -528,15 +526,15 @@ export async function download(uri, credential, _id){
 	})
 }
 
-export async function getDownload(uri, credential, _id, succeed){
+export async function getDownload(uri, credential){
 
 	let json_to_send = {
 		credential: credential,
-		uri: encodeURI(uri),
+		uri: uri,
 	}
 
-	const strin = JSON.stringify(json_to_send);
-	cookies.set("CX", encodeURI(strin), { expires : 1});
+	const jsonStr = JSON.stringify(json_to_send);
+	cookies.set("CX", jsonStr, { expires : 1});
 
 	window.location = url + "download/file";
 	setTimeout(() => {
