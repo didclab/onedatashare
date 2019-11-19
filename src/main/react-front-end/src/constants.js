@@ -52,24 +52,26 @@ export const sideRight = "right";
 
 export const validPasswordLength = 6;
 
-//images
-export const fastImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/fast.png';
-export const easyImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/easy.png';
-export const eteImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/endtoend.png';
-export const precImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/precise.png';
-export const intopImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/interoperation.png';
-export const nsfImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/NSF_Logo.png';
-export const ubImage = 'https://ods-static-assets.s3.us-east-2.amazonaws.com/ub.png';
+export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
 
-// export const bgTexture = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.webp";
-export const bgTexture = "https://ods-static-assets.s3.us-east-2.amazonaws.com/background-texture.png";
-export const gs1 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs1.png";
-export const gs2 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs2.png";
-export const gs3 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs3.png";
-export const gs4 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs4.png";
-export const gs5 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs5.gif";
-export const gs6 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs6.gif";
-export const gs7 = "https://ods-static-assets.s3.us-east-2.amazonaws.com/gs7.png";
+//images
+export const fastImage = ODS_S3_BUCKET + 'fast.png';
+export const easyImage = ODS_S3_BUCKET + 'easy.png';
+export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
+export const precImage = ODS_S3_BUCKET + 'precise.png';
+export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
+export const nsfImage = ODS_S3_BUCKET + 'NSF_Logo.png';
+export const ubImage = ODS_S3_BUCKET + 'ub.png';
+export const gs1 = ODS_S3_BUCKET + "gs1.png";
+export const gs2 = ODS_S3_BUCKET + "gs2.png";
+export const gs3 = ODS_S3_BUCKET + "gs3.png";
+export const gs4 = ODS_S3_BUCKET + "gs4.png";
+export const gs5 = ODS_S3_BUCKET + "gs5.gif";
+export const gs6 = ODS_S3_BUCKET + "gs6.gif";
+export const gs7 = ODS_S3_BUCKET + "gs7.png";
+
+// RSA key for encryption
+export const ODS_PUBLIC_KEY = process.env.REACT_APP_ODS_RSA_PUBLIC_KEY;
 
 //Status
 export const completeStatus = "complete";

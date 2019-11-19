@@ -73,14 +73,18 @@ public class DownloadController {
         for (Cookie c : cookies) {
             if (c.name().equals("CX")) {
                 cx = c.value();
+                break;
             }
         }
         if(cx == null) {
             ODSLoggerService.logError("Cookie not found");
             throw new RuntimeException("Missing Cookie");
         }
-        // Added double decode to handle conversion to JSON (failing without it)
-        final String userActionResourceString = URLDecoder.decode(URLDecoder.decode(cx, "UTF-8"),"UTF-8");
+
+        // Replacing all the occurrence of '+' characters with its URL encoded equivalent '%2b'
+        // since URLDecoder decodes '+' character as a space as per URL encoding standards
+        cx = cx.replaceAll("\\+", "%2b");
+        final String userActionResourceString = URLDecoder.decode(cx, "UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = objectMapper.readValue(userActionResourceString, UserActionResource.class);
         return vfsService.getSftpDownloadStream(cookie, userActionResource);

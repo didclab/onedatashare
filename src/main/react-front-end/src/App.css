@@ -1,20 +1,3 @@
-:root{
-  /* Store all global variables */
-  /* --bg-img-s1 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s1.webp");
-  --bg-img-s2 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s2.webp");
-  --bg-img-s3 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s3.webp");
-  --bg-img-s4 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s4.webp");
-  --bg-img-s5 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s5.webp");
-  --bg-img-s6 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s6.webp"); */
-  /* Using PNG for now since Safari does not support WebP. Need to replace with JPEG in future release for faster load */
-  --bg-img-s1 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s1.png");
-  --bg-img-s2 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s2.png");
-  --bg-img-s3 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s3.png");
-  --bg-img-s4 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s4.png");
-  --bg-img-s5 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s5.png");
-  --bg-img-s6 : url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s6.png");
-}
-
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -50,30 +33,6 @@
   margin: 0px !important;
   background-size: auto 100%;
   background-position: right top;
-}
-
-.homepage_section1 {
-  background-image: var(--bg-img-s1);
-}
-
-.homepage_section2 {
-  background-image: var(--bg-img-s2);
-}
-
-.homepage_section3 {
-  background-image: var(--bg-img-s3);
-}
-
-.homepage_section4 {
-  background-image: var(--bg-img-s4);
-}
-
-.homepage_section5 {
-  background-image: var(--bg-img-s5);
-}
-
-.homepage_section6 {
-  background-image: var(--bg-img-s6);
 }
 
 .flexSpacebetween {
