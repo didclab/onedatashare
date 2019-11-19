@@ -1,4 +1,15 @@
-# $app_server1 should be set in the repository settings of onedatashare at https://travis-ci.com/ 
+# ------------------------ Pre-requisites -------------
+# Set the below environment variables in the Travis CI settings -> Environment Variables
+# servers : "ubuntu@<hostname1>,ubuntu@<hostname2>" 
+# app_server1: ubuntu@<hostname1> 
+# CI: false
+# REACT_APP_GA_KEY: <Google analytics key> 
+# REACT_APP_GC_CLIENT_KEY: <Google Captcha client key> 
+# Encrypt the pem file using the travis ci on a linux machine and put the generated .pem.enc in the repository. Make sure NOT TO CHECKIN the .pem file in the repository
+# Create a folder with name ODS-UI inside /home directory on app_server1 and give all permissions (chmod 777 /home/ODS-UI) - This allows build server to access the folder
+# Please go through the CI_CD doucmentation to know more about the deployment.
+# ------------------------ Script ---------------------
+# $app_server1 should be set as environment variables in the repository settings of onedatashare at https://travis-ci.com/ 
 # This is server on which the intermediate UI build is pushed during the deploy event of front-end stage and it is later pulled to the build server during the  before_script event of back-end stage.
 # This is done because Travis doesn't allow to share the data across stages. So the app_server1 is used for temporary storage. Read https://docs.travis-ci.com/user/build-stages/ for more info.
 
@@ -19,7 +30,7 @@ jobs:
       deploy:
       - provider: script
         skip_cleanup: true
-        script: sudo scp -i ../ods-prod.pem -o StrictHostKeyChecking=no -r build $app_server1:/home/Travis-ODS-UI
+        script: sudo scp -i ../ods-prod.pem -o StrictHostKeyChecking=no -r build $app_server1:/home/ODS-UI
       
     - stage: back-end
       language: java
@@ -28,7 +39,7 @@ jobs:
       before_script:
       - echo "removing old build"
       - rm -rf src/main/resources/static
-      - sudo scp -i ods-prod.pem -o StrictHostKeyChecking=no -r $app_server1:/home/Travis-ODS-UI/build src/main/resources/static    
+      - sudo scp -i ods-prod.pem -o StrictHostKeyChecking=no -r $app_server1:/home/ODS-UI/build src/main/resources/static    
       script:
       - mvn package
       after_script:
