@@ -6,9 +6,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-
 import './UserAccountComponent.css';
-
 import {
 	Dialog,
 	DialogActions,
@@ -16,19 +14,15 @@ import {
 	DialogContentText,
 	DialogTitle
 } from "@material-ui/core";
-
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
-
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
-
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
-
 import { validPassword } from "../../constants";
 
 import {
