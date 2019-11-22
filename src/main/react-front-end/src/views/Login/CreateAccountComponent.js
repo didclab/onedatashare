@@ -364,7 +364,7 @@ export default class CreateAccountComponent extends Component {
             }}>
               Back
               </Button>
-            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!this.state.canSubmit}>
+            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.password && this.state.cpassword)}>
               Next
               </Button>
           </CardActions>

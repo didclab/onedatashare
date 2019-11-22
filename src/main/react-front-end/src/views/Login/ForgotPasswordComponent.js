@@ -182,7 +182,7 @@ export default class ForgotPasswordComponent extends Component {
 							<Button size="medium" variant="outlined" color="primary" onClick={back}>
 								Back to Sign in
 				        	</Button>
-							<Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} disabled={confirmed} onClick={this.SetPassword}>
+							<Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.password && this.state.confirmedPassword)} onClick={this.SetPassword}>
 								Reset
 				       		 </Button>
 						</CardActions>
