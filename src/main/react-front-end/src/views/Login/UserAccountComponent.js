@@ -6,7 +6,9 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+
 import './UserAccountComponent.css';
+
 import {
 	Dialog,
 	DialogActions,
@@ -14,16 +16,20 @@ import {
 	DialogContentText,
 	DialogTitle
 } from "@material-ui/core";
+
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
+
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
+
 import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
-import { validPassword } from "../../constants";
+
+import { validatePassword } from "../../constants";
 
 import {
 	changePassword,
@@ -39,44 +45,42 @@ import {
 import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
-import { updateGAPageView } from '../../analytics/ga'
+import {updateGAPageView} from '../../analytics/ga'
 
 export default class UserAccountComponent extends Component {
 	constructor() {
 		super();
 		this.state = {
-			isSmall: window.innerWidth <= 640,
-			loading: true,
-			oldPassword: "",
-			newPassword: "",
-			confirmNewPassword: "",
-			userEmail: store.getState().email,
-			userOrganization: "...",
-			fName: "...",
-			lName: "...",
+    		isSmall: window.innerWidth <= 640,
+    		loading: true,
+    		oldPassword: "",
+    		newPassword: "",
+    		confirmNewPassword: "",
+    	    userEmail: store.getState().email,
+    	    userOrganization: "...",
+    	    fName: "...",
+    	    lName: "...",
 			openAlertDialog: false,
 			saveOAuthTokens: false,
-			validations: validPassword("", ""),
-			canSubmit: false,
-			isValidNewPassword: true,
-			isValidConfirmPassword: true
-		};
-		getUser(this.state.userEmail, (resp) => {
-			//success
-			this.setState({
-				userOrganization: resp.organization,
-				fName: resp.firstName,
-				lName: resp.lastName,
-				saveOAuthTokens: resp.saveOAuthTokens,
-				loading: false
-			});
-		}, (resp) => {
-			//failed
-			this.setState({ loading: false });
-			console.log('Error encountered in getUser request to API layer');
-		});
-		this.getInnerCard = this.getInnerCard.bind(this);
-		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
+			validations: validatePassword("", ""),
+      canSubmit: false
+    	};
+    	getUser(this.state.userEmail,  (resp) => {
+            //success
+            this.setState({
+               userOrganization: resp.organization,
+               fName: resp.firstName,
+               lName: resp.lastName,
+			   saveOAuthTokens: resp.saveOAuthTokens,
+               loading: false
+            });
+            }, (resp) => {
+            //failed
+            this.setState({ loading: false });
+            console.log('Error encountered in getUser request to API layer');
+        });
+   		this.getInnerCard = this.getInnerCard.bind(this);
+   		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
 		this.accountDetails = this.accountDetails.bind(this);
 		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
@@ -84,26 +88,26 @@ export default class UserAccountComponent extends Component {
 		updateGAPageView();
 	}
 
-	componentDidMount() {
+	componentDidMount(){
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
 
 	}
 
-	onPasswordUpdate(oldPass, newPass, confPass) {
-		if (newPass === "" || oldPass === "" || confPass === "") {
+	onPasswordUpdate(oldPass, newPass, confPass){
+	    if(newPass === "" || oldPass === "" || confPass === ""){
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-		} else if (oldPass === newPass) {
+		}else if(oldPass === newPass){
 			eventEmitter.emit("errorOccured", "Old and New Passwords cant be same");
 		}
-		else {
-			changePassword(oldPass, newPass, confPass, (hash) => {
+		else{
+			changePassword(oldPass, newPass,confPass, (hash)=>{
 				store.dispatch(logoutAction());
-			}, (error) => {
-				if (error && error.response && error.response.data && error.response.data.message) {
+			}, (error)=>{
+				if( error && error.response && error.response.data && error.response.data.message ){
 					eventEmitter.emit("errorOccured", error.response.data.message);
-				} else {
+				}else{
 					eventEmitter.emit("errorOccured", "Unknown Error");
 				}
 			});
@@ -174,7 +178,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
-									id="UserEmail"
+                  id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -185,7 +189,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
-									id="UserFirstName"
+                        			id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -195,7 +199,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
-									id="UserLastName"
+                          			id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -242,7 +246,7 @@ export default class UserAccountComponent extends Component {
 					onClose={this.handleAlertClose}
 					aria-labelledby="alert-dialog-title"
 					aria-describedby="alert-dialog-description">
-
+						
 					<DialogTitle id="alert-dialog-title">
 						{"Change how OAuth tokens are saved?"}
 					</DialogTitle>
@@ -265,14 +269,14 @@ export default class UserAccountComponent extends Component {
 		);
 	}
 
-	checkIfUserCanSubmit() {
+	checkIfUserCanSubmit(){
 		let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
 			return criteria.containsError;
 		}).length;
-		if (unsatisfiedRequirements > 0) {
-			this.setState({ canSubmit: false });
-		} else {
-			this.setState({ canSubmit: true });
+		if(unsatisfiedRequirements>0){
+			this.setState({canSubmit : false});
+		}else{
+			this.setState({canSubmit : true});
 		}
 	}
 
@@ -284,22 +288,22 @@ export default class UserAccountComponent extends Component {
 			});
 		};
 
-		const checkPassword = name => event => {
-			const validObj = validPassword(name, event.target.value, this.state.confirmNewpassword);
-			this.setState({ [name]: event.target.value, isValidNewPassword: validObj.isValid, errorMsg: validObj.errormsg });
-		}
-
-		const checkConfirmPassword = name => event => {
-			const validObj = validPassword(name, this.state.newPassword, event.target.value);
-			this.setState({ [name]: event.target.value, isValidConfirmPassword: validObj.isValid, errorMsg: validObj.errormsg });
-		}
+		const passwordCheck = name => event=>{
+      this.setState({
+        [name]: event.target.value,
+      }, ()=>{
+        this.setState({validations: validatePassword(this.state.newPassword, this.state.confirmNewPassword)}, ()=>{
+          this.checkIfUserCanSubmit();
+        })
+      });
+    }
 
 		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
 		return (
 			<div>
 				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
-        		</Typography>
+        </Typography>
 
 				<TextField
 					id="Email"
@@ -310,31 +314,30 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					error={!this.state.isValidNewPassword}
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={checkPassword("newPassword")}
+					onChange={passwordCheck("newPassword")}
 				/>
 				<TextField
-					error={!this.state.isValidConfirmPassword}
+					error={confirmed}
 					id="Cpassword"
 					type="password"
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={checkConfirmPassword("confirmNewPassword")}
+					onChange={passwordCheck("confirmNewPassword")}
 				/>
 				<PasswordRequirementsComponent
-					showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
-					errorMsg={this.state.errorMsg} />
+          showList = {!this.state.canSubmit}
+          validations = {this.state.validations} />
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
-						disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.newPassword && this.state.confirmNewPassword)}
+						disabled={!this.state.canSubmit}
 						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
