@@ -3,7 +3,7 @@ import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, notificationPageUrl } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, notificationPageUrl, newNotifications } from '../constants';
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
@@ -37,15 +37,13 @@ class NavbarComponent extends Component {
 	}
 	render() {
 		return (
-			<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar">
-
+			<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar" >
 				<Navbar.Header >
 					<Navbar.Brand>
 						<Link to="/">OneDataShare</Link>
 					</Navbar.Brand>
 					<Navbar.Toggle />
 				</Navbar.Header>
-
 				<Navbar.Collapse>
 					{(this.state.login) &&
 						<Nav>
@@ -56,11 +54,12 @@ class NavbarComponent extends Component {
 								<NavDropdown title="Admin" id="NavDropdown">
 									<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
 										Clients Information
-			        	</NavItem>
+			        				</NavItem>
 									<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
 									<NavItem componentClass={Link} to={notificationPageUrl} href={notificationPageUrl}>Send Notifications</NavItem>
+									<NavItem componentClass={Link} to={newNotifications} href={newNotifications}>New Notifications</NavItem>
 									{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
-			        	<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
+			        				<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 								</NavDropdown>
 							}
 						</Nav>}

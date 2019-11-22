@@ -15,6 +15,7 @@ export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
 export const notificationPageUrl = "/sendNotifications";
+export const newNotifications = "/newNotifications";
 export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";

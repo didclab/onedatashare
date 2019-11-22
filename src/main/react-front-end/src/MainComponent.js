@@ -14,6 +14,7 @@ import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
+import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
@@ -123,6 +124,13 @@ export default class MainComponent extends Component {
               <Route exact path='/sendNotifications' render=
                 {(props) =>
                   <NotificationsComponent {...props} store={store} />
+                }
+              />
+            }
+            {isLoggedIn && admin &&
+              <Route exact path='/newNotifications' render=
+                {(props) =>
+                  <NewNotificationsComponent {...props} store={store} />
                 }
               />
             }
