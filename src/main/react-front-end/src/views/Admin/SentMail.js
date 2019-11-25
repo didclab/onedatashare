@@ -7,11 +7,11 @@ class SentMail extends Component {
     render() {
         return (
             <div>
-                <h3 style={{ color: 'green' }}>
-                    <Label bsStyle={'success'}>
+                <h4 style={{ marginTop: 20 }}>
+                    <Label bsStyle={'success'} bsClass='header'>
                         <Glyphicon glyph="check" />Sent Mail
                     </Label>
-                </h3>
+                </h4>
                 <Table responsive>
                     <thead>
                         <tr>
