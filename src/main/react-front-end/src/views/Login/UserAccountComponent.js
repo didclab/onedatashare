@@ -35,6 +35,7 @@ import {
 	changePassword,
 	getUser,
 	updateSaveOAuth,
+	saveOAuthCredentials,
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
@@ -65,7 +66,6 @@ export default class UserAccountComponent extends Component {
 			lName: "...",
 			openAlertDialog: false,
 			saveOAuthTokens: false,
-			validations: validatePassword("", ""),
 			canSubmit: false
 		};
 		getUser(this.state.userEmail, (resp) => {
@@ -272,17 +272,6 @@ export default class UserAccountComponent extends Component {
 				</Dialog>
 			</div>
 		);
-	}
-
-	checkIfUserCanSubmit() {
-		let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
-			return criteria.containsError;
-		}).length;
-		if (unsatisfiedRequirements > 0) {
-			this.setState({ canSubmit: false });
-		} else {
-			this.setState({ canSubmit: true });
-		}
 	}
 
 
