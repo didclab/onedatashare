@@ -271,7 +271,6 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		console.log("The page is:" + page)
 		let nextRecords
 		if(page > this.state.page){
 			// Moving to next page
