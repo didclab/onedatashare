@@ -132,12 +132,12 @@ class ClientsInfoComponent extends Component{
 
 	handleUserTblChangePage = (event, page) => {
 		this.setState({ userTblPage: page },
-			this.getUserInfo());
+			this.getUserInfo);
 	};
 
 	handleUserTblChangeRowsPerPage = event => {	
 		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
-			this.getUserInfo());
+			this.getUserInfo);
 	};
 
 	handleUserTblRequestSort = (property) => {
@@ -284,7 +284,6 @@ class ClientsInfoComponent extends Component{
 							{
 								users.map(resp =>{
 									var timeStamp = resp.registerMoment;
-									console.log(timeStamp)
 									var date = new Date(timeStamp);
 									var lastActivity = new Date(resp.lastActivity);
 
