@@ -3,6 +3,7 @@ package org.onedatashare.server.service;
 import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.ticket.FreshdeskResponse;
+import org.onedatashare.server.model.ticket.RedmineResponse;
 import org.onedatashare.server.model.ticket.SupportTicketRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,11 +37,16 @@ public class SupportTicketService {
     @Autowired
     CaptchaService captchaService;
 
-    @Value("${freshdesk.api.url}")
-    private String FRESHDESK_API_URL;
+//    @Value("${freshdesk.api.url}")
+//    private String FRESHDESK_API_URL;
+
+    @Value("${redmine.server.url}")
+    private String REDMINE_SERVER_ISSUES_URL;
 
     // Freshdesk account auth key through which tickets will be created
-    private String FRESHDESK_API_KEY = System.getenv("FRESHDESK_API_KEY");
+//    private String FRESHDESK_API_KEY = System.getenv("FRESHDESK_API_KEY");
+
+    private String REDMINE_AUTH_KEY = System.getenv("REDMINE_AUTH_KEY");
 
     private final String REQUEST_METHOD = "POST";
     private final String CONTENT_TYPE = "application/json";
@@ -51,9 +57,9 @@ public class SupportTicketService {
 
     // setting request authorization parameters. Using basic authentication
     // Format - Authorization : Basic <api_key>:<random_text_as_mock_password>
-    private final String credential = (FRESHDESK_API_KEY + ":X");
-    private final byte[] credentialEncBytes = Base64.encodeBase64(credential.getBytes()) ;
-    private final String credentialB64Enc = new String(credentialEncBytes);
+//    private final String credential = (FRESHDESK_API_KEY + ":X");
+//    private final byte[] credentialEncBytes = Base64.encodeBase64(credential.getBytes()) ;
+//    private final String credentialB64Enc = new String(credentialEncBytes);
 
     /**
      * This method performs CAPTCHA validation with Google, creates an http connection with Freshdesk to create a ticket
@@ -67,19 +73,66 @@ public class SupportTicketService {
         return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
                 .flatMap(captchaVerified-> {
                     if (captchaVerified){
+//                        try {
+//                            URL urlObj = new URL(FRESHDESK_API_URL);
+//                            HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
+//
+//                            conn.setRequestMethod(REQUEST_METHOD);
+//
+//                            conn.setRequestProperty("Authorization", "Basic " + credentialB64Enc);
+//
+//                            conn.setRequestProperty("Content-Type", CONTENT_TYPE + "; " + CHARACTER_ENCODING);
+//                            conn.setRequestProperty("Accept", CONTENT_TYPE);
+//                            conn.setDoOutput(true);
+//
+//                            String jsonBody =  supportTicketRequest.getRequestString().replace("\n","<br />");
+//                            DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream());
+//                            outputStream.writeBytes(jsonBody);
+//                            outputStream.flush();
+//                            outputStream.close();
+//
+//                            int responseCode = conn.getResponseCode();
+//                            if(responseCode == HttpURLConnection.HTTP_CREATED){
+//                                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//
+//                                String input = null;
+//                                StringBuffer response = new StringBuffer();
+//                                while((input = br.readLine()) != null)
+//                                    response.append(input);
+//
+//                                br.close();
+//
+//                                FreshdeskResponse responseObj = objectMapper.readValue(response.toString(), FreshdeskResponse.class);
+//                                return Mono.just(responseObj.getId());
+//                            }
+//                            else{
+//                                // Support ticket was not created by Freshdesk due to some error
+//                                ODSLoggerService.logError("An error occurred while trying to create a support ticket");
+//                                ODSLoggerService.logError("Response code : " + conn.getResponseMessage());
+//                            }
+//                        }
+//                        catch(MalformedURLException mue){
+//                            ODSLoggerService.logError("Exception occurred while creating URL object", mue);
+//                        }
+//                        catch(IOException ioe){
+//                            ODSLoggerService.logError("Exception occurred while opening or reading from a " +
+//                                                            "connection with " + FRESHDESK_API_URL, ioe);
+//                        }
+//                        catch (Exception ex){
+//                            ODSLoggerService.logError("General exception occurred while trying to create " +
+//                                                        "a support ticket", ex);
+//                        }
+
                         try {
-                            URL urlObj = new URL(FRESHDESK_API_URL);
+                            URL urlObj = new URL(REDMINE_SERVER_ISSUES_URL + "?key=" + REDMINE_AUTH_KEY);
                             HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
 
                             conn.setRequestMethod(REQUEST_METHOD);
-
-                            conn.setRequestProperty("Authorization", "Basic " + credentialB64Enc);
-
                             conn.setRequestProperty("Content-Type", CONTENT_TYPE + "; " + CHARACTER_ENCODING);
                             conn.setRequestProperty("Accept", CONTENT_TYPE);
                             conn.setDoOutput(true);
 
-                            String jsonBody =  supportTicketRequest.getRequestString().replace("\n","<br />");
+                            String jsonBody =  supportTicketRequest.getRequestString();
                             DataOutputStream outputStream = new DataOutputStream(conn.getOutputStream());
                             outputStream.writeBytes(jsonBody);
                             outputStream.flush();
@@ -95,31 +148,32 @@ public class SupportTicketService {
                                     response.append(input);
 
                                 br.close();
-
-                                FreshdeskResponse responseObj = objectMapper.readValue(response.toString(), FreshdeskResponse.class);
-                                return Mono.just(responseObj.getId());
-                            }
-                            else{
-                                // Support ticket was not created by Freshdesk due to some error
+                                RedmineResponse responseObj = objectMapper.readValue(response.toString(), RedmineResponse.class);
+                                sendEmail(responseObj);
+                                return Mono.just(responseObj.getTicketId());
+                            }else{
+                                // Support ticket was not created by Redmine due to some error
                                 ODSLoggerService.logError("An error occurred while trying to create a support ticket");
-                                ODSLoggerService.logError("Response code : " + conn.getResponseMessage());
                             }
+
+
                         }
                         catch(MalformedURLException mue){
                             ODSLoggerService.logError("Exception occurred while creating URL object", mue);
+//                            System.out.println("Exception occurred while creating URL object");
+//                            mue.printStackTrace();
                         }
                         catch(IOException ioe){
-                            ODSLoggerService.logError("Exception occurred while opening or reading from a " +
-                                                            "connection with " + FRESHDESK_API_URL, ioe);
-                        }
-                        catch (Exception ex){
-                            ODSLoggerService.logError("General exception occurred while trying to create " +
-                                                        "a support ticket", ex);
+                            ODSLoggerService.logError("Exception occurred while opening or reading from a connection with " + REDMINE_SERVER_ISSUES_URL, ioe);
+//                            System.out.println("Exception occurred while opening or reading from a connection with " + REDMINE_SERVER_ISSUES_URL);
+//                            ioe.printStackTrace();
+                        }catch (Exception ex){
+                            ODSLoggerService.logError("General exception occurred while trying to create a support ticket", ex);
                         }
 
                         return Mono.error(new Exception("Error occurred while trying to create a support ticket"));
-                    }
-                    else
+
+                    }else
                         return Mono.error(new Exception("Captcha verification failed"));
                     }
                 );
@@ -131,9 +185,11 @@ public class SupportTicketService {
      *
      * @param responseObj - Freshdesk server response on ticket creation
      */
-    public void sendEmail(FreshdeskResponse responseObj){
-        String subject = "Support ticket " + responseObj.getId() + " created";
-        String emailText = "Ticket Details - \n" + responseObj.getDescription();
+    public void sendEmail(RedmineResponse responseObj){
+        //String subject = "Support ticket " + responseObj.getId() + " created";
+        //String emailText = "Ticket Details - \n" + responseObj.getDescription();
+        String subject = "Support ticket " + responseObj.getTicketId() + " created";
+        String emailText = "Ticket Details - \n" + responseObj.getIssueDescription();
 
         try{
             emailService.sendEmail(ODS_TICKET_MAILBOX, subject, emailText);
