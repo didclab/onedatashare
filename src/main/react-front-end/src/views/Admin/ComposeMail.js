@@ -11,7 +11,10 @@ class ComposeMail extends Component {
         this.state = {
             show: false,
             selectAll: false,
-            selected: []
+            selected: [],
+            users: [],
+            filteredUsers: [],
+            filterValue: ''
         }
     }
 
@@ -36,17 +39,23 @@ class ComposeMail extends Component {
     };
 
     handleSelectAllClick = event => {
-        const { users, selectAll } = this.state;
+        const { filteredUsers, selectAll } = this.state;
         if (event.target.checked) {
-            const newSelecteds = users.map(n => n.email);
+            const newSelecteds = filteredUsers.map(n => n.email);
             this.setState({ selected: newSelecteds, selectAll: !selectAll });
             return;
         }
         this.setState({ selected: [], selectAll: !selectAll });
     };
 
+    handleFilter = event => {
+        const { users } = this.state;
+        const filteredUsers = users.filter((user) => user.firstName.indexOf(event.target.value) > -1 || user.lastName.indexOf(event.target.value) > -1 || user.email.indexOf(event.target.value) > -1).map((user) => (user));
+        this.setState({ filteredUsers, filterValue: event.target.value });
+    }
+
     clearSelected = () => {
-        this.setState({ selected: [] });
+        this.setState({ selected: [], selectAll: false, filteredUsers: this.state.users, filterValue: '' });
     }
 
     smClose = () => {
@@ -54,13 +63,13 @@ class ComposeMail extends Component {
     }
 
     smOpen = () => {
-        this.setState({ show: true });
+        this.setState({ show: true, filterValue: '', filteredUsers: this.state.users });
     }
 
     async componentDidMount() {
         const users = await getAllUsers(cookies.get('email'))
         if (users && users.length > 0) {
-            this.setState({ users });
+            this.setState({ users, filteredUsers: users });
         } else {
             console.log("empty user list");
         }
@@ -73,11 +82,11 @@ class ComposeMail extends Component {
     }
 
     render() {
-        const { users, selected } = this.state;
+        const { users, selected, filteredUsers } = this.state;
         return (
             <div>
                 <h3 style={{ marginTop: 20 }}>
-                    <Label style={{ backgroundColor: '#073642', color: 'white', padding: 7 }}>
+                    <Label style={styles.pageHeading}>
                         <Glyphicon glyph="pencil" /> Compose Mail
                     </Label>
                 </h3>
@@ -109,38 +118,40 @@ class ComposeMail extends Component {
                 <Modal
                     show={this.state.show}
                     onHide={this.smClose}
-                    bsSize="medium"
+                    bsSize="large"
                     aria-labelledby="contained-modal-title-lg"
-                    style={{ fontFamily: 'Monaco' }}
+                    style={{ fontFamily: 'Ubuntu' }}
                 >
-                    <Modal.Header style={{ display: 'flex', flexDirection: 'row' }}>
-                        <Modal.Title id="contained-modal-title-lg" style={{ flex: 3 }}>Select Users</Modal.Title>
-                        <FormGroup controlId={'search'} style={{ flex: 2, justifyContent: 'flex-end', width: '30%' }}>
-                            <InputGroup>
-                                <FormControl type="text" />
-                                <InputGroup.Addon>
-                                    <Glyphicon glyph="search" />
-                                </InputGroup.Addon>
-                            </InputGroup>
-                        </FormGroup>
+                    <Modal.Header style={styles.headerStyle} >
+                        <div style={{ flex: 1 }}>
+                            <h4 bsStyle='primary' style={styles.modalHeading}>Select Users</h4>
+                        </div>
+                        <div style={{ flex: 2 }}>
+                            <FormGroup style={styles.formGroup}>
+                                <FormControl type="text" placeholder={`Search by name or Email`} style={styles.searchBar} onChange={this.handleFilter} value={this.state.filterValue} />
+                            </FormGroup>
+                        </div>
+                        <div style={{ flex: 1, alignItems: 'flex-end' }}>
+                            <button class="close" onClick={this.smClose}>x </button>
+                        </div>
                     </Modal.Header>
                     <Modal.Body>
-                        {users && users.length > 0 ? (
+                        {filteredUsers && filteredUsers.length > 0 ? (
                             <Table responsive hover>
-                                <thead>
+                                <thead style={styles.tableHead}>
                                     <tr>
                                         <th>
                                             <FormGroup controlId={'selectAll'} style={{ marginBottom: 0 }}>
-                                                <Checkbox checked={this.state.selectAll} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
+                                                <Checkbox checked={this.state.selectAll && selected.length === filteredUsers.length} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
                                             </FormGroup>
                                         </th>
                                         <th>Username</th>
-                                        <th>email</th>
+                                        <th>Email</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {
-                                        users.map((user, index) => {
+                                        filteredUsers.map((user, index) => {
                                             const isItemSelected = this.isSelected(user.email);
                                             const labelId = `enhanced-table-checkbox-${index}`;
                                             return (
@@ -160,12 +171,26 @@ class ComposeMail extends Component {
 
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle={'primary'} onClick={this.props.onHide}>Select</Button>
-                        <Button onClick={this.smClose}>Close</Button>
+                        <Button bsStyle={'primary'} style={styles.primary} onClick={this.smClose}>Select</Button>
+                        <Button onClick={this.clearSelected}>Clear</Button>
                     </Modal.Footer>
                 </Modal>
             </div>
         )
     }
 }
+const styles = {
+    headerStyle: { display: 'flex', flexDirection: 'row', justifyContent: 'space-between' },
+    modalCloseButton: {
+        flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end', color: 'black', width: 30
+    },
+    modalHeading: { flex: 2, marginBottom: 0, color: '#6c7ae0', fontStyle: 'bold' },
+    pageHeading: { backgroundColor: '#073642', color: 'white', padding: 7 },
+    searchBar: { marginBottom: 0, borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, boxShadow: 'none' },
+    formGroup: { marginBottom: 0 },
+    tableHead: { backgroundColor: '#6c7ae0', color: 'white', fontWeight: 'medium' },
+    primary: { backgroundColor: '#6c7ae0', borderColor: '#6c7ae0' }
+};
+
 export default ComposeMail;
+
