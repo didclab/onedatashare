@@ -9,13 +9,32 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
     padding: 7px;
+}
+
+.clearButton {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
     /* box-shadow */
     -webkit-box-shadow: rgba(0, 0, 0, 0.8) 0px 0 7px;
     -moz-box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
     box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
 }
 
-.label-heading {
-    font-weight: 'bold'!important;
-    font-size: 20;
+.button {
+    background-color: #073642;
+    color: white;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 7px;
+    padding-left: 15px;
+    padding-right: 15px;
+    /* box-shadow */
+    -webkit-box-shadow: rgba(0, 0, 0, 0.8) 0px 0 7px;
+    -moz-box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
+    box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
 }
