@@ -120,7 +120,7 @@ class ComposeMail extends Component {
                     onHide={this.smClose}
                     bsSize="large"
                     aria-labelledby="contained-modal-title-lg"
-                    style={{ fontFamily: 'Ubuntu' }}
+                    style={{ fontFamily: 'Ubuntu', fontWeight: 'Bold' }}
                 >
                     <Modal.Header style={styles.headerStyle} >
                         <div style={{ flex: 1 }}>

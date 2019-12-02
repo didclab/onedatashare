@@ -58,7 +58,7 @@ class NewNotificationsComponent extends Component {
 export default NewNotificationsComponent;
 
 const styles = {
-    gridStyle: { width: '100%', height: '100%', paddingTop: '0', marginTop: '-13px', fontFamily: 'Monaco' },
+    gridStyle: { width: '100%', height: '100%', paddingTop: '0', marginTop: '-13px', fontFamily: 'Ubuntu' },
     sideNav: { backgroundColor: '#073642', height: '100%' },
     sideNavHead: { color: 'white' }
 }
