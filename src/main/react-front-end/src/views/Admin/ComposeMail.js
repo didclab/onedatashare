@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Label, Glyphicon, Button, Alert, Table, Checkbox, Badge, InputGroup, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form } from 'react-bootstrap';
+import { Label, Glyphicon, Button, Alert, Table, Checkbox, Badge, InputGroup, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form, PageHeader } from 'react-bootstrap';
 import './ComposeMail.css';
 import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
@@ -85,11 +85,11 @@ class ComposeMail extends Component {
         const { users, selected, filteredUsers } = this.state;
         return (
             <div>
-                <h3 style={{ marginTop: 20 }}>
+                <h2 style={{ marginTop: 20 }}>
                     <Label style={styles.pageHeading}>
                         <Glyphicon glyph="pencil" /> Compose Mail
                     </Label>
-                </h3>
+                </h2>
                 <br></br>
                 <Form>
                     <FormGroup controlId={'to'}>
@@ -111,8 +111,8 @@ class ComposeMail extends Component {
                         <textarea class="form-control" placeholder={'Enter Message'} rows="10"></textarea>
                     </FormGroup>
                     <ButtonToolbar style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button bsStyle="default" bsClass="clearButton">Clear</Button>
-                        <Button bsStyle="primary" bsClass='button'>Send</Button>
+                        <Button bsStyle="default" >Clear</Button>
+                        <Button bsStyle="primary" style={{backgroundColor:'#073642'}}>Send</Button>
                     </ButtonToolbar>
                 </Form>
                 <Modal
@@ -185,7 +185,7 @@ const styles = {
         flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end', color: 'black', width: 30
     },
     modalHeading: { flex: 2, marginBottom: 0, color: '#6c7ae0', fontStyle: 'bold' },
-    pageHeading: { backgroundColor: '#073642', color: 'white', padding: 7 },
+    pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7},
     searchBar: { marginBottom: 0, borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, boxShadow: 'none' },
     formGroup: { marginBottom: 0 },
     tableHead: { backgroundColor: '#6c7ae0', color: 'white', fontWeight: 'medium' },
