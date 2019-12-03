@@ -36,7 +36,10 @@ public class AdminService {
     }
 
     public Mono<Mail> saveMail(Mail mail) {
-        return mailRepository.insert(mail);
+        if (mail.getUuid() == null) {
+            mail.uuid();
+        }
+        return mailRepository.save(mail);
     }
 
     public Flux<Mail> getAllMails(){

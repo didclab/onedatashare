@@ -61,7 +61,7 @@ public class AdminController {
                         }
                     }
                     Mail newMail = new Mail(body.getEmailList(),body.getSenderEmail(),body.getSubject(),body.getMessage(),body.isHtml(),"Sent");
-                    adminService.saveMail(newMail);
+                    adminService.saveMail(newMail).subscribe();
                     return new Response("Success", 200);
                 }else{
                     return new Response("Sending Limit exceeded",401);
