@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Label, Glyphicon, Button, Alert, Table, Checkbox, Badge, InputGroup, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form, PageHeader } from 'react-bootstrap';
+import { Label, Glyphicon, Button, Alert, Table, Checkbox, HelpBlock, InputGroup, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form, PageHeader } from 'react-bootstrap';
 import './ComposeMail.css';
 import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
@@ -14,8 +14,19 @@ class ComposeMail extends Component {
             selected: [],
             users: [],
             filteredUsers: [],
-            filterValue: ''
+            filterValue: '',
+            ishtml: false,
+            subject: '',
+            message: '',
+            isValidSubject: true,
+            isValidMessage: true,
+            isValidRecipients: true,
+            showErrorChip: false,
+            showSuccessChip: false,
+            errorMsg: '',
+            successMsg: ''
         }
+        this.externalWindow = null;
     }
 
     handleClick = (event, email) => {
@@ -35,17 +46,17 @@ class ComposeMail extends Component {
                 selected.slice(selectedIndex + 1),
             );
         }
-        this.setState({ selected: newSelected });
+        this.setState({ selected: newSelected, isValidRecipients: true });
     };
 
     handleSelectAllClick = event => {
         const { filteredUsers, selectAll } = this.state;
         if (event.target.checked) {
             const newSelecteds = filteredUsers.map(n => n.email);
-            this.setState({ selected: newSelecteds, selectAll: !selectAll });
+            this.setState({ selected: newSelecteds, selectAll: !selectAll, isValidRecipients: true });
             return;
         }
-        this.setState({ selected: [], selectAll: !selectAll });
+        this.setState({ selected: [], selectAll: !selectAll, isValidRecipients: true });
     };
 
     handleFilter = event => {
@@ -61,9 +72,45 @@ class ComposeMail extends Component {
     smClose = () => {
         this.setState({ show: false });
     }
+    onSubjectChange = event => {
+        this.setState({ subject: event.target.value, isValidSubject: true });
+    }
+    onMessageChange = event => {
+        this.setState({ message: event.target.value, isValidMessage: true });
+    }
 
     smOpen = () => {
         this.setState({ show: true, filterValue: '', filteredUsers: this.state.users });
+    }
+
+    onSend = async () => {
+        const isValidParams = this.validateInputs();
+        if (isValidParams) {
+            const result = await sendEmailNotification(cookies.get('email'), this.state.subject, this.state.message, this.state.selected, this.state.ishtml)
+            if (result.status === 200) {
+                this.setState({ showSuccessChip: true, successMsg: "Mail sent successfully.", subject: '', message: '', selected: [] });
+            } else {
+                this.setState({ showErrorChip: true, errorMsg: result.response });
+            }
+            console.log(result);
+        }
+    }
+
+    validateInputs = () => {
+        let isValid = true;
+        if (!this.state.selected || this.state.selected.length < 1) {
+            this.setState({ isValidRecipients: false })
+            return false;
+        }
+        if (!this.state.subject || this.state.subject.length < 1) {
+            this.setState({ isValidSubject: false })
+            return false;
+        }
+        if (!this.state.message || this.state.message.length < 1) {
+            this.setState({ isValidMessage: false })
+            return false;
+        }
+        return isValid;
     }
 
     async componentDidMount() {
@@ -76,43 +123,84 @@ class ComposeMail extends Component {
         console.log("Get user list");
     }
 
+    handleisHtml = event => {
+        this.setState({ ishtml: event.target.checked });
+    }
+
+    closeAlert = () => {
+        this.setState({ showErrorChip: false, showSuccessChip: false });
+    }
+
     isSelected = (email) => {
         const { selected } = this.state;
         return selected.indexOf(email) !== -1;
     }
 
+    onClear = () => {
+        this.setState({ selected: [], subject: '', message: '', successMsg: '', errorMsg: '', showErrorChip: false, showSuccessChip: false, isValidMessage: true, isValidRecipients: true, isValidSubject: true });
+    }
+
+    handleDialogBox = () => {
+        this.externalWindow = window.open('', '', 'width=750,height=550,left=150,top=150');
+        this.externalWindow.document.write(this.state.message);
+    }
+
     render() {
-        const { users, selected, filteredUsers } = this.state;
+        const { users, selected, filteredUsers, isValidSubject, isValidMessage, isValidRecipients } = this.state;
         return (
             <div>
-                <h2 style={{ marginTop: 20 }}>
-                    <Label style={styles.pageHeading}>
-                        <Glyphicon glyph="pencil" /> Compose Mail
-                    </Label>
-                </h2>
-                <br></br>
+                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <h2 style={{ marginTop: 20, flex: 4 }}>
+                        <Label style={styles.pageHeading}>
+                            <Glyphicon glyph="pencil" /> Compose Mail
+                        </Label>
+                    </h2>
+                    {this.state.showErrorChip ? <Alert bsStyle="danger" onDismiss={this.handleDismiss} style={styles.alertStyle} >
+                        <p>{this.state.errorMsg}</p>
+                        <button class="close" onClick={this.closeAlert}>x</button>
+                    </Alert> : ''
+                    }
+                    {this.state.showSuccessChip ?
+                        <Alert bsStyle="success" onDismiss={this.handleDismiss} style={styles.alertStyle} >
+                            <p>{this.state.successMsg}</p>
+                            <button class="close" onClick={this.closeAlert}>x</button>
+                        </Alert> : ''
+                    }
+                </div>
                 <Form>
-                    <FormGroup controlId={'to'}>
+                    <FormGroup controlId={'to'} validationState={isValidRecipients ? 'none' : 'error'}>
                         <ControlLabel>To</ControlLabel>
                         <FormControl.Static>
                             {selected && selected.length > 0 ? <a onClick={this.smOpen}>{`${selected.length} users selected`}</a> : <a onClick={this.smOpen}>Select recipients </a>}
                         </FormControl.Static>
+                        {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
                     </FormGroup>
-                    <FormGroup controlId={'subject'}>
+                    <FormGroup controlId={'subject'} validationState={isValidSubject ? 'none' : 'error'}>
                         <ControlLabel>Subject</ControlLabel>
                         <FormControl
                             id="formControlsText"
                             type="text"
                             label="Text"
-                            placeholder="Enter text" />
+                            placeholder="Enter subject"
+                            value={this.state.subject}
+                            onChange={this.onSubjectChange} />
+                        {isValidSubject ? '' : <HelpBlock>{'Please enter a valid subject.'}</HelpBlock>}
                     </FormGroup>
-                    <FormGroup controlId="message" >
+                    <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <FormGroup controlId={'isHtml'}>
+                            <Checkbox checked={this.state.ishtml} style={{ margin: 0 }} onChange={this.handleisHtml} ><b>Sending HTML Mail?</b></Checkbox>
+                        </FormGroup>
+                        {this.state.ishtml ? <a onClick={this.handleDialogBox}>Preview</a> : <div></div>
+                        }
+                    </div>
+                    <FormGroup controlId="message" validationState={isValidMessage ? 'none' : 'error'} >
                         <ControlLabel>Message</ControlLabel>
-                        <textarea class="form-control" placeholder={'Enter Message'} rows="10"></textarea>
+                        <textarea class="form-control" placeholder={'Enter Message'} rows="10" value={this.state.message} onChange={this.onMessageChange}></textarea>
+                        {isValidMessage ? '' : <HelpBlock>{'Please enter a valid message.'}</HelpBlock>}
                     </FormGroup>
-                    <ButtonToolbar style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button bsStyle="default" >Clear</Button>
-                        <Button bsStyle="primary" style={{backgroundColor:'#073642'}}>Send</Button>
+                    <ButtonToolbar style={styles.ButtonToolbar}>
+                        <Button bsStyle="default" onClick={this.onClear} >Clear</Button>
+                        <Button bsStyle="primary" style={{ backgroundColor: '#073642' }} onClick={this.onSend}>Send</Button>
                     </ButtonToolbar>
                 </Form>
                 <Modal
@@ -132,7 +220,7 @@ class ComposeMail extends Component {
                             </FormGroup>
                         </div>
                         <div style={{ flex: 1, alignItems: 'flex-end' }}>
-                            <button class="close" onClick={this.smClose}>x </button>
+                            <button class="close" onClick={this.smClose}>x</button>
                         </div>
                     </Modal.Header>
                     <Modal.Body>
@@ -185,11 +273,14 @@ const styles = {
         flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end', color: 'black', width: 30
     },
     modalHeading: { flex: 2, marginBottom: 0, color: '#6c7ae0', fontStyle: 'bold' },
-    pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7},
+    pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7 },
     searchBar: { marginBottom: 0, borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, boxShadow: 'none' },
     formGroup: { marginBottom: 0 },
     tableHead: { backgroundColor: '#6c7ae0', color: 'white', fontWeight: 'medium' },
-    primary: { backgroundColor: '#6c7ae0', borderColor: '#6c7ae0' }
+    primary: { backgroundColor: '#6c7ae0', borderColor: '#6c7ae0' },
+    ButtonToolbar: { display: 'flex', justifyContent: 'flex-end' },
+    alertStyle: { display: 'flex', flex: 2, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }
+
 };
 
 export default ComposeMail;

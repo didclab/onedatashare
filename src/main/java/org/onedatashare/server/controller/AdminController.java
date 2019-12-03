@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
+import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.useraction.notificationBody;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
@@ -25,10 +26,17 @@ public class AdminController {
     @Autowired
     private EmailService emailService;
 
+
     @GetMapping(value = "/getAllUsers")
     public Flux<User> getAllUsers(@RequestHeader HttpHeaders headers){
         return adminService.getAllUsers();
     }
+
+    @GetMapping(value = "/getMails")
+    public Flux<Mail> getAllMails(@RequestHeader HttpHeaders headers){
+        return adminService.getAllMails();
+    }
+
 
     @PostMapping(value = "/sendNotifications")
     public Mono<Response> sendNotifications(@RequestHeader HttpHeaders headers, @RequestBody notificationBody body){
@@ -52,6 +60,8 @@ public class AdminController {
                             new Exception("Email Sending Failed.");
                         }
                     }
+                    Mail newMail = new Mail(body.getEmailList(),body.getSenderEmail(),body.getSubject(),body.getMessage(),body.isHtml(),"Sent");
+                    adminService.saveMail(newMail);
                     return new Response("Success", 200);
                 }else{
                     return new Response("Sending Limit exceeded",401);

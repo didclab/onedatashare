@@ -1,6 +1,9 @@
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.core.Job;
+import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.repository.MailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -15,8 +18,12 @@ public class AdminService {
     @Autowired
     private UserRepository userRepository;
 
-    public AdminService(UserRepository userRepository) {
+    @Autowired
+    private MailRepository mailRepository;
+
+    public AdminService(UserRepository userRepository,MailRepository mailRepository) {
         this.userRepository = userRepository;
+        this.mailRepository = mailRepository;
     }
 
     // this checks the user is an admin or not
@@ -26,5 +33,13 @@ public class AdminService {
 
     public Flux<User> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public Mono<Mail> saveMail(Mail mail) {
+        return mailRepository.insert(mail);
+    }
+
+    public Flux<Mail> getAllMails(){
+        return mailRepository.findAll();
     }
 }

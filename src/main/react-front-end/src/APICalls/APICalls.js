@@ -148,6 +148,18 @@ export async function getAllUsers(email) {
 	});
 }
 
+export async function getAllMails(email) {
+	return axios.get(url + 'admin/getMails', {
+		email: email,
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data
+		}
+	}).catch((error) => {
+
+	});
+}
+
 export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
 	return axios.post(url + 'admin/sendNotifications', {
 		senderEmail: senderEmail,

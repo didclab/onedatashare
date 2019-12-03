@@ -3,6 +3,7 @@ import { Grid, Row, Col, Nav, NavItem, Glyphicon } from 'react-bootstrap';
 import ComposeMail from './ComposeMail';
 import SentMail from './SentMail';
 import Trash from './Trash';
+import { getAllMails, sendEmailNotification } from '../../APICalls/APICalls';
 
 class NewNotificationsComponent extends Component {
     constructor(props) {
@@ -14,6 +15,11 @@ class NewNotificationsComponent extends Component {
 
     handleSelect = (event) => {
         this.setState({ activekey: event });
+    }
+
+    async componentDidMount() {
+        const mails = await getAllMails('dhayanid@buffalo.edu');
+        console.log(mails);
     }
 
     render() {
@@ -39,7 +45,7 @@ class NewNotificationsComponent extends Component {
                             </NavItem>
                         </Nav>
                     </Col>
-                    <Col xs={12} sm={9} md={9} lg={10}>
+                    <Col xs={12} sm={9} md={9} lg={10} style={{ overflowY: 'scroll' }}>
                         {this.state.activekey === 1 ?
                             (<div><ComposeMail /></div>)
                             : this.state.activekey === 2 ?
