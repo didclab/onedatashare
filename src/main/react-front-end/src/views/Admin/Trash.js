@@ -22,7 +22,10 @@ class Trash extends Component {
     }
 
     render() {
-        const { mails } = this.state;
+        const mails = this.state.mails.sort((a, b) => {
+            return new Date(a.sentDateTime).getTime() -
+                new Date(b.sentDateTime).getTime()
+        }).reverse();
         return (
             <div>
                 <h2 style={{ marginTop: 20, flex: 4 }}>

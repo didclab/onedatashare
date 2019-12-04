@@ -94,7 +94,11 @@ class SentMail extends Component {
     }
 
     render() {
-        const { mails, showSuccessChip, showErrorChip, errorMsg, successMsg, isValidMessage, isValidRecipients, isValidSubject } = this.state;
+        const { showSuccessChip, showErrorChip, errorMsg, successMsg, isValidMessage, isValidRecipients, isValidSubject } = this.state;
+        const mails = this.state.mails.sort((a, b) => {
+            return new Date(a.sentDateTime).getTime() -
+                new Date(b.sentDateTime).getTime()
+        }).reverse();
         const tooltip = (
             this.state.currentView ?
                 <Tooltip id="tooltip">
