@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Label, Glyphicon, Button, Alert, Table, Checkbox, HelpBlock, InputGroup, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form, PageHeader } from 'react-bootstrap';
+import { Label, Glyphicon, Button, Alert, Table, Checkbox, HelpBlock, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form } from 'react-bootstrap';
 import './ComposeMail.css';
 import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
@@ -171,7 +171,7 @@ class ComposeMail extends Component {
                     <FormGroup controlId={'to'} validationState={isValidRecipients ? 'none' : 'error'}>
                         <ControlLabel>To</ControlLabel>
                         <FormControl.Static>
-                            {selected && selected.length > 0 ? <a onClick={this.smOpen}>{`${selected.length} users selected`}</a> : <a onClick={this.smOpen}>Select recipients </a>}
+                            {selected && selected.length > 0 ? <a href={null} onClick={this.smOpen}>{`${selected.length} users selected`}</a> : <a href={null} onClick={this.smOpen}>Select recipients </a>}
                         </FormControl.Static>
                         {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
                     </FormGroup>
@@ -190,7 +190,7 @@ class ComposeMail extends Component {
                         <FormGroup controlId={'isHtml'}>
                             <Checkbox checked={this.state.ishtml} style={{ margin: 0 }} onChange={this.handleisHtml} ><b>Sending HTML Mail?</b></Checkbox>
                         </FormGroup>
-                        {this.state.ishtml ? <a onClick={this.handleDialogBox}>Preview</a> : <div></div>
+                        {this.state.ishtml ? <a href={null} onClick={this.handleDialogBox}>Preview</a> : <div></div>
                         }
                     </div>
                     <FormGroup controlId="message" validationState={isValidMessage ? 'none' : 'error'} >

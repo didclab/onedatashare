@@ -17,10 +17,6 @@ class NewNotificationsComponent extends Component {
         this.setState({ activekey: event });
     }
 
-    async componentDidMount() {
-        const mails = await getAllMails('dhayanid@buffalo.edu');
-        console.log(mails);
-    }
 
     render() {
         return (
@@ -64,7 +60,7 @@ class NewNotificationsComponent extends Component {
 export default NewNotificationsComponent;
 
 const styles = {
-    gridStyle: { width: '100%', height: '100%', paddingTop: '0', marginTop: '-13px', fontFamily: 'Ubuntu' },
+    gridStyle: { width: '100%', height: '105%', marginTop: '-1.25%', fontFamily: 'Ubuntu' },
     sideNav: { backgroundColor: '#073642', height: '100%' },
     sideNavHead: { color: 'white' }
 }
