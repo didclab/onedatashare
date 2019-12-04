@@ -160,6 +160,31 @@ export async function getAllMails(email) {
 	});
 }
 
+export async function getAllTrashMails(email) {
+	return axios.get(url + 'admin/getTrashMails', {
+		email: email,
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data
+		}
+	}).catch((error) => {
+
+	});
+}
+
+export async function deleteMail(uuid) {
+	return axios.post(url + 'admin/deleteMail', {
+		mailId: uuid
+	})
+		.then((response) => {
+			return response.data
+		})
+		.catch((error) => {
+
+		});
+}
+
+
 export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
 	return axios.post(url + 'admin/sendNotifications', {
 		senderEmail: senderEmail,

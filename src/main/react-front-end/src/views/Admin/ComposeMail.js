@@ -88,7 +88,7 @@ class ComposeMail extends Component {
         if (isValidParams) {
             const result = await sendEmailNotification(cookies.get('email'), this.state.subject, this.state.message, this.state.selected, this.state.ishtml)
             if (result.status === 200) {
-                this.setState({ showSuccessChip: true, successMsg: "Mail sent successfully.", subject: '', message: '', selected: [] });
+                this.setState({ showSuccessChip: true, successMsg: "Mail sent successfully.", subject: '', ishtml: false, message: '', selected: [] });
             } else {
                 this.setState({ showErrorChip: true, errorMsg: result.response });
             }
@@ -137,7 +137,7 @@ class ComposeMail extends Component {
     }
 
     onClear = () => {
-        this.setState({ selected: [], subject: '', message: '', successMsg: '', errorMsg: '', showErrorChip: false, showSuccessChip: false, isValidMessage: true, isValidRecipients: true, isValidSubject: true });
+        this.setState({ selected: [], subject: '', message: '', ishtml: false, successMsg: '', errorMsg: '', showErrorChip: false, showSuccessChip: false, isValidMessage: true, isValidRecipients: true, isValidSubject: true });
     }
 
     handleDialogBox = () => {

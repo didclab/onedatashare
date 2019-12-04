@@ -10,6 +10,8 @@ import reactor.core.publisher.Flux;
 import org.onedatashare.server.repository.UserRepository;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
+
 /**
  * Service which backs Admin controller
  * */
@@ -42,7 +44,20 @@ public class AdminService {
         return mailRepository.save(mail);
     }
 
+    public Mono<Mail> deleteMail(UUID id){
+        return mailRepository.findById(id).map(mail-> {
+            mail.setStatus("deleted");
+            mailRepository.save(mail).subscribe();
+            return mail;
+        });
+    }
+
     public Flux<Mail> getAllMails(){
         return mailRepository.findAll();
     }
+
+    public Flux<Mail> getTrashMails(){
+        return mailRepository.findAllDeleted();
+    }
+
 }

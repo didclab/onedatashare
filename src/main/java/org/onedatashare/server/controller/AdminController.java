@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import org.onedatashare.server.model.core.User;
 import reactor.core.publisher.Mono;
 
+import java.util.UUID;
 /**
  Controller to do the generic admin operations
  */
@@ -35,6 +36,23 @@ public class AdminController {
     @GetMapping(value = "/getMails")
     public Flux<Mail> getAllMails(@RequestHeader HttpHeaders headers){
         return adminService.getAllMails();
+    }
+
+    @GetMapping(value="/getTrashMails")
+    public  Flux<Mail> getTrashMails(@RequestHeader HttpHeaders headers){
+        return adminService.getTrashMails();
+    }
+
+    @PostMapping(value="/deleteMail")
+    public Mono<Response> deleteMail(@RequestHeader HttpHeaders headers,  @RequestBody String mailId){
+        UUID uid = UUID.fromString(mailId);
+        return adminService.deleteMail(uid).map((mail)-> {
+            if(mail.getStatus()=="deleted"){
+                return new Response("Success", 200);
+            }else{
+                return new Response("Error", 401);
+            }
+        });
     }
 
 

@@ -1,8 +1,20 @@
 import React, { Component } from 'react';
 import { Label, Glyphicon, Table, Button, Modal, ButtonToolbar, Alert, OverlayTrigger, Tooltip, Form, FormControl, FormGroup, ControlLabel, HelpBlock, Checkbox } from 'react-bootstrap';
 import './SentMail.css';
-import { getAllMails, sendEmailNotification } from '../../APICalls/APICalls';
+import { getAllMails, sendEmailNotification, deleteMail } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
+
+const viewtooltip = (
+    <Tooltip id="tooltip">
+        <p>{'View/Resend Mail'}</p>
+    </Tooltip>
+);
+
+const deletetooltip = (
+    <Tooltip id="tooltip">
+        <p>{'Delete Mail'}</p>
+    </Tooltip>
+);
 
 class SentMail extends Component {
 
@@ -26,12 +38,12 @@ class SentMail extends Component {
         this.setState({ showDelete: false });
     }
 
-    showDelete = () => {
-        this.setState({ showDelete: true });
+    showDelete = (mail) => {
+        this.setState({ showDelete: true, deleteMailID: mail.uuid });
     }
 
     getSentMails = async () => {
-        const mails = await getAllMails('dhayanid@buffalo.edu');
+        const mails = await getAllMails(cookies.get('email'));
         this.setState({ mails });
     }
 
@@ -41,6 +53,17 @@ class SentMail extends Component {
 
     viewMail = (mail) => {
         this.setState({ viewMail: true, currentView: mail });
+    }
+
+    deleteMail = async () => {
+        const result = await deleteMail(this.state.deleteMailID);
+        if (result.status === 200) {
+            this.setState({ showSuccessChip: true, successMsg: "Mail Deleted Successfully." });
+            await this.getSentMails();
+        } else {
+            this.setState({ showErrorChip: true, errorMsg: result.response });
+        }
+        console.log(result);
     }
 
     onSubjectChange = event => {
@@ -126,15 +149,15 @@ class SentMail extends Component {
                                                 <td>{mail.recipients.length === 1 ? '1 user' : `${mail.recipients.length} users`}</td>
                                                 <td>{mail.subject}</td>
                                                 <td>{mail.message.substring(0, 100)}</td>
-                                                <td>{mail.html === true ? 'HTML' : 'REG'}</td>
+                                                <td>{mail.html === true ? <Glyphicon glyph='ok' style={{ color: 'green' }} /> : <Glyphicon glyph='remove' style={{ color: 'red' }} />}</td>
                                                 <td>
                                                     <ButtonToolbar>
-                                                        <Button bsStyle={'primary'} style={{ border: 0 }} bsSize="xs" onClick={() => this.viewMail(mail)}>
-                                                            <Glyphicon glyph='exclamation-sign' />
-                                                        </Button>
-                                                        <Button bsStyle={'danger'} style={{ border: 0 }} bsSize="xs" onClick={() => this.showDelete(mail.id)}>
-                                                            <Glyphicon glyph='trash' />
-                                                        </Button>
+                                                        <OverlayTrigger placement="bottom" overlay={viewtooltip}>
+                                                            <Glyphicon glyph='edit' style={{ color: 'teal', fontSize: 18, margin: 7 }} onClick={() => this.viewMail(mail)} />
+                                                        </OverlayTrigger>
+                                                        <OverlayTrigger placement="bottom" overlay={deletetooltip}>
+                                                            <Glyphicon glyph='trash' style={{ color: 'red', fontSize: 18, margin: 7 }} onClick={() => this.showDelete(mail)} />
+                                                        </OverlayTrigger>
                                                     </ButtonToolbar>
                                                 </td>
                                             </tr>
@@ -202,9 +225,10 @@ class SentMail extends Component {
                     </Modal.Header>
                     <Modal.Body>
                         <p>Are you sure wanna move to trash?</p>
+                        <p>{`Mail id:${this.state.deleteMailID}`} </p>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle='warning' onClick={this.props.onHide}>Yes</Button>
+                        <Button bsStyle='danger' onClick={this.deleteMail}>Yes</Button>
                         <Button onClick={this.closeDelete}>No</Button>
                     </Modal.Footer>
                 </Modal>
