@@ -185,7 +185,7 @@ export async function deleteMail(uuid) {
 	}).then((response) => {
 		if (response.status === 200 && response.data) {
 			return response.data;
-		}else{
+		} else {
 			return response;
 		}
 	}).catch((error) => {
@@ -203,7 +203,7 @@ export async function sendEmailNotification(senderEmail, subject, message, email
 		isHtml: isHtml
 	})
 		.then((response) => {
-			return response.data
+			return response.data;
 		})
 		.catch((error) => {
 

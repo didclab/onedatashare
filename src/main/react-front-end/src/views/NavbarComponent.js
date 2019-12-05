@@ -56,8 +56,8 @@ class NavbarComponent extends Component {
 										Clients Information
 			        				</NavItem>
 									<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
-									<NavItem componentClass={Link} to={notificationPageUrl} href={notificationPageUrl}>Send Notifications</NavItem>
-									<NavItem componentClass={Link} to={newNotifications} href={newNotifications}>New Notifications</NavItem>
+									{/*<NavItem componentClass={Link} to={notificationPageUrl} href={notificationPageUrl}>Send Notifications</NavItem>*/}
+									<NavItem componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
 									{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
 			        				<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 								</NavDropdown>
