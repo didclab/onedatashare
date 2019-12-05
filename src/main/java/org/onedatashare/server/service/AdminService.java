@@ -44,8 +44,8 @@ public class AdminService {
         return mailRepository.save(mail);
     }
 
-    public Mono<Mail> deleteMail(UUID id){
-        return mailRepository.findById(id).map(mail-> {
+    public Mono<Mail> deleteMail(String id){
+        return mailRepository.findById(UUID.fromString(id)).map(mail-> {
             mail.setStatus("deleted");
             mailRepository.save(mail).subscribe();
             return mail;

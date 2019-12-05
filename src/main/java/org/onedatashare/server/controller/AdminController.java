@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.useraction.notificationBody;
+import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
 import org.onedatashare.server.service.EmailService;
@@ -44,9 +45,9 @@ public class AdminController {
     }
 
     @PostMapping(value="/deleteMail")
-    public Mono<Response> deleteMail(@RequestHeader HttpHeaders headers,  @RequestBody String mailId){
-        UUID uid = UUID.fromString(mailId);
-        return adminService.deleteMail(uid).map((mail)-> {
+    public Mono<Response> deleteMail(@RequestHeader HttpHeaders headers,  @RequestBody MailUUID mailId){
+        //UUID uid = UUID.fromString(mailId);
+        return adminService.deleteMail(mailId.getMailUUID()).map((mail)-> {
             if(mail.getStatus()=="deleted"){
                 return new Response("Success", 200);
             }else{

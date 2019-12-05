@@ -173,15 +173,24 @@ export async function getAllTrashMails(email) {
 }
 
 export async function deleteMail(uuid) {
-	return axios.post(url + 'admin/deleteMail', {
-		mailId: uuid
-	})
-		.then((response) => {
-			return response.data
-		})
-		.catch((error) => {
-
-		});
+	return fetch(url + 'admin/deleteMail', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			mailId: uuid
+		}),
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data;
+		}else{
+			return response;
+		}
+	}).catch((error) => {
+		return error.data;
+	});
 }
 
 

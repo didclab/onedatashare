@@ -58,10 +58,10 @@ class SentMail extends Component {
     deleteMail = async () => {
         const result = await deleteMail(this.state.deleteMailID);
         if (result.status === 200) {
-            this.setState({ showSuccessChip: true, successMsg: "Mail Deleted Successfully." });
+            this.setState({ showSuccessChip: true, showDelete: false, successMsg: "Mail Deleted Successfully." });
             await this.getSentMails();
         } else {
-            this.setState({ showErrorChip: true, errorMsg: result.response });
+            this.setState({ showErrorChip: true, showDelete: false, errorMsg: result.statusText });
         }
         console.log(result);
     }
