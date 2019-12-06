@@ -272,12 +272,12 @@ const styles = {
     modalCloseButton: {
         flex: 1, alignItems: 'flex-end', justifyContent: 'flex-end', color: 'black', width: 30
     },
-    modalHeading: { flex: 2, marginBottom: 0, color: '#6c7ae0', fontStyle: 'bold' },
+    modalHeading: { flex: 2, marginBottom: 0, color: '#073642', fontStyle: 'bold' },
     pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7 },
     searchBar: { marginBottom: 0, borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, boxShadow: 'none' },
     formGroup: { marginBottom: 0 },
-    tableHead: { backgroundColor: '#6c7ae0', color: 'white', fontWeight: 'medium' },
-    primary: { backgroundColor: '#6c7ae0', borderColor: '#6c7ae0' },
+    tableHead: { backgroundColor: '#073642', color: 'white', fontWeight: 'medium' },
+    primary: { backgroundColor: '#073642', borderColor: '#073642' },
     ButtonToolbar: { display: 'flex', justifyContent: 'flex-end' },
     alertStyle: { display: 'flex', flex: 2, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }
 
