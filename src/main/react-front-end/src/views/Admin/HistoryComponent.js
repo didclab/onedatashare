@@ -99,7 +99,7 @@ class QueueComponent extends Component {
 		}
 		else{
 			var percentCompleted = ((done/total) * 100).toFixed();
-			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -182,7 +182,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status === 'processing' &&
+				{status === 'transferring' &&
 				<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -271,7 +271,6 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		console.log("The page is:" + page)
 		let nextRecords
 		if(page > this.state.page){
 			// Moving to next page

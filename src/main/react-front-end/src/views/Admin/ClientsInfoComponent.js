@@ -129,14 +129,15 @@ class ClientsInfoComponent extends Component{
 	handleClose = () => {
 		this.setState({ showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 	};
+
 	handleUserTblChangePage = (event, page) => {
-		this.setState({ userTblPage: page });
-		this.getUserInfo()
+		this.setState({ userTblPage: page },
+			this.getUserInfo);
 	};
 
 	handleUserTblChangeRowsPerPage = event => {	
-		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) });
-		this.getUserInfo()
+		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
+			this.getUserInfo);
 	};
 
 	handleUserTblRequestSort = (property) => {
@@ -249,7 +250,7 @@ class ClientsInfoComponent extends Component{
 											active={userTblOrderBy === sortableColumns.organization}
 											direction={userTblOrder}
 											onClick={() => {this.handleUserTblRequestSort(sortableColumns.organization)}}>
-											Orgainzation
+											Organization
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
@@ -283,7 +284,6 @@ class ClientsInfoComponent extends Component{
 							{
 								users.map(resp =>{
 									var timeStamp = resp.registerMoment;
-									console.log(timeStamp)
 									var date = new Date(timeStamp);
 									var lastActivity = new Date(resp.lastActivity);
 

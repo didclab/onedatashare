@@ -79,8 +79,6 @@ public class GoogleDriveOauthService{
 
             oauth.expiredTime = calendar.getTime();
 
-            ODSLoggerService.logInfo("TokenStore " + oauth.getToken());
-            ODSLoggerService.logInfo("Refresh Token: " +oauth.refreshToken);
             flow.createAndStoreCredential(response, oauth.token);
             return oauth;
         }

@@ -133,7 +133,7 @@ export default class TransferComponent extends Component {
       dest["uri"] = encodeURI(destUrls[i]);
 
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Initiated!")
+        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
@@ -218,7 +218,7 @@ export default class TransferComponent extends Component {
       setDraggingTask(null);
       return;
     }
-    console.log(getSelectedTasks(), result.source, result.destination)
+    // console.log(getSelectedTasks(), result.source, result.destination)
     const processed = mutliDragAwareReorder({
       entities: getEntities(),
       selectedTasks: getSelectedTasks(),
@@ -267,7 +267,7 @@ export default class TransferComponent extends Component {
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
 
-    console.log(processed);
+    // console.log(processed);
     this.sendFile(processed);
   }
 
@@ -442,7 +442,8 @@ export default class TransferComponent extends Component {
             Browse and Transfer Files
           </p>
 
-          <FormControlLabel
+          { /* Disabling compact mode toggle for mobile screens */
+            /* <FormControlLabel
             style={{ color: "white" }}
             control={
               <Switch
@@ -454,7 +455,7 @@ export default class TransferComponent extends Component {
               />
             }
             label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-          />
+          /> */}
         </Panel.Heading>
 
 

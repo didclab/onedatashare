@@ -56,9 +56,9 @@ class NavbarComponent extends Component {
 		      	{this.state.admin &&
 			    	<NavDropdown title="Admin" id="NavDropdown">
 			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
-			        		Clients Information
+			        		User Information
 			        	</NavItem>
-			        	<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
+			        	<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>Transfer History</NavItem>
 			        	{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
 			        	<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 			    	</NavDropdown>
