@@ -8,9 +8,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Button from '@material-ui/core/Button';
 import PropTypes from 'prop-types';
 import { spaceBetweenStyle,validatePassword } from '../../constants.js';
+import { spaceBetweenStyle, validatePassword, validPassword } from '../../constants.js';
 import { registerUser, verifyRegistraionCode, setPassword } from '../../APICalls/APICalls.js'
 import LinearProgress from '@material-ui/core/LinearProgress';
 import ValidateEmailComponent from '../Login/ValidateEmailComponent'
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import { Link } from 'react-router-dom';
 
 import { eventEmitter } from "../../App";
@@ -49,7 +51,12 @@ export default class CreateAccountComponent extends Component {
       lastNameErrorMessage: null,
       captchaVerified: false,
       captchaVerificationValue: null,
-      confirmation: false
+      confirmation: false,
+      validations: validatePassword("", ""),
+      canSubmit: false,
+      isValidConfirmPassword: true,
+      isValidNewPassword: true,
+      passwordErrorMsg: ''
     }
     this.firstNameValidationMsg = "Please Enter Your First Name"
     this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -77,7 +84,10 @@ export default class CreateAccountComponent extends Component {
         captchaVerificationValue: this.state.captchaVerificationValue
       }
 
-      registerUser(reqBody)
+      registerUser(reqBody, () => {
+        this.setState({ error: true, loading: false });
+        eventEmitter.emit("errorOccured", "Error occured while registering the user");
+      })
         .then((response) => {
           if (response.status === 200) {
             this.setState({ screen: "verifyCode", verificationError: "", loading: false });
@@ -91,11 +101,7 @@ export default class CreateAccountComponent extends Component {
             eventEmitter.emit("errorOccured", "User with same Email ID already exists");
           }
           this.resetCaptcha();
-        },
-        (error) => {
-          this.setState({ error: true });
-          eventEmitter.emit("errorOccured", "Error occured while registering the user" );
-        });
+        })
     }
     else {
       eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
@@ -120,18 +126,25 @@ export default class CreateAccountComponent extends Component {
     });
   }
 
+
+
   login() {
     let email = this.state.email;
     let password = this.state.password;
     let confirmPassword = this.state.cpassword;
-    let self = this;
     let code = this.state.code;
+
     let state = self.state;
     if(validatePassword(password,confirmPassword)){
         setPassword(email, code, password, confirmPassword).then((response) => {
         this.props.backToSignin()
       });
     }
+
+    setPassword(email, code, password, confirmPassword).then((response) => {
+      this.props.backToSignin()
+    });
+
   }
 
   handleCaptchaEvent(value) {
@@ -145,8 +158,19 @@ export default class CreateAccountComponent extends Component {
     }
   }
 
+  checkIfUserCanSubmit() {
+    let unsatisfiedRequirements = this.state.validations.filter(function (criteria) {
+      return criteria.containsError;
+    }).length;
+    if (unsatisfiedRequirements > 0) {
+      this.setState({ canSubmit: false });
+    } else {
+      this.setState({ canSubmit: true });
+    }
+  }
+
+
   render() {
-    const { backToSignin } = this.props;
     const { emailError, emailErrorMessage, email, firstNameError,
       firstNameErrorMessage, lastNameError, lastNameErrorMessage, confirmation } = this.state;
     const disclaimer = <div style={{ fontSize: '12px' }}>By checking the box,you agree to the <Link to="/terms" target="_blank" >Terms of service</Link> and  <Link to="/policy" target="_blank" >Privacy policy</Link>.</div>;
@@ -162,7 +186,18 @@ export default class CreateAccountComponent extends Component {
         emailErrorMessage: null,
         [name]: event.target.value,
       });
+
     };
+
+    const checkPassword = name => event => {
+      if (name === 'password') {
+        const validObj = validPassword('newPassword', event.target.value, this.state.password);
+        this.setState({ [name]: event.target.value, isValidNewPassword: validObj.isValid, passwordErrorMsg: validObj.errormsg });
+      } else if (name === 'cpassword') {
+        const validObj = validPassword('confirmNewPassword', this.state.password, event.target.value);
+        this.setState({ [name]: event.target.value, isValidConfirmPassword: validObj.isValid, passwordErrorMsg: validObj.errormsg });
+      }
+    }
 
     if (screen === "validateEmail") {
       return (
@@ -249,12 +284,14 @@ export default class CreateAccountComponent extends Component {
             </div>
 
             <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
-              <Button size="medium" variant="outlined" color="primary" onClick={backToSignin}>
-                Sign in Instead
-                  </Button>
+              <Button size="medium" variant="outlined" color="primary">
+                <Link to="/account/signIn">
+                  Sign in
+                </Link>
+              </Button>
               <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
                 Next
-                  </Button>
+              </Button>
             </CardActions>
 
           </ValidatorForm>
@@ -276,17 +313,18 @@ export default class CreateAccountComponent extends Component {
             error={this.state.verificationError === "Please Enter Valid Verification Code"}
           />
 
-          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
-            <Button size="medium" variant="outlined" color="primary" onClick={() => {
-              if (this.state.isLostVerifyCode) {
-                this.setState({ screen: "validateEmail" })
-              }
-              else {
-                this.setState({ screen: "registration" });
-              }
-            }}>
+          <CardActions style={{ ...spaceBetweenStyle }}>
+            <Button size="medium" variant="outlined" color="primary"
+              onClick={() => {
+                if (this.state.isLostVerifyCode) {
+                  this.setState({ screen: "validateEmail" })
+                }
+                else {
+                  this.setState({ screen: "registration" });
+                }
+              }}>
               Back
-                </Button>
+            </Button>
             <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
               Next
                 </Button>
@@ -307,27 +345,29 @@ export default class CreateAccountComponent extends Component {
             label="Password"
             type="password"
             value={this.state.password}
-            style={{ width: '100%', marginBottom: '50px' }}
-            onChange={handleChange('password')}
+            error={!this.state.isValidNewPassword}
+            style={{ width: '100%', marginBottom: '30px' }}
+            onChange={checkPassword('password')}
           />
-
           <TextField
             id="Cpassword"
             type="password"
-            label={this.state.passwordError === "Password Doesn't Match" ? "Password Doesn't Match" : "Confirm Password"}
+            label={"Confirm Password"}
             value={this.state.cpassword}
-            style={{ width: '100%', marginBottom: '50px' }}
-            onChange={handleChange('cpassword')}
-            error={this.state.passwordError === "Password Doesn't Match"}
+            style={{ width: '100%', marginBottom: '30px' }}
+            onChange={checkPassword("cpassword")}
+            error={!this.state.isValidConfirmPassword}
           />
-
-          <CardActions style={{ ...spaceBetweenStyle, float: 'right' }}>
+          <PasswordRequirementsComponent
+            showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
+            errorMsg={this.state.passwordErrorMsg} />
+          <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
             <Button size="medium" variant="outlined" color="primary" onClick={() => {
               this.setState({ screen: "verifyCode" });
             }}>
               Back
               </Button>
-            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login}>
+            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.password && this.state.cpassword)}>
               Next
               </Button>
           </CardActions>
@@ -335,4 +375,4 @@ export default class CreateAccountComponent extends Component {
       );
     }
   }
-} 
+}

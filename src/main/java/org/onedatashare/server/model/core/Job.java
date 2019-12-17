@@ -28,7 +28,7 @@ public class Job {
   /** File progress of the transfer. Currently unused. */
   private TransferInfo files;
 
-  private int attempts = 0, max_attempts = 10;
+  private int attempts = 1, max_attempts = 10;
 
   /** An ID meaningful to the user who owns the job. */
   private int job_id;
@@ -75,10 +75,12 @@ public class Job {
     // Handle entering the new state.
     switch (this.status = status) {
       case scheduled:
-        times.scheduled = Time.now(); break;
-      case processing:
+        times.scheduled = Time.now();
+        times.started = Time.now(); break;
+      case transferring:
         times.started = Time.now(); break;
       case removed:
+      case cancelled:
       case failed:
       case complete:
         times.completed = Time.now(); break;

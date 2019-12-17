@@ -73,13 +73,13 @@ public class ListController {
     }
 
     @ExceptionHandler(AuthenticationRequired.class)
-    public ResponseEntity<AuthenticationRequired> handle(AuthenticationRequired authenticationRequired) {
-        return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
+    public ResponseEntity<String> handle(AuthenticationRequired authenticationRequired) {
+        return new ResponseEntity<>(authenticationRequired.toString(), authenticationRequired.status);
     }
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
-        return new ResponseEntity<>("Refresh Token Expired",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(tokenExpiredException.toString(), tokenExpiredException.status);
     }
 }
 

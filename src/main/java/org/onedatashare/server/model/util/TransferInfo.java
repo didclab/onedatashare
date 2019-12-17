@@ -23,7 +23,6 @@ public class TransferInfo {
     done = p.done();
 //    total = p.total();
     avg = p.rate(time).value();
-    inst = tp.value();
   }
 
   public TransferInfo(long total) {

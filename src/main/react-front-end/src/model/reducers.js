@@ -9,7 +9,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import { maxCookieAge } from '../constants';
@@ -24,6 +24,7 @@ const initialState = {
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
+	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
   saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
@@ -58,20 +59,22 @@ export function onedatashareModel(state = initialState, action) {
   // and just return the state given to us.
   switch (action.type) {
     case LOGIN:
-   		const {email, hash, saveOAuthTokens} = action.credential;
+   		const {email, hash, saveOAuthTokens, compactViewEnabled} = action.credential;
       console.log('logging in', email);
-      
+
       cookies.set('email', email, { expires : maxCookieAge });
 		  cookies.set('hash', hash, { expires : maxCookieAge });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-      
+			cookies.set('compactViewEnabled', compactViewEnabled);
+
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
         hash: hash,
         saveOAuthTokens: saveOAuthTokens,
+				compactViewEnabled: compactViewEnabled
       });
-      
+
     case LOGOUT:
       console.log("logging out");
       cookies.remove('email');
@@ -82,6 +85,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('saveOAuthTokens');
       cookies.remove(DROPBOX_NAME);
       cookies.remove(GOOGLEDRIVE_NAME);
+			cookies.remove('compactViewEnabled');
       window.location.replace('/');
 
       return Object.assign({}, state, {
@@ -109,7 +113,6 @@ export function onedatashareModel(state = initialState, action) {
 
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        console.log(JSON.stringify({...state.endpoint1, ...action.endpoint}));
         cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge }));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
@@ -128,18 +131,23 @@ export function onedatashareModel(state = initialState, action) {
       return Object.assign({}, state, {
                 hash: action.hash
               });
-    
+		case COMPACT_VIEW_PREFERENCE:
+			cookies.set('compactViewEnabled', action.compactViewEnabled);
+			return Object.assign({}, state, {
+								compactViewEnabled: action.compactViewEnabled
+							});
+
     case ACCOUNT_PREFERENCE_TOGGLED:
       cookies.set('saveOAuthTokens', action.saveOAuthTokens);
       // logout From the endpoints
       cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
       cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
-      return Object.assign({}, state, { 
+      return Object.assign({}, state, {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },
         endpoint2 : { ...state.endpoint2, login : false },
       });
-    
+
     default:
       return state
   }

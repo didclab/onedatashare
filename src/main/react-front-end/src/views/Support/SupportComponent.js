@@ -109,11 +109,11 @@ export default class SupportComponent extends Component{
     // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
-        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
+        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center'}}>
           <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
             <Panel bsStyle="primary">
               <Panel.Heading>
-                <p>
+                <p style={{ textAlign: 'center' }}>
                   Report an Issue
                 </p>
               </Panel.Heading>

@@ -17,6 +17,7 @@ public class UserRequestData {
     private String newPassword;
     private boolean saveOAuth;
     private boolean isAdmin;
+    private boolean compactViewEnabled;
 
     private int pageNo;
     private int pageSize;

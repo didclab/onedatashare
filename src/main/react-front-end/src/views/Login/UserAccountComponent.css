@@ -1,0 +1,34 @@
+.userAccCardStyle{
+    min-width: 275px;
+    border: 2px #74bdf1 solid;
+    border-radius: 1%,
+}
+
+.MuiCardActions-root{
+    padding: 0;
+}
+
+.resetPasswordCard{
+    padding-left: 3em;
+    padding-right: 3em; 
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+/* Desktop */
+@media screen and (min-width: 980px)  {
+}
+
+/* Tablet */
+@media screen  and (max-width: 979px)  {
+
+}
+
+/* Mobile */
+@media screen and (max-width: 500px)  {
+    .userAccCardStyle{
+        margin-left: 5%;
+        margin-right: 5%;
+        padding: 2em;
+    }
+}

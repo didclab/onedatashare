@@ -11,6 +11,7 @@ import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
+import org.onedatashare.server.model.error.InvalidLoginException;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -57,7 +58,7 @@ public class UserService {
 
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens()))
+            .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isCompactViewEnabled()))
             .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
@@ -193,6 +194,13 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  public Mono<Void> updateViewPreference(String email, boolean isCompactViewEnabled){
+    return getUser(email).map(user -> {
+      user.setCompactViewEnabled(isCompactViewEnabled);
+      return userRepository.save(user).subscribe();
+    }).then();
+  }
+
   public Mono<LinkedList<URI>> saveHistory(String uri, String cookie) {
     return getLoggedInUser(cookie).map(user -> {
       URI historyItem = URI.create(uri);
@@ -233,7 +241,7 @@ public class UserService {
   public Mono<Boolean> userLoggedIn(String email, String hash) {
     return getUser(email).map(user -> user.getHash().equals(hash))
             .filter(Boolean::booleanValue)
-            .switchIfEmpty(Mono.error(new Exception("Invalid login")));
+            .switchIfEmpty(Mono.error(new InvalidLoginException("Invalid username and password combination")));
   }
 
   public Mono<Object> resendVerificationCode(String email) {
@@ -243,7 +251,7 @@ public class UserService {
       }
       if(!user.isValidated()){
         return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
-      }else{
+      } else{
         return Mono.just(new Response("User account is already validated.",500));
       }
     });
@@ -527,6 +535,6 @@ public class UserService {
     User user = new User();
     user.setEmail(map.get("email"));
     user.setHash(map.get("hash"));
-    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens());
+    return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens(), user.isCompactViewEnabled());
   }
 }
