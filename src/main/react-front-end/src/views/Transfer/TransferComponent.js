@@ -49,7 +49,8 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: true
+      compact:false
+      //compact: false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -368,14 +369,18 @@ export default class TransferComponent extends Component {
     let handleChange = name => event => {
       this.setState({ [name]: event.target.checked });
     };
-
+    console.log(this.state.endpoint1.login)
+    console.log(this.state.endpoint2.login)
     return (
       <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', paddingTop: '20px'}}>
         <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
           
           {!isSmall && 
           <Panel bsStyle="primary">
-          <FormControlLabel
+            
+            {this.state.endpoint1.login &&
+          <FormControlLabel 
+            
             style={{width: "200px", right: "10px", color: "white", position: "absolute"}}
             control={
               <Switch
@@ -385,9 +390,11 @@ export default class TransferComponent extends Component {
                 onChange={handleChange('compact')}
                 value="compact"
               />
+           
             }
             label={<Typography style={{color: "white", fontSize: "12px"}}>Compact</Typography>}
           />
+        }
           <Panel.Heading>
             <div style={headerStyle}>
               <p>
@@ -426,12 +433,12 @@ export default class TransferComponent extends Component {
         {isSmall &&
         <Panel bsStyle="primary">
         <FormControlLabel
-                      style={{width: "200px", float: "right", color: "white"}}
+                      style={{width: "200px", float: "right", color: "white",display:"none"}}
                       control={
                         <Switch
                           color="default"
                           style={{colorPrimary: "white", colorSecondary:"white"}}
-                          checked={this.state.compact}
+                          checked={false}
                           onChange={handleChange('compact')}
                           value="compact"
                         />
