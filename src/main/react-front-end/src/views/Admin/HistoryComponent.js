@@ -55,7 +55,7 @@ class QueueComponent extends Component {
 
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
-		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		this.toggleTabs = this.toggleTabs.bind(this);
 		updateGAPageView();
@@ -66,7 +66,7 @@ class QueueComponent extends Component {
 	}
 
 	componentWillUnmount(){
-		//clearInterval(this.interval);
+		clearInterval(this.interval);
 	}
 
 	queueFunc = () => {
