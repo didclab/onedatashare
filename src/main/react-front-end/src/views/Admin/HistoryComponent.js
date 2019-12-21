@@ -55,7 +55,7 @@ class QueueComponent extends Component {
 
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		this.toggleTabs = this.toggleTabs.bind(this);
 		updateGAPageView();
@@ -66,7 +66,7 @@ class QueueComponent extends Component {
 	}
 
 	componentWillUnmount(){
-		clearInterval(this.interval);
+		//clearInterval(this.interval);
 	}
 
 	queueFunc = () => {
@@ -308,9 +308,16 @@ class QueueComponent extends Component {
 
 
 	render(){
-		const {totalCount, responsesToDisplay} = this.state;
 		const tbcellStyle= {textAlign: 'center'}
-		const {rowsPerPage, rowsPerPageOptions, page, order, orderBy} = this.state;
+		const {
+			totalCount,
+			responsesToDisplay,
+			rowsPerPage,
+			rowsPerPageOptions,
+			page,
+			order,
+			orderBy
+		} = this.state
 		const {classes} = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
@@ -326,19 +333,19 @@ class QueueComponent extends Component {
 		            <TableCell id={"historyusername" + tableRows.length / 2} component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
 		              {resp.owner}
 		            </TableCell>
-		            <TableCell id={"historyid" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyid" + tableRows.length / 2} style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}}>
 		            	{resp.job_id}
 		            </TableCell>
-		            <TableCell id={"historyprocess" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyprocess" + tableRows.length / 2} style={{...tbcellStyle, width: '45%',  fontSize: '1rem'}}>
                         {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
                     </TableCell>
-		            <TableCell id={"historyspeed" + tableRows.length / 2} style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
+		            <TableCell id={"historyspeed" + tableRows.length / 2} style={{...tbcellStyle, width: '5%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
-		            <TableCell id={"historysource" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historysource" + tableRows.length / 2} style={{...tbcellStyle, width: '30%',  fontSize: '1rem'}}>
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
-		            <TableCell id={"historyaction" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyaction" + tableRows.length / 2} style={{...tbcellStyle, width: '5%',  fontSize: '1rem'}}>
 									{this.renderActions(resp.job_id, resp.status,resp.owner)}
                 </TableCell>
 	          	</TableRow>
@@ -378,7 +385,7 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '2rem', color: '#31708f'}}>
+		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
 											active={orderBy === sortableColumns.jobId}
@@ -389,7 +396,7 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>
+		            <TableCell style={{...tbcellStyle, width: '45%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
 											active={orderBy === sortableColumns.status}
@@ -400,7 +407,7 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%',  fontSize: '2rem', color: '#31708f'}}>
+		            <TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
 											active={orderBy === sortableColumns.avgSpeed}
@@ -411,7 +418,7 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>
+		            <TableCell style={{...tbcellStyle, width: '30%',  fontSize: '2rem', color: '#31708f'}}>
 								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
 										<TableSortLabel
 											active={orderBy === sortableColumns.source}
@@ -422,7 +429,7 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
+		            <TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
 		        <TableBody style={{height:'100%', display: "block"}}>
