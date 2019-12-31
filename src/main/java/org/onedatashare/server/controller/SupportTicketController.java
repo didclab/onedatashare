@@ -35,6 +35,6 @@ public class SupportTicketController {
      */
     @PostMapping
     public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createRedmineSupportTicket(supportTicketRequest);
+        return supportTicketService.createSupportTicket(supportTicketRequest);
     }
 }

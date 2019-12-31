@@ -8,20 +8,20 @@ import React, { Component } from 'react';
 import { submitIssue } from '../../APICalls/APICalls';
 import {store} from '../../App';
 
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import LinearProgress from '@material-ui/core/LinearProgress';
+// import Card from '@material-ui/core/Card';
+// import CardHeader from '@material-ui/core/CardHeader';
+// import TextField from '@material-ui/core/TextField';
+// import Button from '@material-ui/core/Button';
+// import LinearProgress from '@material-ui/core/LinearProgress';
 import { eventEmitter } from "../../App";
-import ReCAPTCHA from 'react-google-recaptcha';
+// import ReCAPTCHA from 'react-google-recaptcha';
 
 
-import { ValidatorForm } from 'react-material-ui-form-validator';
+// import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-import Typography from "@material-ui/core/Typography";
+// import FormControlLabel from "@material-ui/core/FormControlLabel";
+// import Switch from "@material-ui/core/Switch";
+// import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
 
 export default class SupportComponent extends Component{
@@ -104,9 +104,9 @@ export default class SupportComponent extends Component{
 
   render(){
     
-    const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
-    const divStyle = { margin : '2% 5%' };
-    const captchaStyle = {...divStyle, textAlign : 'center', display: 'inline-block' };
+    // const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
+    // const divStyle = { margin : '2% 5%' };
+    // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
         <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center'}}>
@@ -117,7 +117,7 @@ export default class SupportComponent extends Component{
                   Report an Issue
                 </p>
               </Panel.Heading>
-              <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
+              {/* <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
@@ -125,7 +125,7 @@ export default class SupportComponent extends Component{
                     label = 'Name'
                     name = 'name' 
                     onChange = {this.handleChange}
-                    style = {{ marginRight : '5%', width :'45%' }}
+                    style = {{ marginRight : '5%', width :'30%' }}
                   />
 
                   <TextField
@@ -134,7 +134,7 @@ export default class SupportComponent extends Component{
                     name = 'email'
                     value = { this.state.email }
                     onChange = {this.handleChange}
-                    style = {{ marginRight : '5%', width :'45%' }}
+                    style = {{ marginRight : '5%', width :'30%' }}
                   />
                 </div>
 
@@ -144,7 +144,7 @@ export default class SupportComponent extends Component{
                     label = 'Subject'
                     name = 'subject'
                     onChange = {this.handleChange}   
-                    style = {{ width :'70%' , minWidth:"250px" }}
+                    style = {{ width :'70%' }}
                   />
                 </div>
 
@@ -156,7 +156,7 @@ export default class SupportComponent extends Component{
                     label="Issue Description"
                     name="description"
                     onChange = {this.handleChange}
-                    style={{ width : '70%', minWidth:"250px" }}
+                    style={{ width : '70%' }}
                   />
                 </div>
                 
@@ -174,7 +174,7 @@ export default class SupportComponent extends Component{
                 </div>
 
                 <div style={{marginLeft : '5%', marginRight : '5%', marginTop : '1%', marginBottom : '2%'}}>
-                  <Button type="submit" size="medium" variant="contained" color="primary" style={{ width : '20%', display: 'flex', minWidth : '100px'}}>
+                  <Button type="submit" size="medium" variant="contained" color="primary" style={{ width : '70%' }}>
                     Submit
                   </Button>
                 </div>
@@ -183,10 +183,9 @@ export default class SupportComponent extends Component{
                             textAlign : 'center', paddingTop : '1%', paddingBottom : '1%', visibility : 'hidden'}}>
                 </div>
 
-              </ValidatorForm>
+              </ValidatorForm> */}
 
-              {/* Freshdesk Widget integration */}
-              {/* <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%' }}>
+              <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%' }}>
                 <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
                 <style type="text/css" media="screen, projection">
                     @import url(http://assets.freshdesk.com/widget/freshwidget.css);
@@ -201,8 +200,7 @@ export default class SupportComponent extends Component{
                   width="100%" 
                   frameborder="0" >
                 </iframe>
-              </div> */}
-
+              </div>
             </Panel>
           </Col>
         </div>
