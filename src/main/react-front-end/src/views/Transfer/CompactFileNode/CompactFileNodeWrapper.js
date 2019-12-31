@@ -124,7 +124,7 @@ export default class CompactFileNodeWrapper extends Component {
 		let { displayList, list, selectedTasks, endpoint, draggingTask, toggleSelection, toggleSelectionInGroup, multiSelectTo, onClick, onDoubleClick}  = this.props;
 		let { compactStylePos, headerCompactStylePos, anchorEl,columns, leftPosition, showBar, orderBy, columnsOrder } = this.state;
 
-		const columnNames = ["File Name", "Date", "Permission", "Size"];
+		const columnNames = ["Filename", "Date", "Permission", "Size"];
 
 		let showingColumn = [0,1,2,3].filter((i) => columns[i]);
 
@@ -140,14 +140,13 @@ export default class CompactFileNodeWrapper extends Component {
 		   <th style={{borderLeft: "1px solid darkgray", borderBottom: "1px solid gray", height: "10px", textOverflow:"ellipsis", whiteSpace:"nowrap", overflow: "visible", position: "relative"}}>
 		   		
 		   		<TableSortLabel
+		   			id={endpoint.side+columnNames[colId]}
 		   			style={{...pstyle, width: headerCompactStylePos[colId]}}
 					active={orderBy === colId}
 					direction={columnsOrder[colId]}
 					onClick={this.handleRequestSort(colId)}>
 					{columnNames[colId]}
 				</TableSortLabel>
-		   		
-		   		
 		   		{this.generateResizer(colId)}
 		   </th>
 		);
@@ -191,14 +190,14 @@ export default class CompactFileNodeWrapper extends Component {
 					{
 						displayList.map((fileId, index) => {
 						const file = list[fileId];
-						const isSelected: boolean = Boolean(
+						const isSelected = Boolean(
 		                  selectedTasks.indexOf(file)!==-1,
 		                );
-		                const isGhosting: boolean = isSelected &&
+		                const isGhosting = isSelected &&
 		                    Boolean(draggingTask) &&
 		                    draggingTask.name !== file.name;
-
 						    return(<FileNodeCompact 
+								fileId={fileId}
 								posit0={compactStylePos[0]}
 								posit1={compactStylePos[1]}
 								posit2={compactStylePos[2]}

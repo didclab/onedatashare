@@ -99,7 +99,7 @@ class QueueComponent extends Component {
 		}
 		else{
 			var percentCompleted = ((done/total) * 100).toFixed();
-			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -182,7 +182,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status === 'processing' &&
+				{status === 'transferring' &&
 				<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -271,7 +271,6 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		console.log("The page is:" + page)
 		let nextRecords
 		if(page > this.state.page){
 			// Moving to next page
@@ -281,9 +280,8 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
 		
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.setState({ page:page, response: this.state.response, responsesToDisplay: nextRecords});
         var x = document.getElementsByClassName("rohit");
 
                 for (var i = 0; i < x.length; i++) {
@@ -325,22 +323,22 @@ class QueueComponent extends Component {
 		responsesToDisplay.map(resp => {
 	      	 tableRows.push(
 	      	 	<TableRow style={{alignSelf: "stretch"}}>
-		            <TableCell component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
+		            <TableCell id={"historyusername" + tableRows.length / 2} component="th" scope="row" style={{...tbcellStyle, width: '7.5%',  fontSize: '1rem'}} numeric>
 		              {resp.owner}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyid" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
 		            	{resp.job_id}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyprocess" + tableRows.length / 2} style={{...tbcellStyle, width: '40%',  fontSize: '1rem'}}>
                         {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
                     </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
+		            <TableCell id={"historyspeed" + tableRows.length / 2} style={{...tbcellStyle, width: '35%', maxWidth: '20vw', overflow:"hidden", fontSize: '1rem', margin: "0px", maxHeight: "10px"}}>
 		            	{this.renderSpeed(resp.bytes.avg)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historysource" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
 		            	{this.decodeURIComponent(resp.src.uri)} <b>-></b> {this.decodeURIComponent(resp.dest.uri)}
 		            </TableCell>
-		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
+		            <TableCell id={"historyaction" + tableRows.length / 2} style={{...tbcellStyle, width: '10%',  fontSize: '1rem'}}>
 									{this.renderActions(resp.job_id, resp.status,resp.owner)}
                 </TableCell>
 	          	</TableRow>
@@ -365,7 +363,7 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', border: 'solid 2px #d9edf7'}}>
+		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
 	  		<Table style={{display: "block"}}>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
@@ -374,6 +372,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.userName}
 											direction={order}
+											id={"HistoryUsername"}
 											onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
 											Username
 										</TableSortLabel>
@@ -384,6 +383,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.jobId}
 											direction={order}
+											id={"HistoryJobID"}
 											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
 											Job ID
 										</TableSortLabel>
@@ -394,6 +394,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.status}
 											direction={order}
+											id={"HistoryProgress"}
 											onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
 											Progress
 										</TableSortLabel>
@@ -404,6 +405,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.avgSpeed}
 											direction={order}
+											id={"HistorySpeed"}
 											onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
 											Average Speed
 										</TableSortLabel>
@@ -414,6 +416,7 @@ class QueueComponent extends Component {
 										<TableSortLabel
 											active={orderBy === sortableColumns.source}
 											direction={order}
+											id={"HistorySD"}
 											onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
 											Source/Destination
 										</TableSortLabel>
@@ -422,7 +425,7 @@ class QueueComponent extends Component {
 		            <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
 		          </TableRow>
 		        </TableHead>
-		        <TableBody style={{height:'620px', overflowY: 'scroll', display: "block"}}>
+		        <TableBody style={{height:'100%', display: "block"}}>
 		            {tableRows}
 
 		        </TableBody>

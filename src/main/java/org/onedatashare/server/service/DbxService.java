@@ -113,7 +113,7 @@ public class DbxService implements ResourceService<DbxResource>{
             .map(transfer::setDestination)
             .flux()
             .flatMap(transfer1 -> transfer1.start(1L << 20))
-            .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+            .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
             .doFinally(s -> {
               job.setStatus(JobStatus.complete);
               jobService.saveJob(job).subscribe();

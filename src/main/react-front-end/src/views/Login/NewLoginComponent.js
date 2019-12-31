@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 
@@ -20,7 +21,7 @@ export default class NewLoginComponent extends Component {
 	static propTypes = {
 	  	email : PropTypes.string,
 	  	createAccountPressed: PropTypes.func,
-	  	validateEmailPressed: PropTypes.func,
+	  	lostValidationCodePressed: PropTypes.func,
 	  	forgotPasswordPressed: PropTypes.func,
 	  	isLoading: PropTypes.func,
 	  	userLoggedIn: PropTypes.func
@@ -79,7 +80,7 @@ export default class NewLoginComponent extends Component {
 	}
 
 	render(){
-		const { createAccountPressed, validateEmailPressed, forgotPasswordPressed } = this.props; 
+		const { lostValidationCodePressed, forgotPasswordPressed } = this.props; 
 		const { emailChecked, email, password, error, errorMessage, remember } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
@@ -108,15 +109,19 @@ export default class NewLoginComponent extends Component {
             		helperText = {errorMessage}
 								label="Email"
 								onChange={handleChange('email')}
+								id="email"
 								name="email"
 								value={email}
 								validators={['required', 'isEmail']}
 								errorMessages={['Please put email here', 'Can not understand email format']}
 		          	style={{width: "90%", margin: "5%"}}
-                />
+              />
 		        <CardActions style={spaceBetweenStyle}>
-			        
-			        <Button size="small" color="primary" onClick={createAccountPressed}>Create Account</Button>
+			        <Button size="large" variant="outlined" color="primary">
+								<Link to="/account/register">
+                   Create Account
+                </Link>
+							</Button>
 			        <Button size="large" variant="contained" color="primary"  type="submit" >
 			          Next
 			        </Button>
@@ -128,7 +133,7 @@ export default class NewLoginComponent extends Component {
 	    {emailChecked &&
 	    	<div className="enter-from-right slide-in">
 	    	<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-	          Hey {email.substring(0, email.indexOf('@'))}!
+	          Hi {email.substring(0, email.indexOf('@'))}!
 	        </Typography>
 	        <Button size="large" style={{borderRadius: '20px'}} variant="outlined" color="primary" onClick={()=>this.setState({emailChecked: false})}>
 	          {email}
@@ -148,9 +153,9 @@ export default class NewLoginComponent extends Component {
 	          		value={password}
                     validators={['required']}
                     errorMessages={['Where is password?']}
-		          	style={{width: "90%", margin: "5%"}}
+		          	style={{width: "100%", marginTop: "5%", marginBottom: "5%"}}
             />
-            <FormControlLabel
+            {/* <FormControlLabel
 			control={
 	            <Checkbox checked={remember} value="remember"
 	            onChange={(event)=>{
@@ -158,21 +163,29 @@ export default class NewLoginComponent extends Component {
 	            }}
 	            color="primary"
 	            />
-	        } label="Remember"/>
+	        } label="Remember"/> */}
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
-		        <Button size="small" color="primary"
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
 		        	onClick={()=>forgotPasswordPressed(email)}>
 		          Forgot Password?
 		        </Button>
-		        <Button size="small" color="primary"
-		        	onClick={()=>validateEmailPressed(email)}>
+						<Button 
+							size="small" 
+							variant="outlined"
+							color="primary"
+		        	onClick={()=>lostValidationCodePressed(email)}>
 		          Lost Validation Email?
 		        </Button>
 		    </CardActions>
+
 		    <Button size="large" variant="contained" color="primary" type="submit" style={{width: '100%'}}>
 	        	Next
-	       	</Button>
+	      </Button>
+
 		    </ValidatorForm>
 	        
 		    </div>

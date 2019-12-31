@@ -40,8 +40,6 @@ function statusHandle(response, callback){
 	      callback(`Timeout 10000ms`)
 	      return;
 	    }
-		// console.log(response)
-		//const errorText = JSON.stringify(response.response.data);
 		callback(`500`);
 	}
 }
@@ -52,19 +50,20 @@ function statusHandle(response, callback){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-
 export async function checkLogin(email, accept, fail){
-	var callback = accept;
 	axios.post(url+'user', {
 	    action: 'verifyEmail',
 	    email: email,
 	}).then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		if((response.data === true)){
+			statusHandle(response, accept);
+		}else if(response.data === false){
+			statusHandle(response, fail);
+		}
+	})
+	.catch((error) => {
+		statusHandle(error, fail);
+	});
 }
 
 
@@ -147,7 +146,7 @@ export async function resendVerificationCode(emailId){
 		return response
 	})
 	.catch((error) =>{
-		
+
 	});
 }
 
@@ -192,7 +191,7 @@ export async function login(email, password, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -209,7 +208,7 @@ export async function isAdmin(email, hash, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -326,7 +325,7 @@ export async function savedCredList(accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -402,7 +401,6 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options,accep
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
       statusHandle(error, fail);
     });
 }
@@ -445,7 +443,7 @@ export async function share(uri, endpoint, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -486,7 +484,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -528,25 +526,24 @@ export async function download(uri, credential, _id){
 	})
 }
 
-export async function getDownload(uri, credential, _id, succeed){
+export async function getDownload(uri, credential){
 
 	let json_to_send = {
 		credential: credential,
-		type: getTypeFromUri(uri),
-		uri: encodeURI(uri),
-		id: "",
+		uri: uri,
 	}
-	
-	const strin = JSON.stringify(json_to_send);
-	cookies.set("SFTPAUTH", strin, { expires : 10});
 
+	const jsonStr = JSON.stringify(json_to_send);
+	cookies.set("CX", jsonStr, { expires : 1});
 
 	window.location = url + "download/file";
+	setTimeout(() => {
+		cookies.remove("CX");
+	  }, 5000);
 }
 
 export async function upload(uri, credential, accept, fail){
 	var callback = accept;
-
 	axios.post(url+'share', {
 	    credential: credential,
 	    uri: encodeURI(uri),
@@ -557,7 +554,7 @@ export async function upload(uri, credential, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -581,7 +578,7 @@ export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fa
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -618,6 +615,27 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	});
 }
 
+/*
+	Desc: Call the backend to save the OAuth Credentials when the user toggles
+        the button in account preferences to save credentials
+	input: Array of OAuth credentials
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function saveOAuthCredentials(credentials,accept, fail){
+	var callback = accept;
+	axios.post(url+'cred/saveCredentials', credentials)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
 export async function updateAdminRightsApiCall(email, isAdmin){
 	return axios.put(url+'user', {
 		action: "updateAdminRights",
@@ -644,10 +662,9 @@ export async function changePassword(oldPassword, newPassword,confirmPassword, a
 
 	axios.post(url+'user', {
 		action: "resetPassword",
-	    password: oldPassword, 
+	    password: oldPassword,
 	    newPassword: newPassword,
 	    confirmPassword: confirmPassword
-
 	})
 	.then((response) => {
 		if(!(response.status === 200))
@@ -672,7 +689,7 @@ export async function cancelJob(jobID, accept, fail){
 	  }),
 	})
 	.then((response) => {
-		if(!response.ok) 
+		if(!response.ok)
 			callback = fail;
 		statusHandle(response, callback);
 	})
@@ -710,7 +727,7 @@ export async function restartJob(jobID, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
@@ -727,6 +744,28 @@ export async function deleteJob(jobID, accept, fail){
 	})
 	.catch((error) => {
 
+      statusHandle(error, fail);
+    });
+}
+
+/*
+	Store user's view preference in the backend on toggle
+	input: Email, viewPreference
+	accept: (successMessage:string){}
+	fail: (errorMessage:string){}
+*/
+
+export async function updateViewPreference(email, compactViewEnabled, accept, fail){
+	var callback = accept;
+	axios.post(url+'user', {
+	    action: 'updateViewPreference',
+	    email: email,
+      compactViewEnabled: compactViewEnabled
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
       statusHandle(error, fail);
     });
 }
@@ -748,7 +787,7 @@ export async function openOAuth(url){
 }
 
 
-export async function registerUser(requestBody) {
+export async function registerUser(requestBody, errorCallback) {
 
 	return axios.post(url+'user', {action: "register", ...requestBody})
 				.then((response) => {
@@ -766,7 +805,8 @@ export async function registerUser(requestBody) {
 				.catch((error) => {
 						//statusHandle(error, fail);
 						console.error("Error while registering user");
-						return {status : 500}
+						errorCallback();
+						return new Error({status: 500});
 					}
 				);
 }
@@ -801,8 +841,7 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      
+
       statusHandle(error, fail);
     });
 }
-

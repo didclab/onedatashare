@@ -63,7 +63,6 @@ public class DbxOauthService  {
         Map<String,String[]> map = new HashMap();
         map.put("state", new String[] {this.key});
         map.put("code", new String[] {token});
-
         try {
             DbxAuthFinish finish = auth.finishFromRedirect(finishURI, sessionStore, map);
             OAuthCredential cred = new OAuthCredential(finish.getAccessToken());
@@ -71,12 +70,14 @@ public class DbxOauthService  {
             cred.name = "Dropbox: " + account.getEmail();
             cred.dropboxID = account.getAccountId();
             return userService.getCredentials(cookie).flatMap(val -> {
+
                 for (Credential value: val.values()) {
                     OAuthCredential oauthVal = ((OAuthCredential) value);
                     if ((oauthVal.dropboxID != null && oauthVal.dropboxID.equals(cred.dropboxID))) { //Checks if the ID already matches
                         return Mono.empty();           //Account already exists
                     }
                 }
+
                 return Mono.just(cred);            //Account is not in the database, store as new
             });
         } catch (Exception e) {

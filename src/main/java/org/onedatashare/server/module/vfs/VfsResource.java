@@ -198,7 +198,6 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
         public Flux<Slice> tap(long sliceSize) {
             int sliceSizeInt = Math.toIntExact(sliceSize);
-            int sizeInt = Math.toIntExact(size);
             InputStream inputStream = null;
             try {
                 inputStream = fileContent.getInputStream();
@@ -207,9 +206,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             InputStream finalInputStream = inputStream;
             return Flux.generate(
-                    () -> 0,
+                    () -> 0L,
                     (state, sink) -> {
-                        if (state + sliceSizeInt < sizeInt) {
+                        if (state + sliceSizeInt < size) {
                             byte[] b = new byte[sliceSizeInt];
                             try {
                                 // Fix for buggy PDF files - Else the PDF files are corrupted
@@ -220,7 +219,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                             }
                             sink.next(new Slice(b));
                         } else {
-                            int remaining = sizeInt - state;
+                            int remaining = Math.toIntExact(size - state);
                             byte[] b = new byte[remaining];
                             try {
                                 // Fix for buggy PDF files - Else the PDF files are corrupted
@@ -317,8 +316,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         String filename = strings[strings.length - 1];
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
         HttpHeaders httpHeaders = new HttpHeaders();
+
         httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=" + filename);
+                "attachment; filename=\"" + filename + "\"");
         return Mono.just(ResponseEntity.ok()
                 .headers(httpHeaders)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)

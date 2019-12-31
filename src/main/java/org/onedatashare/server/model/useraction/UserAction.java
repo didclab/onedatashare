@@ -34,6 +34,7 @@ public class UserAction {
 
     // User preferences
     private boolean saveOAuth;
+    private boolean compactViewEnabled;
 
     private String uuid;
 
@@ -139,9 +140,11 @@ public class UserAction {
         ua.setSaveOAuth(userRequestData.isSaveOAuth());
         ua.setAdmin(userRequestData.isAdmin());
         ua.setPageNo(userRequestData.getPageNo());
+        ua.setPageSize(userRequestData.getPageSize());
         ua.setSortBy(userRequestData.getSortBy());
         ua.setSortOrder(userRequestData.getSortOrder());
         ua.setCaptchaVerificationValue(userRequestData.getCaptchaVerificationValue());
+        ua.setCompactViewEnabled(userRequestData.isCompactViewEnabled());
         return ua;
     }
 

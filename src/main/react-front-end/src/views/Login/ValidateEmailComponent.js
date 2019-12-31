@@ -13,7 +13,7 @@ import { updateGAPageView } from "../../analytics/ga";
 
 export default class ValidateEmailComponent extends Component {
 	static propTypes = {
-		back: PropTypes.func,
+		backToSignin: PropTypes.func,
 		email: PropTypes.string
 	}
 	constructor(props){
@@ -40,7 +40,7 @@ export default class ValidateEmailComponent extends Component {
 	}
 
 	render(){
-		const { back } = this.props;
+		const { backToSignin } = this.props;
 		const properties = this.props
 		const { email } = this.state;
 		const loadVerifyCode = this.state.loadVerifyCode;
@@ -60,7 +60,7 @@ export default class ValidateEmailComponent extends Component {
 				<div className="enter-from-right slide-in">
 					{this.state.loading && <LinearProgress></LinearProgress>}
 					<Typography style={{fontSize: "1.6em", marginBottom: "0.4em"}}>
-						Find your Stork Account
+						Find your OneDataShare Account
 					</Typography>
 					<TextField
 						id="Email"
@@ -69,10 +69,9 @@ export default class ValidateEmailComponent extends Component {
 						style={{width: '100%', marginBottom: '50px', borderRadius: '25px'}}
 						onChange={ handleChange('email') }
 					/>
-					<CardActions className="flexSpaceBetween">
-						{"\n"}
-						
-						<Button size="small" variant="outlined" color="primary" onClick={back}>
+
+					<CardActions style={{ justifyContent: 'space-between'}}>						
+						<Button size="small" variant="outlined" color="primary" onClick={backToSignin}>
 							Back to Sign in Page
 						</Button>
 						<Button size="large" variant="contained" color="primary" onClick={() => this.next()} style={{marginLeft: '4vw'}}>

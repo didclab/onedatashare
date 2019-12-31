@@ -129,14 +129,15 @@ class ClientsInfoComponent extends Component{
 	handleClose = () => {
 		this.setState({ showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 	};
+
 	handleUserTblChangePage = (event, page) => {
-		this.setState({ userTblPage: page });
-		this.getUserInfo()
+		this.setState({ userTblPage: page },
+			this.getUserInfo);
 	};
 
-	handleUserTblChangeRowsPerPage = event => {		
-		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) });
-		this.getUserInfo()
+	handleUserTblChangeRowsPerPage = event => {	
+		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
+			this.getUserInfo);
 	};
 
 	handleUserTblRequestSort = (property) => {
@@ -154,8 +155,8 @@ class ClientsInfoComponent extends Component{
 		this.getAdminInfo();
 	};
 
-	handleAdminsTblChangeRowsPerPage = event => {		
-		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value) });
+	handleAdminsTblChangeRowsPerPage = event => {
+		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value)});
 		this.getAdminInfo();
 	};
 
@@ -206,7 +207,7 @@ class ClientsInfoComponent extends Component{
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginTop: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
+				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>
@@ -249,7 +250,7 @@ class ClientsInfoComponent extends Component{
 											active={userTblOrderBy === sortableColumns.organization}
 											direction={userTblOrder}
 											onClick={() => {this.handleUserTblRequestSort(sortableColumns.organization)}}>
-											Orgainzation
+											Organization
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
@@ -283,7 +284,6 @@ class ClientsInfoComponent extends Component{
 							{
 								users.map(resp =>{
 									var timeStamp = resp.registerMoment;
-									console.log(timeStamp)
 									var date = new Date(timeStamp);
 									var lastActivity = new Date(resp.lastActivity);
 

@@ -3,9 +3,11 @@ import React, { Component } from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import LinearProgress from "@material-ui/core/LinearProgress";
-
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+
+import './UserAccountComponent.css';
 
 import {
 	Dialog,
@@ -14,6 +16,7 @@ import {
 	DialogContentText,
 	DialogTitle
 } from "@material-ui/core";
+
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
 
@@ -26,58 +29,61 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
-import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl } from "../../constants";
+import { validPassword } from "../../constants";
 
 import {
 	changePassword,
 	getUser,
-	updateSaveOAuth
+	updateSaveOAuth,
+	saveOAuthCredentials
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
 import {
-	updateHashAction,
+	logoutAction,
 	accountPreferenceToggledAction,
 } from "../../model/actions";
 import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
-import {updateGAPageView} from '../../analytics/ga'
+import { updateGAPageView } from '../../analytics/ga'
 
 export default class UserAccountComponent extends Component {
 	constructor() {
 		super();
 		this.state = {
-    		isSmall: window.innerWidth <= 640,
-    		loading: true,
-    		oldPassword: "",
-    		newPassword: "",
-    		conformNewPassword: "",
-    	    userEmail: store.getState().email,
-    	    userOrganization: "...",
-    	    fName: "...",
-    	    lName: "...",
-    	    redirect: false,
+			isSmall: window.innerWidth <= 640,
+			loading: true,
+			oldPassword: "",
+			newPassword: "",
+			confirmNewPassword: "",
+			isValidNewPassword: true,
+			isValidConfirmPassword: true,
+			errorMsg: null,
+			userEmail: store.getState().email,
+			userOrganization: "...",
+			fName: "...",
+			lName: "...",
 			openAlertDialog: false,
-			saveOAuthTokens: false
-    	};
-    	getUser(this.state.userEmail,  (resp) => {
-            //success
-            this.setState({
-               userOrganization: resp.organization,
-               fName: resp.firstName,
-               lName: resp.lastName,
-			   saveOAuthTokens: resp.saveOAuthTokens,
-               loading: false
-            });
-            }, (resp) => {
-            //failed
-            this.setState({ loading: false });
-            console.log('Error encountered in getUser request to API layer');
-        });
-   		this.getInnerCard = this.getInnerCard.bind(this);
-   		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
+			saveOAuthTokens: false,
+			canSubmit: false
+		};
+		getUser(this.state.userEmail, (resp) => {
+			//success
+			this.setState({
+				userOrganization: resp.organization,
+				fName: resp.firstName,
+				lName: resp.lastName,
+				saveOAuthTokens: resp.saveOAuthTokens,
+				loading: false
+			});
+		}, (resp) => {
+			//failed
+			this.setState({ loading: false });
+			console.log('Error encountered in getUser request to API layer');
+		});
+		this.getInnerCard = this.getInnerCard.bind(this);
+		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
 		this.accountDetails = this.accountDetails.bind(this);
 		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
@@ -85,24 +91,30 @@ export default class UserAccountComponent extends Component {
 		updateGAPageView();
 	}
 
-	componentDidMount(){
-		document.title = "OneDataShare - History";
+	componentDidMount() {
+		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
+
 	}
 
-	onPasswordUpdate(oldPass, newPass, confPass){
-		changePassword(oldPass, newPass,confPass, (hash)=>{
-		    store.dispatch(updateHashAction(hash))
-			this.setState({redirect:true});
-			console.log(hash);
-		}, (error)=>{
-			if(error && error.response && error.response.data && error.response.data.message){
-				eventEmitter.emit("errorOccured", error.response.data.message); 
-			}else{
-				eventEmitter.emit("errorOccured", "Unknown Error"); 
-			}
-		});
+	onPasswordUpdate(oldPass, newPass, confPass) {
+		if (newPass === "" || oldPass === "" || confPass === "") {
+			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
+		} else if (oldPass === newPass) {
+			eventEmitter.emit("errorOccured", "Old and New Passwords cant be same");
+		}
+		else {
+			changePassword(oldPass, newPass, confPass, (hash) => {
+				store.dispatch(logoutAction());
+			}, (error) => {
+				if (error && error.response && error.response.data && error.response.data.message) {
+					eventEmitter.emit("errorOccured", error.response.data.message);
+				} else {
+					eventEmitter.emit("errorOccured", "Unknown Error");
+				}
+			});
+		}
 	}
 
 	handleAccountPreferenceToggle() {
@@ -124,6 +136,27 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
+
+				let credentials = []
+				if (!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")) {
+					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
+					googleDriveCredentials.forEach(function (element) {
+						element.name = "GoogleDrive: " + element.name;
+					});
+					credentials.push(...googleDriveCredentials);
+				}
+				if (!(typeof cookies.get(DROPBOX_NAME) == "undefined")) {
+					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
+					dropBoxCredentials.forEach(function (element) {
+						element.name = "Dropbox: " + element.name;
+					});
+					credentials.push(...dropBoxCredentials);
+				}
+				saveOAuthCredentials(credentials, (success) => { console.log("Credentials saved Successfully") }, (error) => {
+					console.log("Error in saving credentials", error);
+					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts");
+				});
+
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
@@ -137,9 +170,9 @@ export default class UserAccountComponent extends Component {
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card className="userAccCardStyle">
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
 							</Typography>
 
@@ -150,6 +183,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
+									id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -160,6 +194,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
+									id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -169,6 +204,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
+									id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -178,6 +214,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Organization"
+									id="UserOrganization"
 									secondary={this.state.userOrganization}
 								/>
 							</ListItem>
@@ -185,12 +222,10 @@ export default class UserAccountComponent extends Component {
 					</Card>
 				</List>
 
-				<br />
-
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card className="userAccCardStyle" style={{ paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
 							<FormGroup>
@@ -204,18 +239,19 @@ export default class UserAccountComponent extends Component {
 											color="primary"
 										/>
 									}
-									label={"Save OAuth tokens"}
+									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
 							</FormGroup>
 						</CardContent>
 					</Card>
 				</List>
+
 				<Dialog
 					open={this.state.openAlertDialog}
 					onClose={this.handleAlertClose}
 					aria-labelledby="alert-dialog-title"
-					aria-describedby="alert-dialog-description"
-				>
+					aria-describedby="alert-dialog-description">
+
 					<DialogTitle id="alert-dialog-title">
 						{"Change how OAuth tokens are saved?"}
 					</DialogTitle>
@@ -223,20 +259,21 @@ export default class UserAccountComponent extends Component {
 						<DialogContentText id="alert-dialog-description">
 							Warning! This might delete all your existing credentials and may
 							interrupt ongoing transfers. Are you sure?
-            </DialogContentText>
+            			</DialogContentText>
 					</DialogContent>
 					<DialogActions>
 						<Button onClick={this.handleAlertCloseYes} color="primary">
 							Yes
-            </Button>
+            			</Button>
 						<Button onClick={this.handleAlertClose} color="primary" autoFocus>
 							No
-            </Button>
+			            </Button>
 					</DialogActions>
 				</Dialog>
 			</div>
 		);
 	}
+
 
 	getInnerCard() {
 		const handleChange = name => event => {
@@ -244,12 +281,22 @@ export default class UserAccountComponent extends Component {
 				[name]: event.target.value
 			});
 		};
-		let confirmed = this.state.newPassword !== this.state.conformNewPassword;
+
+		const checkPassword = name => event => {
+			const validObj = validPassword(name, event.target.value, this.state.confirmNewpassword);
+			this.setState({ [name]: event.target.value, isValidNewPassword: validObj.isValid, errorMsg: validObj.errormsg });
+		}
+
+		const checkConfirmPassword = name => event => {
+			const validObj = validPassword(name, this.state.newPassword, event.target.value);
+			this.setState({ [name]: event.target.value, isValidConfirmPassword: validObj.isValid, errorMsg: validObj.errormsg });
+		}
+
 		return (
 			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em" }}>
+				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
-        </Typography>
+        		</Typography>
 
 				<TextField
 					id="Email"
@@ -260,38 +307,42 @@ export default class UserAccountComponent extends Component {
 					onChange={handleChange("oldPassword")}
 				/>
 				<TextField
-					id="Password"
+					error={!this.state.isValidNewPassword}
 					label="Enter Your New Password"
 					type="password"
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={handleChange("newPassword")}
+					onChange={checkPassword("newPassword")}
 				/>
 				<TextField
-					error={confirmed}
+					error={!this.state.isValidConfirmPassword}
 					id="Cpassword"
 					type="password"
 					label="Confirm Your New Password"
-					value={this.state.conformNewPassword}
-					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("conformNewPassword")}
+					value={this.state.confirmNewPassword}
+					style={{ width: "100%", marginBottom: "1em" }}
+					onChange={checkConfirmPassword("confirmNewPassword")}
 				/>
-
+				<PasswordRequirementsComponent
+					showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
+					errorMsg={this.state.errorMsg} />
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
+						disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.newPassword && this.state.confirmNewPassword)}
+						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
 								this.state.newPassword,
-								this.state.conformNewPassword
+								this.state.confirmNewPassword
 							)
 						}
 					>
-						Proceed with password Change
-          </Button>
+						Update Password
+         			</Button>
 				</CardActions>
 			</div>
 		);
@@ -306,7 +357,7 @@ export default class UserAccountComponent extends Component {
 	}
 
 	render() {
-		const { isSmall, loading, redirect } = this.state;
+		const { isSmall, loading } = this.state;
 		const height = window.innerHeight + "px";
 		return (
 			<div
@@ -315,15 +366,13 @@ export default class UserAccountComponent extends Component {
 					justifyContent: "center",
 					alignItems: "center",
 					width: "..",
-					height: height
+					height: height,
+					marginBottom: '5%'
 				}}
 			>
 				<div
 					style={{
 						width: "450px",
-						marginTop: "30px",
-						marginLeft: "30px",
-						marginRight: "30px",
 						alignSelf: isSmall ? "flex-start" : "center"
 					}}
 				>
@@ -331,19 +380,9 @@ export default class UserAccountComponent extends Component {
 
 					{this.accountDetails()}
 
-					{isSmall && this.getInnerCard()}
-
-					{!isSmall && (
-						<Card>
-							<CardContent style={{ padding: "3em" }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					)}
-
-					{redirect && (
-						<Redirect from={userPageUrl} to={transferPageUrl}></Redirect>
-					)}
+					<Card className="userAccCardStyle resetPasswordCard">
+						{this.getInnerCard()}
+					</Card>
 				</div>
 			</div>
 		);

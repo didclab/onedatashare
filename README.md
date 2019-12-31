@@ -17,6 +17,8 @@ ODS currently supports transfers between 7 endpoint protocol types viz.
 
 _Note: Box and Amazon S3 endpoints support will be provided in future releases_
 
+Link to research paper - https://arxiv.org/pdf/1712.02944.pdf
+
 ## Technology Stack ##
 
 OneDataShare application is built using following technologies/frameworks:
@@ -28,6 +30,8 @@ OneDataShare application is built using following technologies/frameworks:
 6. ReactJS
 7. Spring Boot coupled with Reactive Web (commonly known as WebFlux) dependency.
 8. Docker
+
+Feature updates, project tasks and bug fixes are tracked using https://trello.com/b/H8Jmb1oY/onedatashare
 
 Recommended IDEs (used by ODS team for development):
 1. IntelliJ Idea Community Edition (for backend code)

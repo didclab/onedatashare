@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
@@ -72,8 +73,13 @@ public class ListController {
     }
 
     @ExceptionHandler(AuthenticationRequired.class)
-    public ResponseEntity<AuthenticationRequired> handle(AuthenticationRequired authenticationRequired) {
-        return new ResponseEntity<>(authenticationRequired, authenticationRequired.status);
+    public ResponseEntity<String> handle(AuthenticationRequired authenticationRequired) {
+        return new ResponseEntity<>(authenticationRequired.toString(), authenticationRequired.status);
+    }
+
+    @ExceptionHandler(TokenExpiredException.class)
+    public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
+        return new ResponseEntity<>(tokenExpiredException.toString(), tokenExpiredException.status);
     }
 }
 

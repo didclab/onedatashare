@@ -29,8 +29,11 @@ We may use the email address you provided during registration for communication 
 <h4>Service Delivery:</h4>
 We use your Endpoint credentials to verify you have the authorization needed for the Service to process your requests, and to facilitate operations on the endpoints requested by you on our Service.
 
-<h4>Analytics</h4>
-We use the information collected via application logs and database updates, to monitor and analyze the use of the Service, for the Service's technical administration, to increase our Service's functionality and user-friendliness.
+<h4>Analytics:</h4>
+We use the information collected via Google Analytics, application logs and database updates, to monitor and analyze the use of the Service, for the Service's technical administration, to increase our Service's functionality and user-friendliness.
+
+<h3>Third-party Services</h3>
+We use reCAPTCHA on the login and registration page to prevent the service from bots. We also use Freshdesk’s ticketing service for bug tracking and resolving issues with our service.
 
 <h3>Sharing and Disclosure of Information</h3>
 <h4>Sharing with third-parties:</h4>
