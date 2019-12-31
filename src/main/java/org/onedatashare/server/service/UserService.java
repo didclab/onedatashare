@@ -75,8 +75,7 @@ public class UserService {
                   // This would be a same temporary password for each user while creating,
                   // once the user goes through the whole User creation workflow, he/she can change the password.
                   String password = User.salt(20);
-
-                  if(user.getEmail() != null && user.getEmail().equals(email)) {
+                  if(user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
                     ODSLoggerService.logWarning("User with email " + email + " already exists.");
                     if(!user.isValidated()){
                       return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
