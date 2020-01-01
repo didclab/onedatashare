@@ -6,7 +6,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
-    background-image:url(/static/media/s1.be1fb98e.png);
+    background-image:url("https://ods-static-assets.s3.us-east-2.amazonaws.com/s1.png");
     height: 100%;
     width: 100%;
     padding: 0;

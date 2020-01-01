@@ -1,0 +1,24 @@
+/* Desktop */
+@media screen and (min-width: 980px)  {
+    .accCardStyle{
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+}
+
+/* Tablet */
+@media screen  and (max-width: 979px)  {
+    .accCardStyle{
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+}
+
+/* Mobile */
+@media screen and (max-width: 500px)  {
+    .accCardStyle{
+        margin-left: 5%;
+        margin-right: 5%;
+        padding : 5%;
+    }
+}

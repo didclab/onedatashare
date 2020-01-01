@@ -3,6 +3,7 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
 /* Making Front Size Consistent*/
 .MuiFormLabel-root{
   font-size: 1.5rem !important;
@@ -35,9 +36,11 @@ body {
   content: '' !important;
 }
 
+/* Commenting out following CSS configurations for PR 254 */
+/*
 .enter-from-right {
   width: 100%;
-  -webkit-transition: transform 0.5s; /* For Safari 3.1 to 6.0 */
+  -webkit-transition: transform 0.5s; /* For Safari 3.1 to 6.0 
   transition: transform 0.5s;
   -webkit-transform: translateX(100%);
 }
@@ -45,7 +48,7 @@ body {
 .enter-from-left {
   width: 100%;
   position: absolute !important;
-  -webkit-transition: transform 0.5s; /* For Safari 3.1 to 6.0 */
+  -webkit-transition: transform 0.5s; /* For Safari 3.1 to 6.0 
   transition: transform 0.5s;
   -webkit-transform: translateX(-100%);
 }
@@ -57,6 +60,22 @@ body {
 
 @keyframes slide-in {
     100% { transform: translateX(0%); }
+} */
+
+.image-center{
+  display:block!important;
+  margin-left: auto !important;
+  margin-right: auto!important;
+  float: none !important;
+}
+
+.imagecentercontainer{
+  display: flex;
+  justify-content: center;
+}
+
+.navbar-nav{
+  text-align: center;
 }
 
 /* width */
@@ -80,4 +99,3 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: #337ab7; 
 }
-

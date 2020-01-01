@@ -6,12 +6,14 @@ import java.util.EnumSet;
 public enum JobStatus {
   /** The job is scheduled to run in the future. */
   scheduled,
-  /** The job is currently in progress. */
-  processing,
+  /** Data transfer is currently in progress. */
+  transferring,
   /** The job has been paused by request. */
   paused,
-  /** The job has been removed by request. */
+  /** The job has been removed by request. ######## Use of this status is deprecated ######## */
   removed,
+  /** The job has been cancelled by user. This is updated version of removed */
+  cancelled,
   /** The job failed for some reason. */
   failed,
   /** The job has completed successfully. */
@@ -49,9 +51,9 @@ public enum JobStatus {
       case all:
         return filter = EnumSet.allOf(JobStatus.class);
       case pending:
-        return filter = EnumSet.of(scheduled, processing, paused);
+        return filter = EnumSet.of(scheduled, transferring, paused);
       case done:
-        return filter = EnumSet.of(removed, failed, complete);
+        return filter = EnumSet.of(removed, cancelled ,failed, complete);
     } return filter;
   }
 

@@ -78,6 +78,9 @@ public class User {
     /** Used to hold session connections for reuse. */
     private transient Map<Session, Session> sessions = new HashMap<>();
 
+    /** Makes sure that view of user in transfer page is consistent with his/her preference. */
+    private boolean compactViewEnabled = false;
+
     /**
      * Create an anonymous user.
      */
@@ -88,7 +91,7 @@ public class User {
      * Create a user with the given values.
      */
     public User(String email, String firstName, String lastName, String organization, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = firstName;
         this.lastName = lastName;
         this.organization = organization;
@@ -99,7 +102,7 @@ public class User {
      * Create a user with the given email and password.
      */
     public User(String email, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = "";
         this.lastName = "";
         this.organization = "";
@@ -164,7 +167,7 @@ public class User {
             job.uuid();
         }
         job.setOwner(normalizedEmail());
-        job.setJob_id(jobs.size());
+        job.setJob_id(jobs.size() + 1);
         jobs.add(job.getUuid());
         return job;
     }
@@ -262,12 +265,14 @@ public class User {
         public String email;
         public String hash;
         public boolean saveOAuthTokens;
+        public boolean compactViewEnabled;
 
 
-        public UserLogin(String email, String hash, boolean saveOAuthTokens) {
+        public UserLogin(String email, String hash, boolean saveOAuthTokens, boolean compactViewEnabled) {
             this.email = email;
             this.hash = hash;
             this.saveOAuthTokens = saveOAuthTokens;
+            this.compactViewEnabled = compactViewEnabled;
         }
     }
 

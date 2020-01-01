@@ -99,7 +99,7 @@ class QueueComponent extends Component {
 		}
 		else{
 			var percentCompleted = ((done/total) * 100).toFixed();
-			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -182,7 +182,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{status === 'processing' &&
+				{status === 'transferring' &&
 				<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
 							style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
@@ -271,7 +271,6 @@ class QueueComponent extends Component {
 		}
 	}
 	handleChangePage = (event, page) => {
-		console.log("The page is:" + page)
 		let nextRecords
 		if(page > this.state.page){
 			// Moving to next page
@@ -281,9 +280,8 @@ class QueueComponent extends Component {
 			// Moving to previous page
 			nextRecords = this.state.response.slice(0, this.state.rowsPerPage)
 		}
-		this.state.page=page
 		
-		this.setState({ page, response: this.state.response, responsesToDisplay: nextRecords});
+		this.setState({ page:page, response: this.state.response, responsesToDisplay: nextRecords});
         var x = document.getElementsByClassName("rohit");
 
                 for (var i = 0; i < x.length; i++) {
@@ -365,7 +363,7 @@ class QueueComponent extends Component {
 		});
 
 		return(
-		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', marginTop: '5%', border: 'solid 2px #d9edf7'}}>
+		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
 	  		<Table style={{display: "block"}}>
 		        <TableHead style={{backgroundColor: '#d9edf7'}}>
 		          <TableRow>
