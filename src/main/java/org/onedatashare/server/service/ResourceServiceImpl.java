@@ -138,29 +138,26 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
 
     public Session createSession(String uri, Credential credential) {
-<<<<<<< HEAD
-        
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME))
-=======
-        if (uri.startsWith(DROPBOX_URI_SCHEME))
->>>>>>> dev
+        if (uri.startsWith(DROPBOX_URI_SCHEME)) {
             return new DbxSession(URI.create(uri), credential);
+        }
         else if (uri.equals(UPLOAD_IDENTIFIER)) {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         } else if (uri.startsWith(DRIVE_URI_SCHEME))
             return new GoogleDriveSession(URI.create(uri), credential);
-<<<<<<< HEAD
-        else if(uri.contains(ODSConstants.BOX_URI_SCHEME))
+        else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
             return new BoxSession(URI.create(uri), credential);
-        else if(credential instanceof GlobusWebClientCredential)
-=======
-        else if (credential instanceof GlobusWebClientCredential)
->>>>>>> dev
+        }
+        else if(credential instanceof GlobusWebClientCredential) {
             return new GridftpSession(URI.create(uri), credential);
-        else if (uri.startsWith(HTTPS_URI_SCHEME) || uri.startsWith(HTTP_URI_SCHEME))
+        }
+        else if (uri.startsWith(HTTPS_URI_SCHEME) || uri.startsWith(HTTP_URI_SCHEME)) {
             return new HttpSession(URI.create(uri));
-        else return new VfsSession(URI.create(uri), credential);
+        }
+        else {
+            return new VfsSession(URI.create(uri), credential);
+        }
     }
 
     public Mono<Stat> list(String cookie, UserAction userAction) {
