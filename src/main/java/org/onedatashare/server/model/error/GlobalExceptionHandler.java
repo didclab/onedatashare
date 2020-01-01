@@ -15,8 +15,8 @@ public class GlobalExceptionHandler {
      * Exception handler for Invalid Login i.e., unauthorized use of the service
      * @param ilException : Invalid Exception Object
      * */
-    @ExceptionHandler(InvalidLoginException.class)
-    public ResponseEntity<InvalidLoginException> handle(InvalidLoginException ilException){
+    @ExceptionHandler(InvalidODSCredentialsException.class)
+    public ResponseEntity<InvalidODSCredentialsException> handle(InvalidODSCredentialsException ilException){
         ODSLoggerService.logError(ilException.toString());
         return new ResponseEntity<>(ilException, ilException.status);
     }
