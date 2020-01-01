@@ -42,15 +42,9 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
 import { eventEmitter } from "../../App";
-<<<<<<< HEAD
-
-import { getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
-=======
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
->>>>>>> dev
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
