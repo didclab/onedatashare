@@ -8,6 +8,7 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -59,14 +60,14 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                     if(time.before(oauth.expiredTime)){
                         s.success(this);
                     }else{
-                        System.out.println("Box Token Expiration.");
-                        s.error(new TokenExpiredException(401, oauth));
+                        ODSLoggerService.logError("Box Token Expiration.");
+//                        s.error(new TokenExpiredException(401, oauth));
                     }
                 }catch(BoxAPIResponseException e){
-                    System.out.println("Box API Exception");
-                    s.error(new TokenExpiredException(401, oauth));
+                    ODSLoggerService.logError("Box API Exception");
+                    s.error(new TokenExpiredException(oauth, "Box API Exception"));
                 }catch(Exception e){
-                    System.out.println("Box Other Exception");
+                    ODSLoggerService.logError("Box Other Exception");
                     s.error(new AuthenticationRequired("oauth"));
                 }
             }
