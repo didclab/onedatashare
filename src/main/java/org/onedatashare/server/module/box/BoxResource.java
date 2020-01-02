@@ -5,6 +5,7 @@ import com.box.sdk.http.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
+import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -271,7 +272,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             }
         }
         catch (Exception e){
-            System.out.println("Exception encountered while building directory tree");
+            ODSLoggerService.logError("Exception encountered while building directory tree");
             e.printStackTrace();
         }
         return directorySize;

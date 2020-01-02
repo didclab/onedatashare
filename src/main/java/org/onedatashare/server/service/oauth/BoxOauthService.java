@@ -4,6 +4,7 @@ import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.*;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -74,7 +75,7 @@ public class BoxOauthService {
                 return Mono.just(oauth);
             });
         } catch(Exception e) {
-            System.out.println("Runtime exception occurred while finishing initializing Box oauth session");
+            ODSLoggerService.logError("Runtime exception occurred while finishing initializing Box oauth session");
             throw new RuntimeException(e);
         }
 
