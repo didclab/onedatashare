@@ -22,6 +22,10 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
 
+import MaterialTable from 'material-table';
+import { MTableToolbar } from 'material-table';
+import { ArrowDownward, ArrowUpward, Search } from '@material-ui/icons'
+
 import { withStyles } from '@material-ui/core';
 
 const styles = theme => ({
@@ -55,7 +59,7 @@ class QueueComponent extends Component {
 
 		this.queueFunc = this.queueFunc.bind(this)
 		this.queueFunc();
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		this.toggleTabs = this.toggleTabs.bind(this);
 		updateGAPageView();
@@ -66,7 +70,7 @@ class QueueComponent extends Component {
 	}
 
 	componentWillUnmount(){
-		clearInterval(this.interval);
+		//clearInterval(this.interval);
 	}
 
 	queueFunc = () => {
@@ -305,8 +309,28 @@ class QueueComponent extends Component {
 		this.setState({ order:order, orderBy:orderBy });
 		this.queueFunc()
   };
-
-
+	customToolbar() {
+		return <div class="MuiFormControl-root MuiTextField-root MTableToolbar-searchField-65">
+			<div class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-formControl MuiInput-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd">
+				<div class="MuiInputAdornment-root MuiInputAdornment-positionStart">
+					<span class="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true" title="Search"></span>
+				</div>
+				<input aria-invalid="false" class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd" placeholder="Search" type="text" value=""/>
+				<div class="MuiInputAdornment-root MuiInputAdornment-positionEnd">
+					<button class="MuiButtonBase-root MuiIconButton-root Mui-disabled Mui-disabled" tabindex="-1" type="button" disabled="">
+						<span class="MuiIconButton-label">
+							<span class="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true">
+								clear
+							</span>
+						</span>
+					</button>
+				</div>
+			</div>
+		</div>
+		return <div>
+			hello world
+		</div>
+	}
 	render(){
 		const tbcellStyle= {textAlign: 'center'}
 		const {
@@ -367,7 +391,38 @@ class QueueComponent extends Component {
 	            	</TableCell>
 	          	</TableRow>
 	        );
-		});
+		})
+
+		let d = responsesToDisplay.map(resp => {
+			return {
+				owner: resp.owner,
+				job_id: resp.job_id,
+				progress: this.getStatus(resp.status, resp.bytes.total, resp.bytes.done),
+				avg_speed: this.renderSpeed(resp.bytes.avg)
+			}
+		})
+
+		//{title: 'Source/Destination', field: 'source_destination'}
+		return <Paper
+			className={classes.root}
+			style={{width: '80%', marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}
+		>
+			<MaterialTable
+				title="Transfer History"
+				columns={[
+					{title: 'Username', field: 'owner'},
+					{title: 'Job ID', field: 'job_id'},
+					{title: 'Progress', field: 'progress'},
+					{title: 'Average Speed', field: 'avg_speed'},
+				]}
+				data={d}
+				options={{
+				}}
+				components={{
+					Toolbar: (props) => (this.customToolbar())
+				}}
+			/>
+		</Paper>
 
 		return(
 		<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
@@ -440,7 +495,7 @@ class QueueComponent extends Component {
 							<TableRow>
 								<TablePagination
 									rowsPerPageOptions={rowsPerPageOptions}
-									colSpan={4}
+									colSpan={6}
 									count={totalCount}
 									rowsPerPage={rowsPerPage}
 									page={page}

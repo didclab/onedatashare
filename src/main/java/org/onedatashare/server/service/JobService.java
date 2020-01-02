@@ -49,7 +49,7 @@ public class JobService {
                 Mono<List<Job>> jobs = Mono.just(new ArrayList<>());
                 for (int i = 0; i < numberOfItrs; i++) {
                     int pageNo = request.pageNo + i;
-                    jobs = jobs.flatMap(jobs1 -> jobRepository.findAllBy(PageRequest.of(pageNo,
+                    jobs = jobs.flatMap(jobs1 -> jobRepository.findByOwnerLike(request.owner, PageRequest.of(pageNo,
                         request.pageSize, Sort.by(direction, request.sortBy)))
                         .collectList()
                         .map(jobs2 -> {
