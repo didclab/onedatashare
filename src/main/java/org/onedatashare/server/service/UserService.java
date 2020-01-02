@@ -457,6 +457,25 @@ public class UserService {
     return credential;
   }
 
+    public Mono<User> deleteBoxCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
+        //Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
+        return getLoggedInUser(cookie)
+                .flatMap(user -> {
+                    Map<UUID,Credential> credsTemporary = user.getCredentials();
+                    UUID uid = UUID.fromString(userActionCredential.getUuid());
+                    //OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                        credsTemporary.remove(uid);
+                    if(user.isSaveOAuthTokens()) {
+                        user.setCredentials(credsTemporary);
+                        return userRepository.save(user);
+                    }else{
+                        user.setCredentials(credsTemporary);
+                        return null;
+                    }
+                });
+
+        //return credential;
+    }
 
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)
