@@ -6,7 +6,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "../initialize_dnd";
 
-import { screenIsSmall } from "../utils.js";
 
 /**
 	Component for file and directory
@@ -15,9 +14,6 @@ import { screenIsSmall } from "../utils.js";
 	[Folder xxx x]
 	and you can click to enter
 */
-
-import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
-import {eventEmitter} from "../../../App";
 
 const FileDiv = styled.tr`
   outline: none;
@@ -266,7 +262,6 @@ export default class FileNodeCompact extends Component {
 		const {name, dir, perm, time, size } = this.props.file;
 		var options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric'};
 		const date = new Date(time * 1000);
-		const clickHander = screenIsSmall ? this.onTouchEnd : this.onClick;
 		const pstyle =  {textOverflow:"ellipsis", whiteSpace: "nowrap", overflow: "hidden", marginLeft: "10px",textAlign: "left", display: "inline-block"};
 		return (
 			<Draggable draggableId={ endpoint.side + " " +JSON.stringify(this.props.file)} index = {index}>

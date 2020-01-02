@@ -3,7 +3,17 @@ import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth, history, savedCredList,
 		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, HTTPS_TYPE} from "../../constants";
+import {DROPBOX_TYPE,
+				GOOGLEDRIVE_TYPE,
+				BOX_TYPE,
+				FTP_TYPE,
+				SFTP_TYPE,
+				GRIDFTP_TYPE,
+				HTTP_TYPE,
+				SCP_TYPE,
+				HTTPS_TYPE,
+				ODS_PUBLIC_KEY
+			} from "../../constants";
 import {store} from "../../App";
 
 import List from '@material-ui/core/List';
@@ -13,6 +23,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
+
+import JSEncrypt from 'jsencrypt';
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
@@ -133,7 +145,7 @@ export default class EndpointAuthenticateComponent extends Component {
         [name]: event.target.value
       });
 	};
-	
+
 	handleUrlChange = name => event => {
 		let url = event.target.value;
 
@@ -149,9 +161,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
-		
+
 		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
-		
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
 
@@ -231,8 +242,8 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		
-		
+
+
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
@@ -242,6 +253,9 @@ export default class EndpointAuthenticateComponent extends Component {
 				.map((v) =>
 				<ListItem button key={v}
 					onClick={() => {
+=========
+					onClick= {() => {
+>>>>>>>>> Temporary merge branch 2
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
@@ -339,15 +353,27 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
 			this.setState({needPassword: true});
 		});
-    }else{
-			if(username.length === 0 || password.length === 0) {
-				this._handleError("Incorrect username or password")
-				return
-			}
-			this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
-				this._handleError("Authentication Failed");
-			});
+	}
+	else{
+		// User is expected to enter password to login
+		if(username.length === 0 || password.length === 0) {
+			this._handleError("Incorrect username or password");
+			return;
 		}
+
+		// Encrypting user password
+		let jsEncrypt = new JSEncrypt();
+		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+
+		this.endpointCheckin(this.state.url,
+			this.state.portNum,
+			{type: "userinfo", username: this.state.username, password: encryptedPwd},
+			() => {
+			this._handleError("Authentication Failed");
+			}
+		);
+	}
 	}
 
 	globusSignIn = () => {
@@ -517,7 +543,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
-			          value={this.state.portNumField? this.state.portNum : "-"} 
+			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
 					  		variant="outlined"
@@ -529,7 +555,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 							</ValidatorForm>
 			        </div>
-		    	}
+		    	}	
 
 		      {needPassword &&
 		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
@@ -537,7 +563,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							<ValidatorForm
 								ref="form"
 								onError={errors => console.log(errors)}>
-
+			        
 								<TextValidator
 					  			required
 			    	  		style={{width: "100%"}}
@@ -575,11 +601,11 @@ export default class EndpointAuthenticateComponent extends Component {
 							</ValidatorForm>
 			      </div>
 					}
-
-					<Button
-						id={endpoint.side + "LoginAuth"}
-						ref={input => this.inputElement = input}
-						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}}
+					
+					<Button 
+						id={endpoint.side + "LoginAuth"}  
+						ref={input => this.inputElement = input} 
+						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
 						onClick={authFunction}
 						color="primary"
 						variant="contained">

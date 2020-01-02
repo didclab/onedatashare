@@ -77,9 +77,10 @@ public class Job {
       case scheduled:
         times.scheduled = Time.now();
         times.started = Time.now(); break;
-      case processing:
+      case transferring:
         times.started = Time.now(); break;
       case removed:
+      case cancelled:
       case failed:
       case complete:
         times.completed = Time.now(); break;

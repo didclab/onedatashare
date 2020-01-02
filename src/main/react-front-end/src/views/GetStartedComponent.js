@@ -1,19 +1,12 @@
 import React, { Component } from 'react';
-
 import { Carousel } from 'react-bootstrap'
-
-import background from "../assets/background-texture.png";
-import gs1 from "../assets/gs1.png";
-import gs2 from "../assets/gs2.png";
-import gs3 from "../assets/gs3.png";
-import gs4 from "../assets/gs4.png";
-import gs5 from "../assets/gs5.gif";
-import gs6 from "../assets/gs6.gif";
-import gs7 from "../assets/gs7.png";
+import { isSafari } from 'react-device-detect';
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
 
 import './GetStartedComponent.css';
+
+import { ODS_S3_BUCKET, gs1, gs2, gs3, gs4, gs5, gs6, gs7 } from "../constants.js"
 
 export default class GetStartedComponent extends Component{
 
@@ -64,7 +57,6 @@ export default class GetStartedComponent extends Component{
     render(){
 
         let carouselItemStyle = { width : '100%', textAlign : 'center'}
-
         var carouselItems = [];
         this.data.map(item =>{
             carouselItems.push(
@@ -73,14 +65,21 @@ export default class GetStartedComponent extends Component{
                         {item.title}
                     </div>
                     <div>
-                        <img style={ item.imgStyle } src={ item.imgPath } />
+                        <img style={ item.imgStyle } src={ item.imgPath } alt="Get Started" />
                     </div>
                 </Carousel.Item>
             );
         })
+
+        let bgTexture = ODS_S3_BUCKET + 'background-texture.webp';
+        if(isSafari){
+            // Since Safari does not support WebP images, we load PNG
+            bgTexture = ODS_S3_BUCKET + 'background-texture.png';
+        }
+
         return(
             <div className="adjustTop adjustContent content" 
-                style={{ backgroundImage: 'url(' + background + ')'}}>
+                style={{ backgroundImage: 'url(' + bgTexture + ')'}}>
                 <Carousel className="carouselStyle">
                     {carouselItems}
 

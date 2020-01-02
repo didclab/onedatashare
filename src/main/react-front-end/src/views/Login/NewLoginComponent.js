@@ -5,6 +5,7 @@ import Button from '@material-ui/core/Button';
 import Checkbox from '@material-ui/core/Checkbox';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
 
@@ -79,7 +80,7 @@ export default class NewLoginComponent extends Component {
 	}
 
 	render(){
-		const { createAccountPressed, lostValidationCodePressed, forgotPasswordPressed } = this.props; 
+		const { lostValidationCodePressed, forgotPasswordPressed } = this.props; 
 		const { emailChecked, email, password, error, errorMessage, remember } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
@@ -114,10 +115,12 @@ export default class NewLoginComponent extends Component {
 								validators={['required', 'isEmail']}
 								errorMessages={['Please put email here', 'Can not understand email format']}
 		          	style={{width: "90%", margin: "5%"}}
-                />
+              />
 		        <CardActions style={spaceBetweenStyle}>
-			        <Button size="large" variant="outlined" color="primary" onClick={createAccountPressed}>
-								Create Account
+			        <Button size="large" variant="outlined" color="primary">
+								<Link to="/account/register">
+                   Create Account
+                </Link>
 							</Button>
 			        <Button size="large" variant="contained" color="primary"  type="submit" >
 			          Next
@@ -150,9 +153,9 @@ export default class NewLoginComponent extends Component {
 	          		value={password}
                     validators={['required']}
                     errorMessages={['Where is password?']}
-		          	style={{width: "90%", margin: "5%"}}
+		          	style={{width: "100%", marginTop: "5%", marginBottom: "5%"}}
             />
-            <FormControlLabel
+            {/* <FormControlLabel
 			control={
 	            <Checkbox checked={remember} value="remember"
 	            onChange={(event)=>{
@@ -160,7 +163,7 @@ export default class NewLoginComponent extends Component {
 	            }}
 	            color="primary"
 	            />
-	        } label="Remember"/>
+	        } label="Remember"/> */}
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
 						<Button 

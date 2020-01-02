@@ -14,6 +14,9 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
+
+import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 @Service
 public class VfsService implements ResourceService<VfsResource> {
@@ -23,23 +26,67 @@ public class VfsService implements ResourceService<VfsResource> {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private DecryptionService decryptionService;
+
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-            .map(user -> new UserInfoCredential(userAction.getCredential()))
-            .map(credential -> new VfsSession(URI.create(userAction.getUri()), credential))
-            .flatMap(vfsSession -> vfsSession.initialize())
-            .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
+                .flatMap(user -> {
+                    if(userAction.getCredential() == null){
+                        // Credentials for FTP will be null
+                        return Mono.just(new UserInfoCredential(null));
+                    }
+                    else {
+                        return decryptionService.getDecryptedCredential(userAction.getCredential())
+                                .map(userActionCred -> new UserInfoCredential(userActionCred));
+                    }
+                })
+                .map(credential -> {
+                    // Encoding the resource URI to avoid errors due to spaces in file/directory names
+                    String encodedURI = userAction.getUri();
+                    try {
+                        encodedURI = URLEncoder.encode(userAction.getUri(), "UTF-8");
+                    }
+                    catch(UnsupportedEncodingException uee){
+                        ODSLoggerService.logError("Exception encountered while encoding input URI");
+                        Mono.error(uee);
+                    }
+                    return new VfsSession(URI.create(encodedURI), credential);
+                })
+                .flatMap(vfsSession -> vfsSession.initialize())
+                .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
         return userService.getLoggedInUser(cookie)
-                .map(user -> new UserInfoCredential(userActionResource.getCredential()))
-                .map(credential -> new VfsSession(URI.create(userActionResource.getUri()), credential))
+                .flatMap(user -> {
+                    if(userActionResource.getCredential() == null){
+                        // Credentials for FTP will be null
+                        return Mono.just(new UserInfoCredential(null));
+                    }
+                    else {
+                        return decryptionService.getDecryptedCredential(userActionResource.getCredential())
+                                .map(userActionCred -> new UserInfoCredential(userActionCred));
+                    }
+                })
+                .map(credential -> {
+                    // Encoding the resource URI to avoid errors due to spaces in file/directory names
+                    String encodedURI = userActionResource.getUri();
+                    try {
+                        encodedURI = URLEncoder.encode(userActionResource.getUri(), "UTF-8");
+                    }
+                    catch(UnsupportedEncodingException uee){
+                        ODSLoggerService.logError("Exception encountered while encoding input URI");
+                        Mono.error(uee);
+                    }
+                    return new VfsSession(URI.create(encodedURI), credential);
+                })
                 .flatMap(VfsSession::initialize)
                 .flatMap(vfsSession -> vfsSession.select(path));
     }
+
 
     public String pathFromUri(String uri) {
         String path = "";
@@ -95,8 +142,8 @@ public class VfsService implements ResourceService<VfsResource> {
                 .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
                 .map(transfer::setDestination)
                 .flux()
-                .flatMap(transfer1 -> transfer1.start(1L << 20))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.processing))
+                .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
+                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
                 .doFinally(s -> {
                     job.setStatus(JobStatus.complete);
                     jobService.saveJob(job).subscribe();

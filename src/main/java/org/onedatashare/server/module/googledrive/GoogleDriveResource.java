@@ -16,6 +16,7 @@ import java.io.*;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -354,7 +355,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         }
                     } else {
                         try {
-                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + size - state - 1));
+                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (size - 1));
                             com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
                             InputStream is = response.getContent();
                             IOUtils.copy(is, outputStream);

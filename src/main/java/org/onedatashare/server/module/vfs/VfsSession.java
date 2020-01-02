@@ -4,8 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.*;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
-import org.apache.commons.vfs2.provider.HostFileNameParser;
-import org.apache.commons.vfs2.provider.UriParser;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.core.Credential;
@@ -15,7 +13,6 @@ import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
-import java.net.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -91,7 +88,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
             if(getCredential() instanceof UserInfoCredential && ((UserInfoCredential) getCredential()).getUsername() != null) {
                 UserInfoCredential cred = (UserInfoCredential) getCredential();
                 StaticUserAuthenticator auth = new StaticUserAuthenticator(getUri().getHost(), cred.getUsername(), cred.getPassword());
-
                 try {
                     DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(fileSystemOptions, auth);
                     fileSystemManager = VFS.getManager();

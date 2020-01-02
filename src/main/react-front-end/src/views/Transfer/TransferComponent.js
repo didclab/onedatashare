@@ -27,7 +27,6 @@ import Switch from '@material-ui/core/Switch';
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
-import { cookies } from "../../model/reducers";
 
 export default class TransferComponent extends Component {
 
@@ -134,7 +133,7 @@ export default class TransferComponent extends Component {
       dest["uri"] = encodeURI(destUrls[i]);
   
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
-        eventEmitter.emit("messageOccured", "Transfer Initiated!")
+        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
         setBeforeTransferReorder(processed);
       }, (error)=>{
         eventEmitter.emit("errorOccured", error);
@@ -219,7 +218,7 @@ export default class TransferComponent extends Component {
       setDraggingTask(null);
       return;
     }
-    console.log(getSelectedTasks(), result.source, result.destination)
+    // console.log(getSelectedTasks(), result.source, result.destination)
     const processed = mutliDragAwareReorder({
       entities: getEntities(),
       selectedTasks: getSelectedTasks(),
@@ -268,7 +267,7 @@ export default class TransferComponent extends Component {
       selectedTasks: getSelectedTasksFromSide({side: "right"})
     }
 
-    console.log(processed);
+    // console.log(processed);
     this.sendFile(processed);
   }
 
@@ -438,23 +437,25 @@ export default class TransferComponent extends Component {
         {/* !isSmall && this.getSettingComponent(isSmall) */}
         {isSmall &&
         <Panel bsStyle="primary">
-        <FormControlLabel
-                      style={{width: "200px", float: "right", color: "white"}}
-                      control={
-                        <Switch
-                          color="default"
-                          style={{colorPrimary: "white", colorSecondary:"white"}}
-                          checked={this.state.compact}
-                          onChange={updateCompactViewPreference('compact')}
-                          value="compact"
-                        />
-                      }
-                      label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
-                    />
-        <Panel.Heading>
+        <Panel.Heading style={{ textAlign: "center" }}>
           <p>
             Browse and Transfer Files
           </p>
+
+          { /* Disabling compact mode toggle for mobile screens */
+            /* <FormControlLabel
+            style={{ color: "white" }}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={updateCompactViewPreference('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+          /> */}
         </Panel.Heading>
 
 

@@ -24,7 +24,7 @@ const initialState = {
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
-	compactViewEnabled: false,
+	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
   saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
 
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
@@ -65,7 +65,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.set('email', email, { expires : maxCookieAge });
 		  cookies.set('hash', hash, { expires : maxCookieAge });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-
+			cookies.set('compactViewEnabled', compactViewEnabled);
 
     	return Object.assign({}, state, {
     		login: true,
@@ -85,6 +85,7 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove('saveOAuthTokens');
       cookies.remove(DROPBOX_NAME);
       cookies.remove(GOOGLEDRIVE_NAME);
+			cookies.remove('compactViewEnabled');
       window.location.replace('/');
 
       return Object.assign({}, state, {
@@ -131,6 +132,7 @@ export function onedatashareModel(state = initialState, action) {
                 hash: action.hash
               });
 		case COMPACT_VIEW_PREFERENCE:
+			cookies.set('compactViewEnabled', action.compactViewEnabled);
 			return Object.assign({}, state, {
 								compactViewEnabled: action.compactViewEnabled
 							});
