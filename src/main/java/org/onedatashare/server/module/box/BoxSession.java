@@ -46,6 +46,29 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
         return Mono.just(new BoxResource(this, path,id));
     }
 
+    /**
+     * This method is used for initializing boxSession when OAuth tokens are not saved in the backend
+     * It skips refresh token check as refresh tokens are not stored in the front-end
+     */
+    public Mono<BoxSession> initializeNotSaved() {
+        return Mono.create(s -> {
+            if (getCredential() instanceof OAuthCredential) {
+                try {
+                    client = new BoxAPIConnection(((OAuthCredential) getCredential()).getToken());
+                } catch (Throwable t) {
+                    s.error(t);
+                }
+                if (client == null) {
+                    ODSLoggerService.logError("Token has expired for the user");
+                    s.error(new TokenExpiredException(null, "Invalid token"));
+                } else {
+                    s.success(this);
+                }
+            } else
+                s.error(new AuthenticationRequired("oauth"));
+        });
+    }
+
     @Override
     public Mono<BoxSession> initialize() {
         return Mono.create(s -> {
@@ -68,6 +91,7 @@ public class BoxSession extends Session<BoxSession, BoxResource> {
                     s.error(new TokenExpiredException(oauth, "Box API Exception"));
                 }catch(Exception e){
                     ODSLoggerService.logError("Box Other Exception");
+                    e.printStackTrace();
                     s.error(new AuthenticationRequired("oauth"));
                 }
             }

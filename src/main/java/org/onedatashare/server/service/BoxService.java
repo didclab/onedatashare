@@ -2,6 +2,7 @@ package org.onedatashare.server.service;
 
 
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -59,31 +60,38 @@ public class BoxService implements ResourceService<BoxResource> {
         final String path = pathFromUri(userAction.getUri());
         String id = userAction.getId();
         ArrayList<IdMap> idMap = userAction.getMap();
-        return userService.getLoggedInUser(cookie)
-                .map(User::getCredentials)
-                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
-                .flatMap(BoxSession::initialize)
-                .flatMap(boxSession -> boxSession.select(path, id, idMap))
-                .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable -> {
-                    userService.deleteBoxCredential(cookie,userAction.getCredential(),((TokenExpiredException)throwable).cred).subscribe();
-                    return null;
-                });
+        if (userAction.getCredential().isTokenSaved()) {
+            return userService.getLoggedInUser(cookie)
+                    .map(User::getCredentials)
+                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
+                    .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
+                    .flatMap(BoxSession::initialize)
+                    .flatMap(boxSession -> boxSession.select(path, id, idMap))
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable -> {
+                        userService.deleteBoxCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred).subscribe();
+                        return null;
+                    });
+        } else {
+            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
+                    .map(oAuthCred -> new BoxSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(BoxSession::initializeNotSaved)
+                    .flatMap(boxSession -> boxSession.select(path, id, idMap));
+        }
     }
 
-    public Mono<BoxResource> getBoxResourceUserActionResource(String cookie, UserActionResource userActionResource) {
-        final String path = pathFromUri(userActionResource.getUri());
-        String id = userActionResource.getId();
-        ArrayList<IdMap> idMap = userActionResource.getMap();
-
-        return userService.getLoggedInUser(cookie)
-                .map(User::getCredentials)
-                .map(uuidCredentialMap ->
-                        uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
-                .map(credential -> new BoxSession(URI.create(userActionResource.getUri()), credential))
-                .flatMap(BoxSession::initialize)
-                .flatMap(boxSession -> boxSession.select(path, id, idMap));
-    }
+//    public Mono<BoxResource> getBoxResourceUserActionResource(String cookie, UserActionResource userActionResource) {
+//        final String path = pathFromUri(userActionResource.getUri());
+//        String id = userActionResource.getId();
+//        ArrayList<IdMap> idMap = userActionResource.getMap();
+//
+//        return userService.getLoggedInUser(cookie)
+//                .map(User::getCredentials)
+//                .map(uuidCredentialMap ->
+//                        uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
+//                .map(credential -> new BoxSession(URI.create(userActionResource.getUri()), credential))
+//                .flatMap(BoxSession::initialize)
+//                .flatMap(boxSession -> boxSession.select(path, id, idMap));
+//    }
 
 
     public String pathFromUri(String uri) {

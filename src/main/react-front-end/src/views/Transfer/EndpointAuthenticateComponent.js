@@ -253,9 +253,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				.map((v) =>
 				<ListItem button key={v}
 					onClick={() => {
-=========
-					onClick= {() => {
->>>>>>>>> Temporary merge branch 2
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,

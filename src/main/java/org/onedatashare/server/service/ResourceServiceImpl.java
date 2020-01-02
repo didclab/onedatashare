@@ -83,6 +83,8 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .flatMap(session -> {
                     if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
                         return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((BoxSession) session).initializeNotSaved();
                     else
                         return session.initialize();
                 })

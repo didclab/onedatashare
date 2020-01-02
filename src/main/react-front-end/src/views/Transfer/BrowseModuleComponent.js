@@ -184,7 +184,7 @@ export default class BrowseModuleComponent extends Component {
 
                     this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
                 }}>
-                    <Icon className={'fab fa-box-open'} style={iconStyle}/>
+					<Icon className={'fas fa-bold'} style={iconStyle}/>
                     Box
                 </Button>
 	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{

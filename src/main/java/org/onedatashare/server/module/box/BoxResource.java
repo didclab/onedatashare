@@ -34,7 +34,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     //drain incoming
     public Mono<Stat> stat() {
 
-        return initialize().map(BoxResource::onStat);
+        return Mono.just(onStat());
     }
 
     public Stat onStat() {
@@ -186,7 +186,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     }
 
     public Mono<BoxResource> delete() {
-        return initialize().doOnSuccess(resource -> {
+        return Mono.just(this).map(resource -> {
             try {
                 if(onStat().isFile()) {
                     BoxFile file = new BoxFile(resource.getSession().client, getId());
@@ -204,7 +204,7 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
             }catch(Exception e){
                 e.printStackTrace();
             }
-
+            return this;
         });
 
     }
