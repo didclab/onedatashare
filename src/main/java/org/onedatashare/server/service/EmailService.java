@@ -4,9 +4,6 @@ import org.springframework.stereotype.Service;
 
 import javax.mail.*;
 
-import lombok.Data;
-
-
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
@@ -17,7 +14,6 @@ import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
-import reactor.core.publisher.Mono;
 
 /**
  * This service class is responsible to send all emails for OneDataShare.
