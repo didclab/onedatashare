@@ -19,7 +19,7 @@ export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
 
-const initialState = {
+export const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: false,
 	email: cookies.get('email') || "noemail" ,
