@@ -31,7 +31,8 @@ class SentMail extends Component {
             isValidMessage: true,
             isValidRecipients: true,
             isValidSubject: true,
-            showDelete: false
+            showDelete: false,
+            showSelectUsers: false
         }
     }
     closeDelete = () => {
@@ -68,6 +69,13 @@ class SentMail extends Component {
 
     onSubjectChange = event => {
         this.setState({ currentView: { ...this.state.currentView, subject: event.target.value } });
+    }
+
+    showSelectUsersClose = () => {
+        this.setState({ showSelectUsers: false });
+    }
+    showSelectUsersOpen = () => {
+        this.setState({ showSelectUsers: true });
     }
 
     onMessageChange = event => {
@@ -172,7 +180,8 @@ class SentMail extends Component {
                         </Table>
                     </div> : <div></div>
                 }
-                {this.state.currentView ? <Modal
+                {this.state.currentView ? 
+                <Modal
                     show={this.state.viewMail}
                     onHide={this.closeMailBox}
                     bsSize="large"
@@ -188,7 +197,7 @@ class SentMail extends Component {
                                 <ControlLabel>To</ControlLabel>
                                 <OverlayTrigger placement="right" overlay={tooltip}>
                                     <FormControl.Static style={{ width: '15%' }}>
-                                        {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <a href={null} onClick={this.smOpen}>{`${this.state.currentView.recipients.length} users selected`}</a> : <a href={null}>No recipients </a>}
+                                        {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <a href={null} onClick={this.showSelectUsersOpen}>{`${this.state.currentView.recipients.length} users selected`}</a> : <a href={null}>No recipients </a>}
                                     </FormControl.Static>
                                 </OverlayTrigger>
                                 {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
@@ -204,7 +213,7 @@ class SentMail extends Component {
                                     onChange={this.onSubjectChange} />
                                 {isValidSubject ? '' : <HelpBlock>{'Please enter a valid subject.'}</HelpBlock>}
                             </FormGroup>
-                            <FormGroup controlId="message" validationState={isValidMessage ? 'none' : 'error'} >
+                            <FormGroup controlId={"message"} validationState={isValidMessage ? 'none' : 'error'} >
                                 <ControlLabel>Message</ControlLabel>
                                 <textarea class="form-control" placeholder={'Enter Message'} rows="10" value={this.state.currentView.message} onChange={this.onMessageChange}></textarea>
                                 {isValidMessage ? '' : <HelpBlock>{'Please enter a valid message.'}</HelpBlock>}
@@ -217,6 +226,28 @@ class SentMail extends Component {
                     </Modal.Footer>
                 </Modal>
                     : <div></div>}
+
+                <Modal
+                    show={this.state.showSelectUsers}
+                    onHide={this.showSelectUsersClose}
+                    bsSize="large"
+                    aria-labelledby="select_user_modal"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="select_user_modal">Select Users</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Wrapped Text</h4>
+                        <p>
+                            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
+                            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
+                            ac consectetur ac, vestibulum at eros.
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button onClick={this.props.onHide}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
 
                 <Modal
                     show={this.state.showDelete}
