@@ -24,66 +24,57 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(ListController.class)
-public class ListControllerTest extends ControllerTest{
+@WebMvcTest(DeleteController.class)
+public class DeleteControllerTest extends ControllerTest {
 
-    private static final String LIST_CONTROLLER_URL = "/api/stork/ls";
+    private static final String DELETE_CONTROLLER_URL = "/api/stork/delete";
 
     private List<ResourceService<?>> called = new ArrayList<>();
 
     @Before
-    public void setup() {
-        mockListMethodOf(dbxService);
-        mockListMethodOf(vfsService);
-        /* GridftpService does not implement ResourceService interface */
-//        mockListMethodOf(gridService);
-        mockListMethodOf(resourceService);
-        mockListMethodOf(httpService);
+    public void setup(){
+        mockDeleteMethodOf(dbxService);
+        mockDeleteMethodOf(vfsService);
+        mockDeleteMethodOf(resourceService);
     }
 
     @Test
-    public void givenUserCredentialAndRequestTypeForAuthenticatingService_WhenProcessed_ShouldRouteToCorrespondingService()
+    public void givenUserCredentialAndRequestTypeForAuthenticatingService_WhenProcessed_ShouldCallCorrespondingService() throws Exception {
+        for (ResourceService<?> service : authenticatingServices(supportedServices())) {
+            String uri = getServiceUri(service);
+            processThenAssertServiceCalled(uri);
+        }
+    }
+
+    @Test
+    public void givenNoUserCredentialAndRequestTypeForAuthenticatingService_WhenProcessed_ShouldReturnInternalServerError()
             throws Exception {
         for (ResourceService<?> service : authenticatingServices(supportedServices())) {
             String url = getServiceUri(service);
-            processThenAssertServiceCalled(url);
+            RequestData requestData = nonCredentialedRequestDataOf(url);
+            processThenAssertError(requestData);
         }
     }
 
     @Test
-    public void givenUserCredentialAndUndefinedRequestType_WhenProcessed_ShouldNotRouteToAnyService()
-            throws Exception {
-        processRequest("Undefined_Type");
-        assertTrue(called.isEmpty(),
-                "Expected no services to be called for undefined request type, " +
-                        "but the following services were called: "
-                        + getClassNames(called));
-    }
-
-    @Test
-    public void givenNoUserCredentialAndRequestTypeForAuthenticatingService_WhenProcessed_ShouldReturnWithError()
-            throws Exception {
-        for (ResourceService<?> service : authenticatingServices(supportedServices())) {
-            String uri = getServiceUri(service);
-            RequestData requestData = nonCredentialedRequestDataOf(uri);
-            processRequest(requestData)
-                    .andExpect(status().isInternalServerError());
-        }
-    }
-
-    @Test
-    public void givenNoUserCredentialAndRequestTypeForNonAuthenticatingService_WhenProcessed_ShouldRouteToCorrespondingService()
-            throws Exception {
+    public void givenNoUserCredentialAndRequestTypeForNonAuthenticatingService_WhenProcessed_ShouldCallCorrespondingService() throws Exception {
         for (ResourceService<?> service : nonAuthenticatingServices(supportedServices())) {
             String uri = getServiceUri(service);
-            RequestData requestData = nonCredentialedRequestDataOf(uri);
-            processRequest(requestData);
+            processRequest(nonCredentialedRequestDataOf(uri));
             assertServiceCalled(getServiceClass(service), uri);
         }
     }
 
-    private void mockListMethodOf(ResourceService<?> service) {
-        Mockito.when(service.list(any(), any())).then(addToList(service));
+    private void processThenAssertError(RequestData request) throws Exception {
+        processRequest(request).andExpect(status().isInternalServerError());
+    }
+
+    private Stream<ResourceService<? extends Resource>> supportedServices() {
+        return of(dbxService, vfsService, resourceService);
+    }
+
+    private void mockDeleteMethodOf(ResourceService<?> service) {
+        Mockito.when(service.delete(any(), any())).then(addToList(service));
     }
 
     private Answer<Mono<?>> addToList(ResourceService<?> service) {
@@ -93,16 +84,14 @@ public class ListControllerTest extends ControllerTest{
         };
     }
 
-    private Stream<ResourceService<? extends Resource>> supportedServices() {
-        return of(dbxService, vfsService, resourceService, httpService);
-    }
-
     private void processRequest(String type) throws Exception {
-        processRequest(credentialedRequestDataOf(type));
+        RequestData requestData = credentialedRequestDataOf(type);
+        requestData.setUri(type);
+        processRequest(requestData);
     }
 
     private ResultActions processRequest(RequestData requestData) throws Exception {
-        return mvc.perform(jsonPostRequestOf(requestData, LIST_CONTROLLER_URL));
+        return mvc.perform(jsonPostRequestOf(requestData, DELETE_CONTROLLER_URL));
     }
 
     private void processThenAssertServiceCalled(String type) throws Exception {
