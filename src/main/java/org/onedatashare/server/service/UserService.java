@@ -63,8 +63,13 @@ public class UserService {
   }
 
   public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
-    if(!emailService.isValidEmail(email)){
-        return Mono.error(new Exception(" Email Verification Failed"));
+    try {
+        if (!emailService.isValidEmail(email)) {
+            return Mono.error(new Exception(" Email Verification Failed"));
+        }
+    }
+    catch (Exception ex){
+        return Mono.error(new Exception(" Exception occurred in email verification"));
     }
     return captchaService.verifyValue(captchaVerificationValue)
             .flatMap(captchaVerified-> {
