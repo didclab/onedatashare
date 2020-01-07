@@ -24,6 +24,8 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
+import { isMobile, isBrowser} from 'react-device-detect';
+
 
 import { updateGAPageView } from '../../analytics/ga';
 import { completeStatus } from '../../constants';
@@ -42,6 +44,16 @@ const styles = theme => ({
 	tablePaginationSelect: {
 		fontSize: '15px',
 		lineHeight: '20px'
+	},
+	Mobiletoolbar: {
+		paddingLeft: '7px'
+	},
+	MobiletablePaginationCaption:{
+		fontSize: '8px'
+	},
+	MobiletablePaginationSelect:{
+		fontSize: '8px',
+		lineHeight: '8px'
 	}
 })
 
@@ -53,6 +65,7 @@ class QueueComponent extends Component {
 			response: [],
 			responsesToDisplay: [],
 			selectedTab: 0,
+
 			page: 0,
 			rowsPerPage: 10,
 			rowsPerPageOptions: [10, 20, 50, 100],
@@ -82,7 +95,7 @@ class QueueComponent extends Component {
 	}
 
 	update = () => {
-		let jobIds = this.state.responsesToDisplay.filter(job => job.status === "transferring" || job.status === "scheduled")
+		let jobIds = this.state.responsesToDisplay.filter(job => job.status === "processing" || job.status === "scheduled")
 			.map(job => job.uuid)
 		if (jobIds.length > 0) {
 			updateJobStatus(jobIds, resp => {
@@ -123,7 +136,11 @@ class QueueComponent extends Component {
 	};
 
 	getStatus(status, total, done) {
-		const style = { marginTop: '5%', fontWeight: 'bold' };
+		var style;
+		if(isBrowser)
+			style = { marginTop: '5%',fontWeight: 'bold'};
+		if(isMobile)
+			style = { marginTop: '2%',marginBottom :'2%',height : '17px'};
 		if (status === 'complete') {
 			return (<ProgressBar now={100} label={'Complete'} style={style} />);
 		}
@@ -135,7 +152,7 @@ class QueueComponent extends Component {
 		}
 		else {
 			let percentCompleted = Math.ceil(((done / total) * 100));
-			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
+			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -166,7 +183,7 @@ class QueueComponent extends Component {
 			var row2close = document.getElementById("info_" + this.selectedJobInfo);
 			if (row2close)
 				row2close.style.display = "none";
-			row.style.display = "table-row";
+			row.style.display = "";
 			this.selectedJobInfo = jobID;
 		}
 	}
@@ -220,46 +237,46 @@ class QueueComponent extends Component {
 			<div >
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
 					<Button onClick={() => { this.infoButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
-						style={{
-							backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
-							fontWeight: 'bold', width: '20%', textTransform: 'none',
-							minWidth: '0px', minHeigth: '0px'
-						}}>
+							style={{
+								backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
+								fontWeight: 'bold', width: '20%', textTransform: 'none',
+								minWidth: '0px', minHeigth: '0px'
+							}}>
 						<Info />
 					</Button>
 				</Tooltip>
-				{(status === 'transferring' || status === 'scheduled' || status === 'transferring') &&
-					<Tooltip TransitionComponent={Zoom} title="Cancel">
-						<Button onClick={() => { this.cancelButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
+				{(status === 'processing' || status === 'scheduled') &&
+				<Tooltip TransitionComponent={Zoom} title="Cancel">
+					<Button onClick={() => { this.cancelButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
 								backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 								textTransform: 'none', minWidth: '0px', minHeigth: '0px'
 							}}>
-							<Cancel />
-						</Button>
-					</Tooltip>
+						<Cancel />
+					</Button>
+				</Tooltip>
 				}
-				{status !== 'transferring' && status !== 'scheduled' &&
-					<Tooltip TransitionComponent={Zoom} title="Restart">
-						<Button onClick={() => { this.restartButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
+				{status !== 'processing' && status !== 'scheduled' &&
+				<Tooltip TransitionComponent={Zoom} title="Restart">
+					<Button onClick={() => { this.restartButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
 								backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 								textTransform: 'none', minWidth: '0px', minHeigth: '0px'
 							}}>
-							<Refresh />
-						</Button>
-					</Tooltip>
+						<Refresh />
+					</Button>
+				</Tooltip>
 				}
-				{status !== 'transferring' && status !== 'scheduled' && !deleted &&
-					<Tooltip TransitionComponent={Zoom} title="Delete">
-						<Button onClick={() => { this.deleteButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
+				{status !== 'processing' && status !== 'scheduled' && !deleted &&
+				<Tooltip TransitionComponent={Zoom} title="Delete">
+					<Button onClick={() => { this.deleteButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
 								backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
 								textTransform: 'none', minWidth: '0px', minHeigth: '0px'
 							}}>
-							<DeleteOutline />
-						</Button>
-					</Tooltip>
+						<DeleteOutline />
+					</Button>
+				</Tooltip>
 				}
 			</div>
 		);
@@ -374,125 +391,210 @@ class QueueComponent extends Component {
 		var tableRows = [];
 
 		responsesToDisplay.map(resp => {
-			tableRows.push(
-				<TableRow style={{ alignSelf: "stretch" }}>
-					<TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
-						{resp.job_id}
-					</TableCell>
-					<TableCell id={"queueprocess" + tableRows.length / 2} style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
-						{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
-					</TableCell>
-					<TableCell id={"queuespeed" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
-						{this.renderSpeed(resp.bytes.avg)}
-					</TableCell>
-					<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
-						{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
-					</TableCell>
-					<TableCell id={"queueaction" + tableRows.length / 2} style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
-						{this.renderActions(resp.job_id, resp.status, resp.deleted)}
-					</TableCell>
-				</TableRow>
-			);
-			tableRows.push(
-				<TableRow id={"info_" + resp.job_id} style={{ display: 'none' }}>
-					<TableCell colSpan={5} style={{ ...tbcellStyle, width: '10%', fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
-						<div id="infoBox" style={{ marginBottom: '0.5%' }}>
-							<AppBar position="static" style={{ boxShadow: 'unset' }}>
-								<Tabs value={this.state.selectedTab} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
-									<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
-									<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="JSON" />
-								</Tabs>
-							</AppBar>
-							<div style={{ backgroundColor: 'white', borderRadius: '4px', textAlign: 'left', marginTop: '0.3%' }}>
-								{this.renderTabContent(resp)}
+			if(isBrowser){
+				tableRows.push(
+					<TableRow style={{ alignSelf: "stretch" }}>
+						<TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
+							{resp.job_id}
+						</TableCell>
+						<TableCell id={"queueprocess" + tableRows.length / 2} style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
+							{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
+						</TableCell>
+						<TableCell id={"queuespeed" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
+							{this.renderSpeed(resp.bytes.avg)}
+						</TableCell>
+						<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
+							{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
+						</TableCell>
+						<TableCell id={"queueaction" + tableRows.length / 2} style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
+							{this.renderActions(resp.job_id, resp.status, resp.deleted)}
+						</TableCell>
+					</TableRow>
+				);
+				tableRows.push(
+					<TableRow id={"info_" + resp.job_id} style={{ display: 'none' }}>
+						<TableCell colSpan={5} style={{ ...tbcellStyle, width: '10%', fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
+							<div id="infoBox" style={{ marginBottom: '0.5%' }}>
+								<AppBar position="static" style={{ boxShadow: 'unset' }}>
+									<Tabs value={this.state.selectedTab} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
+										<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
+										<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="JSON" />
+									</Tabs>
+								</AppBar>
+								<div style={{ backgroundColor: 'white', borderRadius: '4px', textAlign: 'left', marginTop: '0.3%' }}>
+									{this.renderTabContent(resp)}
+								</div>
 							</div>
-						</div>
-					</TableCell>
-				</TableRow>
-			);
+						</TableCell>
+					</TableRow>
+				);}
+			if(isMobile){
+				tableRows.push(
+					<Paper style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '5%', width: '85%', border: 'solid 2px #d9edf7'}}>
+						<Table style={{ fontSize: '1rem'}}>
+							<TableCell >
+								<Row style = {{marginBottom: '1%'}}>
+									<Col xs={6} md={4}><b>Job ID</b></Col>
+									<Col xs={6} md={4}>{resp.job_id} </Col>
+								</Row>
+								<Row style = {{marginBottom: '1%'}}>
+									<Col xs={6} md={4}><b>Average Speed</b></Col>
+									<Col xs={6} md={4} > {this.renderSpeed(resp.bytes.avg)} </Col>
+								</Row >
+								<Row style = {{marginBottom: '1%'}}>
+									<Col xs={6} md={4}><b>Source</b></Col>
+									<Col xs={6} md={4} style={{whiteSpace: 'normal',
+										wordWrap: 'break-word'}} >{decodeURI(resp.src.uri)} </Col>
+								</Row>
+								<Row style = {{marginBottom: '1%'}}>
+									<Col xs={6} md={4}><b>Destination</b></Col>
+									<Col xs={6} md={4} style={{whiteSpace: 'normal',
+										wordWrap: 'break-word'}}>{decodeURI(resp.dest.uri)} </Col>
+								</Row>
+								<Row style={{textAlign:'center',marginBottom: '1%'}}>
+									<Col xs={12} md={1}>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</Col>
+								</Row>
+								<Row style={{textAlign:'center',marginBottom: '1%'}}>{this.renderActions(resp.job_id, resp.status, resp.deleted)}</Row>
+							</TableCell>
+						</Table>
+					</Paper>
+				);
+				tableRows.push(
+					<Paper id={"info_" + resp.job_id} style={{ display: 'none' }}>
+						<TableCell colSpan={5} style={{ ...tbcellStyle, width: '10%', fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
+							<div id="infoBox" style={{ marginBottom: '0.5%' }}>
+								<div style={{ backgroundColor: 'white', borderRadius: '4px', textAlign: 'left', marginTop: '0.3%' }}>
+									{this.renderTabContent(resp)}
+								</div>
+							</div>
+						</TableCell>
+					</Paper>
+				);}
+
 		});
 
-		return (
-			<Paper className={classes.root} id="jobHistory" style={{ marginLeft: '7.2%', marginRight: '7.2%', marginBottom: '10%', border: 'solid 2px #d9edf7' }}>
-				<Table>
-					<TableHead style={{ backgroundColor: '#d9edf7' }}>
-						<TableRow>
-							<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										id="QueueID"
-										active={orderBy === sortableColumns.jobId}
-										direction={order}
-										onClick={() => { this.handleRequestSort(sortableColumns.jobId) }}>
-										Job ID
+		if(isBrowser){
+			return (
+				<Paper className={classes.root} id="jobHistory" style={{ marginLeft: '8.2%', marginRight: '7.2%', marginBottom: '10%', border: 'solid 2px #d9edf7' }}>
+					<Table>
+						<TableHead style={{ backgroundColor: '#d9edf7' }}>
+							<TableRow>
+								<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
+									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											id="QueueID"
+											active={orderBy === sortableColumns.jobId}
+											direction={order}
+											onClick={() => { this.handleRequestSort(sortableColumns.jobId) }}>
+											Job ID
 										</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{ ...tbcellStyle, width: '45%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										id="QueueProgress"
-										active={orderBy === sortableColumns.status}
-										direction={order}
-										onClick={() => this.handleRequestSort(sortableColumns.status)}>
-										Progress
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{ ...tbcellStyle, width: '45%', fontSize: '2rem', color: '#31708f' }}>
+									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											id="QueueProgress"
+											active={orderBy === sortableColumns.status}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.status)}>
+											Progress
 										</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										id="QueueSpeed"
-										active={orderBy === sortableColumns.avgSpeed}
-										direction={order}
-										onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
-										Average Speed
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
+									<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											id="QueueSpeed"
+											active={orderBy === sortableColumns.avgSpeed}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
+											Average Speed
 										</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{ ...tbcellStyle, width: '25%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										id="QueueSD"
-										active={orderBy === sortableColumns.source}
-										direction={order}
-										onClick={() => this.handleRequestSort(sortableColumns.source)}>
-										Source/Destination
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{ ...tbcellStyle, width: '25%', fontSize: '2rem', color: '#31708f' }}>
+									<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											id="QueueSD"
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.source)}>
+											Source/Destination
 										</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>Actions</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{tableRows}
-					</TableBody>
-					<TableFooter style={{ textAlign: 'center' }}>
-						<TableRow>
-							<TablePagination
-								rowsPerPageOptions={rowsPerPageOptions}
-								colSpan={3}
-								count={totalCount}
-								rowsPerPage={rowsPerPage}
-								page={page}
-								SelectProps={{
-									native: true,
-								}}
-								onChangePage={this.handleChangePage}
-								onChangeRowsPerPage={this.handleChangeRowsPerPage}
-								ActionsComponent={TablePaginationActions}
-								classes={{
-									caption: classes.tablePaginationCaption,
-									select: classes.tablePaginationSelect,
-									toolbar: classes.toolbar
-								}}
-							/>
-						</TableRow>
-					</TableFooter>
-				</Table>
-			</Paper>
-		);
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>Actions</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{tableRows}
+						</TableBody>
+						<TableFooter style={{ textAlign: 'center' }}>
+							<TableRow>
+								<TablePagination
+									rowsPerPageOptions={rowsPerPageOptions}
+									colSpan={3}
+									count={totalCount}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										native: true,
+									}}
+									onChangePage={this.handleChangePage}
+									onChangeRowsPerPage={this.handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+									classes={{
+										caption: classes.tablePaginationCaption,
+										select: classes.tablePaginationSelect,
+										toolbar: classes.toolbar
+									}}
+								/>
+							</TableRow>
+						</TableFooter>
+					</Table>
+				</Paper>
+			);}
+		if(isMobile){
+			return (
+				<Paper className={classes.root} id="jobHistory2" style={{marginLeft: '7.2%', marginRight: '7.2%', marginTop: '5%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
+					<Table >
+						<TableHead style={{backgroundColor: '#d9edf7'}}>
+							<TableRow>
+								<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
+									Job History
+								</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{tableRows}
+						</TableBody>
+						<TableFooter style={{textAlign:'center'}}>
+							<TableRow>
+								<TablePagination
+									rowsPerPageOptions={rowsPerPageOptions}
+									colSpan={3}
+									count={totalCount}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										native: true,
+									}}
+									onChangePage={this.handleChangePage}
+									onChangeRowsPerPage={this.handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+									classes={{
+										caption: classes.MobiletablePaginationCaption,
+										select: classes.MobiletablePaginationSelect,
+										toolbar: classes.Mobiletoolbar
+									}}
+								/>
+							</TableRow>
+						</TableFooter>
+					</Table>
+				</Paper>
+			);
+		}
 	}
 }
 
-export default withStyles(styles)(QueueComponent) 
+export default withStyles(styles)(QueueComponent)
