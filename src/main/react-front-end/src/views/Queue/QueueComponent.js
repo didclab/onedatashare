@@ -440,13 +440,13 @@ class QueueComponent extends Component {
 								</Tooltip>
 							</TableCell>
 							<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+								<Tooltip title="Sort on Speed" placement='bottom-end' enterDelay={300}>
 									<TableSortLabel
 										id="QueueSpeed"
 										active={orderBy === sortableColumns.avgSpeed}
 										direction={order}
 										onClick={() => this.handleRequestSort(sortableColumns.avgSpeed)}>
-										Average Speed
+										Speed
 										</TableSortLabel>
 								</Tooltip>
 							</TableCell>
