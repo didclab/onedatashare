@@ -16,9 +16,9 @@ public class GlobalExceptionHandler {
      * @param ilException : Invalid Exception Object
      * */
     @ExceptionHandler(InvalidODSCredentialsException.class)
-    public ResponseEntity<InvalidODSCredentialsException> handle(InvalidODSCredentialsException ilException){
+    public ResponseEntity<String> handle(InvalidODSCredentialsException ilException){
         ODSLoggerService.logError(ilException.toString());
-        return new ResponseEntity<>(ilException, ilException.status);
+        return new ResponseEntity<>(ilException.toString(), ilException.status);
     }
 
 }
