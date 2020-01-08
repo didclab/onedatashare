@@ -289,10 +289,10 @@ class QueueComponent extends Component {
 						<Col md={6}><b>Destination</b></Col>
 						<Col md={6}>{resp.dest.uri}</Col>
 					</Row>
-					{/* <Row>
+					<Row>
 						<Col md={6}><b>Instant Speed</b></Col>
 						<Col md={6}>{this.renderSpeed(resp.bytes.inst)}</Col>
-					</Row> */}
+					</Row>
 					<Row>
 						<Col md={6}><b>Average Speed</b></Col>
 						<Col md={6}>{this.renderSpeed(resp.bytes.avg)}</Col>
@@ -383,7 +383,7 @@ class QueueComponent extends Component {
 						{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
 					</TableCell>
 					<TableCell id={"queuespeed" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
-						{this.renderSpeed(resp.bytes.avg)}
+						{this.renderSpeed(resp.bytes.inst)}
 					</TableCell>
 					<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
 						{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
