@@ -12,13 +12,23 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class GlobalExceptionHandler {
 
     /**
-     * Exception handler for Invalid Login i.e., unauthorized use of the service
+     * Exception handler for Invalid Login
      * @param ilException : Invalid Exception Object
      * */
     @ExceptionHandler(InvalidLoginException.class)
-    public ResponseEntity<InvalidLoginException> handle(InvalidLoginException ilException){
+    public ResponseEntity<String> handle(InvalidLoginException ilException){
         ODSLoggerService.logError(ilException.toString());
-        return new ResponseEntity<>(ilException, ilException.status);
+        return new ResponseEntity<>(ilException.getMessage(), ilException.status);
+    }
+
+    /**
+     * Exception handler for unauthorized operation exception
+     * @param uException : UnAuthorized Exception Object
+     */
+    @ExceptionHandler(UnAuthorizedOperationException.class)
+    public ResponseEntity<String> handle(UnAuthorizedOperationException uException){
+        ODSLoggerService.logError(uException.toString());
+        return new ResponseEntity<>(uException.getMessage(), uException.status);
     }
 
 }
