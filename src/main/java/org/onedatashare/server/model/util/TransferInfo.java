@@ -9,26 +9,26 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class TransferInfo {
-  /** Units complete. */
-  public long done;
-  /** Total units. */
-  public long total;
-  /** Average throughput. */
-  public double avg;
-  /** Instantaneous throughput. */
-  public double inst;
+    /** Units complete. */
+    public long done;
+    /** Total units. */
+    public long total;
+    /** Average throughput. */
+    public double avg;
+    /** Instantaneous throughput. */
+    public double inst;
 
-  /* I am terrible */
-  public String reason;
+    /* I am terrible */
+    public String reason;
 
-  /** Update based on the given information. */
-  public void update(Time time, Progress p, Throughput tp) {
-    done = p.done();
+    /** Update based on the given information. */
+    public void update(Time time, Progress p, Throughput tp) {
+        done = p.done();
 //    total = p.total();
-    avg = p.rate(time).value();
-  }
+        avg = p.rate(time).value();
+    }
 
-  public TransferInfo(long total) {
-    this.total = total;
-  }
+    public TransferInfo(long total) {
+        this.total = total;
+    }
 }
