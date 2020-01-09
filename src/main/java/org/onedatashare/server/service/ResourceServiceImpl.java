@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import org.apache.commons.codec.net.URLCodec;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
