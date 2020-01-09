@@ -31,8 +31,9 @@ public class TransferInfo {
     public void update(Time time, Progress p, Throughput tp) {
         done = p.done();
         avg = p.rate(time).value();
-        inst = TRANSFER_SLICE_SIZE / (time.elapsed() - lastTime);
-        lastTime = time.elapsed();
+        long currTime = time.elapsed();
+        inst = TRANSFER_SLICE_SIZE / (currTime - lastTime);
+        lastTime = currTime;
     }
 
     public TransferInfo(long total) {
