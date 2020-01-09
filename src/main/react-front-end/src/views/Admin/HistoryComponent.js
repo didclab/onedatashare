@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue } from '../../APICalls/APICalls';
+import { fetchAllJobs } from '../../APICalls/APICalls';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -76,7 +76,7 @@ class QueueComponent extends Component {
 	queueFunc = () => {
 		let isHistory = true;
 
-		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
+		fetchAllJobs('', this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order,(resp) => {
 		//success
 		let responsesToDisplay = [];
 		if(this.state.page === 0){
@@ -93,18 +93,27 @@ class QueueComponent extends Component {
 		console.log('Error in queue request to API layer');
 	})};
 
-	getStatus(status, total, done){
-		const style = {marginTop: '5%', fontWeight: 'bold'};
-		if(status === 'complete'){
-			return(<ProgressBar now={100} label={'Complete'} style={style} />);
+	getStatus(status, total, done) {
+		// XNOTE: move to CSS file
+		const style = {marginTop: '5%', fontWeight: 'bold', textTransform: 'capitalize'}
+		let now, bsStyle, label
+		if (status === 'complete') {
+			now = 100
+			bsStyle = 'info'
+			label = 'Complete'
+		} else if (status === 'failed') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Failed'
+		} else {
+			now = ((done / total) * 100).toFixed()
+			bsStyle = 'danger'
+			label = `Transferring ${now}%`
 		}
-		else if(status === 'failed'){
-			return(<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
-		}
-		else{
-			var percentCompleted = ((done/total) * 100).toFixed();
-			return(<ProgressBar bsStyle="danger" now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
-		}
+		return <ProgressBar
+			className='some-class'
+			label={label}
+		/>
 	}
 
 	getFormattedDate(d){
@@ -114,15 +123,12 @@ class QueueComponent extends Component {
 	renderSpeed(speedInBps){
 		let displaySpeed = "";
 		if(speedInBps > 1000000000){
-			displaySpeed = (speedInBps/1000000000).toFixed(2) + " GB/s";
-		}
-		else if(speedInBps > 1000000){
-			displaySpeed = (speedInBps/1000000).toFixed(2) + " MB/s";
-		}
-		else if(speedInBps > 1000){
-			displaySpeed = (speedInBps/1000).toFixed(2) + " KB/s";
-		}
-		else{
+			displaySpeed = (speedInBps / 1000000000).toFixed(2) + " GB/s";
+		} else if(speedInBps > 1000000){
+			displaySpeed = (speedInBps / 1000000).toFixed(2) + " MB/s";
+		} else if(speedInBps > 1000){
+			displaySpeed = (speedInBps / 1000).toFixed(2) + " KB/s";
+		} else{
 			displaySpeed = speedInBps + " B/s";
 		}
 
@@ -161,21 +167,18 @@ class QueueComponent extends Component {
 		}
 		this.setState({selectedTab: 0});
 	}
-
 	cancelButtonClick(jobID){
 
 	}
-
 	toggleTabs(){
-		if(this.state.selectedTab === 0)
-			this.setState({selectedTab: 1});
-		else
-			this.setState({selectedTab: 0});
+		const { selectedTab } = this.state
+		this.setState({selectedTab: !selectedTab})
 	}
 
 	renderActions(jobID, status, owner){
 		this.infoRowsIds = this.infoRowsIds || [];
 		this.infoRowsIds.push("info_" + jobID);
+		// Convert all these to CSS files
 		return(
 			<div>
 				<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
@@ -207,13 +210,12 @@ class QueueComponent extends Component {
 			</div>
 		);
 	}
-
 	decodeURIComponent(url) {
 	    return decodeURIComponent(url);
 	}
-
-
 	renderTabContent(resp){
+		//XNOTE: unescape the source and destination fields
+		console.log(resp)
 		if(this.state.selectedTab === 0){
 			return(
 				<Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
@@ -310,16 +312,16 @@ class QueueComponent extends Component {
 		this.queueFunc()
   };
 	customToolbar() {
-		return <div class="MuiFormControl-root MuiTextField-root MTableToolbar-searchField-65">
-			<div class="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-formControl MuiInput-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd">
-				<div class="MuiInputAdornment-root MuiInputAdornment-positionStart">
-					<span class="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true" title="Search"></span>
+		return <div className="MuiFormControl-root MuiTextField-root MTableToolbar-searchField-65">
+			<div className="MuiInputBase-root MuiInput-root MuiInput-underline MuiInputBase-formControl MuiInput-formControl MuiInputBase-adornedStart MuiInputBase-adornedEnd">
+				<div className="MuiInputAdornment-root MuiInputAdornment-positionStart">
+					<span className="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true" title="Search"></span>
 				</div>
-				<input aria-invalid="false" class="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd" placeholder="Search" type="text" value=""/>
-				<div class="MuiInputAdornment-root MuiInputAdornment-positionEnd">
-					<button class="MuiButtonBase-root MuiIconButton-root Mui-disabled Mui-disabled" tabindex="-1" type="button" disabled="">
-						<span class="MuiIconButton-label">
-							<span class="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true">
+				<input aria-invalid="false" className="MuiInputBase-input MuiInput-input MuiInputBase-inputAdornedStart MuiInputBase-inputAdornedEnd" placeholder="Search" type="text" value=""/>
+				<div className="MuiInputAdornment-root MuiInputAdornment-positionEnd">
+					<button className="MuiButtonBase-root MuiIconButton-root Mui-disabled Mui-disabled" tabIndex="-1" type="button" disabled="">
+						<span className="MuiIconButton-label">
+							<span className="material-icons MuiIcon-root MuiIcon-fontSizeSmall" aria-hidden="true">
 								clear
 							</span>
 						</span>
@@ -375,7 +377,7 @@ class QueueComponent extends Component {
 	          	</TableRow>
 	        );
 	      	tableRows.push(
-	      	 	<TableRow id={"info_" + resp.job_id} class="rohit" style={{ display: 'none'}}>
+	      	 	<TableRow id={"info_" + resp.job_id} className="rohit" style={{ display: 'none'}}>
 	            	<TableCell colSpan={6} style={{...tbcellStyle, width: '10%',  fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
 	            		<div id="infoBox" style={{ marginBottom : '0.5%' }}>
 		            		<AppBar position="static" style={{ boxShadow: 'unset' }}>
@@ -398,7 +400,8 @@ class QueueComponent extends Component {
 				owner: resp.owner,
 				job_id: resp.job_id,
 				progress: this.getStatus(resp.status, resp.bytes.total, resp.bytes.done),
-				avg_speed: this.renderSpeed(resp.bytes.avg)
+				avg_speed: this.renderSpeed(resp.bytes.avg),
+				start_time: this.getFormattedDate(new Date(resp.times.started))
 			}
 		})
 
@@ -414,6 +417,7 @@ class QueueComponent extends Component {
 					{title: 'Job ID', field: 'job_id'},
 					{title: 'Progress', field: 'progress'},
 					{title: 'Average Speed', field: 'avg_speed'},
+					{title: 'Start Time', field: 'start_time'},
 				]}
 				data={d}
 				options={{

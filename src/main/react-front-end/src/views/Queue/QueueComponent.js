@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue, cancelJob, restartJob, deleteJob, updateJobStatus } from '../../APICalls/APICalls';
+import { cancelJob, restartJob, deleteJob, updateJobStatus, fetchUserJobs } from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
@@ -24,9 +24,10 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
+import moment from 'moment'
 
 import { updateGAPageView } from '../../analytics/ga';
-import { completeStatus } from '../../constants';
+import { completeStatus, jobStatus } from '../../constants';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -45,83 +46,97 @@ const styles = theme => ({
 	}
 })
 
-class QueueComponent extends Component {
+const rowsPerPageOptions = [10, 20, 50, 100]
+const defaultRowsPerPage = 10
 
-	constructor() {
-		super();
+class QueueComponent extends Component {
+	constructor(props) {
+		super(props)
 		this.state = {
 			response: [],
 			responsesToDisplay: [],
 			selectedTab: 0,
 			page: 0,
-			rowsPerPage: 10,
-			rowsPerPageOptions: [10, 20, 50, 100],
+			rowsPerPage: defaultRowsPerPage,
 			order: 'desc',
 			orderBy: 'job_id'
-		};
-		this.queueFunc();
-		this.interval = setInterval(this.update, 2000);    //making a queue request every 2 seconds
-		this.toggleTabs = this.toggleTabs.bind(this);
-		this.queueFunc = this.queueFunc.bind(this);
-		this.update = this.update.bind(this);
+		}
+		this.toggleTabs = this.toggleTabs.bind(this)
+		this.queueFunc = this.queueFunc.bind(this)
+		this.update = this.update.bind(this)
+		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
+		this.queueFuncFail = this.queueFuncFail.bind(this)
 
-		updateGAPageView();
+		this.queueFunc()
+		this.interval = setInterval(this.update, 2000) //making a queue request every 2 seconds
+
+		updateGAPageView()
 	}
-
 	capitalizeFirstLetter = (word) => {
+		// XNOTE: use CSS for this
 		word = word.charAt(0).toUpperCase() + word.substring(1);
 		return word;
 	}
-
 	componentDidMount() {
-		document.title = "OneDataShare - Queue";
+		document.title = "OneDataShare - Queue"
 	}
-
 	componentWillUnmount() {
-		clearInterval(this.interval);
+		clearInterval(this.interval)
 	}
-
-	update = () => {
-		let jobIds = this.state.responsesToDisplay.filter(job => job.status === "transferring" || job.status === "scheduled")
-			.map(job => job.uuid)
+	update() {
+		const { responsesToDisplay } = this.state
+		let jobIds = []
+		responsesToDisplay.forEach(job => {
+			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
+				jobIds.push(job.uuid)
+			}
+		})
 		if (jobIds.length > 0) {
-			updateJobStatus(jobIds, resp => {
-				resp.map(job => {
-					let existingData = [...this.state.responsesToDisplay];
-					let existingJob = existingData.find(item => item.uuid === job.uuid);
-					existingJob.status = job.status;
-					existingJob.bytes.total = job.bytes.total;
-					existingJob.bytes.done = job.bytes.done;
-					existingJob.bytes.avg = job.bytes.avg;
-					this.setState({
-						responsesToDisplay: existingData
+			updateJobStatus(jobIds)
+				.then(resp => {
+					let jobs = resp
+					let existingData = [...responsesToDisplay]
+					jobs.forEach(job => {
+						let existingJob = existingData.find(item => item.uuid === job.uuid)
+						existingJob.status = job.status
+						existingJob.bytes.total = job.bytes.total
+						existingJob.bytes.done = job.bytes.done
+						existingJob.bytes.avg = job.bytes.avg
 					})
+					this.setState({responsesToDisplay: existingData})
 				})
-			}, fail => {
-				console.log('Failed to get job updates')
-			})
+				.catch(resp => {
+					console.log('Failed to get job updates')
+				})
 		}
 	}
-
-	queueFunc = () => {
-		let isHistory = false;
-		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order, (resp) => {
-			//success
-			let responsesToDisplay = [];
-			if (this.state.page === 0) {
-				responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
-			}
-			else {
-				responsesToDisplay = resp.jobs.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage);
-			}
-
-			this.setState({ response: resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount });
-		}, (resp) => {
-			//failed
-			console.log('Error in queue request to API layer')
+	queueFuncSuccess(resp) {
+		const { page, rowsPerPage, orderBy, order } = this.state
+		//success
+		let limit = rowsPerPage
+		let offset = page * rowsPerPage
+		let responsesToDisplay = resp.jobs.slice(offset, limit + offset)
+		this.setState({
+			response: resp.jobs,
+			responsesToDisplay: responsesToDisplay,
+			totalCount: resp.totalCount
 		})
-	};
-
+	}
+	queueFuncFail(resp) {
+		//failed
+		console.log('Error in queue request to API layer');
+	}
+	queueFunc(isHistory = false) {
+		const { page, rowsPerPage, orderBy, order } = this.state
+		fetchUserJobs(
+			page,
+			rowsPerPage,
+			orderBy,
+			order,
+			this.queueFuncSuccess,
+			this.queueFuncFail
+		)
+	}
 	getStatus(status, total, done) {
 		const style = { marginTop: '5%', fontWeight: 'bold' };
 		if (status === 'complete') {
@@ -138,7 +153,6 @@ class QueueComponent extends Component {
 			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
-
 	renderSpeed(speedInBps) {
 		var displaySpeed = "";
 		if (speedInBps > 1000000000) {
@@ -362,18 +376,19 @@ class QueueComponent extends Component {
 
 	render() {
 		const { totalCount, responsesToDisplay } = this.state;
-		const { rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
+		const { rowsPerPage, page, order, orderBy } = this.state;
 		const tbcellStyle = { textAlign: 'center' }
 		const { classes } = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
 			avgSpeed: "bytes.avg",
-			source: "src.uri"
+			source: "src.uri",
+			startTime: 'times.started'
 		}
 		var tableRows = [];
 
-		responsesToDisplay.map(resp => {
+		responsesToDisplay.forEach(resp => {
 			tableRows.push(
 				<TableRow style={{ alignSelf: "stretch" }}>
 					<TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
@@ -387,6 +402,9 @@ class QueueComponent extends Component {
 					</TableCell>
 					<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
 						{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
+					</TableCell>
+					<TableCell id={"queuestarttime" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
+						{moment(resp.times.started).fromNow()}
 					</TableCell>
 					<TableCell id={"queueaction" + tableRows.length / 2} style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
 						{this.renderActions(resp.job_id, resp.status, resp.deleted)}
@@ -458,6 +476,17 @@ class QueueComponent extends Component {
 										direction={order}
 										onClick={() => this.handleRequestSort(sortableColumns.source)}>
 										Source/Destination
+										</TableSortLabel>
+								</Tooltip>
+							</TableCell>
+							<TableCell style={{ ...tbcellStyle, width: '25%', fontSize: '2rem', color: '#31708f' }}>
+								<Tooltip title="Sort on Start Time" placement='bottom-end' enterDelay={300}>
+									<TableSortLabel
+										id="QueueStartTime"
+										active={orderBy === sortableColumns.source}
+										direction={order}
+										onClick={() => this.handleRequestSort(sortableColumns.startTime)}>
+										Start Time
 										</TableSortLabel>
 								</Tooltip>
 							</TableCell>
