@@ -99,4 +99,5 @@ src/main/resources/application-prod.properties
 # UI build files
 src/main/resources/static/
 
-deployScript.sh
+#Package-lock.json
+src/main/react-front-end/package-lock.json
