@@ -47,6 +47,28 @@ import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
 import { updateGAPageView } from '../../analytics/ga'
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import InfoOutlined from '@material-ui/icons/InfoOutlined';
+import { makeStyles } from '@material-ui/core/styles';
+
+const useStylesBootstrap = makeStyles(theme => ({
+	arrow: {
+	  color: theme.palette.common.black,
+	},
+	tooltip: {
+	  color: theme.palette.common.white,
+	  backgroundColor: theme.palette.common.black,
+	  maxWidth: 180,
+	  fontSize: theme.typography.pxToRem(17),
+	},
+  }));
+
+ const BootstrapTooltip = (props) => {
+	const classes = useStylesBootstrap();
+	return <Tooltip arrow={true} classes={classes} {...props} />;
+}
+
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import InputAdornment from '@material-ui/core/InputAdornment';
@@ -76,6 +98,10 @@ export default class UserAccountComponent extends Component {
 			isConfirmPwdVisible: false
 
 		};
+		this.displayText = "When enabled, all your endpoint authentication tokens will be saved by OneDataShare. \
+		OneDataShare does not store any passwords. On disabling this feature, your endpoint authentication tokens \
+		will be saved in your browser session for a limited time and you may have to authenticate your accounts at \
+		regular intervals."
 		getUser(this.state.userEmail, (resp) => {
 			//success
 			this.setState({
@@ -238,7 +264,7 @@ export default class UserAccountComponent extends Component {
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
-							<FormGroup>
+							<FormGroup style={{flexDirection: "row", flexWrap: "nowrap"}}>
 								<FormControlLabel
 									value="new_source"
 									control={
@@ -251,6 +277,11 @@ export default class UserAccountComponent extends Component {
 									}
 									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
+								<BootstrapTooltip title={this.displayText} placement="right">
+									<IconButton aria-label="info-icon">
+										<InfoOutlined />
+									</IconButton>
+								</BootstrapTooltip>
 							</FormGroup>
 						</CardContent>
 					</Card>
