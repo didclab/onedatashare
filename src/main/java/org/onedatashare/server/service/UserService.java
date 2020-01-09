@@ -10,8 +10,7 @@ import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.InvalidField;
-import org.onedatashare.server.model.error.InvalidLoginException;
+import org.onedatashare.server.model.error.InvalidODSCredentialsException;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -59,7 +58,7 @@ public class UserService {
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isCompactViewEnabled()))
-            .switchIfEmpty(Mono.error(new InvalidField("Invalid username or password")))
+            .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
            .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
   }
 
@@ -243,7 +242,7 @@ public class UserService {
   public Mono<Boolean> userLoggedIn(String email, String hash) {
     return getUser(email).map(user -> user.getHash().equals(hash))
             .filter(Boolean::booleanValue)
-            .switchIfEmpty(Mono.error(new InvalidLoginException("Invalid username and password combination")));
+            .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username and password combination")));
   }
 
   public Mono<Object> resendVerificationCode(String email) {
