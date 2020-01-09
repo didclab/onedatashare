@@ -13,13 +13,12 @@ public class GlobalExceptionHandler {
 
     /**
      * Exception handler for Invalid Login
-     * @param ilException : Invalid Exception Object
+     * @param ilException : Invalid ODS Credential Exception Object
      * */
-    @ExceptionHandler(InvalidLoginException.class)
-    public ResponseEntity<String> handle(InvalidLoginException ilException){
+    @ExceptionHandler(InvalidODSCredentialsException.class)
+    public ResponseEntity<String> handle(InvalidODSCredentialsException ilException){
         ODSLoggerService.logError(ilException.toString());
-        return new ResponseEntity<>(ilException.getMessage(), ilException.status);
-    }
+        return new ResponseEntity<>(ilException.toString(), ilException.status);
 
     /**
      * Exception handler for unauthorized operation exception
