@@ -18,6 +18,9 @@ public class TransferInfo {
   /** Instantaneous throughput. */
   public double inst;
 
+  /* I am terrible */
+  public String reason;
+
   /** Update based on the given information. */
   public void update(Time time, Progress p, Throughput tp) {
     done = p.done();

@@ -805,6 +805,12 @@ export async function openGridFtpOAuth(){
 	openOAuth("/api/stork/oauth?type=gridftp");
 }
 
+export async function openBoxOAuth(){
+    openOAuth("api/stork/oauth?type=box");
+}
+
+
+
 export async function openOAuth(url){
 	window.location = url;
 }

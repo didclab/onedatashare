@@ -64,7 +64,9 @@ public class UserService {
   }
 
   public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
-
+    if (!emailService.isValidEmail(email)) {
+        return Mono.error(new InvalidField("Invalid Email id"));
+    }
     return captchaService.verifyValue(captchaVerificationValue)
             .flatMap(captchaVerified-> {
 
@@ -74,8 +76,7 @@ public class UserService {
                   // This would be a same temporary password for each user while creating,
                   // once the user goes through the whole User creation workflow, he/she can change the password.
                   String password = User.salt(20);
-
-                  if(user.getEmail() != null && user.getEmail().equals(email)) {
+                  if(user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
                     ODSLoggerService.logWarning("User with email " + email + " already exists.");
                     if(!user.isValidated()){
                       return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
@@ -83,8 +84,8 @@ public class UserService {
                       return Mono.just(new Response("Account already exists",302));
                     }
                   }
-                  return createUser(new User(email, firstName, lastName, organization, password))
-                          .flatMap(createdUser-> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
+                      return createUser(new User(email, firstName, lastName, organization, password))
+                              .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
                 });
               }
               else{
@@ -92,6 +93,7 @@ public class UserService {
               }
             });
   }
+
 
   public Mono<User> doesUserExists(String email) {
     User user = new User();
@@ -457,6 +459,25 @@ public class UserService {
     return credential;
   }
 
+    public Mono<User> deleteBoxCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
+        //Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
+        return getLoggedInUser(cookie)
+                .flatMap(user -> {
+                    Map<UUID,Credential> credsTemporary = user.getCredentials();
+                    UUID uid = UUID.fromString(userActionCredential.getUuid());
+                    //OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+                        credsTemporary.remove(uid);
+                    if(user.isSaveOAuthTokens()) {
+                        user.setCredentials(credsTemporary);
+                        return userRepository.save(user);
+                    }else{
+                        user.setCredentials(credsTemporary);
+                        return null;
+                    }
+                });
+
+        //return credential;
+    }
 
   public Mono<Void> deleteHistory(String cookie, String uri) {
     return getLoggedInUser(cookie)
