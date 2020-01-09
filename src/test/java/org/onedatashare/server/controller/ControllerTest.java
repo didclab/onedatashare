@@ -21,7 +21,6 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.Stream.of;
 import static org.onedatashare.server.model.core.ODSConstants.*;
-import static org.onedatashare.server.model.core.ODSConstants.HTTP_URI_SCHEME;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 abstract class ControllerTest {
@@ -43,6 +42,9 @@ abstract class ControllerTest {
 
     @MockBean
     HttpFileService httpService;
+
+    @MockBean
+    JobService jobService;
 
     /**
      * Classes of the services that require user authentication in order to process the request
