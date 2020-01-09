@@ -40,17 +40,18 @@ public class QueueController {
                     .subscribeOn(Schedulers.elastic());
     }
 
-    @PostMapping("/userJobs")
-    public Mono<List<Job>> userQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return jobService.getJobsForUserRefactored(cookie, jobDetails);
-    }
-
-    @PostMapping("/adminJobs")
-    public Mono<List<Job>> adminQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return jobService.getJobForAdminRefactored(cookie, jobDetails);
-    }
+// //To be enabled after changing frontend
+//    @PostMapping("/userJobs")
+//    public Mono<List<Job>> userQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
+//        String cookie = headers.getFirst(ODSConstants.COOKIE);
+//        return jobService.getJobsForUserRefactored(cookie, jobDetails);
+//    }
+//
+//    @PostMapping("/adminJobs")
+//    public Mono<List<Job>> adminQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
+//        String cookie = headers.getFirst(ODSConstants.COOKIE);
+//        return jobService.getJobForAdminRefactored(cookie, jobDetails);
+//    }
 
     @PostMapping("/update")
     public Mono<List<Job>> update(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
