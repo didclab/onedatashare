@@ -10,6 +10,7 @@ import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.InvalidODSCredentialsException;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
