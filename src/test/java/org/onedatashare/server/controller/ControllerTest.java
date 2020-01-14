@@ -46,6 +46,9 @@ abstract class ControllerTest {
     @MockBean
     JobService jobService;
 
+    @MockBean
+    BoxService boxService;
+
     /**
      * Classes of the services that require user authentication in order to process the request
      */
