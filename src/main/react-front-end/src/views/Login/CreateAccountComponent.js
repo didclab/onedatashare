@@ -21,6 +21,11 @@ import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 
 import { updateGAPageView } from "../../analytics/ga";
 
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+
 export default class CreateAccountComponent extends Component {
   static propTypes = {
     create: PropTypes.func,
@@ -55,7 +60,9 @@ export default class CreateAccountComponent extends Component {
       canSubmit: false,
       isValidConfirmPassword: true,
       isValidNewPassword: true,
-      passwordErrorMsg: ''
+      passwordErrorMsg: '',
+      isPwdVisible: false,
+      isReEnterPwdVisible: false
     }
     this.firstNameValidationMsg = "Please Enter Your First Name"
     this.lastNameValidationMsg = "Please Enter Your Last Name"
@@ -69,6 +76,8 @@ export default class CreateAccountComponent extends Component {
     updateGAPageView();
     this.handleCaptchaEvent = this.handleCaptchaEvent.bind(this);
     this.resetCaptcha = this.resetCaptcha.bind(this);
+    this.handleShowPassword = this.handleShowPassword.bind(this);
+    this.handleHidePassword = this.handleHidePassword.bind(this);
   }
 
   registerAccount() {
@@ -160,6 +169,20 @@ export default class CreateAccountComponent extends Component {
     }
   }
 
+  handleShowPassword(field) {
+		switch(field){
+			case 'enter': 
+        this.setState({isPwdVisible: true});
+        break;
+		  case 'reenter': 
+				this.setState({isReEnterPwdVisible: true}); 
+				break;
+    }
+	}
+
+	handleHidePassword() {
+		this.setState({isPwdVisible: false, isReEnterPwdVisible: false});
+	}
 
   render() {
     const { emailError, emailErrorMessage, email, firstNameError,
@@ -334,20 +357,46 @@ export default class CreateAccountComponent extends Component {
           <TextField
             id="Password"
             label="Password"
-            type="password"
+            type={this.state.isPwdVisible ? "text" : "password"}
             value={this.state.password}
             error={!this.state.isValidNewPassword}
             style={{ width: '100%', marginBottom: '30px' }}
             onChange={checkPassword('password')}
+            InputProps={{
+              endAdornment: <React.Fragment>
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onMouseDown={() => this.handleShowPassword('enter')}
+                    onMouseUp={this.handleHidePassword}
+                  >
+                  {this.state.isPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+                  </IconButton>
+                </InputAdornment>
+                </React.Fragment>
+            }}
           />
           <TextField
             id="Cpassword"
-            type="password"
+            type={this.state.isReEnterPwdVisible ? "text" : "password"}
             label={"Confirm Password"}
             value={this.state.cpassword}
             style={{ width: '100%', marginBottom: '30px' }}
             onChange={checkPassword("cpassword")}
             error={!this.state.isValidConfirmPassword}
+            InputProps={{
+              endAdornment: <React.Fragment>
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onMouseDown={() => this.handleShowPassword('reenter')}
+                    onMouseUp={this.handleHidePassword}
+                  >
+                  {this.state.isReEnterPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+                  </IconButton>
+                </InputAdornment>
+                </React.Fragment>
+            }}
           />
           <PasswordRequirementsComponent
             showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
