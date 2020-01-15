@@ -52,6 +52,11 @@ import Tooltip from '@material-ui/core/Tooltip';
 import InfoOutlined from '@material-ui/icons/InfoOutlined';
 import { makeStyles } from '@material-ui/core/styles';
 
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+
+
 const useStylesBootstrap = makeStyles(theme => ({
 	arrow: {
 	  color: theme.palette.common.black,
@@ -69,10 +74,6 @@ const useStylesBootstrap = makeStyles(theme => ({
 	return <Tooltip arrow={true} classes={classes} {...props} />;
 }
 
-import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
-import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import IconButton from '@material-ui/core/IconButton';
 
 export default class UserAccountComponent extends Component {
 	constructor() {
