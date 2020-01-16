@@ -43,6 +43,9 @@ public class UserService {
   @Autowired
   CaptchaService captchaService;
 
+  @Autowired
+  JWTService jwtService;
+
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
   }
@@ -54,8 +57,15 @@ public class UserService {
 
   final int TIMEOUT_IN_MINUTES = 1440;
 
-  public Mono<User.UserLogin> login(String email, String password) {
+  public Mono<String> login2(String email, String password){
+      return getUser(User.normalizeEmail(email))
+              .filter(usr -> usr.getHash().equals(usr.hash(password)))
+              .map(user -> jwtService.generateToken(user));
+//      return null;
+  }
 
+  public Mono<User.UserLogin> login(String email, String password) {
+    //TODO: Fix two calls to the database in the saveLastActivity
     return getUser(User.normalizeEmail(email))
             .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
             .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isCompactViewEnabled()))
@@ -184,6 +194,7 @@ public class UserService {
     return userRepository.findById(email)
             .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
   }
+
   public Mono<User> getUserFromCookie(String email, String cookie) {
     return  getLoggedInUser(cookie).flatMap(user->{
             if(user != null && user.getEmail().equals(email)){
