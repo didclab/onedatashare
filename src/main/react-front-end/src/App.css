@@ -39,3 +39,35 @@
   display: flex;
   justify-content:"space-between"
 }
+
+.homePage {
+  background: #579;
+  padding-left: 15vw;
+  padding-right: 15vw
+}
+
+.homePage > h1 {
+  color: #ffffff;
+  font-size: 4em;
+  font-style: oblique;
+  padding-top: 3vh;
+}
+
+.homePage > h1 ~ p {
+  font-size: 2em;
+  font-style: italic
+}
+
+.homeRow {
+  padding-top: 4vh;
+  padding-bottom: 4vh;
+}
+
+.homeRow h2 {
+  color: #d9eff6;
+  font-size: 2em;
+}
+
+.homeRow h2 ~ p {
+  font-size: 1.25em;
+}

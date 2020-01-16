@@ -13,7 +13,7 @@ import Col from "react-bootstrap/lib/Col";
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
 const rowStyle = {background: '#579', padding: '4vw', width: '100%', margin: 0};
-const homeStyle = {padding: '3vw'};
+const homeStyle = {background: '#579', padding: '10vw'};
 const subHeaderStyle = {...textStyle, fontSize: '2em'}
 const subTextStyle = {...textStyle, fontSize: '1.1em'}
 
@@ -102,71 +102,72 @@ export default class HomePageComponent extends Component {
 		}
 
 		return(
-			<div style={homeStyle}>
+			<div>
+				<div className='homePage'>
 
-				<h1>OneDataShare</h1>
-				<p> Reliable and fast data movement in the cloud </p>
+					<h1>OneDataShare</h1>
+					<p> Reliable and fast data movement in the cloud </p>
 
-				<Row>
-					<Col xs={12} md={8}>
-						<h2> Fast, Secure, and Flexible Data Sharing Made Easy </h2>
-						<p> Harnesses the power of the cloud and implements state-of-the-art frameworks to optimize
-							data transfer scheduling. Enhances the speed of data transfer through multiple protocols by enabling
-							faster data transfer across the network. OneDataShare utilizes the available bandwidth to the
-							fullest by using many optimization mechanisms, thereby speeding up data transfer and lowering
-							cost.</p>
-					</Col>
-					<Col xs={6} md={4}>
-						<img width={'300px'} className="image-center" src={fastImage} style={{float: 'left'}}
-							 alt="Fast, Scalable, and Flexible Data Sharing Made Easy" />
-					</Col>
-				</Row>
+					<Row className='homeRow'>
+						<Col xs={12} md={8}>
+							<h2> Fast, Secure, and Flexible Data Sharing Made Easy </h2>
+							<p> Harnesses the power of the cloud and implements state-of-the-art frameworks to optimize
+								data transfer scheduling. Enhances the speed of data transfer through multiple protocols by enabling
+								faster data transfer across the network. OneDataShare utilizes the available bandwidth to the
+								fullest by using many optimization mechanisms, thereby speeding up data transfer and lowering
+								cost.</p>
+						</Col>
+						<Col xs={6} md={4}>
+							<img width={'300px'} className="image-center" src={fastImage} style={{float: 'left'}}
+								 alt="Fast, Scalable, and Flexible Data Sharing Made Easy" />
+						</Col>
+					</Row>
 
-				<Row>
-					<Col xs={6} md={4}>
-						<img width={'300px'} className="image-center" src={intopImage} style={{float: 'left'}}
-							 alt="Interoperation Across Heterogeneous Data Resources" />
-					</Col>
-					<Col xs={12} md={8}>
-						<h2>Interoperation Across Heterogeneous Data Resources</h2>
-						<p>By using OneDatashare, users can transfer their data across multiple protocols and platforms without
-							having to worry about protocol translation. OneDataShare takes care of the protocol translation
-							across multiple users ends and it provides a user-friendly field to translate data across multiple
-							instances and ensures effective compatibility and platform independence as data gets transferred
-							from the newest to the oldest protocols and vice versa.</p>
-					</Col>
-				</Row>
+					<Row className='homeRow'>
+						<Col xs={6} md={4}>
+							<img width={'300px'} className="image-center" src={intopImage} style={{float: 'left'}}
+								 alt="Interoperation Across Heterogeneous Data Resources" />
+						</Col>
+						<Col xs={12} md={8}>
+							<h2>Interoperation Across Heterogeneous Data Resources</h2>
+							<p>By using OneDatashare, users can transfer their data across multiple protocols and platforms without
+								having to worry about protocol translation. OneDataShare takes care of the protocol translation
+								across multiple users ends and it provides a user-friendly field to translate data across multiple
+								instances and ensures effective compatibility and platform independence as data gets transferred
+								from the newest to the oldest protocols and vice versa.</p>
+						</Col>
+					</Row>
 
-				<Row>
-					<Col xs={12} md={8}>
-						<h2>Decreased Uncertainty in Real-time Decision-Making Processes.</h2>
-						<p> Delays over transmission of large data sets are eliminated by using OneDataShare. The desirable data
-							delivery throughput of OneDataShare will alleviate the issue of a long time of data transfer. Hence
-							users will be able to experience faster data deposits across long distances which will, in turn,
-							speed up their other processes regarding usage of the data. Also, it will provide the users with
-							upfront information regarding their data transfers and arrivals, thereby enabling them to prepare
-							in advance for data transfer and scheduling.</p>
-					</Col>
-					<Col xs={6} md={4}>
-						<img width={'300px'} className="image-center" src={precImage} style={{float: 'left'}}
-							 alt="Decreased Uncertainty in Real-time Decision-Making Processes" />
-					</Col>
-				</Row>
+					<Row className='homeRow'>
+						<Col xs={12} md={8}>
+							<h2>Decreased Uncertainty in Real-time Decision-Making Processes.</h2>
+							<p> Delays over transmission of large data sets are eliminated by using OneDataShare. The desirable data
+								delivery throughput of OneDataShare will alleviate the issue of a long time of data transfer. Hence
+								users will be able to experience faster data deposits across long distances which will, in turn,
+								speed up their other processes regarding usage of the data. Also, it will provide the users with
+								upfront information regarding their data transfers and arrivals, thereby enabling them to prepare
+								in advance for data transfer and scheduling.</p>
+						</Col>
+						<Col xs={6} md={4}>
+							<img width={'300px'} className="image-center" src={precImage} style={{float: 'left'}}
+								 alt="Decreased Uncertainty in Real-time Decision-Making Processes" />
+						</Col>
+					</Row>
 
-				<Row>
-					<Col xs={6} md={4}>
-						<img width={'300px'} className="image-center" src={eteImage} style={{float: 'left'}}
-							 alt="End-to-end Data Sharing Solution" />
-					</Col>
-					<Col xs={12} md={8}>
-						<h2>End-to-end Data Sharing Solution</h2>
-						<p> OneDataShare is capable of transferring high-volume data of data like real-time weather predictions
-							and conditions and natural disasters to sharing genomic maps and consumer behavior statistics for
-							business intelligence, climate change data or geographic data from any Management Information
-							System (MIS) from anywhere in the world.</p>
-					</Col>
-				</Row>
-
+					<Row className='homeRow'>
+						<Col xs={6} md={4}>
+							<img width={'300px'} className="image-center" src={eteImage} style={{float: 'left'}}
+								 alt="End-to-end Data Sharing Solution" />
+						</Col>
+						<Col xs={12} md={8}>
+							<h2>End-to-end Data Sharing Solution</h2>
+							<p> OneDataShare is capable of transferring high-volume data of data like real-time weather predictions
+								and conditions and natural disasters to sharing genomic maps and consumer behavior statistics for
+								business intelligence, climate change data or geographic data from any Management Information
+								System (MIS) from anywhere in the world.</p>
+						</Col>
+					</Row>
+				</div>
 				<Row className="imagecentercontainer" style={{...rowStyle, backgroundColor: 'white' }}>
 					<img width={'100px'} src={nsfImage} style={{float: 'left'}} alt="NSF Logo"></img>
 					<img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo"></img>
