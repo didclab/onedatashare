@@ -9,6 +9,8 @@ import './HomePageComponent.css';
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import {homeInfo} from "./HomePage/HomePageInfo.js";
 import Col from "react-bootstrap/lib/Col";
+import Transfer from "../assets/mockups/transfer.png";
+import Queue from "../assets/mockups/queue.png";
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
@@ -109,7 +111,7 @@ export default class HomePageComponent extends Component {
 					<p> Reliable and fast data movement in the cloud </p>
 
 					<Row className='homeRow'>
-						<Col xs={12} md={8}>
+						<Col xs={10} md={7}>
 							<h2> Fast, Secure, and Flexible Data Sharing Made Easy </h2>
 							<p> Harnesses the power of the cloud and implements state-of-the-art frameworks to optimize
 								data transfer scheduling. Enhances the speed of data transfer through multiple protocols by enabling
@@ -117,18 +119,18 @@ export default class HomePageComponent extends Component {
 								fullest by using many optimization mechanisms, thereby speeding up data transfer and lowering
 								cost.</p>
 						</Col>
-						<Col xs={6} md={4}>
-							<img width={'300px'} className="image-center" src={fastImage} style={{float: 'left'}}
+						<Col xs={8} md={5} style={{justifyContent: 'left', alignItems: 'left'}}>
+							<img width={'500px'} src={Transfer}
 								 alt="Fast, Scalable, and Flexible Data Sharing Made Easy" />
 						</Col>
 					</Row>
 
 					<Row className='homeRow'>
-						<Col xs={6} md={4}>
-							<img width={'300px'} className="image-center" src={intopImage} style={{float: 'left'}}
+						<Col xs={8} md={5} style={{justifyContent: 'right', alignItems: 'right'}}>
+							<img width={'500px'} src={Queue}
 								 alt="Interoperation Across Heterogeneous Data Resources" />
 						</Col>
-						<Col xs={12} md={8}>
+						<Col xs={10} md={7}>
 							<h2>Interoperation Across Heterogeneous Data Resources</h2>
 							<p>By using OneDatashare, users can transfer their data across multiple protocols and platforms without
 								having to worry about protocol translation. OneDataShare takes care of the protocol translation
