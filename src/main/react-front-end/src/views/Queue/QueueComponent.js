@@ -170,7 +170,6 @@ class QueueComponent extends Component {
 
 		return displaySpeed;
 	}
-
 	infoButtonOnClick(jobID) {
 		var row = document.getElementById("info_" + jobID);
 		if (this.selectedJobInfo === jobID && row.style.display !== "none") {
@@ -184,8 +183,6 @@ class QueueComponent extends Component {
 			this.selectedJobInfo = jobID;
 		}
 	}
-
-
 	cancelButtonOnClick(jobID) {
 		cancelJob(jobID, (resp) => {
 			//success
@@ -195,7 +192,6 @@ class QueueComponent extends Component {
 			console.log('Error in cancel request to API layer');
 		});
 	}
-
 	restartButtonOnClick(jobID) {
 		restartJob(jobID, (resp) => {
 			//success
@@ -207,7 +203,6 @@ class QueueComponent extends Component {
 			eventEmitter.emit("errorOccured", msg);
 		});
 	}
-
 	deleteButtonOnClick(jobID) {
 		deleteJob(jobID, (resp) => {
 			//success
@@ -217,18 +212,15 @@ class QueueComponent extends Component {
 			console.log('Error in delete job request to API layer');
 		});
 	}
-
 	getFormattedDate(d) {
 		return (1 + d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
 	}
-
 	toggleTabs() {
 		if (this.state.selectedTab === 0)
 			this.setState({ selectedTab: 1 });
 		else
 			this.setState({ selectedTab: 0 });
 	}
-
 	renderActions(jobID, status, deleted) {
 		return (
 			<div >
@@ -278,7 +270,6 @@ class QueueComponent extends Component {
 			</div>
 		);
 	}
-
 	renderTabContent(resp) {
 		var scheduledDate = new Date(resp.times.scheduled);
 		var startedDate = new Date(resp.times.started);

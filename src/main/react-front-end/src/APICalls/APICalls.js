@@ -355,7 +355,28 @@ export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fai
 /*
 	Desc: Fetch all transfers. Only for Admins
 */
+
 export async function fetchAllJobs(owner, pageNo, pageSize, sortBy, order, accept, fail) {
+	var callback = accept;
+	axios.post(url+'q', {
+		status: 'all',
+		owner: owner,
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+		.then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
+}
+
+export async function fetchJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
 	axios.post(url+'q', {
 		status: 'all',
