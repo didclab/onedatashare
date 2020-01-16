@@ -1,18 +1,22 @@
 import React, {Component} from "react";
 
-const {sliceTit, sliceDesc} = props;
 
 export default class HomeInfoSlice extends Component {
 
+    sliceTit;
+    sliceDesc;
+
     constructor(props) {
         super(props);
+        this.sliceTit = props.title;
+        this.sliceDesc = props.description;
     }
 
     render() {
         return (
             <div>
-                <h1>{sliceTit}</h1>
-                <p>{sliceDesc}</p>
+                <h1>{this.sliceTit}</h1>
+                <p>{this.sliceDesc}</p>
             </div>
         )
     }
