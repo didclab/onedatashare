@@ -16,9 +16,10 @@ public class GlobalExceptionHandler {
      * @param ilException : Invalid ODS Credential Exception Object
      * */
     @ExceptionHandler(InvalidODSCredentialsException.class)
-    public ResponseEntity<String> handle(InvalidODSCredentialsException ilException){
+    public ResponseEntity<String> handle(InvalidODSCredentialsException ilException) {
         ODSLoggerService.logError(ilException.toString());
         return new ResponseEntity<>(ilException.toString(), ilException.status);
+    }
 
     /**
      * Exception handler for unauthorized operation exception
