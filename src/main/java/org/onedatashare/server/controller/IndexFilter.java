@@ -1,7 +1,6 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
