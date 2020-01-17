@@ -12,6 +12,7 @@ import {
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
+import cookie from 'react-cookies';
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
@@ -62,7 +63,7 @@ export default class OauthProcessComponent extends Component {
   }
 
   updateLocalCredStore(protocolType, qsObj) {
-    let creds = cookies.get(protocolType) || 0;
+    let creds = cookie.load(protocolType) || 0;
     if (creds !== 0) {
       let parsedJSON = JSON.parse(creds);
       let accountId = qsObj.name.split(":+")[1];
@@ -75,10 +76,10 @@ export default class OauthProcessComponent extends Component {
         );
       } else {
         parsedJSON.push({ name: accountId, token: oAuthToken, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime });
-        cookies.set(protocolType, JSON.stringify(parsedJSON));
+        cookie.load(protocolType, JSON.stringify(parsedJSON));
       }
     } else {
-      cookies.set(
+      cookie.save(
         protocolType,
         JSON.stringify([
           { name: qsObj.name.split(":+")[1], token: qsObj.token, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime }

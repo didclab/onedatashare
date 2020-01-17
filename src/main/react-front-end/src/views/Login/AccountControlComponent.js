@@ -10,11 +10,15 @@ import CreateAccountComponent from './CreateAccountComponent';
 import ValidateEmailComponent from './ValidateEmailComponent';
 import ForgotPasswordComponent from './ForgotPasswordComponent';
 
+import cookie from 'react-cookies';
+
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { login } from '../../APICalls/APICalls.js';
 
 import './AccountControlComponent.css';
+
+
 
 import {
 	transferPageUrl,
@@ -38,16 +42,16 @@ export default class AccountControlComponent extends Component {
   	});
 
 
-    const cookieSaved = cookies.get('SavedUsers') || 0;
+    const cookieSaved = cookie.load('SavedUsers') || 0;
 		const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
     this.newLogin = <SavedLoginComponent
 					accounts={rememberMeAccounts}
 					login={(email) => {
-						const user = JSON.parse(cookies.get('SavedUsers'))[email];
+						const user = JSON.parse(cookie.load('SavedUsers'))[email];
 						this.userLogin(email, user.hash, false);
 					}}
 					removedAccount={(accounts) => {
-						cookies.set('SavedUsers', JSON.stringify(accounts));
+						cookie.save('SavedUsers', JSON.stringify(accounts));
 						this.setState({loading: false, accounts: accounts, signIn:true});
 					}}
 					useAnotherAccount={() => {
@@ -96,7 +100,7 @@ export default class AccountControlComponent extends Component {
   userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
   	this.state.rememberMeAccounts[email] = { hash: hash };
 	if(remember){
-		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
+		cookie.save('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
 	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
 	//this.setState({authenticated : true});

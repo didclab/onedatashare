@@ -36,6 +36,7 @@ import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import cookie from 'react-cookies';
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -287,7 +288,7 @@ export default class EndpointBrowseComponent extends Component {
 				
 				let type = getName(endpoint);
 				let cred = endpoint.credential;
-				let savedCreds = cookies.get(type);
+				let savedCreds = cookie.load(type);
 
 				// Delete the creds from the cookie if they exist
 				if(savedCreds !== undefined){
@@ -296,10 +297,10 @@ export default class EndpointBrowseComponent extends Component {
 																	return curObj.name !== cred.name;
 															});
 					if(filteredCredsArr.length === 0){
-						cookies.remove(type);
+						cookie.remove(type);
 					}
 					else{
-						cookies.set(type, JSON.stringify(filteredCredsArr));
+						cookie.save(type, JSON.stringify(filteredCredsArr));
 					}	
 				}
 

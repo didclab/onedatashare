@@ -22,6 +22,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
+import cookie from 'react-cookies';
 
 import JSEncrypt from 'jsencrypt';
 
@@ -97,15 +98,15 @@ export default class EndpointAuthenticateComponent extends Component {
 	deleteCredentialFromLocal(cred, type){
 		this.props.setLoading(true);
 
-		let parsedCredsArr = JSON.parse(cookies.get(type));
+		let parsedCredsArr = JSON.parse(cookie.load(type));
 		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
 														return curObj.name !== cred.name;
 												});
 		if(filteredCredsArr.length === 0){
-			cookies.remove(type);
+			cookie.remove(type);
 		}
 		else{
-			cookies.set(type, JSON.stringify(filteredCredsArr));
+			cookie.save(type, JSON.stringify(filteredCredsArr));
 		}
 
 		this.setState({credList: filteredCredsArr});

@@ -13,6 +13,7 @@ import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import { maxCookieAge } from '../constants';
+import cookie from 'react-cookies';
 
 export const cookies = require("js-cookie");
 export const beforeLogin = 0;
@@ -20,21 +21,21 @@ export const duringLogin = 1;
 export const afterLogin = 2;
 
 const initialState = {
-	login: cookies.get('email') ? true : false,
+  login: cookie.load('email') ? true : false,
 	admin: false,
-	email: cookies.get('email') || "noemail" ,
-  hash: cookies.get('hash') || null,
-	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
-  saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
+  email: cookie.load('email') || "noemail",
+  hash: cookie.load('hash') || null,
+  compactViewEnabled: cookie.load('compactViewEnabled')==='true' || false,
+  saveOAuthTokens: (cookie.load('saveOAuthTokens') !== undefined)? JSON.parse(cookie.load('saveOAuthTokens')) : false,
 
-	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
-		login: false,
-		credential: {},
-		uri: "",
+  endpoint1: cookie.load('endpoint1') ? JSON.parse(cookie.load('endpoint1')) : {
+    login: false,
+    credential: {},
+    uri: "",
     side: "left"
-	},
+  },
 
-	endpoint2: cookies.get('endpoint2') ? JSON.parse(cookies.get('endpoint2')) : {
+	endpoint2: cookie.load('endpoint2') ? JSON.parse(cookie.load('endpoint2')) : {
     login: false,
 		credential: {},
 		uri: "",
@@ -62,10 +63,10 @@ export function onedatashareModel(state = initialState, action) {
    		const {email, hash, saveOAuthTokens, compactViewEnabled} = action.credential;
       console.log('logging in', email);
 
-      cookies.set('email', email, { expires : maxCookieAge });
-		  cookies.set('hash', hash, { expires : maxCookieAge });
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-			cookies.set('compactViewEnabled', compactViewEnabled);
+      cookie.save('email', email, { expires : maxCookieAge });
+		  cookie.save('hash', hash, { expires : maxCookieAge, secure : true, httpOnly : true });
+      cookie.save('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge, secure: true });
+			cookie.save('compactViewEnabled', compactViewEnabled);
 
     	return Object.assign({}, state, {
     		login: true,
@@ -77,15 +78,16 @@ export function onedatashareModel(state = initialState, action) {
 
     case LOGOUT:
       console.log("logging out");
-      cookies.remove('email');
-      cookies.remove('hash');
-      cookies.remove('admin');
-      cookies.remove('endpoint1');
-      cookies.remove('endpoint2');
-      cookies.remove('saveOAuthTokens');
-      cookies.remove(DROPBOX_NAME);
-      cookies.remove(GOOGLEDRIVE_NAME);
-			cookies.remove('compactViewEnabled');
+
+      cookie.remove('email');
+      cookie.remove('hash');
+      cookie.remove('admin');
+      cookie.remove('endpoint1');
+      cookie.remove('endpoint2');
+      cookie.remove('saveOAuthTokens');
+      cookie.remove(DROPBOX_NAME);
+      cookie.remove(GOOGLEDRIVE_NAME);
+			cookie.remove('compactViewEnabled');
       window.location.replace('/');
 
       return Object.assign({}, state, {
@@ -113,35 +115,35 @@ export function onedatashareModel(state = initialState, action) {
 
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge }));
+        cookie.save('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge, secure : true }));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { expires : maxCookieAge });
+        cookie.save('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { expires : maxCookieAge, secure : true });
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
 
     case UPDATE_HASH:
-      cookies.remove('hash');
-      cookies.set('hash',  action.hash, { expires : maxCookieAge });
+      cookie.remove('hash');
+      cookie.save('hash',  action.hash, { expires : maxCookieAge, secure : true, httpOnly : true });
       return Object.assign({}, state, {
                 hash: action.hash
               });
 		case COMPACT_VIEW_PREFERENCE:
-			cookies.set('compactViewEnabled', action.compactViewEnabled);
+      cookie.save('compactViewEnabled', action.compactViewEnabled);
 			return Object.assign({}, state, {
 								compactViewEnabled: action.compactViewEnabled
 							});
 
     case ACCOUNT_PREFERENCE_TOGGLED:
-      cookies.set('saveOAuthTokens', action.saveOAuthTokens);
+      cookie.save('saveOAuthTokens', action.saveOAuthTokens);
       // logout From the endpoints
-      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
-      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
+      cookie.save('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
+      cookie.save('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
       return Object.assign({}, state, {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },

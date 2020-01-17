@@ -5,8 +5,9 @@ import Axios from "axios";
 
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
-
+import cookie from 'react-cookies';
 import { cookies } from "../model/reducers.js";
+
 const FETCH_TIMEOUT = 10000;
 
 
@@ -534,11 +535,11 @@ export async function getDownload(uri, credential){
 	}
 
 	const jsonStr = JSON.stringify(json_to_send);
-	cookies.set("CX", jsonStr, { expires : 1});
+	cookie.save("CX", jsonStr, { expires : 1});
 
 	window.location = url + "download/file";
 	setTimeout(() => {
-		cookies.remove("CX");
+		cookie.remove("CX");
 	  }, 5000);
 }
 
