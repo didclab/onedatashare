@@ -206,7 +206,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             InputStream finalInputStream = inputStream;
             return Flux.generate(
-                    () -> 0,
+                    () -> 0L,
                     (state, sink) -> {
                         if (state + sliceSizeInt < size) {
                             byte[] b = new byte[sliceSizeInt];
