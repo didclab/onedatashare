@@ -21,6 +21,7 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.*;
 import static java.util.stream.Stream.of;
 import static org.onedatashare.server.model.core.ODSConstants.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 abstract class ControllerTest {
@@ -115,7 +116,15 @@ abstract class ControllerTest {
     }
 
     static MockHttpServletRequestBuilder jsonPostRequestOf(Object requestData, String url) {
-        return post(url)
+        return jsonRequestOf(post(url), requestData);
+    }
+
+    static MockHttpServletRequestBuilder getRequestOf(String url) {
+        return get(url);
+    }
+
+    private static MockHttpServletRequestBuilder jsonRequestOf(MockHttpServletRequestBuilder request, Object requestData) {
+        return request
                 .content(toJson(requestData))
                 .contentType(MediaType.APPLICATION_JSON);
     }
