@@ -110,6 +110,7 @@ export default class HomePageComponent extends Component {
 					<h1>OneDataShare</h1>
 					<p> Reliable and fast data movement in the cloud </p>
 
+
 					<Row className='homeRow'>
 						<Col xs={10} md={7}>
 							<h2> Fast, Secure, and Flexible Data Sharing Made Easy </h2>
