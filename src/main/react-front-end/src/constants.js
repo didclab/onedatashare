@@ -21,6 +21,8 @@ export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
 export const policyUrl = "/policy"
 
+export const loginEndpoint = "/loginpoint";
+
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";

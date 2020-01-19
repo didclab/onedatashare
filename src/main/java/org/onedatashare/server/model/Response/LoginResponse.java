@@ -1,17 +1,18 @@
 package org.onedatashare.server.model.Response;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.onedatashare.server.model.core.User;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class LoginResponse {
     private String email;
     private String token;
     private boolean saveOAuthTokens;
     private boolean isAdmin;
     private boolean compactViewEnabled;
-
-    private LoginResponse(){}
 
     public static LoginResponse LoginResponseFromUser(User user, String token){
         LoginResponse loginResponse = new LoginResponse();

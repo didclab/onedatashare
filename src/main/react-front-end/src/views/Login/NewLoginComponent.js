@@ -62,16 +62,22 @@ export default class NewLoginComponent extends Component {
 		const { isLoading } = this.props;
 		isLoading(true);
 
-	    checkLogin(this.state.email,
-	    	(success)=>{
-	    		isLoading(false);
-	    		this.setState({emailChecked: true});
-	    	},
-	    	(error)=>{
-	    		isLoading(false);
-	    		this.setState({emailChecked: false, error: true, errorMessage: "Email not found or server error."});
-	    	}
-	    );
+		//Added temporarily
+		isLoading(false);
+		this.setState({emailChecked: true});
+		//
+
+		//TODO: Temporarily disabling email check for testing. Re-enable this option
+	    // checkLogin(this.state.email,
+	    // 	(success)=>{
+	    // 		isLoading(false);
+	    // 		this.setState({emailChecked: true});
+	    // 	},
+	    // 	(error)=>{
+	    // 		isLoading(false);
+	    // 		this.setState({emailChecked: false, error: true, errorMessage: "Email not found or server error."});
+	    // 	}
+	    // );
 	}
 
 	onSignInClicked(){

@@ -1,4 +1,4 @@
-import { url } from '../constants';
+import { url, loginEndpoint } from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -181,8 +181,7 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 export async function login(email, password, accept, fail){
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'login',
+	axios.post(loginEndpoint, {
 	    email: email,
 	    password: password,
 	}).then((response) => {

@@ -19,15 +19,16 @@ class NavbarComponent extends Component {
 			admin: store.getState().admin
 		};
 		if (this.state.login) {
-			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin) => {
-				if (userIsAdmin) {
-					store.dispatch(isAdminAction())
-				} else {
-					console.log("not admin")
-				}
-			}, (error) => {
-				console.log(error);
-			});
+			console.log("isAdmin???", store.getState().admin);
+			// isAdmin(store.getState().email, store.getState().hash, (userIsAdmin) => {
+			// 	if (userIsAdmin) {
+			// 		store.dispatch(isAdminAction())
+			// 	} else {
+			// 		console.log("not admin")
+			// 	}
+			// }, (error) => {
+			// 	console.log(error);
+			// });
 		}
 		this.unsubscribe = store.subscribe(()=>{
 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
