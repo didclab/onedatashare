@@ -22,6 +22,7 @@ export const termsUrl = "/terms";
 export const policyUrl = "/policy"
 
 export const authencationEndpoint = "/authenticate";
+export const registrationEndpoint = "/register";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";

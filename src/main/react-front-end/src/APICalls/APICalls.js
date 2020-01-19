@@ -1,4 +1,4 @@
-import { url, authencationEndpoint } from '../constants';
+import { url, authencationEndpoint, registrationEndpoint } from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -793,7 +793,7 @@ export async function openOAuth(url){
 
 export async function registerUser(requestBody, errorCallback) {
 
-	return axios.post(url+'user', {action: "register", ...requestBody})
+	return axios.post(registrationEndpoint, requestBody)
 				.then((response) => {
 						if(response.data && response.data.status && response.data.status === 302) {
 							console.log("User already exists");
