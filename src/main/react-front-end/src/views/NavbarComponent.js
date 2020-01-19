@@ -18,18 +18,7 @@ class NavbarComponent extends Component {
 			email: store.getState().email,
 			admin: store.getState().admin
 		};
-		if (this.state.login) {
-			console.log("isAdmin???", store.getState().admin);
-			// isAdmin(store.getState().email, store.getState().hash, (userIsAdmin) => {
-			// 	if (userIsAdmin) {
-			// 		store.dispatch(isAdminAction())
-			// 	} else {
-			// 		console.log("not admin")
-			// 	}
-			// }, (error) => {
-			// 	console.log(error);
-			// });
-		}
+		
 		this.unsubscribe = store.subscribe(()=>{
 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
@@ -64,6 +53,7 @@ class NavbarComponent extends Component {
 			        	<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
 			    	</NavDropdown>
 		    	}
+				
 		    </Nav>}
 
 		    <Nav pullRight>

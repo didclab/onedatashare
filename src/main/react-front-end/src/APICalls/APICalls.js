@@ -1,4 +1,4 @@
-import { url, loginEndpoint } from '../constants';
+import { url, authencationEndpoint } from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -181,7 +181,7 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 export async function login(email, password, accept, fail){
 	var callback = accept;
 
-	axios.post(loginEndpoint, {
+	axios.post(authencationEndpoint, {
 	    email: email,
 	    password: password,
 	}).then((response) => {
@@ -190,7 +190,6 @@ export async function login(email, password, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-
       statusHandle(error, fail);
     });
 }

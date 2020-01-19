@@ -1,4 +1,4 @@
-package org.onedatashare.server.model.Response;
+package org.onedatashare.server.model.response;
 
 import lombok.AccessLevel;
 import lombok.Data;

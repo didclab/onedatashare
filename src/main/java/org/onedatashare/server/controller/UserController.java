@@ -38,10 +38,6 @@ public class UserController {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     UserAction userAction = UserAction.convertToUserAction(userRequestData);
     switch(userAction.getAction()) {
-      case "token":
-        return userService.login2(userAction.getEmail(), userAction.getPassword());
-      case "login":
-        return userService.login(userAction.getEmail(), userAction.getPassword());
       case "register":
         return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
                                       userAction.getOrganization(), userAction.getCaptchaVerificationValue());
