@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
+import org.onedatashare.server.model.Response.LoginResponse;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
@@ -57,11 +58,11 @@ public class UserService {
 
   final int TIMEOUT_IN_MINUTES = 1440;
 
-  public Mono<String> login2(String email, String password){
+  public Mono<LoginResponse> login2(String email, String password){
       return getUser(User.normalizeEmail(email))
               .filter(usr -> usr.getHash().equals(usr.hash(password)))
-              .map(user -> jwtService.generateToken(user));
-//      return null;
+              .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
+              .map(user -> LoginResponse.LoginResponseFromUser(user, jwtService.generateToken(user)));
   }
 
   public Mono<User.UserLogin> login(String email, String password) {
