@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import com.google.gson.Gson;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.*;
@@ -65,6 +66,7 @@ abstract class ControllerTest {
                 put(ResourceServiceImpl.class, DRIVE_URI_SCHEME);
                 put(HttpFileService.class, HTTP_URI_SCHEME);
                 put(VfsService.class, FTP_URI_SCHEME);
+                put(BoxService.class, BOX_URI_SCHEME);
             }});
 
     /**
