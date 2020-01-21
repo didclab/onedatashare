@@ -1,27 +1,63 @@
 import React, {Component} from "react";
-import {fastImage} from "../../constants";
-
+import Hidden from "@material-ui/core/Hidden";
+import Grid from "@material-ui/core/Grid";
 
 export default class HomeInfoSlice extends Component {
 
-    sliceTit;
-    sliceDesc;
-    img;
-
     constructor(props) {
         super(props);
-        this.sliceTit = props.title;
-        this.sliceDesc = props.description;
-        this.img = props.image;
+    }
+
+    makeWideView() {
+        if (this.props.imgOnLeft) {
+            return (
+                <Grid container direction='row'>
+                    <Grid container xs={3}>
+                        <img width={'500px'} src={this.props.img} alt={this.props.altImgTxt} />
+                    </Grid>
+                    <Grid container xs={9}>
+                        <h2>{this.props.title}</h2>
+                        <p>{this.props.text}</p>
+                    </Grid>
+                </Grid>
+            );
+        }
+        return (
+            <Grid container direction='row'>
+                <Grid container xs={9}>
+                    <h2>{this.props.title}</h2>
+                    <p>{this.props.text}</p>
+                </Grid>
+                <Grid container xs={3}>
+                    <img width={'500px'} src={this.props.img} alt={this.props.altImgTxt}/>
+                </Grid>
+            </Grid>
+        );
+
     }
 
     render() {
+        let wideView = this.makeWideView();
+
         return (
             <div>
-                <img width={'300px'} className="image-center" src={this.img} style={{float: 'left'}} alt={this.sliceTit} />
-                <h1>{this.sliceTit}</h1>
-                <p>{this.sliceDesc}</p>
+                {/* This renders desktop view */}
+                <Hidden smDown>
+                    {wideView}
+                </Hidden>
+                {/* This renders mobile view */}
+                <Hidden mdUp>
+                    <Grid container direction='column'>
+                        <Grid container xs={12}>
+                            <img width={'500px'} src={this.props.img} alt={this.props.altImgTxt} />
+                        </Grid>
+                        <Grid container xs={12}>
+                            <h2>{this.props.title}</h2>
+                            <p>{this.props.text}</p>
+                        </Grid>
+                    </Grid>
+                </Hidden>
             </div>
-        )
+        );
     }
 };
