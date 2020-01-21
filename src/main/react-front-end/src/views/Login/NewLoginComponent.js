@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';

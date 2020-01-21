@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { fetchJobsForAdmin } from '../../APICalls/APICalls';
-import { humanReadableSpeed } from './../../utils' 
-import moment from 'moment'
+import { humanReadableSpeed } from '../../utils';
+import moment from 'moment';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';

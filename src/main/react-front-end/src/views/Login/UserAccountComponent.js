@@ -446,6 +446,8 @@ export default class UserAccountComponent extends Component {
 			case 'confirm': 
 				this.setState({isConfirmPwdVisible: true}); 
 				break;
+			default:
+				break;
 		}
 		this.setState({isPasswordVisible: true});
 	}
