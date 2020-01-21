@@ -1,6 +1,6 @@
 const homeInfo1 =
     {
-        title: "Fast, Scalable, and Flexible Data Sharing Made Easy",
+        title: "Fast, Secure, and Flexible Data Sharing Made Easy",
         text: "OneDataShare harnesses the power of the cloud and implements state-of-the-art frameworks to optimize " +
             "data transfer scheduling. It enhances the speed of data transfer via multiple protocols by enabling " +
             "faster data transfer across the network. OneDataShare utilizes the available bandwidth to the fullest " +
@@ -28,7 +28,7 @@ const homeInfo3 =
             "multiple users ends and it provides a user-friendly field to translate data across multiple instances " +
             "and ensures effective compatibility and platform independence as data gets transferred from the newest " +
             "to the oldest protocols and vice versa.",
-        img: "",
+        img: "/mockups/transfer.png",
         imgAltTxt: ""
     };
 
@@ -41,7 +41,7 @@ const homeInfo4 =
             "up their other processes regarding usage of the data. Also, it will provide the users with upfront " +
             "information regarding their data transfers and arrivals, thereby enabling them to prepare in advance " +
             "for data transfer and scheduling.",
-        img: "",
+        img: "/mockups/queue.png",
         imgAlt: ""
     };
 
@@ -52,7 +52,7 @@ const homeInfo5 =
             "and conditions and natural disasters to sharing genomic maps and consumer behavior statistics for " +
             "business intelligence, climate change data or geographic data from any Management Information System " +
             "(MIS) from anywhere in the world.",
-        img: "",
+        img: "/mockups/transfer.png",
         imgAlt: ""
     };
 

@@ -58,11 +58,6 @@
   font-style: italic
 }
 
-.homeInfoSlice {
-  padding-top: 4vh;
-  padding-bottom: 4vh;
-}
-
 .homeInfoSlice h2 {
   color: #d9eff6;
   font-size: 4em;
@@ -70,4 +65,9 @@
 
 .homeInfoSlice h2 ~ p {
   font-size: 1.25em;
+}
+
+img.homeImg {
+  max-width: 100%;
+  object-fit: contain;
 }

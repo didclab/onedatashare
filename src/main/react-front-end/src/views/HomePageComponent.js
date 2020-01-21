@@ -27,7 +27,7 @@ export default class HomePageComponent extends Component {
 			retVal.push( <HomeInfoSlice imgOnLeft={left}
 										title={data.title}
 										text ={data.text}
-										img={data.img}
+										img={require('./HomePage' + data.img)}
 										imgAltTxt={data.imgAltTxt} /> );
 		}
 		return retVal;
