@@ -34,7 +34,7 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 import { eventEmitter } from "../../App";
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE,AMAZONS3_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {

@@ -3,10 +3,11 @@ import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList,
 		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
 		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, 
+import {     	DROPBOX_TYPE, 
 				GOOGLEDRIVE_TYPE, 
 				FTP_TYPE, 
 				SFTP_TYPE, 
+				AMAZONS3_TYPE,
 				GRIDFTP_TYPE, 
 				HTTP_TYPE, 
 				SCP_TYPE, 
@@ -464,7 +465,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		let loginUri = "sftp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === HTTP_TYPE){
+					}else if(loginType === AMAZONS3_TYPE){
+						let loginUri="amazons3"
+		        		this.setState({settingAuth: true,authFunction : this.regularSignIn, needPassword: true});
+					}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
@@ -500,27 +504,27 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	<GlobusEndpointListingComponent close={endpointModalClose} endpointAdded={this.endpointModalAdd}/>
         	</Modal>
 		    {settingAuth &&
-
+				
 		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
 		    		this.setState({settingAuth: false})}
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
-		    	{loginType !== GRIDFTP_TYPE && 
+				{loginType !== GRIDFTP_TYPE && loginType !==AMAZONS3_TYPE &&
 		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
 								onError={errors => console.log(errors)}>
-
+						
 			    		<TextValidator
-								required
+							required
 					  		style={{width: "80%"}}
-			          id={endpoint.side+"LoginURI"}
-			          label="Url"
-			          value={this.state.url}
-			          onChange={this.handleUrlChange('url')}
-			          margin="normal"
+							id={endpoint.side+"LoginURI"}
+							label="Url"
+							value={this.state.url}
+							onChange={this.handleUrlChange('url')}
+							margin="normal"
 					  		variant="outlined"
 					  		autoFocus={true}
 					  		onKeyPress={(e) => {
@@ -551,7 +555,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        </div>
 		    	}	
 
-		      {needPassword &&
+		      {needPassword && loginType!==AMAZONS3_TYPE &&
 		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 
 							<ValidatorForm
@@ -560,7 +564,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        
 								<TextValidator
 					  			required
-			    	  		style={{width: "100%"}}
+			    	  				style={{width: "100%"}}
 									id={endpoint.side+"LoginUsername"}
 									label="Username"
 									value={this.state.username}
@@ -595,7 +599,49 @@ export default class EndpointAuthenticateComponent extends Component {
 							</ValidatorForm>
 			      </div>
 					}
-					
+					 {needPassword && loginType===AMAZONS3_TYPE &&
+		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+
+							<ValidatorForm
+								ref="form"
+								onError={errors => console.log(errors)}>
+			        
+								<TextValidator
+					  			required
+			    	  				style={{width: "100%"}}
+									id={endpoint.side+"LoginUsername"}
+									label="ClientID"
+									value={this.state.username}
+									onChange={this.handleChange('ClientID')}
+									margin="normal"
+									variant="outlined"
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+								/>
+
+			        	<TextValidator
+					  			required
+			    	  		style={{width: "100%"}}
+									id={endpoint.side+"AWS Secret"}
+									label="AWS Secret"
+									type="password"
+									value={this.state.password}
+									onChange={this.handleChange('AWS Secret')}
+									margin="normal"
+									variant="outlined"
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+			        	/>
+
+							</ValidatorForm>
+			      </div>
+					}
 					<Button 
 						id={endpoint.side + "LoginAuth"}  
 						ref={input => this.inputElement = input} 

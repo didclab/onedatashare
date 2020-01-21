@@ -15,7 +15,7 @@ import Icon from '@material-ui/core/Icon';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
+import {AMAZONS3_TYPE,DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -55,7 +55,7 @@ export default class BrowseModuleComponent extends Component {
 			mode: props.mode,
 			loading: false,
 			oneSideIsLoggedInAsGridftp: checkIfOneSideIsLoggedInAsGrid(constructState),
-			gridftpIsOpen: checkIfGridftpIsOpen(constructState)
+			gridftpIsOpen: checkIfGridftpIsOpen(constructState),
 		};
 
 		this.unsubcribe = store.subscribe(() => {
@@ -74,7 +74,7 @@ export default class BrowseModuleComponent extends Component {
 		this.credentialTypeExistsThenDo = this.credentialTypeExistsThenDo.bind(this);
 		this._handleError = this._handleError.bind(this);
 	}
-
+	
 	setLoading(bool){
 		this.setState({loading: bool});
 	};
@@ -138,7 +138,6 @@ export default class BrowseModuleComponent extends Component {
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-
 		const loginPrep = (uri) => (data) => {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
@@ -162,6 +161,13 @@ export default class BrowseModuleComponent extends Component {
 	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
+				<Button id={endpoint.side + "AmazonS3"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+		      		loginPrep(AMAZONS3_TYPE)();
+		      	}}>
+		      		<Icon className={'fab fa-amazon'} style={iconStyle}/>
+		      		AmazonS3
+		      	</Button>
+				
 	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
 		      	}}>

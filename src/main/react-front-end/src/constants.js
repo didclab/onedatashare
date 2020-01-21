@@ -23,6 +23,7 @@ export const policyUrl = "/policy"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
+export const AMAZONS3_TYPE="amazons3://"
 export const GOOGLEDRIVE_TYPE = "googledrive:/";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
@@ -32,6 +33,7 @@ export const HTTPS_TYPE = "https://";
 export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
+export const AMAZONS3_NAME="AMAZONS3"
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
@@ -40,6 +42,7 @@ export const GRIDFTP_NAME = "GridFTP";
 export const SCP_NAME = "SCP";
 
 export const DROPBOX = "dropbox";
+export const AMAZONS3="amazons3"
 export const GOOGLEDRIVE = "googledrive";
 export const FTP = "ftp";
 export const SFTP = "sftp";
@@ -78,6 +81,7 @@ export const completeStatus = "complete";
 
 export const showText = {
 	dropbox: DROPBOX_NAME,
+	amazons3: AMAZONS3_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
@@ -89,6 +93,7 @@ export const showText = {
 
 export const showType = {
 	dropbox: DROPBOX_TYPE,
+	amazons3: AMAZONS3_TYPE,
 	googledrive: GOOGLEDRIVE_TYPE,
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
@@ -101,6 +106,7 @@ export const showType = {
 export const defaultPort = {
 	dropbox: -1,
 	googledrive: -1,
+	amazonS3:-1,
 	ftp: 21,
 	sftp: 22,
 	http: 80,
@@ -121,10 +127,14 @@ export function getDefaultPortFromUri(uri) {
 }
 
 export function getTypeFromUri(uri) {
+
 	return showType[uri.split(":")[0].toLowerCase()]
 }
 
 export function getName(endpoint) {
+	let a=endpoint.uri.split(":")[0].toLowerCase();
+	let b=showText[a]; 	
+	let c=showText[endpoint.uri.split(":")[0].toLowerCase()]
 	return showText[endpoint.uri.split(":")[0].toLowerCase()]
 }
 
