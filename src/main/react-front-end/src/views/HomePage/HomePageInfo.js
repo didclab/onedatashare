@@ -5,7 +5,7 @@ const homeInfo1 =
             "data transfer scheduling. It enhances the speed of data transfer via multiple protocols by enabling " +
             "faster data transfer across the network. OneDataShare utilizes the available bandwidth to the fullest " +
             "by using many optimization mechanisms, thereby speeding up data transfer and lowering cost.",
-        img: "./mockups/transfer.png",
+        img: "/mockups/transfer.png",
         imgAlt: "Mockup of OneDataShare Transfer page"
     };
 
@@ -16,7 +16,7 @@ const homeInfo2 =
             "performance of data-intensive applications relying on remote data sources. It provides an end-to-end " +
             "data transfer architecture which is reliable, fast and effective. The users are capable of reducing the " +
             "burden of data transfer time through the use of OneDataShare.",
-        img: "./mockups/queue.png",
+        img: "/mockups/queue.png",
         imgAlt:"Mockup of OneDataShare Transfer page"
     };
 

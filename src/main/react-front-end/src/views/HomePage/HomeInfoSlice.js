@@ -40,7 +40,7 @@ export default class HomeInfoSlice extends Component {
         let wideView = this.makeWideView();
 
         return (
-            <div>
+            <div className='HomeInfoSlice'>
                 {/* This renders desktop view */}
                     {wideView}
                 {/* This renders mobile view */}

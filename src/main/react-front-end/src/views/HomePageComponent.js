@@ -1,21 +1,12 @@
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
 import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
 import { isSafari } from 'react-device-detect';
-import { fastImage, easyImage, eteImage, precImage, intopImage, nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
+import { nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 import './HomePageComponent.css';
 import Grid from "@material-ui/core/Grid";
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
-
-const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
-const sideStyle = {...textStyle, fontSize: '1.5em'};
-const rowStyle = {background: '#579', padding: '4vw', width: '100%', margin: 0};
-const homeStyle = {background: '#579', padding: '10vw'};
-const subHeaderStyle = {...textStyle, fontSize: '2em'};
-const subTextStyle = {...textStyle, fontSize: '1.1em'};
-
 
 export default class HomePageComponent extends Component {
 
