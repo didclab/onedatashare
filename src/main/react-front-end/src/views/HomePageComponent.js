@@ -6,6 +6,8 @@ import { isSafari } from 'react-device-detect';
 import { fastImage, easyImage, eteImage, precImage, intopImage, nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 import './HomePageComponent.css';
 import Grid from "@material-ui/core/Grid";
+import {HomeInfo} from "./HomePage/HomePageInfo";
+import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
@@ -26,7 +28,23 @@ export default class HomePageComponent extends Component {
 		document.title = "OneDataShare";
 	}
 
+	makeInfoSlices(){
+		let retVal = [];
+		for (let i=0; i<HomeInfo.length; i+=1) {
+			let data = HomeInfo[i];
+			let left = i % 2;
+			retVal.push( <HomeInfoSlice imgOnLeft={left}
+										title={data.title}
+										text ={data.text}
+										img={data.img}
+										imgAltTxt={data.imgAltTxt} /> );
+		}
+		return retVal;
+	}
+
 	render() {
+
+		let homeInfo = this.makeInfoSlices();
 
 		let bgImgS1 = ODS_S3_BUCKET + 's1.webp';
 		let bgImgS2 = ODS_S3_BUCKET + 's2.webp';
@@ -51,8 +69,9 @@ export default class HomePageComponent extends Component {
 				<p> Reliable and fast data movement in the cloud </p>
 
 				<div className='homeSlices'>
-
+					{homeInfo}
 				</div>
+
 				<Grid container
 					  direction='row'
 					  justify='center'
@@ -62,7 +81,7 @@ export default class HomePageComponent extends Component {
 						<img width={'100px'} src={nsfImage} style={{float: 'left'}} alt="NSF Logo" />
 					</Grid>
 					<Grid container alignItems='center' xs={12} md={6}>
-					<img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo" />
+						<img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo" />
 					</Grid>
 				</Grid>
 

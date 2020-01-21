@@ -13,7 +13,7 @@ export default class HomeInfoSlice extends Component {
             return (
                 <Grid container direction='row'>
                     <Grid container xs={3}>
-                        <img width={'500px'} src={this.props.img} alt={this.props.altImgTxt} />
+                        <img width={'500px'} src={this.props.img} alt={this.props.imgAltTxt} />
                     </Grid>
                     <Grid container xs={9}>
                         <h2>{this.props.title}</h2>
@@ -42,9 +42,7 @@ export default class HomeInfoSlice extends Component {
         return (
             <div>
                 {/* This renders desktop view */}
-                <Hidden smDown>
                     {wideView}
-                </Hidden>
                 {/* This renders mobile view */}
                 <Hidden mdUp>
                     <Grid container direction='column'>
