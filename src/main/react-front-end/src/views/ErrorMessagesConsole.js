@@ -51,7 +51,7 @@ export default class ErrorMessagesConsole extends Component {
 				}}
 				
 			>
-				{errorMessages.map((msg, i) => <p key={i} style={{color: msg.color}}>{msg.msg}</p>)}
+				{errorMessages.map(msg => <p style={{color: msg.color}}>{msg.msg}</p>)}
 				<p ref={(msgsList) => { this.messagesEnd = msgsList; }}> ></p>
 			</div>
 			);

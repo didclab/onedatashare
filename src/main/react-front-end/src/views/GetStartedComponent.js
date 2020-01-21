@@ -58,7 +58,7 @@ export default class GetStartedComponent extends Component{
 
         let carouselItemStyle = { width : '100%', textAlign : 'center'}
         var carouselItems = [];
-        this.data.forEach(item =>{
+        this.data.map(item =>{
             carouselItems.push(
                 <Carousel.Item style={ carouselItemStyle }>
                     <div style={{ fontSize: '2em', color: 'white' }}>

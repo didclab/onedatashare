@@ -116,12 +116,6 @@ export const defaultPort = {
 
 export const maxCookieAge = 7;
 
-export const jobStatus = {
-	COMPLETED: 'completed',
-	TRANSFERRING: 'transferring',
-	SCHEDULED: 'scheduled',
-	FAILED: 'failed'
-}
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)
