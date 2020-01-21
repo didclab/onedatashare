@@ -37,13 +37,13 @@
 
 .flexSpacebetween {
   display: flex;
-  justify-content:"space-between"
 }
 
-.homePage {
+div.homePage {
   background: #579;
   padding-left: 15vw;
-  padding-right: 15vw
+  padding-right: 15vw;
+  padding-top: 7vh;
 }
 
 .homePage > h1 {

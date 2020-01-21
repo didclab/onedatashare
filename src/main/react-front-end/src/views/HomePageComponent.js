@@ -7,6 +7,7 @@ import './HomePageComponent.css';
 import Grid from "@material-ui/core/Grid";
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
+import {Hidden} from "@material-ui/core";
 
 export default class HomePageComponent extends Component {
 
@@ -56,8 +57,14 @@ export default class HomePageComponent extends Component {
 		return(
 			<div className='homePage'>
 
-				<h1>OneDataShare</h1>
+				<Hidden smDown>
+					<h1>OneDataShare</h1>
+				</Hidden>
+				<Hidden mdUp>
+					<h1>OneData<br/> Share</h1>
+				</Hidden>
 				<p> Reliable and fast data movement in the cloud </p>
+				<Button variant="contained">Get Started</Button>
 
 				<div className='homeSlices'>
 					{homeInfo}
