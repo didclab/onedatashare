@@ -24,7 +24,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
-import moment from 'moment'
 
 import { updateGAPageView } from '../../analytics/ga';
 import { completeStatus, jobStatus } from '../../constants';
@@ -59,7 +58,8 @@ class QueueComponent extends Component {
 			page: 0,
 			rowsPerPage: defaultRowsPerPage,
 			order: 'desc',
-			orderBy: 'job_id'
+			orderBy: 'job_id',
+			totalCount: 0
 		}
 		this.toggleTabs = this.toggleTabs.bind(this)
 		this.queueFunc = this.queueFunc.bind(this)
@@ -111,7 +111,7 @@ class QueueComponent extends Component {
 		}
 	}
 	queueFuncSuccess(resp) {
-		const { page, rowsPerPage, orderBy, order } = this.state
+		const { page, rowsPerPage } = this.state
 		//success
 		let limit = rowsPerPage
 		let offset = page * rowsPerPage
@@ -381,29 +381,30 @@ class QueueComponent extends Component {
 
 		responsesToDisplay.forEach(resp => {
 			tableRows.push(
-				<TableRow style={{ alignSelf: "stretch" }}>
-					<TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
+				<TableRow key={`${resp.owner}-${resp.job_id}`} style={{ alignSelf: "stretch" }}>
+					<TableCell scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
 						{resp.job_id}
 					</TableCell>
-					<TableCell id={"queueprocess" + tableRows.length / 2} style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
 						{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
 					</TableCell>
-					<TableCell id={"queuespeed" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
 						{this.renderSpeed(resp.bytes.inst)}
 					</TableCell>
-					<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
+					<TableCell style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
 						{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 					</TableCell>
-					<TableCell id={"queuestarttime" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
-						{moment(resp.times.started).fromNow()}
-					</TableCell>
-					<TableCell id={"queueaction" + tableRows.length / 2} style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
 						{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 					</TableCell>
 				</TableRow>
 			);
 			tableRows.push(
-				<TableRow id={"info_" + resp.job_id} style={{ display: 'none' }}>
+				<TableRow
+					key={`info-${resp.owner}-${resp.job_id}`}
+					id={"info_" + resp.job_id}
+					style={{ display: 'none' }}
+				>
 					<TableCell colSpan={5} style={{ ...tbcellStyle, width: '10%', fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
 						<div id="infoBox" style={{ marginBottom: '0.5%' }}>
 							<AppBar position="static" style={{ boxShadow: 'unset' }}>
@@ -470,17 +471,6 @@ class QueueComponent extends Component {
 										</TableSortLabel>
 								</Tooltip>
 							</TableCell>
-							<TableCell style={{ ...tbcellStyle, width: '25%', fontSize: '2rem', color: '#31708f' }}>
-								<Tooltip title="Sort on Start Time" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										id="QueueStartTime"
-										active={orderBy === sortableColumns.source}
-										direction={order}
-										onClick={() => this.handleRequestSort(sortableColumns.startTime)}>
-										Start Time
-										</TableSortLabel>
-								</Tooltip>
-							</TableCell>
 							<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>Actions</TableCell>
 						</TableRow>
 					</TableHead>
@@ -491,7 +481,7 @@ class QueueComponent extends Component {
 						<TableRow>
 							<TablePagination
 								rowsPerPageOptions={rowsPerPageOptions}
-								colSpan={3}
+								colSpan={5}
 								count={totalCount}
 								rowsPerPage={rowsPerPage}
 								page={page}
