@@ -32,6 +32,14 @@ public class ODSConstants {
 
     public static final String AUTH_ENDPOINT = "/authenticate";
     public static final String REGISTRATION_ENDPOINT = "/register";
+    public static final String VERIFICATION_ENDPOINT = "/verifyemail";
+    public static final String SEND_VERIFICATION_ENDPOINT = "/sendverification";
+
+    public static final String[] OPEN_ENDPOINTS = new String[]{
+            AUTH_ENDPOINT, REGISTRATION_ENDPOINT, VERIFICATION_ENDPOINT, SEND_VERIFICATION_ENDPOINT
+    };
+
+    public static final int TOKEN_TIMEOUT_IN_MINUTES = 1440;
 
     public static final long TRANSFER_SLICE_SIZE = 1<<20;
 

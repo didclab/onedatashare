@@ -78,6 +78,7 @@ public class UserService {
     if (!emailService.isValidEmail(email)) {
         return Mono.error(new InvalidField("Invalid Email id"));
     }
+
     return captchaService.verifyValue(captchaVerificationValue)
             .flatMap(captchaVerified-> {
 

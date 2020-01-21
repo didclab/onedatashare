@@ -1,5 +1,6 @@
 package org.onedatashare.server.config;
 
+import org.onedatashare.server.controller.RegistrationController;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -8,6 +9,8 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
+
+import static org.onedatashare.server.model.core.ODSConstants.OPEN_ENDPOINTS;
 
 @EnableWebFluxSecurity
 ////@EnableReactiveMethodSecurity
@@ -20,6 +23,7 @@ public class ApplicationSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 //Permit loginPoint
                 .pathMatchers("/api/stork/**").authenticated()
+                .pathMatchers(OPEN_ENDPOINTS).permitAll()
                 //TODO: Check if this setting is secure
                 .pathMatchers("/**").permitAll()
                 .and()

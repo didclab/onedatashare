@@ -1,4 +1,4 @@
-import { url, authencationEndpoint, registrationEndpoint } from '../constants';
+import { url, authencationEndpoint, registrationEndpoint, verifyEmailEndpoint } from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -190,6 +190,7 @@ export async function login(email, password, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
+
       statusHandle(error, fail);
     });
 }
@@ -817,8 +818,7 @@ export async function registerUser(requestBody, errorCallback) {
 
 
 export async function verifyRegistraionCode(emailId, code) {
-    return axios.post(url+'user', {
-    	    action: "verifyCode",
+    return axios.post(verifyEmailEndpoint, {
     	    email : emailId,
     	    code : code
     	})

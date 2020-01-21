@@ -38,15 +38,15 @@ public class UserController {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     UserAction userAction = UserAction.convertToUserAction(userRequestData);
     switch(userAction.getAction()) {
-      case "register":
-        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
-                                      userAction.getOrganization(), userAction.getCaptchaVerificationValue());
+//      case "register":
+//        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
+//                                      userAction.getOrganization(), userAction.getCaptchaVerificationValue());
       case "validate":
         return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
         return userService.saveHistory(userAction.getUri(), cookie);
-      case "verifyEmail":
-        return userService.verifyEmail(userAction.getEmail());
+//      case "verifyEmail":
+//        return userService.verifyEmail(userAction.getEmail());
       case "sendVerificationCode":
         return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
       case "getUser":

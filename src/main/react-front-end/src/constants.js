@@ -23,6 +23,8 @@ export const policyUrl = "/policy"
 
 export const authencationEndpoint = "/authenticate";
 export const registrationEndpoint = "/register";
+export const verifyEmailEndpoint = "/verifyemail";
+export const sendVerificationEndpoint = "/sendVerificationCode";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
