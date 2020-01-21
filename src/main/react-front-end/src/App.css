@@ -1,3 +1,8 @@
+/************************************/
+/*                                  */
+/*    Comes with create-react-app   */
+/*                                  */
+/************************************/
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -23,6 +28,12 @@
   to { transform: rotate(360deg); }
 }
 
+/*******************************************/
+/*                                         */
+/*    Before revision and used on master   */
+/*                                         */
+/*******************************************/
+
 .navbar_navbar{
   width: 100%;
 }
@@ -39,24 +50,52 @@
   display: flex;
 }
 
-div.homePage {
-  background: #579;
+/***************************/
+/*                         */
+/*    For the Entire App   */
+/*                         */
+/***************************/
+
+.content {
+}
+
+.underNav {
+  padding-top: 9vh;
   padding-left: 15vw;
   padding-right: 15vw;
-  padding-top: 7vh;
+}
+
+/*********************************/
+/*                               */
+/*    For HomePageComponent.js   */
+/*                               */
+/*********************************/
+
+div.homePage {
+  background: #579;
+  overflow: hidden;
+  /*padding-left: 15vw;*/
+  /*padding-right: 15vw;*/
+  /*padding-top: 9v;*/
 }
 
 .homePage > h1 {
   color: #ffffff;
-  font-size: 4em;
+  font-size: 4vw;
   font-style: oblique;
   padding-top: 3vh;
 }
 
 .homePage > h1 ~ p {
-  font-size: 2em;
+  font-size: 2vw;
   font-style: italic
 }
+
+/**************************************/
+/*                                    */
+/*    For HomePage/HomeInfoSlice.js   */
+/*                                    */
+/**************************************/
 
 .HomeInfoSlice {
   padding-top: 2em;
@@ -65,14 +104,23 @@ div.homePage {
 
 .HomeInfoSlice h2 {
   color: #d9eff6;
-  font-size: 2em;
+  font-size: 2vw;
 }
 
 .HomeInfoSlice h2 ~ p {
-  font-size: 1.25em;
+  font-size: 1.25vw;
 }
 
-img.homeImg {
-  max-width: 100%;
+.homeImg{
+  max-width: 175%;
   object-fit: contain;
+}
+
+.homeImgLeft {
+  position: relative;
+  right: 15vw;
+}
+
+.homeImgRight {
+  margin-left: 10vw;
 }

@@ -55,7 +55,7 @@ export default class HomePageComponent extends Component {
 		}
 
 		return(
-			<div className='homePage'>
+			<div className='homePage underNav'>
 
 				<Hidden smDown>
 					<h1>OneDataShare</h1>
@@ -64,7 +64,7 @@ export default class HomePageComponent extends Component {
 					<h1>OneData<br/> Share</h1>
 				</Hidden>
 				<p> Reliable and fast data movement in the cloud </p>
-				<Button variant="contained">Get Started</Button>
+				<Button className='defaultButton' variant="contained" size='large'>Get Started</Button>
 
 				<div className='homeSlices'>
 					{homeInfo}

@@ -14,7 +14,7 @@ export default class HomeInfoSlice extends Component {
             return (
                 <Grid container direction='row'>
                     <Grid container xs={3}>
-                        <img className='homeImg' src={this.props.img} alt={this.props.imgAltTxt} />
+                        <img className='homeImg homeImgLeft' src={this.props.img} alt={this.props.imgAltTxt} />
                     </Grid>
                     <Grid container xs={9}>
                         <h2>{this.props.title}</h2>
@@ -30,7 +30,7 @@ export default class HomeInfoSlice extends Component {
                     <p>{this.props.text}</p>
                 </Grid>
                 <Grid container xs={3}>
-                    <img className='homeImg' src={this.props.img} alt={this.props.altImgTxt}/>
+                    <img className='homeImg homeImgRight' src={this.props.img} alt={this.props.altImgTxt}/>
                 </Grid>
             </Grid>
         );
