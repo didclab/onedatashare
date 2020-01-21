@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { queue, cancelJob, restartJob, deleteJob, updateJobStatus } from '../../APICalls/APICalls';
+import { cancelJob, restartJob, deleteJob, updateJobStatus, fetchUserJobs } from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
@@ -26,7 +26,7 @@ import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
 
 import { updateGAPageView } from '../../analytics/ga';
-import { completeStatus } from '../../constants';
+import { completeStatus, jobStatus } from '../../constants';
 
 import { withStyles } from '@material-ui/core';
 const styles = theme => ({
@@ -45,83 +45,98 @@ const styles = theme => ({
 	}
 })
 
-class QueueComponent extends Component {
+const rowsPerPageOptions = [10, 20, 50, 100]
+const defaultRowsPerPage = 10
 
-	constructor() {
-		super();
+class QueueComponent extends Component {
+	constructor(props) {
+		super(props)
 		this.state = {
 			response: [],
 			responsesToDisplay: [],
 			selectedTab: 0,
 			page: 0,
-			rowsPerPage: 10,
-			rowsPerPageOptions: [10, 20, 50, 100],
+			rowsPerPage: defaultRowsPerPage,
 			order: 'desc',
-			orderBy: 'job_id'
-		};
-		this.queueFunc();
-		this.interval = setInterval(this.update, 2000);    //making a queue request every 2 seconds
-		this.toggleTabs = this.toggleTabs.bind(this);
-		this.queueFunc = this.queueFunc.bind(this);
-		this.update = this.update.bind(this);
+			orderBy: 'job_id',
+			totalCount: 0
+		}
+		this.toggleTabs = this.toggleTabs.bind(this)
+		this.queueFunc = this.queueFunc.bind(this)
+		this.update = this.update.bind(this)
+		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
+		this.queueFuncFail = this.queueFuncFail.bind(this)
 
-		updateGAPageView();
+		this.queueFunc()
+		this.interval = setInterval(this.update, 2000) //making a queue request every 2 seconds
+
+		updateGAPageView()
 	}
-
 	capitalizeFirstLetter = (word) => {
+		// XNOTE: use CSS for this
 		word = word.charAt(0).toUpperCase() + word.substring(1);
 		return word;
 	}
-
 	componentDidMount() {
-		document.title = "OneDataShare - Queue";
+		document.title = "OneDataShare - Queue"
 	}
-
 	componentWillUnmount() {
-		clearInterval(this.interval);
+		clearInterval(this.interval)
 	}
-
-	update = () => {
-		let jobIds = this.state.responsesToDisplay.filter(job => job.status === "transferring" || job.status === "scheduled")
-			.map(job => job.uuid)
+	update() {
+		const { responsesToDisplay } = this.state
+		let jobIds = []
+		responsesToDisplay.forEach(job => {
+			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
+				jobIds.push(job.uuid)
+			}
+		})
 		if (jobIds.length > 0) {
-			updateJobStatus(jobIds, resp => {
-				resp.map(job => {
-					let existingData = [...this.state.responsesToDisplay];
-					let existingJob = existingData.find(item => item.uuid === job.uuid);
-					existingJob.status = job.status;
-					existingJob.bytes.total = job.bytes.total;
-					existingJob.bytes.done = job.bytes.done;
-					existingJob.bytes.avg = job.bytes.avg;
-					this.setState({
-						responsesToDisplay: existingData
+			updateJobStatus(jobIds)
+				.then(resp => {
+					let jobs = resp
+					let existingData = [...responsesToDisplay]
+					jobs.forEach(job => {
+						let existingJob = existingData.find(item => item.uuid === job.uuid)
+						existingJob.status = job.status
+						existingJob.bytes.total = job.bytes.total
+						existingJob.bytes.done = job.bytes.done
+						existingJob.bytes.avg = job.bytes.avg
 					})
+					this.setState({responsesToDisplay: existingData})
 				})
-			}, fail => {
-				console.log('Failed to get job updates')
-			})
+				.catch(resp => {
+					console.log('Failed to get job updates')
+				})
 		}
 	}
-
-	queueFunc = () => {
-		let isHistory = false;
-		queue(isHistory, this.state.page, this.state.rowsPerPage, this.state.orderBy, this.state.order, (resp) => {
-			//success
-			let responsesToDisplay = [];
-			if (this.state.page === 0) {
-				responsesToDisplay = resp.jobs.slice(0, this.state.rowsPerPage);
-			}
-			else {
-				responsesToDisplay = resp.jobs.slice(this.state.rowsPerPage, 2 * this.state.rowsPerPage);
-			}
-
-			this.setState({ response: resp.jobs, responsesToDisplay: responsesToDisplay, totalCount: resp.totalCount });
-		}, (resp) => {
-			//failed
-			console.log('Error in queue request to API layer')
+	queueFuncSuccess(resp) {
+		const { page, rowsPerPage } = this.state
+		//success
+		let limit = rowsPerPage
+		let offset = page * rowsPerPage
+		let responsesToDisplay = resp.jobs.slice(offset, limit + offset)
+		this.setState({
+			response: resp.jobs,
+			responsesToDisplay: responsesToDisplay,
+			totalCount: resp.totalCount
 		})
-	};
-
+	}
+	queueFuncFail(resp) {
+		//failed
+		console.log('Error in queue request to API layer');
+	}
+	queueFunc(isHistory = false) {
+		const { page, rowsPerPage, orderBy, order } = this.state
+		fetchUserJobs(
+			page,
+			rowsPerPage,
+			orderBy,
+			order,
+			this.queueFuncSuccess,
+			this.queueFuncFail
+		)
+	}
 	getStatus(status, total, done) {
 		const style = { marginTop: '5%', fontWeight: 'bold' };
 		if (status === 'complete') {
@@ -138,7 +153,6 @@ class QueueComponent extends Component {
 			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
-
 	renderSpeed(speedInBps) {
 		var displaySpeed = "";
 		if (speedInBps > 1000000000) {
@@ -156,7 +170,6 @@ class QueueComponent extends Component {
 
 		return displaySpeed;
 	}
-
 	infoButtonOnClick(jobID) {
 		var row = document.getElementById("info_" + jobID);
 		if (this.selectedJobInfo === jobID && row.style.display !== "none") {
@@ -170,8 +183,6 @@ class QueueComponent extends Component {
 			this.selectedJobInfo = jobID;
 		}
 	}
-
-
 	cancelButtonOnClick(jobID) {
 		cancelJob(jobID, (resp) => {
 			//success
@@ -181,7 +192,6 @@ class QueueComponent extends Component {
 			console.log('Error in cancel request to API layer');
 		});
 	}
-
 	restartButtonOnClick(jobID) {
 		restartJob(jobID, (resp) => {
 			//success
@@ -193,7 +203,6 @@ class QueueComponent extends Component {
 			eventEmitter.emit("errorOccured", msg);
 		});
 	}
-
 	deleteButtonOnClick(jobID) {
 		deleteJob(jobID, (resp) => {
 			//success
@@ -203,18 +212,15 @@ class QueueComponent extends Component {
 			console.log('Error in delete job request to API layer');
 		});
 	}
-
 	getFormattedDate(d) {
 		return (1 + d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
 	}
-
 	toggleTabs() {
 		if (this.state.selectedTab === 0)
 			this.setState({ selectedTab: 1 });
 		else
 			this.setState({ selectedTab: 0 });
 	}
-
 	renderActions(jobID, status, deleted) {
 		return (
 			<div >
@@ -264,7 +270,6 @@ class QueueComponent extends Component {
 			</div>
 		);
 	}
-
 	renderTabContent(resp) {
 		var scheduledDate = new Date(resp.times.scheduled);
 		var startedDate = new Date(resp.times.started);
@@ -362,39 +367,44 @@ class QueueComponent extends Component {
 
 	render() {
 		const { totalCount, responsesToDisplay } = this.state;
-		const { rowsPerPage, rowsPerPageOptions, page, order, orderBy } = this.state;
+		const { rowsPerPage, page, order, orderBy } = this.state;
 		const tbcellStyle = { textAlign: 'center' }
 		const { classes } = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
 			avgSpeed: "bytes.avg",
-			source: "src.uri"
+			source: "src.uri",
+			startTime: 'times.started'
 		}
 		var tableRows = [];
 
-		responsesToDisplay.map(resp => {
+		responsesToDisplay.forEach(resp => {
 			tableRows.push(
-				<TableRow style={{ alignSelf: "stretch" }}>
-					<TableCell id={"queueid" + tableRows.length / 2} component="th" scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
+				<TableRow key={`${resp.owner}-${resp.job_id}`} style={{ alignSelf: "stretch" }}>
+					<TableCell scope="row" style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }} align='center'>
 						{resp.job_id}
 					</TableCell>
-					<TableCell id={"queueprocess" + tableRows.length / 2} style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '45%', fontSize: '1rem' }}>
 						{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
 					</TableCell>
-					<TableCell id={"queuespeed" + tableRows.length / 2} style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '7.5%', fontSize: '1rem' }}>
 						{this.renderSpeed(resp.bytes.inst)}
 					</TableCell>
-					<TableCell id={"queuesource" + tableRows.length / 2} style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
+					<TableCell style={{ ...tbcellStyle, width: '25%', maxWidth: '20vw', overflow: "hidden", fontSize: '1rem', margin: "0px" }}>
 						{decodeURI(resp.src.uri)} <b>-></b> {decodeURI(resp.dest.uri)}
 					</TableCell>
-					<TableCell id={"queueaction" + tableRows.length / 2} style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
+					<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
 						{this.renderActions(resp.job_id, resp.status, resp.deleted)}
 					</TableCell>
 				</TableRow>
 			);
 			tableRows.push(
-				<TableRow id={"info_" + resp.job_id} style={{ display: 'none' }}>
+				<TableRow
+					key={`info-${resp.owner}-${resp.job_id}`}
+					id={"info_" + resp.job_id}
+					style={{ display: 'none' }}
+				>
 					<TableCell colSpan={5} style={{ ...tbcellStyle, width: '10%', fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
 						<div id="infoBox" style={{ marginBottom: '0.5%' }}>
 							<AppBar position="static" style={{ boxShadow: 'unset' }}>
@@ -471,7 +481,7 @@ class QueueComponent extends Component {
 						<TableRow>
 							<TablePagination
 								rowsPerPageOptions={rowsPerPageOptions}
-								colSpan={3}
+								colSpan={5}
 								count={totalCount}
 								rowsPerPage={rowsPerPage}
 								page={page}
