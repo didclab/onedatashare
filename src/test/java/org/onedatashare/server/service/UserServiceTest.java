@@ -29,20 +29,26 @@ class UserServiceTest {
 	
     String validInputEmail = "ods_test_user@test.com";
     String invalidInputEmail = "nonexistent_ods_test_user@test.com";
+    String testCookies = "email=ods_test_user@test.com;hash=19ab9f8ccaf5d80e6c55b17105591443d85d30bc54e905cc7a83e027b154cfee;saveOAuthTokens=false;compactViewEnabled=false";
+    String testCookiesInvalid = "email="+invalidInputEmail+";hash=19ab9f8ccaf5d80e6c55b17105591443d85d30bc54e905cc7a83e027b154cfee;saveOAuthTokens=false;compactViewEnabled=false";
 
 
     @MockBean
     UserRepository userRepository;
-    
+
     @Autowired
     private UserService userService;
 
     User user;
-    
+
+   // String validInputEmail = "ods_test_user@test.com";
+   // String invalidInputEmail = "Invalid_ods_test_user@test.com";
+
 
     @BeforeEach
     public void initTest(){
         user = new User("ods_test_user@test.com","password");
+        user.setHash("19ab9f8ccaf5d80e6c55b17105591443d85d30bc54e905cc7a83e027b154cfee");
         user.setFirstName("ODS_Test");
         user.setLastName("User");
         user.setAdmin(false);
@@ -143,12 +149,27 @@ class UserServiceTest {
     }
     @Test
     @DisplayName("Valid email, Valid Password")
-    public void login_test_nullEmail(){
+    public void login_test_Email(){
     	userService.login(validInputEmail, "RandomPassword").doOnSuccess(userLogin ->{
     		assertTrue(userLogin instanceof UserLogin, "Expected of receive a UserLogin object");
     		assertEquals(validInputEmail, userLogin.getEmail(),"Did not retrieve the expected user");
     	}).subscribe();
     }
 
+    @Test
+    @DisplayName("valid cookie contains valid email")
+    public void getLoggedInUserTest() {
+        userService.getLoggedInUser(testCookies).doOnSuccess(user -> {
+            assertEquals(validInputEmail, user.getEmail(), "Did not retrieve the expected user");
+        }).subscribe();
+    }
 
+    @Test
+    @DisplayName("valid cookie contains Invalid email")
+    public void getLoggedInUserTestWithIncorrectEmail() {
+        userService.getLoggedInUser(testCookiesInvalid).doOnError(error -> {
+            assertTrue(error instanceof Exception, "Did not receive expected error");
+            assertEquals(error.getMessage(), "No User found with Id: " + invalidInputEmail, "Did not retrieve the expected user");
+        }).subscribe();
+    }
 }
