@@ -58,12 +58,17 @@
   font-style: italic
 }
 
-.homeInfoSlice h2 {
-  color: #d9eff6;
-  font-size: 4em;
+.HomeInfoSlice {
+  padding-top: 2em;
+  padding-bottom: 2em;
 }
 
-.homeInfoSlice h2 ~ p {
+.HomeInfoSlice h2 {
+  color: #d9eff6;
+  font-size: 2em;
+}
+
+.HomeInfoSlice h2 ~ p {
   font-size: 1.25em;
 }
 
