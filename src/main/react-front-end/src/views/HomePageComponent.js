@@ -8,6 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import {Hidden} from "@material-ui/core";
+import RecognitionSlice from "./HomePage/RecognitionSlice";
 
 export default class HomePageComponent extends Component {
 
@@ -55,33 +56,22 @@ export default class HomePageComponent extends Component {
 		}
 
 		return(
-			<div className='homePage underNav'>
+			<div>
+				<div className='homePage underNav'>
 
-				<Hidden smDown>
-					<h1>OneDataShare</h1>
-				</Hidden>
-				<Hidden mdUp>
-					<h1>OneData<br/> Share</h1>
-				</Hidden>
-				<p> Reliable and fast data movement in the cloud </p>
-				<Button className='defaultButton' variant="contained" size='large'>Get Started</Button>
+					<Hidden smDown>
+						<h1>OneDataShare</h1>
+					</Hidden>
+					<Hidden mdUp>
+						<h1>OneData<br/> Share</h1>
+					</Hidden>
+					<p> Reliable and fast data movement in the cloud </p>
+					<Button className='defaultButton' variant="contained" size='large'>Get Started</Button>
 
-				<div className='homeSlices'>
 					{homeInfo}
 				</div>
 
-				<Grid container
-					  direction='row'
-					  justify='center'
-					  alignItems='center'
-					  className='credits'>
-					<Grid container alignItems='center' xs={12} md={6}>
-						<img width={'100px'} src={nsfImage} style={{float: 'left'}} alt="NSF Logo" />
-					</Grid>
-					<Grid container alignItems='center' xs={12} md={6}>
-						<img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo" />
-					</Grid>
-				</Grid>
+				<RecognitionSlice />
 
 			</div>
 		);

@@ -60,7 +60,7 @@
 }
 
 .underNav {
-  padding: 9vh 15vw 3vh;
+  padding: 7vh 15vw 3vh;
 }
 
 /*********************************/
@@ -123,11 +123,21 @@ div.homePage {
   padding-left: 2.25vw;
 }
 
-/*.homeImgLeft {*/
-/*  position: relative;*/
-/*  right: 15vw;*/
-/*}*/
+/*****************************************/
+/*                                       */
+/*    For HomePage/RecognitionSlice.js   */
+/*                                       */
+/*****************************************/
 
-/*.homeImgRight {*/
-/*  margin-left: 10vw;*/
-/*}*/
+.RecognitionSlice {
+  background-color: white;
+  padding-top: 3vh;
+  padding-bottom: 3vh;
+}
+
+.RecognitionSlice img {
+  height: 10vh;
+  width: auto;
+  padding-left: 2vw;
+  padding-right:2vw;
+}
