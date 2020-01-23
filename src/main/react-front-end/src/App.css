@@ -63,6 +63,13 @@
   padding: 7vh 15vw 3vh;
 }
 
+button.defaultButton {
+  background-color: white;
+  font-size: 1.2em;
+  text-transform: none;
+  font-weight: normal;
+}
+
 /*********************************/
 /*                               */
 /*    For HomePageComponent.js   */
@@ -72,21 +79,6 @@
 div.homePage {
   background: #579;
   overflow: hidden;
-  /*padding-left: 15vw;*/
-  /*padding-right: 15vw;*/
-  /*padding-top: 9v;*/
-}
-
-.homePage h1 {
-  color: #ffffff;
-  font-size: 5em;
-  font-style: oblique;
-  padding-top: 4.5vh;
-}
-
-.homePage h1 ~ p {
-  font-size: 2.5em;
-  font-style: italic
 }
 
 /**************************************/
@@ -140,4 +132,26 @@ div.homePage {
   width: auto;
   padding-left: 2vw;
   padding-right:2vw;
+}
+
+/***********************************/
+/*                                 */
+/*    For HomePage/TitleSlice.js   */
+/*                                 */
+/***********************************/
+
+.TitleSlice {
+  padding-bottom: 7vh;
+}
+
+.TitleSlice h1 {
+  color: #ffffff;
+  font-size: 5em;
+  font-style: oblique;
+  padding-top: 4.5vh;
+}
+
+.TitleSlice h1 ~ p {
+  font-size: 2.5em;
+  font-style: italic
 }

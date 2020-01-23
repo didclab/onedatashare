@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import Button from '@material-ui/core/Button';
 import { isSafari } from 'react-device-detect';
 import { nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 import './HomePageComponent.css';
-import Grid from "@material-ui/core/Grid";
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
-import {Hidden} from "@material-ui/core";
 import RecognitionSlice from "./HomePage/RecognitionSlice";
+import TitleSlice from "./HomePage/TitleSlice";
 
 export default class HomePageComponent extends Component {
 
@@ -59,14 +57,7 @@ export default class HomePageComponent extends Component {
 			<div>
 				<div className='homePage underNav'>
 
-					<Hidden smDown>
-						<h1>OneDataShare</h1>
-					</Hidden>
-					<Hidden mdUp>
-						<h1>OneData<br/> Share</h1>
-					</Hidden>
-					<p> Reliable and fast data movement in the cloud </p>
-					<Button className='defaultButton' variant="contained" size='large'>Get Started</Button>
+					<TitleSlice />
 
 					{homeInfo}
 				</div>
