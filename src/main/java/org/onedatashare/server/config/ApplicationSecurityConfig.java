@@ -1,24 +1,40 @@
 package org.onedatashare.server.config;
 
 import org.onedatashare.server.controller.RegistrationController;
+import org.onedatashare.server.service.JWTUtil;
+import org.onedatashare.server.service.ODSAuthenticationManager;
+import org.onedatashare.server.service.ODSSecurityConfigRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import reactor.core.publisher.Mono;
 
 import static org.onedatashare.server.model.core.ODSConstants.OPEN_ENDPOINTS;
 
 @EnableWebFluxSecurity
-////@EnableReactiveMethodSecurity
+@EnableReactiveMethodSecurity
 public class ApplicationSecurityConfig {
+
+    @Autowired
+    private ODSAuthenticationManager odsAuthenticationManager;
+
+    @Autowired
+    private ODSSecurityConfigRepository odsSecurityConfigRepository;
+
+
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                .httpBasic().disable().authorizeExchange()
+                .httpBasic().disable()
+                .authenticationManager(odsAuthenticationManager)
+                .securityContextRepository(odsSecurityConfigRepository)
+                .authorizeExchange()
                 //Permit all the HTTP methods
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 //Permit loginPoint
@@ -39,7 +55,6 @@ public class ApplicationSecurityConfig {
                 }).and()
                 //Disable Cross-site request forgery TODO: fix
                 .csrf().disable().authorizeExchange().and()
-                .formLogin().and()
                 .build();
 
 //                .csrf().disable()
@@ -54,5 +69,6 @@ public class ApplicationSecurityConfig {
 //                .anyExchange().authenticated()
 //                .and().build();
     }
+
 
 }

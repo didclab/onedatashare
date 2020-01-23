@@ -1,6 +1,7 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import lombok.Getter;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -81,6 +82,8 @@ public class User {
     /** Makes sure that view of user in transfer page is consistent with his/her preference. */
     private boolean compactViewEnabled = false;
 
+    private List<Role> roles;
+
     /**
      * Create an anonymous user.
      */
@@ -96,6 +99,8 @@ public class User {
         this.lastName = lastName;
         this.organization = organization;
         this.setPassword(password);
+        this.roles = new ArrayList<>();
+        this.roles.add(Role.USER);
     }
 
     /**

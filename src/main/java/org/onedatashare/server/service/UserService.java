@@ -5,11 +5,8 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
+import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.response.LoginResponse;
-import org.onedatashare.server.model.core.Credential;
-import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.User;
-import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.InvalidODSCredentialsException;
@@ -45,7 +42,7 @@ public class UserService {
   CaptchaService captchaService;
 
   @Autowired
-  JWTService jwtService;
+  JWTUtil jwtUtil;
 
   public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
@@ -62,7 +59,7 @@ public class UserService {
       return getUser(User.normalizeEmail(email))
               .filter(usr -> usr.getHash().equals(usr.hash(password)))
               .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
-              .map(user -> LoginResponse.LoginResponseFromUser(user, jwtService.generateToken(user)));
+              .map(user -> LoginResponse.LoginResponseFromUser(user, jwtUtil.generateToken(user)));
   }
 
   public Mono<User.UserLogin> login(String email, String password) {
