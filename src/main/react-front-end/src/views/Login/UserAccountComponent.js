@@ -56,7 +56,6 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
-
 const useStylesBootstrap = makeStyles(theme => ({
 	arrow: {
 	  color: theme.palette.common.black,
@@ -73,7 +72,6 @@ const useStylesBootstrap = makeStyles(theme => ({
 	const classes = useStylesBootstrap();
 	return <Tooltip arrow={true} classes={classes} {...props} />;
 }
-
 
 export default class UserAccountComponent extends Component {
 	constructor() {
@@ -447,6 +445,8 @@ export default class UserAccountComponent extends Component {
 				break;
 			case 'confirm': 
 				this.setState({isConfirmPwdVisible: true}); 
+				break;
+			default:
 				break;
 		}
 		this.setState({isPasswordVisible: true});
