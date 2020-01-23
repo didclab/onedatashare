@@ -1,6 +1,8 @@
 package org.onedatashare.server.service;
 
+import io.netty.handler.codec.http.cookie.Cookie;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,19 +20,30 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     @Autowired
     ODSAuthenticationManager odsAuthenticationManager;
 
+    @Autowired
+    JWTUtil jwtUtil;
+
     @Override
     public Mono<Void> save(ServerWebExchange serverWebExchange, SecurityContext securityContext) {
         return null;
     }
+    public String fetchAuthToken(ServerWebExchange serverWebExchange){
+        ServerHttpRequest request = serverWebExchange.getRequest();
+        String token = null;
+        try{
+            token = request.getCookies().getFirst("ATOKEN").getValue();
+        }catch (NullPointerException npe){
+            ODSLoggerService.logError("No token");
+        }
+        return token;
+    }
 
     @Override
     public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
-        ServerHttpRequest request = serverWebExchange.getRequest();
-        String authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String authToken = authHeader.substring(7);
-            Authentication auth = new UsernamePasswordAuthenticationToken(authToken, authToken);
+        String authToken = this.fetchAuthToken(serverWebExchange);
+        String email = jwtUtil.getEmailFromToken(authToken);
+        if (authToken != null) {
+            Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
             return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
         } else {
             return Mono.empty();
