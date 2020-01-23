@@ -612,7 +612,7 @@ export default class EndpointAuthenticateComponent extends Component {
 									id={endpoint.side+"LoginUsername"}
 									label="ClientID"
 									value={this.state.username}
-									onChange={this.handleChange('ClientID')}
+									onChange={this.handleChange('username')}
 									margin="normal"
 									variant="outlined"
 									onKeyPress={(e) => {
@@ -629,7 +629,7 @@ export default class EndpointAuthenticateComponent extends Component {
 									label="AWS Secret"
 									type="password"
 									value={this.state.password}
-									onChange={this.handleChange('AWS Secret')}
+									onChange={this.handleChange('password')}
 									margin="normal"
 									variant="outlined"
 									onKeyPress={(e) => {
