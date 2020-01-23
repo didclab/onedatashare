@@ -13,10 +13,10 @@ export default class HomeInfoSlice extends Component {
         if (this.props.imgOnLeft) {
             return (
                 <Grid container direction='row'>
-                    <Grid container xs={3}>
+                    <Grid container xs={5}>
                         <img className='homeImg homeImgLeft' src={this.props.img} alt={this.props.imgAltTxt} />
                     </Grid>
-                    <Grid container xs={9}>
+                    <Grid className='rightHomeTxt' container xs={7}>
                         <h2>{this.props.title}</h2>
                         <p>{this.props.text}</p>
                     </Grid>
@@ -25,11 +25,11 @@ export default class HomeInfoSlice extends Component {
         }
         return (
             <Grid container direction='row'>
-                <Grid container xs={9}>
+                <Grid className='leftHomeTxt' container xs={7}>
                     <h2>{this.props.title}</h2>
                     <p>{this.props.text}</p>
                 </Grid>
-                <Grid container xs={3}>
+                <Grid container xs={5}>
                     <img className='homeImg homeImgRight' src={this.props.img} alt={this.props.altImgTxt}/>
                 </Grid>
             </Grid>
