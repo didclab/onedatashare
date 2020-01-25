@@ -21,10 +21,17 @@ export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
 export const policyUrl = "/policy"
 
-export const authencationEndpoint = "/authenticate";
-export const registrationEndpoint = "/register";
-export const verifyEmailEndpoint = "/verifyemail";
-export const sendVerificationEndpoint = "/sendVerificationCode";
+export const AUTH_ENDPOINT = "/authenticate";
+export const RESET_PASSWD_ENDPOINT = "/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+
+export const REGISTRATION_ENDPOINT = "/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+
+
+
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";

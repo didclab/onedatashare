@@ -1,4 +1,6 @@
-import { url, authencationEndpoint, registrationEndpoint, verifyEmailEndpoint } from '../constants';
+import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
+	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
+	RESEND_ACC_ACT_CODE_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -51,8 +53,7 @@ function statusHandle(response, callback){
 	fail: (errorMessage:string){}
 */
 export async function checkLogin(email, accept, fail){
-	axios.post(url+'user', {
-	    action: 'verifyEmail',
+	axios.post(IS_REGISTERED_EMAIL_ENDPOINT, {
 	    email: email,
 	}).then((response) => {
 		if((response.data === true)){
@@ -77,8 +78,7 @@ export async function checkLogin(email, accept, fail){
 export async function resetPasswordSendCode(email, accept, fail){
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'sendVerificationCode',
+	axios.post(SEND_PASSWD_RST_CODE_ENDPOINT, {
 	    email: email
 	}).then((response) => {
 		if(!(response.status === 200))
@@ -100,8 +100,7 @@ export async function resetPasswordSendCode(email, accept, fail){
 export async function resetPasswordVerifyCode(email,code, accept, fail){
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'verifyCode',
+	axios.post(EMAIL_VERIFICATION_ENDPOINT, {
 	    email: email,
 	    code: code
 	}).then((response) => {
@@ -122,8 +121,7 @@ export async function resetPasswordVerifyCode(email,code, accept, fail){
 export async function resetPassword(email,code,password, cpassword, accept, fail){
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'setPassword',
+	axios.post(RESET_PASSWD_ENDPOINT, {
 	    email: email,
 	    code: code,
 	    password: password,
@@ -138,8 +136,7 @@ export async function resetPassword(email,code,password, cpassword, accept, fail
 }
 
 export async function resendVerificationCode(emailId){
-	return axios.post(url+'user',{
-		action:'resendVerificationCode',
+	return axios.post(SEND_PASSWD_RST_CODE_ENDPOINT, {
 		email: emailId
 	})
 	.then((response) => {
@@ -150,10 +147,9 @@ export async function resendVerificationCode(emailId){
 	});
 }
 
+/** Set passowrd for the first time is the same as reset password */
 export async function setPassword(emailId, code, password, confirmPassword) {
-
-    return axios.post(url+'user', {
-    	    action: "setPassword",
+    return axios.post(RESET_PASSWD_ENDPOINT, {
     	    email : emailId,
     	    code : code,
     	    password : password,
@@ -181,7 +177,7 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 export async function login(email, password, accept, fail){
 	var callback = accept;
 
-	axios.post(authencationEndpoint, {
+	axios.post(AUTH_ENDPOINT, {
 	    email: email,
 	    password: password,
 	}).then((response) => {
@@ -838,7 +834,7 @@ export async function openOAuth(url){
 
 export async function registerUser(requestBody, errorCallback) {
 
-	return axios.post(registrationEndpoint, requestBody)
+	return axios.post(REGISTRATION_ENDPOINT, requestBody)
 				.then((response) => {
 						if(response.data && response.data.status && response.data.status === 302) {
 							console.log("User already exists");
@@ -862,7 +858,7 @@ export async function registerUser(requestBody, errorCallback) {
 
 
 export async function verifyRegistraionCode(emailId, code) {
-    return axios.post(verifyEmailEndpoint, {
+    return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
     	    email : emailId,
     	    code : code
     	})

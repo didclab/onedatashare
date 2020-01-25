@@ -26,6 +26,8 @@ import reactor.core.publisher.Mono;
 import java.net.URI;
 import java.util.*;
 
+import static org.onedatashare.server.model.core.ODSConstants.TOKEN_TIMEOUT_IN_MINUTES;
+
 /**
  * Service class for all operations related to users' information.
  */
@@ -52,8 +54,6 @@ public class UserService {
         user.setRegisterMoment(System.currentTimeMillis());
         return userRepository.insert(user);
     }
-
-    final int TIMEOUT_IN_MINUTES = 1440;
 
     public Mono<LoginResponse> login2(String email, String password){
         return getUser(User.normalizeEmail(email))
@@ -82,19 +82,19 @@ public class UserService {
                     if (captchaVerified){
                         return doesUserExists(email).flatMap(user -> {
 
-// This would be a same temporary password for each user while creating,
-// once the user goes through the whole User creation workflow, he/she can change the password.
+                            // This would be a same temporary password for each user while creating,
+                            // once the user goes through the whole User creation workflow, he/she can change the password.
                             String password = User.salt(20);
                             if(user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
                                 ODSLoggerService.logWarning("User with email " + email + " already exists.");
                                 if(!user.isValidated()){
-                                    return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+                                    return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
                                 }else{
                                     return Mono.just(new Response("Account already exists",302));
                                 }
                             }
                             return createUser(new User(email, firstName, lastName, organization, password))
-                                    .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TIMEOUT_IN_MINUTES));
+                                    .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TOKEN_TIMEOUT_IN_MINUTES));
                         });
                     }
                     else{
@@ -256,7 +256,7 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username and password combination")));
     }
 
-    public Mono<Object> resendVerificationCode(String email) {
+    public Mono<Response> resendVerificationCode(String email) {
         return doesUserExists(email).flatMap(user -> {
             if(user.getEmail() == null){
                 return Mono.just(new Response("User not registered",500));
@@ -269,7 +269,7 @@ public class UserService {
         });
     }
 
-    public Mono<Object> sendVerificationCode(String email, int expire_in_minutes) {
+    public Mono<Response> sendVerificationCode(String email, int expire_in_minutes) {
         return getUser(email).flatMap(user -> {
             String code = RandomStringUtils.randomAlphanumeric(6);
             user.setVerifyCode(code, expire_in_minutes);
@@ -381,14 +381,8 @@ public class UserService {
         });
     }
 
-    public Mono<Object> verifyEmail(String email) {
-        return userRepository.existsById(email).flatMap( bool -> {
-            if (bool) {
-                return Mono.just(true);
-            }else{
-                return Mono.just(false);
-            }
-        });
+    public Mono<Boolean> isRegisteredEmail(String email) {
+        return userRepository.existsById(email);
     }
 
     /**

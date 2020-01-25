@@ -47,8 +47,8 @@ public class UserController {
         return userService.saveHistory(userAction.getUri(), cookie);
 //      case "verifyEmail":
 //        return userService.verifyEmail(userAction.getEmail());
-      case "sendVerificationCode":
-        return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
+//      case "sendVerificationCode":
+//        return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
       case "getUser":
         return userService.getUserFromCookie(userAction.getEmail(), cookie);
       case "getUsers":
@@ -57,9 +57,9 @@ public class UserController {
         return userService.getAdministrators(userAction, cookie);
       case "verifyCode":
         return userService.verifyCode(userAction.getEmail(), userAction.getCode());
-      case "setPassword":
-        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(),
-                                          userAction.getCode());
+//      case "setPassword":
+//        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(),
+//                                          userAction.getCode());
       case "resetPassword":
         return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
                                                   userAction.getConfirmPassword());

@@ -41,8 +41,8 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     @Override
     public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
         String authToken = this.fetchAuthToken(serverWebExchange);
-        String email = jwtUtil.getEmailFromToken(authToken);
         if (authToken != null) {
+            String email = jwtUtil.getEmailFromToken(authToken);
             Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
             return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
         } else {
