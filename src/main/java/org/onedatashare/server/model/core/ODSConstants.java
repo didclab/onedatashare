@@ -44,7 +44,7 @@ public class ODSConstants {
             AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT, RESEND_ACC_ACT_CODE_ENDPOINT
     };
 
-    public static final int TOKEN_TIMEOUT_IN_MINUTES = 1440;
+    public static final int TOKEN_TIMEOUT_IN_MINUTES = 2;
 
     public static final long TRANSFER_SLICE_SIZE = 1<<20;
 

@@ -6,8 +6,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, signInUrl } from '../constants';
 import { store } from '../App';
-import { logoutAction, isAdminAction } from '../model/actions';
-import { isAdmin } from '../APICalls/APICalls';
+import { logoutAction } from '../model/actions';
 
 class NavbarComponent extends Component {
 

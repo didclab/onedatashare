@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,45 +31,24 @@ public class QueueController {
 
     /**
      * Handler for queue GET requests
-     * @param headers - Incoming request headers
      * @param jobDetails - Request data needed for fetching Jobs
      * @return Mono\<JobDetails\>
      */
-    @PostMapping
-    public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        if(jobDetails.status.equals("all")) {
-            return jobService.getJobsForAdmin(cookie, jobDetails).subscribeOn(Schedulers.elastic());
-        }
-        else
-            return jobService.getJobsForUser(cookie, jobDetails)
-                    .subscribeOn(Schedulers.elastic());
+    @PostMapping("/user-jobs")
+    public Mono<List<Job>> getJobsForUser(@RequestBody JobRequest jobDetails){
+        return jobService.getJobsForUserRefactored(jobDetails);
     }
 
     /**
-     *  Code for accessing security context
-     *             return ReactiveSecurityContextHolder.getContext()
-     *                     .map(SecurityContext::getAuthentication)
-     *                     .map(x -> {
-     *                         System.out.println(x.toString());
-     *                         return x.toString();
-     *                     }).map(x -> {
-     *                         return new JobDetails();
-     *             });
+     * Handler for queue GET requests
+     * @param jobDetails - Request data needed for fetching Jobs
+     * @return Mono\<JobDetails\>
      */
-
-// //To be enabled after changing frontend
-//    @PostMapping("/userJobs")
-//    public Mono<List<Job>> userQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-//        String cookie = headers.getFirst(ODSConstants.COOKIE);
-//        return jobService.getJobsForUserRefactored(cookie, jobDetails);
-//    }
-//
-//    @PostMapping("/adminJobs")
-//    public Mono<List<Job>> adminQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-//        String cookie = headers.getFirst(ODSConstants.COOKIE);
-//        return jobService.getJobForAdminRefactored(cookie, jobDetails);
-//    }
+    //TODO: Add role annotation
+    @PostMapping("/admin-jobs")
+    public Mono<List<Job>> getJobsForAdmin(@RequestBody JobRequest jobDetails){
+        return jobService.getJobForAdminRefactored(jobDetails);
+    }
 
     @PostMapping("/update")
     public Mono<List<Job>> update(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {

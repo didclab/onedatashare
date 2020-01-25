@@ -19,7 +19,7 @@ export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
-export const policyUrl = "/policy"
+export const policyUrl = "/policy";
 
 export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";

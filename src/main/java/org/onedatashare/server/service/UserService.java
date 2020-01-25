@@ -262,7 +262,7 @@ public class UserService {
                 return Mono.just(new Response("User not registered",500));
             }
             if(!user.isValidated()){
-                return sendVerificationCode(email, TIMEOUT_IN_MINUTES);
+                return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
             } else{
                 return Mono.just(new Response("User account is already validated.",500));
             }

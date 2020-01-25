@@ -37,26 +37,25 @@ public class JobService {
                 .collectList();
     }
 
-    public Mono<List<Job>> getJobsForUserRefactored(String cookie, JobRequest request) {
+    public Mono<List<Job>> getJobsForUserRefactored(JobRequest request) {
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));
-        return userService.getLoggedInUser(cookie).flatMap(user -> {
+        return userService.getLoggedInUser(null).flatMap(user -> {
             return jobRepository.findJobsForUser(user.getEmail(), false, page).collectList();
         });
     }
 
-    public Mono<List<Job>> getJobForAdminRefactored(String cookie, JobRequest request){
+    public Mono<List<Job>> getJobForAdminRefactored(JobRequest request){
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));
-        return userService.getLoggedInUser(cookie).flatMap(user -> {
+        return userService.getLoggedInUser(null).flatMap(user -> {
             if(user.isAdmin() && request.status.equals("all"))
                 return jobRepository.findAllBy(page).collectList();
             else
                 return Mono.error(new UnAuthorizedOperationException("Only Admin group can access this information"));
         });
-
     }
 
     public Mono<JobDetails> getJobsForAdmin(String cookie, JobRequest request){

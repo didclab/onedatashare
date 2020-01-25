@@ -79,8 +79,11 @@ export function onedatashareModel(state = initialState, action) {
 
     case LOGOUT:
       console.log("logging out");
+      // Removing HTTP cookie by overwriting it and then removing it
+      cookies.set('ATOKEN', '' );
+      cookies.remove('ATOKEN');
+
       cookies.remove('email');
-      cookies.remove('hash');
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');
