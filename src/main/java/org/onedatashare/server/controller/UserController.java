@@ -38,31 +38,14 @@ public class UserController {
     String cookie = headers.getFirst(ODSConstants.COOKIE);
     UserAction userAction = UserAction.convertToUserAction(userRequestData);
     switch(userAction.getAction()) {
-//      case "register":
-//        return userService.register(userAction.getEmail(), userAction.getFirstName(), userAction.getLastName(),
-//                                      userAction.getOrganization(), userAction.getCaptchaVerificationValue());
-      case "validate":
-        return userService.validate(userAction.getEmail(), userAction.getCode());
       case "history":
         return userService.saveHistory(userAction.getUri(), cookie);
-//      case "verifyEmail":
-//        return userService.verifyEmail(userAction.getEmail());
-//      case "sendVerificationCode":
-//        return userService.sendVerificationCode(userAction.getEmail(), TIMEOUT_IN_MINUTES);
       case "getUser":
         return userService.getUserFromCookie(userAction.getEmail(), cookie);
       case "getUsers":
         return userService.getAllUsers(userAction, headers.getFirst(ODSConstants.COOKIE));
       case "getAdministrators":
         return userService.getAdministrators(userAction, cookie);
-      case "verifyCode":
-        return userService.verifyCode(userAction.getEmail(), userAction.getCode());
-//      case "setPassword":
-//        return userService.resetPassword(userAction.getEmail(), userAction.getPassword(), userAction.getConfirmPassword(),
-//                                          userAction.getCode());
-      case "resetPassword":
-        return userService.resetPasswordWithOld(cookie, userAction.getPassword(), userAction.getNewPassword(),
-                                                  userAction.getConfirmPassword());
       case "updateSaveOAuth":
         return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
       case "deleteCredential":
@@ -71,8 +54,6 @@ public class UserController {
         return userService.deleteHistory(cookie, userAction.getUri());
       case "isAdmin":
         return userService.isAdmin(cookie);
-      case "resendVerificationCode":
-        return userService.resendVerificationCode(userAction.getEmail());
       case "updateViewPreference":
         return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
       default:
