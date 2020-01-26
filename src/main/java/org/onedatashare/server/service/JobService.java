@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class JobService {
     @Autowired
     private JobRepository jobRepository;
 
-    private Pageable generatePageFromRequest(JobRequest request){
+    private static Pageable generatePageFromRequest(JobRequest request){
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));

@@ -1,5 +1,7 @@
 package org.onedatashare.server.service;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import org.onedatashare.server.model.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,12 +40,16 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     @Override
     public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
         String authToken = this.fetchAuthToken(serverWebExchange);
-        if (authToken != null) {
-            String email = jwtUtil.getEmailFromToken(authToken);
-            Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
-            return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
-        } else {
-            return Mono.empty();
+        try {
+            if (authToken != null) {
+                String email = jwtUtil.getEmailFromToken(authToken);
+                Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
+                return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
+            }
         }
+        catch(ExpiredJwtException e){
+            ODSLoggerService.logError("Token Expired");
+        }
+        return Mono.empty();
     }
 }

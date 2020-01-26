@@ -5,10 +5,10 @@ import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +30,7 @@ public class QueueController {
      */
     @PostMapping("/user-jobs")
     public Mono<JobDetails> getJobsForUser(@RequestBody JobRequest jobDetails){
-        return jobService.getJobsForUser(jobDetails);
+        return jobService.getJobsForUser(jobDetails).subscribeOn(Schedulers.elastic());
     }
 
     /**
@@ -41,18 +41,18 @@ public class QueueController {
     //TODO: Add role annotation for security
     @PostMapping("/admin-jobs")
     public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
-        return jobService.getJobForAdmin(jobDetails);
+        return jobService.getJobForAdmin(jobDetails).subscribeOn(Schedulers.elastic());
     }
 
     @PostMapping("/update-user-job")
-    public Mono<List<Job>> updateJobsForUser(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
-        return jobService.getUpdatesForUser(jobIds);
+    public Mono<List<Job>> updateJobsForUser(@RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForUser(jobIds).subscribeOn(Schedulers.elastic());
     }
 
     //TODO: Add role annotation for security
     @PostMapping("/update-admin-job")
-    public Flux<Job> updateJobsForAdmin(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
-        return jobService.getUpdatesForAdmin(jobIds);
+    public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForAdmin(jobIds).subscribeOn(Schedulers.elastic());
     }
 
 }

@@ -16,7 +16,6 @@ import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
@@ -153,8 +152,8 @@ public class UserService {
                 return Mono.error(new Exception("Does not have Auth Token"));
             }else if(user.getAuthToken().equals(authToken)){
                 user.setPassword(password);
-// Setting the verification code to null while resetting the password.
-// This will allow the user to use the same verification code multiple times with in 24 hrs.
+                // Setting the verification code to null while resetting the password.
+                // This will allow the user to use the same verification code multiple times with in 24 hrs.
                 user.setCode(null);
                 user.setAuthToken(null);
                 user.setValidated(true);
@@ -166,24 +165,24 @@ public class UserService {
         });
     }
 
-    public Mono<String> resetPasswordWithOld(String cookie, String oldpassword, String newpassword, String passwordConfirm){
+    public Mono<String> resetPasswordWithOld(String cookie, String oldPassword, String newPassword, String confirmPassword){
         return getLoggedInUser(cookie).flatMap(user-> {
-            if(!newpassword.equals(passwordConfirm)){
+            if(!newPassword.equals(confirmPassword)){
                 ODSLoggerService.logError("Passwords don't match.");
-                throw new  OldPwdMatchingException("Passwords don't match.");
-            }else if(!user.checkPassword(oldpassword)){
+                return Mono.error(new OldPwdMatchingException("Passwords don't match."));
+            }else if(!user.checkPassword(oldPassword)){
                 ODSLoggerService.logError("Old Password is incorrect.");
-                throw new  OldPwdMatchingException("Old Password is incorrect.");
+                return Mono.error(new OldPwdMatchingException("Old Password is incorrect."));
             }else{
                 try{
-                    user.setPassword(newpassword);
+                    user.setPassword(newPassword);
                     userRepository.save(user).subscribe();
                     ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
                     return Mono.just(user.getHash());
                 }
                 catch (RuntimeException e)
                 {
-                    throw  new OldPwdMatchingException(e.getMessage());
+                    return Mono.error(new OldPwdMatchingException(e.getMessage()));
                 }
             }
         });
@@ -250,10 +249,14 @@ public class UserService {
         return getLoggedInUser(cookie).map(User::getHistory);
     }
 
+    /**
+     * This is a placeholder function which is deprecated. Will be removed in future releases
+     * @param email
+     * @param hash
+     * @return is the user loggedIn
+     */
     public Mono<Boolean> userLoggedIn(String email, String hash) {
-        return getUser(email).map(user -> user.getHash().equals(hash))
-                .filter(Boolean::booleanValue)
-                .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username and password combination")));
+        return userLoggedIn();
     }
 
     public Mono<Response> resendVerificationCode(String email) {
@@ -331,9 +334,10 @@ public class UserService {
         });
     }
 
-    public Mono<Boolean> userLoggedIn(String cookie) {
-        final User.UserLogin userLogin = cookieToUserLogin(cookie);
-        return userLoggedIn(userLogin.email, userLogin.hash);
+    public Mono<Boolean> userLoggedIn() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(auth -> auth.getPrincipal() != null);
     }
 
     public Mono<Boolean> validate(String email, String authToken){
@@ -386,35 +390,34 @@ public class UserService {
     }
 
     /**
+     * //TODO: remove this function
      * Modified the function to use the security context
+     * Placeholder function that will be removed later
      * @param cookie - Unused parameter (to be removed)
      * @return
      */
     public Mono<User> getLoggedInUser(String cookie) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .flatMap(principal -> getUser((String) principal));
+        return getLoggedInUser();
+    }
+
+    /**
+     * Modified the function to use security context for logging in
+     * @return User : The current logged in user
+     */
+    public Mono<User> getLoggedInUser() {
+        return getLoggedInUserEmail()
+                .flatMap(email -> getUser(email));
     }
 
 
     /**
-     * Modified the function to use the security context
-     * @return the logged in User from the security context
+     * This function returns the email id of the user that has made the request.
+     * This information is retrieved from security context set using JWT
+     * @return email: Email id of the user making the request
      */
-    public Mono<User> getLoggedInUser() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .flatMap(principal -> getUser((String) principal));
-    }
-
-
     public Mono<String> getLoggedInUserEmail(){
         return ReactiveSecurityContextHolder.getContext()
-                .map(SecurityContext::getAuthentication)
-                .map(Authentication::getPrincipal)
-                .map(p -> (String) p);
+                .map(securityContext -> (String) securityContext.getAuthentication().getPrincipal());
     }
 
     public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
