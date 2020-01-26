@@ -1,6 +1,10 @@
 import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
 	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
-	RESEND_ACC_ACT_CODE_ENDPOINT} from '../constants';
+	RESEND_ACC_ACT_CODE_ENDPOINT,
+	GET_USER_JOBS_ENDPOINT,
+	GET_ADMIN_JOBS_ENDPOINT,
+	GET_USER_UPDATES_ENDPOINT,
+	GET_ADMIN_UPDATES_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -328,10 +332,9 @@ export async function savedCredList(accept, fail){
 /*
 	Desc: Extract all transfers for the user
 */
-export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fail) {
+export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
-	axios.post(`${url}q`, {
-		status: 'userJob',
+	axios.post(url + GET_USER_JOBS_ENDPOINT, {
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
@@ -350,50 +353,42 @@ export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fai
 /*
 	Desc: Fetch all transfers. Only for Admins
 */
-
-export async function fetchAllJobs(owner, pageNo, pageSize, sortBy, order, accept, fail) {
+export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
-	axios.post(url+'q', {
+	axios.post(url+GET_ADMIN_JOBS_ENDPOINT, {
 		status: 'all',
-		owner: owner,
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
 		sortOrder: order
 	})
-		.then((response) => {
-			if(!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			fail(error);
-		});
-}
-
-export async function fetchJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
-	axios.post(url+'q', {
-		status: 'all',
-		owner: owner,
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
 	})
-		.then((response) => {
-			if(!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			fail(error);
-		});
+	.catch((error) => {
+		fail(error);
+	});
 }
 
-export async function updateJobStatus(jobIds,accept, fail){
+export async function getJobUpdatesForUser(jobIds, accept, fail){
 	var callback = accept;
-	axios.post(url+'q/update', jobIds)
+	axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
+
+export async function getJobUpdatesForAdmin(jobIds,accept, fail){
+	var callback = accept;
+	axios.post(url+GET_ADMIN_UPDATES_ENDPOINT, jobIds)
 	.then((response) => {
 		if(!(response.status === 200))
 			callback = fail;

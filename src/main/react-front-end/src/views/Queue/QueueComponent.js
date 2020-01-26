@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { cancelJob, restartJob, deleteJob, updateJobStatus, fetchUserJobs } from '../../APICalls/APICalls';
+import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App'
 
 import Table from '@material-ui/core/Table';
@@ -92,7 +92,7 @@ class QueueComponent extends Component {
 			}
 		})
 		if (jobIds.length > 0) {
-			updateJobStatus(jobIds)
+			getJobUpdatesForUser(jobIds)
 				.then(resp => {
 					let jobs = resp
 					let existingData = [...responsesToDisplay]
@@ -128,7 +128,7 @@ class QueueComponent extends Component {
 	}
 	queueFunc(isHistory = false) {
 		const { page, rowsPerPage, orderBy, order } = this.state
-		fetchUserJobs(
+		getJobsForUser(
 			page,
 			rowsPerPage,
 			orderBy,
@@ -137,6 +137,7 @@ class QueueComponent extends Component {
 			this.queueFuncFail
 		)
 	}
+	
 	getStatus(status, total, done) {
 		const style = { marginTop: '5%', fontWeight: 'bold' };
 		if (status === 'complete') {

@@ -397,6 +397,26 @@ public class UserService {
                 .flatMap(principal -> getUser((String) principal));
     }
 
+
+    /**
+     * Modified the function to use the security context
+     * @return the logged in User from the security context
+     */
+    public Mono<User> getLoggedInUser() {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(Authentication::getPrincipal)
+                .flatMap(principal -> getUser((String) principal));
+    }
+
+
+    public Mono<String> getLoggedInUserEmail(){
+        return ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(Authentication::getPrincipal)
+                .map(p -> (String) p);
+    }
+
     public Mono<UUID> saveCredential(String cookie, OAuthCredential credential) {
         final UUID uuid = UUID.randomUUID();
         return  getLoggedInUser(cookie)

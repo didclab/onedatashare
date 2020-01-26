@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { fetchJobsForAdmin } from '../../APICalls/APICalls';
+import { getJobsForAdmin } from '../../APICalls/APICalls';
 import { humanReadableSpeed } from '../../utils';
 import moment from 'moment';
 
@@ -101,7 +101,7 @@ class HistoryComponent extends Component {
 	}
 	refreshTransfers() {
 		const { searchValue, page, rowsPerPage, orderBy, order } = this.state
-		fetchJobsForAdmin(
+		getJobsForAdmin(
 			searchValue,
 			page,
 			rowsPerPage,

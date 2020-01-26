@@ -1,21 +1,15 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.core.JobDetails;
+import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,8 +29,8 @@ public class QueueController {
      * @return Mono\<JobDetails\>
      */
     @PostMapping("/user-jobs")
-    public Mono<List<Job>> getJobsForUser(@RequestBody JobRequest jobDetails){
-        return jobService.getJobsForUserRefactored(jobDetails);
+    public Mono<JobDetails> getJobsForUser(@RequestBody JobRequest jobDetails){
+        return jobService.getJobsForUser(jobDetails);
     }
 
     /**
@@ -44,16 +38,21 @@ public class QueueController {
      * @param jobDetails - Request data needed for fetching Jobs
      * @return Mono\<JobDetails\>
      */
-    //TODO: Add role annotation
+    //TODO: Add role annotation for security
     @PostMapping("/admin-jobs")
-    public Mono<List<Job>> getJobsForAdmin(@RequestBody JobRequest jobDetails){
-        return jobService.getJobForAdminRefactored(jobDetails);
+    public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
+        return jobService.getJobForAdmin(jobDetails);
     }
 
-    @PostMapping("/update")
-    public Mono<List<Job>> update(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return jobService.getUpdates(cookie, jobIds)
-                .subscribeOn(Schedulers.elastic());
+    @PostMapping("/update-user-job")
+    public Mono<List<Job>> updateJobsForUser(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForUser(jobIds);
     }
+
+    //TODO: Add role annotation for security
+    @PostMapping("/update-admin-job")
+    public Flux<Job> updateJobsForAdmin(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForAdmin(jobIds);
+    }
+
 }
