@@ -44,6 +44,8 @@ public class QueueController {
         return jobService.getJobForAdmin(jobDetails).subscribeOn(Schedulers.elastic());
     }
 
+
+    //TODO: change the function to use query instead of using filter (might make it faster)
     @PostMapping("/update-user-job")
     public Mono<List<Job>> updateJobsForUser(@RequestBody List<UUID> jobIds) {
         return jobService.getUpdatesForUser(jobIds).subscribeOn(Schedulers.elastic());
