@@ -26,7 +26,4 @@ public interface JobRepository extends ReactiveMongoRepository<Job, UUID> {
     Mono<Long> getCount(boolean deleted);
 
     Flux<Job> findByOwnerLike(String owner, Pageable pageable);
-
-    @Query(value = "{$and: [{'id': ?0}, {'owner': ?1}, {'deleted': ?2}]}")
-    Flux<Job> findAllByIdsAndOwner(List<UUID> uuidList, String owner, boolean deleted);
 }

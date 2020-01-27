@@ -62,11 +62,15 @@ public class JobService {
 
     public Mono<List<Job>> getUpdatesForUser(List<UUID> jobIds){
         return userService.getLoggedInUserEmail()
-                .flatMap(userEmail -> jobRepository.findAllByIdsAndOwner(jobIds, userEmail, false).collectList());
+                .flatMap(userEmail ->
+                        jobRepository.findAllById(jobIds)
+                                .filter(job -> !job.isDeleted() && job.getOwner().equals(userEmail))
+                                .collectList()
+                );
     }
 
     public  Flux<Job> getUpdatesForAdmin(List<UUID> jobIds){
-        return jobRepository.findAllById(jobIds);
+        return jobRepository.findAllById(jobIds).filter(job -> !job.isDeleted());
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

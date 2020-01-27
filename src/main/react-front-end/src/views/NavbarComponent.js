@@ -22,9 +22,11 @@ class NavbarComponent extends Component {
 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
 	}
+
 	componentWillUnmount() {
 		this.unsubscribe();
 	}
+
     render() {
     return (
     	<Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar">
