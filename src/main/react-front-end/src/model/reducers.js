@@ -21,7 +21,7 @@ export const afterLogin = 2;
 
 const initialState = {
 	login: cookies.get('email') ? true : false,
-	admin: false,
+	admin: cookies.get('admin') ? true : false,
 	email: cookies.get('email') || "noemail" ,
   hash: cookies.get('hash') || null,
 	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
@@ -65,9 +65,13 @@ export function onedatashareModel(state = initialState, action) {
       cookies.set('email', email, { expires : maxCookieAge });
       cookies.set('ATOKEN', token, {expires: maxCookieAge});
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-      cookies.set('compactViewEnabled', compactViewEnabled);
-      cookies.set('admin', admin);
+      cookies.set('compactViewEnabled', compactViewEnabled, { expires : maxCookieAge });
 
+      //Only set the admin cookie if admin
+      if(admin){
+        cookies.set('admin', admin, { expires : maxCookieAge });
+      }
+      
     	return Object.assign({}, state, {
     		login: true,
     		email: email,

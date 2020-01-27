@@ -41,8 +41,7 @@ class NavbarComponent extends Component {
 		      <Nav>
 				<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 		        <NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
-				console.log(`Admin ?? ${this.state.admin}`)
-		      	{this.state.admin &&
+		      	{this.state.admin === true &&
 			    	<NavDropdown title="Admin" id="NavDropdown">
 			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
 			        		User Information
