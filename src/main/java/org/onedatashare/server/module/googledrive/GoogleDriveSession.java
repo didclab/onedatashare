@@ -107,7 +107,6 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         // Load client secrets.
         if (driveConfig == null) {
             driveConfig = new GoogleDriveConfig();
-            driveConfig.setApplicationName("OneDataShare");
         }
         com.google.api.client.auth.oauth2.Credential credential = driveConfig.getFlow().loadCredential(token);
         return credential;
