@@ -23,6 +23,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
+import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { withStyles } from '@material-ui/core';
 
@@ -58,7 +59,8 @@ class HistoryComponent extends Component {
 			order : 'desc',
 			orderBy : 'job_id',
 			selectedRowId: null,
-			totalCount: 0
+			totalCount: 0,
+			loading: true,
 		}
 		this.queueFunc = this.queueFunc.bind(this)
 		this.toggleTabs = this.toggleTabs.bind(this);
@@ -81,6 +83,22 @@ class HistoryComponent extends Component {
 	componentWillUnmount() {
 		clearInterval(this.interval);
 	}
+	componentDidUpdate(prevProps, prevState) {
+		const {
+			page: prevPage,
+			rowsPerPage: prevRowsPerPage,
+			orderBy: prevOrderBy,
+			order: prevOrder,
+			response: prevResponse,
+			loading: prevLoading
+		} = prevState
+		const { loading, response, page, rowsPerPage, orderBy, order } = this.state
+		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
+			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
+			order !== prevOrder) {
+			this.queueFunc()
+		}
+	}
 	queueFunc() {
 		this.refreshTransfers()
 	}
@@ -94,7 +112,8 @@ class HistoryComponent extends Component {
 		this.setState({
 			response: resp.jobs,
 			responsesToDisplay: responsesToDisplay,
-			totalCount: resp.totalCount
+			totalCount: resp.totalCount,
+			loading: false
 		})
 	}
 	refreshFailure() {
@@ -110,31 +129,6 @@ class HistoryComponent extends Component {
 			this.refreshSuccess,
 			this.refreshFailure
 		)
-	}
-	getStatus(status, total, done) {
-		//TODO: move to CSS file
-		let now, bsStyle, label
-		if (status === 'complete') {
-			now = 100
-			bsStyle = 'info'
-			label = 'Complete'
-		} else if (status === 'failed') {
-			now = 100
-			bsStyle = 'danger'
-			label = 'Failed'
-		} else {
-			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
-			label = `Transferring ${now}%`
-		}
-		return <ProgressBar
-			bsStyle={bsStyle}
-			label={label}
-			now={now}
-		/>
-	}
-	getFormattedDate(d) {
-		return (1 + d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds());
 	}
 	infoButtonOnClick(owner, jobID) {
 		const { selectedRowId } = this.state
@@ -170,13 +164,12 @@ class HistoryComponent extends Component {
 		this.setState({
 			page: page,
 			responsesToDisplay: nextRecords,
-			selectedRowId: null
+			selectedRowId: null,
+			loading: true
 		});
-		this.queueFunc()
 	}
 	handleChangeRowsPerPage(event) {		
-		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value) })
-		this.queueFunc()
+		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value), loading: true })
 	}
 	handleRequestSort(property) {
 		let defaultOrder = 'desc'
@@ -185,14 +178,14 @@ class HistoryComponent extends Component {
 		if (orderBy === property && order === defaultOrder) {
 			newOrder = 'asc'
 		}
-		this.setState({order: newOrder, orderBy: property}, this.queueFunc())
+		this.setState({order: newOrder, orderBy: property, loading: true})
   }
 	handleSearchChange(event) {
 		this.setState({searchValue: event.target.value})
 	}
 	handleSearch(event) {
 		event.preventDefault()
-		this.queueFunc()
+		this.setState({loading: true})
 	}
 	customToolbar() {
 		const { searchValue } = this.state
@@ -225,7 +218,8 @@ class HistoryComponent extends Component {
 			rowsPerPage,
 			page,
 			order,
-			orderBy
+			orderBy,
+			loading
 		} = this.state
 		const {classes} = this.props;
 		const sortableColumns = {
@@ -318,7 +312,13 @@ class HistoryComponent extends Component {
 					</TableRow>
 				</TableHead>
 				<TableBody style={{height:'100%', display: "block"}}>
-					{this.populateRows(responsesToDisplay)}
+					{ loading ?
+						<div style={{textAlign: 'center'}}>
+							<CircularProgress />
+						</div>
+						:
+						this.populateRows(responsesToDisplay)
+					}
 				</TableBody>
 				<TableFooter style={{textAlign:'center'}}>
 					<TableRow>
@@ -361,7 +361,7 @@ class RowElement extends React.PureComponent {
 		const { resp } = this.props
 		const { selectedTab } = this.state
 		return <TableRow>
-			<TableCell colSpan={6} style={{...tbcellStyle, fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
+			<TableCell colSpan={7} style={{...tbcellStyle, fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
 				<div id="infoBox" style={{ marginBottom : '0.5%' }}>
 					<AppBar position="static" style={{ boxShadow: 'unset' }}>
 						<Tabs value={selectedTab ? 1: 0} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
