@@ -32,9 +32,6 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
     @Autowired
     GoogleDriveConfig driveConfig;
 
-    @Value("{drive.application.name}")
-    private String appName;
-
     private Drive service;
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
@@ -110,7 +107,7 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         // Load client secrets.
         if (driveConfig == null) {
             driveConfig = new GoogleDriveConfig();
-            driveConfig.setApplicationName(appName);
+            driveConfig.setApplicationName("OneDataShare");
         }
         com.google.api.client.auth.oauth2.Credential credential = driveConfig.getFlow().loadCredential(token);
         return credential;
@@ -140,7 +137,7 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
         }
         return new Drive.Builder(
                 driveConfig.getHttpTransport(), driveConfig.getJSON_FACTORY(), setHttpTimeout(credential))
-                .setApplicationName(driveConfig.getApplicationName())
+                .setApplicationName("OneDataShare")
                 .build();
     }
 
