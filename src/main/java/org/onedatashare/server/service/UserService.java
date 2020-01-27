@@ -10,6 +10,7 @@ import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.InvalidLoginException;
 import org.onedatashare.server.model.error.NotFound;
@@ -395,6 +396,17 @@ public class UserService {
             .flatMap(userRepository::save)
             .map(user -> uuid);
   }
+
+    public Mono<UUID> saveCredential(String cookie, UserInfoCredential credential) {
+        final UUID uuid = UUID.randomUUID();
+        return  getLoggedInUser(cookie)
+                .map(user -> {
+                    user.getCredentials().put(uuid, credential);
+                    return user;
+                })
+                .flatMap(userRepository::save)
+                .map(user -> uuid);
+    }
 
     /**
      * Saves the OAuth Credentials in user collection when the user toggles the preference button.

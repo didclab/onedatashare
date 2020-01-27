@@ -15,6 +15,7 @@ public class ODSConstants {
     public static final String GRIDFTP_URI_SCHEME = "gsiftp://";
     public static final String HTTP_URI_SCHEME = "http://";
     public static final String HTTPS_URI_SCHEME = "https://";
+    public static final String AMAZONS3_URI_SCHEME = "amazons3://";
 
     public static final String DROPBOX_CLIENT_IDENTIFIER = "OneDataShare-DIDCLab";
     public static final String UPLOAD_IDENTIFIER = "Upload";

@@ -845,3 +845,18 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
       statusHandle(error, fail);
     });
 }
+
+export async function saveCredentials(username, password, accept, fail){
+	var callback = accept;
+
+	return axios.post("/api/stork/savecreds", {
+	    username: username,
+	    password: password
+	}).then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+      statusHandle(error, fail);
+    });
+}

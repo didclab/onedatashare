@@ -32,6 +32,9 @@ public class ListController {
     private ResourceServiceImpl resourceService;
 
     @Autowired
+    private S3Service s3Service;
+
+    @Autowired
     private HttpFileService httpService;
 
     /**
@@ -59,6 +62,8 @@ public class ListController {
                 return dbxService.list(cookie, userAction);
             case ODSConstants.DRIVE_URI_SCHEME:
                 return resourceService.list(cookie, userAction);
+            case ODSConstants.AMAZONS3_URI_SCHEME:
+                return s3Service.list(cookie, userAction);
             case ODSConstants.GRIDFTP_URI_SCHEME:
                 return gridService.list(cookie, userAction);
             case ODSConstants.SCP_URI_SCHEME:

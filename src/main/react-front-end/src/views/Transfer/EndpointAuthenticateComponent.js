@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList,
 		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
-		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
+		globusEndpointActivate, globusEndpointDetail, saveCredentials} from "../../APICalls/APICalls";
 import {     	DROPBOX_TYPE, 
 				GOOGLEDRIVE_TYPE, 
 				FTP_TYPE, 
@@ -81,6 +81,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		this._handleError = this._handleError.bind(this);
 		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
+
+		this.regularSignInWithSavePassword = this.regularSignInWithSavePassword.bind(this);
 	}
 
 	credentialListUpdateFromBackend = () => {
@@ -340,6 +342,36 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
+	regularSignInWithSavePassword(){
+		//TODO: Add error handling callback for the API call
+		const {url, username, password, needPassword} = this.state;
+		if(url.substr(url.length - 3) === '://') {
+			this._handleError("Please enter a valid URL")
+			return
+		}
+		if(!needPassword){
+			this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+				this.setState({needPassword: true});
+			});
+		}		
+		// User is expected to enter password to login
+		else if(username.length === 0 || password.length === 0) {
+			this._handleError("Incorrect username or password");
+			return;
+		}
+
+		saveCredentials(username, password, (val) => console.log("UUID is ", val), null);		
+		// this.endpointCheckin(this.state.url, 
+		// 	this.state.portNum,
+		// 	{type: "userinfo", username: this.state.username, password: encryptedPwd}, 
+		// 	() => {
+		// 	this._handleError("Authentication Failed");
+		// 	}
+		// );
+
+	
+	}
+
 	regularSignIn = () => {
 	const {url, username, password, needPassword} = this.state;
 	if(url.substr(url.length - 3) === '://') {
@@ -453,6 +485,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
+		        	console.log(loginType);
 		        	if(loginType === DROPBOX_TYPE){
 		        		openDropboxOAuth();
 		        	}else if(loginType === GOOGLEDRIVE_TYPE){
@@ -466,8 +499,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 					}else if(loginType === AMAZONS3_TYPE){
-						let loginUri="amazons3"
-		        		this.setState({settingAuth: true,authFunction : this.regularSignIn, needPassword: true});
+						let loginUri="amazons3";
+		        		this.setState({settingAuth: true, authFunction : this.regularSignInWithSavePassword,
+							needPassword: true, url: loginUri});
 					}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
