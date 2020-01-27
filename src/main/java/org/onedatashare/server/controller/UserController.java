@@ -22,80 +22,80 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/stork/user")
 public class UserController {
 
-  @Autowired
-  private UserService userService;
+    @Autowired
+    private UserService userService;
 
-  final int TIMEOUT_IN_MINUTES = 1440;
+    final int TIMEOUT_IN_MINUTES = 1440;
 
-  /**
-   * Handler for user information/ perference requests
-   * @param headers - Incoming request headers
-   * @param userRequestData - Data needed to make a user request
-   * @return Object
-   */
-  @PostMapping
-  public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserRequestData userRequestData) {
-    String cookie = headers.getFirst(ODSConstants.COOKIE);
-    UserAction userAction = UserAction.convertToUserAction(userRequestData);
-    switch(userAction.getAction()) {
-      case "history":
-        return userService.saveHistory(userAction.getUri(), cookie);
-      case "getUser":
-        return userService.getUserFromCookie(userAction.getEmail(), cookie);
-      case "getUsers":
-        return userService.getAllUsers(userAction, headers.getFirst(ODSConstants.COOKIE));
-      case "getAdministrators":
-        return userService.getAdministrators(userAction, cookie);
-      case "updateSaveOAuth":
-        return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
-      case "deleteCredential":
-        return userService.deleteCredential(cookie, userAction.getUuid());
-      case "deleteHistory":
-        return userService.deleteHistory(cookie, userAction.getUri());
-      case "isAdmin":
-        return userService.isAdmin(cookie);
-      case "updateViewPreference":
-        return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
-      default:
-        return null;
+    /**
+     * Handler for user information/ perference requests
+     * @param headers - Incoming request headers
+     * @param userRequestData - Data needed to make a user request
+     * @return Object
+     */
+    @PostMapping
+    public Object performAction(@RequestHeader HttpHeaders headers, @RequestBody UserRequestData userRequestData) {
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
+        UserAction userAction = UserAction.convertToUserAction(userRequestData);
+        switch(userAction.getAction()) {
+            case "history":
+                return userService.saveHistory(userAction.getUri(), cookie);
+            case "getUser":
+                return userService.getUserFromCookie(userAction.getEmail(), cookie);
+            case "getUsers":
+                return userService.getAllUsers(userAction, cookie);
+            case "getAdministrators":
+                return userService.getAdministrators(userAction, cookie);
+            case "updateSaveOAuth":
+                return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
+            case "deleteCredential":
+                return userService.deleteCredential(cookie, userAction.getUuid());
+            case "deleteHistory":
+                return userService.deleteHistory(cookie, userAction.getUri());
+            case "isAdmin":
+                return userService.isAdmin(cookie);
+            case "updateViewPreference":
+                return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
+            default:
+                return null;
+        }
     }
-  }
 
-  @PutMapping
-  public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
-    switch(userAction.getAction()) {
-      case "updateAdminRights":
-        return userService.updateAdminRights(userAction.getEmail(), userAction.isAdmin());
-      default:
-        return null;
+    @PutMapping
+    public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
+        switch(userAction.getAction()) {
+            case "updateAdminRights":
+                return userService.updateAdminRights(userAction.getEmail(), userAction.isAdmin());
+            default:
+                return null;
+        }
     }
-  }
 
-  @ExceptionHandler(NotFound.class)
-  public ResponseEntity<NotFound> handle(NotFound notfound) {
-    return new ResponseEntity<>(notfound, notfound.status);
-  }
+    @ExceptionHandler(NotFound.class)
+    public ResponseEntity<NotFound> handle(NotFound notfound) {
+        return new ResponseEntity<>(notfound, notfound.status);
+    }
 
-  @GetMapping
-  public Object getHistory(@RequestHeader HttpHeaders headers) {
-    return userService.getHistory(headers.getFirst(ODSConstants.COOKIE));
-  }
+    @GetMapping
+    public Object getHistory(@RequestHeader HttpHeaders headers) {
+        return userService.getHistory(headers.getFirst(ODSConstants.COOKIE));
+    }
 
-  @ExceptionHandler(InvalidField.class)
-  public ResponseEntity<InvalidField> handle(InvalidField invf){
-    ODSLoggerService.logError(invf.getMessage());
-    return new ResponseEntity<>(invf, invf.status);
-  }
+    @ExceptionHandler(InvalidField.class)
+    public ResponseEntity<InvalidField> handle(InvalidField invf){
+        ODSLoggerService.logError(invf.getMessage());
+        return new ResponseEntity<>(invf, invf.status);
+    }
 
-  @ExceptionHandler(ForbiddenAction.class)
-  public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
-    ODSLoggerService.logError(fa.getMessage());
-    return new ResponseEntity<>(fa, fa.status);
-  }
+    @ExceptionHandler(ForbiddenAction.class)
+    public ResponseEntity<ForbiddenAction> handle(ForbiddenAction fa){
+        ODSLoggerService.logError(fa.getMessage());
+        return new ResponseEntity<>(fa, fa.status);
+    }
 
-  @ExceptionHandler(OldPwdMatchingException.class)
-  public ResponseEntity<OldPwdMatchingException> handle(OldPwdMatchingException oe){
-    ODSLoggerService.logError(oe.getMessage());
-    return new ResponseEntity<>(oe, oe.status);
-  }
+    @ExceptionHandler(OldPwdMatchingException.class)
+    public ResponseEntity<OldPwdMatchingException> handle(OldPwdMatchingException oe){
+        ODSLoggerService.logError(oe.getMessage());
+        return new ResponseEntity<>(oe, oe.status);
+    }
 }
