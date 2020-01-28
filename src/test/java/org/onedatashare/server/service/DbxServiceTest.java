@@ -1,78 +1,102 @@
 package org.onedatashare.server.service;
 
+import com.dropbox.core.InvalidAccessTokenException;
+import com.google.gson.Gson;
+import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.jupiter.api.*;
+import org.junit.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.module.dropbox.DbxResource;
-import org.springframework.beans.factory.annotation.Autowired;
-import static org.junit.jupiter.api.Assertions.*;
 
-@DisplayName("Dropbox Service ")
-class DbxServiceTest {
-    ResourceService resourceService;
-    DbxService dbxService;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+import static reactor.core.publisher.Mono.just;
 
-    @Before
-    public void setUp() throws Exception {
-//        this.dbxService = new ResourceService<DbxResource>();
-    }
+public class DbxServiceTest {
 
+    private static final String INVALID_ACCESS_TOKEN_MSG = "accessToken";
+    private static final String INVALID_OAUTH_TOKEN = "49fad390491a5b547d0f782309b6a5b33f7ac087";
 
-    @Autowired
+    @InjectMocks
+    private DbxService dbxService;
+
+    @Mock
     private UserService userService;
 
-
-    @Autowired
-    private UserAction userAction;
-
-    @Autowired
+    @Mock
     private JobService jobService;
 
-
-    @BeforeAll
-    // TODO: Initialize with a valid user and dropbox token
-    public static void initialize(){
-
-    }
-
-    @AfterAll
-    // TODO: Delete the user and remote the token
-    public static void cleanUp(){
-
+    @Before
+    public void setup() {
+        MockitoAnnotations.initMocks(this);
     }
 
     @Test
-    @DisplayName("testing list")
-    public void listTest() throws Exception{
-        String cookie = "user=ashish;hash=123;";
-        userAction= null;
-        assertNotNull(dbxService.list(cookie, userAction));
+    public void givenUnauthorizedUser_WhenCallingAnyServiceMethod_ShouldThrowException() {
+        UUID uuid = UUID.randomUUID();
+        UserAction userAction = userActionWithCredential(userActionCredentialWithId(uuid));
+        User user = userWithId(uuid);
+        String cookie = encodeIntoCookie("cookie", user);
 
+        when(userService.getLoggedInUser(cookie)).thenReturn(just(user));
+
+        Consumer<? super Stat> statConsumer = stat -> assertNull(stat.getFilesList());
+        Consumer<? super DbxResource> rsrcConsumer = rsrc -> assertNull(rsrc.getId());
+        Consumer<? super Job> jobConsumer = Assert::assertNull;
+        Consumer<Throwable> throwableConsumer =
+                throwable -> assertTrue(
+                        throwable instanceof InvalidAccessTokenException
+                        && INVALID_ACCESS_TOKEN_MSG.equals(throwable.getMessage())
+                );
+
+        dbxService.list(cookie, userAction).subscribe(statConsumer, throwableConsumer);
+        dbxService.delete(cookie, userAction).subscribe(rsrcConsumer, throwableConsumer);
+        dbxService.mkdir(cookie, userAction).subscribe(statConsumer, throwableConsumer);
+        dbxService.submit(cookie, userAction).subscribe(jobConsumer, throwableConsumer);
     }
 
-    @Test
-    @DisplayName("testing mkdir")
-    public void mkdirTest(){
-
+    private UserActionCredential userActionCredentialWithId(UUID uuid) {
+        UserActionCredential uc = new UserActionCredential();
+        uc.setUuid(uuid.toString());
+        uc.setTokenSaved(true);
+        return uc;
     }
 
-    @Test
-    @DisplayName("testing delete")
-    public void deleteTest(){
-
+    @NotNull
+    private UserAction userActionWithCredential(UserActionCredential uc) {
+        UserAction ua = new UserAction();
+        ua.setUri(ODSConstants.DROPBOX_URI_SCHEME);
+        ua.setCredential(uc);
+        return ua;
     }
 
-    @Test
-    @DisplayName("testing download URL")
-    public void getDownloadURLTest(){
-
+    private User userWithId(UUID uuid) {
+        Map<UUID, Credential> map = new HashMap<>();
+        OAuthCredential uic = new OAuthCredential(INVALID_OAUTH_TOKEN);
+        map.put(uuid, uic);
+        User u = new User();
+        u.setHash("123");
+        u.setFirstName("test_user");
+        u.setCredentials(map);
+        return u;
     }
 
-    @Test
-    @DisplayName("testing submit")
-    public void submitTest(){
-
+    private String encodeIntoCookie(String cookieName, Object cookieValue) {
+        String valueAsJson = new Gson().toJson(cookieValue);
+        return ServerCookieEncoder.LAX.encode(cookieName, valueAsJson);
     }
-
 }

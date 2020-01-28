@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.ResourceService;
@@ -22,10 +21,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Stream.of;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.testng.Assert.*;
@@ -110,16 +107,12 @@ public class DownloadControllerTest extends ControllerTest {
 
     @NotNull
     private String encodeIntoCookie(String cookieName, Object cookieValue) {
-        String valueAsJson = toJson(new UserActionResource());
+        String valueAsJson = toJson(cookieValue);
         return ServerCookieEncoder.LAX.encode(cookieName, valueAsJson);
     }
 
     private void processThenAssertError(RequestData request) throws Exception {
         processRequest(request).andExpect(status().isInternalServerError());
-    }
-
-    private Stream<ResourceService<? extends Resource>> supportedServices() {
-        return of(dbxService, vfsService, resourceService, boxService);
     }
 
     private Answer<Mono<?>> addToList(ResourceService<?> service) {
