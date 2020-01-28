@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { fetchJobsForAdmin } from '../../APICalls/APICalls';
-import { humanReadableSpeed } from '../../utils';
+import { humanReadableSpeed } from '../../utils'
 import moment from 'moment';
 
 import Table from '@material-ui/core/Table';
@@ -74,11 +74,11 @@ class HistoryComponent extends Component {
 		this.handleChangePage	= this.handleChangePage.bind(this)
 		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
-		updateGAPageView();
+		updateGAPageView()
 	}
 	componentDidMount() {
 		document.title = "OneDataShare - History";
-		this.queueFunc();
+		this.queueFunc()
 	}
 	componentWillUnmount() {
 		clearInterval(this.interval);
@@ -514,6 +514,6 @@ class TabContent extends React.PureComponent {
 			</Grid>
 		}
 	}
-} 
+}
 
 export default withStyles(styles)(HistoryComponent)
