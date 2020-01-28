@@ -180,7 +180,6 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return userService.getLoggedInUser(cookie)
                 .map(user -> {
                     Job job = new Job(userAction.getSrc(), userAction.getDest());
-                    job.setStatus(JobStatus.scheduled);
                     job = user.saveJob(job);
                     userService.saveUser(user).subscribe();
                     return job;
