@@ -225,7 +225,7 @@ class ComposeMail extends Component {
                     </Modal.Header>
                     <Modal.Body>
                         {filteredUsers && filteredUsers.length > 0 ? (
-                            <Table responsive hover>
+                            <Table responsive bsClass={'table'}>
                                 <thead style={styles.tableHead}>
                                     <tr>
                                         <th>
@@ -237,25 +237,29 @@ class ComposeMail extends Component {
                                         <th>Email</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {
-                                        filteredUsers.map((user, index) => {
-                                            const isItemSelected = this.isSelected(user.email);
-                                            const labelId = `enhanced-table-checkbox-${index}`;
-                                            return (
-                                                <tr>
-                                                    <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
-                                                        <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
-                                                    </FormGroup></td>
-                                                    <td>{`${user.firstName} ${user.lastName}`}</td>
-                                                    <td>{user.email}</td>
-                                                </tr>
-                                            )
-                                        })
-                                    }
-                                </tbody>
+                                <div style={{ display: 'block', overflowY: 'scroll', height: 200, width: '100%' }}>
+                                    <Table responsive >
+                                        <tbody style={{ display: 'table', width: '100%' }}>
+                                            {
+                                                filteredUsers.map((user, index) => {
+                                                    const isItemSelected = this.isSelected(user.email);
+                                                    const labelId = `enhanced-table-checkbox-${index}`;
+                                                    return (
+                                                        <tr >
+                                                            <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
+                                                                <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
+                                                            </FormGroup></td>
+                                                            <td>{`${user.firstName} ${user.lastName}`}</td>
+                                                            <td>{user.email}</td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </Table>
+                                </div>
                             </Table>
-                        ) : <div> No users</div>}
+                        ) : <div> No user found</div>}
 
                     </Modal.Body>
                     <Modal.Footer>
@@ -276,7 +280,7 @@ const styles = {
     pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7 },
     searchBar: { marginBottom: 0, borderTop: 0, borderRight: 0, borderLeft: 0, borderRadius: 0, boxShadow: 'none' },
     formGroup: { marginBottom: 0 },
-    tableHead: { backgroundColor: '#073642', color: 'white', fontWeight: 'medium' },
+    tableHead: { backgroundColor: '#073642', color: 'white', fontWeight: 'medium', width: '100%', display: 'table' },
     primary: { backgroundColor: '#073642', borderColor: '#073642' },
     ButtonToolbar: { display: 'flex', justifyContent: 'flex-end' },
     alertStyle: { display: 'flex', flex: 2, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }

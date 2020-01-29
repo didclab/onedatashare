@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Label, Glyphicon, Table, Button, Modal, ButtonToolbar, Alert, OverlayTrigger, Tooltip, Form, FormControl, FormGroup, ControlLabel, HelpBlock, Checkbox } from 'react-bootstrap';
+import { Label, Glyphicon, Table, Button, Modal, ButtonToolbar, Grid, Row, Col, Alert, OverlayTrigger, Tooltip, Form, FormControl, FormGroup, ControlLabel, HelpBlock, Checkbox } from 'react-bootstrap';
 import './SentMail.css';
-import { getAllMails, sendEmailNotification, deleteMail } from '../../APICalls/APICalls';
+import { getAllMails, sendEmailNotification, getAllUsers, deleteMail } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
 
 const viewtooltip = (
@@ -32,7 +32,8 @@ class SentMail extends Component {
             isValidRecipients: true,
             isValidSubject: true,
             showDelete: false,
-            showSelectUsers: false
+            showSelectUsers: false,
+            unSelectedUsers: []
         }
     }
     closeDelete = () => {
@@ -50,6 +51,13 @@ class SentMail extends Component {
 
     async componentDidMount() {
         await this.getSentMails();
+        const users = await getAllUsers(cookies.get('email'))
+        if (users && users.length > 0) {
+            this.setState({ users, filteredUsers: users });
+        } else {
+            console.log("empty user list");
+        }
+        console.log("Get user list");
     }
 
     viewMail = (mail) => {
@@ -75,7 +83,11 @@ class SentMail extends Component {
         this.setState({ showSelectUsers: false });
     }
     showSelectUsersOpen = () => {
-        this.setState({ showSelectUsers: true });
+        let unSelectedUsers = [];
+        if (this.state.currentView && this.state.currentView.recipients && this.state.filteredUsers) {
+            unSelectedUsers = this.state.filteredUsers.filter(user => !this.state.currentView.recipients.includes(user.email));
+        }
+        this.setState({ showSelectUsers: true, unSelectedUsers });
     }
 
     onMessageChange = event => {
@@ -138,8 +150,8 @@ class SentMail extends Component {
                         </Alert> : ''}
                 </div>
                 {mails && mails.length > 0 ?
-                    <div style={{ flex: 3, overflowY: 'scroll' }}>
-                        <Table responsive hover>
+                    <div style={{ display: 'flex', flex: 3, width: '100%' }}>
+                        <Table hover>
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -180,51 +192,51 @@ class SentMail extends Component {
                         </Table>
                     </div> : <div></div>
                 }
-                {this.state.currentView ? 
-                <Modal
-                    show={this.state.viewMail}
-                    onHide={this.closeMailBox}
-                    bsSize="large"
-                    aria-labelledby="contained-modal-title-lg"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-lg">
-                            <Glyphicon glyph="envelope" /> Mail Box</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <Form>
-                            <FormGroup controlId={'to'} validationState={isValidRecipients ? 'none' : 'error'}>
-                                <ControlLabel>To</ControlLabel>
-                                <OverlayTrigger placement="right" overlay={tooltip}>
-                                    <FormControl.Static style={{ width: '15%' }}>
-                                        {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <a href={null} onClick={this.showSelectUsersOpen}>{`${this.state.currentView.recipients.length} users selected`}</a> : <a href={null}>No recipients </a>}
-                                    </FormControl.Static>
-                                </OverlayTrigger>
-                                {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
-                            </FormGroup>
-                            <FormGroup controlId={'subject'} validationState={isValidSubject ? 'none' : 'error'}>
-                                <ControlLabel>Subject</ControlLabel>
-                                <FormControl
-                                    id="formControlsText"
-                                    type="text"
-                                    label="Text"
-                                    placeholder="Enter subject"
-                                    value={this.state.currentView.subject}
-                                    onChange={this.onSubjectChange} />
-                                {isValidSubject ? '' : <HelpBlock>{'Please enter a valid subject.'}</HelpBlock>}
-                            </FormGroup>
-                            <FormGroup controlId={"message"} validationState={isValidMessage ? 'none' : 'error'} >
-                                <ControlLabel>Message</ControlLabel>
-                                <textarea class="form-control" placeholder={'Enter Message'} rows="10" value={this.state.currentView.message} onChange={this.onMessageChange}></textarea>
-                                {isValidMessage ? '' : <HelpBlock>{'Please enter a valid message.'}</HelpBlock>}
-                            </FormGroup>
-                        </Form>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button bsStyle='success' onClick={this.onResend}>Resend</Button>
-                        <Button onClick={this.closeMailBox}>Cancel</Button>
-                    </Modal.Footer>
-                </Modal>
+                {this.state.currentView ?
+                    <Modal
+                        show={this.state.viewMail}
+                        onHide={this.closeMailBox}
+                        bsSize="large"
+                        aria-labelledby="contained-modal-title-lg"
+                    >
+                        <Modal.Header closeButton>
+                            <Modal.Title id="contained-modal-title-lg">
+                                <Glyphicon glyph="envelope" /> Mail Box</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <Form>
+                                <FormGroup validationState={isValidRecipients ? 'none' : 'error'}>
+                                    <ControlLabel>To</ControlLabel>
+                                    <OverlayTrigger placement="right" overlay={tooltip}>
+                                        <FormControl.Static style={{ width: '15%' }}>
+                                            {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <a href={null} onClick={this.showSelectUsersOpen}>{`${this.state.currentView.recipients.length} users selected`}</a> : <a href={null}>No recipients </a>}
+                                        </FormControl.Static>
+                                    </OverlayTrigger>
+                                    {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
+                                </FormGroup>
+                                <FormGroup controlId={'subject'} validationState={isValidSubject ? 'none' : 'error'}>
+                                    <ControlLabel>Subject</ControlLabel>
+                                    <FormControl
+                                        id="formControlsText"
+                                        type="text"
+                                        label="Text"
+                                        placeholder="Enter subject"
+                                        value={this.state.currentView.subject}
+                                        onChange={this.onSubjectChange} />
+                                    {isValidSubject ? '' : <HelpBlock>{'Please enter a valid subject.'}</HelpBlock>}
+                                </FormGroup>
+                                <FormGroup controlId={"message"} validationState={isValidMessage ? 'none' : 'error'} >
+                                    <ControlLabel>Message</ControlLabel>
+                                    <textarea class="form-control" placeholder={'Enter Message'} rows="10" value={this.state.currentView.message} onChange={this.onMessageChange}></textarea>
+                                    {isValidMessage ? '' : <HelpBlock>{'Please enter a valid message.'}</HelpBlock>}
+                                </FormGroup>
+                            </Form>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button bsStyle='success' onClick={this.onResend}>Resend</Button>
+                            <Button onClick={this.closeMailBox}>Cancel</Button>
+                        </Modal.Footer>
+                    </Modal>
                     : <div></div>}
 
                 <Modal
@@ -237,14 +249,92 @@ class SentMail extends Component {
                         <Modal.Title id="select_user_modal">Select Users</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Wrapped Text</h4>
-                        <p>
-                            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-                            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta
-                            ac consectetur ac, vestibulum at eros.
-                        </p>
+                        <div style={{ width: '100%' }}>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                                <Col lg={5}>
+                                    <h5>{'Selected Users'}</h5>
+                                    <Table responsive bsClass={'table'}>
+                                        <thead style={styles.tableHead}>
+                                            <tr>
+                                                <th>
+                                                    <FormGroup controlId={'selectAll'} style={{ marginBottom: 0 }}>
+                                                        <Checkbox checked={this.state.selectAll && this.state.selected.length === this.state.filteredUsers.length} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
+                                                    </FormGroup>
+                                                </th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                        <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
+                                            <Table responsive >
+                                                <tbody style={{ display: 'table', width: '100%' }}>
+                                                    {
+                                                        this.state.currentView && this.state.currentView.recipients.map((user, index) => {
+                                                            // const isItemSelected = this.isSelected(user.email);
+                                                            const isItemSelected = false;
+                                                            const labelId = `enhanced-table-checkbox-${index}`;
+                                                            return (
+                                                                <tr >
+                                                                    <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
+                                                                        <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
+                                                                    </FormGroup></td>
+                                                                    <td>{user}</td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Table>
+                                </Col>
+                                <Col lg={2}>
+                                    <div style={{ display: 'flex', height: 300, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                                        <Button> {'>'} </Button>
+                                        <Button> {'<'} </Button>
+                                    </div>
+                                </Col>
+                                <Col lg={5}>
+                                    <h5>{'Unselected Users'}</h5>
+                                    <Table responsive bsClass={'table'}>
+                                        <thead style={styles.tableHead}>
+                                            <tr>
+                                                <th>
+                                                    <FormGroup controlId={'selectAll'} style={{ marginBottom: 0 }}>
+                                                        <Checkbox checked={this.state.selectAll && this.state.selected.length === this.state.filteredUsers.length} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
+                                                    </FormGroup>
+                                                </th>
+                                                <th>Email</th>
+                                            </tr>
+                                        </thead>
+                                        <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
+                                            <Table responsive >
+                                                <tbody style={{ display: 'table', width: '100%' }}>
+                                                    {
+                                                        this.state.unSelectedUsers.map((user, index) => {
+                                                            // const isItemSelected = this.isSelected(user.email);
+                                                            const isItemSelected = false;
+                                                            const labelId = `enhanced-table-checkbox-${index}`;
+                                                            return (
+                                                                <tr >
+                                                                    <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
+                                                                        <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
+                                                                    </FormGroup></td>
+                                                                    <td>{user.email}</td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                    }
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Table>
+                                </Col>
+                            </div>
+                        </div>
                     </Modal.Body>
                     <Modal.Footer>
+                        <Button bsStyle={'primary'} onClick={this.props.onHide}>Select</Button>
                         <Button onClick={this.props.onHide}>Close</Button>
                     </Modal.Footer>
                 </Modal>
@@ -274,7 +364,8 @@ class SentMail extends Component {
 
 const styles = {
     pageHeading: { backgroundColor: 'transparent', color: '#073642', padding: 7 },
-    alertStyle: { display: 'flex', flex: 2, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 }
+    alertStyle: { display: 'flex', flex: 2, flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+    tableHead: { backgroundColor: '#073642', color: 'white', fontWeight: 'medium', width: '100%', display: 'table' },
 }
 
 export default SentMail;

@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Ubuntu');
-
 .toolbar {
     text-align: 'right';
 }
@@ -39,4 +38,10 @@
     -webkit-box-shadow: rgba(0, 0, 0, 0.8) 0px 0 7px;
     -moz-box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
     box-shadow: rgba(0, 0, 0, 0.8) 0 0 7px;
+}
+
+.table {
+    overflow: auto;
+    display: block;
+    table-layout: auto;
 }
