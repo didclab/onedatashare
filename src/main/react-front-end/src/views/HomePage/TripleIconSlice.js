@@ -9,16 +9,9 @@ export default class TripleIconSlice extends Component {
 
     render(){
         return(
-            <Grid className="TripleIconSlice" container direction='row'>
-                <Grid className="tripleContent" container xs={12} md={4}>
-                    <h2>Hi</h2>
-                </Grid>
-                <Grid className="tripleContent" container xs={12}  md={4}>
-                    <p> Hi </p>
-                </Grid>
-                <Grid className="tripleContent" container xs={12}  md={4}>
-                    <p> Hi </p>
-                </Grid>
+            <Grid className="tripleContent" container xs={12} sm={4} direction='column'>
+                <img className='iconTrio' src={this.props.img} alt={this.props.imgAltTxt} />
+                <h2>{this.props.title}</h2>
             </Grid>
         );
     }

@@ -178,4 +178,15 @@ div.homePage {
   padding: 2vh 15vw;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
+}
+
+.TripleIconSlice h2 {
+}
+
+.iconTrio {
+  max-width: 80%;
+  object-fit: contain;
+  margin-left: auto;
+  margin-right: auto;
 }

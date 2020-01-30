@@ -8,6 +8,8 @@ import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import RecognitionSlice from "./HomePage/RecognitionSlice";
 import TitleSlice from "./HomePage/TitleSlice";
 import TripleIconSlice from "./HomePage/TripleIconSlice";
+import {TripleIconInfo} from "./HomePage/TripleIconInfo";
+import Grid from "@material-ui/core/Grid";
 
 export default class HomePageComponent extends Component {
 
@@ -39,9 +41,21 @@ export default class HomePageComponent extends Component {
 		return retVal;
 	}
 
+	makeTriple() {
+		let retVal = [];
+		for (let i=0; i<TripleIconInfo.length; i+=1) {
+			let data = TripleIconInfo[i];
+			retVal.push( <TripleIconSlice img={data.img}
+										  title={data.title}
+										  imgAltTxt={data.imgAlt}/> );
+		}
+		return retVal;
+	}
+
 	render() {
 
 		let homeInfo = this.makeInfoSlices();
+		let tripleIcon = this.makeTriple();
 
 		let bgImgS1 = ODS_S3_BUCKET + 's1.webp';
 		let bgImgS2 = ODS_S3_BUCKET + 's2.webp';
@@ -65,7 +79,9 @@ export default class HomePageComponent extends Component {
 
 					<TitleSlice />
 
-					<TripleIconSlice />
+					<Grid className='TripleIconSlice' container direction='row'>
+					{tripleIcon}
+					</Grid>
 
 					{homeInfo}
 				</div>
