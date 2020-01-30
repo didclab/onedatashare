@@ -33,11 +33,85 @@ class SentMail extends Component {
             isValidSubject: true,
             showDelete: false,
             showSelectUsers: false,
-            unSelectedUsers: []
+            unSelectedUsers: [],
+            selectedUsers: [],
+            checkedSelectedUsers: [],
+            checkedUnSelectedUsers: [],
+            selectAllCheckedUSUsers: false,
+            selectAllCheckedSUsers: false,
+            showSUErrorMsg: null
         }
     }
     closeDelete = () => {
         this.setState({ showDelete: false });
+    }
+
+    isSelected = (type, email) => {
+        if (type === 'selected') {
+            return this.state.checkedSelectedUsers.indexOf(email) !== -1;
+        } else {
+            return this.state.checkedUnSelectedUsers.indexOf(email) !== -1;
+        }
+    }
+
+    handleCheckBoxClick = (event, type, email) => {
+        let checkedUsers = [];
+        let newList = [];
+        if (type === 'selected') {
+            checkedUsers = this.state.checkedSelectedUsers;
+        } else {
+            checkedUsers = this.state.checkedUnSelectedUsers;
+        }
+        const selectedIndex = checkedUsers.indexOf(email);
+        if (selectedIndex === -1) {
+            newList = newList.concat(checkedUsers, email);
+        } else if (selectedIndex === 0) {
+            newList = newList.concat(checkedUsers.slice(1));
+        } else if (selectedIndex === checkedUsers.length - 1) {
+            newList = newList.concat(checkedUsers.slice(0, -1));
+        } else if (selectedIndex > 0) {
+            newList = newList.concat(
+                checkedUsers.slice(0, selectedIndex),
+                checkedUsers.slice(selectedIndex + 1),
+            );
+        }
+        if (type === 'selected') {
+            this.setState({ checkedSelectedUsers: newList, selectAllCheckedSUsers: newList.length === this.state.selectedUsers.length });
+        } else {
+            this.setState({ checkedUnSelectedUsers: newList, selectAllCheckedUSUsers: newList.length === this.state.unSelectedUsers.length });
+        }
+    }
+
+    handleSelectAllClick = (event, type) => {
+        const { selectAllCheckedSUsers, selectAllCheckedUSUsers, unSelectedUsers, selectedUsers } = this.state;
+        if (type === 'selected') {
+            if (event.target.checked) {
+                this.setState({ checkedSelectedUsers: selectedUsers, selectAllCheckedSUsers: !selectAllCheckedSUsers });
+            } else {
+                this.setState({ checkedSelectedUsers: [], selectAllCheckedSUsers: !selectAllCheckedSUsers });
+            }
+        } else {
+            if (event.target.checked) {
+                this.setState({ checkedUnSelectedUsers: unSelectedUsers, selectAllCheckedUSUsers: !selectAllCheckedUSUsers });
+            } else {
+                this.setState({ checkedUnSelectedUsers: [], selectAllCheckedUSUsers: !selectAllCheckedUSUsers });
+            }
+        }
+    };
+
+    moveToUnselectedList = () => {
+        const { checkedSelectedUsers, selectedUsers, unSelectedUsers } = this.state;
+        const newSelectedUsers = selectedUsers.filter(user => !this.state.checkedSelectedUsers.includes(user));
+        const newUnSelectedUsers = unSelectedUsers.concat(checkedSelectedUsers);
+        this.setState({ selectedUsers: newSelectedUsers, checkedSelectedUsers: [], unSelectedUsers: newUnSelectedUsers });
+    }
+
+    moveToSelectedList = () => {
+        const { checkedUnSelectedUsers, selectedUsers, unSelectedUsers } = this.state;
+        const newUnSelectedUsers = unSelectedUsers.filter(user => !this.state.checkedUnSelectedUsers.includes(user));
+        const newSelectedUsers = selectedUsers.concat(checkedUnSelectedUsers);
+        const showSUErrorMsg = newSelectedUsers.length === 0 ? 'Please select atleast 1 user to send email.' : null;
+        this.setState({ showSUErrorMsg, selectedUsers: newSelectedUsers, checkedUnSelectedUsers: [], unSelectedUsers: newUnSelectedUsers });
     }
 
     showDelete = (mail) => {
@@ -87,7 +161,8 @@ class SentMail extends Component {
         if (this.state.currentView && this.state.currentView.recipients && this.state.filteredUsers) {
             unSelectedUsers = this.state.filteredUsers.filter(user => !this.state.currentView.recipients.includes(user.email));
         }
-        this.setState({ showSelectUsers: true, unSelectedUsers });
+        unSelectedUsers = unSelectedUsers.map(user => user.email);
+        this.setState({ showSelectUsers: true, showSUErrorMsg: null, unSelectedUsers, selectedUsers: this.state.currentView.recipients });
     }
 
     onMessageChange = event => {
@@ -96,6 +171,15 @@ class SentMail extends Component {
 
     closeMailBox = () => {
         this.setState({ viewMail: false });
+    }
+
+    onSelectUsers = () => {
+        const { selectedUsers } = this.state;
+        if (selectedUsers.length === 0) {
+            this.setState({ showSUErrorMsg: 'Please select atleast 1 user to send email.' });
+        } else {
+            this.setState({ showSelectUsers: false, currentView: { ...this.state.currentView, recipients: selectedUsers } });
+        }
     }
 
     onResend = async () => {
@@ -250,92 +334,95 @@ class SentMail extends Component {
                     </Modal.Header>
                     <Modal.Body>
                         <div style={{ width: '100%' }}>
-
                             <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                                 <Col lg={5}>
                                     <h5>{'Selected Users'}</h5>
-                                    <Table responsive bsClass={'table'}>
+                                    <Table responsive bsClass={'table'} style={{ marginBottom: 0 }}>
                                         <thead style={styles.tableHead}>
                                             <tr>
                                                 <th>
                                                     <FormGroup controlId={'selectAll'} style={{ marginBottom: 0 }}>
-                                                        <Checkbox checked={this.state.selectAll && this.state.selected.length === this.state.filteredUsers.length} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
+                                                        <Checkbox checked={this.state.selectAllCheckedSUsers && this.state.selectedUsers.length > 0 && this.state.selectedUsers.length === this.state.checkedSelectedUsers.length} style={{ margin: 0 }} onChange={event => this.handleSelectAllClick(event, 'selected')} ></Checkbox>
                                                     </FormGroup>
                                                 </th>
                                                 <th>Email</th>
                                             </tr>
                                         </thead>
-                                        <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
-                                            <Table responsive >
-                                                <tbody style={{ display: 'table', width: '100%' }}>
-                                                    {
-                                                        this.state.currentView && this.state.currentView.recipients.map((user, index) => {
-                                                            // const isItemSelected = this.isSelected(user.email);
-                                                            const isItemSelected = false;
-                                                            const labelId = `enhanced-table-checkbox-${index}`;
-                                                            return (
-                                                                <tr >
-                                                                    <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
-                                                                        <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
-                                                                    </FormGroup></td>
-                                                                    <td>{user}</td>
-                                                                </tr>
-                                                            )
-                                                        })
-                                                    }
-                                                </tbody>
-                                            </Table>
-                                        </div>
                                     </Table>
+                                    <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
+                                        <Table responsive >
+                                            <tbody style={{ display: 'table', width: '100%' }}>
+                                                {
+                                                    this.state.selectedUsers.map((user, index) => {
+                                                        const isItemSelected = this.isSelected('selected', user);
+                                                        //const isItemSelected = false;
+                                                        const labelId = `enhanced-table-checkbox-${index}`;
+                                                        return (
+                                                            <tr >
+                                                                <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
+                                                                    <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleCheckBoxClick(event, 'selected', user)}></Checkbox>
+                                                                </FormGroup></td>
+                                                                <td>{user}</td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                }
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                 </Col>
                                 <Col lg={2}>
                                     <div style={{ display: 'flex', height: 300, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Button> {'>'} </Button>
-                                        <Button> {'<'} </Button>
+                                        <Button disabled={!this.state.checkedSelectedUsers || this.state.checkedSelectedUsers.length === 0} onClick={this.moveToUnselectedList}> {'>'} </Button>
+                                        <Button disabled={!this.state.checkedUnSelectedUsers || this.state.checkedUnSelectedUsers.length === 0} onClick={this.moveToSelectedList}> {'<'} </Button>
                                     </div>
                                 </Col>
                                 <Col lg={5}>
-                                    <h5>{'Unselected Users'}</h5>
-                                    <Table responsive bsClass={'table'}>
+                                    <h5>{'Remaining Users'}</h5>
+                                    <Table responsive style={{ marginBottom: 0 }}>
                                         <thead style={styles.tableHead}>
                                             <tr>
                                                 <th>
                                                     <FormGroup controlId={'selectAll'} style={{ marginBottom: 0 }}>
-                                                        <Checkbox checked={this.state.selectAll && this.state.selected.length === this.state.filteredUsers.length} style={{ margin: 0 }} onChange={this.handleSelectAllClick} ></Checkbox>
+                                                        <Checkbox checked={this.state.selectAllCheckedUSUsers && this.state.unSelectedUsers.length > 0 && this.state.checkedUnSelectedUsers.length === this.state.unSelectedUsers.length} style={{ margin: 0 }} onChange={event => this.handleSelectAllClick(event, 'unselected')} ></Checkbox>
                                                     </FormGroup>
                                                 </th>
                                                 <th>Email</th>
                                             </tr>
                                         </thead>
-                                        <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
-                                            <Table responsive >
-                                                <tbody style={{ display: 'table', width: '100%' }}>
-                                                    {
-                                                        this.state.unSelectedUsers.map((user, index) => {
-                                                            // const isItemSelected = this.isSelected(user.email);
-                                                            const isItemSelected = false;
-                                                            const labelId = `enhanced-table-checkbox-${index}`;
-                                                            return (
-                                                                <tr >
-                                                                    <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
-                                                                        <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleClick(event, user.email)}></Checkbox>
-                                                                    </FormGroup></td>
-                                                                    <td>{user.email}</td>
-                                                                </tr>
-                                                            )
-                                                        })
-                                                    }
-                                                </tbody>
-                                            </Table>
-                                        </div>
                                     </Table>
+                                    <div style={{ display: 'block', overflowY: 'scroll', height: 300, width: '100%' }}>
+                                        <Table responsive >
+                                            <tbody style={{ display: 'table', width: '100%' }}>
+                                                {
+                                                    this.state.unSelectedUsers.map((user, index) => {
+                                                        const isItemSelected = this.isSelected('unselected', user);
+                                                        //const isItemSelected = false;
+                                                        const labelId = `enhanced-table-checkbox-${index}`;
+                                                        return (
+                                                            <tr >
+                                                                <td>  <FormGroup controlId={labelId} style={{ marginBottom: 0 }}>
+                                                                    <Checkbox checked={isItemSelected} style={{ margin: 0 }} onChange={event => this.handleCheckBoxClick(event, 'unselected', user)}></Checkbox>
+                                                                </FormGroup></td>
+                                                                <td>{user}</td>
+                                                            </tr>
+                                                        )
+                                                    })
+                                                }
+                                            </tbody>
+                                        </Table>
+                                    </div>
                                 </Col>
                             </div>
                         </div>
+                        {this.state.showSUErrorMsg ?
+                            <Alert bsStyle="danger" style={styles.alertStyle} >
+                                <p>{this.state.showSUErrorMsg}</p>
+                            </Alert> : ''}
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button bsStyle={'primary'} onClick={this.props.onHide}>Select</Button>
-                        <Button onClick={this.props.onHide}>Close</Button>
+                        <Button bsStyle={'primary'} onClick={this.onSelectUsers}>Select</Button>
+                        <Button onClick={this.showSelectUsersClose}>Close</Button>
                     </Modal.Footer>
                 </Modal>
 
