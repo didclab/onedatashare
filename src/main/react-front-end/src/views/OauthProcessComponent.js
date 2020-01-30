@@ -74,14 +74,14 @@ export default class OauthProcessComponent extends Component {
           "Auth token for " + accountId + " already exists in session."
         );
       } else {
-        parsedJSON.push({ name: accountId, token: oAuthToken });
+        parsedJSON.push({ name: accountId, token: oAuthToken, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime });
         cookies.set(protocolType, JSON.stringify(parsedJSON));
       }
     } else {
       cookies.set(
         protocolType,
         JSON.stringify([
-          { name: qsObj.name.split(":+")[1], token: qsObj.token }
+          { name: qsObj.name.split(":+")[1], token: qsObj.token, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime }
         ])
       );
     }

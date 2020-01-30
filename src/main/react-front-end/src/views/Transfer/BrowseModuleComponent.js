@@ -185,7 +185,7 @@ export default class BrowseModuleComponent extends Component {
 	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 	      		}}>
 	      			<Icon className={'fas fa-server'} style={iconStyle}/>
-	      		Grid FTP
+	      		GridFTP
 		      	</Button>
 
 				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
@@ -206,7 +206,7 @@ export default class BrowseModuleComponent extends Component {
 	      			loginPrep(SCP_TYPE)()
 	      		}}>
 	      			<Icon className={'fas fa-terminal'} style={iconStyle}/>
-	      			SSH
+	      			SCP
 	      		</Button>
 		    </div>}
 

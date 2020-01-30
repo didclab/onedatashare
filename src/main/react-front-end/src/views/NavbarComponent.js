@@ -3,7 +3,7 @@ import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, notificationPageUrl, newNotifications } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, accountPageUrl, notificationPageUrl, newNotifications,signInUrl } from '../constants';
 import { store } from '../App';
 import { logoutAction, isAdminAction } from '../model/actions';
 import { isAdmin } from '../APICalls/APICalls';
@@ -50,39 +50,38 @@ class NavbarComponent extends Component {
 							<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 							<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
 
-							{this.state.admin &&
-								<NavDropdown title="Admin" id="NavDropdown">
-									<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
-										Clients Information
-			        				</NavItem>
-									<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>History</NavItem>
-									{/*<NavItem componentClass={Link} to={notificationPageUrl} href={notificationPageUrl}>Send Notifications</NavItem>*/}
-									<NavItem componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
-									{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
-			        				<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
-								</NavDropdown>
-							}
-						</Nav>}
+		      	{this.state.admin &&
+			    	<NavDropdown title="Admin" id="NavDropdown">
+			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
+			        		User Information
+			        	</NavItem>
+			        	<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>Transfer History</NavItem>
+						<NavItem componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
+			        	{/*<NavItem componentClass={Link} to={managementPageUrl} href={managementPageUrl}>Management</NavItem>
+			        	<NavItem id="NavAdminData" componentClass={Link} to={dataPageUrl} href={dataPageUrl}>Data</NavItem>*/}
+			    	</NavDropdown>
+		    	}
+		    </Nav>}
 
-					<Nav pullRight>
-						{this.state.login &&
-							<NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
-						}
-						{!this.state.login &&
-							<NavItem id="NavSignIn" componentClass={Link} to={accountPageUrl} href={accountPageUrl}>Sign in</NavItem>
-						}
-						{!this.state.login &&
-							<NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
-						}
-						{this.state.login &&
-							<NavItem id="NavLogout" onClick={() => { store.dispatch(logoutAction()) }}>
-								<span>Log out</span>
-							</NavItem>}
-						<NavItem component={Link} href="/support">
-							<Tooltip title="Report an issue" placement="top">
-								<ContactSupportOutlined />
-							</Tooltip>
-						</NavItem>
+		    <Nav pullRight>
+		        {this.state.login &&
+			        <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
+		    	}
+		        {!this.state.login &&
+			        <NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
+			    }
+		        {!this.state.login &&
+			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
+		    	}
+		        {this.state.login &&
+			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
+			            <span>Log out</span>
+					</NavItem>}
+					<NavItem component={Link} href="/support">
+						<Tooltip title="Report an issue" placement="top">
+							<ContactSupportOutlined />
+						</Tooltip>
+					</NavItem>
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>

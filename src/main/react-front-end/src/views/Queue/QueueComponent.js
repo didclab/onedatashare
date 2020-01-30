@@ -82,7 +82,7 @@ class QueueComponent extends Component {
 	}
 
 	update = () => {
-		let jobIds = this.state.responsesToDisplay.filter(job => job.status !== "processing")
+		let jobIds = this.state.responsesToDisplay.filter(job => job.status === "transferring" || job.status === "scheduled")
 			.map(job => job.uuid)
 		if (jobIds.length > 0) {
 			updateJobStatus(jobIds, resp => {
@@ -131,11 +131,11 @@ class QueueComponent extends Component {
 			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'} />);
 		}
 		else if (status === 'removed' || status === "cancelled") {
-			return (<ProgressBar bsStyle="danger" striped now={100} style={style} label={'Cancelled'} />);
+			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Cancelled'} />);
 		}
 		else {
 			let percentCompleted = Math.ceil(((done / total) * 100));
-			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Processing ' + percentCompleted + '%'} />);
+			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style} label={'Transferring ' + percentCompleted + '%'} />);
 		}
 	}
 
@@ -228,7 +228,7 @@ class QueueComponent extends Component {
 						<Info />
 					</Button>
 				</Tooltip>
-				{(status === 'processing' || status === 'scheduled') &&
+				{(status === 'transferring' || status === 'scheduled' || status === 'transferring') &&
 					<Tooltip TransitionComponent={Zoom} title="Cancel">
 						<Button onClick={() => { this.cancelButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
@@ -239,7 +239,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status !== 'processing' && status !== 'scheduled' &&
+				{status !== 'transferring' && status !== 'scheduled' &&
 					<Tooltip TransitionComponent={Zoom} title="Restart">
 						<Button onClick={() => { this.restartButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{
@@ -250,7 +250,7 @@ class QueueComponent extends Component {
 						</Button>
 					</Tooltip>
 				}
-				{status !== 'processing' && status !== 'scheduled' && !deleted &&
+				{status !== 'transferring' && status !== 'scheduled' && !deleted &&
 					<Tooltip TransitionComponent={Zoom} title="Delete">
 						<Button onClick={() => { this.deleteButtonOnClick(jobID) }} variant="contained" size="small" color="primary"
 							style={{

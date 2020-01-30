@@ -22,9 +22,12 @@ public class ODSConstants {
     public static final String COOKIE = "cookie";
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
-            "/clientsInfo", "/history", "/account/signIn", "/account/register", "/oauth",
+            "/clientsInfo", "/history", "/account", "/account/signIn", "/account/register", "/oauth",
             "/support", "/get-started", "/oauth/uuid",
             "/oauth/googledrive", "/oauth/dropbox", "/oauth/gridftp", "/oauth/box", "/oauth/ExistingCredDropbox" ,"/oauth/ExistingCredGoogleDrive", "/oauth/ExistingCredBox"};
+
     public static final Set<String> ODS_URIS_SET = new HashSet<String>(Arrays.asList(ODS_URIS_ARR));
+
+    public static final long TRANSFER_SLICE_SIZE = 1<<20;
 
 }

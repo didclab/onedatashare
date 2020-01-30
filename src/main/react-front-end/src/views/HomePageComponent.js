@@ -1,26 +1,17 @@
 import React, { Component } from 'react';
 import {Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
 import Slider from "react-slick";
-
-import fastImage from '../assets/fast.png';
-import easyImage from '../assets/easy.png';
-import eteImage from '../assets/endtoend.png';
-import precImage from '../assets/precise.png';
-import intopImage from '../assets/interoperation.png';
-
-import nsfImage from '../assets/NSF_Logo.png';
-import ubImage from '../assets/ub.png';
 import {updateGAPageView} from "../analytics/ga";
 import Button from '@material-ui/core/Button';
 import { Link } from 'react-router-dom';
+import { isSafari } from 'react-device-detect';
+import { fastImage, easyImage, eteImage, precImage, intopImage, nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 
 import './HomePageComponent.css';
-
 
 const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
 const sideStyle = {...textStyle, fontSize: '1.5em'};
 const rowStyle = {background: '#579', padding: '4vw', width: '100%', margin: 0};
-
 const subHeaderStyle = {...textStyle, fontSize: '2em'}
 const subTextStyle = {...textStyle, fontSize: '1.1em'}
 
@@ -85,12 +76,29 @@ export default class HomePageComponent extends Component {
 			</div>
 		);
 		
+		let bgImgS1 = ODS_S3_BUCKET + 's1.webp';
+		let bgImgS2 = ODS_S3_BUCKET + 's2.webp';
+		let bgImgS3 = ODS_S3_BUCKET + 's3.webp';
+		let bgImgS4 = ODS_S3_BUCKET + 's4.webp';
+		let bgImgS5 = ODS_S3_BUCKET + 's5.webp';
+		let bgImgS6 = ODS_S3_BUCKET + 's6.webp';
+		if(isSafari){
+			// Since Safari does not support WebP images, we load PNG
+			bgImgS1 = ODS_S3_BUCKET + 's1.png';
+			bgImgS2 = ODS_S3_BUCKET + 's2.png';
+			bgImgS3 = ODS_S3_BUCKET + 's3.png';
+			bgImgS4 = ODS_S3_BUCKET + 's4.png';
+			bgImgS5 = ODS_S3_BUCKET + 's5.png';
+			bgImgS6 = ODS_S3_BUCKET + 's6.png';
+		}
+
+
 		return(
 			<div className="adjustTop">
 				<Col>
 					<Slider {...settings} >
 						<div>
-							<Jumbotron className="homepage_section homepage_section1">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS1 + ')'}}>
 								<Col className="cardStyle">
 									<h1 className="textStyle headerStyle">OneDataShare&nbsp;
 										<sup title="Beta">&beta;</sup>
@@ -108,7 +116,7 @@ export default class HomePageComponent extends Component {
 							</Jumbotron>
 						</div>
 						<div>
-							<Jumbotron className="homepage_section homepage_section2">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS2 + ')'}}>
 								<Col className="cardStyle">
 									<h1 className="textStyle headerStyle">Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
 									<p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
@@ -120,7 +128,7 @@ export default class HomePageComponent extends Component {
 							</Jumbotron>
 						</div>
 						<div>
-							<Jumbotron className="homepage_section homepage_section3">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS3 + ')'}}>
 								<Col className="cardStyle">
 									<h1 className="textStyle headerStyle">Reduced Time to the Delivery of Data</h1>
 									<p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
@@ -131,7 +139,7 @@ export default class HomePageComponent extends Component {
 							</Jumbotron>
 						</div>
 						<div >
-							<Jumbotron className="homepage_section homepage_section4">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS4 + ')'}}>
 								<Col className="cardStyle">
 									<h1 className="textStyle headerStyle">Interoperation Across Heterogeneous Data Resources</h1>
 									<p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
@@ -143,7 +151,7 @@ export default class HomePageComponent extends Component {
 							</Jumbotron>
 						</div>
 						<div>
-							<Jumbotron className="homepage_section homepage_section5">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS5 + ')'}}>
 								<Col className="cardStyle">
 									<h1 className="textStyle headerStyle">Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
 									<p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
@@ -152,7 +160,7 @@ export default class HomePageComponent extends Component {
 							</Jumbotron>
 						</div>
 						<div>
-							<Jumbotron className="homepage_section homepage_section6">
+							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS6 + ')'}}>
 								<Col className="cardStyle">
 											<h1 className="textStyle headerStyle">End-to-end Data Sharing Solution</h1>
 											<p style={sideStyle}>Anything that requires high-volume data transfer, 

@@ -45,7 +45,6 @@ public class UploadService {
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
 
             ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
-            ODSLoggerService.logInfo("Total upload file size - " + totalFileSize);
             ua.setDest( new UserActionResource());
             ua.getDest().setId( googleDriveId );
 

@@ -155,7 +155,7 @@ export default class NewLoginComponent extends Component {
                     errorMessages={['Where is password?']}
 		          	style={{width: "100%", marginTop: "5%", marginBottom: "5%"}}
             />
-            <FormControlLabel
+            {/* <FormControlLabel
 			control={
 	            <Checkbox checked={remember} value="remember"
 	            onChange={(event)=>{
@@ -163,7 +163,7 @@ export default class NewLoginComponent extends Component {
 	            }}
 	            color="primary"
 	            />
-	        } label="Remember"/>
+	        } label="Remember"/> */}
 
 	        <CardActions style={{...spaceBetweenStyle, marginBottom: '20px'}}>
 						<Button 
