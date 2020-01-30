@@ -189,8 +189,8 @@ public class UserService {
     }
 
     public Mono<User> getUser(String email) {
-        return userRepository.findById(email)
-                .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
+         return userRepository.findById(email)
+                 .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
     }
 
     public Mono<User> getUserFromCookie(String email, String cookie) {
@@ -201,6 +201,7 @@ public class UserService {
             return Mono.error(new Exception("No User found with Id: " + email));
         });
     }
+
     public Mono<User> saveUser(User user) {
         return userRepository.save(user);
     }
@@ -406,7 +407,7 @@ public class UserService {
      */
     public Mono<User> getLoggedInUser() {
         return getLoggedInUserEmail()
-                .flatMap(email -> getUser(email));
+                .flatMap(this::getUser);
     }
 
 
