@@ -39,9 +39,9 @@ export default class HomeInfoSlice extends Component {
 
     render() {
         let wideView = this.makeWideView();
-
+        let name = this.props.className + ' HomeInfoSlice';
         return (
-            <div className='HomeInfoSlice'>
+            <div className={name}>
                 {/* This renders desktop view */}
                 <Hidden smDown>
                     {wideView}

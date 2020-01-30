@@ -181,7 +181,8 @@ div.homePage {
   text-align: center;
 }
 
-.TripleIconSlice h2 {
+.tripleContent h2 {
+  font-size: 3em;
 }
 
 .iconTrio {

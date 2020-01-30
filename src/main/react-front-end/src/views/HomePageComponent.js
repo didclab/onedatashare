@@ -27,9 +27,9 @@ export default class HomePageComponent extends Component {
 		for (let i=0; i<HomeInfo.length; i+=1) {
 			let data = HomeInfo[i];
 			let left = i % 2;
-			var name = "evenSlice";
-			if (left) {
-				name = "oddSlice";
+			let name = 'evenSlice';
+			if (!left) {
+				name = 'oddSlice';
 			}
 			retVal.push( <HomeInfoSlice className={name}
 										imgOnLeft={left}
