@@ -60,7 +60,7 @@
 }
 
 .underNav {
-  padding: 7vh 15vw 3vh;
+  /*padding: 7vh 15vw 3vh;*/
 }
 
 button.defaultButton {
@@ -77,8 +77,16 @@ button.defaultButton {
 /*********************************/
 
 div.homePage {
-  background: #579;
+  /*background: #579;*/
   overflow: hidden;
+}
+
+.evenSlice {
+  background-color: #ffffff;
+}
+
+.oddSlice {
+  background-color: #F2F2F2;
 }
 
 /**************************************/
@@ -88,12 +96,14 @@ div.homePage {
 /**************************************/
 
 .HomeInfoSlice {
-  padding-top: 2vh;
-  padding-bottom: 2vh;
+  /*padding-top: 2vh;*/
+  /*padding-bottom: 2vh;*/
+  padding: 2vh 15vw;
+  /*background-color: #ffffff;*/
 }
 
 .HomeInfoSlice h2 {
-  color: #d9eff6;
+  color: #172753;
   font-size: 3em;
   padding-bottom: 3vh;
 }
@@ -141,7 +151,8 @@ div.homePage {
 /***********************************/
 
 .TitleSlice {
-  padding-bottom: 7vh;
+  padding: 7vh 15vw;
+  background-color: #172753;
 }
 
 .TitleSlice h1 {
@@ -153,5 +164,18 @@ div.homePage {
 
 .TitleSlice h1 ~ p {
   font-size: 2.5em;
-  font-style: italic
+  font-style: italic;
+  color: #d9eff6;
+}
+
+/****************************************/
+/*                                      */
+/*    For HomePage/TripleIconSlice.js   */
+/*                                      */
+/****************************************/
+
+.TripleIconSlice {
+  padding: 2vh 15vw;
+  margin-left: auto;
+  margin-right: auto;
 }

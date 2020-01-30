@@ -1,10 +1,9 @@
 const homeInfo1 =
     {
-        title: "Fast, Scalable, and Flexible Data Sharing Made Easy",
-        text: "OneDataShare harnesses the power of the cloud and implements state-of-the-art frameworks to optimize " +
-            "data transfer scheduling. It enhances the speed of data transfer via multiple protocols by enabling " +
-            "faster data transfer across the network. OneDataShare utilizes the available bandwidth to the fullest " +
-            "by using many optimization mechanisms, thereby speeding up data transfer and lowering cost.",
+        title: "Fast, Secure, and Flexible Data Sharing Made Easy",
+        text: "Harnesses the power of the cloud and state-of-the-art frameworks to optimize " +
+            "data transfer scheduling. Witness enhanced data transfer speeds through multiple protocols across the " +
+            "network. Utilize your bandwidth to the fullest through optimization to increase speed and lower cost.",
         img: "/mockups/transfer.png",
         imgAlt: "Mockup of OneDataShare Transfer page"
     };
@@ -12,7 +11,8 @@ const homeInfo1 =
 const homeInfo2 =
     {
         title: "Reduced Time to the Delivery of Data",
-        text: "OneDataShare reduces the time to the delivery of data and drastically increases the end-to-end " +
+        text: "Increase data-intensive performance on remote sources through OneDataShare. " +
+            " Thereduces the time to deliver data so data-intensive applications  drastically increases the end-to-end " +
             "performance of data-intensive applications relying on remote data sources. It provides an end-to-end " +
             "data transfer architecture which is reliable, fast and effective. The users are capable of reducing the " +
             "burden of data transfer time through the use of OneDataShare.",
