@@ -234,8 +234,8 @@ class SentMail extends Component {
                         </Alert> : ''}
                 </div>
                 {mails && mails.length > 0 ?
-                    <div style={{ display: 'flex', flex: 3, width: '100%' }}>
-                        <Table hover>
+                    <div style={{ flex: 3, overflowY: 'scroll' }}>
+                        <Table responsive hover>
                             <thead>
                                 <tr>
                                     <th>#</th>
