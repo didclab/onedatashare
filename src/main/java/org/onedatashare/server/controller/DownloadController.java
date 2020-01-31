@@ -5,14 +5,17 @@ import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.TokenExpiredException;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.requestdata.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.service.*;
+
 import org.onedatashare.server.service.DbxService;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,8 +25,6 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -35,6 +36,9 @@ public class DownloadController {
 
     @Autowired
     private DbxService dbxService;
+
+    @Autowired
+    private BoxService boxService;
 
     @Autowired
     private VfsService vfsService;
@@ -59,6 +63,10 @@ public class DownloadController {
             if (userAction.getCredential() == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return resourceService.download(cookie, userAction);
+        }else if (ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
+            if (userAction.getCredential() == null) {
+                return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+            } else return boxService.download(cookie, userAction);
         } else if (userAction.getUri().startsWith(ODSConstants.FTP_URI_SCHEME)) {
             return vfsService.getDownloadURL(cookie, userAction);
         }
@@ -90,9 +98,8 @@ public class DownloadController {
         return vfsService.getSftpDownloadStream(cookie, userActionResource);
     }
 
-    @ExceptionHandler(TokenExpiredException.class)
-    public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
-        return new ResponseEntity<>(tokenExpiredException.toString(), tokenExpiredException.status);
+    @ExceptionHandler(ODSAccessDeniedException.class)
+    public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
+        return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
     }
-
 }
