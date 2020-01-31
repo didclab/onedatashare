@@ -188,7 +188,17 @@ export default class AccountControlComponent extends Component {
 	}
 
 	render() {
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
+		const {
+			isSmall,
+			loading,
+			creatingAccount,
+			signIn,
+			forgotPasswordPressed,
+			lostValidationCodePressed,
+			rememberMeAccounts,
+			redirectToSignIn
+		} = this.state;
+		const currentRoute = this.props.location.pathname
 		this.setState.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
 		this.setState.creatingAccount= false;
 		this.setState.lostValidationCodePressed= false;
@@ -196,7 +206,6 @@ export default class AccountControlComponent extends Component {
 		this.setState.redirectToSignIn= false;
 
 		
-		const currentRoute = this.props.location.pathname
 
 			return (
 

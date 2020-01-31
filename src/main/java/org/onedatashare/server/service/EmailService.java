@@ -79,4 +79,8 @@ public class EmailService {
             ODSLoggerService.logError("Failure in sending email with " + subject + " to " + emailTo, ex);
         }
     }
+    public boolean isValidEmail(String email){
+        String regex = "^[\\w-_\\.+]*[\\w-_\\.]\\@([\\w]+\\.)+[\\w]+[\\w]$";
+        return email.matches(regex);
+    }
 }

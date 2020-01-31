@@ -102,14 +102,14 @@ export default class TransferComponent extends Component {
     const srcUrls = []
     const fileIds = []
     const destUrls = []
-    processed.selectedTasks.map((task) => {
+    processed.selectedTasks.forEach((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
     var optionParsed = {}
-    Object.keys(options).map((v)=>{
+    Object.keys(options).forEach((v)=>{
       var value = options[v];
       if(value === "true" || value === "false"){
         value = JSON.parse(value)
@@ -131,7 +131,7 @@ export default class TransferComponent extends Component {
       src["id"] = fileIds[i];
       src["uri"] = encodeURI(srcUrls[i]);
       dest["uri"] = encodeURI(destUrls[i]);
-
+  
       submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
         eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
         setBeforeTransferReorder(processed);
@@ -411,7 +411,7 @@ export default class TransferComponent extends Component {
           </Panel.Heading>
 
           <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-            <Row style={{flexDirection: 'column'}}>
+            <Row style={{flexDirection: 'column'}} key="browseComponents">
               <DragDropContext
                 onDragStart={this.onDragStart}
                 onDragEnd={this.onDragEnd}>
@@ -423,7 +423,7 @@ export default class TransferComponent extends Component {
                 </Col>
               </DragDropContext>
             </Row>
-            <Row style={{display: 'block', ...headerStyle}}>
+            <Row style={{display: 'block', ...headerStyle}} key="sendButtons">
                 <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
                 <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
             </Row>

@@ -333,23 +333,67 @@ export async function savedCredList(accept, fail){
 /*
 	Desc: Extract all transfers for the user
 */
-export async function queue(isHistory,pageNo, pageSize, sortBy, order,accept, fail){
+export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fail) {
+	var callback = accept;
+	axios.post(`${url}q`, {
+		status: 'userJob',
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+		.then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
+}
+
+/*
+	Desc: Fetch all transfers. Only for Admins
+*/
+
+export async function fetchAllJobs(owner, pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
 	axios.post(url+'q', {
-		status: isHistory ? 'all' : 'userJob',
-        pageNo: pageNo,
-        pageSize: pageSize,
-        sortBy: sortBy,
-        sortOrder: order
+		status: 'all',
+		owner: owner,
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
+		.then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
+}
+
+export async function fetchJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
+	var callback = accept;
+	axios.post(url+'q', {
+		status: 'all',
+		owner: owner,
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
 	})
-	.catch((error) => {
-      fail(error);
-    });
+		.then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
 }
 
 export async function updateJobStatus(jobIds,accept, fail){
@@ -781,6 +825,12 @@ export async function openGoogleDriveOAuth(){
 export async function openGridFtpOAuth(){
 	openOAuth("/api/stork/oauth?type=gridftp");
 }
+
+export async function openBoxOAuth(){
+    openOAuth("api/stork/oauth?type=box");
+}
+
+
 
 export async function openOAuth(url){
 	window.location = url;

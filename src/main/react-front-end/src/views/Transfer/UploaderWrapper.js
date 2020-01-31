@@ -25,7 +25,7 @@ render(){
 			options: {
 				chunking: {
 					enabled: true,
-					partSize: 500000,
+					partSize: 1048576,
 					concurrent: {
 						enabled: false
 					},
