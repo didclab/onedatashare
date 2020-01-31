@@ -91,7 +91,7 @@ public class User {
      * Create a user with the given values.
      */
     public User(String email, String firstName, String lastName, String organization, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = firstName;
         this.lastName = lastName;
         this.organization = organization;
@@ -102,7 +102,7 @@ public class User {
      * Create a user with the given email and password.
      */
     public User(String email, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = "";
         this.lastName = "";
         this.organization = "";
