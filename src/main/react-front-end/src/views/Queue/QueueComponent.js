@@ -277,14 +277,14 @@ class QueueComponent extends Component {
 			status: 'status',
 			avgSpeed : "bytes.avg",
 			source : "src.uri",
-			userName: "owner",
+			// userName: "owner",
 			startTime: 'times.started'
 		}
 		return <Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
 			<Table style={{display: "block"}}>
 				<TableHead style={{backgroundColor: '#d9edf7'}}>
 					<TableRow>
-						<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>
+						{/* <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>
 							<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
 								<TableSortLabel
 									active={orderBy === sortableColumns.userName}
@@ -293,7 +293,7 @@ class QueueComponent extends Component {
 									Username
 								</TableSortLabel>
 							</Tooltip>
-						</TableCell>
+						</TableCell> */}
 						<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
 							<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
 								<TableSortLabel
@@ -477,9 +477,9 @@ class RowElement extends React.PureComponent {
 		const { resp, infoVisible } = this.props
 		return <React.Fragment>
 			<TableRow style={{alignSelf: "stretch"}}>
-				<TableCell scope="row" style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
+				{/* <TableCell scope="row" style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
 					{resp.owner}
-				</TableCell>
+				</TableCell> */}
 				<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.2rem'}} numeric="true">
 					{resp.job_id}
 				</TableCell>
