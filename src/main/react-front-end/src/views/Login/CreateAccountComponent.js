@@ -176,7 +176,9 @@ export default class CreateAccountComponent extends Component {
         break;
 		  case 'reenter': 
 				this.setState({isReEnterPwdVisible: true}); 
-				break;
+        break;
+      default:
+        break;
     }
 	}
 

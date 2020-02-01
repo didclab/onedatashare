@@ -15,19 +15,19 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/stork/submit")
 public class SubmitController {
 
-  @Autowired
-  private ResourceServiceImpl resourceService;
+    @Autowired
+    private ResourceServiceImpl resourceService;
 
-  /**
-   * Handler for POST requests of transfers
-   * @param headers - Incoming request headers
-   * @param transferRequestData - Request data with transfer information
-   * @return Mono\<Job\>
-   */
-  @PostMapping
-  public Object submit(@RequestHeader HttpHeaders headers, @RequestBody TransferRequestData transferRequestData) {
-    String cookie = headers.getFirst(ODSConstants.COOKIE);
-    UserAction userAction = UserAction.convertToUserAction(transferRequestData);
-    return resourceService.submit(cookie, userAction);
-  }
+    /**
+     * Handler for POST requests of transfers
+     * @param headers - Incoming request headers
+     * @param transferRequestData - Request data with transfer information
+     * @return Mono\<Job\>
+     */
+    @PostMapping
+    public Object submit(@RequestHeader HttpHeaders headers, @RequestBody TransferRequestData transferRequestData) {
+        String cookie = headers.getFirst(ODSConstants.COOKIE);
+        UserAction userAction = UserAction.convertToUserAction(transferRequestData);
+        return resourceService.submit(cookie, userAction);
+    }
 }

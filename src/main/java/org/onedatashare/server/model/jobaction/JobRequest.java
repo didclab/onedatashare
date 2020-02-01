@@ -11,4 +11,5 @@ public class JobRequest {
     public int pageSize;
     public String sortBy;
     public String sortOrder;
+    public String owner;
 }
