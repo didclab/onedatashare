@@ -2,46 +2,45 @@ import { url } from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
-
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
-
 import { cookies } from "../model/reducers.js";
+
 const FETCH_TIMEOUT = 10000;
 
-
 const axios = Axios.create({
-  timeout: FETCH_TIMEOUT,
-  headers: {
-  	Accept: 'application/json',
-	'Content-Type': 'application/json'
-  }
+	timeout: FETCH_TIMEOUT,
+	headers: {
+		Accept: 'application/json',
+		'Content-Type': 'application/json'
+	}
 });
 
-function statusHandle(response, callback){
+function statusHandle(response, callback) {
 	//console.log(response)
-	const statusFirstDigit = Math.floor(response.status/100);
-	if(statusFirstDigit < 3){
+	const statusFirstDigit = Math.floor(response.status / 100);
+	if (statusFirstDigit < 3) {
 		// 100-200 success code=
 		callback(response.data);
-	}else
-	if(statusFirstDigit < 5){
-		// 300-499 redirect/user error code
-		callback(`${response.status} ${response.statusText}`);
-	}else{
-		// 500 error code
-		if(response.name === "PermissionDenied" && store.getState().login){
-			if (window.confirm('You have been logged out. Login again?'))
-			{
-				store.dispatch(logoutAction());
+	} else
+		if (statusFirstDigit < 5) {
+			// 300-499 redirect/user error code
+			callback(`${response.status} ${response.statusText}`);
+		} else {
+			// 500 error code
+			if (response.name === "PermissionDenied" && store.getState().login) {
+				if (window.confirm('You have been logged out. Login again?')) {
+					store.dispatch(logoutAction());
+				}
 			}
+			if (response.status === 408 || response.code === 'ECONNABORTED') {
+				callback(`Timeout 10000ms`)
+				return;
+			}
+			// console.log(response)
+			//const errorText = JSON.stringify(response.response.data);
+			callback(`500`);
 		}
-		if (response.status === 408 || response.code === 'ECONNABORTED') {
-	      callback(`Timeout 10000ms`)
-	      return;
-	    }
-		callback(`500`);
-	}
 }
 
 /*
@@ -50,20 +49,20 @@ function statusHandle(response, callback){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-export async function checkLogin(email, accept, fail){
-	axios.post(url+'user', {
-	    action: 'verifyEmail',
-	    email: email,
+export async function checkLogin(email, accept, fail) {
+	axios.post(url + 'user', {
+		action: 'verifyEmail',
+		email: email,
 	}).then((response) => {
-		if((response.data === true)){
+		if ((response.data === true)) {
 			statusHandle(response, accept);
-		}else if(response.data === false){
+		} else if (response.data === false) {
 			statusHandle(response, fail);
 		}
 	})
-	.catch((error) => {
-		statusHandle(error, fail);
-	});
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
 
@@ -74,19 +73,19 @@ export async function checkLogin(email, accept, fail){
 	fail: (errorMessage:string){}
 */
 
-export async function resetPasswordSendCode(email, accept, fail){
+export async function resetPasswordSendCode(email, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'sendVerificationCode',
-	    email: email
+	axios.post(url + 'user', {
+		action: 'sendVerificationCode',
+		email: email
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		statusHandle(error, fail);
+	});
 }
 
 
@@ -97,20 +96,20 @@ export async function resetPasswordSendCode(email, accept, fail){
 	fail: (errorMessage:string){}
 */
 
-export async function resetPasswordVerifyCode(email,code, accept, fail){
+export async function resetPasswordVerifyCode(email, code, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'verifyCode',
-	    email: email,
-	    code: code
+	axios.post(url + 'user', {
+		action: 'verifyCode',
+		email: email,
+		code: code
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		statusHandle(error, fail);
+	});
 }
 
 /*
@@ -119,56 +118,131 @@ export async function resetPasswordVerifyCode(email,code, accept, fail){
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-export async function resetPassword(email,code,password, cpassword, accept, fail){
+export async function resetPassword(email, code, password, cpassword, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'setPassword',
-	    email: email,
-	    code: code,
-	    password: password,
-	    confirmPassword: cpassword
+	axios.post(url + 'user', {
+		action: 'setPassword',
+		email: email,
+		code: code,
+		password: password,
+		confirmPassword: cpassword
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		statusHandle(error, fail);
+	});
 }
 
-export async function resendVerificationCode(emailId){
-	return axios.post(url+'user',{
-		action:'resendVerificationCode',
-		email: emailId
-	})
-	.then((response) => {
-		return response
-	})
-	.catch((error) =>{
+export async function getAllUsers(email) {
+	return axios.get(url + 'admin/getAllUsers', {
+		email: email,
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data
+		}
+	}).catch((error) => {
 
 	});
 }
 
+export async function getAllMails(email) {
+	return axios.get(url + 'admin/getMails', {
+		email: email,
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data
+		}
+	}).catch((error) => {
+
+	});
+}
+
+export async function getAllTrashMails(email) {
+	return axios.get(url + 'admin/getTrashMails', {
+		email: email,
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data
+		}
+	}).catch((error) => {
+
+	});
+}
+
+export async function deleteMail(uuid) {
+	return fetch(url + 'admin/deleteMail', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			mailId: uuid
+		}),
+	}).then((response) => {
+		if (response.status === 200 && response.data) {
+			return response.data;
+		} else {
+			return response;
+		}
+	}).catch((error) => {
+		return error.data;
+	});
+}
+
+
+export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
+	return axios.post(url + 'admin/sendNotifications', {
+		senderEmail: senderEmail,
+		subject: subject,
+		message: message,
+		emailList: emailList,
+		isHtml: isHtml
+	})
+		.then((response) => {
+			return response.data;
+		})
+		.catch((error) => {
+
+		});
+}
+
+
+export async function resendVerificationCode(emailId) {
+	return axios.post(url + 'user', {
+		action: 'resendVerificationCode',
+		email: emailId
+	})
+		.then((response) => {
+			return response
+		})
+		.catch((error) => {
+
+		});
+}
+
 export async function setPassword(emailId, code, password, confirmPassword) {
 
-    return axios.post(url+'user', {
-    	    action: "setPassword",
-    	    email : emailId,
-    	    code : code,
-    	    password : password,
-    	    confirmPassword : confirmPassword
-    	})
-    	.then((response) => {
-    		if(!(response.status === 200))
-    			throw new Error("Failed to set password for users account")
-    		else {
-                    return response;
-                }
-    	})
-    	.catch((error) => {
-          return {status : 500}
-        });
+	return axios.post(url + 'user', {
+		action: "setPassword",
+		email: emailId,
+		code: code,
+		password: password,
+		confirmPassword: confirmPassword
+	})
+		.then((response) => {
+			if (!(response.status === 200))
+				throw new Error("Failed to set password for users account")
+			else {
+				return response;
+			}
+		})
+		.catch((error) => {
+			return { status: 500 }
+		});
 }
 
 
@@ -178,156 +252,156 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-export async function login(email, password, accept, fail){
+export async function login(email, password, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'login',
-	    email: email,
-	    password: password,
+	axios.post(url + 'user', {
+		action: 'login',
+		email: email,
+		password: password,
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
-export async function isAdmin(email, hash, accept, fail){
+export async function isAdmin(email, hash, accept, fail) {
 	var callback = accept;
-	axios.post(url+'user', {
-	    action: 'isAdmin',
-	    email: email,
-	    hash: hash,
+	axios.post(url + 'user', {
+		action: 'isAdmin',
+		email: email,
+		hash: hash,
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
-export async function history(uri, portNum, accept, fail){
+export async function history(uri, portNum, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-	    action: 'history',
-	    portNumber: portNum,
-	    uri: encodeURI(uri)
+	axios.post(url + 'user', {
+		action: 'history',
+		portNumber: portNum,
+		uri: encodeURI(uri)
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function globusEndpointIds(gep,  accept, fail){
+export async function globusEndpointIds(gep, accept, fail) {
 	var callback = accept;
-	axios.post(url+'globus', {
-	    action: 'endpointId',
+	axios.post(url + 'globus', {
+		action: 'endpointId',
 
-	    globusEndpoint: gep,
+		globusEndpoint: gep,
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function globusEndpointDetail(gep, accept, fail){
+export async function globusEndpointDetail(gep, accept, fail) {
 	var callback = accept;
-	axios.post(url+'globus', {
-	    action: 'endpoint',
-	    globusEndpoint: gep,
+	axios.post(url + 'globus', {
+		action: 'endpoint',
+		globusEndpoint: gep,
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function globusEndpointActivate(gep,_username, _password, accept, fail){
+export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
 	var callback = accept;
-	axios.post(url+'globus', {
-	    action: 'endpointActivate',
-	    globusEndpoint: gep,
-	    username: _username,
-	    password: _password
+	axios.post(url + 'globus', {
+		action: 'endpointActivate',
+		globusEndpoint: gep,
+		username: _username,
+		password: _password
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
 
-export async function deleteHistory(uri, accept, fail){
+export async function deleteHistory(uri, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
+	axios.post(url + 'user', {
 		action: "deleteHistory",
-	    uri: encodeURI(uri)
+		uri: encodeURI(uri)
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function deleteEndpointId(ged, accept, fail){
+export async function deleteEndpointId(ged, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'globus', {
+	axios.post(url + 'globus', {
 		action: "deleteEndpointId",
-	    globusEndpoint: ged,
+		globusEndpoint: ged,
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
 /*
 	Desc: List credentials for dropbox and googledrive
 */
-export async function savedCredList(accept, fail){
+export async function savedCredList(accept, fail) {
 	var callback = accept;
-	axios.get(url+'cred?action=list')
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
+	axios.get(url + 'cred?action=list')
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
 /*
@@ -396,175 +470,174 @@ export async function fetchJobsForAdmin(owner, pageNo, pageSize, sortBy, order, 
 		});
 }
 
-export async function updateJobStatus(jobIds,accept, fail){
+export async function updateJobStatus(jobIds, accept, fail) {
 	var callback = accept;
-	axios.post(url+'q/update', jobIds)
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      fail(error);
-    });
+	axios.post(url + 'q/update', jobIds)
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
 }
 
 // Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
-export async function submitIssue(reqBody, success, fail){
+export async function submitIssue(reqBody, success, fail) {
 	var callback = success;
 
-	axios.post(url+'ticket', reqBody).then((resp) =>{
-		if(!(resp.status === 200))
-		 callback = fail;
+	axios.post(url + 'ticket', reqBody).then((resp) => {
+		if (!(resp.status === 200))
+			callback = fail;
 		statusHandle(resp, callback)
 	})
-	.catch((err) =>{
-		fail(err)
-	});
+		.catch((err) => {
+			fail(err)
+		});
 }
 
-export async function submit(src, srcEndpoint, dest, destEndpoint, options,accept, fail){
+export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
 	var callback = accept;
 	// console.log(src)
 	var src0 = Object.assign({}, src);
 	var dest0 = Object.assign({}, dest);
-	if(Object.keys( src0.credential ).length === 0){
+	if (Object.keys(src0.credential).length === 0) {
 		delete src0["credential"];
 	}
-	if(Object.keys( dest0.credential ).length === 0){
+	if (Object.keys(dest0.credential).length === 0) {
 		delete dest0["credential"];
 	}
 
-	axios.post(url+'submit', {
-	    src: {...src0, type: getType(src0), map: getMapFromEndpoint(srcEndpoint)},
-	    dest: {...dest0, type: getType(dest0), map: getMapFromEndpoint(destEndpoint)},
-	    options:options
+	axios.post(url + 'submit', {
+		src: { ...src0, type: getType(src0), map: getMapFromEndpoint(srcEndpoint) },
+		dest: { ...dest0, type: getType(dest0), map: getMapFromEndpoint(destEndpoint) },
+		options: options
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+	}).catch((error) => {
+
+		statusHandle(error, fail);
+	});
 }
 
-export async function listFiles(uri, endpoint, id, accept, fail){
+export async function listFiles(uri, endpoint, id, accept, fail) {
 	var body = {
-	    uri: encodeURI(uri),
-	    id: id,
-	    portNumber: endpoint.portNumber,
-	    type: getTypeFromUri(uri)
-	  };
+		uri: encodeURI(uri),
+		id: id,
+		portNumber: endpoint.portNumber,
+		type: getTypeFromUri(uri)
+	};
 
-	body = Object.keys(endpoint.credential).length > 0 ? {...body, credential: endpoint.credential} : body;
+	body = Object.keys(endpoint.credential).length > 0 ? { ...body, credential: endpoint.credential } : body;
 
 	var callback = accept;
-	axios.post(url+'ls', JSON.stringify(body))
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+	axios.post(url + 'ls', JSON.stringify(body))
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function share(uri, endpoint, accept, fail){
+export async function share(uri, endpoint, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'share', {
-	    credential: endpoint.credential,
-	    uri: encodeURI(uri),
-	    type: getTypeFromUri(uri),
-	    map: getMapFromEndpoint(endpoint),
+	axios.post(url + 'share', {
+		credential: endpoint.credential,
+		uri: encodeURI(uri),
+		type: getTypeFromUri(uri),
+		map: getMapFromEndpoint(endpoint),
 
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function mkdir(uri,type, endpoint,  accept, fail){
+export async function mkdir(uri, type, endpoint, accept, fail) {
 	var callback = accept;
 	const ids = getIdsFromEndpoint(endpoint);
 	const id = ids[ids.length - 1];
-	axios.post(url+'mkdir', {
-	    credential: endpoint.credential,
-	    uri: encodeURI(uri),
-	    id: id,
-	    type: type,
-	    map: getMapFromEndpoint(endpoint),
+	axios.post(url + 'mkdir', {
+		credential: endpoint.credential,
+		uri: encodeURI(uri),
+		id: id,
+		type: type,
+		map: getMapFromEndpoint(endpoint),
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function deleteCall(uri, endpoint, id, accept, fail){
+export async function deleteCall(uri, endpoint, id, accept, fail) {
 	var callback = accept;
-	axios.post(url+'delete', {
-	    credential: endpoint.credential,
-	    uri: encodeURI(uri),
-	    id: id,
-	    type: getTypeFromUri(uri),
-	    map: getMapFromEndpoint(endpoint)
+	axios.post(url + 'delete', {
+		credential: endpoint.credential,
+		uri: encodeURI(uri),
+		id: id,
+		type: getTypeFromUri(uri),
+		map: getMapFromEndpoint(endpoint)
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
 // Returns the url for file. It is used to download the file and also to display in share url popup
-async function getDownloadLink(uri, credential, _id){
-	return axios.post(url+'download', {
+async function getDownloadLink(uri, credential, _id) {
+	return axios.post(url + 'download', {
 		type: getTypeFromUri(uri),
 		credential: credential,
 		uri: encodeURI(uri),
 		id: _id,
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			console.log("Error in download API call");
-		else{
-			return response.data
-		}
-	})
-	.catch((error) => {
-			console.log("Error encountered while generating download link");
-	});
-}
-
-export async function getSharableLink(uri, credential, _id){
-		return getDownloadLink(uri, credential, _id).then((response) => {
-			return response
+		.then((response) => {
+			if (!(response.status === 200))
+				console.log("Error in download API call");
+			else {
+				return response.data
+			}
 		})
+		.catch((error) => {
+			console.log("Error encountered while generating download link");
+		});
 }
 
-export async function download(uri, credential, _id){
+export async function getSharableLink(uri, credential, _id) {
 	return getDownloadLink(uri, credential, _id).then((response) => {
-		if(response !== ""){
+		return response
+	})
+}
+
+export async function download(uri, credential, _id) {
+	return getDownloadLink(uri, credential, _id).then((response) => {
+		if (response !== "") {
 			window.open(response)
 		}
-		else{
+		else {
 			console.log("Error encountered while generating download link");
 		}
 	})
@@ -586,77 +659,76 @@ export async function getDownload(uri, credential){
 	  }, 5000);
 }
 
-export async function upload(uri, credential, accept, fail){
+export async function upload(uri, credential, accept, fail) {
 	var callback = accept;
 	axios.post(url+'share', {
 	    credential: credential,
 	    uri: encodeURI(uri),
 	    type: getTypeFromUri(uri)
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	})
-	.catch((error) => {
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
 /*
 	Desc: Retrieve all the available users
 */
-export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail){
+export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
-			action: type,
-			pageNo: pageNo,
-			pageSize: pageSize,
-			sortBy: sortBy,
-			sortOrder: order
+	axios.post(url + 'user', {
+		action: type,
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
-export async function getUser(email, accept, fail){
-    var callback = accept;
+export async function getUser(email, accept, fail) {
+	var callback = accept;
 
-    axios.post(url+'user',{
-        action: "getUser",
-        email: email,
-    })
-    .then((response) => {
-        if(!(response.status === 200))
-        callback = fail;
-        statusHandle(response, callback);
-    })
-    .catch((error) => {
-        statusHandle(error, fail);
-    })
+	axios.post(url + 'user', {
+		action: "getUser",
+		email: email,
+	})
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		})
 }
 
-export async function updateSaveOAuth(email, saveOAuth, successCallback){
+export async function updateSaveOAuth(email, saveOAuth, successCallback) {
 	axios.post(url + 'user', {
 		action: "updateSaveOAuth",
 		email: email,
 		saveOAuth: saveOAuth
 	})
-	.then((response) => {
-		if(response.status === 200)
-			successCallback();
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (response.status === 200)
+				successCallback();
+		})
+		.catch((error) => {
 			console.log("Error encountered while updating the user.");
-	});
+		});
 }
 
 /*
@@ -667,129 +739,130 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback){
 	fail: (errorMessage:string){}
 */
 
-export async function saveOAuthCredentials(credentials,accept, fail){
+export async function saveOAuthCredentials(credentials, accept, fail) {
 	var callback = accept;
-	axios.post(url+'cred/saveCredentials', credentials)
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      fail(error);
-    });
+	axios.post(url + 'cred/saveCredentials', credentials)
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
 }
 
-export async function updateAdminRightsApiCall(email, isAdmin){
-	return axios.put(url+'user', {
+export async function updateAdminRightsApiCall(email, isAdmin) {
+	return axios.put(url + 'user', {
 		action: "updateAdminRights",
 		email: email,
 		isAdmin: isAdmin
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			return false;
-		else{
-			return true;
-		}
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (!(response.status === 200))
+				return false;
+			else {
+				return true;
+			}
+		})
+		.catch((error) => {
 			console.log("Error encountered while updating the user.");
-	});
+		});
 }
 
 /*
 	Desc: Change Password
 */
-export async function changePassword(oldPassword, newPassword,confirmPassword, accept, fail){
+export async function changePassword(oldPassword, newPassword, confirmPassword, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
+	axios.post(url + 'user', {
 		action: "resetPassword",
-	    password: oldPassword,
-	    newPassword: newPassword,
-	    confirmPassword: confirmPassword
+		password: oldPassword,
+		newPassword: newPassword,
+		confirmPassword: confirmPassword
+
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      fail(error);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
 }
 
-export async function cancelJob(jobID, accept, fail){
+export async function cancelJob(jobID, accept, fail) {
 	var callback = accept;
-	fetch(url+'cancel', {
-	  method: 'POST',
-	  headers: {
-	    Accept: 'application/json',
-	    'Content-Type': 'application/json',
-	  },
-	  body: JSON.stringify({
-	    job_id: jobID
-	  }),
+	fetch(url + 'cancel', {
+		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			job_id: jobID
+		}),
 	})
-	.then((response) => {
-		if(!response.ok)
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      fail(error);
-    });
+		.then((response) => {
+			if (!response.ok)
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			fail(error);
+		});
 }
 
-export async function deleteCredentialFromServer(uri, accept, fail){
+export async function deleteCredentialFromServer(uri, accept, fail) {
 	var callback = accept;
 
-	axios.post(url+'user', {
+	axios.post(url + 'user', {
 		action: "deleteCredential",
-	    uuid: uri
+		uuid: uri
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-      statusHandle(error, fail);
-    });
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
 }
 
 
-export async function restartJob(jobID, accept, fail){
+export async function restartJob(jobID, accept, fail) {
 	var callback = accept;
-	axios.post(url+'restart',{
+	axios.post(url + 'restart', {
 		job_id: jobID
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
-export async function deleteJob(jobID, accept, fail){
+export async function deleteJob(jobID, accept, fail) {
 	var callback = accept;
-	axios.post(url+'deleteJob',{
+	axios.post(url + 'deleteJob', {
 		job_id: jobID
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
 
 /*
@@ -799,30 +872,30 @@ export async function deleteJob(jobID, accept, fail){
 	fail: (errorMessage:string){}
 */
 
-export async function updateViewPreference(email, compactViewEnabled, accept, fail){
+export async function updateViewPreference(email, compactViewEnabled, accept, fail) {
 	var callback = accept;
-	axios.post(url+'user', {
-	    action: 'updateViewPreference',
-	    email: email,
-      compactViewEnabled: compactViewEnabled
+	axios.post(url + 'user', {
+		action: 'updateViewPreference',
+		email: email,
+		compactViewEnabled: compactViewEnabled
 	}).then((response) => {
-		if(!(response.status === 200))
+		if (!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-      statusHandle(error, fail);
-    });
+		statusHandle(error, fail);
+	});
 }
 
-export async function openDropboxOAuth(){
+export async function openDropboxOAuth() {
 	openOAuth("/api/stork/oauth?type=dropbox");
 }
 
-export async function openGoogleDriveOAuth(){
+export async function openGoogleDriveOAuth() {
 	openOAuth("/api/stork/oauth?type=googledrive");
 }
 
-export async function openGridFtpOAuth(){
+export async function openGridFtpOAuth() {
 	openOAuth("/api/stork/oauth?type=gridftp");
 }
 
@@ -839,59 +912,58 @@ export async function openOAuth(url){
 
 export async function registerUser(requestBody, errorCallback) {
 
-	return axios.post(url+'user', {action: "register", ...requestBody})
-				.then((response) => {
-						if(response.data && response.data.status && response.data.status === 302) {
-							console.log("User already exists");
-							return {status : 302}
-						}
-						if(!(response.status === 200))
-							throw new Error("Failed to register user")
-						else {
-								return response
-						}
-					}
-				)
-				.catch((error) => {
-						//statusHandle(error, fail);
-						console.error("Error while registering user");
-						errorCallback();
-						return new Error({status: 500});
-					}
-				);
+	return axios.post(url + 'user', { action: "register", ...requestBody })
+		.then((response) => {
+			if (response.data && response.data.status && response.data.status === 302) {
+				console.log("User already exists");
+				return { status: 302 }
+			}
+			if (!(response.status === 200))
+				throw new Error("Failed to register user")
+			else {
+				return response
+			}
+		}
+		)
+		.catch((error) => {
+			//statusHandle(error, fail);
+			console.error("Error while registering user");
+			return { status: 500 }
+		}
+		);
 }
 
 
 export async function verifyRegistraionCode(emailId, code) {
-    return axios.post(url+'user', {
-    	    action: "verifyCode",
-    	    email : emailId,
-    	    code : code
-    	})
-    	.then((response) => {
-            return response;
-    		//statusHandle(response, callback);
-    	})
-    	.catch((error) => {
-          //statusHandle(error, fail);
-          console.error("Error while verifying the registration code")
-          return {status : 500}
-        });
+	return axios.post(url + 'user', {
+		action: "verifyCode",
+		email: emailId,
+		code: code
+	})
+		.then((response) => {
+			return response;
+			//statusHandle(response, callback);
+		})
+		.catch((error) => {
+			//statusHandle(error, fail);
+			console.error("Error while verifying the registration code")
+			return { status: 500 }
+		});
 }
 
-export async function globusListEndpoints( filter_fulltext, accept, fail) {
-    var callback = accept;
-    return axios.post(url+'globus', {
-	    action : "endpoint_list",
-	    filter_fulltext : filter_fulltext
+export async function globusListEndpoints(filter_fulltext, accept, fail) {
+	var callback = accept;
+	return axios.post(url + 'globus', {
+		action: "endpoint_list",
+		filter_fulltext: filter_fulltext
 	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
 
-      statusHandle(error, fail);
-    });
+			statusHandle(error, fail);
+		});
 }
