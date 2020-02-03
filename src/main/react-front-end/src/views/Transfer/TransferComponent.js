@@ -478,6 +478,8 @@ export default class TransferComponent extends Component {
                 </Row>
 
                 <ErrorMessagesConsole />
+              </DragDropContext>
+              </Row>
               </Panel.Body>
             </Panel>
 
