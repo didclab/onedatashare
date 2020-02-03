@@ -16,8 +16,6 @@ import {getSelectionCount} from "./initialize_dnd";
 	and you can click to enter
 */
 
-import { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
-
 const FileDiv = styled.div`
   outline: none;
   user-select: none;

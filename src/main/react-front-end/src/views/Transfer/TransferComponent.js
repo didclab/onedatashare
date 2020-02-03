@@ -101,14 +101,18 @@ export default class TransferComponent extends Component {
     const srcUrls = []
     const fileIds = []
     const destUrls = []
-    processed.selectedTasks.map((task) => {
+    processed.selectedTasks.forEach((task) => {
       srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
       fileIds.push(task.id);
       destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
     });
 
     var optionParsed = {}
+<<<<<<< HEAD
     Object.keys(options).map((v) => {
+=======
+    Object.keys(options).forEach((v)=>{
+>>>>>>> dev
       var value = options[v];
       if (value === "true" || value === "false") {
         value = JSON.parse(value)
@@ -130,8 +134,13 @@ export default class TransferComponent extends Component {
       src["id"] = fileIds[i];
       src["uri"] = encodeURI(srcUrls[i]);
       dest["uri"] = encodeURI(destUrls[i]);
+<<<<<<< HEAD
 
       submit(src, endpointSrc, dest, endpointDest, optionParsed, (response) => {
+=======
+  
+      submit(src, endpointSrc, dest,endpointDest, optionParsed, (response)=>{
+>>>>>>> dev
         eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
         setBeforeTransferReorder(processed);
       }, (error) => {
@@ -407,6 +416,7 @@ export default class TransferComponent extends Component {
                   <p>
                     Browse and Transfer Files
               </p>
+<<<<<<< HEAD
                 </div>
               </Panel.Heading>
 
@@ -422,6 +432,72 @@ export default class TransferComponent extends Component {
                       {this._returnBrowseComponent2()}
                     </Col>
                   </DragDropContext>
+=======
+            </div>
+          </Panel.Heading>
+
+          <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}} key="browseComponents">
+              <DragDropContext
+                onDragStart={this.onDragStart}
+                onDragEnd={this.onDragEnd}>
+                <Col xs={6} style={panelStyle}  >
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Col xs={6} style={panelStyle} >
+                  {this._returnBrowseComponent2()}
+                </Col>
+              </DragDropContext>
+            </Row>
+            <Row style={{display: 'block', ...headerStyle}} key="sendButtons">
+                <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+            </Row>
+
+            <ErrorMessagesConsole/>
+          </Panel.Body>
+          </Panel>
+
+
+        }
+        {/* !isSmall && this.getSettingComponent(isSmall) */}
+        {isSmall &&
+        <Panel bsStyle="primary">
+        <Panel.Heading style={{ textAlign: "center" }}>
+          <p>
+            Browse and Transfer Files
+          </p>
+
+          { /* Disabling compact mode toggle for mobile screens */
+            /* <FormControlLabel
+            style={{ color: "white" }}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={updateCompactViewPreference('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+          /> */}
+        </Panel.Heading>
+
+
+        <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+            <Row style={{flexDirection: 'column'}}>
+              <DragDropContext
+                  onDragStart={this.onDragStart}
+                  onDragEnd={this.onDragEnd}
+              >
+                <Col style={panelStyle}>
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Row style={{display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                  <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
+                  <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+>>>>>>> dev
                 </Row>
                 <Row style={{ display: 'block', ...headerStyle }}>
                   <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>

@@ -22,6 +22,8 @@ import GetStartedComponent from './views/GetStartedComponent';
 
 import "./MainComponent.css"
 
+// XNOTE: split the components into logged in, not logged in, and admin using HOCs
+
 export default class MainComponent extends Component {
   constructor(props) {
     super(props);
@@ -142,9 +144,11 @@ export default class MainComponent extends Component {
               />
             }
 
-            {(isLoggedIn) &&
-              <h1 to='/transfer'>Page Not Found</h1>
-            }
+						{/*
+							(isLoggedIn) &&
+              	<h1 to='/transfer'>Page Not Found</h1>
+							
+						*/}
 
             {!isLoggedIn &&
               <Route render={() => <Redirect to="/" />} />

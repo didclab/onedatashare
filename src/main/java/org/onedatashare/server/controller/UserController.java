@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 /**
  * Controller for handling GET requests to User DB
@@ -27,7 +28,7 @@ public class UserController {
   final int TIMEOUT_IN_MINUTES = 1440;
 
   /**
-   * Handler for user information/ preference requests
+   * Handler for user information/ perference requests
    * @param headers - Incoming request headers
    * @param userRequestData - Data needed to make a user request
    * @return Object

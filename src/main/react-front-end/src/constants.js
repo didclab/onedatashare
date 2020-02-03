@@ -26,6 +26,7 @@ export const policyUrl = "/policy"
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";
+export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
@@ -35,6 +36,7 @@ export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
+export const BOX_NAME = "Box";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
@@ -43,6 +45,7 @@ export const SCP_NAME = "SCP";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "googledrive";
+export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
@@ -81,6 +84,7 @@ export const completeStatus = "complete";
 export const showText = {
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
+	box: BOX_NAME,
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
@@ -92,6 +96,7 @@ export const showText = {
 export const showType = {
 	dropbox: DROPBOX_TYPE,
 	googledrive: GOOGLEDRIVE_TYPE,
+	box: BOX_TYPE,
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
@@ -113,6 +118,12 @@ export const defaultPort = {
 
 export const maxCookieAge = 7;
 
+export const jobStatus = {
+	COMPLETED: 'completed',
+	TRANSFERRING: 'transferring',
+	SCHEDULED: 'scheduled',
+	FAILED: 'failed'
+}
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)
