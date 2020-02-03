@@ -11,7 +11,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -23,7 +22,7 @@ public class JobService {
     @Autowired
     private UserService userService;
 
-    @Autowired
+    @Autowired  
     private JobRepository jobRepository;
 
     private static Pageable generatePageFromRequest(JobRequest request){
