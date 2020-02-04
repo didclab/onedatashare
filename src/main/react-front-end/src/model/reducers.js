@@ -22,11 +22,9 @@ export const afterLogin = 2;
 const initialState = {
 	login: cookies.get('email') ? true : false,
 	admin: cookies.get('admin') ? true : false,
-	email: cookies.get('email') || "noemail" ,
-  hash: cookies.get('hash') || null,
-	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
-  saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
-
+	email: cookies.get('email'),
+	compactViewEnabled: cookies.get('compactViewEnabled') === 'true' || false,
+  saveOAuthTokens: cookies.get('saveOAuthTokens') === 'true' || false,
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
 		credential: {},

@@ -5,6 +5,7 @@ import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -18,7 +19,7 @@ public class LoginController {
 
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
     public Mono<LoginResponse> login(@RequestBody LoginControllerRequest request) {
-        return userService.login2(request.getEmail(), request.getPassword());
+        return userService.login(request.getEmail(), request.getPassword());
     }
 
     @RequestMapping(value = IS_REGISTERED_EMAIL_ENDPOINT, method = RequestMethod.POST)
@@ -41,7 +42,6 @@ public class LoginController {
     public Mono<String> updatePassword(@RequestBody LoginControllerRequest request){
         return userService.resetPasswordWithOld(null, request.getPassword(), request.getNewPassword(),
                 request.getConfirmPassword());
-
     }
 
 }

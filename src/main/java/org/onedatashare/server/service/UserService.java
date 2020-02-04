@@ -1,5 +1,6 @@
 package org.onedatashare.server.service;
 
+import com.google.api.client.util.DateTime;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
@@ -40,10 +41,10 @@ public class UserService {
     private EmailService emailService;
 
     @Autowired
-    CaptchaService captchaService;
+    private CaptchaService captchaService;
 
     @Autowired
-    JWTUtil jwtUtil;
+    private JWTUtil jwtUtil;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -54,19 +55,11 @@ public class UserService {
         return userRepository.insert(user);
     }
 
-    public Mono<LoginResponse> login2(String email, String password){
+    public Mono<LoginResponse> login(String email, String password){
         return getUser(User.normalizeEmail(email))
                 .filter(usr -> usr.getHash().equals(usr.hash(password)))
                 .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
-                .map(user -> LoginResponse.LoginResponseFromUser(user, jwtUtil.generateToken(user)));
-    }
-
-    public Mono<User.UserLogin> login(String email, String password) {
-        //TODO: Fix two calls to the database in the saveLastActivity
-        return getUser(User.normalizeEmail(email))
-                .filter(userFromRepository -> userFromRepository.getHash().equals(userFromRepository.hash(password)))
-                .map(user1 -> user1.new UserLogin(user1.getEmail(), user1.getHash(), user1.isSaveOAuthTokens(), user1.isCompactViewEnabled()))
-                .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
+                .map(user -> LoginResponse.LoginResponseFromUser(user, jwtUtil.generateToken(user), JWTUtil.getExpirationTime()))
                 .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
     }
 
@@ -74,10 +67,8 @@ public class UserService {
         if (!emailService.isValidEmail(email)) {
             return Mono.error(new InvalidField("Invalid Email id"));
         }
-
         return captchaService.verifyValue(captchaVerificationValue)
                 .flatMap(captchaVerified-> {
-
                     if (captchaVerified){
                         return doesUserExists(email).flatMap(user -> {
 

@@ -224,20 +224,6 @@ export async function sendEmailNotification(senderEmail, subject, message, email
 		});
 }
 
-
-export async function resendVerificationCode(emailId) {
-	return axios.post(url + 'user', {
-		action: 'resendVerificationCode',
-		email: emailId
-	})
-		.then((response) => {
-			return response
-		})
-		.catch((error) => {
-
-		});
-}
-
 /** Set passowrd for the first time is the same as reset password */
 export async function setPassword(emailId, code, password, confirmPassword) {
     return axios.post(RESET_PASSWD_ENDPOINT, {

@@ -22,7 +22,7 @@ public class JobService {
     @Autowired
     private UserService userService;
 
-    @Autowired  
+    @Autowired
     private JobRepository jobRepository;
 
     private static Pageable generatePageFromRequest(JobRequest request){

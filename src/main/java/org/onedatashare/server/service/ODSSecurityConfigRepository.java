@@ -26,9 +26,14 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     public Mono<Void> save(ServerWebExchange serverWebExchange, SecurityContext securityContext) {
         return null;
     }
+
     public String fetchAuthToken(ServerWebExchange serverWebExchange){
         ServerHttpRequest request = serverWebExchange.getRequest();
         String token = null;
+
+        if(!request.getPath().toString().startsWith("/api"))
+            return null;
+
         try{
             token = request.getCookies().getFirst("ATOKEN").getValue();
         }catch (NullPointerException npe){

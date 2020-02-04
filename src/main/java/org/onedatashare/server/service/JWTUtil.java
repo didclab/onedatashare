@@ -3,6 +3,8 @@ package org.onedatashare.server.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -21,8 +23,8 @@ public class JWTUtil implements Serializable {
     @Value("${springbootwebfluxjjwt.jjwt.secret}")
     private String secret;
 
-    @Value("${springbootwebfluxjjwt.jjwt.expiration}")
-    private String expirationTime;
+    @Getter
+    private static final Long expirationTime = ODSConstants.JWT_TOKEN_EXPIRES_IN;
 
     public Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(Base64.getEncoder().encodeToString(secret.getBytes())).parseClaimsJws(token).getBody();
@@ -48,10 +50,8 @@ public class JWTUtil implements Serializable {
     }
 
     private String generateToken(Map<String, Object> claims, String username) {
-        Long expirationTimeLong = Long.parseLong(expirationTime); //in second
-
         final Date createdDate = new Date();
-        final Date expirationDate = new Date(createdDate.getTime() + expirationTimeLong * 1000);
+        final Date expirationDate = new Date(createdDate.getTime() + expirationTime * 1000);
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
