@@ -17,12 +17,15 @@ import java.util.UUID;
 
 public class S3Session extends Session<S3Session, S3Resource> {
 
+    private AmazonS3 s3Client;
+
     public S3Session(URI uri, Credential credential) {
         super(uri, credential);
     }
 
     @Override
     public Mono<S3Resource> select(String path) {
+        System.out.println(path);
         return null;
     }
 
@@ -38,12 +41,14 @@ public class S3Session extends Session<S3Session, S3Resource> {
                 UserInfoCredential cred = (UserInfoCredential) getCredential();
                 String accessKey =  cred.getUsername();
                 String secretKey = cred.getPassword();
-                AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-                AmazonS3 s3Client = new AmazonS3Client(credentials);
-            }
 
+                AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+                s3Client = new AmazonS3Client(credentials);
+
+            }
 
         });
         }
+
     }
 

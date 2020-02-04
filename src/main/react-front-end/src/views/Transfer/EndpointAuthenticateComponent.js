@@ -82,7 +82,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 
-		this.regularSignInWithSavePassword = this.regularSignInWithSavePassword.bind(this);
+		// this.regularSignInWithSavePassword = this.regularSignInWithSavePassword.bind(this);
 	}
 
 	credentialListUpdateFromBackend = () => {
@@ -342,25 +342,25 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
-	regularSignInWithSavePassword(){
-		//TODO: Add error handling callback for the API call
-		const {url, username, password, needPassword} = this.state;
-		if(url.substr(url.length - 3) === '://') {
-			this._handleError("Please enter a valid URL")
-			return
-		}
-		if(!needPassword){
-			this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-				this.setState({needPassword: true});
-			});
-		}		
-		// User is expected to enter password to login
-		else if(username.length === 0 || password.length === 0) {
-			this._handleError("Incorrect username or password");
-			return;
-		}
+	// regularSignInWithSavePassword(){
+	// 	//TODO: Add error handling callback for the API call
+	// 	const {url, username, password, needPassword} = this.state;
+	// 	if(url.substr(url.length - 3) === '://') {
+	// 		this._handleError("Please enter a valid URL")
+	// 		return
+	// 	}
+	// 	if(!needPassword){
+	// 		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+	// 			this.setState({needPassword: true});
+	// 		});
+	// 	}		
+	// 	// User is expected to enter password to login
+	// 	else if(username.length === 0 || password.length === 0) {
+	// 		this._handleError("Incorrect username or password");
+	// 		return;
+	// 	}
 
-		saveCredentials(username, password, (val) => console.log("UUID is ", val), null);		
+		// saveCredentials(username, password, (val) => console.log("UUID is ", val), null);		
 		// this.endpointCheckin(this.state.url, 
 		// 	this.state.portNum,
 		// 	{type: "userinfo", username: this.state.username, password: encryptedPwd}, 
@@ -370,7 +370,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		// );
 
 	
-	}
+	// }
 
 	regularSignIn = () => {
 	const {url, username, password, needPassword} = this.state;
@@ -500,7 +500,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 					}else if(loginType === AMAZONS3_TYPE){
 						let loginUri="amazons3";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignInWithSavePassword,
+		        		this.setState({settingAuth: true, authFunction : this.regularSignIn,
 							needPassword: true, url: loginUri});
 					}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";

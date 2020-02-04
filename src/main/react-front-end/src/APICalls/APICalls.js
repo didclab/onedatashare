@@ -849,7 +849,7 @@ export async function globusListEndpoints( filter_fulltext, accept, fail) {
 export async function saveCredentials(username, password, accept, fail){
 	var callback = accept;
 
-	return axios.post("/api/stork/savecreds", {
+	return axios.post("/api/stork/save-cred", {
 	    username: username,
 	    password: password
 	}).then((response) => {

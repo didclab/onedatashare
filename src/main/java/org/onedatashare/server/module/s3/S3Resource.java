@@ -67,27 +67,6 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
 
     private Stat onStat() {
         Stat stat = new Stat();
-        try {
-            if(fileObject.isFolder()){
-                stat.setDir(true);
-                stat.setFile(false);
-            }
-            else {
-                stat = fileContentToStat(fileObject);
-            }
-            stat.setName(fileObject.getName().getBaseName());
-
-            if(stat.isDir()) {
-                FileObject[] children = fileObject.getChildren();
-                ArrayList<Stat> files = new ArrayList<>();
-                for(FileObject file : children) {
-                    files.add(fileContentToStat(file));
-                }
-                stat.setFiles(files);
-            }
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }
         return stat;
     }
 

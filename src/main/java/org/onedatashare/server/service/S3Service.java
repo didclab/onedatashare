@@ -27,15 +27,14 @@ public class S3Service implements ResourceService<S3Resource> {
     @Autowired
     private JobService jobService;
 
+    @Autowired
+    private DecryptionService decryptionService;
+
 
     public Mono<S3Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        return userService.getLoggedInUser(cookie)
-                .map(User::getCredentials)
-                .map(creds -> {
-                    Credential credential = creds.get(userAction.getUuid());
-                    if (credential != null)
-                        return credential;
-                    else if (userAction.getCredential().getUsername() == null || userAction.getCredential().getPassword() == null) {
+        return decryptionService.getDecryptedCredential(userAction.getCredential())
+                .map(cred -> {
+                    if (userAction.getCredential().getUsername() == null || userAction.getCredential().getPassword() == null) {
                         Mono.error(new Exception("Invalid"));
                     }
                     return new UserInfoCredential(userAction.getCredential());
