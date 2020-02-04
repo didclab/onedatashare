@@ -38,6 +38,9 @@ export const GET_USER_UPDATES_ENDPOINT = "q/user-jobs";
 export const GET_ADMIN_UPDATES_ENDPOINT = "q/user-jobs";
 
 
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users"
+
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";

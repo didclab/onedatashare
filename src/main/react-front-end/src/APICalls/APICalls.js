@@ -3,6 +3,8 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	RESEND_ACC_ACT_CODE_ENDPOINT,
 	GET_USER_JOBS_ENDPOINT,
 	GET_ADMIN_JOBS_ENDPOINT,
+	GET_USERS_ENDPOINT,
+	GET_ADMINS_ENDPOINT,
 	GET_USER_UPDATES_ENDPOINT,
 	GET_ADMIN_UPDATES_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
@@ -668,11 +670,10 @@ export async function upload(uri, credential, accept, fail) {
 /*
 	Desc: Retrieve all the available users
 */
-export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
+export async function getUsers(pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
 
-	axios.post(url + 'user', {
-		action: type,
+	axios.post(url + GET_USERS_ENDPOINT, {
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
@@ -687,6 +688,30 @@ export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fa
 			statusHandle(error, fail);
 		});
 }
+
+
+/*
+	Desc: Retrieve all the available users
+*/
+export async function getAdmins(pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
+
+	axios.post(url + GET_ADMINS_ENDPOINT, {
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
+}
+
 
 export async function getUser(email, accept, fail) {
 	var callback = accept;

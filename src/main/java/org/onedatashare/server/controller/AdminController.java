@@ -2,16 +2,16 @@ package org.onedatashare.server.controller;
 
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
 import org.onedatashare.server.model.core.Mail;
+import org.onedatashare.server.model.core.UserDetails;
+import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.useraction.NotificationBody;
 import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
 import org.onedatashare.server.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import org.onedatashare.server.model.core.User;
 import reactor.core.publisher.Mono;
 
 /**
@@ -27,14 +27,19 @@ public class AdminController {
     @Autowired
     private EmailService emailService;
 
-    @GetMapping(value = "/getAllUsers")
-    public Flux<User> getAllUsers() {
-        return adminService.getAllUsers();
+    @PostMapping(value = "/get-users")
+    public Mono<UserDetails> getUsersPaged(@RequestBody JobRequest jobRequest) {
+        return adminService.getUsersPaged(jobRequest);
     }
 
-    @GetMapping(value = "/getAllAdmins")
-    public Flux<User> getAllAdmins(){
-        return adminService.getAllAdmins();
+    @PostMapping(value = "/get-admins")
+    public Mono<UserDetails> getAdminsPaged(@RequestBody JobRequest jobRequest){
+        return adminService.getAdminsPaged(jobRequest);
+    }
+
+    @GetMapping(value = "/getAllUsers")
+    public Flux getAllUsers(){
+        return adminService.getAllUsers();
     }
 
     @GetMapping(value = "/getMails")

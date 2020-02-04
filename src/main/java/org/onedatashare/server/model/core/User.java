@@ -1,7 +1,6 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
-import lombok.Getter;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

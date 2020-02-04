@@ -282,41 +282,6 @@ public class UserService {
         });
     }
 
-    public Mono<UserDetails> getAllUsers(UserAction userAction, String cookie){
-        Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return getLoggedInUser(cookie).flatMap(user -> (user != null && user.isAdmin()) ?
-                userRepository.findAllBy(PageRequest.of(userAction.getPageNo(),
-                        userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
-                        .collectList()
-                        .flatMap(users ->
-                                userRepository.count()
-                                        .map(count ->  {
-                                            UserDetails result = new UserDetails();
-                                            result.users = users;
-                                            result.totalCount = count;
-                                            return result;
-                                        }))
-                : Mono.error(new Exception("The logged in user is not an Admin.")));
-    }
-
-    public Mono<UserDetails> getAdministrators(UserAction userAction, String cookie){
-        Sort.Direction direction = userAction.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return getLoggedInUser(cookie).flatMap(user ->
-                (user != null && user.isAdmin()) ?
-                        userRepository.findAllAdministrators(PageRequest.of(userAction.getPageNo(),
-                                userAction.getPageSize(), Sort.by(direction, userAction.getSortBy())))
-                                .collectList()
-                                .flatMap(users ->
-                                        userRepository.countAdministrators()
-                                                .map(count ->  {
-                                                    UserDetails result = new UserDetails();
-                                                    result.users = users;
-                                                    result.totalCount = count;
-                                                    return result;
-                                                }))
-                        :
-                        Mono.error(new Exception("The logged in user is not an Admin.")));
-    }
 
     public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
         return getUser(email).flatMap(user -> {

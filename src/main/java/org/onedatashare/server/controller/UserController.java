@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
 
 /**
  * Controller for handling GET requests to User DB
@@ -41,10 +42,6 @@ public class UserController {
                 return userService.saveHistory(userAction.getUri(), cookie);
             case "getUser":
                 return userService.getUserFromCookie(userAction.getEmail(), cookie);
-            case "getUsers":
-                return userService.getAllUsers(userAction, cookie);
-            case "getAdministrators":
-                return userService.getAdministrators(userAction, cookie);
             case "updateSaveOAuth":
                 return userService.updateSaveOAuth(cookie, userAction.isSaveOAuth());
             case "deleteCredential":
@@ -54,7 +51,7 @@ public class UserController {
             case "updateViewPreference":
                 return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
             default:
-                return null;
+                return Mono.empty();
         }
     }
 
