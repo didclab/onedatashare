@@ -19,15 +19,14 @@ import org.onedatashare.server.module.vfs.VfsSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
@@ -131,6 +130,20 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         }
         else
             return Mono.just(new UserInfoCredential(userActionResource.getCredential()));
+    }
+
+    public Mono<JobDetails> ongoingJobForUser(String cookie){
+        Mono<JobDetails> ongoing_job_key_set = jobService.getAllJobsForUserFlux(cookie)
+                .filter(job -> ongoingJobs.containsKey(job.getUuid()))
+                .collectList().map(jobList -> {
+                    JobDetails job_details = new JobDetails();
+                    job_details.setJobs(jobList);
+                    Integer key_set_size = jobList.size();
+                    job_details.setTotalCount(key_set_size.longValue());
+                    return job_details;
+                });
+
+        return ongoing_job_key_set;
     }
 
 

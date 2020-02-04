@@ -365,6 +365,19 @@ export async function updateJobStatus(jobIds,accept, fail){
     });
 }
 
+export async function ongoingJobStatus(email,accept, fail){
+	var callback = accept;
+	axios.post(url+'ongoingjobs', email)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
 // Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
 export async function submitIssue(reqBody, success, fail){
 	var callback = success;

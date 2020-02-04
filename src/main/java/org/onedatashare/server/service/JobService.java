@@ -39,6 +39,10 @@ public class JobService {
                 .collectList();
     }
 
+    public Flux<Job> getAllJobsForUserFlux(String cookie) {
+        return userService.getJobs(cookie).flatMap(this::getJobByUUID).publishOn(Schedulers.parallel());
+    }
+
     public Mono<JobDetails> getJobsForUserOrAdmin(String cookie, JobRequest request) {
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         int numberOfItrs = request.pageNo == 0 ? 2 : 3;

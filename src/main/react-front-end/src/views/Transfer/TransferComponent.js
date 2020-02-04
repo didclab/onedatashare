@@ -12,7 +12,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
-import {submit, updateViewPreference} from "../../APICalls/APICalls";
+import {submit, updateViewPreference, ongoingJobStatus} from "../../APICalls/APICalls";
 import {endpointUpdate, compactViewPreference} from "../../model/actions";
 
 import { DragDropContext} from 'react-beautiful-dnd';
@@ -25,6 +25,7 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import OngoingQueuePanel from './OngoingQueuePanel';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
 
@@ -49,6 +50,7 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
+      ongoingJobs: [],
       compact: store.getState().compactViewEnabled
     }
 
@@ -68,12 +70,38 @@ export default class TransferComponent extends Component {
     this.sendFile = this.sendFile.bind(this);
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
-
+    this.ongoingJobCall = this.ongoingJobCall.bind(this);
+    this.ongoingJobCallingInterval = setInterval(this.ongoingJobCall, 1000);
     this.printError();
 
     updateGAPageView();
 
   }
+
+  componentWillUnmount() {
+    clearInterval(this.ongoingJobCallingInterval);
+  }
+
+  ongoingJobCall(){
+    const {email} = store.getState();
+    var success = (resp) => {
+      // if resp becomes less, print message finish
+      // display it on the page
+      const ongoingJobs = this.state.ongoingJobs;
+      ongoingJobs.map(job => {
+        let currentIds = resp.jobs.map(job => job.job_id);
+        if(!currentIds.includes(job.job_id)){
+          eventEmitter.emit("messageOccured", "Transfer Completed! Job ID: " + job.job_id+". From " + job.src.uri + " to "+ job.dest.uri+"!");
+        }
+      });
+      if(ongoingJobs != resp.jobs)
+        this.setState({ongoingJobs: resp.jobs});
+    }
+    ongoingJobStatus(email, success, fail => {
+        console.log('Failed to get job updates' + email + fail)
+      })
+  }
+
 
   printError(){
     const error = queryString.parse(this.props.location.search);
@@ -429,6 +457,7 @@ export default class TransferComponent extends Component {
             </Row>
 
             <ErrorMessagesConsole/>
+            <OngoingQueuePanel ongoingJobs={this.state.ongoingJobs}/>
           </Panel.Body>
           </Panel>
 
@@ -485,8 +514,8 @@ export default class TransferComponent extends Component {
             </Panel.Body>
             </Panel>
           }
-
         </Col>
+
       </div>
 
     );

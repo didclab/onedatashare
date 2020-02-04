@@ -77,6 +77,7 @@ public class UserAction {
         return ua;
     }
 
+
     /**
      * Factory method for returning an object of type request data
      * @param operationRequestData - data for performing an operation on the endpoints
@@ -103,6 +104,18 @@ public class UserAction {
         ua.setJob_id(jobRequestData.getJob_id());
         return ua;
     }
+
+    /**
+     * Factory method for returning an object of type request data
+     * @param jobRequestData - data for making a job request
+     * @return UserAction
+     */
+    public static UserAction convertToUserAction(OngoingJobRequestData jobRequestData){
+        UserAction ua = new UserAction();
+        ua.setEmail(jobRequestData.getEmail());
+        return ua;
+    }
+
 
     /**
      * Factory method for returning an object of type request data
