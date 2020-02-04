@@ -35,7 +35,7 @@ public class QueueControllerTest extends ControllerTest {
 
     @Before
     public void setup() {
-        when(jobService.getJobsForUserOrAdmin(any(), any())).then(addToList(jobService));
+        when(jobService.getJobsForAdmin(any(), any())).then(addToList(jobService));
         when(jobService.getUpdates(any(), any())).then(addToList(jobService));
     }
 
