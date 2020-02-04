@@ -24,5 +24,4 @@ public class AuthenticationRequired extends ODSError {
     if (options != null && options.length > 0)
       this.options = Arrays.asList(options);
   }
-
 }

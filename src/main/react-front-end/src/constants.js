@@ -14,16 +14,37 @@ export const lostValidationCodeUrl = "/account/lostValidationCode";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
+export const notificationPageUrl = "/sendNotifications";
+export const newNotifications = "/newNotifications";
 export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
-export const policyUrl = "/policy"
+export const policyUrl = "/policy";
+
+export const AUTH_ENDPOINT = "/authenticate";
+export const RESET_PASSWD_ENDPOINT = "/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+
+export const REGISTRATION_ENDPOINT = "/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+
+export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/user-jobs";
+
+
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";
+export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
@@ -33,6 +54,7 @@ export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
+export const BOX_NAME = "Box";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
@@ -41,6 +63,7 @@ export const SCP_NAME = "SCP";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "googledrive";
+export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
@@ -79,6 +102,7 @@ export const completeStatus = "complete";
 export const showText = {
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
+	box: BOX_NAME,
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
@@ -90,6 +114,7 @@ export const showText = {
 export const showType = {
 	dropbox: DROPBOX_TYPE,
 	googledrive: GOOGLEDRIVE_TYPE,
+	box: BOX_TYPE,
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
@@ -111,6 +136,12 @@ export const defaultPort = {
 
 export const maxCookieAge = 7;
 
+export const jobStatus = {
+	COMPLETED: 'completed',
+	TRANSFERRING: 'transferring',
+	SCHEDULED: 'scheduled',
+	FAILED: 'failed'
+}
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)

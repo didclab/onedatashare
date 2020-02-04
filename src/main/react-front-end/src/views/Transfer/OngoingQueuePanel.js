@@ -13,7 +13,6 @@ export default class OngoingQueuePanel extends Component {
 			//{job.src.type.split(":")[0]} -> {job.dest.type.split(":")[0]}
 			let divide = job.bytes.done / job.bytes.total * 100;
 			divide = divide ? divide : 0;
-			console.log(divide)
 			return <div key={job.job_id} style={{position: "relative", float: "left",  height: "20px", width: "50px", borderRadius: "5px" , margin: "5px", borderWidth: "1px", borderColor: "black", borderStyle:"solid"}}>
 					<div style={{backgroundColor:"lightgreen", width: divide+"%", height: "100%"}}/>
 						<p style={{position: "absolute", top:"0",zIndex:"10", left: "0", color: "black", fontSize: "10px"}}>Job Id: {job.job_id}</p>

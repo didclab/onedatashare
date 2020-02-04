@@ -170,11 +170,15 @@
         </dependency>
 
         <dependency>
+            <groupId>com.box</groupId>
+            <artifactId>box-java-sdk</artifactId>
+            <version>2.32.0</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.onedatashare.module</groupId>
             <artifactId>globus-api</artifactId>
             <version>1.1-SNAPSHOT</version>
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/lib/globus-api-1.1-SNAPSHOT.jar</systemPath>-->
         </dependency>
 
         <dependency>
@@ -213,6 +217,35 @@
             <version>6.14.3</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- JWT and spring security dependencies start -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.10.7</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.10.7</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.10.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
 

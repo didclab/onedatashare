@@ -24,7 +24,17 @@ import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
-import { listFiles, mkdir, deleteCall, download, getDownload, getSharableLink, openDropboxOAuth, openGoogleDriveOAuth } from "../../APICalls/APICalls";
+import {
+	listFiles,
+	mkdir,
+	deleteCall,
+	download,
+	getDownload,
+	getSharableLink,
+	openDropboxOAuth,
+	openGoogleDriveOAuth,
+	openBoxOAuth
+} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
@@ -34,7 +44,7 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 import { eventEmitter } from "../../App";
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -311,7 +321,9 @@ export default class EndpointBrowseComponent extends Component {
 						openDropboxOAuth();
 					else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
 						openGoogleDriveOAuth();
-				}, 3000);
+					else if(getType(endpoint) === BOX_TYPE)
+						openBoxOAuth();				
+					}, 3000);
 			}
 		});
 	};

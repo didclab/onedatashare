@@ -7,6 +7,7 @@ export default class ErrorMessagesConsole extends Component {
 		this.state = {
 			errorMessages: [{msg: "Welcome to OneDataShare! Please choose the end-points you would like to access. You can simply drag-and-drop files and directories between end-points to perform a transfer. Then, relax and monitor your transfer to complete.", color: "black"},]
 		}
+		this.currentMessages = this.state.errorMessages.length;
 		this.onErrorOccured = this.onErrorOccured.bind(this);
 		this.onMessageOccurred = this.onMessageOccurred.bind(this);
 		this.onWarningOccurred = this.onWarningOccurred.bind(this);
@@ -42,6 +43,13 @@ export default class ErrorMessagesConsole extends Component {
 	componentDidUpdate() {
 	  this.scrollToBottom();
 	}
+
+	shouldComponentUpdate(nextProps, nextState){
+		let updated = nextState.errorMessages.length > this.currentMessages;
+		this.currentMessages = nextState.errorMessages.length;
+		return updated;
+	}
+
 	render(){
 		const {errorMessages} = this.state;
 		return(
@@ -51,7 +59,7 @@ export default class ErrorMessagesConsole extends Component {
 				}}
 				
 			>
-				{errorMessages.map(msg => <p style={{color: msg.color}}>{msg.msg}</p>)}
+				{errorMessages.map((msg, i) => <p key={i} style={{color: msg.color}}>{msg.msg}</p>)}
 				<p ref={(msgsList) => { this.messagesEnd = msgsList; }}> ></p>
 			</div>
 			);
