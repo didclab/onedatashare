@@ -60,6 +60,7 @@ public class Job {
     setSrc(src);
     setDest(dest);
     setBytes(new TransferInfo());
+    status = JobStatus.scheduled;
   }
 
   public Job updateJobWithTransferInfo(TransferInfo info) {

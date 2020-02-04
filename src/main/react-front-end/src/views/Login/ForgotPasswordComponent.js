@@ -87,6 +87,8 @@ export default class ForgotPasswordComponent extends Component {
 			case 'reenter': 
 				this.setState({isReEnterPwdVisible: true}); 
 				break;
+			default:
+				break;
 		}
 	}
 
@@ -204,7 +206,6 @@ export default class ForgotPasswordComponent extends Component {
 							}}
 						/>
 						<TextField
-							error={confirmed}
 							style={{ width: '100%', marginBottom: '20px' }}
 							id="outlined-email-input"
 							label="Confirm Password"
@@ -213,7 +214,7 @@ export default class ForgotPasswordComponent extends Component {
 							margin="normal"
 							variant="outlined"
 							value={this.state.confirmedPassword}
-							error={!this.state.isValidConfirmPassword}
+							error={!this.state.isValidConfirmPassword && confirmed}
 							onChange={validatePassword('confirmedPassword')}
 							InputProps={{
 								endAdornment: <React.Fragment>

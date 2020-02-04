@@ -1,4 +1,12 @@
-import { url } from '../constants';
+import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
+	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
+	RESEND_ACC_ACT_CODE_ENDPOINT,
+	GET_USER_JOBS_ENDPOINT,
+	GET_ADMIN_JOBS_ENDPOINT,
+	GET_USERS_ENDPOINT,
+	GET_ADMINS_ENDPOINT,
+	GET_USER_UPDATES_ENDPOINT,
+	GET_ADMIN_UPDATES_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -49,10 +57,9 @@ function statusHandle(response, callback) {
 	accept: (successMessage:string){}
 	fail: (errorMessage:string){}
 */
-export async function checkLogin(email, accept, fail) {
-	axios.post(url + 'user', {
-		action: 'verifyEmail',
-		email: email,
+export async function checkLogin(email, accept, fail){
+	axios.post(IS_REGISTERED_EMAIL_ENDPOINT, {
+	    email: email,
 	}).then((response) => {
 		if ((response.data === true)) {
 			statusHandle(response, accept);
@@ -76,9 +83,8 @@ export async function checkLogin(email, accept, fail) {
 export async function resetPasswordSendCode(email, accept, fail) {
 	var callback = accept;
 
-	axios.post(url + 'user', {
-		action: 'sendVerificationCode',
-		email: email
+	axios.post(SEND_PASSWD_RST_CODE_ENDPOINT, {
+	    email: email
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;
@@ -99,10 +105,9 @@ export async function resetPasswordSendCode(email, accept, fail) {
 export async function resetPasswordVerifyCode(email, code, accept, fail) {
 	var callback = accept;
 
-	axios.post(url + 'user', {
-		action: 'verifyCode',
-		email: email,
-		code: code
+	axios.post(EMAIL_VERIFICATION_ENDPOINT, {
+	    email: email,
+	    code: code
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;
@@ -121,12 +126,11 @@ export async function resetPasswordVerifyCode(email, code, accept, fail) {
 export async function resetPassword(email, code, password, cpassword, accept, fail) {
 	var callback = accept;
 
-	axios.post(url + 'user', {
-		action: 'setPassword',
-		email: email,
-		code: code,
-		password: password,
-		confirmPassword: cpassword
+	axios.post(RESET_PASSWD_ENDPOINT, {
+	    email: email,
+	    code: code,
+	    password: password,
+	    confirmPassword: cpassword
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;
@@ -135,6 +139,18 @@ export async function resetPassword(email, code, password, cpassword, accept, fa
 		statusHandle(error, fail);
 	});
 }
+
+export async function resendVerificationCode(emailId){
+	return axios.post(SEND_PASSWD_RST_CODE_ENDPOINT, {
+			email: emailId
+		})
+		.then((response) => {
+			return response.data;
+		})
+		.catch((error) => {
+
+		});
+	}
 
 export async function getAllUsers(email) {
 	return axios.get(url + 'admin/getAllUsers', {
@@ -201,7 +217,7 @@ export async function sendEmailNotification(senderEmail, subject, message, email
 		message: message,
 		emailList: emailList,
 		isHtml: isHtml
-	})
+		})
 		.then((response) => {
 			return response.data;
 		})
@@ -210,39 +226,24 @@ export async function sendEmailNotification(senderEmail, subject, message, email
 		});
 }
 
-
-export async function resendVerificationCode(emailId) {
-	return axios.post(url + 'user', {
-		action: 'resendVerificationCode',
-		email: emailId
-	})
-		.then((response) => {
-			return response
-		})
-		.catch((error) => {
-
-		});
-}
-
+/** Set passowrd for the first time is the same as reset password */
 export async function setPassword(emailId, code, password, confirmPassword) {
-
-	return axios.post(url + 'user', {
-		action: "setPassword",
-		email: emailId,
-		code: code,
-		password: password,
-		confirmPassword: confirmPassword
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				throw new Error("Failed to set password for users account")
-			else {
-				return response;
-			}
-		})
-		.catch((error) => {
-			return { status: 500 }
-		});
+    return axios.post(RESET_PASSWD_ENDPOINT, {
+    	    email : emailId,
+    	    code : code,
+    	    password : password,
+    	    confirmPassword : confirmPassword
+    	})
+    	.then((response) => {
+    		if(!(response.status === 200))
+    			throw new Error("Failed to set password for users account")
+    		else {
+                    return response;
+                }
+    	})
+    	.catch((error) => {
+          return {status : 500}
+        });
 }
 
 
@@ -255,10 +256,9 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 export async function login(email, password, accept, fail) {
 	var callback = accept;
 
-	axios.post(url + 'user', {
-		action: 'login',
-		email: email,
-		password: password,
+	axios.post(AUTH_ENDPOINT, {
+	    email: email,
+	    password: password,
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;
@@ -407,10 +407,9 @@ export async function savedCredList(accept, fail) {
 /*
 	Desc: Extract all transfers for the user
 */
-export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fail) {
+export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
-	axios.post(`${url}q`, {
-		status: 'userJob',
+	axios.post(url + GET_USER_JOBS_ENDPOINT, {
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
@@ -429,58 +428,50 @@ export async function fetchUserJobs(pageNo, pageSize, sortBy, order, accept, fai
 /*
 	Desc: Fetch all transfers. Only for Admins
 */
-
-export async function fetchAllJobs(owner, pageNo, pageSize, sortBy, order, accept, fail) {
+export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
 	var callback = accept;
-	axios.post(url+'q', {
+	axios.post(url+GET_ADMIN_JOBS_ENDPOINT, {
 		status: 'all',
-		owner: owner,
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
 		sortOrder: order
 	})
-		.then((response) => {
-			if(!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			fail(error);
-		});
-}
-
-export async function fetchJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
-	axios.post(url+'q', {
-		status: 'all',
-		owner: owner,
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
 	})
-		.then((response) => {
-			if(!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			fail(error);
-		});
+	.catch((error) => {
+		fail(error);
+	});
 }
 
-export async function updateJobStatus(jobIds, accept, fail) {
+export async function getJobUpdatesForUser(jobIds, accept, fail){
 	var callback = accept;
-	axios.post(url + 'q/update', jobIds)
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			fail(error);
-		});
+	axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
+}
+
+
+export async function getJobUpdatesForAdmin(jobIds,accept, fail){
+	var callback = accept;
+	axios.post(url+GET_ADMIN_UPDATES_ENDPOINT, jobIds)
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+      fail(error);
+    });
 }
 
 // Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
@@ -679,11 +670,10 @@ export async function upload(uri, credential, accept, fail) {
 /*
 	Desc: Retrieve all the available users
 */
-export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
+export async function getUsers(pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
 
-	axios.post(url + 'user', {
-		action: type,
+	axios.post(url + GET_USERS_ENDPOINT, {
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
@@ -698,6 +688,30 @@ export async function getUsers(type, pageNo, pageSize, sortBy, order, accept, fa
 			statusHandle(error, fail);
 		});
 }
+
+
+/*
+	Desc: Retrieve all the available users
+*/
+export async function getAdmins(pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
+
+	axios.post(url + GET_ADMINS_ENDPOINT, {
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
+}
+
 
 export async function getUser(email, accept, fail) {
 	var callback = accept;
@@ -911,52 +925,52 @@ export async function openOAuth(url){
 
 
 export async function registerUser(requestBody, errorCallback) {
-
-	return axios.post(url + 'user', { action: "register", ...requestBody })
-		.then((response) => {
-			if (response.data && response.data.status && response.data.status === 302) {
-				console.log("User already exists");
-				return { status: 302 }
-			}
-			if (!(response.status === 200))
-				throw new Error("Failed to register user")
-			else {
-				return response
-			}
-		}
-		)
-		.catch((error) => {
-			//statusHandle(error, fail);
-			console.error("Error while registering user");
-			return { status: 500 }
-		}
-		);
+	return axios.post(REGISTRATION_ENDPOINT, requestBody)
+				.then((response) => {
+						if(response.data && response.data.status && response.data.status === 302) {
+							console.log("User already exists");
+							return {status : 302}
+						}
+						if(!(response.status === 200))
+							throw new Error("Failed to register user")
+						else {
+								return response
+						}
+					}
+				)
+				.catch((error) => {
+						//statusHandle(error, fail);
+						console.error("Error while registering user");
+						errorCallback();
+						return new Error({status: 500});
+					}
+				);
 }
 
 
 export async function verifyRegistraionCode(emailId, code) {
-	return axios.post(url + 'user', {
-		action: "verifyCode",
-		email: emailId,
-		code: code
-	})
-		.then((response) => {
-			return response;
-			//statusHandle(response, callback);
-		})
-		.catch((error) => {
-			//statusHandle(error, fail);
-			console.error("Error while verifying the registration code")
-			return { status: 500 }
-		});
+    return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
+    	    email : emailId,
+    	    code : code
+    	})
+    	.then((response) => {
+            return response;
+    		//statusHandle(response, callback);
+    	})
+    	.catch((error) => {
+          //statusHandle(error, fail);
+          console.error("Error while verifying the registration code")
+          return {status : 500}
+        });
 }
+
 
 export async function globusListEndpoints(filter_fulltext, accept, fail) {
 	var callback = accept;
 	return axios.post(url + 'globus', {
 		action: "endpoint_list",
 		filter_fulltext: filter_fulltext
-	})
+		})
 		.then((response) => {
 			if (!(response.status === 200))
 				callback = fail;

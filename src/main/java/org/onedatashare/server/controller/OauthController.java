@@ -201,35 +201,31 @@ public class OauthController {
                     }
                 });
     }
+
     @GetMapping
-    public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-
-        if (queryParameters.get("type").equals(googledrive)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(dropbox)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(gridftp)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
-        }else if(queryParameters.get("type").equals(box) ) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(boxOauthService.start()).build());
-        } else return Mono.error(new NotFound());
-
+    public Rendering handle(@RequestParam String type) throws NotFound {
+        switch (type){
+            case box:
+                return Rendering.redirectTo(boxOauthService.start()).build();
+            case dropbox:
+                return Rendering.redirectTo(dbxOauthService.start()).build();
+            case googledrive:
+                return Rendering.redirectTo(googleDriveOauthService.start()).build();
+            case gridftp:
+                return Rendering.redirectTo(gridftpAuthService.start()).build();
+            default:
+                throw new NotFound();
+        }
     }
 
     @ExceptionHandler(NotFound.class)
-    public Object handle(NotFound notfound) {
+    public Rendering handle(NotFound notfound) {
         ODSLoggerService.logError(notfound.status.toString());
         return Rendering.redirectTo("/404").build();
-
     }
 
     @ExceptionHandler(DuplicateCredentialException.class)
-    public Object handleDup(DuplicateCredentialException dce) {
+    public Rendering handleDup(DuplicateCredentialException dce) {
         ODSLoggerService.logError(dce.status.toString());
         return Rendering.redirectTo("/transfer").build();
     }

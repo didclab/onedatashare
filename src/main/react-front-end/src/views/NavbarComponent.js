@@ -5,8 +5,7 @@ import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl } from '../constants';
 import { store } from '../App';
-import { logoutAction, isAdminAction } from '../model/actions';
-import { isAdmin } from '../APICalls/APICalls';
+import { logoutAction } from '../model/actions';
 
 class NavbarComponent extends Component {
 
@@ -17,21 +16,12 @@ class NavbarComponent extends Component {
 			email: store.getState().email,
 			admin: store.getState().admin
 		};
-		if (this.state.login) {
-			isAdmin(store.getState().email, store.getState().hash, (userIsAdmin) => {
-				if (userIsAdmin) {
-					store.dispatch(isAdminAction())
-				} else {
-					console.log("not admin")
-				}
-			}, (error) => {
-				console.log(error);
-			});
-		}
-		this.unsubscribe = store.subscribe(() => {
-			this.setState({ login: store.getState().login, email: store.getState().email, admin: store.getState().admin });
+		
+		this.unsubscribe = store.subscribe(()=>{
+			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
 		});
 	}
+
 	componentWillUnmount() {
 		this.unsubscribe();
 	}
@@ -50,7 +40,7 @@ class NavbarComponent extends Component {
 							<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 							<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
 
-		      	{this.state.admin &&
+		      	{this.state.admin===true &&
 			    	<NavDropdown title="Admin" id="NavDropdown">
 			        	<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
 			        		User Information
@@ -59,6 +49,7 @@ class NavbarComponent extends Component {
 						<NavItem id="NavAdminSendNotifications" componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
 			    	</NavDropdown>
 		    	}
+				
 		    </Nav>}
 
 		    <Nav pullRight>

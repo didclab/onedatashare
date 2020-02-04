@@ -13,3 +13,4 @@ public abstract class ODSError extends RuntimeException {
       throw new NullPointerException();
   }
 }
+

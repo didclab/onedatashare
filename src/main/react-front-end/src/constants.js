@@ -21,7 +21,25 @@ export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
-export const policyUrl = "/policy"
+export const policyUrl = "/policy";
+
+export const AUTH_ENDPOINT = "/authenticate";
+export const RESET_PASSWD_ENDPOINT = "/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+
+export const REGISTRATION_ENDPOINT = "/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+
+export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/user-jobs";
+
+
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users"
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";

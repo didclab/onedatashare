@@ -2,7 +2,6 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.requestdata.JobRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ResourceServiceImpl;

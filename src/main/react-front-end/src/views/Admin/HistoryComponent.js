@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { fetchJobsForAdmin } from '../../APICalls/APICalls';
-import { humanReadableSpeed } from '../../utils'
+import { getJobsForAdmin } from '../../APICalls/APICalls';
+import { humanReadableSpeed } from '../../utils';
 import moment from 'moment';
 
 import Table from '@material-ui/core/Table';
@@ -120,7 +120,7 @@ class HistoryComponent extends Component {
 	}
 	refreshTransfers() {
 		const { searchValue, page, rowsPerPage, orderBy, order } = this.state
-		fetchJobsForAdmin(
+		getJobsForAdmin(
 			searchValue,
 			page,
 			rowsPerPage,
