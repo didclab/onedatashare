@@ -51,8 +51,6 @@ public class UserController {
                 return userService.deleteCredential(cookie, userAction.getUuid());
             case "deleteHistory":
                 return userService.deleteHistory(cookie, userAction.getUri());
-            case "isAdmin":
-                return userService.isAdmin(cookie);
             case "updateViewPreference":
                 return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
             default:

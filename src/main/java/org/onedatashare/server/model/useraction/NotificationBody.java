@@ -7,14 +7,14 @@ import java.util.ArrayList;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class notificationBody {
+public class NotificationBody {
     private String subject;
     private String message;
     private String senderEmail;
     private boolean isHtml;
     private ArrayList<String> emailList;
 
-    notificationBody(String senderEmail,String subject, String message,ArrayList<String> emailList,boolean isHtml){
+    NotificationBody(String senderEmail, String subject, String message, ArrayList<String> emailList, boolean isHtml){
         this.senderEmail = senderEmail;
         this.subject = subject;
         this.message = message;

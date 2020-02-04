@@ -31,8 +31,10 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         ServerHttpRequest request = serverWebExchange.getRequest();
         String token = null;
 
-        if(!request.getPath().toString().startsWith("/api"))
-            return null;
+//        if(!request.getPath().toString().startsWith("/api")) {
+//            System.out.println("Returning nukk");
+//            return null;
+//        }
 
         try{
             token = request.getCookies().getFirst("ATOKEN").getValue();

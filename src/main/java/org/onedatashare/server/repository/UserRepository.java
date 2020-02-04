@@ -13,6 +13,12 @@ public interface UserRepository extends ReactiveMongoRepository<User, String>{
     @Query(value = "{isAdmin: true}")
     Flux<User> findAllAdministrators(Pageable pageable);
 
+    @Query(value = "{isAdmin : true}", fields = "{'email' : 1}")
+    Flux<User> getAllAdminIds();
+
+    @Query(value = "{isAdmin : false}", fields = "{'email' : 1}")
+    Flux<User> getAllUserEmailIds();
+
     Flux<User> findAllBy(Pageable pageable);
 
     @Query(value="{isAdmin: true}", count = true)
