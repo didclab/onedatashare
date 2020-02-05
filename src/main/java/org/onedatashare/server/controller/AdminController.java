@@ -3,8 +3,9 @@ package org.onedatashare.server.controller;
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.UserDetails;
-import org.onedatashare.server.model.jobaction.JobRequest;
+import org.onedatashare.server.model.request.PageRequest;
 import org.onedatashare.server.model.useraction.NotificationBody;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
@@ -28,13 +29,13 @@ public class AdminController {
     private EmailService emailService;
 
     @PostMapping(value = "/get-users")
-    public Mono<UserDetails> getUsersPaged(@RequestBody JobRequest jobRequest) {
-        return adminService.getUsersPaged(jobRequest);
+    public Mono<UserDetails> getUsersPaged(@RequestBody PageRequest pageRequest) {
+        return adminService.getUsersPaged(pageRequest);
     }
 
     @PostMapping(value = "/get-admins")
-    public Mono<UserDetails> getAdminsPaged(@RequestBody JobRequest jobRequest){
-        return adminService.getAdminsPaged(jobRequest);
+    public Mono<UserDetails> getAdminsPaged(@RequestBody PageRequest pageRequest){
+        return adminService.getAdminsPaged(pageRequest);
     }
 
     @GetMapping(value = "/getAllUsers")
@@ -87,4 +88,11 @@ public class AdminController {
             return new Response("Sending Limit exceeded", 401);
         }
     }
+
+    @PutMapping("/change-role")
+    public Mono<Boolean> putAction(@RequestBody UserAction userAction){
+        System.out.println("Called");
+        return adminService.changeRole(userAction.getEmail(), userAction.isAdmin());
+    }
+
 }

@@ -283,14 +283,6 @@ public class UserService {
     }
 
 
-    public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
-        return getUser(email).flatMap(user -> {
-            user.setAdmin(isAdmin);
-            userRepository.save(user).subscribe();
-            return Mono.just(true);
-        });
-    }
-
     public Mono<Boolean> userLoggedIn() {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
@@ -536,16 +528,5 @@ public class UserService {
 
     public Mono<User> addJob(Job job, String cookie) {
         return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
-    }
-
-    public User.UserLogin cookieToUserLogin(String cookie) {
-        Map<String,String> map = new HashMap<String,String>();
-        Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
-        for (Cookie c : cookies)
-            map.put(c.name(), c.value());
-        User user = new User();
-        user.setEmail(map.get("email"));
-        user.setHash(map.get("hash"));
-        return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens(), user.isCompactViewEnabled());
     }
 }

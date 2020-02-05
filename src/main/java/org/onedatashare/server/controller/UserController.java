@@ -5,7 +5,7 @@ import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
 import org.onedatashare.server.model.error.NotFound;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
-import org.onedatashare.server.model.requestdata.UserRequestData;
+import org.onedatashare.server.model.request.UserRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
@@ -52,16 +52,6 @@ public class UserController {
                 return userService.updateViewPreference(userAction.getEmail(), userAction.isCompactViewEnabled());
             default:
                 return Mono.empty();
-        }
-    }
-
-    @PutMapping
-    public Object putAction(@RequestHeader HttpHeaders headers, @RequestBody UserAction userAction){
-        switch(userAction.getAction()) {
-            case "updateAdminRights":
-                return userService.updateAdminRights(userAction.getEmail(), userAction.isAdmin());
-            default:
-                return null;
         }
     }
 

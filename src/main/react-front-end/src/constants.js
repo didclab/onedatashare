@@ -39,7 +39,8 @@ export const GET_ADMIN_UPDATES_ENDPOINT = "q/user-jobs";
 
 
 export const GET_ADMINS_ENDPOINT = "admin/get-admins";
-export const GET_USERS_ENDPOINT = "admin/get-users"
+export const GET_USERS_ENDPOINT = "admin/get-users";
+export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";

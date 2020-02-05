@@ -6,7 +6,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.*;
