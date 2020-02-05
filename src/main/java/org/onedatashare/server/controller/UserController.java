@@ -3,7 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
 import org.onedatashare.server.model.error.InvalidField;
-import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.request.UserRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -55,8 +55,8 @@ public class UserController {
         }
     }
 
-    @ExceptionHandler(NotFound.class)
-    public ResponseEntity<NotFound> handle(NotFound notfound) {
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<NotFoundException> handle(NotFoundException notfound) {
         return new ResponseEntity<>(notfound, notfound.status);
     }
 

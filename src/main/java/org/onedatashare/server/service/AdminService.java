@@ -3,7 +3,9 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.request.PageRequest;
+import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.MailRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,10 +43,6 @@ public class AdminService {
         return userRepository.findAll();
     }
 
-    public Flux<User> getAllAdmins() {
-        return userRepository.getAllAdminIds();
-    }
-
     public Mono<Mail> saveMail(Mail mail) {
         if (mail.getUuid() == null) {
             mail.uuid();
@@ -79,18 +77,16 @@ public class AdminService {
     public Mono<UserDetails> getUsersPaged(PageRequest pageRequest) {
         Pageable pageable = generatePageFromRequest(pageRequest);
         Mono<List<User>> users = userRepository.findAllUsers(pageable).collectList();
-        Mono<Long> userCount = userRepository.countAdministrators();
+        Mono<Long> userCount = userRepository.countUsers();
 
         return users.zipWith(userCount, UserDetails::new);
     }
 
-    public Mono<Boolean> changeRole(final String email, final boolean admin) {
+    public Mono<Response> changeRole(final String email, final boolean admin) {
         return userRepository.findById(email)
-                .switchIfEmpty(Mono.error(new Exception("User not found")))
-                .map(user -> {
-                    user.setAdmin(admin);
-                    userRepository.save(user).subscribe();
-                    return true;
-                });
+                .switchIfEmpty(Mono.error(new NotFoundException("User not found")))
+                .map(user -> user.setAdmin(admin))
+                .flatMap(userRepository::save)
+                .thenReturn(new Response("Success", 200));
     }
 }

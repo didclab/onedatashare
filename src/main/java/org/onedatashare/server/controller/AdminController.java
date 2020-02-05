@@ -90,8 +90,7 @@ public class AdminController {
     }
 
     @PutMapping("/change-role")
-    public Mono<Boolean> putAction(@RequestBody UserAction userAction){
-        System.out.println("Called");
+    public Mono<Response> putAction(@RequestBody UserAction userAction){
         return adminService.changeRole(userAction.getEmail(), userAction.isAdmin());
     }
 

@@ -1,8 +1,5 @@
 package org.onedatashare.server.service;
 
-import com.google.api.client.util.DateTime;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
@@ -10,13 +7,10 @@ import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.*;
 import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
@@ -233,7 +227,7 @@ public class UserService {
                     if(user.getGlobusEndpoints().remove(enpid) != null) {
                         return userRepository.save(user).subscribe();
                     }
-                    return Mono.error(new NotFound());
+                    return Mono.error(new NotFoundException());
                 }).then();
     }
 
@@ -414,7 +408,7 @@ public class UserService {
         return getLoggedInUser(cookie)
                 .map(user -> {
                     if(user.getCredentials().remove(UUID.fromString(uuid))== null) {
-                        return Mono.error(new NotFound());
+                        return Mono.error(new NotFoundException());
                     }
                     return userRepository.save(user).subscribe();
                 }).then();
@@ -467,7 +461,7 @@ public class UserService {
                     if(user.getHistory().remove(URI.create(uri))) {
                         return userRepository.save(user).subscribe();
                     }
-                    return Mono.error(new NotFound());
+                    return Mono.error(new NotFoundException());
                 }).then();
     }
 
