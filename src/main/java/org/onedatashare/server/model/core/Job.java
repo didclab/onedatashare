@@ -63,6 +63,9 @@ public class Job {
     status = JobStatus.scheduled;
   }
 
+  /*
+   * Constructor created to undertake jobID (thread-safe) as parameter
+   */
   public Job(UserActionResource src, UserActionResource dest, int jobId) {
     uuid();
     setJob_id(jobId);

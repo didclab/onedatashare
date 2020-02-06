@@ -23,6 +23,15 @@ public class SequenceGeneratorService {
         this.mongoOperations = mongoOperations;
     }
 
+    /**
+     *
+     * @param userId (user unique id which is userService.getEmail()
+     * @return unique sequence id fetched from jobSequences collection w.r.t a user id
+     * findAndModify is an atomic function (thread-safe)
+     *
+     * this function fetches the jobsequence(total number of jobs) and increment the value by 1 corresponding to userID
+     * if exists else it returns and update the jobsequence as 1
+     */
     public int generateSequence(String userId) {
 
         JobSequence counter = mongoOperations.findAndModify(query(where("userId").is(userId)),
