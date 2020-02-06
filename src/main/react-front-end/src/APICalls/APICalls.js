@@ -1,6 +1,6 @@
 import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
 	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
-	RESEND_ACC_ACT_CODE_ENDPOINT,
+	UPDATE_ADMIN_RIGHTS,
 	GET_USER_JOBS_ENDPOINT,
 	GET_ADMIN_JOBS_ENDPOINT,
 	GET_USERS_ENDPOINT,
@@ -767,8 +767,7 @@ export async function saveOAuthCredentials(credentials, accept, fail) {
 }
 
 export async function updateAdminRightsApiCall(email, isAdmin) {
-	return axios.put(url + 'user', {
-		action: "updateAdminRights",
+	return axios.put(url + UPDATE_ADMIN_RIGHTS, {
 		email: email,
 		isAdmin: isAdmin
 	})

@@ -3,7 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;

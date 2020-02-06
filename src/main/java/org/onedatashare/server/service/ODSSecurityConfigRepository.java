@@ -1,7 +1,6 @@
 package org.onedatashare.server.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import org.onedatashare.server.model.util.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,10 +16,10 @@ import reactor.core.publisher.Mono;
 public class ODSSecurityConfigRepository implements ServerSecurityContextRepository {
 
     @Autowired
-    ODSAuthenticationManager odsAuthenticationManager;
+    private ODSAuthenticationManager odsAuthenticationManager;
 
     @Autowired
-    JWTUtil jwtUtil;
+    private JWTUtil jwtUtil;
 
     @Override
     public Mono<Void> save(ServerWebExchange serverWebExchange, SecurityContext securityContext) {
@@ -30,11 +29,6 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     public String fetchAuthToken(ServerWebExchange serverWebExchange){
         ServerHttpRequest request = serverWebExchange.getRequest();
         String token = null;
-
-//        if(!request.getPath().toString().startsWith("/api")) {
-//            System.out.println("Returning nukk");
-//            return null;
-//        }
 
         try{
             token = request.getCookies().getFirst("ATOKEN").getValue();

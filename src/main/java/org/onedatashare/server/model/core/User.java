@@ -83,6 +83,11 @@ public class User {
 
     private List<Role> roles;
 
+    public User setAdmin(boolean flag){
+        this.isAdmin = flag;
+        return this;
+    }
+
     /**
      * Create an anonymous user.
      */

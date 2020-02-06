@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { Label, Glyphicon, Table, Button, Modal, ButtonToolbar, Grid, Row, Col, Alert, OverlayTrigger, Tooltip, Form, FormControl, FormGroup, ControlLabel, HelpBlock, Checkbox } from 'react-bootstrap';
+import { Link } from '@material-ui/core';
+import { Label, Glyphicon, Table, Button, Modal, ButtonToolbar, Col, Alert, OverlayTrigger, Tooltip, Form, FormControl, FormGroup, ControlLabel, HelpBlock, Checkbox } from 'react-bootstrap';
 import './SentMail.css';
 import { getAllMails, sendEmailNotification, getAllUsers, deleteMail } from '../../APICalls/APICalls';
 import { cookies } from "../../model/reducers";
@@ -293,7 +294,7 @@ class SentMail extends Component {
                                     <ControlLabel>To</ControlLabel>
                                     <OverlayTrigger placement="right" overlay={tooltip}>
                                         <FormControl.Static style={{ width: '15%' }}>
-                                            {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <a href={null} onClick={this.showSelectUsersOpen}>{`${this.state.currentView.recipients.length} users selected`}</a> : <a href={null}>No recipients </a>}
+                                            {this.state.currentView && this.state.currentView.recipients && this.state.currentView.recipients.length > 0 ? <Link href="#" onClick={this.showSelectUsersOpen}>{`${this.state.currentView.recipients.length} users selected`}</Link> : <Link href="#">No recipients </Link>}
                                         </FormControl.Static>
                                     </OverlayTrigger>
                                     {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}

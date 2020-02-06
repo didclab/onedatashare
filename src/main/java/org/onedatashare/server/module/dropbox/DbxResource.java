@@ -3,7 +3,7 @@ package org.onedatashare.server.module.dropbox;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.files.*;
 import org.onedatashare.server.model.core.*;
-import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -82,7 +82,7 @@ public class DbxResource extends Resource<DbxSession, DbxResource> {
         }
       }
       if (data == null && mData == null)
-        throw new NotFound();
+        throw new NotFoundException();
       if (data == null) {
         stat = mDataToStat(mData);
       } else {

@@ -32,14 +32,13 @@ public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
 
         if(userName != null && jwtUtil.validateToken(authToken)){
             Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
-            List<String> rolesMap = claims.get("role", List.class);
+            List<String> roleList = claims.get("role", List.class);
             List<Role> roles = new ArrayList<>();
-            if(rolesMap != null) {
-                for (String rolemap : rolesMap) {
-                    roles.add(Role.valueOf(rolemap));
+            if(roleList != null) {
+                for (String role : roleList) {
+                    roles.add(Role.valueOf(role));
                 }
             }
-
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userName,
                     null,

@@ -1,9 +1,8 @@
-import React, { Component, StyleSheet } from 'react';
+import React, { Component } from 'react';
 import { Grid, Row, Col, Nav, NavItem, Glyphicon } from 'react-bootstrap';
 import ComposeMail from './ComposeMail';
 import SentMail from './SentMail';
 import Trash from './Trash';
-import { getAllMails, sendEmailNotification } from '../../APICalls/APICalls';
 
 class NewNotificationsComponent extends Component {
     constructor(props) {

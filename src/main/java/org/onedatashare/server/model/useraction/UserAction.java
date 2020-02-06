@@ -3,7 +3,7 @@ package org.onedatashare.server.model.useraction;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.onedatashare.module.globusapi.EndPoint;
-import org.onedatashare.server.model.requestdata.*;
+import org.onedatashare.server.model.request.*;
 
 import java.util.ArrayList;
 

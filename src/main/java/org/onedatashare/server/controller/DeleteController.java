@@ -3,7 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
 
-import org.onedatashare.server.model.requestdata.OperationRequestData;
+import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.DbxService;
