@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -17,6 +19,11 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 import static org.onedatashare.server.model.core.ODSConstants.OPEN_ENDPOINTS;
 
@@ -39,10 +46,10 @@ public class ApplicationSecurityConfig {
                 .authorizeExchange()
                 //Permit all the HTTP methods
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                //Need to be admin to access admin functionalities
-                .pathMatchers("/api/stork/admin/**").hasRole("ADMIN")
+                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                 //Need authentication for APICalls
                 .pathMatchers("/api/stork/**").authenticated()
+                //Need to be admin to access admin functionalities
                 //TODO: Check if this setting is secure
                 .pathMatchers("/**").permitAll()
                 .and()
