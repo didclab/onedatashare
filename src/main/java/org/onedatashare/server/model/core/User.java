@@ -1,16 +1,15 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.IDN;
 import java.net.URI;
-import java.security.*;
-
-import org.onedatashare.module.globusapi.EndPoint;
-
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.*;
 
 @Data
@@ -175,7 +174,10 @@ public class User {
             job.uuid();
         }
         job.setOwner(normalizedEmail());
-        job.setJob_id(jobs.size() + 1);
+        if(job.getJob_id()<1)
+        {
+            job.setJob_id(jobs.size() + 1);
+        }
         jobs.add(job.getUuid());
         return job;
     }

@@ -44,6 +44,9 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     @Autowired
     private DecryptionService decryptionService;
 
+    @Autowired
+    private SequenceGeneratorService seqGeneratorService;
+
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
     public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
@@ -199,7 +202,8 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         AtomicReference<User> u = new AtomicReference<>();
         return userService.getLoggedInUser(cookie)
                 .map(user -> {
-                    Job job = new Job(userAction.getSrc(), userAction.getDest());
+                    int jobId = getJobSequence(user.getEmail());
+                    Job job = new Job(userAction.getSrc(), userAction.getDest(), jobId);
                     job.setStatus(JobStatus.scheduled);
                     job = user.saveJob(job);
                     userService.saveUser(user).subscribe();
@@ -209,6 +213,10 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .flatMap(jobService::saveJob)
                 .doOnSuccess(job -> processTransferFromJob(job, u))
                 .subscribeOn(Schedulers.elastic());
+    }
+
+    private int getJobSequence(String email) {
+        return seqGeneratorService.generateSequence(email);
     }
 
     //@Override

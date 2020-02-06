@@ -63,6 +63,15 @@ public class Job {
     status = JobStatus.scheduled;
   }
 
+  public Job(UserActionResource src, UserActionResource dest, int jobId) {
+    uuid();
+    setJob_id(jobId);
+    setSrc(src);
+    setDest(dest);
+    setBytes(new TransferInfo());
+    status = JobStatus.scheduled;
+  }
+
   public Job updateJobWithTransferInfo(TransferInfo info) {
     setBytes(info);
     return this;
