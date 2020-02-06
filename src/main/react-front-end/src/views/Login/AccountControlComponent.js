@@ -94,7 +94,11 @@ export default class AccountControlComponent extends Component {
 
   // Called when user clicked login
   userLogin(email, token, remember, saveOAuthTokens, compactViewEnabled, admin){
-  	this.state.rememberMeAccounts[email] = { hash: token };
+	  let tempRememberMeAccounts = this.state.rememberMeAccounts;
+	  tempRememberMeAccounts[email] = { hash: token };
+	  this.setState({
+		rememberMeAccounts : tempRememberMeAccounts
+	  });
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
