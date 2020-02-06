@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
@@ -14,6 +12,10 @@ import { checkLogin} from '../../APICalls/APICalls.js';
 
 import {spaceBetweenStyle} from '../../constants.js';
 import {updateGAPageView} from "../../analytics/ga";
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
 
 
 export default class NewLoginComponent extends Component {
@@ -37,12 +39,15 @@ export default class NewLoginComponent extends Component {
 	    	error: false,
 	    	errorMessage: null,
 	    	remember: false,
-	    	isAuthenticated: false
+			isAuthenticated: false,
+			isPasswordVisible: false
 	    }
 	    
 	    this.emailValidated = false;
 	    this.onEmailNextClicked = this.onEmailNextClicked.bind(this);
 		this.onSignInClicked = this.onSignInClicked.bind(this);
+		this.handleShowPassword = this.handleShowPassword.bind(this);
+		this.handleHidePassword = this.handleHidePassword.bind(this);
 		updateGAPageView();
 	}
 	componentDidMount(){
@@ -79,9 +84,17 @@ export default class NewLoginComponent extends Component {
 		});
 	}
 
+	handleShowPassword() {
+		this.setState({isPasswordVisible: true});
+	}
+
+	handleHidePassword() {	
+		this.setState({isPasswordVisible: false});
+	}
+
 	render(){
 		const { lostValidationCodePressed, forgotPasswordPressed } = this.props; 
-		const { emailChecked, email, password, error, errorMessage, remember } = this.state;
+		const { emailChecked, email, password, error, errorMessage, isPasswordVisible } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
 		      error: false,
@@ -148,12 +161,25 @@ export default class NewLoginComponent extends Component {
             		id="Password"
                     label="Enter Your Password"
                     onChange={handleChange('password')}
-                    type="password"
+                    type={isPasswordVisible ? "text" : "password"}
                     name="password"
 	          		value={password}
                     validators={['required']}
                     errorMessages={['Where is password?']}
-		          	style={{width: "100%", marginTop: "5%", marginBottom: "5%"}}
+					style={{width: "100%", marginTop: "5%", marginBottom: "5%"}}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={this.handleShowPassword}
+									onMouseUp={this.handleHidePassword}
+								>
+								{isPasswordVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}  
             />
             {/* <FormControlLabel
 			control={

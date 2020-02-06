@@ -3,7 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,9 @@ public class ListController {
     private ResourceServiceImpl resourceService;
 
     @Autowired
+    private BoxService boxService;
+
+    @Autowired
     private HttpFileService httpService;
 
     /**
@@ -50,6 +53,7 @@ public class ListController {
                 case ODSConstants.DROPBOX_URI_SCHEME:
                 case ODSConstants.DRIVE_URI_SCHEME:
                 case ODSConstants.GRIDFTP_URI_SCHEME:
+                case ODSConstants.BOX_URI_SCHEME:
                     return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
@@ -61,6 +65,8 @@ public class ListController {
                 return resourceService.list(cookie, userAction);
             case ODSConstants.GRIDFTP_URI_SCHEME:
                 return gridService.list(cookie, userAction);
+            case ODSConstants.BOX_URI_SCHEME:
+                return boxService.list(cookie, userAction);
             case ODSConstants.SCP_URI_SCHEME:
             case ODSConstants.SFTP_URI_SCHEME:
             case ODSConstants.FTP_URI_SCHEME:

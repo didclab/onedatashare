@@ -1,14 +1,16 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.OperationRequestData;
+import org.onedatashare.server.model.error.ODSAccessDeniedException;
+
+import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.DbxService;
 import org.onedatashare.server.service.GridftpService;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.onedatashare.server.service.VfsService;
+import org.onedatashare.server.service.BoxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +35,9 @@ public class DeleteController {
   @Autowired
   private GridftpService gridService;
 
+  @Autowired
+  private BoxService boxService;
+
   /**
    *  Handler for the delete request of a file or folder made on an endpoint.
    * @param headers - Request Header
@@ -53,6 +58,10 @@ public class DeleteController {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
       else return resourceService.delete(cookie, userAction);
+    }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) { //Old: "box:///".equals(userAction.type)
+      if (userAction.getCredential() == null) {
+        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+      } else return boxService.delete(cookie, userAction);
     }else if(ODSConstants.GRIDFTP_URI_SCHEME.equals(userAction.getType())) {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -67,9 +76,9 @@ public class DeleteController {
     return new ResponseEntity<>(authenticationRequired.toString(), authenticationRequired.status);
   }
 
-  @ExceptionHandler(TokenExpiredException.class)
-  public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
-    return new ResponseEntity<>(tokenExpiredException.toString(), tokenExpiredException.status);
+  @ExceptionHandler(ODSAccessDeniedException.class)
+  public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
+    return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
   }
 
 }

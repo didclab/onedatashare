@@ -1,15 +1,11 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.OperationRequestData;
+import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.service.DbxService;
-import org.onedatashare.server.service.GridftpService;
-import org.onedatashare.server.service.ResourceServiceImpl;
-import org.onedatashare.server.service.VfsService;
+import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -35,7 +31,11 @@ public class MkdirController {
   @Autowired
   private GridftpService gridService;
 
-  /**
+  @Autowired
+  private BoxService boxService;
+
+
+    /**
    * Handler that returns Mono of the stats(file information) in the given path of the endpoint
    * @param headers - Incoming request headers
    * @param operationRequestData - Request data needed to make a directory
@@ -60,6 +60,10 @@ public class MkdirController {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       } else return gridService.mkdir(cookie, userAction);
+    }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
+      if (userAction.getCredential() == null) {
+        return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
+      } else return boxService.mkdir(cookie, userAction);
     }
     else return vfsService.mkdir(cookie, userAction);
   }

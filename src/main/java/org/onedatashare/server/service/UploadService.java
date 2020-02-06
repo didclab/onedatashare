@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
