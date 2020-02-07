@@ -108,10 +108,10 @@ class HistoryComponent extends Component {
 	}
 	refreshSuccess(resp) {
 		const { page, rowsPerPage } = this.state
-		let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
 		this.setState({
 			response: resp.jobs,
-			responsesToDisplay: responsesToDisplay,
+			responsesToDisplay: resp.jobs,
 			totalCount: resp.totalCount,
 			loading: false
 		})
@@ -160,10 +160,10 @@ class HistoryComponent extends Component {
 	}
 	handleChangePage(event, page) {
 		const { response, rowsPerPage } = this.state
-		let nextRecords = this.paginateResults(response, page, rowsPerPage)
+		//let nextRecords = this.paginateResults(response, page, rowsPerPage)
 		this.setState({
 			page: page,
-			responsesToDisplay: nextRecords,
+			responsesToDisplay: response,
 			selectedRowId: null,
 			loading: true
 		});
@@ -381,15 +381,19 @@ class RowElement extends React.PureComponent {
 		let now, bsStyle, label
 		if (status === 'complete') {
 			now = 100
-			bsStyle = 'info'
+			bsStyle = ''
 			label = 'Complete'
 		} else if (status === 'failed') {
 			now = 100
 			bsStyle = 'danger'
 			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
 		} else {
 			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
+			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
 		return <ProgressBar

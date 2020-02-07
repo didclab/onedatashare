@@ -407,15 +407,19 @@ class RowElement extends React.PureComponent {
 		let now, bsStyle, label
 		if (status === 'complete') {
 			now = 100
-			bsStyle = 'info'
+			bsStyle = ''
 			label = 'Complete'
 		} else if (status === 'failed') {
 			now = 100
 			bsStyle = 'danger'
 			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
 		} else {
 			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
+			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
 		return <ProgressBar
