@@ -27,7 +27,7 @@ public class JobService {
 
     private static Pageable generatePageFromRequest(JobRequest request){
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
+        request.pageNo = Math.max(request.pageNo, 0);
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));
         return page;
     }
