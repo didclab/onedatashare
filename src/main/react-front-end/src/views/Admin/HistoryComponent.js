@@ -24,7 +24,7 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
 import CircularProgress from '@material-ui/core/CircularProgress'
-
+import RefreshIcon from '@material-ui/icons/Refresh';
 import { withStyles } from '@material-ui/core';
 
 const styles = theme => ({
@@ -72,7 +72,7 @@ class HistoryComponent extends Component {
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage	= this.handleChangePage.bind(this)
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		updateGAPageView()
 	}
@@ -237,7 +237,13 @@ class HistoryComponent extends Component {
 						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
 							Transfer History
 						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='3'>
+						<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
+							<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation 
+							onClick={this.queueFunc} size="small">
+								Refresh
+							</Button>
+						</TableCell>
+						<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
 							{ this.customToolbar() }
 						</TableCell>
 					</TableRow>
