@@ -48,7 +48,8 @@ public class User {
     /** The validation token we're expecting. */
     private String validationToken;
 
-    /** Set to true if user is administrator. */
+    /** Set to true if user is administrator. Currently Replaced with roles but still updated */
+    @Deprecated
     private boolean isAdmin = false;
 
     /** Set to true if user want to save OAuth credentials */
@@ -82,11 +83,6 @@ public class User {
     private boolean compactViewEnabled = false;
 
     private List<Role> roles;
-
-    public User setAdmin(boolean flag){
-        this.isAdmin = flag;
-        return this;
-    }
 
     /**
      * Create an anonymous user.
@@ -138,7 +134,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return roles != null && (roles.contains(Role.ADMIN) || roles.contains(Role.OWNER));
     }
 
     /**
@@ -304,5 +300,17 @@ public class User {
             long t = date.getTimeInMillis();
             this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
         }
+    }
+
+    public void grantAdminRole(){
+        if(!roles.contains(Role.ADMIN)) {
+            roles.add(Role.ADMIN);
+            isAdmin = true;
+        }
+    }
+
+    public void removeAdminRole(){
+        roles.remove(Role.ADMIN);
+        isAdmin = false;
     }
 }

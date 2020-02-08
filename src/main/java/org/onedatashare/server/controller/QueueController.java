@@ -5,6 +5,7 @@ import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,6 +41,7 @@ public class QueueController {
      */
     //TODO: Add role annotation for security
     @PostMapping("/admin-jobs")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
         return jobService.getJobForAdmin(jobDetails).subscribeOn(Schedulers.elastic());
     }
@@ -53,6 +55,7 @@ public class QueueController {
 
     //TODO: Add role annotation for security
     @PostMapping("/update-admin-job")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {
         return jobService.getUpdatesForAdmin(jobIds).subscribeOn(Schedulers.elastic());
     }

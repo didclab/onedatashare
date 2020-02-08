@@ -1,5 +1,5 @@
 export const LOGIN = 'LOGIN';
-export function loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin) {
+export function loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn) {
   return {
     type: LOGIN,
     credential: {
@@ -7,7 +7,8 @@ export function loginAction(email, token, remember, saveOAuthTokens, compactView
       token: token,
       saveOAuthTokens: saveOAuthTokens,
       compactViewEnabled: compactViewEnabled,
-      admin: admin
+      admin: admin,
+      expiresIn: expiresIn
     }
   }
 }

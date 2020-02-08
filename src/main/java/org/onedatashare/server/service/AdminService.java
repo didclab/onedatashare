@@ -85,8 +85,17 @@ public class AdminService {
     public Mono<Response> changeRole(final String email, final boolean admin) {
         return userRepository.findById(email)
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found")))
-                .map(user -> user.setAdmin(admin))
+                .map(user -> {
+                    if (admin) {
+                        user.grantAdminRole();
+                    } else {
+                        user.removeAdminRole();
+                    }
+                    System.out.println(user.getRoles());
+                    return user;
+                })
                 .flatMap(userRepository::save)
-                .thenReturn(new Response("Success", 200));
+                .thenReturn(new Response("Success", 200))
+                .onErrorReturn(new Response("Internal Server Error", 500));
     }
 }
