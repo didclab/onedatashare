@@ -46,13 +46,13 @@ public class QueueController {
 
 
     //TODO: change the function to use query instead of using filter (might make it faster)
-    @PostMapping("/update-user-job")
+    @PostMapping("/update-user-jobs")
     public Mono<List<Job>> updateJobsForUser(@RequestBody List<UUID> jobIds) {
         return jobService.getUpdatesForUser(jobIds).subscribeOn(Schedulers.elastic());
     }
 
     //TODO: Add role annotation for security
-    @PostMapping("/update-admin-job")
+    @PostMapping("/update-admin-jobs")
     public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {
         return jobService.getUpdatesForAdmin(jobIds).subscribeOn(Schedulers.elastic());
     }

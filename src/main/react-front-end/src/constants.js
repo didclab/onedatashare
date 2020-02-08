@@ -34,8 +34,8 @@ export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
 export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
 export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
-export const GET_USER_UPDATES_ENDPOINT = "q/user-jobs";
-export const GET_ADMIN_UPDATES_ENDPOINT = "q/user-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
 
 
 export const GET_ADMINS_ENDPOINT = "admin/get-admins";

@@ -24,7 +24,7 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
 import CircularProgress from '@material-ui/core/CircularProgress'
-
+import RefreshIcon from '@material-ui/icons/Refresh';
 import { withStyles } from '@material-ui/core';
 
 const styles = theme => ({
@@ -72,7 +72,7 @@ class HistoryComponent extends Component {
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage	= this.handleChangePage.bind(this)
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		updateGAPageView()
 	}
@@ -108,10 +108,10 @@ class HistoryComponent extends Component {
 	}
 	refreshSuccess(resp) {
 		const { page, rowsPerPage } = this.state
-		let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
 		this.setState({
 			response: resp.jobs,
-			responsesToDisplay: responsesToDisplay,
+			responsesToDisplay: resp.jobs,
 			totalCount: resp.totalCount,
 			loading: false
 		})
@@ -160,10 +160,10 @@ class HistoryComponent extends Component {
 	}
 	handleChangePage(event, page) {
 		const { response, rowsPerPage } = this.state
-		let nextRecords = this.paginateResults(response, page, rowsPerPage)
+		//let nextRecords = this.paginateResults(response, page, rowsPerPage)
 		this.setState({
 			page: page,
-			responsesToDisplay: nextRecords,
+			responsesToDisplay: response,
 			selectedRowId: null,
 			loading: true
 		});
@@ -237,7 +237,13 @@ class HistoryComponent extends Component {
 						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
 							Transfer History
 						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='3'>
+						<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
+							<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation 
+							onClick={this.queueFunc} size="small">
+								Refresh
+							</Button>
+						</TableCell>
+						<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
 							{ this.customToolbar() }
 						</TableCell>
 					</TableRow>
@@ -381,15 +387,19 @@ class RowElement extends React.PureComponent {
 		let now, bsStyle, label
 		if (status === 'complete') {
 			now = 100
-			bsStyle = 'info'
+			bsStyle = ''
 			label = 'Complete'
 		} else if (status === 'failed') {
 			now = 100
 			bsStyle = 'danger'
 			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
 		} else {
 			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
+			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
 		return <ProgressBar
