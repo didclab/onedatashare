@@ -60,7 +60,7 @@ export function onedatashareModel(state = initialState, action) {
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
       console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
       cookies.set('email', email, { expires : 1 });
-      cookies.set('ATOKEN', token, {expires: 1, httpOnly: true});
+      cookies.set('ATOKEN', token, {expires: 1 });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : 1 });
       cookies.set('compactViewEnabled', compactViewEnabled, { expires : 1 });
 

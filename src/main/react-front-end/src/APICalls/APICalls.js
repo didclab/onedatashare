@@ -81,7 +81,7 @@ export async function checkLogin(email, accept, fail){
 */
 
 export async function resetPasswordSendCode(email, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(SEND_PASSWD_RST_CODE_ENDPOINT, {
 	    email: email
@@ -103,7 +103,7 @@ export async function resetPasswordSendCode(email, accept, fail) {
 */
 
 export async function resetPasswordVerifyCode(email, code, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(EMAIL_VERIFICATION_ENDPOINT, {
 	    email: email,
@@ -124,7 +124,7 @@ export async function resetPasswordVerifyCode(email, code, accept, fail) {
 	fail: (errorMessage:string){}
 */
 export async function resetPassword(email, code, password, cpassword, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(RESET_PASSWD_ENDPOINT, {
 	    email: email,
@@ -254,7 +254,7 @@ export async function setPassword(emailId, code, password, confirmPassword) {
 	fail: (errorMessage:string){}
 */
 export async function login(email, password, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(AUTH_ENDPOINT, {
 	    email: email,
@@ -271,7 +271,7 @@ export async function login(email, password, accept, fail) {
 }
 
 export async function isAdmin(email, hash, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'user', {
 		action: 'isAdmin',
 		email: email,
@@ -288,7 +288,7 @@ export async function isAdmin(email, hash, accept, fail) {
 }
 
 export async function history(uri, portNum, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: 'history',
@@ -305,7 +305,7 @@ export async function history(uri, portNum, accept, fail) {
 }
 
 export async function globusEndpointIds(gep, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'globus', {
 		action: 'endpointId',
 
@@ -321,7 +321,7 @@ export async function globusEndpointIds(gep, accept, fail) {
 }
 
 export async function globusEndpointDetail(gep, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'globus', {
 		action: 'endpoint',
 		globusEndpoint: gep,
@@ -336,7 +336,7 @@ export async function globusEndpointDetail(gep, accept, fail) {
 }
 
 export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'globus', {
 		action: 'endpointActivate',
 		globusEndpoint: gep,
@@ -354,7 +354,7 @@ export async function globusEndpointActivate(gep, _username, _password, accept, 
 
 
 export async function deleteHistory(uri, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "deleteHistory",
@@ -371,7 +371,7 @@ export async function deleteHistory(uri, accept, fail) {
 }
 
 export async function deleteEndpointId(ged, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'globus', {
 		action: "deleteEndpointId",
@@ -391,7 +391,7 @@ export async function deleteEndpointId(ged, accept, fail) {
 	Desc: List credentials for dropbox and googledrive
 */
 export async function savedCredList(accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.get(url + 'cred?action=list')
 		.then((response) => {
 			if (!(response.status === 200))
@@ -408,7 +408,7 @@ export async function savedCredList(accept, fail) {
 	Desc: Extract all transfers for the user
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + GET_USER_JOBS_ENDPOINT, {
 		pageNo: pageNo,
 		pageSize: pageSize,
@@ -429,7 +429,7 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 	Desc: Fetch all transfers. Only for Admins
 */
 export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url+GET_ADMIN_JOBS_ENDPOINT, {
 		status: 'all',
 		pageNo: pageNo,
@@ -448,7 +448,7 @@ export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, ac
 }
 
 export async function getJobUpdatesForUser(jobIds, accept, fail){
-	var callback = accept;
+	let callback = accept;
 	axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
 	.then((response) => {
 		if(!(response.status === 200))
@@ -462,7 +462,7 @@ export async function getJobUpdatesForUser(jobIds, accept, fail){
 
 
 export async function getJobUpdatesForAdmin(jobIds,accept, fail){
-	var callback = accept;
+	let callback = accept;
 	axios.post(url+GET_ADMIN_UPDATES_ENDPOINT, jobIds)
 	.then((response) => {
 		if(!(response.status === 200))
@@ -476,7 +476,7 @@ export async function getJobUpdatesForAdmin(jobIds,accept, fail){
 
 // Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
 export async function submitIssue(reqBody, success, fail) {
-	var callback = success;
+	let callback = success;
 
 	axios.post(url + 'ticket', reqBody).then((resp) => {
 		if (!(resp.status === 200))
@@ -489,10 +489,10 @@ export async function submitIssue(reqBody, success, fail) {
 }
 
 export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	// console.log(src)
-	var src0 = Object.assign({}, src);
-	var dest0 = Object.assign({}, dest);
+	let src0 = Object.assign({}, src);
+	let dest0 = Object.assign({}, dest);
 	if (Object.keys(src0.credential).length === 0) {
 		delete src0["credential"];
 	}
@@ -515,7 +515,7 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options, acce
 }
 
 export async function listFiles(uri, endpoint, id, accept, fail) {
-	var body = {
+	let body = {
 		uri: encodeURI(uri),
 		id: id,
 		portNumber: endpoint.portNumber,
@@ -524,7 +524,7 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
 
 	body = Object.keys(endpoint.credential).length > 0 ? { ...body, credential: endpoint.credential } : body;
 
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'ls', JSON.stringify(body))
 		.then((response) => {
 			if (!(response.status === 200))
@@ -537,7 +537,7 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
 }
 
 export async function share(uri, endpoint, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'share', {
 		credential: endpoint.credential,
@@ -557,7 +557,7 @@ export async function share(uri, endpoint, accept, fail) {
 }
 
 export async function mkdir(uri, type, endpoint, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	const ids = getIdsFromEndpoint(endpoint);
 	const id = ids[ids.length - 1];
 	axios.post(url + 'mkdir', {
@@ -578,7 +578,7 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
 }
 
 export async function deleteCall(uri, endpoint, id, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'delete', {
 		credential: endpoint.credential,
 		uri: encodeURI(uri),
@@ -651,7 +651,7 @@ export async function getDownload(uri, credential){
 }
 
 export async function upload(uri, credential, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url+'share', {
 	    credential: credential,
 	    uri: encodeURI(uri),
@@ -714,7 +714,7 @@ export async function getAdmins(pageNo, pageSize, sortBy, order, accept, fail) {
 
 
 export async function getUser(email, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "getUser",
@@ -754,7 +754,7 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback) {
 */
 
 export async function saveOAuthCredentials(credentials, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'cred/saveCredentials', credentials)
 		.then((response) => {
 			if (!(response.status === 200))
@@ -787,7 +787,7 @@ export async function updateAdminRightsApiCall(email, isAdmin) {
 	Desc: Change Password
 */
 export async function changePassword(oldPassword, newPassword, confirmPassword, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "resetPassword",
@@ -807,7 +807,7 @@ export async function changePassword(oldPassword, newPassword, confirmPassword, 
 }
 
 export async function cancelJob(jobID, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	fetch(url + 'cancel', {
 		method: 'POST',
 		headers: {
@@ -829,7 +829,7 @@ export async function cancelJob(jobID, accept, fail) {
 }
 
 export async function deleteCredentialFromServer(uri, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "deleteCredential",
@@ -847,7 +847,7 @@ export async function deleteCredentialFromServer(uri, accept, fail) {
 
 
 export async function restartJob(jobID, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'restart', {
 		job_id: jobID
 	})
@@ -863,7 +863,7 @@ export async function restartJob(jobID, accept, fail) {
 }
 
 export async function deleteJob(jobID, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'deleteJob', {
 		job_id: jobID
 	})
@@ -886,7 +886,7 @@ export async function deleteJob(jobID, accept, fail) {
 */
 
 export async function updateViewPreference(email, compactViewEnabled, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	axios.post(url + 'user', {
 		action: 'updateViewPreference',
 		email: email,
@@ -965,7 +965,7 @@ export async function verifyRegistraionCode(emailId, code) {
 
 
 export async function globusListEndpoints(filter_fulltext, accept, fail) {
-	var callback = accept;
+	let callback = accept;
 	return axios.post(url + 'globus', {
 		action: "endpoint_list",
 		filter_fulltext: filter_fulltext
