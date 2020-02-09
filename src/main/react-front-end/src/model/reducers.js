@@ -13,8 +13,10 @@ import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import { maxCookieAge } from '../constants';
+import Cookies from 'universal-cookie';
+export const cookies = new Cookies();
 
-export const cookies = require("js-cookie");
+//export const cookies = require("js-cookie");
 export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
@@ -59,14 +61,16 @@ export function onedatashareModel(state = initialState, action) {
     case LOGIN:
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
       console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
-      cookies.set('email', email, { expires : 1 });
-      cookies.set('ATOKEN', token, {expires: 1, httpOnly: true});
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : 1 });
-      cookies.set('compactViewEnabled', compactViewEnabled, { expires : 1 });
+      //let date = new Date(Date.now() + 86400e3);
+      //date = date.toUTCString();
+      cookies.set('email', email, { maxAge : 1800 });
+      cookies.set('ATOKEN', token, { maxAge : 1800, httpOnly: true});
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : 1800 });
+      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : 1800 });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { expires : 1 });
+        cookies.set('admin', admin, { maxAge : 1800 });
       }
       
     	return Object.assign({}, state, {
