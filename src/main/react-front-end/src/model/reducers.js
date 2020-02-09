@@ -60,17 +60,16 @@ export function onedatashareModel(state = initialState, action) {
   switch (action.type) {
     case LOGIN:
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
-      console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
-      //let date = new Date(Date.now() + 86400e3);
-      //date = date.toUTCString();
-      cookies.set('email', email, { maxAge : 1800 });
-      cookies.set('ATOKEN', token, { maxAge : 1800, httpOnly: true});
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : 1800 });
-      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : 1800 });
+      console.debug(`logging in  ${email}. Access token is valid for ${expiresIn} seconds`);
+      cookies.set('email', email, { maxAge : expiresIn });
+      //TODO: set the cookie below to httpOnly
+      cookies.set('ATOKEN', token, { maxAge : expiresIn, sameSite : "strict" });
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
+      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { maxAge : 1800 });
+        cookies.set('admin', admin, { maxAge : expiresIn });
       }
       
     	return Object.assign({}, state, {
@@ -123,13 +122,13 @@ export function onedatashareModel(state = initialState, action) {
 
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge }));
+        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { maxAge : maxCookieAge }));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { expires : maxCookieAge });
+        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { maxAge : maxCookieAge });
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
@@ -137,21 +136,20 @@ export function onedatashareModel(state = initialState, action) {
 
     case UPDATE_HASH:
       cookies.remove('hash');
-      cookies.set('hash',  action.hash, { expires : maxCookieAge });
+      cookies.set('hash',  action.hash, { maxAge : maxCookieAge });
       return Object.assign({}, state, {
                 hash: action.hash
               });
 		case COMPACT_VIEW_PREFERENCE:
-			cookies.set('compactViewEnabled', action.compactViewEnabled);
+			cookies.set('compactViewEnabled', action.compactViewEnabled, {maxAge : maxCookieAge});
 			return Object.assign({}, state, {
 								compactViewEnabled: action.compactViewEnabled
 							});
-
     case ACCOUNT_PREFERENCE_TOGGLED:
-      cookies.set('saveOAuthTokens', action.saveOAuthTokens);
+      cookies.set('saveOAuthTokens', action.saveOAuthTokens, {maxAge : maxCookieAge});
       // logout From the endpoints
-      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
-      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
+      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }), {maxAge : maxCookieAge});
+      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }), {maxAge : maxCookieAge});
       return Object.assign({}, state, {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },

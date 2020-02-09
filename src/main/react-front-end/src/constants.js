@@ -135,7 +135,8 @@ export const defaultPort = {
 	https: 443
 }
 
-export const maxCookieAge = 7;
+//Seconds for which the cookie is valid
+export const maxCookieAge = 3600;
 
 export const jobStatus = {
 	COMPLETED: 'completed',
