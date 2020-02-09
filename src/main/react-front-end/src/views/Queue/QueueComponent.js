@@ -138,7 +138,7 @@ class QueueComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 	queueFuncSuccess(resp) {
-		const { page, rowsPerPage } = this.state
+		// const { page, rowsPerPage } = this.state
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
