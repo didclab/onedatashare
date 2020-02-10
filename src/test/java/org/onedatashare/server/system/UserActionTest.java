@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -43,7 +44,7 @@ public class UserActionTest {
 
     private static final String TEST_USER_EMAIL = "bigstuff@bigwhoop.com";
     private static final String TEST_USER_NAME = "test_user";
-    public static final String TEST_USER_PASSWORD = "IamTheWalrus";
+    private static final String TEST_USER_PASSWORD = "IamTheWalrus";
 
     private static final String VERIFY_USER_ACTION = "verifyCode";
     private static final String REGISTER_USER_ACTION = "register";
@@ -72,7 +73,7 @@ public class UserActionTest {
     public void setup() {
         // User repo mocked methods
         when(userRepository.insert((User) any())).thenAnswer(addToUsers());
-        when(userRepository.findById((String) any())).thenAnswer(getFromUsers());
+        when(userRepository.findById(anyString())).thenAnswer(getFromUsers());
         when(userRepository.save(any())).thenAnswer(updateUser());
 
         // Service mocked methods
@@ -155,12 +156,27 @@ public class UserActionTest {
         assertFalse(loginSuccessful);
     }
 
+    @Test
+    public void givenIncorrectOldPassword_WhenResettingPassword_ShouldFail() throws Exception {
+        String oldPassword = TEST_USER_PASSWORD;
+        String new_password = "new_password";
+        String wrongPassword = "random_guess";
+        registerUserAndChangePassword(TEST_USER_EMAIL, oldPassword, TEST_USER_NAME);
+
+        resetUserPassword(TEST_USER_EMAIL, wrongPassword, new_password);
+
+        boolean loginSuccessful = loginUser(TEST_USER_EMAIL, wrongPassword);
+        assertFalse(loginSuccessful);
+        loginSuccessful = loginUser(TEST_USER_EMAIL, oldPassword);
+        assertTrue(loginSuccessful);
+    }
+
     private String encodeIntoCookie(Map<String, String> entries) {
         if(entries.isEmpty())
             return "";
         StringBuilder cookie = new StringBuilder();
         List<String> properties = new ArrayList<>();
-        entries.forEach((key, value) -> properties.add(String.format("%s=%s", key, value)));
+        entries.forEach((key, value) -> properties.add(format("%s=%s", key, value)));
         cookie.append(properties.get(0));
         for(int i = 1; i < properties.size(); i++) {
             cookie.append(";").append(properties.get(i));
