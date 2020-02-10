@@ -94,7 +94,7 @@ public class AdminController {
     @PreAuthorize("hasAnyAuthority('OWNER')")
     @PutMapping("/change-role")
     /**
-     * Only owner can make/remove admins
+     * Only owner perform role changes
      */
     public Mono<Response> changeRole(@RequestBody ChangeRoleRequest changeRoleRequest){
         return adminService.changeRole(changeRoleRequest.getEmail(), changeRoleRequest.isMakeAdmin());

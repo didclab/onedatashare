@@ -73,7 +73,7 @@ public class DownloadController {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else return boxService.download(cookie, userAction).subscribeOn(downloadScheduler);
         } else if (userAction.getUri().startsWith(ODSConstants.FTP_URI_SCHEME)) {
-            return vfsService.getDownloadURL(cookie, userAction).subscribeOn(downloadScheduler).subscribeOn(downloadScheduler);
+            return vfsService.getDownloadURL(cookie, userAction).subscribeOn(downloadScheduler);
         }
         return null;
     }
