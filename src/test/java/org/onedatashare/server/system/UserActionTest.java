@@ -1,12 +1,12 @@
 package org.onedatashare.server.system;
 
-
 import com.google.gson.Gson;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
+import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.requestdata.UserRequestData;
 import org.onedatashare.server.repository.UserRepository;
@@ -22,14 +22,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
@@ -39,8 +40,18 @@ import static reactor.core.publisher.Mono.just;
 public class UserActionTest {
 
     private static final String USER_CONTROLLER_URL = "/api/stork/user";
-    private static final String TEST_USER_EMAIL = "bigstuff@bigwhop.com";
+
+    private static final String TEST_USER_EMAIL = "bigstuff@bigwhoop.com";
     private static final String TEST_USER_NAME = "test_user";
+    public static final String TEST_USER_PASSWORD = "IamTheWalrus";
+
+    private static final String VERIFY_USER_ACTION = "verifyCode";
+    private static final String REGISTER_USER_ACTION = "register";
+    private static final String SET_PASSWORD_USER_ACTION = "setPassword";
+    private static final String LOGIN_USER_ACTION = "login";
+    private static final String RESET_PASSWORD_USER_ACTION = "resetPassword";
+    private static final String COOKIE_EMAIL_KEY = "email";
+    private static final String COOKIE_HASH_KEY = "hash";
 
     @Autowired
     private MockMvc mvc;
@@ -60,8 +71,8 @@ public class UserActionTest {
     @Before
     public void setup() {
         // User repo mocked methods
-        when(userRepository.insert((User)any())).thenAnswer(addToUsers());
-        when(userRepository.findById((String)any())).thenAnswer(getFromUsers());
+        when(userRepository.insert((User) any())).thenAnswer(addToUsers());
+        when(userRepository.findById((String) any())).thenAnswer(getFromUsers());
         when(userRepository.save(any())).thenAnswer(updateUser());
 
         // Service mocked methods
@@ -75,7 +86,7 @@ public class UserActionTest {
 
     @Test
     public void givenUserDoesNotExist_WhenRegistered_ShouldBeAddedToUserRepository() throws Exception {
-        registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
+        registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
         assertEquals(users.size(), 1);
         assertEquals((getFirstUser()).getEmail(), TEST_USER_EMAIL);
@@ -83,11 +94,11 @@ public class UserActionTest {
 
     @Test
     public void givenUserAlreadyExists_WhenRegistered_ShouldNotDuplicateUser() throws Exception {
-        registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
+        registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
         long firstRegistrationTimestamp = getFirstUser().getRegisterMoment();
 
         // Try registering the same user again
-        registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
+        registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
         assertEquals(users.size(), 1);
         assertEquals(getFirstUser().getEmail(), TEST_USER_EMAIL);
@@ -95,39 +106,123 @@ public class UserActionTest {
     }
 
     @Test
-    public void givenUserRegistered_WhenLoggingIn_ShouldSucceed() throws Exception {
-        registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
-        String verificationCodeEmail = inbox.get(TEST_USER_EMAIL);
-        String verificationCode = extractVerificationCode(verificationCodeEmail);
-
-        verifyCode(TEST_USER_EMAIL, verificationCode);
-        validateUser(TEST_USER_EMAIL, users.get(TEST_USER_EMAIL).getAuthToken());
+    public void givenUserRegistered_WhenCodeIsVerified_ShouldValidateUser() throws Exception {
+        registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
         assertTrue(users.get(TEST_USER_EMAIL).isValidated());
     }
 
+    @Test
+    public void givenUserVerified_WhenLoggingIn_ShouldSucceed() throws Exception {
+        registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
+
+        boolean wasSuccessful = loginUser(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+
+        assertTrue(wasSuccessful);
+    }
+
+    @Test
+    public void givenUserNotVerified_WhenLoggingIn_ShouldFail() throws Exception {
+        // does not perform verification by email
+        registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
+
+        boolean loginSuccessful = loginUser(TEST_USER_EMAIL, TEST_USER_PASSWORD);
+
+        assertFalse(loginSuccessful);
+    }
+
+    @Test
+    public void givenUserChangedPassword_WhenLoggingInWithNewPassword_ShouldSucceed() throws Exception {
+        String oldPassword = TEST_USER_PASSWORD;
+        String new_password = "new_password";
+        registerUserAndChangePassword(TEST_USER_EMAIL, oldPassword, TEST_USER_NAME);
+
+        resetUserPassword(TEST_USER_EMAIL, oldPassword, new_password);
+
+        boolean loginSuccessful = loginUser(TEST_USER_EMAIL, new_password);
+        assertTrue(loginSuccessful);
+    }
+
+    @Test
+    public void givenUserChangedPassword_WhenLoggingInWithOldPassword_ShouldFail() throws Exception {
+        String oldPassword = TEST_USER_PASSWORD;
+        String new_password = "new_password";
+        registerUserAndChangePassword(TEST_USER_EMAIL, oldPassword, TEST_USER_NAME);
+
+        resetUserPassword(TEST_USER_EMAIL, oldPassword, new_password);
+
+        boolean loginSuccessful = loginUser(TEST_USER_EMAIL, oldPassword);
+        assertFalse(loginSuccessful);
+    }
+
+    private String encodeIntoCookie(Map<String, String> entries) {
+        if(entries.isEmpty())
+            return "";
+        StringBuilder cookie = new StringBuilder();
+        List<String> properties = new ArrayList<>();
+        entries.forEach((key, value) -> properties.add(String.format("%s=%s", key, value)));
+        cookie.append(properties.get(0));
+        for(int i = 1; i < properties.size(); i++) {
+            cookie.append(";").append(properties.get(i));
+        }
+        return cookie.toString();
+    }
+
+    private void resetUserPassword(String userEmail, String oldPassword, String newPassword) throws Exception {
+        UserRequestData userRequestData = new UserRequestData();
+        userRequestData.setAction(RESET_PASSWORD_USER_ACTION);
+        userRequestData.setEmail(userEmail);
+        userRequestData.setPassword(oldPassword);
+        userRequestData.setNewPassword(newPassword);
+        userRequestData.setConfirmPassword(newPassword);
+        Map<String, String> cookieValues = new HashMap<String, String>(){{
+            put(COOKIE_EMAIL_KEY, userEmail);
+            put(COOKIE_HASH_KEY, users.get(userEmail).getHash());
+        }};
+        processWithUserAction(userRequestData, encodeIntoCookie(cookieValues));
+    }
+
+    private void setUserPassword(String userEmail, String userPassword, String authToken) throws Exception {
+        UserRequestData userRequestData = new UserRequestData();
+        userRequestData.setAction(SET_PASSWORD_USER_ACTION);
+        userRequestData.setEmail(userEmail);
+        userRequestData.setPassword(userPassword);
+        userRequestData.setConfirmPassword(userPassword);
+        userRequestData.setCode(authToken);
+        processWithUserAction(userRequestData);
+    }
+
+    private boolean loginUser(String userEmail, String password) throws Exception {
+        UserRequestData userRequestData = new UserRequestData();
+        userRequestData.setAction(LOGIN_USER_ACTION);
+        userRequestData.setEmail(userEmail);
+        userRequestData.setPassword(password);
+        long timeBeforeLoggingIn = System.currentTimeMillis();
+        processWithUserAction(userRequestData);
+        Long lastActivity = users.get(userEmail).getLastActivity();
+        return lastActivity != null && lastActivity > timeBeforeLoggingIn;
+    }
+
+    private void registerUserAndChangePassword(String userEmail, String userPassword, String username) throws Exception {
+        registerUser(userEmail, username);
+        String verificationCodeEmail = inbox.get(userEmail);
+        String verificationCode = extractVerificationCode(verificationCodeEmail);
+        verifyCode(userEmail, verificationCode);
+        String authToken = users.get(userEmail).getAuthToken();
+        setUserPassword(userEmail, userPassword, authToken);
+    }
+
     private void verifyCode(String userEmail, String verificationCode) throws Exception {
         UserRequestData userRequestData = new UserRequestData();
-        String verifyAction = "verifyCode";
-        userRequestData.setAction(verifyAction);
+        userRequestData.setAction(VERIFY_USER_ACTION);
         userRequestData.setEmail(userEmail);
         userRequestData.setCode(verificationCode);
         processWithUserAction(userRequestData);
     }
 
-    private void validateUser(String userEmail, String authToken) throws Exception {
-        UserRequestData userRequestData = new UserRequestData();
-        String validateAction = "validate";
-        userRequestData.setAction(validateAction);
-        userRequestData.setEmail(userEmail);
-        userRequestData.setCode(authToken);
-        processWithUserAction(userRequestData);
-    }
-
     private void registerUser(String userEmail, String firstName) throws Exception {
         UserRequestData userRequestData = new UserRequestData();
-        String registerAction = "register";
-        userRequestData.setAction(registerAction);
+        userRequestData.setAction(REGISTER_USER_ACTION);
         userRequestData.setFirstName(firstName);
         userRequestData.setEmail(userEmail);
         processWithUserAction(userRequestData);
@@ -150,9 +245,17 @@ public class UserActionTest {
                 .contentType(MediaType.APPLICATION_JSON));
     }
 
+
+    private void processWithUserAction(UserRequestData userRequestData, String cookie) throws Exception {
+        mvc.perform(post(USER_CONTROLLER_URL).content(toJson(userRequestData))
+                .contentType(MediaType.APPLICATION_JSON)
+        .header(ODSConstants.COOKIE, cookie));
+    }
+
     private String toJson(UserRequestData userRequestData) {
         return new Gson().toJson(userRequestData);
     }
+
     private Answer<Mono<User>> updateUser() {
         return invocation -> {
             User user = invocation.getArgument(0);
