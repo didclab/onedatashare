@@ -28,7 +28,7 @@ public class DbxSession extends Session<DbxSession, DbxResource> {
 
   @Override
   public Mono<DbxResource> select(String path) {
-    return Mono.just(new DbxResource(this, path));
+    return Mono.fromSupplier(() -> new DbxResource(this, path));
   }
 
   @Override
