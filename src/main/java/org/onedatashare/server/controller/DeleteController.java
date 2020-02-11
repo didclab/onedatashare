@@ -16,6 +16,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Controller that deletes a given file/ folder on multiple endpoints
@@ -38,6 +40,7 @@ public class DeleteController {
   @Autowired
   private BoxService boxService;
 
+  private Scheduler deleteScheduler = Schedulers.newElastic("delete-c-thread");
   /**
    *  Handler for the delete request of a file or folder made on an endpoint.
    * @param headers - Request Header
@@ -52,22 +55,22 @@ public class DeleteController {
       if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else return dbxService.delete(cookie, userAction);
+      else return dbxService.delete(cookie, userAction).subscribeOn(deleteScheduler);
     }else if(ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
       if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else return resourceService.delete(cookie, userAction);
+      else return resourceService.delete(cookie, userAction).subscribeOn(deleteScheduler);
     }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) { //Old: "box:///".equals(userAction.type)
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      } else return boxService.delete(cookie, userAction);
+      } else return boxService.delete(cookie, userAction).subscribeOn(deleteScheduler);
     }else if(ODSConstants.GRIDFTP_URI_SCHEME.equals(userAction.getType())) {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      } else return gridService.delete(cookie, userAction);
+      } else return gridService.delete(cookie, userAction).subscribeOn(deleteScheduler);
     }else{
-      return vfsService.delete(cookie, userAction);
+      return vfsService.delete(cookie, userAction).subscribeOn(deleteScheduler);
     }
   }
 

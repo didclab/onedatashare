@@ -5,6 +5,7 @@ import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * This class creates a controller that accepts requests for creating support cases
@@ -35,6 +36,6 @@ public class SupportTicketController {
      */
     @PostMapping
     public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createSupportTicket(supportTicketRequest);
+        return supportTicketService.createSupportTicket(supportTicketRequest).subscribeOn(Schedulers.elastic());
     }
 }
