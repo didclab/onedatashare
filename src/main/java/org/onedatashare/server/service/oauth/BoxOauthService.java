@@ -7,11 +7,9 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -29,8 +27,8 @@ public class BoxOauthService {
 
         private static String client_id = System.getenv("BOX_CLIENT_ID");
         private static String client_secret = System.getenv("BOX_CLIENT_SECRET");
-        private static String scope = System.getenv("BOX_SCOPE");
-        private static String redirect_uri = "http://127.0.0.1:8080/api/stork/oauth/box";
+        private static String scope = "root_readwrite";
+        private static String redirect_uri = System.getenv("BOX_REDIRECT_URI");
         private static String box_redirect = "https://account.box.com/api/oauth2/authorize";
 
     }

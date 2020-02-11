@@ -1,7 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.requestdata.TransferRequestData;
+import org.onedatashare.server.model.request.TransferRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

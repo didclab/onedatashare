@@ -25,11 +25,11 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
@@ -71,6 +71,25 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }
+
+    public Mono<Resource> getResourceWithUserActionResource(User userObj, UserActionResource userActionResource) {
+        final String path = pathFromUri(userActionResource.getUri());
+        String id = userActionResource.getId();
+        ArrayList<IdMap> idMap = userActionResource.getMap();
+        return Mono.just(userObj)
+                .flatMap(user -> createCredential(userActionResource, user))
+                .map(credential -> createSession(userActionResource.getUri(), credential))
+                .flatMap(session -> {
+                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((BoxSession) session).initializeNotSaved();
+                    else
+                        return session.initialize();
+                })
+                .flatMap(session -> ((Session) session).select(path, id, idMap));
+    }
+
 
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
@@ -177,16 +196,18 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
+        AtomicReference<User> u = new AtomicReference<>();
         return userService.getLoggedInUser(cookie)
                 .map(user -> {
                     Job job = new Job(userAction.getSrc(), userAction.getDest());
                     job.setStatus(JobStatus.scheduled);
                     job = user.saveJob(job);
                     userService.saveUser(user).subscribe();
+                    u.set(user);
                     return job;
                 })
                 .flatMap(jobService::saveJob)
-                .doOnSuccess(job -> processTransferFromJob(job, cookie))
+                .doOnSuccess(job -> processTransferFromJob(job, u))
                 .subscribeOn(Schedulers.elastic());
     }
 
@@ -215,8 +236,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                             })
                             .flatMap(jobService::saveJob)
                             .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
-                })
-                .subscribeOn(Schedulers.elastic());
+                });
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction) {
@@ -224,7 +244,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .map(job -> {
                     job.setDeleted(true);
                     return job;
-                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
+                }).flatMap(jobService::saveJob);
     }
 
     /**
@@ -241,12 +261,15 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return userService.getLoggedInUser(cookie)
                 .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.getJob_id())
                         .map(job -> {
-                            ongoingJobs.get(job.getUuid()).dispose();
-                            ongoingJobs.remove(job.getUuid());
+                            try {
+                                ongoingJobs.get(job.getUuid()).dispose();
+                                ongoingJobs.remove(job.getUuid());
+                            }catch (Exception e){
+                                ODSLoggerService.logError("Unable to remove job " + job.getUuid() + "- Not found");
+                            }
                             return job.setStatus(JobStatus.cancelled);
                         }))
-                .flatMap(jobService::saveJob)
-                .subscribeOn(Schedulers.elastic());
+                .flatMap(jobService::saveJob);
     }
 
     public boolean updateJobCredentials(User user, Job restartedJob) {
@@ -287,6 +310,30 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
             }
         }
         return null;
+    }
+
+    public void processTransferFromJob(Job job, AtomicReference<User> user) {
+        Transfer<Resource, Resource> transfer = new Transfer<>();
+        Disposable ongoingJob = getResourceWithUserActionResource(user.get(), job.getSrc())
+                .map(transfer::setSource)
+                .flatMap(t -> getResourceWithUserActionResource(user.get(), job.getDest()))
+                .map(transfer::setDestination)
+                .flux()
+                .flatMap(transfer1 -> {
+                    return transfer1.start(TRANSFER_SLICE_SIZE);
+                })
+                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
+                .doOnCancel(new RunnableCanceler(job))
+                .doFinally(s -> {
+                    if (job.getStatus() != JobStatus.cancelled && job.getStatus() != JobStatus.failed)
+                        job.setStatus(JobStatus.complete);
+                    jobService.saveJob(job).subscribe();
+                    ongoingJobs.remove(job.getUuid());
+                })
+                .map(job::updateJobWithTransferInfo)
+                .flatMap(jobService::saveJob)
+                .subscribe();
+        ongoingJobs.put(job.getUuid(), ongoingJob);
     }
 
     public void processTransferFromJob(Job job, final String cookie) {

@@ -3,7 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Controller for handling list requests on endpoints
@@ -37,6 +39,8 @@ public class ListController {
     @Autowired
     private HttpFileService httpService;
 
+    private Scheduler listScheduler = Schedulers.newElastic("list-c-thread");
+
     /**
      * Handler that returns Mono of the stats(file information) in the given path of the endpoint
      * @param headers - Incoming request headers
@@ -60,19 +64,19 @@ public class ListController {
 
         switch (userAction.getType()) {
             case ODSConstants.DROPBOX_URI_SCHEME:
-                return dbxService.list(cookie, userAction);
+                return dbxService.list(cookie, userAction).subscribeOn(listScheduler);
             case ODSConstants.DRIVE_URI_SCHEME:
-                return resourceService.list(cookie, userAction);
+                return resourceService.list(cookie, userAction).subscribeOn(listScheduler);
             case ODSConstants.GRIDFTP_URI_SCHEME:
-                return gridService.list(cookie, userAction);
+                return gridService.list(cookie, userAction).subscribeOn(listScheduler);
             case ODSConstants.BOX_URI_SCHEME:
-                return boxService.list(cookie, userAction);
+                return boxService.list(cookie, userAction).subscribeOn(listScheduler);
             case ODSConstants.SCP_URI_SCHEME:
             case ODSConstants.SFTP_URI_SCHEME:
             case ODSConstants.FTP_URI_SCHEME:
-                return vfsService.list(cookie, userAction);
+                return vfsService.list(cookie, userAction).subscribeOn(listScheduler);
             case ODSConstants.HTTP_URI_SCHEME:
-                return httpService.list(cookie, userAction);
+                return httpService.list(cookie, userAction).subscribeOn(listScheduler);
             default:
                 return null;
         }

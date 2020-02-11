@@ -94,7 +94,7 @@ export default class NewLoginComponent extends Component {
 
 	render(){
 		const { lostValidationCodePressed, forgotPasswordPressed } = this.props; 
-		const { emailChecked, email, password, error, errorMessage, remember, isPasswordVisible } = this.state;
+		const { emailChecked, email, password, error, errorMessage, isPasswordVisible } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
 		      error: false,

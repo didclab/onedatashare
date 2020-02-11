@@ -1,9 +1,8 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.requestdata.OperationRequestData;
+import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.*;
@@ -12,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 /**
  * Controller for handling make directory requests on endpoints
@@ -35,7 +36,7 @@ public class MkdirController {
   @Autowired
   private BoxService boxService;
 
-
+  private Scheduler mkdirScheduler = Schedulers.newElastic("mkdir-c-thread");
     /**
    * Handler that returns Mono of the stats(file information) in the given path of the endpoint
    * @param headers - Incoming request headers
@@ -51,22 +52,22 @@ public class MkdirController {
       if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else return dbxService.mkdir(cookie, userAction);
+      else return dbxService.mkdir(cookie, userAction).subscribeOn(mkdirScheduler);
     }else if(ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
       if(userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
       }
-      else return resourceService.mkdir(cookie, userAction);
+      else return resourceService.mkdir(cookie, userAction).subscribeOn(mkdirScheduler);
     }else if(ODSConstants.GRIDFTP_URI_SCHEME.equals(userAction.getType())) {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      } else return gridService.mkdir(cookie, userAction);
+      } else return gridService.mkdir(cookie, userAction).subscribeOn(mkdirScheduler);
     }else if(ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
       if (userAction.getCredential() == null) {
         return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-      } else return boxService.mkdir(cookie, userAction);
+      } else return boxService.mkdir(cookie, userAction).subscribeOn(mkdirScheduler);
     }
-    else return vfsService.mkdir(cookie, userAction);
+    else return vfsService.mkdir(cookie, userAction).subscribeOn(mkdirScheduler);
   }
 
   @ExceptionHandler(AuthenticationRequired.class)

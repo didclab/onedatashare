@@ -6,7 +6,7 @@ import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.*;
 
-import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +42,7 @@ public class OauthController {
     @Autowired
     private BoxOauthService boxOauthService;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     static final String googledrive = "googledrive";
     static final String dropbox = "dropbox";
@@ -201,35 +201,31 @@ public class OauthController {
                     }
                 });
     }
+
     @GetMapping
-    public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-
-        if (queryParameters.get("type").equals(googledrive)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(dropbox)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(gridftp)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
-        }else if(queryParameters.get("type").equals(box) ) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(boxOauthService.start()).build());
-        } else return Mono.error(new NotFound());
-
+    public Rendering handle(@RequestParam String type) throws NotFoundException {
+        switch (type){
+            case box:
+                return Rendering.redirectTo(boxOauthService.start()).build();
+            case dropbox:
+                return Rendering.redirectTo(dbxOauthService.start()).build();
+            case googledrive:
+                return Rendering.redirectTo(googleDriveOauthService.start()).build();
+            case gridftp:
+                return Rendering.redirectTo(gridftpAuthService.start()).build();
+            default:
+                throw new NotFoundException();
+        }
     }
 
-    @ExceptionHandler(NotFound.class)
-    public Object handle(NotFound notfound) {
+    @ExceptionHandler(NotFoundException.class)
+    public Rendering handle(NotFoundException notfound) {
         ODSLoggerService.logError(notfound.status.toString());
         return Rendering.redirectTo("/404").build();
-
     }
 
     @ExceptionHandler(DuplicateCredentialException.class)
-    public Object handleDup(DuplicateCredentialException dce) {
+    public Rendering handleDup(DuplicateCredentialException dce) {
         ODSLoggerService.logError(dce.status.toString());
         return Rendering.redirectTo("/transfer").build();
     }
