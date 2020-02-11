@@ -427,8 +427,6 @@ export default class TransferComponent extends Component {
                 <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
                 <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
             </Row>
-
-            <ErrorMessagesConsole/>
           </Panel.Body>
           </Panel>
 

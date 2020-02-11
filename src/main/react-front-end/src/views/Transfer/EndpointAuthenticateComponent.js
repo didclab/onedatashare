@@ -15,6 +15,7 @@ import {DROPBOX_TYPE,
 				ODS_PUBLIC_KEY
 			} from "../../constants";
 import {store} from "../../App";
+import './transfer.css';
 
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -442,7 +443,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		return(
 		<div >
-			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
+			{!settingAuth && <List component="nav" className="endPointAuthenticate_list_style">
 		        <ListItem button onClick={() =>{
 		        	back()
 		        }}>
@@ -497,28 +498,28 @@ export default class EndpointAuthenticateComponent extends Component {
 	    	  aria-labelledby="simple-modal-title"
 	          aria-describedby="To Select globus endpoints"
 	          open={selectingEndpoint}
-	          onClose={endpointModalClose}
-	          style={{display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "center"}}
+			  onClose={endpointModalClose}
+	          className="endPointAuthenticate_modal_style"
 	    	>
 		    	<GlobusEndpointListingComponent close={endpointModalClose} endpointAdded={this.endpointModalAdd}/>
         	</Modal>
 		    {settingAuth &&
 
-		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
+		    	<div className="endPointAuthenticate_div_style">
+		    	<Button className="endPointAuthenticate_button_style" onClick={() => {
 		    		this.setState({settingAuth: false})}
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+		    		<div className="endPointAuthenticate_login_style">
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
 								onError={errors => console.log(errors)}>
 
 			    		<TextValidator
-								required
-					  		style={{width: "80%"}}
+							required
+					  		className="endPointAuthenticate_LoginURI_style"
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
@@ -535,8 +536,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 
 			        <TextValidator
-								required
-			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
+							required
+			    	  		style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
@@ -555,7 +556,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	}	
 
 		      {needPassword &&
-		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+		        <div className="endPointAuthenticate_login_style">
 
 							<ValidatorForm
 								ref="form"
@@ -563,7 +564,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        
 								<TextValidator
 					  			required
-			    	  		style={{width: "100%"}}
+			    	  			className="endPointAuthenticate_LoginURI_style"
 									id={endpoint.side+"LoginUsername"}
 									label="Username"
 									value={this.state.username}
@@ -580,7 +581,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 			        	<TextValidator
 					  			required
-			    	  		style={{width: "100%"}}
+								className="endPointAuthenticate_LoginURI_style"
 									id={endpoint.side+"LoginPassword"}
 									label="Password"
 									type="password"
@@ -602,7 +603,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					<Button 
 						id={endpoint.side + "LoginAuth"}  
 						ref={input => this.inputElement = input} 
-						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+						className="endPointAuthenticate_button_style" 
 						onClick={authFunction}
 						color="primary"
 						variant="contained">
