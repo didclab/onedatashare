@@ -23,6 +23,7 @@ public class UploadController {
     @Autowired
     UploadService uploadService;
 
+    //TODO: make asynchronous
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Mono<Object> upload(@RequestHeader HttpHeaders headers,
                                @RequestPart("directoryPath") String directoryPath,
