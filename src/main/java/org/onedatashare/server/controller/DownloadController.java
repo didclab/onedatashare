@@ -22,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -46,6 +48,8 @@ public class DownloadController {
     @Autowired
     private ResourceServiceImpl resourceService;
 
+    private Scheduler downloadScheduler = Schedulers.newElastic("download-c-thread");
+
     /**
      * Handler that returns the download link for the requested file in requestData
      * @param headers - Incoming request headers
@@ -57,18 +61,19 @@ public class DownloadController {
 
         String cookie = headers.getFirst(ODSConstants.COOKIE);
         UserAction userAction = UserAction.convertToUserAction(requestData);
+
         if (userAction.getUri().startsWith(ODSConstants.DROPBOX_URI_SCHEME)) {
-            return dbxService.getDownloadURL(cookie, userAction);
+            return dbxService.getDownloadURL(cookie, userAction).subscribeOn(downloadScheduler);
         } else if (ODSConstants.DRIVE_URI_SCHEME.equals(userAction.getType())) {
             if (userAction.getCredential() == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-            } else return resourceService.download(cookie, userAction);
+            } else return resourceService.download(cookie, userAction).subscribeOn(downloadScheduler);
         }else if (ODSConstants.BOX_URI_SCHEME.equals(userAction.getType())) {
             if (userAction.getCredential() == null) {
                 return new ResponseEntity<>(new AuthenticationRequired("oauth"), HttpStatus.INTERNAL_SERVER_ERROR);
-            } else return boxService.download(cookie, userAction);
+            } else return boxService.download(cookie, userAction).subscribeOn(downloadScheduler);
         } else if (userAction.getUri().startsWith(ODSConstants.FTP_URI_SCHEME)) {
-            return vfsService.getDownloadURL(cookie, userAction);
+            return vfsService.getDownloadURL(cookie, userAction).subscribeOn(downloadScheduler);
         }
         return null;
     }
@@ -95,7 +100,7 @@ public class DownloadController {
         final String userActionResourceString = URLDecoder.decode(cx, "UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
         UserActionResource userActionResource = objectMapper.readValue(userActionResourceString, UserActionResource.class);
-        return vfsService.getSftpDownloadStream(cookie, userActionResource);
+        return vfsService.getSftpDownloadStream(cookie, userActionResource).subscribeOn(downloadScheduler);
     }
 
     @ExceptionHandler(ODSAccessDeniedException.class)

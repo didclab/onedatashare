@@ -116,8 +116,7 @@ class QueueComponent extends Component {
 			}
 		})
 		if (jobIds.length > 0) {
-			getJobUpdatesForUser(jobIds)
-				.then(resp => {
+			getJobUpdatesForUser(jobIds, resp => {
 					let jobs = resp
 					//TODO: use hash keys and values instead of finding on each update
 					let existingData = [...responsesToDisplay]
@@ -129,10 +128,9 @@ class QueueComponent extends Component {
 						existingJob.bytes.avg = job.bytes.avg
 					})
 					this.setState({responsesToDisplay: existingData})
-				})
-				.catch(resp => {
+				}, error => {
 					console.log('Failed to get job updates')
-				})
+				});
 		}
 	}
 	paginateResults(results, page, limit) {
@@ -140,15 +138,16 @@ class QueueComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 	queueFuncSuccess(resp) {
-		const { page, rowsPerPage } = this.state
+		// const { page, rowsPerPage } = this.state
 		//success
-		let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
+		//commented to fix second page render issue as it slices all jobs and returns null object
 		this.setState({
 			response: resp.jobs,
-			responsesToDisplay: responsesToDisplay,
+			responsesToDisplay: resp.jobs,
 			totalCount: resp.totalCount,
 			loading: false
-		})
+		});
 	}
 	queueFuncFail(resp) {
 		//failed
@@ -374,7 +373,7 @@ class QueueComponent extends Component {
 	}
 }
 
-class RowElement extends React.PureComponent {
+class RowElement extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = { selectedTab: 0 }
@@ -408,22 +407,27 @@ class RowElement extends React.PureComponent {
 		let now, bsStyle, label
 		if (status === 'complete') {
 			now = 100
-			bsStyle = 'info'
+			bsStyle = ''
 			label = 'Complete'
 		} else if (status === 'failed') {
 			now = 100
 			bsStyle = 'danger'
 			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
 		} else {
 			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
+			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
-		return <ProgressBar
-			bsStyle={bsStyle}
-			label={label}
-			now={now}
-		/>
+		
+		if(bsStyle == '') {
+			return <ProgressBar label={label} now={now} />
+		} else {
+			return <ProgressBar bsStyle={bsStyle} label={label} now={now} />
+		};
 	}
 	renderActions(owner, jobID, status, deleted) {
 		const { infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick } = this.props
@@ -502,7 +506,7 @@ class RowElement extends React.PureComponent {
 	}
 }
 
-class TabContent extends React.PureComponent {
+class TabContent extends React.Component {
 	render() {
 		const { resp, selectedTab } = this.props
 		if (selectedTab) {

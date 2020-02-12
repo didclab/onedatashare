@@ -42,7 +42,7 @@ public class OauthController {
     @Autowired
     private BoxOauthService boxOauthService;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     static final String googledrive = "googledrive";
     static final String dropbox = "dropbox";

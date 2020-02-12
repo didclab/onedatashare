@@ -93,7 +93,7 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, token, remember, saveOAuthTokens, compactViewEnabled, admin){
+  userLogin(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn){
 	  let tempRememberMeAccounts = this.state.rememberMeAccounts;
 	  tempRememberMeAccounts[email] = { hash: token };
 	  this.setState({
@@ -102,7 +102,7 @@ export default class AccountControlComponent extends Component {
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-	store.dispatch(loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin));
+	store.dispatch(loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn));
 	//this.setState({authenticated : true});
   }
 
@@ -122,7 +122,7 @@ export default class AccountControlComponent extends Component {
 		login(email, password,
 			(success) => {
 				console.log("SuccessFull login");
-	    		this.userLogin(success.email, success.token, remember, success.saveOAuthTokens, success.compactViewEnabled, success.admin);
+	    		this.userLogin(success.email, success.token, remember, success.saveOAuthTokens, success.compactViewEnabled, success.admin, success.expiresIn);
 	    	},
 	    	(error) => {fail(error)}
 	    );

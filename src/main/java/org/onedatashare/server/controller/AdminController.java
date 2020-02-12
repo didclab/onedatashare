@@ -3,9 +3,9 @@ package org.onedatashare.server.controller;
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.UserDetails;
+import org.onedatashare.server.model.request.ChangeRoleRequest;
 import org.onedatashare.server.model.request.PageRequest;
 import org.onedatashare.server.model.useraction.NotificationBody;
-import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
@@ -66,6 +66,7 @@ public class AdminController {
     }
 
 
+    //TODO: make asynchonous
     @PostMapping(value = "/sendNotifications")
     public Response sendNotifications(@RequestBody NotificationBody body) {
         // check whether the No of recipients is within the sending limit
@@ -90,9 +91,13 @@ public class AdminController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('OWNER')")
     @PutMapping("/change-role")
-    public Mono<Response> putAction(@RequestBody UserAction userAction){
-        return adminService.changeRole(userAction.getEmail(), userAction.isAdmin());
+    /**
+     * Only owner perform role changes
+     */
+    public Mono<Response> changeRole(@RequestBody ChangeRoleRequest changeRoleRequest){
+        return adminService.changeRole(changeRoleRequest.getEmail(), changeRoleRequest.isMakeAdmin());
     }
 
 }

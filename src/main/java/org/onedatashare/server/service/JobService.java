@@ -27,7 +27,7 @@ public class JobService {
 
     private static Pageable generatePageFromRequest(JobRequest request){
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
+        request.pageNo = Math.max(request.pageNo, 0);
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));
         return page;
     }
@@ -44,8 +44,8 @@ public class JobService {
     public Mono<JobDetails> getJobsForUser(JobRequest request) {
         Pageable pageable = this.generatePageFromRequest(request);
         return userService.getLoggedInUserEmail().flatMap(userEmail -> {
-            Mono<List<Job>> jobList = jobRepository.findJobsForUser(userEmail, false, pageable).collectList();
-            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail, false);
+            Mono<List<Job>> jobList = jobRepository.findJobsForUser(userEmail, pageable).collectList();
+            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail);
             return jobList.zipWith(jobCount, JobDetails::new);
         });
     }
@@ -54,7 +54,7 @@ public class JobService {
         Pageable pageable = this.generatePageFromRequest(request);
         return userService.getLoggedInUserEmail().flatMap(userEmail -> {
             Mono<List<Job>> jobList = jobRepository.findAllBy(pageable).collectList();
-            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail, false);
+            Mono<Long> jobCount = jobRepository.getCount();
             return jobList.zipWith(jobCount, JobDetails::new);
         });
     }
@@ -69,7 +69,7 @@ public class JobService {
     }
 
     public  Flux<Job> getUpdatesForAdmin(List<UUID> jobIds){
-        return jobRepository.findAllById(jobIds).filter(job -> !job.isDeleted());
+        return jobRepository.findAllById(jobIds);
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

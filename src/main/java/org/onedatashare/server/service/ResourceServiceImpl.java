@@ -236,8 +236,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                             })
                             .flatMap(jobService::saveJob)
                             .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
-                })
-                .subscribeOn(Schedulers.elastic());
+                });
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction) {
@@ -245,7 +244,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .map(job -> {
                     job.setDeleted(true);
                     return job;
-                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
+                }).flatMap(jobService::saveJob);
     }
 
     /**
@@ -262,12 +261,15 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return userService.getLoggedInUser(cookie)
                 .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.getJob_id())
                         .map(job -> {
-                            ongoingJobs.get(job.getUuid()).dispose();
-                            ongoingJobs.remove(job.getUuid());
+                            try {
+                                ongoingJobs.get(job.getUuid()).dispose();
+                                ongoingJobs.remove(job.getUuid());
+                            }catch (Exception e){
+                                ODSLoggerService.logError("Unable to remove job " + job.getUuid() + "- Not found");
+                            }
                             return job.setStatus(JobStatus.cancelled);
                         }))
-                .flatMap(jobService::saveJob)
-                .subscribeOn(Schedulers.elastic());
+                .flatMap(jobService::saveJob);
     }
 
     public boolean updateJobCredentials(User user, Job restartedJob) {

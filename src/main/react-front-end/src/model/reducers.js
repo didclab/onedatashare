@@ -57,17 +57,16 @@ export function onedatashareModel(state = initialState, action) {
   // and just return the state given to us.
   switch (action.type) {
     case LOGIN:
-   		const {email, token, saveOAuthTokens, compactViewEnabled, admin} = action.credential;
-      console.log('logging in', email);
-
-      cookies.set('email', email, { expires : maxCookieAge });
-      cookies.set('ATOKEN', token, {expires: maxCookieAge});
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-      cookies.set('compactViewEnabled', compactViewEnabled, { expires : maxCookieAge });
+   		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
+      console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
+      cookies.set('email', email, { expires : 1 });
+      cookies.set('ATOKEN', token, {expires: 1 });
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : 1 });
+      cookies.set('compactViewEnabled', compactViewEnabled, { expires : 1 });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { expires : maxCookieAge });
+        cookies.set('admin', admin, { expires : 1 });
       }
       
     	return Object.assign({}, state, {
