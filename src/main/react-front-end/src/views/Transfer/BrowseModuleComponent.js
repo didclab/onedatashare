@@ -187,13 +187,12 @@ export default class BrowseModuleComponent extends Component {
 					<Icon className={'fas fa-bold'} style={iconStyle}/>
                     Box
                 </Button>
-	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
+	      		{/* <Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
 	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 	      		}}>
 	      			<Icon className={'fas fa-server'} style={iconStyle}/>
 	      		GridFTP
-		      	</Button>
-
+		      	</Button>  */}
 				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>

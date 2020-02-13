@@ -423,7 +423,7 @@ class RowElement extends React.Component {
 			label = `Transferring ${now}%`
 		}
 		
-		if(bsStyle == '') {
+		if(bsStyle === '') {
 			return <ProgressBar label={label} now={now} />
 		} else {
 			return <ProgressBar bsStyle={bsStyle} label={label} now={now} />
