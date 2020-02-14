@@ -2,7 +2,7 @@ package org.onedatashare.server.controller;
 
 import com.google.gson.Gson;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.*;
 import org.springframework.beans.factory.annotation.Autowired;

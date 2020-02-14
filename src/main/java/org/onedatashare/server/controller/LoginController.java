@@ -44,13 +44,12 @@ public class LoginController {
                 request.getConfirmPassword());
     }
 
-}
-
-@Data
-class LoginControllerRequest {
-    private String email;
-    private String password;
-    private String confirmPassword;
-    private String newPassword;
-    private String code;
+    @Data
+    public static class LoginControllerRequest {
+        private String email;
+        private String password;
+        private String confirmPassword;
+        private String newPassword;
+        private String code;
+    }
 }

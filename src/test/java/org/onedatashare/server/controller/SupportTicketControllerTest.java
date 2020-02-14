@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.model.requestdata.JobRequestData;
+import org.onedatashare.server.model.request.JobRequestData;
 import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,7 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(SupportTicketController.class)
+@WebMvcTest(value = SupportTicketController.class, secure = false)
 public class SupportTicketControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;

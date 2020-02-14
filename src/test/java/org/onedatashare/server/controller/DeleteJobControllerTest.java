@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.model.requestdata.JobRequestData;
+import org.onedatashare.server.model.request.JobRequestData;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -15,7 +15,7 @@ import static org.testng.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(DeleteJobController.class)
+@WebMvcTest(value = DeleteJobController.class, secure = false)
 public class DeleteJobControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;

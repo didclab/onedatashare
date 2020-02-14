@@ -6,8 +6,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.model.requestdata.JobRequestData;
+import org.onedatashare.server.model.request.JobRequestData;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 
@@ -15,7 +16,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(CancelController.class)
+@WebMvcTest(value = CancelController.class, secure = false)
+//@WithMockUser
 public class CancelControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
@@ -37,7 +39,7 @@ public class CancelControllerTest extends ControllerTest {
     @Test
     public void givenCancelRequest_WhenProcessed_ShouldInvokeCancelMethod() throws Exception {
         JobRequestData requestData = new JobRequestData();
-        mvc.perform(jsonPostRequestOf(requestData, CANCEL_CONTROLLER_URL));
+        this.mvc.perform(jsonPostRequestOf(requestData, CANCEL_CONTROLLER_URL));
         assertTrue(wasCalled);
     }
 }

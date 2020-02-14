@@ -20,7 +20,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(CredController.class)
+@WebMvcTest(value = CredController.class, secure = false)
 public class CredControllerTest extends ControllerTest {
 
     private static final String GET_CREDS_URL = "/api/stork/cred";

@@ -25,18 +25,19 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(QueueController.class)
+@WebMvcTest(value = QueueController.class, secure = false)
 public class QueueControllerTest extends ControllerTest {
 
     private static final String QUEUE_CONTROLLER_URL = "/api/stork/q";
-    public static final String UPDATE_SUB_URL = "/update";
+    public static final String GET_JOBS_SUB_URL = "/user-jobs";
+    public static final String UPDATE_SUB_URL = "/update-user-jobs";
 
     private List<JobService> called = new ArrayList<>();
 
     @Before
     public void setup() {
-        when(jobService.getJobsForAdmin(any(), any())).then(addToList(jobService));
-        when(jobService.getUpdates(any(), any())).then(addToList(jobService));
+        when(jobService.getJobsForUser(any())).then(addToList(jobService));
+        when(jobService.getUpdatesForUser(any())).then(addToList(jobService));
     }
 
     @Test
@@ -67,7 +68,7 @@ public class QueueControllerTest extends ControllerTest {
     }
 
     private ResultActions processQueueRequest(JobRequest requestData) throws Exception {
-        return mvc.perform(jsonPostRequestOf(requestData, QUEUE_CONTROLLER_URL));
+        return mvc.perform(jsonPostRequestOf(requestData, QUEUE_CONTROLLER_URL + GET_JOBS_SUB_URL));
     }
 
     private ResultActions processUpdateRequest(List<? extends UUID> requestData) throws Exception {

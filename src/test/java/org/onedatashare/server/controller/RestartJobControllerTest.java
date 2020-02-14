@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.model.requestdata.JobRequestData;
+import org.onedatashare.server.model.request.JobRequestData;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
@@ -15,7 +15,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(RestartJobController.class)
+@WebMvcTest(value = RestartJobController.class, secure = false)
 public class RestartJobControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;

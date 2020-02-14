@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.model.core.Resource;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.service.ResourceService;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,7 +24,7 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(MkdirController.class)
+@WebMvcTest(value = MkdirController.class, secure = false)
 public class MkdirControllerTest extends ControllerTest {
 
     private static final String MKDIR_CONTROLLER_URL = "/api/stork/mkdir";

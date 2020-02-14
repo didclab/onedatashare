@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.requestdata.RequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.service.ResourceService;
 import org.onedatashare.server.service.VfsService;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.testng.Assert.*;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(DownloadController.class)
+@WebMvcTest(value = DownloadController.class, secure = false)
 public class DownloadControllerTest extends ControllerTest {
 
     private static final String DOWNLOAD_CONTROLLER_POST_URL = "/api/stork/download";

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.User.UserLogin;
+import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -151,7 +152,7 @@ class UserServiceTest {
     @DisplayName("Valid email, Valid Password")
     public void login_test_Email(){
     	userService.login(validInputEmail, "RandomPassword").doOnSuccess(userLogin ->{
-    		assertTrue(userLogin instanceof UserLogin, "Expected of receive a UserLogin object");
+    		assertTrue(userLogin instanceof LoginResponse, "Expected of receive a UserLogin object");
     		assertEquals(validInputEmail, userLogin.getEmail(),"Did not retrieve the expected user");
     	}).subscribe();
     }

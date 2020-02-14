@@ -33,14 +33,14 @@ public class RegistrationController {
         return userService.resendVerificationCode(request.getEmail());
     }
 
+    @Data
+    public static class RegistrationControllerRequest{
+        private String email;
+        private String code;
+        private String firstName;
+        private String lastName;
+        private String organization;
+        private String captchaVerificationValue;
+    }
 }
 
-@Data
-class RegistrationControllerRequest{
-    private String email;
-    private String code;
-    private String firstName;
-    private String lastName;
-    private String organization;
-    private String captchaVerificationValue;
-}
