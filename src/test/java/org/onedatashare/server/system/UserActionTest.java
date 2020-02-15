@@ -6,9 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.controller.LoginController;
 import org.onedatashare.server.controller.LoginController.LoginControllerRequest;
-import org.onedatashare.server.controller.RegistrationController;
 import org.onedatashare.server.controller.RegistrationController.RegistrationControllerRequest;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
@@ -16,12 +14,12 @@ import org.onedatashare.server.model.request.UserRequestData;
 import org.onedatashare.server.repository.UserRepository;
 import org.onedatashare.server.service.CaptchaService;
 import org.onedatashare.server.service.EmailService;
+import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Mono;
@@ -42,7 +40,7 @@ import static reactor.core.publisher.Mono.just;
 
 @SpringBootTest
 @RunWith(SpringJUnit4ClassRunner.class)
-@AutoConfigureMockMvc(secure = false)
+@AutoConfigureMockMvc(secure = false, addFilters = false)
 public class UserActionTest {
 
     private static final String USER_CONTROLLER_URL = "/api/stork/user";
@@ -71,6 +69,9 @@ public class UserActionTest {
     @MockBean
     private EmailService emailService;
 
+    @MockBean
+    private ODSAuthenticationManager odsAuthenticationManager;
+
     private Map<String, User> users = new HashMap<>();
     private Map<String, String> inbox = new HashMap<>();
 
@@ -91,7 +92,6 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser
     public void givenUserDoesNotExist_WhenRegistered_ShouldBeAddedToUserRepository() throws Exception {
         registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
@@ -191,17 +191,6 @@ public class UserActionTest {
     }
 
     private void resetUserPassword(String userEmail, String oldPassword, String newPassword) throws Exception {
-//        UserRequestData userRequestData = new UserRequestData();
-//        userRequestData.setAction(RESET_PASSWORD_USER_ACTION);
-//        userRequestData.setEmail(userEmail);
-//        userRequestData.setPassword(oldPassword);
-//        userRequestData.setNewPassword(newPassword);
-//        userRequestData.setConfirmPassword(newPassword);
-//        Map<String, String> cookieValues = new HashMap<String, String>(){{
-//            put(COOKIE_EMAIL_KEY, userEmail);
-//            put(COOKIE_HASH_KEY, users.get(userEmail).getHash());
-//        }};
-//        processWithUserAction(userRequestData, encodeIntoCookie(cookieValues));
         LoginControllerRequest requestData = new LoginControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setPassword(oldPassword);
@@ -211,13 +200,6 @@ public class UserActionTest {
     }
 
     private void setUserPassword(String userEmail, String userPassword, String authToken) throws Exception {
-//        UserRequestData userRequestData = new UserRequestData();
-//        userRequestData.setAction(SET_PASSWORD_USER_ACTION);
-//        userRequestData.setEmail(userEmail);
-//        userRequestData.setPassword(userPassword);
-//        userRequestData.setConfirmPassword(userPassword);
-//        userRequestData.setCode(authToken);
-//        processWithUserAction(userRequestData);
         LoginControllerRequest requestData = new LoginControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setPassword(userPassword);
@@ -227,14 +209,6 @@ public class UserActionTest {
     }
 
     private boolean loginUser(String userEmail, String password) throws Exception {
-//        UserRequestData userRequestData = new UserRequestData();
-//        userRequestData.setAction(LOGIN_USER_ACTION);
-//        userRequestData.setEmail(userEmail);
-//        userRequestData.setPassword(password);
-//        long timeBeforeLoggingIn = System.currentTimeMillis();
-//        processWithUserAction(userRequestData);
-//        Long lastActivity = users.get(userEmail).getLastActivity();
-//        return lastActivity != null && lastActivity > timeBeforeLoggingIn;
         LoginControllerRequest requestData = new LoginControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setPassword(password);
@@ -254,11 +228,6 @@ public class UserActionTest {
     }
 
     private void verifyCode(String userEmail, String verificationCode) throws Exception {
-//        UserRequestData userRequestData = new UserRequestData();
-//        userRequestData.setAction(VERIFY_USER_ACTION);
-//        userRequestData.setEmail(userEmail);
-//        userRequestData.setCode(verificationCode);
-//        processWithUserAction(userRequestData);
         RegistrationControllerRequest requestData = new RegistrationControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setCode(verificationCode);
@@ -266,11 +235,6 @@ public class UserActionTest {
     }
 
     private void registerUser(String userEmail, String firstName) throws Exception {
-//        UserRequestData userRequestData = new UserRequestData();
-//        userRequestData.setAction(REGISTER_USER_ACTION);
-//        userRequestData.setFirstName(firstName);
-//        userRequestData.setEmail(userEmail);
-//        processWithUserAction(userRequestData);
         RegistrationControllerRequest requestData = new RegistrationControllerRequest();
         requestData.setFirstName(firstName);
         requestData.setEmail(userEmail);
