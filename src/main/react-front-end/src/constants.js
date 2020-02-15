@@ -27,6 +27,7 @@ export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";
 export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
 export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
 
 export const REGISTRATION_ENDPOINT = "/register";
 export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";

@@ -6,7 +6,8 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	GET_USERS_ENDPOINT,
 	GET_ADMINS_ENDPOINT,
 	GET_USER_UPDATES_ENDPOINT,
-	GET_ADMIN_UPDATES_ENDPOINT} from '../constants';
+	GET_ADMIN_UPDATES_ENDPOINT,
+	UPDATE_PASSWD_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -789,8 +790,7 @@ export async function updateAdminRightsApiCall(email, isAdmin) {
 export async function changePassword(oldPassword, newPassword, confirmPassword, accept, fail) {
 	let callback = accept;
 
-	axios.post(url + 'user', {
-		action: "resetPassword",
+	axios.post(UPDATE_PASSWD_ENDPOINT, {
 		password: oldPassword,
 		newPassword: newPassword,
 		confirmPassword: confirmPassword

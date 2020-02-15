@@ -38,7 +38,6 @@ public class QueueController {
      * @param jobDetails - Request data needed for fetching Jobs
      * @return Mono\<JobDetails\>
      */
-    //TODO: Add role annotation for security
     @PostMapping("/admin-jobs")
     @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
@@ -52,7 +51,6 @@ public class QueueController {
         return jobService.getUpdatesForUser(jobIds);
     }
 
-    //TODO: Add role annotation for security
     @PostMapping("/update-admin-jobs")
     @PreAuthorize("hasAuthority('ADMIN')")
     public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {

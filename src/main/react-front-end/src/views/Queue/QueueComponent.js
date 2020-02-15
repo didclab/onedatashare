@@ -373,7 +373,7 @@ class QueueComponent extends Component {
 	}
 }
 
-class RowElement extends React.PureComponent {
+class RowElement extends React.Component {
 	constructor(props) {
 		super(props)
 		this.state = { selectedTab: 0 }
@@ -422,11 +422,12 @@ class RowElement extends React.PureComponent {
 			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
-		return <ProgressBar
-			bsStyle={bsStyle}
-			label={label}
-			now={now}
-		/>
+		
+		if(bsStyle === '') {
+			return <ProgressBar label={label} now={now} />
+		} else {
+			return <ProgressBar bsStyle={bsStyle} label={label} now={now} />
+		};
 	}
 	renderActions(owner, jobID, status, deleted) {
 		const { infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick } = this.props
@@ -505,7 +506,7 @@ class RowElement extends React.PureComponent {
 	}
 }
 
-class TabContent extends React.PureComponent {
+class TabContent extends React.Component {
 	render() {
 		const { resp, selectedTab } = this.props
 		if (selectedTab) {
