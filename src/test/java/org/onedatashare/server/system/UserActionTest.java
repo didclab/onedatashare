@@ -1,7 +1,6 @@
 package org.onedatashare.server.system;
 
 import com.google.gson.Gson;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,11 +9,9 @@ import org.onedatashare.server.controller.LoginController.LoginControllerRequest
 import org.onedatashare.server.controller.RegistrationController.RegistrationControllerRequest;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
-import org.onedatashare.server.model.request.UserRequestData;
 import org.onedatashare.server.repository.UserRepository;
 import org.onedatashare.server.service.CaptchaService;
 import org.onedatashare.server.service.EmailService;
-import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +21,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,19 +39,9 @@ import static reactor.core.publisher.Mono.just;
 @AutoConfigureMockMvc(secure = false, addFilters = false)
 public class UserActionTest {
 
-    private static final String USER_CONTROLLER_URL = "/api/stork/user";
-
-    private static final String TEST_USER_EMAIL = "bigstuff@bigwhoop.com";
+    private static final String TEST_USER_EMAIL = "bigstuff@bigwhoopcorp.com";
     private static final String TEST_USER_NAME = "test_user";
     private static final String TEST_USER_PASSWORD = "IamTheWalrus";
-
-    private static final String VERIFY_USER_ACTION = "verifyCode";
-    private static final String REGISTER_USER_ACTION = "register";
-    private static final String SET_PASSWORD_USER_ACTION = "setPassword";
-    private static final String LOGIN_USER_ACTION = "login";
-    private static final String RESET_PASSWORD_USER_ACTION = "resetPassword";
-    private static final String COOKIE_EMAIL_KEY = "email";
-    private static final String COOKIE_HASH_KEY = "hash";
 
     @Autowired
     private MockMvc mvc;
@@ -68,9 +54,6 @@ public class UserActionTest {
 
     @MockBean
     private EmailService emailService;
-
-    @MockBean
-    private ODSAuthenticationManager odsAuthenticationManager;
 
     private Map<String, User> users = new HashMap<>();
     private Map<String, String> inbox = new HashMap<>();
@@ -177,26 +160,13 @@ public class UserActionTest {
         assertTrue(loginSuccessful);
     }
 
-    private String encodeIntoCookie(Map<String, String> entries) {
-        if (entries.isEmpty())
-            return "";
-        StringBuilder cookie = new StringBuilder();
-        List<String> properties = new ArrayList<>();
-        entries.forEach((key, value) -> properties.add(format("%s=%s", key, value)));
-        cookie.append(properties.get(0));
-        for (int i = 1; i < properties.size(); i++) {
-            cookie.append(";").append(properties.get(i));
-        }
-        return cookie.toString();
-    }
-
     private void resetUserPassword(String userEmail, String oldPassword, String newPassword) throws Exception {
         LoginControllerRequest requestData = new LoginControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setPassword(oldPassword);
         requestData.setNewPassword(newPassword);
         requestData.setConfirmPassword(newPassword);
-        processWithUserAction(ODSConstants.UPDATE_PASSWD_ENDPOINT, requestData);
+        processWithRequestData(ODSConstants.UPDATE_PASSWD_ENDPOINT, requestData);
     }
 
     private void setUserPassword(String userEmail, String userPassword, String authToken) throws Exception {
@@ -205,7 +175,7 @@ public class UserActionTest {
         requestData.setPassword(userPassword);
         requestData.setConfirmPassword(userPassword);
         requestData.setCode(authToken);
-        processWithUserAction(ODSConstants.RESET_PASSWD_ENDPOINT, requestData);
+        processWithRequestData(ODSConstants.RESET_PASSWD_ENDPOINT, requestData);
     }
 
     private boolean loginUser(String userEmail, String password) throws Exception {
@@ -213,7 +183,7 @@ public class UserActionTest {
         requestData.setEmail(userEmail);
         requestData.setPassword(password);
         long timeBeforeLoggingIn = System.currentTimeMillis();
-        processWithUserAction(ODSConstants.AUTH_ENDPOINT, requestData);
+        processWithRequestData(ODSConstants.AUTH_ENDPOINT, requestData);
         Long lastActivity = users.get(userEmail).getLastActivity();
         return lastActivity != null && lastActivity > timeBeforeLoggingIn;
     }
@@ -231,14 +201,14 @@ public class UserActionTest {
         RegistrationControllerRequest requestData = new RegistrationControllerRequest();
         requestData.setEmail(userEmail);
         requestData.setCode(verificationCode);
-        processWithUserAction(ODSConstants.EMAIL_VERIFICATION_ENDPOINT, requestData);
+        processWithRequestData(ODSConstants.EMAIL_VERIFICATION_ENDPOINT, requestData);
     }
 
     private void registerUser(String userEmail, String firstName) throws Exception {
         RegistrationControllerRequest requestData = new RegistrationControllerRequest();
         requestData.setFirstName(firstName);
         requestData.setEmail(userEmail);
-        processWithUserAction(ODSConstants.REGISTRATION_ENDPOINT, requestData);
+        processWithRequestData(ODSConstants.REGISTRATION_ENDPOINT, requestData);
     }
 
     private String extractVerificationCode(String verificationCodeEmail) {
@@ -249,25 +219,9 @@ public class UserActionTest {
         return (User) users.values().toArray()[0];
     }
 
-    private <T> T deserialize(String resp, Class<T> userClass) throws IOException {
-        return new ObjectMapper().readValue(resp, userClass);
-    }
-
-    private void processWithUserAction(String url, Object requestData) throws Exception {
+    private void processWithRequestData(String url, Object requestData) throws Exception {
         mvc.perform(post(url).content(toJson(requestData))
                 .contentType(MediaType.APPLICATION_JSON));
-    }
-
-    private void processWithUserAction(UserRequestData userRequestData) throws Exception {
-        mvc.perform(post(USER_CONTROLLER_URL).content(toJson(userRequestData))
-                .contentType(MediaType.APPLICATION_JSON));
-    }
-
-
-    private void processWithUserAction(UserRequestData userRequestData, String cookie) throws Exception {
-        mvc.perform(post(USER_CONTROLLER_URL).content(toJson(userRequestData))
-                .contentType(MediaType.APPLICATION_JSON)
-                .header(ODSConstants.COOKIE, cookie));
     }
 
     private String toJson(Object userRequestData) {
@@ -304,5 +258,19 @@ public class UserActionTest {
             users.put(user.getEmail(), user);
             return just(user);
         };
+    }
+
+    @SuppressWarnings("unused")
+    private String encodeIntoCookie(Map<String, String> entries) {
+        if (entries.isEmpty())
+            return "";
+        StringBuilder cookie = new StringBuilder();
+        List<String> properties = new ArrayList<>();
+        entries.forEach((key, value) -> properties.add(format("%s=%s", key, value)));
+        cookie.append(properties.get(0));
+        for (int i = 1; i < properties.size(); i++) {
+            cookie.append(";").append(properties.get(i));
+        }
+        return cookie.toString();
     }
 }
