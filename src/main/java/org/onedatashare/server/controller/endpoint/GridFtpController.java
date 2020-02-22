@@ -49,7 +49,7 @@ public class GridFtpController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<String> downloadOperation(@RequestBody RequestData requestData){
+    protected Mono<String> downloadOperation(RequestData requestData){
         return Mono.error(new NotImplementedException("UnSupport Operation"));
     }
 

@@ -49,7 +49,7 @@ public class BoxController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<String> downloadOperation(@RequestBody RequestData requestData){
+    protected Mono<String> downloadOperation(RequestData requestData){
         UserAction userAction = UserAction.convertToUserAction(requestData);
         return boxService.download(null, userAction);
     }

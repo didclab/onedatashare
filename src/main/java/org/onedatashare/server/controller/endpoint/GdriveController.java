@@ -9,7 +9,6 @@ import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.GdriveService;
 import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -49,7 +48,7 @@ public class GdriveController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<String> downloadOperation(@RequestBody RequestData requestData){
+    protected Mono<String> downloadOperation(RequestData requestData){
         UserAction userAction = UserAction.convertToUserAction(requestData);
         return gdriveService.download(null, userAction);
     }
