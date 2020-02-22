@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
-public class BoxService implements ResourceService<BoxResource> {
+public class BoxService implements ResourceService {
 
     @Autowired
     private UserService userService;
@@ -40,9 +40,10 @@ public class BoxService implements ResourceService<BoxResource> {
     }
 
     @Override
-    public Mono<BoxResource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
-                .flatMap(BoxResource::delete);
+                .flatMap(BoxResource::delete)
+                .map(val -> true);
     }
 
     @Override

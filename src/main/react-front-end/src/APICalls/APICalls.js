@@ -17,7 +17,7 @@ import { cookies } from "../model/reducers.js";
 
 const FETCH_TIMEOUT = 10000;
 
-const axios = Axios.create({
+export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
 	headers: {
 		Accept: 'application/json',
@@ -25,7 +25,7 @@ const axios = Axios.create({
 	}
 });
 
-function statusHandle(response, callback) {
+export function statusHandle(response, callback) {
 	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
 	if (statusFirstDigit < 3) {

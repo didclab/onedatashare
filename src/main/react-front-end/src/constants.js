@@ -3,6 +3,15 @@ export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-betwe
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 // urls
+export const ENDPOINT_OP_URL = "/api"
+export const LIST_OP_URL = "/ls"
+export const DEL_OP_URL = "/rm"
+export const MKDIR_OP_URL = "/mkdir"
+export const DOWNLOAD_OP_URL = "/download"
+export const UPLOAD_OP_URL = "/upload"
+export const SHARE_OP_URL = "/share"
+export const SFTP_DOWNLOAD_URL = "download/file"
+
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";

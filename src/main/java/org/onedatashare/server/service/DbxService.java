@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.UUID;
 
 @Service
-public class DbxService implements ResourceService<DbxResource>{
+public class DbxService implements ResourceService{
 
   @Autowired
   private UserService userService;
@@ -81,9 +81,10 @@ public class DbxService implements ResourceService<DbxResource>{
             .flatMap(DbxResource::stat);
   }
 
-  public Mono<DbxResource> delete(String cookie, UserAction userAction) {
+  public Mono<Boolean> delete(String cookie, UserAction userAction) {
     return getDbxResourceWithUserActionUri(cookie, userAction)
-            .flatMap(DbxResource::delete);
+            .flatMap(DbxResource::delete)
+            .map(val -> true);
   }
 
   public Mono<Job> submit(String cookie, UserAction userAction) {
@@ -102,7 +103,8 @@ public class DbxService implements ResourceService<DbxResource>{
 
   @Override
   public Mono<String> download(String cookie, UserAction userAction) {
-    return null;
+      return getDbxResourceWithUserActionUri(cookie,userAction)
+              .flatMap(DbxResource::generateDownloadLink).subscribeOn(Schedulers.elastic());
   }
 
   public void processTransferFromJob(Job job, String cookie) {

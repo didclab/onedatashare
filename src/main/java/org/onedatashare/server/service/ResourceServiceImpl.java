@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class ResourceServiceImpl implements ResourceService<Resource> {
+public class ResourceServiceImpl implements ResourceService {
     @Autowired
     private UserService userService;
 
@@ -190,9 +190,10 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .flatMap(resource -> ((Resource) resource).stat());
     }
 
-    public Mono<Resource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::delete);
+                .flatMap(Resource::delete)
+                .map(val -> true);
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {

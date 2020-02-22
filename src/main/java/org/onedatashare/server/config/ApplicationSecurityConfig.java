@@ -1,7 +1,5 @@
 package org.onedatashare.server.config;
 
-import org.onedatashare.server.controller.RegistrationController;
-import org.onedatashare.server.service.JWTUtil;
 import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,23 +7,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-import static org.onedatashare.server.model.core.ODSConstants.OPEN_ENDPOINTS;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
@@ -68,7 +56,6 @@ public class ApplicationSecurityConfig {
                 serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             });
     }
-
 
     private Mono<Void> accessDeniedHandler(ServerWebExchange serverWebExchange, AccessDeniedException e) {
         return Mono.fromRunnable(() -> {
