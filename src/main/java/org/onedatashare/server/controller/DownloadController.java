@@ -107,4 +107,5 @@ public class DownloadController {
     public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
         return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
     }
+
 }
