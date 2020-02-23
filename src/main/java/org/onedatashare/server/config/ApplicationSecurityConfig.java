@@ -61,5 +61,4 @@ public class ApplicationSecurityConfig {
             serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
         });
     }
-
 }
