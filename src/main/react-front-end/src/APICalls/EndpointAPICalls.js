@@ -1,4 +1,4 @@
-import { url, ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL } from '../constants';
+import { url, ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL } from '../constants';
 import { axios, statusHandle } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
@@ -76,7 +76,7 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
 export async function deleteCall(uri, endpoint, id, accept, fail) {
     let callback = accept;
 
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DEL_OP_URL), {
         credential: endpoint.credential,
         uri: encodeURI(uri),
         id: id,

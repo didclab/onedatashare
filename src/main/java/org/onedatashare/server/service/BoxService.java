@@ -8,7 +8,6 @@ import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxResource;
 import org.onedatashare.server.module.box.BoxSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +25,6 @@ public class BoxService implements ResourceService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JobService jobService;
 
     @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
