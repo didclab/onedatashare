@@ -12,7 +12,7 @@ import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
-import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
+import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
 const FETCH_TIMEOUT = 10000;
 
@@ -304,78 +304,12 @@ export async function history(uri, portNum, accept, fail) {
 		});
 }
 
-export async function globusEndpointIds(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointId',
-
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointDetail(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpoint',
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointActivate',
-		globusEndpoint: gep,
-		username: _username,
-		password: _password
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-
 export async function deleteHistory(uri, accept, fail) {
 	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "deleteHistory",
 		uri: encodeURI(uri)
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function deleteEndpointId(ged, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + 'globus', {
-		action: "deleteEndpointId",
-		globusEndpoint: ged,
 	})
 		.then((response) => {
 			if (!(response.status === 200))
@@ -763,28 +697,6 @@ export async function updateViewPreference(email, compactViewEnabled, accept, fa
 	});
 }
 
-export async function openDropboxOAuth() {
-	openOAuth("/api/stork/oauth?type=dropbox");
-}
-
-export async function openGoogleDriveOAuth() {
-	openOAuth("/api/stork/oauth?type=googledrive");
-}
-
-export async function openGridFtpOAuth() {
-	openOAuth("/api/stork/oauth?type=gridftp");
-}
-
-export async function openBoxOAuth(){
-    openOAuth("api/stork/oauth?type=box");
-}
-
-
-
-export async function openOAuth(url){
-	window.location = url;
-}
-
 
 export async function registerUser(requestBody, errorCallback) {
 	return axios.post(REGISTRATION_ENDPOINT, requestBody)
@@ -824,22 +736,4 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
-}
-
-
-export async function globusListEndpoints(filter_fulltext, accept, fail) {
-	let callback = accept;
-	return axios.post(url + 'globus', {
-		action: "endpoint_list",
-		filter_fulltext: filter_fulltext
-		})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-
-			statusHandle(error, fail);
-		});
 }

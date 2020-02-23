@@ -31,13 +31,11 @@ import {
 	download,
 	getDownload,
 	getSharableLink,
+	openBoxOAuth,
+	openDropboxOAuth,
+	openGoogleDriveOAuth
 } from "../../APICalls/EndpointAPICalls";
 
-import {
-	openDropboxOAuth,
-	openGoogleDriveOAuth,
-	openBoxOAuth
-} from "../../APICalls/APICalls";
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
