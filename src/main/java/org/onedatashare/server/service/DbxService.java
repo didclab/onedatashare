@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class DbxService implements ResourceService{
+public class DbxService extends ResourceService{
 
     @Autowired
     private UserService userService;
@@ -30,16 +30,8 @@ public class DbxService implements ResourceService{
     public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
         if(userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .handle((usr, sink) -> {
-                        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
-                            sink.error(new AuthenticationRequired("oauth"));
-                        }
-                        Map credMap = usr.getCredentials();
-                        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
-                        if(credential == null){
-                            sink.error(new NotFoundException("Credentials for the given UUID not found"));
-                        }
-                        sink.next(credential);
+                    .handle((usr, sink) ->{
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
                     .map(credential -> new DbxSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(DbxSession::initialize)

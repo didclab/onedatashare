@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SynchronousSink;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
@@ -36,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class GdriveService implements ResourceService {
+public class GdriveService extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -48,15 +49,7 @@ public class GdriveService implements ResourceService {
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
                     .handle((usr, sink) -> {
-                        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
-                            sink.error(new AuthenticationRequired("oauth"));
-                        }
-                        Map credMap = usr.getCredentials();
-                        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
-                        if(credential == null){
-                            sink.error(new NotFoundException("Credentials for the given UUID not found"));
-                        }
-                        sink.next(credential);
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
                     .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GoogleDriveSession::initialize)

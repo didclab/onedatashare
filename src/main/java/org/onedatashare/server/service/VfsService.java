@@ -19,7 +19,7 @@ import java.net.URLEncoder;
 import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 @Service
-public class VfsService implements ResourceService {
+public class VfsService extends ResourceService {
     @Autowired
     private UserService userService;
 

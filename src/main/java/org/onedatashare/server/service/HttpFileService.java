@@ -15,7 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 @Service
-public class HttpFileService implements ResourceService {
+public class HttpFileService extends ResourceService {
     @Autowired
     private UserService userService;
 

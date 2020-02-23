@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class BoxService implements ResourceService {
+public class BoxService extends ResourceService {
 
     @Autowired
     private UserService userService;
@@ -63,15 +63,7 @@ public class BoxService implements ResourceService {
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
                     .handle((usr, sink) -> {
-                        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
-                            sink.error(new AuthenticationRequired("oauth"));
-                        }
-                        Map credMap = usr.getCredentials();
-                        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
-                        if(credential == null){
-                            sink.error(new NotFoundException("Credentials for the given UUID not found"));
-                        }
-                        sink.next(credential);
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
                     .map(credential -> new BoxSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(BoxSession::initialize)

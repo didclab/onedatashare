@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class ResourceServiceImpl implements ResourceService {
+public class ResourceServiceImpl extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -53,9 +53,10 @@ public class ResourceServiceImpl implements ResourceService {
 
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
+                    })
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
