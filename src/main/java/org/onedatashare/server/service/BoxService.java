@@ -88,21 +88,6 @@ public class BoxService implements ResourceService {
         }
     }
 
-//    public Mono<BoxResource> getBoxResourceUserActionResource(String cookie, UserActionResource userActionResource) {
-//        final String path = pathFromUri(userActionResource.getUri());
-//        String id = userActionResource.getId();
-//        ArrayList<IdMap> idMap = userActionResource.getMap();
-//
-//        return userService.getLoggedInUser(cookie)
-//                .map(User::getCredentials)
-//                .map(uuidCredentialMap ->
-//                        uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
-//                .map(credential -> new BoxSession(URI.create(userActionResource.getUri()), credential))
-//                .flatMap(BoxSession::initialize)
-//                .flatMap(boxSession -> boxSession.select(path, id, idMap));
-//    }
-
-
     public String pathFromUri(String uri) {
         String path = "";
         if(uri.contains(ODSConstants.BOX_URI_SCHEME)){
