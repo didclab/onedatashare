@@ -184,10 +184,10 @@ public class ResourceServiceImpl implements ResourceService {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
-                .flatMap(resource -> ((Resource) resource).stat());
+                .map(r -> true);
     }
 
     public Mono<Boolean> delete(String cookie, UserAction userAction) {

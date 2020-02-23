@@ -6,6 +6,8 @@ import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -45,9 +47,18 @@ public class GdriveService implements ResourceService {
 
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
+                            sink.error(new AuthenticationRequired("oauth"));
+                        }
+                        Map credMap = usr.getCredentials();
+                        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
+                        if(credential == null){
+                            sink.error(new NotFoundException("Credentials for the given UUID not found"));
+                        }
+                        sink.next(credential);
+                    })
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
@@ -64,24 +75,6 @@ public class GdriveService implements ResourceService {
         }
     }
 
-    public Mono<Resource> getResourceWithUserActionResource(User userObj, UserActionResource userActionResource) {
-        final String path = pathFromUri(userActionResource.getUri());
-        String id = userActionResource.getId();
-        ArrayList<IdMap> idMap = userActionResource.getMap();
-        return Mono.just(userObj)
-                .flatMap(user -> createCredential(userActionResource, user))
-                .map(credential -> createSession(userActionResource.getUri(), credential))
-                .flatMap(session -> {
-                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((GoogleDriveSession) session).initializeNotSaved();
-                    if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((BoxSession) session).initializeNotSaved();
-                    else
-                        return session.initialize();
-                })
-                .flatMap(session -> ((Session) session).select(path, id, idMap));
-    }
-
     public String pathFromUri(String uri) {
         String path = "";
         path = uri.substring(DRIVE_URI_SCHEME.length() - 1);
@@ -93,30 +86,13 @@ public class GdriveService implements ResourceService {
         return path;
     }
 
-    public Mono<Credential> createCredential(UserActionResource userActionResource, User user) {
-        if (user.isSaveOAuthTokens()) {
-            return Mono.just(
-                    user.getCredentials().get(
-                            UUID.fromString(userActionResource.getCredential()
-                                    .getUuid())
-                    ));
-        }
-        else {
-            return Mono.just( new OAuthCredential(userActionResource.getCredential().getToken()));
-        }
-    }
-
-    public Session createSession(String uri, Credential credential) {
-            return new GoogleDriveSession(URI.create(uri), credential);
-    }
-
     @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
     }
 
     @Override
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
                 .flatMap(resource -> ((Resource) resource).stat());

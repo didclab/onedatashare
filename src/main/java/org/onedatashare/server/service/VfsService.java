@@ -105,10 +105,10 @@ public class VfsService implements ResourceService {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(VfsResource::mkdir)
-                .flatMap(VfsResource::stat);
+                .map(r -> true);
     }
 
     public Mono<Boolean> delete(String cookie, UserAction userAction) {

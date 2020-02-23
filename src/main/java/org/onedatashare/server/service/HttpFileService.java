@@ -19,9 +19,6 @@ public class HttpFileService implements ResourceService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private JobService jobService;
-
     public Mono<HttpResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
@@ -50,7 +47,7 @@ public class HttpFileService implements ResourceService {
 
     @Override
     /* Not allowed */
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         throw new UnsupportedOperationException();
     }
 

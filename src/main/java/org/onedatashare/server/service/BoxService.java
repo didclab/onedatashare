@@ -3,6 +3,8 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -16,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -33,10 +36,10 @@ public class BoxService implements ResourceService {
     }
 
     @Override
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::mkdir)
-                .flatMap(BoxResource::stat);
+                .map(r -> true);
     }
 
     @Override
@@ -63,9 +66,18 @@ public class BoxService implements ResourceService {
         ArrayList<IdMap> idMap = userAction.getMap();
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
+                            sink.error(new AuthenticationRequired("oauth"));
+                        }
+                        Map credMap = usr.getCredentials();
+                        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
+                        if(credential == null){
+                            sink.error(new NotFoundException("Credentials for the given UUID not found"));
+                        }
+                        sink.next(credential);
+                    })
+                    .map(credential -> new BoxSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(BoxSession::initialize)
                     .flatMap(boxSession -> boxSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable -> {
