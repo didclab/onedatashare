@@ -36,14 +36,13 @@ public class ApplicationSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                 //Need authentication for APICalls
-                .pathMatchers("/api/stork/**").authenticated()
                 .pathMatchers("/api/**").authenticated()
                 //Need to be admin to access admin functionalities
                 //TODO: Check if this setting is secure
                 .pathMatchers("/**").permitAll()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(this::authenticationEntryPointHandler).accessDeniedHandler(this::accessDeniedHandler)
+                .authenticationEntryPoint(this::authenticationFailedHandler).accessDeniedHandler(this::accessDeniedHandler)
                 .and()
                 //Disable Cross-site request forgery TODO: fix
                 .csrf().disable().authorizeExchange().and()
@@ -51,7 +50,7 @@ public class ApplicationSecurityConfig {
 
     }
 
-    private Mono<Void> authenticationEntryPointHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
+    private Mono<Void> authenticationFailedHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
             return Mono.fromRunnable(() -> {
                 serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             });
