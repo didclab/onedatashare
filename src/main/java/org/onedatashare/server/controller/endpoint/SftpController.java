@@ -63,7 +63,7 @@ public class SftpController extends EndpointBaseController{
     }
 
     @PostMapping(value = "/file")
-    public Mono<ResponseEntity> downloadFile(@RequestHeader HttpHeaders clientHttpHeaders) throws IOException {
+    public Mono<ResponseEntity> downloadFile(@RequestHeader HttpHeaders clientHttpHeaders) {
         return Mono.fromSupplier(() -> {
             String cookie = clientHttpHeaders.getFirst(ODSConstants.COOKIE);
             Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
