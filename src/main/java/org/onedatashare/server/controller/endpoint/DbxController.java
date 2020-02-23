@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RestController
-@RequestMapping("/api/dbx")
+@RequestMapping("/api/dropbox")
 public class DbxController extends EndpointBaseController{
     @Autowired
     private DbxService dbxService;

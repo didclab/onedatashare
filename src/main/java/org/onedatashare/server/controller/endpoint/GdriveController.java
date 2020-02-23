@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 @RestController
-@RequestMapping("/api/gdrive")
+@RequestMapping("/api/googledrive")
 public class GdriveController extends EndpointBaseController{
     @Autowired
     private GdriveService gdriveService;
