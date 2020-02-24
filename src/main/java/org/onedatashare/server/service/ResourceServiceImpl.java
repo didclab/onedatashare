@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class ResourceServiceImpl implements ResourceService<Resource> {
+public class ResourceServiceImpl extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -53,9 +53,10 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
+                    })
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
@@ -184,15 +185,16 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
-                .flatMap(resource -> ((Resource) resource).stat());
+                .map(r -> true);
     }
 
-    public Mono<Resource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::delete);
+                .flatMap(Resource::delete)
+                .map(val -> true);
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {

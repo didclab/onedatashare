@@ -4,7 +4,7 @@ import lombok.Data;
 import org.onedatashare.server.model.useraction.UserActionResource;
 
 @Data
-public class TransferRequestData {
+public class TransferRequest {
     UserActionResource src;
     UserActionResource dest;
     TransferOptions options;
