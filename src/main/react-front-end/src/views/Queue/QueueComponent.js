@@ -3,7 +3,6 @@ import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser 
 import { eventEmitter } from '../../App'
 import moment from 'moment'
 import { humanReadableSpeed } from '../../utils'
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -15,7 +14,6 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-
 import Zoom from '@material-ui/core/Zoom';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Refresh from '@material-ui/icons/Refresh';
@@ -27,11 +25,11 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
 import CircularProgress from '@material-ui/core/CircularProgress'
-
 import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
-
 import { withStyles } from '@material-ui/core';
+import {RowElement} from './RowElement.js';
+
 const styles = theme => ({
 	root: {
 		width: 'fit-content'

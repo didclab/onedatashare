@@ -13,17 +13,23 @@ import Cancel from "@material-ui/icons/Cancel";
 import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import {humanReadableSpeed} from "../../utils";
+import {TabContent} from "./TabContent";
 
-class RowElement extends React.Component {
+const tbcellStyle = {textAlign: 'center'}
+
+export class RowElement extends React.Component {
+
     constructor(props) {
         super(props)
         this.state = { selectedTab: 0 }
         this.toggleTabs = this.toggleTabs.bind(this)
     }
+
     toggleTabs() {
         const { selectedTab } = this.state
         this.setState({selectedTab: !selectedTab})
     }
+
     infoRow() {
         const { resp } = this.props
         const { selectedTab } = this.state
@@ -43,6 +49,7 @@ class RowElement extends React.Component {
             </TableCell>
         </TableRow>
     }
+
     getStatus(status, total, done) {
         //TODO: move to CSS file
         let now, bsStyle, label

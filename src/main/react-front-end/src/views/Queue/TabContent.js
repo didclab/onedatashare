@@ -1,8 +1,9 @@
 import React from "react";
 import {Col, Grid, Row} from "react-bootstrap";
 import {humanReadableSpeed} from "../../utils";
+import moment from "moment";
 
-class TabContent extends React.Component {
+export class TabContent extends React.Component {
 
     render() {
         const { resp, selectedTab } = this.props
