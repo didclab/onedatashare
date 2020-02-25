@@ -1,5 +1,10 @@
 package org.onedatashare.server.module.s3;
 
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -26,34 +31,16 @@ import java.util.List;
  */
 public class S3Resource extends Resource<S3Session, S3Resource> {
 
-    private FileObject fileObject;
-
-    protected S3Resource(S3Session session, String path, FileObject fileObject) {
+    protected S3Resource(S3Session session, String path) {
         super(session, path);
-        this.fileObject = fileObject;
     }
 
-    /**
-     * This method creates a directory with the name of the folder to be created
-     * on clicking the 'New Folder' option on the front end .
-     * @return current VfsResource instance
-     */
     public Mono<S3Resource> mkdir() {
-        return initialize().doOnSuccess(vfsResource -> {
-            try {
-                fileObject.createFolder();
-            } catch (FileSystemException e) {
-                e.printStackTrace();
-            }
-        });
+        return null;
     }
 
     public Mono<S3Resource> delete() {
-        try {
-            fileObject.deleteAll();
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }return Mono.just(this);
+        return null;
     }
 
     @Override
@@ -66,36 +53,70 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
     }
 
     private Stat onStat() {
+
+        System.out.println(getPath());
+        AmazonS3Client S3Client = getSession().s3Client;
+        if(getPath().equals("")) {
+            List<Bucket> bucketList = S3Client.listBuckets();
+            Stat bucketStat = buildBucketStat(bucketList);
+            for (Bucket bucket : bucketList) {
+                ObjectListing listing = S3Client.listObjects(bucket.getName());
+                for (int i = 0; i < listing.getObjectSummaries().size(); i++) {
+//                System.out.println(listing.getObjectSummaries().get(i).getKey());
+                }
+            }
+
+            return bucketStat;
+        }
+        System.out.println(getPath());
+//        S3Client.listObjects()
         Stat stat = new Stat();
         return stat;
     }
 
-    public Stat fileContentToStat(FileObject file) {
-        Stat stat = new Stat();
-        FileContent fileContent = null;
-        try {
-            fileContent = file.getContent();
-            if(file.isFolder()) {
-                stat.setDir(true);
-                stat.setFile(false);
-            }
-            else {
-                stat.setFile(true);
-                stat.setDir(false);
-                stat.setSize(fileContent.getSize());
-            }
+    public Stat buildBucketStat(List<Bucket> bucketList){
+        Stat stat = new Stat();                         //All buckets under this stat
+        ArrayList<Stat> contents = new ArrayList<>();
+        for(Bucket bucket : bucketList){
+            Stat bucketStat = new Stat();               //Individual bucket under this stat
+            bucketStat.setDir(true);
+            bucketStat.setFile(false);
+            bucketStat.setName(bucket.getName());
+            bucketStat.setTime(bucket.getCreationDate().getTime());
+            bucketStat.setPermissions(bucket.getOwner().getDisplayName());
+            contents.add(bucketStat);
 
-            stat.setName(file.getName().getBaseName());
-            stat.setTime(fileContent.getLastModifiedTime() / 1000);
-        } catch (FileSystemException e) {
-            e.printStackTrace();
         }
+        stat.setFiles(new Stat[contents.size()]);
+        stat.setFiles(contents.toArray(stat.getFiles()));
+        return stat;
+    }
+
+    public Stat buildDirStat(List<S3ObjectSummary> listing){
+        Stat stat = new Stat();
+        ArrayList<Stat> contents = new ArrayList<>();
+        for(int i = 0; i < listing.size(); i++){
+            S3ObjectSummary object = listing.get(i);
+            Stat statChild = new Stat();
+            if (object.getKey().endsWith("/")){
+                statChild.setFile(false);
+                statChild.setDir(true);
+            }
+            else{
+                statChild.setFile(true);
+                statChild.setDir(false);
+                statChild.setSize(object.getSize());
+            }
+            statChild.setName(object.getKey());
+            statChild.setPermissions(object.getOwner().getDisplayName());
+        }
+        stat.setFiles(new Stat[contents.size()]);
+        stat.setFiles(contents.toArray(stat.getFiles()));
         return stat;
     }
 
     public VfsTap tap() {
-        VfsTap vfsTap = new VfsTap();
-        return vfsTap;
+        return null;
     }
 
     public VfsDrain sink() {
@@ -108,54 +129,7 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
 
     @Override
     public Mono<Stat> getTransferStat() {
-        return initialize()
-                .map(S3Resource::onStat)
-                .map( s -> {
-                    List<Stat> sub = new LinkedList<>();
-                    long directorySize = 0L;
-
-                    if(s.isDir()){
-                        try {
-                            directorySize = buildDirectoryTree(sub, fileObject.getChildren(), "/");
-                        }
-                        catch(FileSystemException fse){
-                            ODSLoggerService.logError("Exception encountered while generating " +
-                                    "file objects within a folder", fse);
-                        }
-                    }
-                    else{
-                        setFileResource(true);
-                        sub.add(s);
-                        directorySize = s.getSize();
-                    }
-                    s.setFilesList(sub);
-                    s.setSize(directorySize);
-                    return s;
-                });
-    }
-
-    public Long buildDirectoryTree(List<Stat> sub, FileObject[] fileObjects, String relativeDirName){
-        long directorySize = 0L;
-
-        for(FileObject fileObject : fileObjects){
-            try {
-                if (fileObject.isFile()) {
-                    Stat fileStat = fileContentToStat(fileObject);
-                    fileStat.setName(relativeDirName + fileStat.getName());
-                    directorySize += fileStat.getSize();
-                    sub.add(fileStat);
-                } else {
-                    String dirName = fileObject.getName().toString();
-                    dirName = relativeDirName + dirName.substring(dirName.lastIndexOf("/")+1) + "/";
-                    directorySize += buildDirectoryTree(sub, fileObject.getChildren(), dirName);
-                }
-            }
-            catch (FileSystemException e) {
-                e.printStackTrace();
-
-            }
-        }
-        return directorySize;
+      return null;
     }
 
     public class VfsTap implements Tap {
@@ -215,7 +189,6 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
 
     class VfsDrain implements Drain {
         OutputStream outputStream;
-        FileObject drainFileObject = fileObject;
 
         @Override
         public VfsDrain start() {

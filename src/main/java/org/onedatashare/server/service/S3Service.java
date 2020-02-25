@@ -32,27 +32,35 @@ public class S3Service implements ResourceService<S3Resource> {
 
 
     public Mono<S3Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+        String path = pathFromUri(userAction.getUri());
         return decryptionService.getDecryptedCredential(userAction.getCredential())
                 .map(cred -> {
                     if (userAction.getCredential().getUsername() == null || userAction.getCredential().getPassword() == null) {
                         Mono.error(new Exception("Invalid"));
                     }
+                    System.out.println(userAction.getCredential().getUsername());
+                    System.out.println(userAction.getCredential().getPassword());
                     return new UserInfoCredential(userAction.getCredential());
                 })
-                .map(credential -> new S3Session(URI.create(userAction.getUri()), (Credential) credential))
+                .map(credential -> new S3Session(URI.create(userAction.getUri()), credential))
                 .flatMap(S3Session::initialize)
-                .flatMap(s3Session -> {
-                    String path = userAction.getUri();
-                    return s3Session.select(path);
-                });
+                .flatMap(s3Session -> s3Session.select(path));
 
-//        return userService.getLoggedInUser(cookie)
-//                .map(User::getCredentials)
-//                .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-//                .map(credential -> new S3Session(URI.create(userAction.getUri()), credential))
-//                .flatMap(S3Session::initialize)
-//                .flatMap(s3Session -> s3Session.select(path, id, idMap));
     }
+
+    public String pathFromUri(String uri) {
+        String path = "";
+        if(uri.contains(ODSConstants.AMAZONS3_URI_SCHEME)){
+            path = uri.substring(ODSConstants.AMAZONS3_URI_SCHEME.length() - 1);
+        }
+        try {
+            path = java.net.URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return path;
+    }
+
 
     public Mono<S3Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         return null;

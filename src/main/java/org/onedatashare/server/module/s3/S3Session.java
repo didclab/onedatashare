@@ -2,7 +2,6 @@ package org.onedatashare.server.module.s3;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
@@ -12,12 +11,10 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
 
 public class S3Session extends Session<S3Session, S3Resource> {
 
-    private AmazonS3 s3Client;
+    public AmazonS3Client s3Client;
 
     public S3Session(URI uri, Credential credential) {
         super(uri, credential);
@@ -25,8 +22,7 @@ public class S3Session extends Session<S3Session, S3Resource> {
 
     @Override
     public Mono<S3Resource> select(String path) {
-        System.out.println(path);
-        return null;
+        return Mono.just(new S3Resource(this, path));
     }
 
     @Override
@@ -44,6 +40,7 @@ public class S3Session extends Session<S3Session, S3Resource> {
 
                 AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
                 s3Client = new AmazonS3Client(credentials);
+                s.success(this);
 
             }
 
