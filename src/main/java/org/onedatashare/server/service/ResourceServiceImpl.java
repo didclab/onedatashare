@@ -10,6 +10,7 @@ import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.box.BoxSession;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
@@ -28,6 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
@@ -70,6 +72,25 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         }
     }
 
+    public Mono<Resource> getResourceWithUserActionResource(User userObj, UserActionResource userActionResource) {
+        final String path = pathFromUri(userActionResource.getUri());
+        String id = userActionResource.getId();
+        ArrayList<IdMap> idMap = userActionResource.getMap();
+        return Mono.just(userObj)
+                .flatMap(user -> createCredential(userActionResource, user))
+                .map(credential -> createSession(userActionResource.getUri(), credential))
+                .flatMap(session -> {
+                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((BoxSession) session).initializeNotSaved();
+                    else
+                        return session.initialize();
+                })
+                .flatMap(session -> ((Session) session).select(path, id, idMap));
+    }
+
+
     public Mono<Resource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
         String id = userActionResource.getId();
@@ -80,6 +101,8 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .flatMap(session -> {
                     if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
                         return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((BoxSession) session).initializeNotSaved();
                     else
                         return session.initialize();
                 })
@@ -105,7 +128,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
     public Mono<Credential> createCredential(UserActionResource userActionResource, User user) {
         if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME)) {
+                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME) || userActionResource.getUri().startsWith(BOX_URI_SCHEME)) {
             if (user.isSaveOAuthTokens()) {
                 return Mono.just(
                         user.getCredentials().get(
@@ -135,18 +158,26 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
 
     public Session createSession(String uri, Credential credential) {
-        if (uri.startsWith(DROPBOX_URI_SCHEME))
+        if (uri.startsWith(DROPBOX_URI_SCHEME)) {
             return new DbxSession(URI.create(uri), credential);
+        }
         else if (uri.equals(UPLOAD_IDENTIFIER)) {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         } else if (uri.startsWith(DRIVE_URI_SCHEME))
             return new GoogleDriveSession(URI.create(uri), credential);
-        else if (credential instanceof GlobusWebClientCredential)
+        else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
+            return new BoxSession(URI.create(uri), credential);
+        }
+        else if(credential instanceof GlobusWebClientCredential) {
             return new GridftpSession(URI.create(uri), credential);
-        else if (uri.startsWith(HTTPS_URI_SCHEME) || uri.startsWith(HTTP_URI_SCHEME))
+        }
+        else if (uri.startsWith(HTTPS_URI_SCHEME) || uri.startsWith(HTTP_URI_SCHEME)) {
             return new HttpSession(URI.create(uri));
-        else return new VfsSession(URI.create(uri), credential);
+        }
+        else {
+            return new VfsSession(URI.create(uri), credential);
+        }
     }
 
     public Mono<Stat> list(String cookie, UserAction userAction) {
@@ -165,16 +196,18 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
+        AtomicReference<User> u = new AtomicReference<>();
         return userService.getLoggedInUser(cookie)
                 .map(user -> {
                     Job job = new Job(userAction.getSrc(), userAction.getDest());
                     job.setStatus(JobStatus.scheduled);
                     job = user.saveJob(job);
                     userService.saveUser(user).subscribe();
+                    u.set(user);
                     return job;
                 })
                 .flatMap(jobService::saveJob)
-                .doOnSuccess(job -> processTransferFromJob(job, cookie))
+                .doOnSuccess(job -> processTransferFromJob(job, u))
                 .subscribeOn(Schedulers.elastic());
     }
 
@@ -275,6 +308,30 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
             }
         }
         return null;
+    }
+
+    public void processTransferFromJob(Job job, AtomicReference<User> user) {
+        Transfer<Resource, Resource> transfer = new Transfer<>();
+        Disposable ongoingJob = getResourceWithUserActionResource(user.get(), job.getSrc())
+                .map(transfer::setSource)
+                .flatMap(t -> getResourceWithUserActionResource(user.get(), job.getDest()))
+                .map(transfer::setDestination)
+                .flux()
+                .flatMap(transfer1 -> {
+                    return transfer1.start(TRANSFER_SLICE_SIZE);
+                })
+                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
+                .doOnCancel(new RunnableCanceler(job))
+                .doFinally(s -> {
+                    if (job.getStatus() != JobStatus.cancelled && job.getStatus() != JobStatus.failed)
+                        job.setStatus(JobStatus.complete);
+                    jobService.saveJob(job).subscribe();
+                    ongoingJobs.remove(job.getUuid());
+                })
+                .map(job::updateJobWithTransferInfo)
+                .flatMap(jobService::saveJob)
+                .subscribe();
+        ongoingJobs.put(job.getUuid(), ongoingJob);
     }
 
     public void processTransferFromJob(Job job, final String cookie) {

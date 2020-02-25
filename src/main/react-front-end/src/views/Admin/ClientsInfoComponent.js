@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { getUsers, updateAdminRightsApiCall } from '../../APICalls/APICalls';
+import { getUsers, updateAdminRightsApiCall, getAdmins } from '../../APICalls/APICalls';
 
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -78,7 +78,7 @@ class ClientsInfoComponent extends Component{
 		document.title = "OneDataShare - Client Info";
 	}
 
-	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+	getUserInfo = () => getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 		//success
 		this.setState({users:resp.users, totalUsersCount: resp.totalCount});
 		}, (resp) => {
@@ -86,7 +86,7 @@ class ClientsInfoComponent extends Component{
 		console.log('Error encountered in getUsers request to API layer');
 	});
 
-	getAdminInfo = () => getUsers('getAdministrators',  this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
+	getAdminInfo = () => getAdmins(this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
 		//success
 		console.log(resp.users.length + "---")
 		this.setState({admins:resp.users, totalAdminsCount: resp.totalCount});
@@ -119,7 +119,7 @@ class ClientsInfoComponent extends Component{
 			else{
 				eventEmitter.emit("errorOccured", "Error while updating the user");
 			}
-			getUsers('getUsers', this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+			getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 				this.setState({users:resp.users, showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 				}, (error) => {
 				console.log('Error encountered in getUsers request to API layer');

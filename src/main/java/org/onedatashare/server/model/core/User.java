@@ -81,6 +81,8 @@ public class User {
     /** Makes sure that view of user in transfer page is consistent with his/her preference. */
     private boolean compactViewEnabled = false;
 
+    private List<Role> roles;
+
     /**
      * Create an anonymous user.
      */
@@ -96,6 +98,8 @@ public class User {
         this.lastName = lastName;
         this.organization = organization;
         this.setPassword(password);
+        this.roles = new ArrayList<>();
+        this.roles.add(Role.USER);
     }
 
     /**
@@ -108,7 +112,6 @@ public class User {
         this.organization = "";
         setPassword(password);
     }
-
 
     /**
      * Check if the given password is correct for this user.

@@ -21,12 +21,10 @@ export const afterLogin = 2;
 
 const initialState = {
 	login: cookies.get('email') ? true : false,
-	admin: false,
-	email: cookies.get('email') || "noemail" ,
-  hash: cookies.get('hash') || null,
-	compactViewEnabled: cookies.get('compactViewEnabled')==='true' || false,
-  saveOAuthTokens: (cookies.get('saveOAuthTokens') !== undefined)? JSON.parse(cookies.get('saveOAuthTokens')) : false,
-
+	admin: cookies.get('admin') ? true : false,
+	email: cookies.get('email'),
+	compactViewEnabled: cookies.get('compactViewEnabled') === 'true' || false,
+  saveOAuthTokens: cookies.get('saveOAuthTokens') === 'true' || false,
 	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
 		login: false,
 		credential: {},
@@ -59,26 +57,35 @@ export function onedatashareModel(state = initialState, action) {
   // and just return the state given to us.
   switch (action.type) {
     case LOGIN:
-   		const {email, hash, saveOAuthTokens, compactViewEnabled} = action.credential;
+   		const {email, token, saveOAuthTokens, compactViewEnabled, admin} = action.credential;
       console.log('logging in', email);
 
       cookies.set('email', email, { expires : maxCookieAge });
-		  cookies.set('hash', hash, { expires : maxCookieAge });
+      cookies.set('ATOKEN', token, {expires: maxCookieAge});
       cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-			cookies.set('compactViewEnabled', compactViewEnabled);
+      cookies.set('compactViewEnabled', compactViewEnabled, { expires : maxCookieAge });
 
+      //Only set the admin cookie if admin
+      if(admin){
+        cookies.set('admin', admin, { expires : maxCookieAge });
+      }
+      
     	return Object.assign({}, state, {
     		login: true,
     		email: email,
-        hash: hash,
+        token: token,
+        admin: admin,
         saveOAuthTokens: saveOAuthTokens,
 				compactViewEnabled: compactViewEnabled
       });
 
     case LOGOUT:
       console.log("logging out");
+      // Removing HTTP cookie by overwriting it and then removing it
+      cookies.set('ATOKEN', '' );
+      cookies.remove('ATOKEN');
+
       cookies.remove('email');
-      cookies.remove('hash');
       cookies.remove('admin');
       cookies.remove('endpoint1');
       cookies.remove('endpoint2');

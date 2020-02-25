@@ -9,6 +9,12 @@ import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponen
 import { spaceBetweenStyle, validPassword } from '../../constants.js';
 import { resetPasswordSendCode, resetPasswordVerifyCode, resetPassword } from '../../APICalls/APICalls.js';
 import { eventEmitter } from '../../App';
+
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+import IconButton from '@material-ui/core/IconButton';
+
 const beforeCode = 0
 const codeSent = 1
 const codeVerified = 2
@@ -29,9 +35,13 @@ export default class ForgotPasswordComponent extends Component {
 			code: "",
 			passwordErrorMsg: '',
 			isValidConfirmPassword: true,
-			isValidNewPassword: true
+			isValidNewPassword: true,
+			isPwdVisible: false,
+      		isReEnterPwdVisible: false
 		}
 		updateGAPageView();
+		this.handleShowPassword = this.handleShowPassword.bind(this);
+		this.handleHidePassword = this.handleHidePassword.bind(this);
 	}
 
 	SetPassword = () => {
@@ -68,6 +78,24 @@ export default class ForgotPasswordComponent extends Component {
 			eventEmitter.emit("errorOccured", "Send Code Failed.");
 		});
 	}
+
+	handleShowPassword(field) {
+		switch(field){
+			case 'enter': 
+				this.setState({isPwdVisible: true});
+				break;
+			case 'reenter': 
+				this.setState({isReEnterPwdVisible: true}); 
+				break;
+			default:
+				break;
+		}
+	}
+
+	handleHidePassword() {
+		this.setState({isPwdVisible: false, isReEnterPwdVisible: false});
+	}
+
 	render() {
 		const { back, email } = this.props
 		const { state, confirmedPassword, password } = this.state;
@@ -157,25 +185,50 @@ export default class ForgotPasswordComponent extends Component {
 							id="outlined-email-input"
 							label="Password"
 							name="code"
-							type="password"
+							type={this.state.isPwdVisible ? "text" : "password"}
 							margin="normal"
 							variant="outlined"
 							value={this.state.password}
 							error={!this.state.isValidNewPassword}
 							onChange={validatePassword('password')}
+							InputProps={{
+								endAdornment: <React.Fragment>
+								  <InputAdornment position="end">
+									<IconButton
+										aria-label="toggle password visibility"
+										onMouseDown={() => this.handleShowPassword('enter')}
+										onMouseUp={this.handleHidePassword}
+									>
+									{this.state.isPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+									</IconButton>
+								  </InputAdornment>
+								  </React.Fragment>
+							}}
 						/>
 						<TextField
-							error={confirmed}
 							style={{ width: '100%', marginBottom: '20px' }}
 							id="outlined-email-input"
 							label="Confirm Password"
 							name="code"
-							type="password"
+							type={this.state.isReEnterPwdVisible ? "text" : "password"}
 							margin="normal"
 							variant="outlined"
 							value={this.state.confirmedPassword}
-							error={!this.state.isValidConfirmPassword}
+							error={!this.state.isValidConfirmPassword && confirmed}
 							onChange={validatePassword('confirmedPassword')}
+							InputProps={{
+								endAdornment: <React.Fragment>
+								  <InputAdornment position="end">
+									<IconButton
+										aria-label="toggle password visibility"
+										onMouseDown={() => this.handleShowPassword('reenter')}
+										onMouseUp={this.handleHidePassword}
+									>
+									{this.state.isReEnterPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+									</IconButton>
+								  </InputAdornment>
+								  </React.Fragment>
+							}}
 						/>
 						<PasswordRequirementsComponent
 							showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
