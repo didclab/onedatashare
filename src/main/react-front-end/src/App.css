@@ -114,7 +114,10 @@ div.homePage {
 
 .homeImg{
   max-width: 100%;
+  max-height: 30vh;
   object-fit: contain;
+  margin: auto;
+
 }
 
 .leftHomeTxt {
@@ -175,17 +178,26 @@ div.homePage {
 /****************************************/
 
 .TripleIconSlice {
-  padding: 2vh 15vw;
+  padding: 0vh 15vw;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  background-color: #172753;
 }
 
 .tripleContent h2 {
-  font-size: 3em;
+  font-size: 2em;
+  color: #ffffff;
+  text-align: center;
+}
+
+.tripleContent {
+  padding-top: 2vh;
+  padding-bottom: 2vh;
 }
 
 .iconTrio {
+  max-height: 12vh;
   max-width: 80%;
   object-fit: contain;
   margin-left: auto;

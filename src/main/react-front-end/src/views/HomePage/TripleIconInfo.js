@@ -1,18 +1,18 @@
 const icon1 = {
     title: "Fast",
-    img: "/images/fast.png",
+    img: "/images/fastwhite.png",
     imgAlt: "A rollerblade"
 };
 
 const icon2 = {
     title: "Easy",
-    img: "/images/easy.png",
+    img: "/images/easywhite.png",
     imgAlt: "A thumbs up"
 };
 
 const icon3 = {
     title: "Secure",
-    img: "/images/secure.png",
+    img: "/images/securewhite.png",
     imgAlt: "A shield with a check mark"
 };
 
