@@ -250,4 +250,4 @@ const reorderMultiDrag = ({
     selectedTasks:  orderedSelectedTasks,
     fromTo: fromto
   };
-};
+}

@@ -31,10 +31,11 @@ import {
 	download,
 	getDownload,
 	getSharableLink,
+	openBoxOAuth,
 	openDropboxOAuth,
-	openGoogleDriveOAuth,
-	openBoxOAuth
-} from "../../APICalls/APICalls";
+	openGoogleDriveOAuth
+} from "../../APICalls/EndpointAPICalls";
+
 
 import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
@@ -196,8 +197,14 @@ export default class EndpointBrowseComponent extends Component {
 
 	breadcrumbClicked(index){
 		this.props.setLoading(true);
-		this.state.directoryPath.length = index;
-		this.state.ids.length = index+1;
+		let tempDirectoryPath = this.state.directoryPath;
+		let tempIds = this.state.ids;
+		tempDirectoryPath.length = index;
+		tempIds.length = index + 1;
+		this.setState({
+			directoryPath : tempDirectoryPath,
+			ids : tempIds
+		});
 		this.getFilesFromBackendWithPath(this.props.endpoint, this.state.directoryPath, this.state.ids);
 	}
 
@@ -389,6 +396,7 @@ export default class EndpointBrowseComponent extends Component {
 				}, (error) => {
 					this._handleError(error);
 				});
+				return null;
 			});
 
 			unselectAll();

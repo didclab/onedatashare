@@ -32,9 +32,6 @@ public class GoogleDriveConfig {
     @Value("${drive.redirect.uri}")
     private String redirectUri;
 
-    @Value("${drive.application.name}")
-    private String applicationName;
-
     private String clientId, clientSecret, projectId;
     private GoogleClientSecrets driveClientSecrets;
     private GoogleAuthorizationCodeFlow flow;

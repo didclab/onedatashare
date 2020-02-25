@@ -46,20 +46,22 @@ public class Job {
   @Id
   private UUID uuid;
 
+  /** Times of various important events. */
+  private Times times = new Times();
+
   public synchronized UUID uuid() {
     if (uuid == null)
       uuid = UUID.randomUUID();
     return uuid;
   }
 
-  /** Times of various important events. */
-  private Times times = new Times();
 
   public Job(UserActionResource src, UserActionResource dest) {
     uuid();
     setSrc(src);
     setDest(dest);
     setBytes(new TransferInfo());
+    status = JobStatus.scheduled;
   }
 
   public Job updateJobWithTransferInfo(TransferInfo info) {

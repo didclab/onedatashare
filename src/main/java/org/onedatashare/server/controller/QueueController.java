@@ -1,15 +1,15 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.core.JobDetails;
+import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -25,38 +25,36 @@ public class QueueController {
 
     /**
      * Handler for queue GET requests
-     * @param headers - Incoming request headers
      * @param jobDetails - Request data needed for fetching Jobs
      * @return Mono\<JobDetails\>
      */
-    @PostMapping
-    public Mono<JobDetails> queue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        if(jobDetails.status.equals("all")) {
-            return jobService.getJobsForAdmin(cookie, jobDetails).subscribeOn(Schedulers.elastic());
-        }
-        else
-            return jobService.getJobsForUser(cookie, jobDetails)
-                    .subscribeOn(Schedulers.elastic());
+    @PostMapping("/user-jobs")
+    public Mono<JobDetails> getJobsForUser(@RequestBody JobRequest jobDetails){
+        return jobService.getJobsForUser(jobDetails);
     }
 
-// //To be enabled after changing frontend
-//    @PostMapping("/userJobs")
-//    public Mono<List<Job>> userQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-//        String cookie = headers.getFirst(ODSConstants.COOKIE);
-//        return jobService.getJobsForUserRefactored(cookie, jobDetails);
-//    }
-//
-//    @PostMapping("/adminJobs")
-//    public Mono<List<Job>> adminQueue(@RequestHeader HttpHeaders headers, @RequestBody JobRequest jobDetails){
-//        String cookie = headers.getFirst(ODSConstants.COOKIE);
-//        return jobService.getJobForAdminRefactored(cookie, jobDetails);
-//    }
-
-    @PostMapping("/update")
-    public Mono<List<Job>> update(@RequestHeader HttpHeaders headers, @RequestBody List<UUID> jobIds) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return jobService.getUpdates(cookie, jobIds)
-                .subscribeOn(Schedulers.elastic());
+    /**
+     * Handler for queue GET requests
+     * @param jobDetails - Request data needed for fetching Jobs
+     * @return Mono\<JobDetails\>
+     */
+    @PostMapping("/admin-jobs")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
+        return jobService.getJobForAdmin(jobDetails);
     }
+
+
+    //TODO: change the function to use query instead of using filter (might make it faster)
+    @PostMapping("/update-user-jobs")
+    public Mono<List<Job>> updateJobsForUser(@RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForUser(jobIds);
+    }
+
+    @PostMapping("/update-admin-jobs")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {
+        return jobService.getUpdatesForAdmin(jobIds);
+    }
+
 }

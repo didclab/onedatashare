@@ -2,9 +2,7 @@ import React, {Component} from 'react';
 import Typography from '@material-ui/core/Typography';
 import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
-import Checkbox from '@material-ui/core/Checkbox';
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { Link } from 'react-router-dom';
 
 import PropTypes from 'prop-types';
@@ -96,7 +94,7 @@ export default class NewLoginComponent extends Component {
 
 	render(){
 		const { lostValidationCodePressed, forgotPasswordPressed } = this.props; 
-		const { emailChecked, email, password, error, errorMessage, remember, isPasswordVisible } = this.state;
+		const { emailChecked, email, password, error, errorMessage, isPasswordVisible } = this.state;
 		const handleChange = name => event => {
 		    this.setState({
 		      error: false,

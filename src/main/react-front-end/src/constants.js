@@ -3,6 +3,17 @@ export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-betwe
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 // urls
+export const ENDPOINT_OP_URL = "/api"
+export const LIST_OP_URL = "/ls"
+export const DEL_OP_URL = "/rm"
+export const MKDIR_OP_URL = "/mkdir"
+export const DOWNLOAD_OP_URL = "/download"
+export const UPLOAD_OP_URL = "/upload"
+export const SHARE_OP_URL = "/share"
+export const SFTP_DOWNLOAD_URL = "download/file"
+export const OAUTH_URL = "download/file"
+
+
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
@@ -14,12 +25,34 @@ export const lostValidationCodeUrl = "/account/lostValidationCode";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
+export const notificationPageUrl = "/sendNotifications";
+export const newNotifications = "/newNotifications";
 export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
-export const policyUrl = "/policy"
+export const policyUrl = "/policy";
+
+export const AUTH_ENDPOINT = "/authenticate";
+export const RESET_PASSWD_ENDPOINT = "/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
+
+export const REGISTRATION_ENDPOINT = "/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+
+export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
+
+
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users";
+export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
@@ -116,6 +149,12 @@ export const defaultPort = {
 
 export const maxCookieAge = 7;
 
+export const jobStatus = {
+	COMPLETED: 'completed',
+	TRANSFERRING: 'transferring',
+	SCHEDULED: 'scheduled',
+	FAILED: 'failed'
+}
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)

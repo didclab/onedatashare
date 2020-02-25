@@ -1,5 +1,6 @@
 package org.onedatashare.server.model.error;
 
+import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -29,6 +30,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handle(UnAuthorizedOperationException uException){
         ODSLoggerService.logError(uException.toString());
         return new ResponseEntity<>(uException.getMessage(), uException.status);
+    }
+
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handle(NotFoundException nfException){
+        ODSLoggerService.logError(nfException.toString());
+        return new ResponseEntity<>(nfException.getMessage(), nfException.status);
     }
 
 }

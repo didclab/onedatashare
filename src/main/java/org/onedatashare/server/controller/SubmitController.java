@@ -1,7 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.requestdata.TransferRequestData;
+import org.onedatashare.server.model.request.TransferRequest;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.ResourceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +21,13 @@ public class SubmitController {
     /**
      * Handler for POST requests of transfers
      * @param headers - Incoming request headers
-     * @param transferRequestData - Request data with transfer information
+     * @param transferRequest - Request data with transfer information
      * @return Mono\<Job\>
      */
     @PostMapping
-    public Object submit(@RequestHeader HttpHeaders headers, @RequestBody TransferRequestData transferRequestData) {
+    public Object submit(@RequestHeader HttpHeaders headers, @RequestBody TransferRequest transferRequest) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
-        UserAction userAction = UserAction.convertToUserAction(transferRequestData);
+        UserAction userAction = UserAction.convertToUserAction(transferRequest);
         return resourceService.submit(cookie, userAction);
     }
 }
