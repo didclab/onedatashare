@@ -3,6 +3,7 @@ import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser 
 import { eventEmitter } from '../../App'
 import moment from 'moment'
 import { humanReadableSpeed } from '../../utils'
+
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
@@ -14,6 +15,7 @@ import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+
 import Zoom from '@material-ui/core/Zoom';
 import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Refresh from '@material-ui/icons/Refresh';
@@ -25,11 +27,11 @@ import TablePagination from '@material-ui/core/TablePagination';
 import TableFooter from '@material-ui/core/TableFooter';
 import TablePaginationActions from '../TablePaginationActions';
 import CircularProgress from '@material-ui/core/CircularProgress'
+
 import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
-import { withStyles } from '@material-ui/core';
-import {RowElement} from './RowElement.js';
 
+import { withStyles } from '@material-ui/core';
 const styles = theme => ({
 	root: {
 		width: 'fit-content'
@@ -105,7 +107,6 @@ class QueueComponent extends Component {
 			this.queueFunc()
 		}
 	}
-
 	update() {
 		const { responsesToDisplay } = this.state
 		let jobIds = []
@@ -116,20 +117,20 @@ class QueueComponent extends Component {
 		})
 		if (jobIds.length > 0) {
 			getJobUpdatesForUser(jobIds, resp => {
-				let jobs = resp
-				//TODO: use hash keys and values instead of finding on each update
-				let existingData = [...responsesToDisplay]
-				jobs.forEach(job => {
-					let existingJob = existingData.find(item => item.uuid === job.uuid)
-					existingJob.status = job.status
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
-				})
-				this.setState({responsesToDisplay: existingData})
-			}, error => {
-				console.log('Failed to get job updates')
-			});
+					let jobs = resp
+					//TODO: use hash keys and values instead of finding on each update
+					let existingData = [...responsesToDisplay]
+					jobs.forEach(job => {
+						let existingJob = existingData.find(item => item.uuid === job.uuid)
+						existingJob.status = job.status
+						existingJob.bytes.total = job.bytes.total
+						existingJob.bytes.done = job.bytes.done
+						existingJob.bytes.avg = job.bytes.avg
+					})
+					this.setState({responsesToDisplay: existingData})
+				}, error => {
+					console.log('Failed to get job updates')
+				});
 		}
 	}
 	paginateResults(results, page, limit) {
@@ -164,7 +165,7 @@ class QueueComponent extends Component {
 			this.queueFuncFail
 		)
 	}
-
+	
 	getStatus(status, total, done) {
 		const style = { marginTop: '5%', fontWeight: 'bold' };
 		if (status === 'complete') {
@@ -190,7 +191,6 @@ class QueueComponent extends Component {
 			this.setState({selectedRowId: identifier})
 		}
 	}
-
 	cancelButtonOnClick(jobID) {
 		cancelJob(jobID, () => {
 			//success
@@ -200,7 +200,6 @@ class QueueComponent extends Component {
 			console.log('Error in cancel request to API layer');
 		});
 	}
-
 	restartButtonOnClick(jobID) {
 		restartJob(jobID, () => {
 			//success
@@ -212,7 +211,6 @@ class QueueComponent extends Component {
 			eventEmitter.emit("errorOccured", msg)
 		});
 	}
-
 	deleteButtonOnClick(jobID) {
 		deleteJob(jobID, () => {
 			//success
@@ -222,12 +220,10 @@ class QueueComponent extends Component {
 			console.log('Error in delete job request to API layer')
 		})
 	}
-
 	toggleTabs() {
 		const { selectedTab } = this.state
 		this.setState({selectedTab: !selectedTab})
 	}
-
 	handleChangePage(event, page) {
 		const { response, rowsPerPage } = this.state
 		let nextRecords = this.paginateResults(response, page, rowsPerPage)
@@ -238,11 +234,9 @@ class QueueComponent extends Component {
 			loading: true
 		});
 	}
-
-	handleChangeRowsPerPage(event) {
+	handleChangeRowsPerPage(event) {		
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value), loading: true })
 	}
-
 	handleRequestSort(property) {
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
@@ -251,8 +245,7 @@ class QueueComponent extends Component {
 			newOrder = 'asc'
 		}
 		this.setState({order: newOrder, orderBy: property, loading: true})
-	}
-
+  }
 	populateRows(rows) {
 		const { selectedRowId } = this.state
 		return rows.map(row => {
@@ -268,8 +261,6 @@ class QueueComponent extends Component {
 			/>
 		})
 	}
-
-	// START OF VISUALS
 	render() {
 		const {
 			totalCount,
@@ -289,7 +280,6 @@ class QueueComponent extends Component {
 			// userName: "owner",
 			startTime: 'times.started'
 		}
-
 		return <Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
 			<Table style={{display: "block"}}>
 				<TableHead style={{backgroundColor: '#d9edf7'}}>
@@ -365,21 +355,218 @@ class QueueComponent extends Component {
 							rowsPerPage={rowsPerPage}
 							page={page}
 							SelectProps={{
-								native: true,
+							native: true,
 							}}
 							onChangePage={this.handleChangePage}
 							onChangeRowsPerPage={this.handleChangeRowsPerPage}
 							ActionsComponent={TablePaginationActions}
 							classes={{
-								caption: classes.tablePaginationCaption,
-								select: classes.tablePaginationSelect,
-								toolbar: classes.toolbar
+							caption: classes.tablePaginationCaption,
+							select: classes.tablePaginationSelect,
+							toolbar: classes.toolbar
 							}}
 						/>
 					</TableRow>
 				</TableFooter>
 			</Table>
 		</Paper>
+	}
+}
+
+class RowElement extends React.Component {
+	constructor(props) {
+		super(props)
+		this.state = { selectedTab: 0 }
+		this.toggleTabs = this.toggleTabs.bind(this)
+	}
+	toggleTabs() {
+		const { selectedTab } = this.state
+		this.setState({selectedTab: !selectedTab})
+	}
+	infoRow() {
+		const { resp } = this.props
+		const { selectedTab } = this.state
+		return <TableRow>
+			<TableCell colSpan={7} style={{...tbcellStyle, fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
+				<div id="infoBox" style={{ marginBottom : '0.5%' }}>
+					<AppBar position="static" style={{ boxShadow: 'unset' }}>
+						<Tabs value={selectedTab ? 1: 0} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
+							<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
+							<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="JSON" />
+						</Tabs>
+					</AppBar>
+					<div style={{ backgroundColor: 'white', borderRadius: '4px', textAlign: 'left', marginTop: '0.3%'}}>
+						<TabContent resp={resp} selectedTab={selectedTab}/>
+					</div>
+				</div>
+			</TableCell>
+		</TableRow>
+	}
+	getStatus(status, total, done) {
+		//TODO: move to CSS file
+		let now, bsStyle, label
+		if (status === 'complete') {
+			now = 100
+			bsStyle = ''
+			label = 'Complete'
+		} else if (status === 'failed') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
+		} else {
+			now = ((done / total) * 100).toFixed()
+			bsStyle = 'warning'
+			label = `Transferring ${now}%`
+		}
+		
+		if(bsStyle === '') {
+			return <ProgressBar label={label} now={now} />
+		} else {
+			return <ProgressBar bsStyle={bsStyle} label={label} now={now} />
+		};
+	}
+	renderActions(owner, jobID, status, deleted) {
+		const { infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick } = this.props
+		// Convert all these to CSS files
+		return <div>
+			<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
+				<Button onClick={infoButtonOnClick.bind(null, owner, jobID)} variant="contained" size="small" color="primary"
+					style={{
+					backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
+					fontWeight: 'bold', width: '20%', textTransform: 'none',
+					minWidth: '0px', minHeigth: '0px'
+					}}>
+					<Info />
+				</Button>
+			</Tooltip>
+			{(status === 'transferring' || status === 'scheduled' || status === 'transferring') &&
+			<Tooltip TransitionComponent={Zoom} title="Cancel">
+				<Button onClick={cancelButtonOnClick.bind(null, jobID)} variant="contained" size="small" color="primary"
+					style={{
+					backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+					textTransform: 'none', minWidth: '0px', minHeigth: '0px'
+					}}>
+					<Cancel />
+				</Button>
+			</Tooltip>
+			}
+			{status !== 'transferring' && status !== 'scheduled' &&
+			<Tooltip TransitionComponent={Zoom} title="Restart">
+				<Button onClick={restartButtonOnClick.bind(null, jobID)} variant="contained" size="small" color="primary"
+					style={{
+					backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+					textTransform: 'none', minWidth: '0px', minHeigth: '0px'
+					}}>
+					<Refresh />
+				</Button>
+			</Tooltip>
+			}
+			{status !== 'transferring' && status !== 'scheduled' && !deleted &&
+			<Tooltip TransitionComponent={Zoom} title="Delete">
+				<Button onClick={deleteButtonOnClick.bind(null, jobID)} variant="contained" size="small" color="primary"
+					style={{
+					backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+					textTransform: 'none', minWidth: '0px', minHeigth: '0px'
+					}}>
+					<DeleteOutline />
+				</Button>
+			</Tooltip>
+			}
+		</div>
+	}
+	render() {
+		const { resp, infoVisible } = this.props
+		return <React.Fragment>
+			<TableRow style={{alignSelf: "stretch"}}>
+				{/* <TableCell scope="row" style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
+					{resp.owner}
+				</TableCell> */}
+				<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.2rem'}} numeric="true">
+					{resp.job_id}
+				</TableCell>
+				<TableCell style={{...tbcellStyle, width: '30%',  fontSize: '1.2rem'}}>
+					{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
+				</TableCell>
+				<TableCell style={{...tbcellStyle, width: '5%', maxWidth: '20vw', overflow:"hidden", fontSize: '1.2rem', margin: "0px", maxHeight: "10px"}}>
+					{humanReadableSpeed(resp.bytes.avg)}
+				</TableCell>
+				<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '1.2rem'}}>
+					{decodeURIComponent(resp.src.uri)} <b>-></b> {decodeURIComponent(resp.dest.uri)}
+				</TableCell>
+				<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
+					{this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
+				</TableCell>
+			</TableRow>
+			{ infoVisible && this.infoRow() }
+		</React.Fragment>
+	}
+}
+
+class TabContent extends React.Component {
+	render() {
+		const { resp, selectedTab } = this.props
+		if (selectedTab) {
+			return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
+				<Row>
+					<pre>{JSON.stringify(resp, null, "\t")}</pre>
+				</Row>
+			</Grid>
+		} else {
+			return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
+				<Row>
+					<Col md={6}><b>User</b></Col>
+					<Col md={6}>{resp.owner}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Job ID</b></Col>
+					<Col md={6}>{resp.job_id}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Source</b></Col>
+					<Col md={6}>{decodeURIComponent(resp.src.uri)}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Destination</b></Col>
+					<Col md={6}>{decodeURIComponent(resp.dest.uri)}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Instant Speed</b></Col>
+					<Col md={6}>{humanReadableSpeed(resp.bytes.inst)}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Average Speed</b></Col>
+					<Col md={6}>{humanReadableSpeed(resp.bytes.avg)}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Scheduled Time</b></Col>
+					<Col md={6}>{moment(resp.times.scheduled).format("DD-MM-YYYY HH:mm:ss")}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Started Time</b></Col>
+					<Col md={6}>{moment(resp.times.started).format("DD-MM-YYYY HH:mm:ss")}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Completed Time</b></Col>
+					<Col md={6}>{moment(resp.times.completed).format("DD-MM-YYYY HH:mm:ss")}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Time Duration</b></Col>
+					<Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Attempts</b></Col>
+					<Col md={6}>{resp.attempts}</Col>
+				</Row>
+				<Row>
+					<Col md={6}><b>Status</b></Col>
+					<Col md={6}>{resp.status}</Col>
+				</Row>
+			</Grid>
+		}
 	}
 }
 
