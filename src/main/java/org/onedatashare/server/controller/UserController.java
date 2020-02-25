@@ -2,7 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.ForbiddenAction;
-import org.onedatashare.server.model.error.InvalidField;
+import org.onedatashare.server.model.error.InvalidFieldException;
 import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.OldPwdMatchingException;
 import org.onedatashare.server.model.request.UserRequestData;
@@ -65,8 +65,8 @@ public class UserController {
         return userService.getHistory(headers.getFirst(ODSConstants.COOKIE));
     }
 
-    @ExceptionHandler(InvalidField.class)
-    public ResponseEntity<InvalidField> handle(InvalidField invf){
+    @ExceptionHandler(InvalidFieldException.class)
+    public ResponseEntity<InvalidFieldException> handle(InvalidFieldException invf){
         ODSLoggerService.logError(invf.getMessage());
         return new ResponseEntity<>(invf, invf.status);
     }
