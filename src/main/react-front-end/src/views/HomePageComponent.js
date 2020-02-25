@@ -3,7 +3,7 @@ import {updateGAPageView} from "../analytics/ga";
 import { isSafari } from 'react-device-detect';
 import { nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 import './HomePageComponent.css';
-import {HomeInfo} from "./HomePage/HomePageInfo2";
+import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import RecognitionSlice from "./HomePage/RecognitionSlice";
 import TitleSlice from "./HomePage/TitleSlice";
@@ -45,7 +45,7 @@ export default class HomePageComponent extends Component {
 		let retVal = [];
 		for (let i=0; i<TripleIconInfo.length; i+=1) {
 			let data = TripleIconInfo[i];
-			retVal.push( <TripleIconSlice img={data.img}
+			retVal.push( <TripleIconSlice img={require('./HomePage' + data.img)}
 										  title={data.title}
 										  imgAltTxt={data.imgAlt}/> );
 		}

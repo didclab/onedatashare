@@ -1,21 +1,19 @@
-import {fastImage, easyImage, eteImage, precImage, intopImage} from "../../constants";
-
 const icon1 = {
     title: "Fast",
-    img: fastImage,
-    imgAlt: ""
+    img: "/images/fast.png",
+    imgAlt: "A rollerblade"
 };
 
 const icon2 = {
     title: "Easy",
-    img: easyImage,
-    imgAlt: ""
+    img: "/images/easy.png",
+    imgAlt: "A thumbs up"
 };
 
 const icon3 = {
     title: "Secure",
-    img: intopImage,
-    imgAlt: ""
+    img: "/images/secure.png",
+    imgAlt: "A shield with a check mark"
 };
 
 export const TripleIconInfo = [icon1, icon2, icon3];

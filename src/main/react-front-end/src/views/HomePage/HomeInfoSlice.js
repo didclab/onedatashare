@@ -1,7 +1,6 @@
 import React, {Component} from "react";
 import Hidden from "@material-ui/core/Hidden";
 import Grid from "@material-ui/core/Grid";
-import Transfer from "./mockups/transfer.png";
 
 export default class HomeInfoSlice extends Component {
 
