@@ -3,18 +3,36 @@ import {Col, Grid, Row} from "react-bootstrap";
 import {humanReadableSpeed} from "../../utils";
 import moment from "moment";
 
-export class TabContent extends React.Component {
+const styles = theme => ({
+    root: {
+        width: 'fit-content'
+    },
+    toolbar: {
+        paddingLeft: '300px'
+    },
+    tablePaginationCaption: {
+        fontSize: '15px'
+    },
+    tablePaginationSelect: {
+        fontSize: '15px',
+        lineHeight: '20px'
+    }
+});
 
+const rowsPerPageOptions = [10, 20, 50, 100];
+const tbcellStyle = {textAlign: 'center'};
+
+export class TabContent extends React.Component {
     render() {
-        const { resp, selectedTab } = this.props
+        const {resp, selectedTab} = this.props
         if (selectedTab) {
-            return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
+            return <Grid style={{paddingTop: '0.5%', paddingBottom: '0.5%', width: 'fit-content'}}>
                 <Row>
                     <pre>{JSON.stringify(resp, null, "\t")}</pre>
                 </Row>
             </Grid>
         } else {
-            return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
+            return <Grid style={{paddingTop: '0.5%', paddingBottom: '0.5%', width: 'fit-content'}}>
                 <Row>
                     <Col md={6}><b>User</b></Col>
                     <Col md={6}>{resp.owner}</Col>
@@ -53,7 +71,7 @@ export class TabContent extends React.Component {
                 </Row>
                 <Row>
                     <Col md={6}><b>Time Duration</b></Col>
-                    <Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>
+                    <Col md={6}>{((resp.times.completed - resp.times.started) / 1000).toFixed(2)} sec</Col>
                 </Row>
                 <Row>
                     <Col md={6}><b>Attempts</b></Col>
