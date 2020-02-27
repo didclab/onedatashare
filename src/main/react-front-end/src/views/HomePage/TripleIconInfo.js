@@ -1,7 +1,7 @@
 const icon1 = {
     title: "Fast",
     img: "/images/fastwhite.png",
-    imgAlt: "A rollerblade"
+    imgAlt: "A spedometer"
 };
 
 const icon2 = {
@@ -12,8 +12,8 @@ const icon2 = {
 
 const icon3 = {
     title: "Secure",
-    img: "/images/securewhite.png",
-    imgAlt: "A shield with a check mark"
+    img: "/images/lockwhite.png",
+    imgAlt: "A closed lock"
 };
 
 export const TripleIconInfo = [icon1, icon2, icon3];

@@ -35,7 +35,7 @@ const homeInfo5 =
     {
         title: "Free",
         text: "OneDataShare is a free service to the community. You don’t need to pay to transfer your data!",
-        img: "/images/transfers.png",
+        img: "/images/free.png",
         imgAlt: ""
     };
 
