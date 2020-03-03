@@ -18,6 +18,7 @@ import TableFooter from "@material-ui/core/TableFooter";
 import TablePagination from "@material-ui/core/TablePagination";
 import TablePaginationActions from "../TablePaginationActions";
 import QueueTableHeaderView from "./QueueTableHeaderView";
+import QueueTableBodyView from "./QueueTableBodyView";
 
 const tbcellStyle = {textAlign: 'center'};
 
@@ -56,15 +57,10 @@ const QueueView = ({
                     classes={classes}
                     handleRequestSort={handleRequestSort}
                 />
-                <TableBody style={{height:'100%', display: "block"}}>
-                    { loading ?
-                        <div style={{textAlign: 'center'}}>
-                            <CircularProgress />
-                        </div>
-                        :
-                        populateRows
-                    }
-                </TableBody>
+                <QueueTableBodyView
+                    loading={loading}
+                    populateRows={populateRows}
+                />
                 <TableFooter style={{textAlign:'center'}}>
                     <TableRow>
                         <TablePagination
