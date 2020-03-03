@@ -3,15 +3,10 @@ import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser 
 import { eventEmitter } from '../../App'
 import moment from 'moment'
 import { humanReadableSpeed } from '../../utils'
-
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
 import Button from '@material-ui/core/Button';
 import TableRow from '@material-ui/core/TableRow';
 import { ProgressBar, Grid, Row, Col } from 'react-bootstrap';
-import Paper from '@material-ui/core/Paper';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -21,17 +16,13 @@ import DeleteOutline from '@material-ui/icons/DeleteOutline';
 import Refresh from '@material-ui/icons/Refresh';
 import Info from '@material-ui/icons/Info';
 import Cancel from '@material-ui/icons/Cancel';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
 import Tooltip from '@material-ui/core/Tooltip';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableFooter from '@material-ui/core/TableFooter';
-import TablePaginationActions from '../TablePaginationActions';
-import CircularProgress from '@material-ui/core/CircularProgress'
 
 import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
 
 import { withStyles } from '@material-ui/core';
+import QueueView from "./QueueView";
 
 const styles = theme => ({
 	root: {
@@ -52,6 +43,7 @@ const rowsPerPageOptions = [10, 20, 50, 100];
 const tbcellStyle = {textAlign: 'center'};
 
 class QueueComponent extends Component {
+
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -78,10 +70,9 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-		this.interval = setInterval(this.update, 2000) //making a queue request every 2 seconds
+		this.interval = setInterval(this.update, 2000)    // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
-
 		updateGAPageView()
 	}
 
@@ -247,34 +238,69 @@ class QueueComponent extends Component {
 		});
 	}
 
-	handleChangeRowsPerPage(event) {
+	handleChangeRowsPerPage = (event) => {
 		this.setState({page: 0, rowsPerPage: parseInt(event.target.value), loading: true})
 	}
 
-	handleRequestSort(property) {
+	handleRequestSort = (property) => {
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
-		const {order, orderBy} = this.state
+		const {order, orderBy} = this.state;
 		if (orderBy === property && order === defaultOrder) {
 			newOrder = 'asc'
 		}
 		this.setState({order: newOrder, orderBy: property, loading: true})
 	}
 
-	populateRows(rows) {
-		const {selectedRowId} = this.state
-		return rows.map(row => {
+	populateRows = () => {
+		const {selectedRowId} = this.state;
+		const { Provider, Consumer } = React.createContext();
+		return this.state.responsesToDisplay.map(row => {
 			let identifier = `${row.owner}-${row.job_id}`
-			return <RowElement
-				key={identifier}
-				infoVisible={selectedRowId === identifier}
-				resp={row}
-				infoButtonOnClick={this.infoButtonOnClick}
-				cancelButtonOnClick={this.cancelButtonOnClick}
-				restartButtonOnClick={this.restartButtonOnClick}
-				deleteButtonOnClick={this.deleteButtonOnClick}
+			return (
+				<Provider value={this.state}>
+					<RowElement
+						key={identifier}
+						infoVisible={selectedRowId === identifier}
+						resp={row}
+						infoButtonOnClick={this.infoButtonOnClick}
+						cancelButtonOnClick={this.cancelButtonOnClick}
+						restartButtonOnClick={this.restartButtonOnClick}
+						deleteButtonOnClick={this.deleteButtonOnClick}
+					/>
+				</Provider>
+			);
+		});
+	}
+
+	render() {
+		const rowsPerPageOptions = [1, 10, 20, 50, 100];
+		const sortableColumns = {
+			jobId: 'job_id',
+			status: 'status',
+			avgSpeed : "bytes.avg",
+			source : "src.uri",
+			userName: "owner",
+			startTime: 'times.started'
+		};
+		return(
+			<QueueView
+				loading={this.state.loading}
+				orderBy={this.state.orderBy}
+				order={this.state.order}
+				page={this.state.page}
+				responsesToDisplay={this.state.responsesToDisplay}
+				rowsPerPage={this.state.rowsPerPage}
+				rowsPerPageOptions={rowsPerPageOptions}
+				sortableColumns={sortableColumns}
+				totalCount={this.state.totalCount}
+				classes={this.props}
+				handleChangePage={this.handleChangePage}
+				handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+				handleRequestSort={this.handleRequestSort}
+				populateRows={this.populateRows()}
 			/>
-		})
+		);
 	}
 }
 
