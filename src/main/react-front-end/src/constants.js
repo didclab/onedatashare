@@ -91,11 +91,11 @@ export const validPasswordLength = 6;
 export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
 
 //images
-export const fastImage = ODS_S3_BUCKET + 'fast.png';
-export const easyImage = ODS_S3_BUCKET + 'easy.png';
-export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
-export const precImage = ODS_S3_BUCKET + 'precise.png';
-export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
+// export const fastImage = ODS_S3_BUCKET + 'fast.png';
+// export const easyImage = ODS_S3_BUCKET + 'easy.png';
+// export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
+// export const precImage = ODS_S3_BUCKET + 'precise.png';
+// export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
 export const nsfImage = ODS_S3_BUCKET + 'NSF_Logo.png';
 export const ubImage = ODS_S3_BUCKET + 'ub.png';
 export const gs1 = ODS_S3_BUCKET + "gs1.png";

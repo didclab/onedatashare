@@ -45,6 +45,7 @@ public class VfsService extends ResourceService {
                 .map(credential -> {
                     // Encoding the resource URI to avoid errors due to spaces in file/directory names
                     String encodedURI = userAction.getUri();
+
                     try {
                         encodedURI = URLEncoder.encode(userAction.getUri(), "UTF-8");
                     }

@@ -3,10 +3,6 @@ import Grid from "@material-ui/core/Grid";
 
 export default class TripleIconSlice extends Component {
 
-    constructor(props){
-        super(props);
-    }
-
     render(){
         return(
             <Grid className="tripleContent" container xs={12} md={4} direction="column">
