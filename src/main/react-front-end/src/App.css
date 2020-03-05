@@ -59,10 +59,10 @@
 /***************************/
 
 .content {
+  padding-top: 10vh;
 }
 
-.underNav {
-  /*padding: 7vh 15vw 3vh;*/
+.navbar {
 }
 
 button.defaultButton {
@@ -81,6 +81,7 @@ button.defaultButton {
 div.homePage {
   /*background: #579;*/
   overflow: hidden;
+  margin-top: -10vh;
 }
 
 .evenSlice {
