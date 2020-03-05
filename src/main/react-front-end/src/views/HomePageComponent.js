@@ -57,7 +57,7 @@ export default class HomePageComponent extends Component {
 
 		return(
 			<div>
-				<div className='homePage underNav'>
+				<div className='homePage'>
 
 					<TitleSlice />
 
