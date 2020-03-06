@@ -40,7 +40,7 @@ public class LoginController {
         return Mono.fromSupplier(() -> {
                     String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
                             .httpOnly(true)
-                            .maxAge(0)
+                            .maxAge(1)
                             .build().toString();
                     HttpHeaders responseHeaders = new HttpHeaders();
                     responseHeaders.set(HttpHeaders.SET_COOKIE,

@@ -25,13 +25,6 @@ export function register(email, username, password) {
   }
 }
 
-export const UPDATE_HASH = 'UPDATE_HASH';
-export function updateHashAction(hash) {
-  return {
-    type: UPDATE_HASH,
-    hash: hash
-  }
-}
 
 export const COMPACT_VIEW_PREFERENCE = 'COMPACT_VIEW_PREFERENCE';
 export function compactViewPreference(compactViewEnabled) {

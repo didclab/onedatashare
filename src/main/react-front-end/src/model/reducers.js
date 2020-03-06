@@ -9,7 +9,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import { maxCookieAge } from '../constants';
@@ -61,13 +61,13 @@ export function onedatashareModel(state = initialState, action) {
     case LOGIN:
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
       console.debug(`logging in  ${email}. Access token is valid for ${expiresIn} seconds`);
-      cookies.set('email', email, { maxAge : expiresIn });
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
-      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
+      cookies.set('email', email, { maxAge : expiresIn, sameSite : "strict" });
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn, sameSite : "strict" });
+      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn, sameSite : "strict" });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { maxAge : expiresIn });
+        cookies.set('admin', admin, { maxAge : expiresIn, sameSite : "strict" });
       }
       
     	return Object.assign({}, state, {
@@ -116,34 +116,28 @@ export function onedatashareModel(state = initialState, action) {
 
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { maxAge : maxCookieAge }));
+        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { maxAge : maxCookieAge, sameSite : "strict" }));
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { maxAge : maxCookieAge });
+        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { maxAge : maxCookieAge, sameSite : "strict" });
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
 
-    case UPDATE_HASH:
-      cookies.remove('hash');
-      cookies.set('hash',  action.hash, { maxAge : maxCookieAge });
-      return Object.assign({}, state, {
-                hash: action.hash
-              });
-		case COMPACT_VIEW_PREFERENCE:
-			cookies.set('compactViewEnabled', action.compactViewEnabled, {maxAge : maxCookieAge});
+      case COMPACT_VIEW_PREFERENCE:
+			cookies.set('compactViewEnabled', action.compactViewEnabled, {maxAge : maxCookieAge, sameSite : "strict"});
 			return Object.assign({}, state, {
 								compactViewEnabled: action.compactViewEnabled
 							});
     case ACCOUNT_PREFERENCE_TOGGLED:
       cookies.set('saveOAuthTokens', action.saveOAuthTokens, {maxAge : maxCookieAge});
       // logout From the endpoints
-      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }), {maxAge : maxCookieAge});
-      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }), {maxAge : maxCookieAge});
+      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }), {maxAge : maxCookieAge, sameSite : "strict"});
+      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }), {maxAge : maxCookieAge, sameSite : "strict"});
       return Object.assign({}, state, {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },
