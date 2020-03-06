@@ -25,6 +25,7 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import  Terminal  from '../Terminal';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
 
@@ -577,9 +578,14 @@ export default class TransferComponent extends Component {
                 </Row>
                 <div> </div>
                 <ErrorMessagesConsole />
+                <div> </div>
+
+
               </Panel.Body>
             </Panel>}
+            <Terminal />
         </Col>
+
       </div>
     );
   }
