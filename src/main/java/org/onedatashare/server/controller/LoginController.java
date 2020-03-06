@@ -36,11 +36,11 @@ public class LoginController {
 
 
     @RequestMapping(value = LOGOUT_ENDPOINT, method = RequestMethod.POST)
-    public Mono<ResponseEntity> logout(@RequestBody LoginControllerRequest request) {
+    public Mono<ResponseEntity> logout() {
         return Mono.fromSupplier(() -> {
                     String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
                             .httpOnly(true)
-                            .maxAge(1)
+                            .maxAge(5)
                             .build().toString();
                     HttpHeaders responseHeaders = new HttpHeaders();
                     responseHeaders.set(HttpHeaders.SET_COOKIE,

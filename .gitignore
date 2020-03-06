@@ -101,3 +101,13 @@ src/main/resources/static/
 
 #Package-lock.json
 src/main/react-front-end/package-lock.json
+
+#Scripts
+*.sh
+*.py
+
+#Data/config
+*.json
+
+#.DS_Store for maxs
+.DS_Store
