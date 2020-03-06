@@ -62,8 +62,6 @@ export function onedatashareModel(state = initialState, action) {
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
       console.debug(`logging in  ${email}. Access token is valid for ${expiresIn} seconds`);
       cookies.set('email', email, { maxAge : expiresIn });
-      //TODO: set the cookie below to httpOnly
-      cookies.set('ATOKEN', token, { maxAge : expiresIn, sameSite : "strict" });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
       cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
 
@@ -83,10 +81,6 @@ export function onedatashareModel(state = initialState, action) {
 
     case LOGOUT:
       console.log("logging out");
-      // Removing HTTP cookie by overwriting it and then removing it
-      cookies.set('ATOKEN', '' );
-      cookies.remove('ATOKEN');
-
       cookies.remove('email');
       cookies.remove('admin');
       cookies.remove('endpoint1');

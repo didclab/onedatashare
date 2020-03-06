@@ -40,7 +40,6 @@ import {
 import { eventEmitter, store } from "../../App.js";
 
 import {
-	logoutAction,
 	accountPreferenceToggledAction,
 } from "../../model/actions";
 import { cookies } from "../../model/reducers";
@@ -141,7 +140,7 @@ export default class UserAccountComponent extends Component {
 		}
 		else {
 			changePassword(oldPass, newPass, confPass, (hash) => {
-				store.dispatch(logoutAction());
+				console.debug(`Password change successful`);
 			}, (error) => {
 				if (error && error.response && error.response.data && error.response.data.message) {
 					eventEmitter.emit("errorOccured", error.response.data.message);

@@ -7,7 +7,8 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	GET_ADMINS_ENDPOINT,
 	GET_USER_UPDATES_ENDPOINT,
 	GET_ADMIN_UPDATES_ENDPOINT,
-	UPDATE_PASSWD_ENDPOINT} from '../constants';
+	UPDATE_PASSWD_ENDPOINT,
+	LOGOUT_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -265,9 +266,18 @@ export async function login(email, password, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-
 			statusHandle(error, fail);
 		});
+}
+
+export async function logout(){
+	axios.post(LOGOUT_ENDPOINT, {})
+		.then((response) => {
+			console.debug(`Logout success`);
+			store.dispatch(logoutAction());
+		}).catch((error) => {
+			console.debug(`Logout failed ${error}`)
+		})
 }
 
 export async function isAdmin(email, hash, accept, fail) {

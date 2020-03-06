@@ -1,16 +1,13 @@
 package org.onedatashare.server.controller;
 
 import lombok.Data;
-import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
@@ -24,16 +21,32 @@ public class LoginController {
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
     public Mono<ResponseEntity> login(@RequestBody LoginControllerRequest request) {
         return userService.login(request.getEmail(), request.getPassword())
+                // Access token
                 .map(loginResponse -> {
+                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
+                            .httpOnly(true)
+                            .maxAge(loginResponse.getExpiresIn())
+                            .build().toString();
                     HttpHeaders responseHeaders = new HttpHeaders();
-                    StringBuilder cookieStringBuilder = new StringBuilder("ATOKEN=");
-                    cookieStringBuilder
-                            .append(loginResponse.getToken());
                     responseHeaders.set(HttpHeaders.SET_COOKIE,
-                            cookieStringBuilder.toString());
+                            cookieString);
                     return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
                 });
-//        return userService.login(request.getEmail(), request.getPassword());
+    }
+
+
+    @RequestMapping(value = LOGOUT_ENDPOINT, method = RequestMethod.POST)
+    public Mono<ResponseEntity> logout(@RequestBody LoginControllerRequest request) {
+        return Mono.fromSupplier(() -> {
+                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
+                            .httpOnly(true)
+                            .maxAge(0)
+                            .build().toString();
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    responseHeaders.set(HttpHeaders.SET_COOKIE,
+                            cookieString);
+                    return ResponseEntity.ok().headers(responseHeaders).body(null);
+                });
     }
 
     @RequestMapping(value = IS_REGISTERED_EMAIL_ENDPOINT, method = RequestMethod.POST)

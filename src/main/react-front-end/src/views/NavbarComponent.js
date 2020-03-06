@@ -5,7 +5,7 @@ import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
 import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl } from '../constants';
 import { store } from '../App';
-import { logoutAction } from '../model/actions';
+import { logout } from '../APICalls/APICalls';
 
 class NavbarComponent extends Component {
 
@@ -63,7 +63,7 @@ class NavbarComponent extends Component {
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
 		        {this.state.login &&
-			        <NavItem id="NavLogout" onClick={()=>{store.dispatch(logoutAction())}}>
+			        <NavItem id="NavLogout" onClick={()=>{logout()}}>
 			            <span>Log out</span>
 					</NavItem>}
 					<NavItem href="/support">

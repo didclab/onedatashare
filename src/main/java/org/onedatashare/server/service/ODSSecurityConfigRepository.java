@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import static org.onedatashare.server.model.core.ODSConstants.TOKEN_COOKIE_NAME;
+
 @Service
 public class ODSSecurityConfigRepository implements ServerSecurityContextRepository {
 
@@ -34,7 +36,7 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         //Check for token only when the request needs to be authenticated
         if(endpoint.startsWith("/api/")) {
             try {
-                token = request.getCookies().getFirst("ATOKEN").getValue();
+                token = request.getCookies().getFirst(TOKEN_COOKIE_NAME).getValue();
             } catch (NullPointerException npe) {
                 ODSLoggerService.logError("No token Found for request at " + endpoint);
             }
