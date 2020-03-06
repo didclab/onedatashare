@@ -107,8 +107,10 @@ class HistoryComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 	refreshSuccess(resp) {
-		const { page, rowsPerPage } = this.state
+		// const { page, rowsPerPage } = this.state
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		//commented to fix second page render issue as it slices all jobs and returns null object
+
 		this.setState({
 			response: resp.jobs,
 			responsesToDisplay: resp.jobs,
@@ -159,7 +161,8 @@ class HistoryComponent extends Component {
 		this.setState({selectedTab: !selectedTab})
 	}
 	handleChangePage(event, page) {
-		const { response, rowsPerPage } = this.state
+		const { response } = this.state
+		// const { response, rowsPerPage } = this.state
 		//let nextRecords = this.paginateResults(response, page, rowsPerPage)
 		this.setState({
 			page: page,

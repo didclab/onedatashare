@@ -19,7 +19,7 @@ import java.net.URLEncoder;
 import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 @Service
-public class VfsService implements ResourceService<VfsResource> {
+public class VfsService extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -45,6 +45,7 @@ public class VfsService implements ResourceService<VfsResource> {
                 .map(credential -> {
                     // Encoding the resource URI to avoid errors due to spaces in file/directory names
                     String encodedURI = userAction.getUri();
+
                     try {
                         encodedURI = URLEncoder.encode(userAction.getUri(), "UTF-8");
                     }
@@ -105,15 +106,16 @@ public class VfsService implements ResourceService<VfsResource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(VfsResource::mkdir)
-                .flatMap(VfsResource::stat);
+                .map(r -> true);
     }
 
-    public Mono<VfsResource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(VfsResource::delete);
+                .flatMap(VfsResource::delete)
+                .map(val -> true);
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
@@ -132,7 +134,7 @@ public class VfsService implements ResourceService<VfsResource> {
 
     @Override
     public Mono<String> download(String cookie, UserAction userAction) {
-        return null;
+        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
     public void processTransferFromJob(Job job, String cookie) {

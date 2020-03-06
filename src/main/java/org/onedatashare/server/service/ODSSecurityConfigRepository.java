@@ -28,12 +28,16 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
 
     public String fetchAuthToken(ServerWebExchange serverWebExchange){
         ServerHttpRequest request = serverWebExchange.getRequest();
-        String token = null;
 
-        try{
-            token = request.getCookies().getFirst("ATOKEN").getValue();
-        }catch (NullPointerException npe){
-            ODSLoggerService.logError("No token");
+        String token = null;
+        String endpoint = request.getPath().pathWithinApplication().value().toString();
+        //Check for token only when the request needs to be authenticated
+        if(endpoint.startsWith("/api/")) {
+            try {
+                token = request.getCookies().getFirst("ATOKEN").getValue();
+            } catch (NullPointerException npe) {
+                ODSLoggerService.logError("No token Found for request at " + endpoint);
+            }
         }
         return token;
     }

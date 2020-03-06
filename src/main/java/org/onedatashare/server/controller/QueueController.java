@@ -9,7 +9,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +30,7 @@ public class QueueController {
      */
     @PostMapping("/user-jobs")
     public Mono<JobDetails> getJobsForUser(@RequestBody JobRequest jobDetails){
-        return jobService.getJobsForUser(jobDetails).subscribeOn(Schedulers.elastic());
+        return jobService.getJobsForUser(jobDetails);
     }
 
     /**
@@ -39,25 +38,23 @@ public class QueueController {
      * @param jobDetails - Request data needed for fetching Jobs
      * @return Mono\<JobDetails\>
      */
-    //TODO: Add role annotation for security
     @PostMapping("/admin-jobs")
     @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<JobDetails> getJobsForAdmin(@RequestBody JobRequest jobDetails){
-        return jobService.getJobForAdmin(jobDetails).subscribeOn(Schedulers.elastic());
+        return jobService.getJobForAdmin(jobDetails);
     }
 
 
     //TODO: change the function to use query instead of using filter (might make it faster)
     @PostMapping("/update-user-jobs")
     public Mono<List<Job>> updateJobsForUser(@RequestBody List<UUID> jobIds) {
-        return jobService.getUpdatesForUser(jobIds).subscribeOn(Schedulers.elastic());
+        return jobService.getUpdatesForUser(jobIds);
     }
 
-    //TODO: Add role annotation for security
     @PostMapping("/update-admin-jobs")
     @PreAuthorize("hasAuthority('ADMIN')")
     public Flux<Job> updateJobsForAdmin(@RequestBody List<UUID> jobIds) {
-        return jobService.getUpdatesForAdmin(jobIds).subscribeOn(Schedulers.elastic());
+        return jobService.getUpdatesForAdmin(jobIds);
     }
 
 }

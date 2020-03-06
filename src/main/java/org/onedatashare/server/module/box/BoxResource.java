@@ -33,7 +33,6 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
     //tap outgoing
     //drain incoming
     public Mono<Stat> stat() {
-
         return Mono.just(onStat());
     }
 

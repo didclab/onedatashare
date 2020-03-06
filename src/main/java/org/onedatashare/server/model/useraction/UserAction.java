@@ -106,14 +106,14 @@ public class UserAction {
 
     /**
      * Factory method for returning an object of type request data
-     * @param transferRequestData - data for making a transfer request
+     * @param transferRequest - data for making a transfer request
      * @return UserAction
      */
-    public static UserAction convertToUserAction(TransferRequestData transferRequestData){
+    public static UserAction convertToUserAction(TransferRequest transferRequest){
         UserAction ua = new UserAction();
-        ua.setSrc(transferRequestData.getSrc());
-        ua.setDest(transferRequestData.getDest());
-        ua.setOptions(transferRequestData.getOptions());
+        ua.setSrc(transferRequest.getSrc());
+        ua.setDest(transferRequest.getDest());
+        ua.setOptions(transferRequest.getOptions());
         return ua;
     }
 
