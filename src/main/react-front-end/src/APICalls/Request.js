@@ -46,30 +46,30 @@ class Request {
         );
     }
 
-    post(path, payload, callback) {
+    post(path, data, callback) {
         return this.axiosInstance.request({
             method: 'POST',
             url: path,
             responseType: 'json',
-            data: payload
+            data: data
         }).then((response) => callback(response.status, response.data));
     }
 
-    put(path, payload, callback) {
+    put(path, data, callback) {
         return this.axiosInstance.request({
             method: 'PUT',
             url: path,
             responseType: 'json',
-            data: payload
+            data: data
         }).then((response) => callback(response.status, response.data));
     }
 
-    delete(path, payload, callback) {
+    delete(path, data, callback) {
         return this.axiosInstance.request({
             method: 'DELETE',
             url: path,
             responseType: 'json',
-            data: payload
+            data: data
         }).then((response) => callback(response.status, response.data));
     }
 
