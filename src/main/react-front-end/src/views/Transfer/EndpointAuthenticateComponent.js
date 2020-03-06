@@ -1,9 +1,20 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList, 
-		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId, 
-		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, HTTPS_TYPE} from "../../constants";
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId
+} from "../../APICalls/EndpointAPICalls";
+import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
+import {DROPBOX_TYPE,
+				GOOGLEDRIVE_TYPE,
+				BOX_TYPE,
+				FTP_TYPE,
+				SFTP_TYPE,
+				GRIDFTP_TYPE,
+				HTTP_TYPE,
+				SCP_TYPE,
+				HTTPS_TYPE,
+				ODS_PUBLIC_KEY
+			} from "../../constants";
 import {store} from "../../App";
 
 import List from '@material-ui/core/List';
@@ -11,8 +22,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Button from "@material-ui/core/Button";
-import TextField from '@material-ui/core/TextField';
+import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
+
+import JSEncrypt from 'jsencrypt';
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
@@ -133,7 +146,7 @@ export default class EndpointAuthenticateComponent extends Component {
         [name]: event.target.value
       });
 	};
-	
+
 	handleUrlChange = name => event => {
 		let url = event.target.value;
 
@@ -149,9 +162,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
-		
+
 		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
-		
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
 
@@ -185,10 +197,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		}else{
 			this._handleError("Protocol is not understood");
 		}
-		
+
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
-				console.log(suc)
+				// console.log(suc)
 			}, (error) => {
 				this._handleError(error);
 			})
@@ -231,23 +243,23 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-		
-		
+
+
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return Object.keys(credList).filter(id => {
-				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1 
+				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1
 							&& !getCred().includes(id))})
 				.map((v) =>
-				<ListItem button key={v} 
-					onClick= {() => {
+				<ListItem button key={v}
+					onClick={() => {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
 							side: endpoint.side
-						}				
+						}
 						loginSuccess(endpointSet);
 					}}>
 					<ListItemIcon>
@@ -294,7 +306,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				</ListItem>
 			);
 		}
-		
+
 	}
 
 	getHistoryListComponentFromList(historyList){
@@ -330,17 +342,36 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	regularSignIn = () => {
-		const { needPassword} = this.state;
+	const {url, username, password, needPassword} = this.state;
+	if(url.substr(url.length - 3) === '://') {
+		this._handleError("Please enter a valid URL")
+		return
+	}
+	if(!needPassword){
+		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+			this.setState({needPassword: true});
+		});
+	}
+	else{
+		// User is expected to enter password to login
+		if(username.length === 0 || password.length === 0) {
+			this._handleError("Incorrect username or password");
+			return;
+		}
+
+		// Encrypting user password
+		let jsEncrypt = new JSEncrypt();
+		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
 		
-		if(!needPassword){
-    		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-    			this.setState({needPassword: true});
-    		});
-    	}else{
-    		this.endpointCheckin(this.state.url, this.state.portNum,{type: "userinfo", username: this.state.username, password: this.state.password}, (msg) => {
-    			this._handleError("Authentication Failed");
-    		});
-    	}
+		this.endpointCheckin(this.state.url,
+			this.state.portNum,
+			{type: "userinfo", username: this.state.username, password: encryptedPwd},
+			() => {
+			this._handleError("Authentication Failed");
+			}
+		);
+	}
 	}
 
 	globusSignIn = () => {
@@ -396,7 +427,11 @@ export default class EndpointAuthenticateComponent extends Component {
     		});
 		}
 	}
-	
+
+	handleClick = (e) => {
+		this.inputElement.click();
+	}
+
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
 		const { back } = this.props;
@@ -423,6 +458,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		openDropboxOAuth();
 		        	}else if(loginType === GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
+		        	}else if(loginType === BOX_TYPE){
+		        	    openBoxOAuth();
 		        	}else if(loginType === FTP_TYPE){
 		        		let loginUri = "ftp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
@@ -449,12 +486,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-				{/* Google Drive and Dropbox login handler */}
-				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/* Google Drive, Dropbox, Box login handler */}
+				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
 				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE && 
+				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
@@ -474,56 +511,106 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div>
-			    	<TextField
-			    	  style={{width: "60%"}}
+		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+							<ValidatorForm
+								ref="form"
+								onSubmit={authFunction}
+								onError={errors => console.log(errors)}>
+
+			    		<TextValidator
+								required
+					  		style={{width: "80%"}}
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
 			          onChange={this.handleUrlChange('url')}
 			          margin="normal"
-			          variant="outlined"
+					  		variant="outlined"
+					  		autoFocus={true}
+					  		onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										// authFunction()
+										this.handleClick()
+						  		}
+					  		}}
 			        />
-			        <TextField
-			    	  style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
-					  id={endpoint.side+"LoginPort"}
-					  disabled = {!this.state.portNumField}
+
+			        <TextValidator
+								required
+			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
+					  		id={endpoint.side+"LoginPort"}
+					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
-			          value={this.state.portNumField? this.state.portNum : "-"} 
+			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
-			          variant="outlined"
+					  		variant="outlined"
+					  		onKeyPress={(e) => {
+								if (e.key === 'Enter') {
+									this.handleClick()
+									}
+								}}
 			        />
+							</ValidatorForm>
 			        </div>
-		    	}
+		    	}	
 
+		      {needPassword &&
+		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 
-		        
-		        {needPassword &&
-		        	<div>
-			        <TextField
-			    	  style={{width: "80%"}}
-			          id={endpoint.side+"LoginUsername"}
-			          label="Username"
-			          value={this.state.username}
-			          onChange={this.handleChange('username')}
-			          margin="normal"
-			          variant="outlined"
-			        />
-			        <TextField
-			    	  style={{width: "80%"}}
-			          id={endpoint.side+"LoginPassword"}
-			          label="Password"
-			          type="password"
-			          value={this.state.password}
-			          onChange={this.handleChange('password')}
-			          margin="normal"
-			          variant="outlined"
-			        />
-			        </div>
-		    	}
-		    	<Button id={endpoint.side + "LoginAuth"} style={{width: "100%", textAlign: "left"}} onClick={authFunction}>Next</Button>
+							<ValidatorForm
+								ref="form"
+								onError={errors => console.log(errors)}>
+			        
+								<TextValidator
+					  			required
+			    	  		style={{width: "100%"}}
+									id={endpoint.side+"LoginUsername"}
+									label="Username"
+									value={this.state.username}
+									onChange={this.handleChange('username')}
+									margin="normal"
+									variant="outlined"
+									autoFocus={(this.state.url !== 'sftp://') }
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+								/>
+
+			        	<TextValidator
+					  			required
+			    	  		style={{width: "100%"}}
+									id={endpoint.side+"LoginPassword"}
+									label="Password"
+									type="password"
+									value={this.state.password}
+									onChange={this.handleChange('password')}
+									margin="normal"
+									variant="outlined"
+									onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+										}
+									}}
+			        	/>
+
+							</ValidatorForm>
+			      </div>
+					}
+					
+					<Button 
+						id={endpoint.side + "LoginAuth"}  
+						ref={input => this.inputElement = input} 
+						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+						onClick={authFunction}
+						color="primary"
+						variant="contained">
+						Next
+					</Button>
 		    	</div>
+
 		    }
       	</div>);
 	}

@@ -3,6 +3,7 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.error.UnsupportedOperationException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.http.HttpResource;
 import org.onedatashare.server.module.http.HttpSession;
@@ -14,12 +15,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 
 @Service
-public class HttpFileService implements ResourceService<HttpResource> {
+public class HttpFileService extends ResourceService {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JobService jobService;
 
     public Mono<HttpResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         String path = pathFromUri(userAction.getUri());
@@ -49,14 +47,14 @@ public class HttpFileService implements ResourceService<HttpResource> {
 
     @Override
     /* Not allowed */
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
-        return null;
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     /* Not allowed */
-    public Mono<HttpResource> delete(String cookie, UserAction userAction) {
-        return null;
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

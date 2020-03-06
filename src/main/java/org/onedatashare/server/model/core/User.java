@@ -48,7 +48,8 @@ public class User {
     /** The validation token we're expecting. */
     private String validationToken;
 
-    /** Set to true if user is administrator. */
+    /** Set to true if user is administrator. Currently Replaced with roles but still updated */
+    @Deprecated
     private boolean isAdmin = false;
 
     /** Set to true if user want to save OAuth credentials */
@@ -78,6 +79,11 @@ public class User {
     /** Used to hold session connections for reuse. */
     private transient Map<Session, Session> sessions = new HashMap<>();
 
+    /** Makes sure that view of user in transfer page is consistent with his/her preference. */
+    private boolean compactViewEnabled = false;
+
+    private List<Role> roles;
+
     /**
      * Create an anonymous user.
      */
@@ -88,24 +94,25 @@ public class User {
      * Create a user with the given values.
      */
     public User(String email, String firstName, String lastName, String organization, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = firstName;
         this.lastName = lastName;
         this.organization = organization;
         this.setPassword(password);
+        this.roles = new ArrayList<>();
+        this.roles.add(Role.USER);
     }
 
     /**
      * Create a user with the given email and password.
      */
     public User(String email, String password) {
-        this.email = email;
+        this.email = normalizeEmail(email);
         this.firstName = "";
         this.lastName = "";
         this.organization = "";
         setPassword(password);
     }
-
 
     /**
      * Check if the given password is correct for this user.
@@ -127,7 +134,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return roles != null && (roles.contains(Role.ADMIN) || roles.contains(Role.OWNER));
     }
 
     /**
@@ -164,7 +171,7 @@ public class User {
             job.uuid();
         }
         job.setOwner(normalizedEmail());
-        job.setJob_id(jobs.size());
+        job.setJob_id(jobs.size() + 1);
         jobs.add(job.getUuid());
         return job;
     }
@@ -262,12 +269,14 @@ public class User {
         public String email;
         public String hash;
         public boolean saveOAuthTokens;
+        public boolean compactViewEnabled;
 
 
-        public UserLogin(String email, String hash, boolean saveOAuthTokens) {
+        public UserLogin(String email, String hash, boolean saveOAuthTokens, boolean compactViewEnabled) {
             this.email = email;
             this.hash = hash;
             this.saveOAuthTokens = saveOAuthTokens;
+            this.compactViewEnabled = compactViewEnabled;
         }
     }
 
@@ -291,5 +300,17 @@ public class User {
             long t = date.getTimeInMillis();
             this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
         }
+    }
+
+    public void grantAdminRole(){
+        if(!roles.contains(Role.ADMIN)) {
+            roles.add(Role.ADMIN);
+            isAdmin = true;
+        }
+    }
+
+    public void removeAdminRole(){
+        roles.remove(Role.ADMIN);
+        isAdmin = false;
     }
 }

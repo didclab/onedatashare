@@ -10,7 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping(value = "/api/stork/ssh/console")
+@RequestMapping(value = "/api/ssh/console")
 public class SSHConsoleController {
 
     @Autowired
@@ -23,5 +23,18 @@ public class SSHConsoleController {
         return consoleService.runCommand(ua, commandData.getCommandWithPath());
     }
 
+    /**
+     * Example request
+     * {
+     * 	"host": "localhost",
+     * 	"commandWithPath": "ls /",
+     * 	"credential" : {
+     * 		"username" : "root",
+     * 		"password" : "root"
+     *        },
+     * 	"port": 2222
+     *
+     * }
+     */
 
 }
