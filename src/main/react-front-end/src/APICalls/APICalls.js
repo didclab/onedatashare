@@ -30,6 +30,7 @@ export function handleRequestFailure(error, failureCallback){
 	const responseCode = error.response.status;
 	console.debug(`In status handle error code is ${responseCode}`);
 	if(responseCode.code === 401 && store.getState.login === true){
+		console.debug(`UnAuthorized api call. Please login`);
 		store.dispatch(logoutAction);
 	}
 	if(failureCallback !== undefined){
