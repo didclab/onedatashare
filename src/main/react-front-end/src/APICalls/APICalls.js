@@ -61,6 +61,7 @@ export function statusHandle(response, callback) {
 			//const errorText = JSON.stringify(response.response.data);
 			callback(`500`);
 		}
+	}
 }
 
 /*
