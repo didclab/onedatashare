@@ -1,6 +1,8 @@
 package org.onedatashare.server.model.core;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -14,6 +16,11 @@ import java.util.List;
 @Data
 public class JobDetails{
 
-    private List<Job> jobs;
     private Long totalCount;
+    private List<Job> jobs;
+
+    public JobDetails(List<Job> jobs, Long totalCount) {
+        this.jobs = jobs;
+        this.totalCount = totalCount;
+    }
 }

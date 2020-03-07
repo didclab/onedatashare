@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { getUsers, updateAdminRightsApiCall } from '../../APICalls/APICalls';
+import { getUsers, updateAdminRightsApiCall, getAdmins } from '../../APICalls/APICalls';
 
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -78,7 +78,7 @@ class ClientsInfoComponent extends Component{
 		document.title = "OneDataShare - Client Info";
 	}
 
-	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+	getUserInfo = () => getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 		//success
 		this.setState({users:resp.users, totalUsersCount: resp.totalCount});
 		}, (resp) => {
@@ -86,7 +86,7 @@ class ClientsInfoComponent extends Component{
 		console.log('Error encountered in getUsers request to API layer');
 	});
 
-	getAdminInfo = () => getUsers('getAdministrators',  this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
+	getAdminInfo = () => getAdmins(this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
 		//success
 		console.log(resp.users.length + "---")
 		this.setState({admins:resp.users, totalAdminsCount: resp.totalCount});
@@ -119,7 +119,7 @@ class ClientsInfoComponent extends Component{
 			else{
 				eventEmitter.emit("errorOccured", "Error while updating the user");
 			}
-			getUsers('getUsers', this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+			getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 				this.setState({users:resp.users, showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 				}, (error) => {
 				console.log('Error encountered in getUsers request to API layer');
@@ -129,14 +129,15 @@ class ClientsInfoComponent extends Component{
 	handleClose = () => {
 		this.setState({ showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 	};
+
 	handleUserTblChangePage = (event, page) => {
-		this.setState({ userTblPage: page });
-		this.getUserInfo()
+		this.setState({ userTblPage: page },
+			this.getUserInfo);
 	};
 
 	handleUserTblChangeRowsPerPage = event => {	
-		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) });
-		this.getUserInfo()
+		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
+			this.getUserInfo);
 	};
 
 	handleUserTblRequestSort = (property) => {
@@ -206,7 +207,7 @@ class ClientsInfoComponent extends Component{
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginTop: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
+				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
 					<Table>
 						<TableHead style={{backgroundColor: '#d9edf7'}}>
 							<TableRow>
@@ -249,7 +250,7 @@ class ClientsInfoComponent extends Component{
 											active={userTblOrderBy === sortableColumns.organization}
 											direction={userTblOrder}
 											onClick={() => {this.handleUserTblRequestSort(sortableColumns.organization)}}>
-											Orgainzation
+											Organization
 										</TableSortLabel>
 									</Tooltip>
 								</TableCell>
@@ -283,7 +284,6 @@ class ClientsInfoComponent extends Component{
 							{
 								users.map(resp =>{
 									var timeStamp = resp.registerMoment;
-									console.log(timeStamp)
 									var date = new Date(timeStamp);
 									var lastActivity = new Date(resp.lastActivity);
 

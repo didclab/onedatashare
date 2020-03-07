@@ -1,17 +1,18 @@
 import React, { Component } from "react";
 
-import { Redirect } from "react-router-dom";
 import {
   transferPageUrl,
   DROPBOX_TYPE,
   sideLeft,
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
-  GRIDFTP_NAME
+  GRIDFTP_NAME,
+  BOX_NAME
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
+import Redirect from "react-router/es/Redirect";
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
@@ -22,17 +23,24 @@ export default class OauthProcessComponent extends Component {
 
   processOAuth(tag) {
     if (tag === "ExistingCredGoogleDrive") {
+        setTimeout(() => {
+            eventEmitter.emit(
+                "errorOccured",
+                "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
+            );
+        }, 500);
+    }else if(tag === "ExistingCredDropbox"){
+            setTimeout( () => {
+              eventEmitter.emit(
+                "errorOccurred",
+                "Credential for that endpoint already exists. Please logout from Dropbox and try again."
+            );
+              }, 500);
+    } else if (tag === "ExistingCredBox") {
       setTimeout(() => {
         eventEmitter.emit(
           "errorOccured",
-          "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
-        );
-      }, 500);
-    } else if (tag === "ExistingCredDropbox") {
-      setTimeout(() => {
-        eventEmitter.emit(
-          "errorOccured",
-          "Credential for the endpoint already Exists. Please logout from Dropbox and try again."
+          "Credential for the endpoint already Exists. Please logout from Box and try again."
         );
       }, 500);
     } else if (tag === "uuid") {
@@ -57,9 +65,12 @@ export default class OauthProcessComponent extends Component {
       } else if (tag === "gridftp") {
         console.log("GridFTP oAuth identifier received");
         this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
+      } else if (tag === "box") {
+          console.log("Box oAuth identifier received");
+          this.updateLocalCredStore(BOX_NAME, qsObj);
+        }
       }
     }
-  }
 
   updateLocalCredStore(protocolType, qsObj) {
     let creds = cookies.get(protocolType) || 0;
@@ -74,25 +85,26 @@ export default class OauthProcessComponent extends Component {
           "Auth token for " + accountId + " already exists in session."
         );
       } else {
-        parsedJSON.push({ name: accountId, token: oAuthToken });
+        parsedJSON.push({ name: accountId, token: oAuthToken, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime });
         cookies.set(protocolType, JSON.stringify(parsedJSON));
       }
     } else {
       cookies.set(
         protocolType,
         JSON.stringify([
-          { name: qsObj.name.split(":+")[1], token: qsObj.token }
+          { name: qsObj.name.split(":+")[1], token: qsObj.token, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime }
         ])
       );
     }
   }
 
+
   render() {
     return (
       <div>
-        <Redirect to={transferPageUrl}></Redirect>
+        <Redirect to={transferPageUrl}/>
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );
-  }
+    }
 }

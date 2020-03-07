@@ -206,7 +206,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
             }
             InputStream finalInputStream = inputStream;
             return Flux.generate(
-                    () -> 0,
+                    () -> 0L,
                     (state, sink) -> {
                         if (state + sliceSizeInt < size) {
                             byte[] b = new byte[sliceSizeInt];
@@ -316,8 +316,9 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         String filename = strings[strings.length - 1];
         InputStreamResource inputStreamResource = new InputStreamResource(inputStream);
         HttpHeaders httpHeaders = new HttpHeaders();
+
         httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=" + filename);
+                "attachment; filename=\"" + filename + "\"");
         return Mono.just(ResponseEntity.ok()
                 .headers(httpHeaders)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)

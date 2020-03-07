@@ -3,7 +3,7 @@ package org.onedatashare.server.model.useraction;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.onedatashare.module.globusapi.EndPoint;
-import org.onedatashare.server.model.requestdata.*;
+import org.onedatashare.server.model.request.*;
 
 import java.util.ArrayList;
 
@@ -34,6 +34,7 @@ public class UserAction {
 
     // User preferences
     private boolean saveOAuth;
+    private boolean compactViewEnabled;
 
     private String uuid;
 
@@ -105,14 +106,14 @@ public class UserAction {
 
     /**
      * Factory method for returning an object of type request data
-     * @param transferRequestData - data for making a transfer request
+     * @param transferRequest - data for making a transfer request
      * @return UserAction
      */
-    public static UserAction convertToUserAction(TransferRequestData transferRequestData){
+    public static UserAction convertToUserAction(TransferRequest transferRequest){
         UserAction ua = new UserAction();
-        ua.setSrc(transferRequestData.getSrc());
-        ua.setDest(transferRequestData.getDest());
-        ua.setOptions(transferRequestData.getOptions());
+        ua.setSrc(transferRequest.getSrc());
+        ua.setDest(transferRequest.getDest());
+        ua.setOptions(transferRequest.getOptions());
         return ua;
     }
 
@@ -143,6 +144,7 @@ public class UserAction {
         ua.setSortBy(userRequestData.getSortBy());
         ua.setSortOrder(userRequestData.getSortOrder());
         ua.setCaptchaVerificationValue(userRequestData.getCaptchaVerificationValue());
+        ua.setCompactViewEnabled(userRequestData.isCompactViewEnabled());
         return ua;
     }
 

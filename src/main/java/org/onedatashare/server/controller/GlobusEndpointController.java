@@ -1,12 +1,8 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.module.globusapi.EndPointList;
 import org.onedatashare.module.globusapi.GlobusClient;
-import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.NotFound;
-import org.onedatashare.server.model.useraction.GlobusEndpointAction;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +42,7 @@ public class GlobusEndpointController {
                                         gea.getGlobusEndpoint().getMyProxyDomainName(), gea.getUsername(), gea.getPassword()))
                     .switchIfEmpty(Mono.error(new Exception("Auth Failed")));
             default:
-                return Mono.error(new NotFound());
+                return Mono.error(new NotFoundException());
         }
     }
 }

@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
@@ -45,7 +44,6 @@ public class UploadService {
             LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
 
             ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
-            ODSLoggerService.logInfo("Total upload file size - " + totalFileSize);
             ua.setDest( new UserActionResource());
             ua.getDest().setId( googleDriveId );
 

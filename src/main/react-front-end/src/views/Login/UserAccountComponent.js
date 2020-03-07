@@ -3,9 +3,11 @@ import React, { Component } from "react";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import LinearProgress from "@material-ui/core/LinearProgress";
-
+import PasswordRequirementsComponent from '../Login/PasswordRequirementsComponent'
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
+
+import './UserAccountComponent.css';
 
 import {
 	Dialog,
@@ -14,6 +16,7 @@ import {
 	DialogContentText,
 	DialogTitle
 } from "@material-ui/core";
+
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
 
@@ -26,8 +29,7 @@ import FormGroup from "@material-ui/core/FormGroup";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 
-import { Redirect } from "react-router-dom";
-import { transferPageUrl, userPageUrl } from "../../constants";
+import { validPassword } from "../../constants";
 
 import {
 	changePassword,
@@ -38,82 +40,112 @@ import {
 import { eventEmitter, store } from "../../App.js";
 
 import {
-	updateHashAction,
+	logoutAction,
 	accountPreferenceToggledAction,
 } from "../../model/actions";
 import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
-import {updateGAPageView} from '../../analytics/ga'
+import { updateGAPageView } from '../../analytics/ga'
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import InfoOutlined from '@material-ui/icons/InfoOutlined';
+import { makeStyles } from '@material-ui/core/styles';
+
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+
+const useStylesBootstrap = makeStyles(theme => ({
+	arrow: {
+	  color: theme.palette.common.black,
+	},
+	tooltip: {
+	  color: theme.palette.common.white,
+	  backgroundColor: theme.palette.common.black,
+	  maxWidth: 180,
+	  fontSize: theme.typography.pxToRem(17),
+	},
+  }));
+
+ const BootstrapTooltip = (props) => {
+	const classes = useStylesBootstrap();
+	return <Tooltip arrow={true} classes={classes} {...props} />;
+}
 
 export default class UserAccountComponent extends Component {
 	constructor() {
 		super();
 		this.state = {
-    		isSmall: window.innerWidth <= 640,
-    		loading: true,
-    		oldPassword: "",
-    		newPassword: "",
-    		confirmNewPassword: "",
-    	    userEmail: store.getState().email,
-    	    userOrganization: "...",
-    	    fName: "...",
-    	    lName: "...",
-    	    redirect: false,
+			isSmall: window.innerWidth <= 640,
+			loading: true,
+			oldPassword: "",
+			newPassword: "",
+			confirmNewPassword: "",
+			isValidNewPassword: true,
+			isValidConfirmPassword: true,
+			errorMsg: null,
+			userEmail: store.getState().email,
+			userOrganization: "...",
+			fName: "...",
+			lName: "...",
 			openAlertDialog: false,
-			saveOAuthTokens: false
-    	};
-    	getUser(this.state.userEmail,  (resp) => {
-            //success
-            this.setState({
-               userOrganization: resp.organization,
-               fName: resp.firstName,
-               lName: resp.lastName,
-			   saveOAuthTokens: resp.saveOAuthTokens,
-               loading: false
-            });
-            }, (resp) => {
-            //failed
-            this.setState({ loading: false });
-            console.log('Error encountered in getUser request to API layer');
-        });
-   		this.getInnerCard = this.getInnerCard.bind(this);
-   		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
+			saveOAuthTokens: false,
+			canSubmit: false,
+			isOldPwdVisible: false,
+			isNewPwdVisible: false,
+			isConfirmPwdVisible: false
+
+		};
+		this.displayText = "When enabled, all your endpoint authentication tokens will be saved by OneDataShare. \
+		OneDataShare does not store any passwords. On disabling this feature, your endpoint authentication tokens \
+		will be saved in your browser session for a limited time and you may have to authenticate your accounts at \
+		regular intervals."
+		getUser(this.state.userEmail, (resp) => {
+			//success
+			this.setState({
+				userOrganization: resp.organization,
+				fName: resp.firstName,
+				lName: resp.lastName,
+				saveOAuthTokens: resp.saveOAuthTokens,
+				loading: false
+			});
+		}, (resp) => {
+			//failed
+			this.setState({ loading: false });
+			console.log('Error encountered in getUser request to API layer');
+		});
+		this.getInnerCard = this.getInnerCard.bind(this);
+		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
 		this.accountDetails = this.accountDetails.bind(this);
 		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
 		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
+		this.handleShowPassword = this.handleShowPassword.bind(this);
+		this.handleHidePassword = this.handleHidePassword.bind(this);
 		updateGAPageView();
 	}
 
-	componentDidMount(){
+	componentDidMount() {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
 
 	}
 
-	onPasswordUpdate(oldPass, newPass, confPass){
-
-		if(newPass.length < 5 || oldPass.length < 5 || confPass.length < 5){
-		    eventEmitter.emit("errorOccured", "Password must have a minimum of 6 characters.");
-		    }
-	     else if(newPass === "" || oldPass === "" || confPass === ""){
+	onPasswordUpdate(oldPass, newPass, confPass) {
+		if (newPass === "" || oldPass === "" || confPass === "") {
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
-			}
-		else if(newPass !== confPass){
-			eventEmitter.emit("errorOccured", "New Password and Confirmation do not match");
+		} else if (oldPass === newPass) {
+			eventEmitter.emit("errorOccured", "Old and New Passwords cant be same");
 		}
-		else{
-			changePassword(oldPass, newPass,confPass, (hash)=>{
-				store.dispatch(updateHashAction(hash));
-				this.setState({redirect:true});
-
-			}, (error)=>{
-
-				if( error && error.response && error.response.data && error.response.data.message ){
+		else {
+			changePassword(oldPass, newPass, confPass, (hash) => {
+				store.dispatch(logoutAction());
+			}, (error) => {
+				if (error && error.response && error.response.data && error.response.data.message) {
 					eventEmitter.emit("errorOccured", error.response.data.message);
-				}else{
+				} else {
 					eventEmitter.emit("errorOccured", "Unknown Error");
 				}
 			});
@@ -139,25 +171,27 @@ export default class UserAccountComponent extends Component {
 			if (currentSaveStatus) {
 				// if the user opted to switch from saving tokens on browser to
 				// storing tokens on the server, we clear all saved tokens in the current browser session.
+
 				let credentials = []
-				if(!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")){
+				if (!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")) {
 					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
-					googleDriveCredentials.forEach(function(element){
+					googleDriveCredentials.forEach(function (element) {
 						element.name = "GoogleDrive: " + element.name;
 					});
 					credentials.push(...googleDriveCredentials);
 				}
-				if(!(typeof cookies.get(DROPBOX_NAME) == "undefined")){
+				if (!(typeof cookies.get(DROPBOX_NAME) == "undefined")) {
 					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
-					dropBoxCredentials.forEach(function(element){
+					dropBoxCredentials.forEach(function (element) {
 						element.name = "Dropbox: " + element.name;
 					});
 					credentials.push(...dropBoxCredentials);
 				}
-				saveOAuthCredentials(credentials, (success)=>{console.log("Credentials saved Successfully")}, (error)=>{
+				saveOAuthCredentials(credentials, (success) => { console.log("Credentials saved Successfully") }, (error) => {
 					console.log("Error in saving credentials", error);
-					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts" );
+					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts");
 				});
+
 				cookies.remove(DROPBOX_NAME);
 				cookies.remove(GOOGLEDRIVE_NAME);
 
@@ -171,7 +205,7 @@ export default class UserAccountComponent extends Component {
 		return (
 			<div>
 				<List>
-					<Card style={{ minWidth: 275 }}>
+					<Card className="userAccCardStyle">
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Details <br />
@@ -184,7 +218,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Email"
-                        			id="UserEmail"
+									id="UserEmail"
 									secondary={this.state.userEmail}
 								/>
 
@@ -195,7 +229,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="First Name"
-                        			id="UserFirstName"
+									id="UserFirstName"
 									secondary={this.state.fName}
 								/>
 								<Divider />
@@ -205,7 +239,7 @@ export default class UserAccountComponent extends Component {
 										secondary: "userDescValueFont"
 									}}
 									primary="Last Name"
-                          			id="UserLastName"
+									id="UserLastName"
 									secondary={this.state.lName}
 								/>
 								<Divider />
@@ -223,15 +257,13 @@ export default class UserAccountComponent extends Component {
 					</Card>
 				</List>
 
-				<br />
-
 				<List>
-					<Card style={{ minWidth: 275, paddingLeft: '2em', paddingRight: '2em' }}>
+					<Card className="userAccCardStyle" style={{ paddingLeft: '2em', paddingRight: '2em' }}>
 						<CardContent>
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
-							<FormGroup>
+							<FormGroup style={{flexDirection: "row", flexWrap: "nowrap"}}>
 								<FormControlLabel
 									value="new_source"
 									control={
@@ -244,16 +276,22 @@ export default class UserAccountComponent extends Component {
 									}
 									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
+								<BootstrapTooltip title={this.displayText} placement="right">
+									<IconButton aria-label="info-icon">
+										<InfoOutlined />
+									</IconButton>
+								</BootstrapTooltip>
 							</FormGroup>
 						</CardContent>
 					</Card>
 				</List>
+
 				<Dialog
 					open={this.state.openAlertDialog}
 					onClose={this.handleAlertClose}
 					aria-labelledby="alert-dialog-title"
-					aria-describedby="alert-dialog-description"
-				>
+					aria-describedby="alert-dialog-description">
+
 					<DialogTitle id="alert-dialog-title">
 						{"Change how OAuth tokens are saved?"}
 					</DialogTitle>
@@ -261,20 +299,21 @@ export default class UserAccountComponent extends Component {
 						<DialogContentText id="alert-dialog-description">
 							Warning! This might delete all your existing credentials and may
 							interrupt ongoing transfers. Are you sure?
-            </DialogContentText>
+            			</DialogContentText>
 					</DialogContent>
 					<DialogActions>
 						<Button onClick={this.handleAlertCloseYes} color="primary">
 							Yes
-            </Button>
+            			</Button>
 						<Button onClick={this.handleAlertClose} color="primary" autoFocus>
 							No
-            </Button>
+			            </Button>
 					</DialogActions>
 				</Dialog>
 			</div>
 		);
 	}
+
 
 	getInnerCard() {
 		const handleChange = name => event => {
@@ -283,44 +322,96 @@ export default class UserAccountComponent extends Component {
 			});
 		};
 
-		let confirmed = this.state.newPassword !== this.state.confirmNewPassword;
+		const checkPassword = name => event => {
+			const validObj = validPassword(name, event.target.value, this.state.confirmNewpassword);
+			this.setState({ [name]: event.target.value, isValidNewPassword: validObj.isValid, errorMsg: validObj.errormsg });
+		}
+
+		const checkConfirmPassword = name => event => {
+			const validObj = validPassword(name, this.state.newPassword, event.target.value);
+			this.setState({ [name]: event.target.value, isValidConfirmPassword: validObj.isValid, errorMsg: validObj.errormsg });
+		}
+
 		return (
 			<div>
 				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
 					Change your Password
-        </Typography>
+        		</Typography>
 
 				<TextField
 					id="Email"
 					label="Enter Your Old Password"
-					type="password"
+					type={this.state.isOldPwdVisible? "text":"password"}
 					value={this.state.oldPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={handleChange("oldPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('old')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isOldPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
 				<TextField
+					error={!this.state.isValidNewPassword}
 					label="Enter Your New Password"
-					type="password"
+					type={this.state.isNewPwdVisible? "text":"password"}
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
-					onChange={handleChange("newPassword")}
+					onChange={checkPassword("newPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('new')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isNewPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
 				<TextField
-					error={confirmed}
+					error={!this.state.isValidConfirmPassword}
 					id="Cpassword"
-					type="password"
+					type={this.state.isConfirmPwdVisible? "text":"password"}
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
-					style={{ width: "100%", marginBottom: "2em" }}
-					onChange={handleChange("confirmNewPassword")}
+					style={{ width: "100%", marginBottom: "1em" }}
+					onChange={checkConfirmPassword("confirmNewPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('confirm')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isConfirmPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
-
+				<PasswordRequirementsComponent
+					showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
+					errorMsg={this.state.errorMsg} />
 				<CardActions style={{ marginBottom: "0px" }}>
 					<Button
-						variant="contained"
 						size="small"
 						color="primary"
 						style={{ width: "100%" }}
+						disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.newPassword && this.state.confirmNewPassword)}
+						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
@@ -330,7 +421,7 @@ export default class UserAccountComponent extends Component {
 						}
 					>
 						Update Password
-          </Button>
+         			</Button>
 				</CardActions>
 			</div>
 		);
@@ -344,8 +435,29 @@ export default class UserAccountComponent extends Component {
 		}
 	}
 
+	handleShowPassword(field) {
+		switch(field){
+			case 'old': 
+				this.setState({isOldPwdVisible: true}); 
+				break;
+			case 'new': 
+				this.setState({isNewPwdVisible: true}); 
+				break;
+			case 'confirm': 
+				this.setState({isConfirmPwdVisible: true}); 
+				break;
+			default:
+				break;
+		}
+		this.setState({isPasswordVisible: true});
+	}
+
+	handleHidePassword() {
+		this.setState({isConfirmPwdVisible: false, isOldPwdVisible: false, isNewPwdVisible: false});
+	}
+
 	render() {
-		const { isSmall, loading, redirect } = this.state;
+		const { isSmall, loading } = this.state;
 		const height = window.innerHeight + "px";
 		return (
 			<div
@@ -354,15 +466,13 @@ export default class UserAccountComponent extends Component {
 					justifyContent: "center",
 					alignItems: "center",
 					width: "..",
-					height: height
+					height: height,
+					marginBottom: '5%'
 				}}
 			>
 				<div
 					style={{
 						width: "450px",
-						marginTop: "30px",
-						marginLeft: "30px",
-						marginRight: "30px",
 						alignSelf: isSmall ? "flex-start" : "center"
 					}}
 				>
@@ -370,19 +480,9 @@ export default class UserAccountComponent extends Component {
 
 					{this.accountDetails()}
 
-					{isSmall && this.getInnerCard()}
-
-					{!isSmall && (
-						<Card>
-							<CardContent style={{ paddingLeft: "3em", paddingRight: "3em" }}>
-								{this.getInnerCard()}
-							</CardContent>
-						</Card>
-					)}
-
-					{redirect && (
-						<Redirect from={userPageUrl} to={transferPageUrl}></Redirect>
-					)}
+					<Card className="userAccCardStyle resetPasswordCard">
+						{this.getInnerCard()}
+					</Card>
 				</div>
 			</div>
 		);

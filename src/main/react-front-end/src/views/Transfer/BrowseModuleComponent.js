@@ -2,7 +2,8 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, savedCredList} from "../../APICalls/APICalls";
+import { openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth } from "../../APICalls/EndpointAPICalls";
+import { savedCredList } from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
 import {cookies} from "../../model/reducers.js";
@@ -15,7 +16,7 @@ import Icon from '@material-ui/core/Icon';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -104,7 +105,7 @@ export default class BrowseModuleComponent extends Component {
 
 			savedCredList((data) => {
 				if(Object.keys(data).some(id => {
-					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1 
+					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1
 				})){
 					succeed(data);
 				}else{
@@ -121,7 +122,7 @@ export default class BrowseModuleComponent extends Component {
 			// If the user has opted not to store tokens on ODS server,
 			// query cookies for saved credentials
 			console.log("Checking cookies for " + containsType + " credentials");
-			
+
 			let creds = cookies.get(containsType) || 0;
 			if(creds !== 0){
 				creds= JSON.parse(creds);
@@ -138,7 +139,6 @@ export default class BrowseModuleComponent extends Component {
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-
 		const loginPrep = (uri) => (data) => {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
@@ -155,7 +155,7 @@ export default class BrowseModuleComponent extends Component {
 
 		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
 		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
-		
+
 	  return (
 	    // saved credential
 	    // login manually
@@ -181,13 +181,19 @@ export default class BrowseModuleComponent extends Component {
 			      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
 			      	Google Drive
 		      	</Button>
-	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
-	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
-	      		}}>
-	      			<Icon className={'fas fa-server'} style={iconStyle}/>
-	      		Grid FTP
-		      	</Button>
+                <Button id={endpoint.side + "Box"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
+                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
+                }}>
+					<Icon className={'fas fa-bold'} style={iconStyle}/>
+                    Box
+                </Button>
+				{/* <Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
+					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
+				}}>
+					<Icon className={'fas fa-server'} style={iconStyle}/>
+				GridFTP
+				</Button>  */}
 				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>
@@ -201,12 +207,12 @@ export default class BrowseModuleComponent extends Component {
 		      		<Icon className={'fas fa-folder-open'} style={iconStyle}/>
 		      		SFTP
 		      	</Button>
-		      	
+
 	      		<Button id={endpoint.side + "SSH"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(SCP_TYPE)()
 	      		}}>
 	      			<Icon className={'fas fa-terminal'} style={iconStyle}/>
-	      			SSH
+	      			SCP
 	      		</Button>
 		    </div>}
 
@@ -239,3 +245,5 @@ export default class BrowseModuleComponent extends Component {
 	    );
   	}
 }
+
+

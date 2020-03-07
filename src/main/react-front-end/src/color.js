@@ -1,0 +1,1 @@
+export const titleBlue = '#3f51b5';

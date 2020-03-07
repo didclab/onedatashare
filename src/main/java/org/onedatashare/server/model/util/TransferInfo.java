@@ -2,6 +2,9 @@ package org.onedatashare.server.model.util;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Transient;
+
+import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 /**
  * This is used to track the progress of a transfer in real time.
@@ -9,24 +12,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class TransferInfo {
-  /** Units complete. */
-  public long done;
-  /** Total units. */
-  public long total;
-  /** Average throughput. */
-  public double avg;
-  /** Instantaneous throughput. */
-  public double inst;
+    /** Units complete. */
+    public long done;
+    /** Total units. */
+    public long total;
+    /** Average throughput. */
+    public double avg;
+    /** Instantaneous throughput. */
+    public double inst;
 
-  /** Update based on the given information. */
-  public void update(Time time, Progress p, Throughput tp) {
-    done = p.done();
-//    total = p.total();
-    avg = p.rate(time).value();
-    inst = tp.value();
-  }
+    @Transient
+    private long lastTime = Time.now();
 
-  public TransferInfo(long total) {
-    this.total = total;
-  }
+    /*Reason for failure */
+    public String reason;
+
+    /** Update based on the given information. */
+    public void update(Time time, Progress p, Throughput tp) {
+        done = p.done();
+        avg = p.rate(time).value();
+        long currTime = time.elapsed();
+        inst = TRANSFER_SLICE_SIZE / (currTime - lastTime);
+        lastTime = currTime;
+    }
+
+    public TransferInfo(long total) {
+        this.total = total;
+    }
 }

@@ -13,9 +13,16 @@ import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
+import NotificationsComponent from './views/Admin/NotificationsComponent';
+import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
+import GetStartedComponent from './views/GetStartedComponent';
+
+import "./MainComponent.css"
+
+// XNOTE: split the components into logged in, not logged in, and admin using HOCs
 
 export default class MainComponent extends Component {
   constructor(props) {
@@ -48,39 +55,45 @@ export default class MainComponent extends Component {
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div style={{ marginTop: '50px', display: 'block' }}>
+        <div className="content" style={{ display: 'block'}}>
           <Switch>
 
-            <Route path='/account' 
-              render={(props) => <AccountControlComponent {...props} /> }
+            <Route path='/account'
+              render={(props) => <AccountControlComponent {...props} />}
             />
 
-            <Route exact path='/' 
+            <Route exact path='/'
               render={(props) =>
                 <HomePageComponent  {...props} store={store} />
-              } 
+              }
             />
 
-            <Route exact path='/terms' 
+            <Route exact path='/terms'
               render={() =>
                 <TermsComponent />
               }
             />
 
-            <Route exact path='/policy' 
+            <Route exact path='/policy'
               render={() =>
                 <PolicyComponent />
               }
             />
 
-            <Route exact path="/support" 
+            <Route exact path="/support"
               render={() =>
-               <SupportComponent />
-              } 
+                <SupportComponent />
+              }
+            />
+
+            <Route excat path="/get-started"
+              render={() =>
+                <GetStartedComponent />
+              }
             />
 
             {isLoggedIn &&
-              <Route exact path='/transfer' 
+              <Route exact path='/transfer'
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />
                 }
@@ -88,8 +101,8 @@ export default class MainComponent extends Component {
             }
 
             {isLoggedIn &&
-              <Route exact path='/queue' 
-                render={ (props) => 
+              <Route exact path='/queue'
+                render={(props) =>
                   <QueueComponent {...props} />
                 }
               />
@@ -103,24 +116,39 @@ export default class MainComponent extends Component {
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/clientsInfo' 
+              <Route exact path='/clientsInfo'
                 render={(props) =>
                   <ClientsInfoComponent {...props} store={store} />
                 }
               />
             }
-
+            {isLoggedIn && admin &&
+              <Route exact path='/sendNotifications' render=
+                {(props) =>
+                  <NotificationsComponent {...props} store={store} />
+                }
+              />
+            }
+            {isLoggedIn && admin &&
+              <Route exact path='/newNotifications' render=
+                {(props) =>
+                  <NewNotificationsComponent {...props} store={store} />
+                }
+              />
+            }
             {isLoggedIn &&
-              <Route exact path='/user' 
-              render={ (props) => 
+              <Route exact path='/user'
+                render={(props) =>
                   <UserAccountComponent {...props} />
                 }
               />
             }
 
-            {(isLoggedIn) &&
-              <h1 to='/transfer'>Page Not Found</h1>
-            }
+						{/*
+							(isLoggedIn) &&
+              	<h1 to='/transfer'>Page Not Found</h1>
+							
+						*/}
 
             {!isLoggedIn &&
               <Route render={() => <Redirect to="/" />} />

@@ -12,7 +12,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import {globusListEndpoints, globusEndpointIds} from '../../APICalls/APICalls';
+import {globusListEndpoints, globusEndpointIds} from '../../APICalls/EndpointAPICalls';
 import {eventEmitter} from "../../App";
 
 const styles = {

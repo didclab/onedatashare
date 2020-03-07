@@ -1,11 +1,14 @@
 export const LOGIN = 'LOGIN';
-export function loginAction(username, hash, remember, saveOAuthTokens) {
+export function loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn) {
   return {
     type: LOGIN,
     credential: {
-    	email: username,
-      hash: hash,
-      saveOAuthTokens: saveOAuthTokens
+    	email: email,
+      token: token,
+      saveOAuthTokens: saveOAuthTokens,
+      compactViewEnabled: compactViewEnabled,
+      admin: admin,
+      expiresIn: expiresIn
     }
   }
 }
@@ -22,14 +25,19 @@ export function register(email, username, password) {
   }
 }
 
-
-
 export const UPDATE_HASH = 'UPDATE_HASH';
-
 export function updateHashAction(hash) {
   return {
     type: UPDATE_HASH,
     hash: hash
+  }
+}
+
+export const COMPACT_VIEW_PREFERENCE = 'COMPACT_VIEW_PREFERENCE';
+export function compactViewPreference(compactViewEnabled) {
+  return {
+    type: COMPACT_VIEW_PREFERENCE,
+    compactViewEnabled: compactViewEnabled
   }
 }
 
@@ -136,4 +144,3 @@ export const transferOptimizations = {
   SecondOrder : "2ndOrder",
   PCP : "PCP"
 }
-

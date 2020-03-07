@@ -7,7 +7,7 @@ import com.google.api.services.drive.model.FileList;
 import org.apache.commons.io.IOUtils;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.NotFound;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -161,7 +161,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
 
                 if (result == null)
-                    throw new NotFound();
+                    throw new NotFoundException();
 
                 FileList fileSet = null;
                 List<Stat> sub = new LinkedList<>();
@@ -196,7 +196,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                                         .setOrderBy("name").setQ(query)
                                         .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
                         if (result == null)
-                            throw new NotFound();
+                            throw new NotFoundException();
 
                         FileList fileSet = null;
 
@@ -354,7 +354,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                         }
                     } else {
                         try {
-                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (state + size - state - 1));
+                            httpRequestGet.getHeaders().setRange("bytes=" + state + "-" + (size - 1));
                             com.google.api.client.http.HttpResponse response = httpRequestGet.execute();
                             InputStream is = response.getContent();
                             IOUtils.copy(is, outputStream);

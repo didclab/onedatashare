@@ -7,7 +7,6 @@ import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
 import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "./initialize_dnd";
-import { screenIsSmall } from "./utils.js";
 
 /**
 	Component for file and directory
@@ -16,8 +15,6 @@ import { screenIsSmall } from "./utils.js";
 	[Folder xxx x]
 	and you can click to enter
 */
-
-import type { DraggableProvided, DraggableStateSnapshot } from 'react-beautiful-dnd';
 
 const FileDiv = styled.div`
   outline: none;
@@ -37,7 +34,7 @@ const FileDiv = styled.div`
 `;
 
 
-const getBackgroundColor = (isSelected, isGhosting): string => {
+const getBackgroundColor = (isSelected, isGhosting) => {
 	if(isGhosting){
 		return "#888";
 	}
@@ -47,7 +44,7 @@ const getBackgroundColor = (isSelected, isGhosting): string => {
 	return "#ffffff";
 };
 
-const getTextColor = (isSelected, isGhosting): string => {
+const getTextColor = (isSelected, isGhosting) => {
 	if(isGhosting){
 		return "#888";
 	}
@@ -103,9 +100,9 @@ export default class FileNode extends Component {
     	return true;
   	}
 	onKeyDown = (
-	    event: KeyboardEvent,
-	    provided: DraggableProvided,
-	    snapshot: DraggableStateSnapshot,
+	    event,
+	    provided,
+	    snapshot,
 	) => {
 	    if (provided.dragHandleProps) {
 	      provided.dragHandleProps.onKeyDown(event);
@@ -125,13 +122,13 @@ export default class FileNode extends Component {
 	    // we are using the event for selection
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed: boolean = event.shiftKey;
+	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+	    const wasShiftKeyUsed = event.shiftKey;
 
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	};
 
-	onClick = (event: MouseEvent) => {
+	onClick = (event) => {
 	    if (event.defaultPrevented) {
 	      return;
 	    }
@@ -141,8 +138,8 @@ export default class FileNode extends Component {
 	    // marking the event as used
 	    event.preventDefault();
 
-	    const wasMetaKeyUsed: boolean = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed: boolean = event.shiftKey;
+	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+	    const wasShiftKeyUsed = event.shiftKey;
 	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
 	  };
 	onTouchStart = (event) => {
@@ -155,21 +152,21 @@ export default class FileNode extends Component {
 		this.setState({dragging: true});
 	}
 
-	onTouchEnd = (event: TouchEvent) => {
+	onTouchEnd = (event) => {
 	    if (event.defaultPrevented || this.state.dragging) {
 	      return;
 	    }
 
-	    // marking the event as used
-	    // we would also need to add some extra logic to prevent the click
-	    // if this element was an anchor
+	//     // marking the event as used
+	//     // we would also need to add some extra logic to prevent the click
+	//     // if this element was an anchor
 	    event.preventDefault();
 
 	    this.props.toggleSelectionInGroup(this.props.file);
 	    return false;
 	};
 
-	performAction = (wasMetaKeyUsed: boolean, wasShiftKeyUsed: boolean) => {
+	performAction = (wasMetaKeyUsed, wasShiftKeyUsed) => {
 		const {
 		  toggleSelection,
 		  toggleSelectionInGroup,
@@ -220,9 +217,9 @@ export default class FileNode extends Component {
 		
 		return (
 			<Draggable draggableId={ endpoint.side + " " +JSON.stringify(this.props.file) } index = {index}>
-			{(provided : DraggableProvided, snapshot : DraggableStateSnapshot) => {
+			{(provided, snapshot) => {
 				const selectionCount = getSelectionCount(endpoint);
-				const shouldShowSelection: boolean =
+				const shouldShowSelection =
 	            snapshot.isDragging && selectionCount > 1;
 				return (
 					<FileDiv
@@ -238,7 +235,7 @@ export default class FileNode extends Component {
 		                onTouchStart={(e)=>{this.onTouchStart(e)}}
 
 		                onTouchMove={(e)=>{this.onTouchMove(e)}}
-		                onKeyDown={(event: KeyboardEvent) =>
+		                onKeyDown={(event) =>
 		                  this.onKeyDown(event, provided, snapshot)
 		                }
 		                isSelected={isSelected}
@@ -250,11 +247,14 @@ export default class FileNode extends Component {
 								{ dir && <FolderIcon/>}
 								{!dir && <FileIcon />  }
 								<p style={{marginLeft: "10px", flexGrow: 1, textAlign: "left"}} > {name} </p>
-								{(dir && screenIsSmall()) && <Button style={{width: "40px", float: "right"}} onTouchStart={() => {
-									onDoubleClick(this.props.file.name);
-								}}>
-									<InFolderIcon/>
-								</Button>} 
+								{dir && 
+									<Button style={{width: "40px", float: "right"}} 
+										onTouchStart={() => {
+											onDoubleClick(this.props.file.name);
+										}}>
+										<InFolderIcon/>
+									</Button>
+								}
 							</div>
 							{shouldShowSelection &&
 								<SelectionCount>{selectionCount}</SelectionCount>
@@ -267,7 +267,7 @@ export default class FileNode extends Component {
 									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
 								</div>
 							}
-					</FileDiv>
+					 </FileDiv>
 			)}}
 		</Draggable>);
 	}

@@ -92,3 +92,12 @@ output.log
 
 # DockerFile
 Dockerfile
+
+#properties
+src/main/resources/*.properties
+
+# UI build files
+src/main/resources/static/
+
+#Package-lock.json
+src/main/react-front-end/package-lock.json
