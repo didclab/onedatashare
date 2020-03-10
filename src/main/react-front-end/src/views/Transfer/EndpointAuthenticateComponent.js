@@ -364,6 +364,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
 
+		console.log(`Encrypted password is ${this.state.password} and ${jsEncrypt.encrypt(this.state.password)} and ${ODS_PUBLIC_KEY}`);
+		
 		this.endpointCheckin(this.state.url,
 			this.state.portNum,
 			{type: "userinfo", username: this.state.username, password: encryptedPwd},

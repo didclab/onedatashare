@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import { isSafari } from 'react-device-detect';
-import { nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
 import './HomePageComponent.css';
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
@@ -56,22 +54,6 @@ export default class HomePageComponent extends Component {
 
 		let homeInfo = this.makeInfoSlices();
 		let tripleIcon = this.makeTriple();
-
-		let bgImgS1 = ODS_S3_BUCKET + 's1.webp';
-		let bgImgS2 = ODS_S3_BUCKET + 's2.webp';
-		let bgImgS3 = ODS_S3_BUCKET + 's3.webp';
-		let bgImgS4 = ODS_S3_BUCKET + 's4.webp';
-		let bgImgS5 = ODS_S3_BUCKET + 's5.webp';
-		let bgImgS6 = ODS_S3_BUCKET + 's6.webp';
-		if(isSafari){
-			// Since Safari does not support WebP images, we load PNG
-			bgImgS1 = ODS_S3_BUCKET + 's1.png';
-			bgImgS2 = ODS_S3_BUCKET + 's2.png';
-			bgImgS3 = ODS_S3_BUCKET + 's3.png';
-			bgImgS4 = ODS_S3_BUCKET + 's4.png';
-			bgImgS5 = ODS_S3_BUCKET + 's5.png';
-			bgImgS6 = ODS_S3_BUCKET + 's6.png';
-		}
 
 		return(
 			<div>

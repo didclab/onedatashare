@@ -4,10 +4,6 @@ import Grid from "@material-ui/core/Grid";
 
 export default class HomeInfoSlice extends Component {
 
-    constructor(props) {
-        super(props);
-    }
-
     makeWideView() {
         if (this.props.imgOnLeft) {
             return (
