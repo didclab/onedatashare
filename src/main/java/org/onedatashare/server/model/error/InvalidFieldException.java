@@ -1,8 +1,8 @@
 package org.onedatashare.server.model.error;
 
-public class InvalidField extends ODSError {
+public class InvalidFieldException extends ODSError {
 
-    public InvalidField( String err){
+    public InvalidFieldException(String err){
         super(err);
         type = "Invalid Field";
         error = err;

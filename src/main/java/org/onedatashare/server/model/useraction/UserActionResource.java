@@ -13,8 +13,9 @@ public class  UserActionResource {
   private String uri;
   private String id;
   private UserActionCredential credential;
-  @Transient
-  private UploadCredential uploader;
   private ArrayList<IdMap> map;
   private String type;
+
+  @Transient
+  private UploadCredential uploader;
 }
