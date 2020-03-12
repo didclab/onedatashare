@@ -1,6 +1,7 @@
 package org.onedatashare.server.service;
 
 import lombok.Data;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,12 +22,13 @@ import java.util.Date;
  * @version 1.0
  * @since 05-08-2019
  */
-@Service
+@Service                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 public class CaptchaService {
 
     private String GOOGLE_CAPTCHA_VERIFY_API_URL = "https://www.google.com/recaptcha/api/siteverify";
 
     private final String secretKey = System.getenv("GOOGLE_CAPTCHA_SECRET");
+
 
     private final String REQUEST_METHOD = "POST";
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,6 +41,7 @@ public class CaptchaService {
      */
     public Mono<Boolean> verifyValue(String verificationValue){
         String errorMsg = "";
+        ODSLoggerService.logInfo("In CaptchaService.verifyValue: Received verificationValue of " + verificationValue);
 
         try{
             URL urlObj = new URL(GOOGLE_CAPTCHA_VERIFY_API_URL);
@@ -93,6 +96,7 @@ class GoogleCaptchaVerifyResponse{
     private Boolean success;
     private Date challenge_ts;
     private String hostname;
+    @JsonProperty("error-codes")
     private String[] error_codes;
 
 }
