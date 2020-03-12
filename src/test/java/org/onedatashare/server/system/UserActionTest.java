@@ -119,8 +119,6 @@ public class UserActionTest {
     }
 
     @Test
-//    @WithMockUser(TEST_USER_EMAIL)
-//    @WithAnonymousUser
     @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserNotVerified_WhenLoggingIn_ShouldFail() throws Exception {
         // does not perform verification by email
