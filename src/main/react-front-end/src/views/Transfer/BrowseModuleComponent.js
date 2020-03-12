@@ -1,8 +1,32 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 /*	Window in the Transfer Component */
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import {openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth, savedCredList} from "../../APICalls/APICalls";
+import { openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth } from "../../APICalls/EndpointAPICalls";
+import { savedCredList } from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
 import {cookies} from "../../model/reducers.js";
@@ -187,13 +211,12 @@ export default class BrowseModuleComponent extends Component {
 					<Icon className={'fas fa-bold'} style={iconStyle}/>
                     Box
                 </Button>
-	      		<Button id={endpoint.side + "GridFTP"} style={buttonStyle} disabled={!gridftpIsOpen} onClick={() =>{
-	      			this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
-	      		}}>
-	      			<Icon className={'fas fa-server'} style={iconStyle}/>
-	      		GridFTP
-		      	</Button>
-
+				{/* <Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
+					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
+				}}>
+					<Icon className={'fas fa-server'} style={iconStyle}/>
+				GridFTP
+				</Button>  */}
 				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>

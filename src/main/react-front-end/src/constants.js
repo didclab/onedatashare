@@ -1,8 +1,42 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-between" };
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 // urls
+export const ENDPOINT_OP_URL = "/api"
+export const LIST_OP_URL = "/ls"
+export const DEL_OP_URL = "/rm"
+export const MKDIR_OP_URL = "/mkdir"
+export const DOWNLOAD_OP_URL = "/download"
+export const UPLOAD_OP_URL = "/upload"
+export const SHARE_OP_URL = "/share"
+export const SFTP_DOWNLOAD_URL = "download/file"
+export const OAUTH_URL = "download/file"
+
+
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
@@ -80,11 +114,11 @@ export const validPasswordLength = 6;
 export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
 
 //images
-export const fastImage = ODS_S3_BUCKET + 'fast.png';
-export const easyImage = ODS_S3_BUCKET + 'easy.png';
-export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
-export const precImage = ODS_S3_BUCKET + 'precise.png';
-export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
+// export const fastImage = ODS_S3_BUCKET + 'fast.png';
+// export const easyImage = ODS_S3_BUCKET + 'easy.png';
+// export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
+// export const precImage = ODS_S3_BUCKET + 'precise.png';
+// export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
 export const nsfImage = ODS_S3_BUCKET + 'NSF_Logo.png';
 export const ubImage = ODS_S3_BUCKET + 'ub.png';
 export const gs1 = ODS_S3_BUCKET + "gs1.png";

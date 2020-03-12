@@ -1,12 +1,36 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxResource;
 import org.onedatashare.server.module.box.BoxSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,16 +40,14 @@ import reactor.core.publisher.Mono;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
-public class BoxService implements ResourceService<BoxResource> {
+public class BoxService extends ResourceService {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JobService jobService;
 
     @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
@@ -33,16 +55,17 @@ public class BoxService implements ResourceService<BoxResource> {
     }
 
     @Override
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::mkdir)
-                .flatMap(BoxResource::stat);
+                .map(r -> true);
     }
 
     @Override
-    public Mono<BoxResource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
-                .flatMap(BoxResource::delete);
+                .flatMap(BoxResource::delete)
+                .map(val -> true);
     }
 
     @Override
@@ -62,9 +85,10 @@ public class BoxService implements ResourceService<BoxResource> {
         ArrayList<IdMap> idMap = userAction.getMap();
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new BoxSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
+                    })
+                    .map(credential -> new BoxSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(BoxSession::initialize)
                     .flatMap(boxSession -> boxSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable -> {
@@ -78,21 +102,6 @@ public class BoxService implements ResourceService<BoxResource> {
                     .flatMap(boxSession -> boxSession.select(path, id, idMap));
         }
     }
-
-//    public Mono<BoxResource> getBoxResourceUserActionResource(String cookie, UserActionResource userActionResource) {
-//        final String path = pathFromUri(userActionResource.getUri());
-//        String id = userActionResource.getId();
-//        ArrayList<IdMap> idMap = userActionResource.getMap();
-//
-//        return userService.getLoggedInUser(cookie)
-//                .map(User::getCredentials)
-//                .map(uuidCredentialMap ->
-//                        uuidCredentialMap.get(UUID.fromString(userActionResource.getCredential().getUuid())))
-//                .map(credential -> new BoxSession(URI.create(userActionResource.getUri()), credential))
-//                .flatMap(BoxSession::initialize)
-//                .flatMap(boxSession -> boxSession.select(path, id, idMap));
-//    }
-
 
     public String pathFromUri(String uri) {
         String path = "";
