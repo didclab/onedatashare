@@ -18,6 +18,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import reactor.core.publisher.Mono;
@@ -36,6 +37,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
+/**
+ * A system test suite that tests actions on user accounts like logging in, changing passwords and verification.
+ * In order to inform the backend components of the currently logged in user, each test must be annotated with the
+ * {@link WithMockCustomUser} annotation, which is a custom annotation that extends and customizes the behavior
+ * of Spring's security context. In order to emulate an anonymous request, Spring's {@link WithAnonymousUser}
+ * should be used
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
