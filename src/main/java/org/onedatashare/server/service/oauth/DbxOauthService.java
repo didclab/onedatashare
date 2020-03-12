@@ -32,7 +32,6 @@ public class DbxOauthService  {
 
     @Autowired
     private OauthService oauthService;
-
     private DbxAppInfo secrets;
 
     private DbxRequestConfig config;

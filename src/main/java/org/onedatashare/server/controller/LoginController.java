@@ -1,6 +1,6 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.request.LoginControllerRequest;
+import lombok.Data;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
