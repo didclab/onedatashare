@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth, history, savedCredList,
-		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
-		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId
+} from "../../APICalls/EndpointAPICalls";
+import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
 				BOX_TYPE,
@@ -362,7 +363,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		let jsEncrypt = new JSEncrypt();
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-
+		
 		this.endpointCheckin(this.state.url,
 			this.state.portNum,
 			{type: "userinfo", username: this.state.username, password: encryptedPwd},

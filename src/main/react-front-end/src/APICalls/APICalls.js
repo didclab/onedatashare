@@ -12,12 +12,11 @@ import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
-import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
-import { cookies } from "../model/reducers.js";
+import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
 const FETCH_TIMEOUT = 10000;
 
-const axios = Axios.create({
+export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
 	headers: {
 		Accept: 'application/json',
@@ -25,7 +24,7 @@ const axios = Axios.create({
 	}
 });
 
-function statusHandle(response, callback) {
+export function statusHandle(response, callback) {
 	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
 	if (statusFirstDigit < 3) {
@@ -305,78 +304,12 @@ export async function history(uri, portNum, accept, fail) {
 		});
 }
 
-export async function globusEndpointIds(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointId',
-
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointDetail(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpoint',
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointActivate',
-		globusEndpoint: gep,
-		username: _username,
-		password: _password
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-
 export async function deleteHistory(uri, accept, fail) {
 	let callback = accept;
 
 	axios.post(url + 'user', {
 		action: "deleteHistory",
 		uri: encodeURI(uri)
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function deleteEndpointId(ged, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + 'globus', {
-		action: "deleteEndpointId",
-		globusEndpoint: ged,
 	})
 		.then((response) => {
 			if (!(response.status === 200))
@@ -513,142 +446,6 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options, acce
 
 		statusHandle(error, fail);
 	});
-}
-
-export async function listFiles(uri, endpoint, id, accept, fail) {
-	let body = {
-		uri: encodeURI(uri),
-		id: id,
-		portNumber: endpoint.portNumber,
-		type: getTypeFromUri(uri)
-	};
-
-	body = Object.keys(endpoint.credential).length > 0 ? { ...body, credential: endpoint.credential } : body;
-
-	let callback = accept;
-	axios.post(url + 'ls', JSON.stringify(body))
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function share(uri, endpoint, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + 'share', {
-		credential: endpoint.credential,
-		uri: encodeURI(uri),
-		type: getTypeFromUri(uri),
-		map: getMapFromEndpoint(endpoint),
-
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function mkdir(uri, type, endpoint, accept, fail) {
-	let callback = accept;
-	const ids = getIdsFromEndpoint(endpoint);
-	const id = ids[ids.length - 1];
-	axios.post(url + 'mkdir', {
-		credential: endpoint.credential,
-		uri: encodeURI(uri),
-		id: id,
-		type: type,
-		map: getMapFromEndpoint(endpoint),
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function deleteCall(uri, endpoint, id, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'delete', {
-		credential: endpoint.credential,
-		uri: encodeURI(uri),
-		id: id,
-		type: getTypeFromUri(uri),
-		map: getMapFromEndpoint(endpoint)
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-
-			statusHandle(error, fail);
-		});
-}
-
-// Returns the url for file. It is used to download the file and also to display in share url popup
-async function getDownloadLink(uri, credential, _id) {
-	return axios.post(url + 'download', {
-		type: getTypeFromUri(uri),
-		credential: credential,
-		uri: encodeURI(uri),
-		id: _id,
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				console.log("Error in download API call");
-			else {
-				return response.data
-			}
-		})
-		.catch((error) => {
-			console.log("Error encountered while generating download link");
-		});
-}
-
-export async function getSharableLink(uri, credential, _id) {
-	return getDownloadLink(uri, credential, _id).then((response) => {
-		return response
-	})
-}
-
-export async function download(uri, credential, _id) {
-	return getDownloadLink(uri, credential, _id).then((response) => {
-		if (response !== "") {
-			window.open(response)
-		}
-		else {
-			console.log("Error encountered while generating download link");
-		}
-	})
-}
-
-export async function getDownload(uri, credential){
-
-	let json_to_send = {
-		credential: credential,
-		uri: uri,
-	}
-
-	const jsonStr = JSON.stringify(json_to_send);
-	cookies.set("CX", jsonStr, { expires : 1});
-
-	window.location = url + "download/file";
-	setTimeout(() => {
-		cookies.remove("CX");
-	  }, 5000);
 }
 
 export async function upload(uri, credential, accept, fail) {
@@ -900,28 +697,6 @@ export async function updateViewPreference(email, compactViewEnabled, accept, fa
 	});
 }
 
-export async function openDropboxOAuth() {
-	openOAuth("/api/stork/oauth?type=dropbox");
-}
-
-export async function openGoogleDriveOAuth() {
-	openOAuth("/api/stork/oauth?type=googledrive");
-}
-
-export async function openGridFtpOAuth() {
-	openOAuth("/api/stork/oauth?type=gridftp");
-}
-
-export async function openBoxOAuth(){
-    openOAuth("api/stork/oauth?type=box");
-}
-
-
-
-export async function openOAuth(url){
-	window.location = url;
-}
-
 
 export async function registerUser(requestBody, errorCallback) {
 	return axios.post(REGISTRATION_ENDPOINT, requestBody)
@@ -961,22 +736,4 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
-}
-
-
-export async function globusListEndpoints(filter_fulltext, accept, fail) {
-	let callback = accept;
-	return axios.post(url + 'globus', {
-		action: "endpoint_list",
-		filter_fulltext: filter_fulltext
-		})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-
-			statusHandle(error, fail);
-		});
 }

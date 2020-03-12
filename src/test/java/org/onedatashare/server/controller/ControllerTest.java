@@ -1,7 +1,6 @@
 package org.onedatashare.server.controller;
 
 import com.google.gson.Gson;
-import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.*;
@@ -54,14 +53,14 @@ abstract class ControllerTest {
     /**
      * Classes of the services that require user authentication in order to process the request
      */
-    private static final Set<Class<? extends ResourceService<?>>> authenticatingServices = unmodifiableSet(
+    private static final Set<Class<? extends ResourceService>> authenticatingServices = unmodifiableSet(
             of(DbxService.class, ResourceServiceImpl.class).collect(toSet()));
 
     /**
      * Maps each {@link ResourceService} to the uri that it handles
      */
-    private static Map<Class<? extends ResourceService<?>>, String> serviceUri = unmodifiableMap(
-            new HashMap<Class<? extends ResourceService<?>>, String>(){{
+    private static Map<Class<? extends ResourceService>, String> serviceUri = unmodifiableMap(
+            new HashMap<Class<? extends ResourceService>, String>(){{
                 put(DbxService.class, DROPBOX_URI_SCHEME);
                 put(ResourceServiceImpl.class, DRIVE_URI_SCHEME);
                 put(HttpFileService.class, HTTP_URI_SCHEME);
@@ -72,10 +71,10 @@ abstract class ControllerTest {
     /**
      * Maps a uri to the {@link ResourceService} that it is linked to
      */
-    private static final Map<String, Class<? extends ResourceService<?>>> uriService = serviceUri.entrySet()
+    private static final Map<String, Class<? extends ResourceService>> uriService = serviceUri.entrySet()
             .stream().collect(toMap(Map.Entry::getValue, Map.Entry::getKey));
 
-    static String getServiceUri(ResourceService<?> service) {
+    static String getServiceUri(ResourceService service) {
         return serviceUri.get(getServiceClass(service));
     }
 
@@ -84,8 +83,8 @@ abstract class ControllerTest {
     }
 
     @SuppressWarnings("unchecked")
-    static Class<? extends ResourceService<?>> getServiceClass(ResourceService<?> service) {
-        return (Class<? extends ResourceService<?>>) service.getClass().getSuperclass();
+    static Class<? extends ResourceService> getServiceClass(ResourceService service) {
+        return (Class<? extends ResourceService>) service.getClass().getSuperclass();
     }
 
     static RequestData credentialedRequestDataOf(String type) {
@@ -131,13 +130,13 @@ abstract class ControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
-    Set<? extends ResourceService<?>> authenticatingServices(Stream<? extends ResourceService<?>> services) {
+    Set<? extends ResourceService> authenticatingServices(Stream<? extends ResourceService> services) {
         return services
                 .filter(service -> authenticatingServices.contains(getServiceClass(service)))
                 .collect(toSet());
     }
 
-    Set<? extends ResourceService<?>> nonAuthenticatingServices(Stream<? extends ResourceService<?>> services) {
+    Set<? extends ResourceService> nonAuthenticatingServices(Stream<? extends ResourceService> services) {
         return services
                 .filter(service -> !authenticatingServices.contains(getServiceClass(service)))
                 .collect(toSet());

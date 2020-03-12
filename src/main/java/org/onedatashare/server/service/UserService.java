@@ -59,7 +59,7 @@ public class UserService {
 
     public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
         if (!emailService.isValidEmail(email)) {
-            return Mono.error(new InvalidField("Invalid Email id"));
+            return Mono.error(new InvalidFieldException("Invalid Email id"));
         }
         return captchaService.verifyValue(captchaVerificationValue)
                 .flatMap(captchaVerified-> {

@@ -8,21 +8,19 @@ import org.mockito.stubbing.Answer;
 import org.onedatashare.server.controller.LoginController.LoginControllerRequest;
 import org.onedatashare.server.controller.RegistrationController.RegistrationControllerRequest;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.repository.UserRepository;
 import org.onedatashare.server.service.CaptchaService;
 import org.onedatashare.server.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -35,16 +33,20 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
+/**
+ * A system test suite that tests actions on user accounts like logging in, changing passwords and verification.
+ * In order to inform the backend components of the currently logged in user, each test must be annotated with the
+ * {@link WithMockCustomUser} annotation, which is a custom annotation that extends and customizes the behavior
+ * of Spring's security context. In order to emulate an anonymous request, Spring's {@link WithAnonymousUser}
+ * should be used
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
-//@AutoConfigureMockMvc(secure = false, addFilters = false)
-@ContextConfiguration
-@WebAppConfiguration
+@AutoConfigureMockMvc
 public class UserActionTest {
 
     private static final String TEST_USER_EMAIL = "bigstuff@bigwhoopcorp.com";
@@ -52,8 +54,6 @@ public class UserActionTest {
     private static final String TEST_USER_PASSWORD = "IamTheWalrus";
 
     @Autowired
-    private WebApplicationContext context;
-
     private MockMvc mvc;
 
     @MockBean
@@ -70,10 +70,6 @@ public class UserActionTest {
 
     @Before
     public void setup() {
-        mvc = MockMvcBuilders
-                .webAppContextSetup(context)
-                .apply(springSecurity())
-                .build();
 
         // User repo mocked methods
         when(userRepository.insert((User) any())).thenAnswer(addToUsers());
@@ -90,7 +86,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserDoesNotExist_WhenRegistered_ShouldBeAddedToUserRepository() throws Exception {
         registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
@@ -99,7 +95,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserAlreadyExists_WhenRegistered_ShouldNotDuplicateUser() throws Exception {
         registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
         long firstRegistrationTimestamp = getFirstUser().getRegisterMoment();
@@ -113,7 +109,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserRegistered_WhenCodeIsVerified_ShouldValidateUser() throws Exception {
         registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
@@ -121,7 +117,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserVerified_WhenLoggingIn_ShouldSucceed() throws Exception {
         registerUserAndChangePassword(TEST_USER_EMAIL, TEST_USER_PASSWORD, TEST_USER_NAME);
 
@@ -131,7 +127,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserNotVerified_WhenLoggingIn_ShouldFail() throws Exception {
         // does not perform verification by email
         registerUser(TEST_USER_EMAIL, TEST_USER_NAME);
@@ -142,11 +138,12 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserChangedPassword_WhenLoggingInWithNewPassword_ShouldSucceed() throws Exception {
         String oldPassword = TEST_USER_PASSWORD;
         String new_password = "new_password";
         registerUserAndChangePassword(TEST_USER_EMAIL, oldPassword, TEST_USER_NAME);
+        loginUser(TEST_USER_EMAIL, oldPassword);
 
         resetUserPassword(TEST_USER_EMAIL, oldPassword, new_password);
 
@@ -155,7 +152,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserChangedPassword_WhenLoggingInWithOldPassword_ShouldFail() throws Exception {
         String oldPassword = TEST_USER_PASSWORD;
         String new_password = "new_password";
@@ -168,7 +165,7 @@ public class UserActionTest {
     }
 
     @Test
-    @WithMockUser(TEST_USER_EMAIL)
+    @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenIncorrectOldPassword_WhenResettingPassword_ShouldFail() throws Exception {
         String oldPassword = TEST_USER_PASSWORD;
         String new_password = "new_password";

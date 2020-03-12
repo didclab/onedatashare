@@ -32,7 +32,7 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         String token = null;
         String endpoint = request.getPath().pathWithinApplication().value().toString();
         //Check for token only when the request needs to be authenticated
-        if(endpoint.startsWith("/api/stork")) {
+        if(endpoint.startsWith("/api/")) {
             try {
                 token = request.getCookies().getFirst("ATOKEN").getValue();
             } catch (NullPointerException npe) {
