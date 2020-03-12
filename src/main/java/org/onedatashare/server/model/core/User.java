@@ -1,6 +1,9 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -265,6 +268,8 @@ public class User {
     /**
      * Model class to hold logged in user specific information
      */
+    @Getter
+    @Setter
     public class UserLogin {
         public String email;
         public String hash;
