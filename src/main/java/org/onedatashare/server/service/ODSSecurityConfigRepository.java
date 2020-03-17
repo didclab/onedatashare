@@ -25,6 +25,7 @@ package org.onedatashare.server.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,10 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+import static org.onedatashare.server.model.core.ODSConstants.TOKEN_PREFIX;
 
 @Service
 public class ODSSecurityConfigRepository implements ServerSecurityContextRepository {
@@ -57,7 +62,15 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         //Check for token only when the request needs to be authenticated
         if(endpoint.startsWith("/api/")) {
             try {
-                token = request.getCookies().getFirst("ATOKEN").getValue();
+                // Try fetching token from the headers
+                token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+                if(token != null && token.startsWith(TOKEN_PREFIX)){
+                    token = token.substring(TOKEN_PREFIX.length());
+                }
+                // Try fetching token from the cookies
+                if(token == null) {
+                  token = request.getCookies().getFirst("ATOKEN").getValue();
+                }
             } catch (NullPointerException npe) {
                 ODSLoggerService.logError("No token Found for request at " + endpoint);
             }
