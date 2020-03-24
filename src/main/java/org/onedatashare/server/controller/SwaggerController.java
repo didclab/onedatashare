@@ -43,13 +43,13 @@ import java.io.IOException;
  * @since 10-01-2019
  */
 
-@Profile("!local")// if profile is not local.
-@RestController
-@Slf4j
+//@Profile("!local")// if profile is not local.
+//@RestController
+//@Slf4j
 public class SwaggerController {
 
-    @RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)
-    public void getSwagger(HttpServletResponse httpResponse) throws IOException {
-        httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    }
+//    @RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)
+//    public void getSwagger(HttpServletResponse httpResponse) throws IOException {
+//        httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//    }
 }

@@ -7,20 +7,15 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.s3.S3Resource;
 import org.onedatashare.server.module.s3.S3Session;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
-import java.util.UUID;
 
-import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 @Service
-public class S3Service implements ResourceService<S3Resource> {
+public class S3Service extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -71,15 +66,16 @@ public class S3Service implements ResourceService<S3Resource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(S3Resource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(S3Resource::mkdir)
-                .flatMap(S3Resource::stat);
+                .map(x -> true);
     }
 
-    public Mono<S3Resource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(S3Resource::delete);
+                .flatMap(S3Resource::delete)
+                .map(x -> true);
     }
 
     @Override
