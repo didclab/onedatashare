@@ -1,6 +1,32 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -48,7 +74,8 @@ public class User {
     /** The validation token we're expecting. */
     private String validationToken;
 
-    /** Set to true if user is administrator. */
+    /** Set to true if user is administrator. Currently Replaced with roles but still updated */
+    @Deprecated
     private boolean isAdmin = false;
 
     /** Set to true if user want to save OAuth credentials */
@@ -133,7 +160,7 @@ public class User {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return roles != null && (roles.contains(Role.ADMIN) || roles.contains(Role.OWNER));
     }
 
     /**
@@ -264,6 +291,8 @@ public class User {
     /**
      * Model class to hold logged in user specific information
      */
+    @Getter
+    @Setter
     public class UserLogin {
         public String email;
         public String hash;
@@ -299,5 +328,17 @@ public class User {
             long t = date.getTimeInMillis();
             this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
         }
+    }
+
+    public void grantAdminRole(){
+        if(!roles.contains(Role.ADMIN)) {
+            roles.add(Role.ADMIN);
+            isAdmin = true;
+        }
+    }
+
+    public void removeAdminRole(){
+        roles.remove(Role.ADMIN);
+        isAdmin = false;
     }
 }

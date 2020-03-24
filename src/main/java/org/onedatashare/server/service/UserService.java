@@ -1,8 +1,28 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
-import com.google.api.client.util.DateTime;
-import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.handler.codec.http.cookie.ServerCookieDecoder;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
@@ -10,13 +30,10 @@ import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.*;
 import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
@@ -65,7 +82,7 @@ public class UserService {
 
     public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
         if (!emailService.isValidEmail(email)) {
-            return Mono.error(new InvalidField("Invalid Email id"));
+            return Mono.error(new InvalidFieldException("Invalid Email id"));
         }
         return captchaService.verifyValue(captchaVerificationValue)
                 .flatMap(captchaVerified-> {
@@ -233,7 +250,7 @@ public class UserService {
                     if(user.getGlobusEndpoints().remove(enpid) != null) {
                         return userRepository.save(user).subscribe();
                     }
-                    return Mono.error(new NotFound());
+                    return Mono.error(new NotFoundException());
                 }).then();
     }
 
@@ -282,14 +299,6 @@ public class UserService {
         });
     }
 
-
-    public Mono<Boolean> updateAdminRights(String email, boolean isAdmin){
-        return getUser(email).flatMap(user -> {
-            user.setAdmin(isAdmin);
-            userRepository.save(user).subscribe();
-            return Mono.just(true);
-        });
-    }
 
     public Mono<Boolean> userLoggedIn() {
         return ReactiveSecurityContextHolder.getContext()
@@ -422,7 +431,7 @@ public class UserService {
         return getLoggedInUser(cookie)
                 .map(user -> {
                     if(user.getCredentials().remove(UUID.fromString(uuid))== null) {
-                        return Mono.error(new NotFound());
+                        return Mono.error(new NotFoundException());
                     }
                     return userRepository.save(user).subscribe();
                 }).then();
@@ -475,7 +484,7 @@ public class UserService {
                     if(user.getHistory().remove(URI.create(uri))) {
                         return userRepository.save(user).subscribe();
                     }
-                    return Mono.error(new NotFound());
+                    return Mono.error(new NotFoundException());
                 }).then();
     }
 
@@ -536,16 +545,5 @@ public class UserService {
 
     public Mono<User> addJob(Job job, String cookie) {
         return getLoggedInUser(cookie).map(user -> user.addJob(job.getUuid())).flatMap(userRepository::save);
-    }
-
-    public User.UserLogin cookieToUserLogin(String cookie) {
-        Map<String,String> map = new HashMap<String,String>();
-        Set<Cookie> cookies = ServerCookieDecoder.LAX.decode(cookie);
-        for (Cookie c : cookies)
-            map.put(c.name(), c.value());
-        User user = new User();
-        user.setEmail(map.get("email"));
-        user.setHash(map.get("hash"));
-        return user.new UserLogin(user.getEmail(), user.getHash(), user.isSaveOAuthTokens(), user.isCompactViewEnabled());
     }
 }

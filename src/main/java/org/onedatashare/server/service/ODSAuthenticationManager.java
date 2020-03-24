@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
 import io.jsonwebtoken.Claims;
@@ -32,14 +55,13 @@ public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
 
         if(userName != null && jwtUtil.validateToken(authToken)){
             Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
-            List<String> rolesMap = claims.get("role", List.class);
+            List<String> roleList = claims.get("role", List.class);
             List<Role> roles = new ArrayList<>();
-            if(rolesMap != null) {
-                for (String rolemap : rolesMap) {
-                    roles.add(Role.valueOf(rolemap));
+            if(roleList != null) {
+                for (String role : roleList) {
+                    roles.add(Role.valueOf(role));
                 }
             }
-
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userName,
                     null,

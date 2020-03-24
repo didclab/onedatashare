@@ -1,50 +1,41 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
-import {Glyphicon, Jumbotron, Row, Col} from 'react-bootstrap';
-import Slider from "react-slick";
 import {updateGAPageView} from "../analytics/ga";
-import Button from '@material-ui/core/Button';
-import { Link } from 'react-router-dom';
-import { isSafari } from 'react-device-detect';
-import { fastImage, easyImage, eteImage, precImage, intopImage, nsfImage, ubImage, ODS_S3_BUCKET } from "../constants.js"
-
 import './HomePageComponent.css';
-
-const textStyle = {color:'white', fontSize: '1.2em', textAlign: 'left'};
-const sideStyle = {...textStyle, fontSize: '1.5em'};
-const rowStyle = {background: '#579', padding: '4vw', width: '100%', margin: 0};
-const subHeaderStyle = {...textStyle, fontSize: '2em'}
-const subTextStyle = {...textStyle, fontSize: '1.1em'}
-
-function CustomNextArrow(props) {
-  const { style, onClick } = props;
-  return (
-    <div
-      className="slick-next"
-      style={{ ...style}}
-      onClick={onClick}
-    >
-    	<Glyphicon glyph="chevron-right" style={{fontSize:"50px", color: "white"}}/>
-    </div>
-  );
-}
-
-function CustomPrevArrow(props) {
-  const { style, onClick } = props;
-  return (
-    <div
-      className="slick-prev"
-      style={{ ...style}}
-      onClick={onClick}
-    >
-    	<Glyphicon glyph="chevron-left" style={{fontSize:"50px", color: "white"}}/>
-    </div>
-  );
-}
-
+import {HomeInfo} from "./HomePage/HomePageInfo";
+import HomeInfoSlice from "./HomePage/HomeInfoSlice";
+import RecognitionSlice from "./HomePage/RecognitionSlice";
+import TitleSlice from "./HomePage/TitleSlice";
+import TripleIconSlice from "./HomePage/TripleIconSlice";
+import {TripleIconInfo} from "./HomePage/TripleIconInfo";
+import Grid from "@material-ui/core/Grid";
 
 export default class HomePageComponent extends Component {
-	constructor(){
-		super();
+
+	constructor(props){
+		super(props);
 		updateGAPageView();
 	}
 
@@ -52,164 +43,57 @@ export default class HomePageComponent extends Component {
 		document.title = "OneDataShare";
 	}
 
-	render(){
-		var settings = {
-			dots: true,
-			infinite: true,
-			speed: 500,
-			slidesToShow: 1,
-			slidesToScroll: 1,
-			appendDots: dots => <ul style={{bottom: "8%", zIndex: 1}}>{dots}</ul>,
-			nextArrow: <CustomNextArrow/>,
-			prevArrow: <CustomPrevArrow/>,
-			autoplay: false,
-			responsive: [{breakpoint: 500, settings: {arrows: false}}]
-		};
-
-		let getStartedButton = (
-			<div style={{ marginTop : '5%', marginLeft : '2%'}}>
-				<Button variant="contained" color="primary" style={{ backgroundColor : 'rgb(45, 46, 48)', fontSize: '1.5rem'}}>
-					<Link to="/get-started" style={{ color:'white'  }}>
-						Get Started
-					</Link>
-				</Button>
-			</div>
-		);
-		
-		let bgImgS1 = ODS_S3_BUCKET + 's1.webp';
-		let bgImgS2 = ODS_S3_BUCKET + 's2.webp';
-		let bgImgS3 = ODS_S3_BUCKET + 's3.webp';
-		let bgImgS4 = ODS_S3_BUCKET + 's4.webp';
-		let bgImgS5 = ODS_S3_BUCKET + 's5.webp';
-		let bgImgS6 = ODS_S3_BUCKET + 's6.webp';
-		if(isSafari){
-			// Since Safari does not support WebP images, we load PNG
-			bgImgS1 = ODS_S3_BUCKET + 's1.png';
-			bgImgS2 = ODS_S3_BUCKET + 's2.png';
-			bgImgS3 = ODS_S3_BUCKET + 's3.png';
-			bgImgS4 = ODS_S3_BUCKET + 's4.png';
-			bgImgS5 = ODS_S3_BUCKET + 's5.png';
-			bgImgS6 = ODS_S3_BUCKET + 's6.png';
+	makeInfoSlices(){
+		let retVal = [];
+		for (let i=0; i<HomeInfo.length; i+=1) {
+			let data = HomeInfo[i];
+			let left = i % 2;
+			let name = 'evenSlice';
+			if (!left) {
+				name = 'oddSlice';
+			}
+			retVal.push( <HomeInfoSlice className={name}
+										imgOnLeft={left}
+										title={data.title}
+										text ={data.text}
+										img={require('./HomePage' + data.img)}
+										imgAltTxt={data.imgAltTxt} /> );
 		}
+		return retVal;
+	}
 
+	makeTriple() {
+		let retVal = [];
+		for (let i=0; i<TripleIconInfo.length; i+=1) {
+			let data = TripleIconInfo[i];
+			retVal.push( <TripleIconSlice img={require('./HomePage' + data.img)}
+										  title={data.title}
+										  imgAltTxt={data.imgAlt}/> );
+		}
+		return retVal;
+	}
+
+	render() {
+
+		let homeInfo = this.makeInfoSlices();
+		let tripleIcon = this.makeTriple();
 
 		return(
-			<div className="adjustTop">
-				<Col>
-					<Slider {...settings} >
-						<div>
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS1 + ')'}}>
-								<Col className="cardStyle">
-									<h1 className="textStyle headerStyle">OneDataShare&nbsp;
-										<sup title="Beta">&beta;</sup>
-									</h1>
-									<p style={sideStyle}>OneDataShare is a reliable and fast data movement service in the cloud.</p>
-									<h4 style={textStyle}>We aim to deliver:</h4>
-									<ul style={textStyle}>
-										<li>Robust multi-protocol data transfer as a service</li>
-										<li>Remote file browsing in your web browser</li>
-										<li>Advanced transfer optimization algorithms</li>
-									</ul>
+			<div>
+				<div className='homePage'>
 
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-						<div>
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS2 + ')'}}>
-								<Col className="cardStyle">
-									<h1 className="textStyle headerStyle">Decreased Uncertainty in Real-time Decision-Making Processes.</h1>
-									<p style={sideStyle}>OneDataShare’s data throughput and delivery time prediction service will 
-														eliminate possible long delays in completion of a transfer operation and 
-														increase utilization of end-system and network resources by giving an 
-														opportunity to provision these resources in advance with great accuracy.</p>
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-						<div>
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS3 + ')'}}>
-								<Col className="cardStyle">
-									<h1 className="textStyle headerStyle">Reduced Time to the Delivery of Data</h1>
-									<p style={sideStyle}>OneDataShare reduces the time to the delivery of data, 
-														and drastically increases the end-to-end performance of 
-														data-intensive applications relying on remote data sources.</p>
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-						<div >
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS4 + ')'}}>
-								<Col className="cardStyle">
-									<h1 className="textStyle headerStyle">Interoperation Across Heterogeneous Data Resources</h1>
-									<p style={sideStyle}>OneDataShare provides interoperation across heterogeneous data resources 
-														and on-the-fly translation between different data transfer protocols. 
-														Sharing data between traditionally non-compatible data sources becomes 
-														very easy and convenient with OneDataShare.</p>
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-						<div>
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS5 + ')'}}>
-								<Col className="cardStyle">
-									<h1 className="textStyle headerStyle">Fast, Scalable, and Flexible Data Sharing Made Easy</h1>
-									<p style={sideStyle}>OneDataShare makes the data readily available to the users and to their applications in the fastest and the most efficient way possible.</p>
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-						<div>
-							<Jumbotron className="homepage_section" style={{ backgroundImage: 'url(' + bgImgS6 + ')'}}>
-								<Col className="cardStyle">
-											<h1 className="textStyle headerStyle">End-to-end Data Sharing Solution</h1>
-											<p style={sideStyle}>Anything that requires high-volume data transfer, 
-																	from real-time weather conditions and natural disasters to 
-																	sharing genomic maps and real-time consumer behavior analysis, 
-																	will benefit from OneDataShare.</p>
-									{ getStartedButton }
-								</Col>
-							</Jumbotron>
-						</div>
-					</Slider>
+					<TitleSlice />
 
-					<Row style={rowStyle}>
-						<img width={'300px'} className="image-center" src={fastImage} style={{float: 'left'}} alt="Fast, Scalable, and Flexible Data Sharing Made Easy"></img>
-						<h3 style={subHeaderStyle}>Fast, Scalable, and Flexible Data Sharing Made Easy</h3>
-						<p style={subTextStyle}>OneDataShare harnesses the power of the cloud and implements state-of-the-art frameworks to optimize data transfer scheduling. It enhances the speed of data transfer via multiple protocols by enabling faster data transfer across the network. OneDataShare utilizes the available bandwidth to the fullest by using many optimization mechanisms, thereby speeding up data transfer and lowering cost.</p>
-					</Row>
+					<Grid className='TripleIconSlice' container direction='row'>
+					{tripleIcon}
+					</Grid>
 
-					<Row style={rowStyle}>
-						<img width={'300px'} className="image-center" src={easyImage} style={{float: 'left'}} alt="Reduced Time to the Delivery of Data"></img>
-						<h3 style={subHeaderStyle}>Reduced Time to the Delivery of Data</h3>
-						<p style={subTextStyle}>OneDataShare reduces the time to the delivery of data and drastically increases the end-to-end performance of data-intensive applications relying on remote data sources. It provides an end-to-end data transfer architecture which is reliable, fast and effective. The users are capable of reducing the burden of data transfer time through the use of OneDataShare.</p>
-					</Row>
+					{homeInfo}
+				</div>
 
-					<Row style={rowStyle}>
-						<img width={'300px'} className="image-center" src={intopImage} style={{float: 'left'}} alt="Interoperation Across Heterogeneous Data Resources"></img>
-						<h3 style={subHeaderStyle}>Interoperation Across Heterogeneous Data Resources</h3>
-						<p style={subTextStyle}>By using OneDatashare, users can transfer their data across multiple protocols and platforms without having to worry about protocol translation. OneDataShare takes care of the protocol translation across multiple users ends and it provides a user-friendly field to translate data across multiple instances and ensures effective compatibility and platform independence as data gets transferred from the newest to the oldest protocols and vice versa.</p>
-					</Row>
+				<RecognitionSlice />
 
-					<Row style={rowStyle}>
-						<img width={'300px'} className="image-center" src={precImage} style={{float: 'left'}} alt="Decreased Uncertainty in Real-time Decision-Making Processes"></img>
-						<h3 style={subHeaderStyle}>Decreased Uncertainty in Real-time Decision-Making Processes.</h3>
-						<p style={subTextStyle}>Delays over transmission of large data sets are eliminated by using OneDataShare. The desirable data delivery throughput of OneDataShare will alleviate the issue of a long time of data transfer. Hence users will be able to experience faster data deposits across long distances which will, in turn, speed up their other processes regarding usage of the data. Also, it will provide the users with upfront information regarding their data transfers and arrivals, thereby enabling them to prepare in advance for data transfer and scheduling.</p>
-					</Row>
-
-					<Row style={rowStyle}>
-						<img width={'300px'} className="image-center" src={eteImage} style={{float: 'left'}} alt="End-to-end Data Sharing Solution"></img>
-						<h3 style={subHeaderStyle}>End-to-end Data Sharing Solution</h3>
-						<p style={subTextStyle}>OneDataShare is capable of transferring high-volume data of data like real-time weather predictions and conditions and natural disasters to sharing genomic maps and consumer behavior statistics for business intelligence, climate change data or geographic data from any Management Information System (MIS) from anywhere in the world.</p>
-					</Row>
-
-					<Row className="imagecentercontainer" style={{...rowStyle, backgroundColor: 'white' }}>
-						<img width={'100px'} src={nsfImage} style={{float: 'left'}} alt="NSF Logo"></img>
-						<img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo"></img>
-					</Row>
-				</Col>
-		</div>
-			);
-		;
+			</div>
+		);
 	}
 }

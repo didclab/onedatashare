@@ -1,4 +1,28 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
+import { Link } from '@material-ui/core';
 import { Label, Glyphicon, Button, Alert, Table, Checkbox, HelpBlock, Modal, ButtonToolbar, FormGroup, ControlLabel, FormControl, Form } from 'react-bootstrap';
 import './ComposeMail.css';
 import { getAllUsers, sendEmailNotification } from '../../APICalls/APICalls';
@@ -146,7 +170,7 @@ class ComposeMail extends Component {
     }
 
     render() {
-        const { users, selected, filteredUsers, isValidSubject, isValidMessage, isValidRecipients } = this.state;
+        const { selected, filteredUsers, isValidSubject, isValidMessage, isValidRecipients } = this.state;
         return (
             <div>
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -171,7 +195,7 @@ class ComposeMail extends Component {
                     <FormGroup controlId={'to'} validationState={isValidRecipients ? 'none' : 'error'}>
                         <ControlLabel>To</ControlLabel>
                         <FormControl.Static>
-                            {selected && selected.length > 0 ? <a href={null} onClick={this.smOpen}>{`${selected.length} users selected`}</a> : <a href={null} onClick={this.smOpen}>Select recipients </a>}
+                            {selected && selected.length > 0 ? <Link href="#" onClick={this.smOpen}>{`${selected.length} users selected`}</Link> : <Link href="#" onClick={this.smOpen}>Select recipients </Link>}
                         </FormControl.Static>
                         {isValidRecipients ? '' : <HelpBlock>{'Recipients cannot be empty.'}</HelpBlock>}
                     </FormGroup>
@@ -190,7 +214,7 @@ class ComposeMail extends Component {
                         <FormGroup controlId={'isHtml'}>
                             <Checkbox checked={this.state.ishtml} style={{ margin: 0 }} onChange={this.handleisHtml} ><b>Sending HTML Mail?</b></Checkbox>
                         </FormGroup>
-                        {this.state.ishtml ? <a href={null} onClick={this.handleDialogBox}>Preview</a> : <div></div>
+                        {this.state.ishtml ? <Link href="#" onClick={this.handleDialogBox}>Preview</Link> : <div></div>
                         }
                     </div>
                     <FormGroup controlId="message" validationState={isValidMessage ? 'none' : 'error'} >

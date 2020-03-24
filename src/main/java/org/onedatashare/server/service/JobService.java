@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Job;
@@ -27,7 +50,7 @@ public class JobService {
 
     private static Pageable generatePageFromRequest(JobRequest request){
         Sort.Direction direction = request.sortOrder.equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        request.pageNo = request.pageNo - 1 < 0 ? 0 : request.pageNo - 1;
+        request.pageNo = Math.max(request.pageNo, 0);
         Pageable page = PageRequest.of(request.pageNo, request.pageSize, Sort.by(direction, request.sortBy));
         return page;
     }
@@ -44,8 +67,8 @@ public class JobService {
     public Mono<JobDetails> getJobsForUser(JobRequest request) {
         Pageable pageable = this.generatePageFromRequest(request);
         return userService.getLoggedInUserEmail().flatMap(userEmail -> {
-            Mono<List<Job>> jobList = jobRepository.findJobsForUser(userEmail, false, pageable).collectList();
-            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail, false);
+            Mono<List<Job>> jobList = jobRepository.findJobsForUser(userEmail, pageable).collectList();
+            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail);
             return jobList.zipWith(jobCount, JobDetails::new);
         });
     }
@@ -54,7 +77,7 @@ public class JobService {
         Pageable pageable = this.generatePageFromRequest(request);
         return userService.getLoggedInUserEmail().flatMap(userEmail -> {
             Mono<List<Job>> jobList = jobRepository.findAllBy(pageable).collectList();
-            Mono<Long> jobCount = jobRepository.getJobCountForUser(userEmail, false);
+            Mono<Long> jobCount = jobRepository.getCount();
             return jobList.zipWith(jobCount, JobDetails::new);
         });
     }
@@ -69,7 +92,7 @@ public class JobService {
     }
 
     public  Flux<Job> getUpdatesForAdmin(List<UUID> jobIds){
-        return jobRepository.findAllById(jobIds).filter(job -> !job.isDeleted());
+        return jobRepository.findAllById(jobIds);
     }
 
     public Mono<Job> findJobByJobId(String cookie, Integer job_id) {

@@ -1,15 +1,40 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.controller;
 
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.UserDetails;
-import org.onedatashare.server.model.jobaction.JobRequest;
+import org.onedatashare.server.model.request.ChangeRoleRequest;
+import org.onedatashare.server.model.request.PageRequest;
 import org.onedatashare.server.model.useraction.NotificationBody;
 import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.AdminService;
 import org.onedatashare.server.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -28,13 +53,13 @@ public class AdminController {
     private EmailService emailService;
 
     @PostMapping(value = "/get-users")
-    public Mono<UserDetails> getUsersPaged(@RequestBody JobRequest jobRequest) {
-        return adminService.getUsersPaged(jobRequest);
+    public Mono<UserDetails> getUsersPaged(@RequestBody PageRequest pageRequest) {
+        return adminService.getUsersPaged(pageRequest);
     }
 
     @PostMapping(value = "/get-admins")
-    public Mono<UserDetails> getAdminsPaged(@RequestBody JobRequest jobRequest){
-        return adminService.getAdminsPaged(jobRequest);
+    public Mono<UserDetails> getAdminsPaged(@RequestBody PageRequest pageRequest){
+        return adminService.getAdminsPaged(pageRequest);
     }
 
     @GetMapping(value = "/getAllUsers")
@@ -64,6 +89,7 @@ public class AdminController {
     }
 
 
+    //TODO: make asynchonous
     @PostMapping(value = "/sendNotifications")
     public Response sendNotifications(@RequestBody NotificationBody body) {
         // check whether the No of recipients is within the sending limit
@@ -87,4 +113,14 @@ public class AdminController {
             return new Response("Sending Limit exceeded", 401);
         }
     }
+
+    @PreAuthorize("hasAnyAuthority('OWNER')")
+    @PutMapping("/change-role")
+    /**
+     * Only owner perform role changes
+     */
+    public Mono<Response> changeRole(@RequestBody ChangeRoleRequest changeRoleRequest){
+        return adminService.changeRole(changeRoleRequest.getEmail(), changeRoleRequest.isMakeAdmin());
+    }
+
 }

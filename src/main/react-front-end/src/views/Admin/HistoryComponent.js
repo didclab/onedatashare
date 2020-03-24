@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
 import { getJobsForAdmin } from '../../APICalls/APICalls';
 import { humanReadableSpeed } from '../../utils';
@@ -24,7 +47,7 @@ import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
 import CircularProgress from '@material-ui/core/CircularProgress'
-
+import RefreshIcon from '@material-ui/icons/Refresh';
 import { withStyles } from '@material-ui/core';
 
 const styles = theme => ({
@@ -72,7 +95,7 @@ class HistoryComponent extends Component {
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage	= this.handleChangePage.bind(this)
-		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 
 		updateGAPageView()
 	}
@@ -107,11 +130,13 @@ class HistoryComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 	refreshSuccess(resp) {
-		const { page, rowsPerPage } = this.state
-		let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		// const { page, rowsPerPage } = this.state
+		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
+		//commented to fix second page render issue as it slices all jobs and returns null object
+
 		this.setState({
 			response: resp.jobs,
-			responsesToDisplay: responsesToDisplay,
+			responsesToDisplay: resp.jobs,
 			totalCount: resp.totalCount,
 			loading: false
 		})
@@ -159,11 +184,12 @@ class HistoryComponent extends Component {
 		this.setState({selectedTab: !selectedTab})
 	}
 	handleChangePage(event, page) {
-		const { response, rowsPerPage } = this.state
-		let nextRecords = this.paginateResults(response, page, rowsPerPage)
+		const { response } = this.state
+		// const { response, rowsPerPage } = this.state
+		//let nextRecords = this.paginateResults(response, page, rowsPerPage)
 		this.setState({
 			page: page,
-			responsesToDisplay: nextRecords,
+			responsesToDisplay: response,
 			selectedRowId: null,
 			loading: true
 		});
@@ -237,7 +263,13 @@ class HistoryComponent extends Component {
 						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
 							Transfer History
 						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='3'>
+						<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
+							<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation 
+							onClick={this.queueFunc} size="small">
+								Refresh
+							</Button>
+						</TableCell>
+						<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
 							{ this.customToolbar() }
 						</TableCell>
 					</TableRow>
@@ -381,15 +413,19 @@ class RowElement extends React.PureComponent {
 		let now, bsStyle, label
 		if (status === 'complete') {
 			now = 100
-			bsStyle = 'info'
+			bsStyle = ''
 			label = 'Complete'
 		} else if (status === 'failed') {
 			now = 100
 			bsStyle = 'danger'
 			label = 'Failed'
+		} else if (status === 'removed' || status === 'cancelled') {
+			now = 100
+			bsStyle = 'danger'
+			label = 'Cancelled'
 		} else {
 			now = ((done / total) * 100).toFixed()
-			bsStyle = 'danger'
+			bsStyle = 'warning'
 			label = `Transferring ${now}%`
 		}
 		return <ProgressBar

@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 
 /*accountInformation
 [credentials]
@@ -57,17 +80,16 @@ export function onedatashareModel(state = initialState, action) {
   // and just return the state given to us.
   switch (action.type) {
     case LOGIN:
-   		const {email, token, saveOAuthTokens, compactViewEnabled, admin} = action.credential;
-      console.log('logging in', email);
-
-      cookies.set('email', email, { expires : maxCookieAge });
-      cookies.set('ATOKEN', token, {expires: maxCookieAge});
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : maxCookieAge });
-      cookies.set('compactViewEnabled', compactViewEnabled, { expires : maxCookieAge });
+   		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
+      console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
+      cookies.set('email', email, { expires : 1 });
+      cookies.set('ATOKEN', token, {expires: 1 });
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : 1 });
+      cookies.set('compactViewEnabled', compactViewEnabled, { expires : 1 });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { expires : maxCookieAge });
+        cookies.set('admin', admin, { expires : 1 });
       }
       
     	return Object.assign({}, state, {

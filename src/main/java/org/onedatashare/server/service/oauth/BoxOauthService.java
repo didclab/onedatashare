@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service.oauth;
 
 import com.box.sdk.BoxAPIConnection;
@@ -7,11 +30,9 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Collection;
 import java.util.Date;
 
 /**
@@ -29,8 +50,8 @@ public class BoxOauthService {
 
         private static String client_id = System.getenv("BOX_CLIENT_ID");
         private static String client_secret = System.getenv("BOX_CLIENT_SECRET");
-        private static String scope = System.getenv("BOX_SCOPE");
-        private static String redirect_uri = "http://127.0.0.1:8080/api/stork/oauth/box";
+        private static String scope = "root_readwrite";
+        private static String redirect_uri = System.getenv("BOX_REDIRECT_URI");
         private static String box_redirect = "https://account.box.com/api/oauth2/authorize";
 
     }

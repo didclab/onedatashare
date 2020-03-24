@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
 import org.onedatashare.module.globusapi.GlobusClient;
@@ -34,7 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class ResourceServiceImpl implements ResourceService<Resource> {
+public class ResourceServiceImpl extends ResourceService {
     @Autowired
     private UserService userService;
 
@@ -53,9 +76,10 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
 
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
-                    .map(User::getCredentials)
-                    .map(uuidCredentialMap -> uuidCredentialMap.get(UUID.fromString(userAction.getCredential().getUuid())))
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
+                    .handle((usr, sink) -> {
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
+                    })
+                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GoogleDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
@@ -184,15 +208,16 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
     }
 
-    public Mono<Stat> mkdir(String cookie, UserAction userAction) {
+    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
-                .flatMap(resource -> ((Resource) resource).stat());
+                .map(r -> true);
     }
 
-    public Mono<Resource> delete(String cookie, UserAction userAction) {
+    public Mono<Boolean> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::delete);
+                .flatMap(Resource::delete)
+                .map(val -> true);
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {
@@ -236,8 +261,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                             })
                             .flatMap(jobService::saveJob)
                             .doOnSuccess(restartedJob -> processTransferFromJob(restartedJob, cookie));
-                })
-                .subscribeOn(Schedulers.elastic());
+                });
     }
 
     public Mono<Job> deleteJob(String cookie, UserAction userAction) {
@@ -245,7 +269,7 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
                 .map(job -> {
                     job.setDeleted(true);
                     return job;
-                }).flatMap(jobService::saveJob).subscribeOn(Schedulers.elastic());
+                }).flatMap(jobService::saveJob);
     }
 
     /**
@@ -262,12 +286,15 @@ public class ResourceServiceImpl implements ResourceService<Resource> {
         return userService.getLoggedInUser(cookie)
                 .flatMap((User user) -> jobService.findJobByJobId(cookie, userAction.getJob_id())
                         .map(job -> {
-                            ongoingJobs.get(job.getUuid()).dispose();
-                            ongoingJobs.remove(job.getUuid());
+                            try {
+                                ongoingJobs.get(job.getUuid()).dispose();
+                                ongoingJobs.remove(job.getUuid());
+                            }catch (Exception e){
+                                ODSLoggerService.logError("Unable to remove job " + job.getUuid() + "- Not found");
+                            }
                             return job.setStatus(JobStatus.cancelled);
                         }))
-                .flatMap(jobService::saveJob)
-                .subscribeOn(Schedulers.elastic());
+                .flatMap(jobService::saveJob);
     }
 
     public boolean updateJobCredentials(User user, Job restartedJob) {
