@@ -344,16 +344,16 @@ export default class EndpointBrowseComponent extends Component {
 				}
 
 				unselectAll();
-				this.props.back();
+				// this.props.back();
 				
-				setTimeout(()=> {
-					if(getType(endpoint) === DROPBOX_TYPE)
-						openDropboxOAuth();
-					else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-						openGoogleDriveOAuth();
-					else if(getType(endpoint) === BOX_TYPE)
-						openBoxOAuth();
-					}, 3000);
+				// setTimeout(()=> {
+				// 	if(getType(endpoint) === DROPBOX_TYPE)
+				// 		openDropboxOAuth();
+				// 	else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+				// 		openGoogleDriveOAuth();
+				// 	else if(getType(endpoint) === BOX_TYPE)
+				// 		openBoxOAuth();
+				// 	}, 3000);
 			}
 		});
 	};

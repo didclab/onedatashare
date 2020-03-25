@@ -367,7 +367,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	regularSignIn = () => {
 	const {url, username, password, needPassword} = this.state;
-	if(url.substr(url.length - 3) === '://') {
+	if(!url.includes('://')) {
 		this._handleError("Please enter a valid URL")
 		return
 	}
@@ -493,7 +493,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 					}else if(loginType === AMAZONS3_TYPE){
-						let loginUri="amazons3";
+						let loginUri="amazons3://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn,
 							needPassword: true, url: loginUri});
 					}else if(loginType === HTTP_TYPE){

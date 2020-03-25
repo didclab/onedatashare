@@ -53,25 +53,14 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
     }
 
     private Stat onStat() {
-
-        System.out.println(getPath());
         AmazonS3Client S3Client = getSession().s3Client;
-        if(getPath().equals("")) {
             List<Bucket> bucketList = S3Client.listBuckets();
             Stat bucketStat = buildBucketStat(bucketList);
             for (Bucket bucket : bucketList) {
                 ObjectListing listing = S3Client.listObjects(bucket.getName());
-                for (int i = 0; i < listing.getObjectSummaries().size(); i++) {
-//                System.out.println(listing.getObjectSummaries().get(i).getKey());
-                }
             }
-
             return bucketStat;
-        }
-        System.out.println(getPath());
-//        S3Client.listObjects()
-        Stat stat = new Stat();
-        return stat;
+
     }
 
     public Stat buildBucketStat(List<Bucket> bucketList){

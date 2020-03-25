@@ -33,21 +33,16 @@ public class S3Service extends ResourceService {
                     if (userAction.getCredential().getUsername() == null || userAction.getCredential().getPassword() == null) {
                         Mono.error(new Exception("Invalid"));
                     }
-                    System.out.println(userAction.getCredential().getUsername());
-                    System.out.println(userAction.getCredential().getPassword());
                     return new UserInfoCredential(userAction.getCredential());
                 })
-                .map(credential -> new S3Session(URI.create(userAction.getUri()), credential))
+                .map(credential -> new S3Session(URI.create(path), credential))
                 .flatMap(S3Session::initialize)
                 .flatMap(s3Session -> s3Session.select(path));
 
     }
 
     public String pathFromUri(String uri) {
-        String path = "";
-        if(uri.contains(ODSConstants.AMAZONS3_URI_SCHEME)){
-            path = uri.substring(ODSConstants.AMAZONS3_URI_SCHEME.length() - 1);
-        }
+        String path = uri.replace(ODSConstants.AMAZONS3_URI_SCHEME, "amazons3/");
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {
