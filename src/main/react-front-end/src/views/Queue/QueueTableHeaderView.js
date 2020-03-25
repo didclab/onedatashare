@@ -3,72 +3,43 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Tooltip from "@material-ui/core/Tooltip";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
-import React from "react";
+import React from 'react';
+import QueueHeaderCell from "./QueueHeaderCell";
 
-const tbcellStyle = {textAlign: 'center'};
+export default class QueueTableHeaderView extends React.Component {
 
-const QueueTableHeaderView = ({
-                                  // Values and variables
-                                  classes,
-                                  loading,
-                                  order,
-                                  orderBy,
-                                  page,
-                                  rowsPerPage,
-                                  rowsPerPageOptions,
-                                  sortableColumns,
-                                  totalCount,
-                                  // Functions
-                                  handleRequestSort,
-                              }) => {
+    handleRequestSort = this.props.handleRequestSort;
+    order = this.props.order;
+    orderBy = this.props.orderBy;
+    sortableColumns = this.props.sortableColumns;
 
-    return (
-        <TableHead style={{backgroundColor: '#d9edf7'}}>
-            <TableRow>
-                <TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-                    <Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
-                        <TableSortLabel
-                            active={orderBy === sortableColumns.jobId}
-                            direction={order}
-                            onClick={() => {handleRequestSort(sortableColumns.jobId)}}>
-                            Job ID
-                        </TableSortLabel>
-                    </Tooltip>
-                </TableCell>
-                <TableCell style={{...tbcellStyle, width: '30%',  fontSize: '2rem', color: '#31708f'}}>
-                    <Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
-                        <TableSortLabel
-                            active={orderBy === sortableColumns.status}
-                            direction={order}
-                            onClick={() => {handleRequestSort(sortableColumns.status)}}>
-                            Progress
-                        </TableSortLabel>
-                    </Tooltip>
-                </TableCell>
-                <TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-                    <Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
-                        <TableSortLabel
-                            active={orderBy === sortableColumns.avgSpeed}
-                            direction={order}
-                            onClick={() => {handleRequestSort(sortableColumns.avgSpeed)}}>
-                            Average Speed
-                        </TableSortLabel>
-                    </Tooltip>
-                </TableCell>
-                <TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-                    <Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
-                        <TableSortLabel
-                            active={orderBy === sortableColumns.source}
-                            direction={order}
-                            onClick={() => {handleRequestSort(sortableColumns.source)}}>
-                            Source/Destination
-                        </TableSortLabel>
-                    </Tooltip>
-                </TableCell>
-                <TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
-            </TableRow>
-        </TableHead>
-    );
-};
+    makeHeaderCells() {
+        let retVal = [];
+        let titles = ["Job ID", "Progress", "Average Speed", "Source & Destination"];
+        for (let i=0; i<titles.length; i+=1) {
+            retVal.push(
+                <QueueHeaderCell
+                    handleRequestSort={this.handleRequestSort}
+                    order={this.order}
+                    orderBy={this.orderBy}
+                    sortKey={this.sortableColumns[i]}
+                    title = {titles[i]}
+                />
+            );
+        }
+        return retVal;
+    }
 
-export default QueueTableHeaderView;
+    render() {
+        let headerCells = this.makeHeaderCells();
+        return (
+            <TableHead className="QueueTableHeaderView">
+                <TableRow>
+                    {headerCells}
+                    <TableCell className="QueueHeaderCell"> Actions </TableCell>
+                </TableRow>
+            </TableHead>
+        );
+    }
+
+}

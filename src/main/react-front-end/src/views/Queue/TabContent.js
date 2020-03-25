@@ -3,26 +3,8 @@ import {Col, Grid, Row} from "react-bootstrap";
 import {humanReadableSpeed} from "../../utils";
 import moment from "moment";
 
-const styles = theme => ({
-    root: {
-        width: 'fit-content'
-    },
-    toolbar: {
-        paddingLeft: '300px'
-    },
-    tablePaginationCaption: {
-        fontSize: '15px'
-    },
-    tablePaginationSelect: {
-        fontSize: '15px',
-        lineHeight: '20px'
-    }
-});
 
-const rowsPerPageOptions = [10, 20, 50, 100];
-const tbcellStyle = {textAlign: 'center'};
-
-export class TabContent extends React.Component {
+export default class TabContent extends React.Component {
     render() {
         const {resp, selectedTab} = this.props
         if (selectedTab) {

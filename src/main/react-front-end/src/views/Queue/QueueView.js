@@ -1,27 +1,11 @@
-import React, { Component } from 'react';
-import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
-import { eventEmitter } from '../../App'
-import { ProgressBar, Grid, Row, Col } from 'react-bootstrap';
-
-import { updateGAPageView } from '../../analytics/ga';
-import { jobStatus } from '../../constants';
-import Paper from "@material-ui/core/Paper";
+import React from 'react';
 import Table from "@material-ui/core/Table";
-import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
-import TableCell from "@material-ui/core/TableCell";
-import Tooltip from "@material-ui/core/Tooltip";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
-import TableBody from "@material-ui/core/TableBody";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import TableFooter from "@material-ui/core/TableFooter";
 import TablePagination from "@material-ui/core/TablePagination";
 import TablePaginationActions from "../TablePaginationActions";
 import QueueTableHeaderView from "./QueueTableHeaderView";
 import QueueTableBodyView from "./QueueTableBodyView";
-
-const tbcellStyle = {textAlign: 'center'};
-
 
 const QueueView = ({
                        // Values and variables
@@ -42,7 +26,7 @@ const QueueView = ({
                        populateRows,
                    }) => {
     return (
-        <Paper style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
+        <div className="QueueView">
             <Table style={{display: "block"}}>
                 <QueueTableHeaderView
                     loading={loading}
@@ -61,7 +45,7 @@ const QueueView = ({
                     loading={loading}
                     populateRows={populateRows}
                 />
-                <TableFooter style={{textAlign:'center'}}>
+                <TableFooter>
                     <TableRow>
                         <TablePagination
                             rowsPerPageOptions={rowsPerPageOptions}
@@ -84,7 +68,7 @@ const QueueView = ({
                     </TableRow>
                 </TableFooter>
             </Table>
-        </Paper>
+        </div>
     );
 };
 
