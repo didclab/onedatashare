@@ -1,6 +1,30 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
 import lombok.Data;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,12 +45,13 @@ import java.util.Date;
  * @version 1.0
  * @since 05-08-2019
  */
-@Service
+@Service                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 public class CaptchaService {
 
     private String GOOGLE_CAPTCHA_VERIFY_API_URL = "https://www.google.com/recaptcha/api/siteverify";
 
     private final String secretKey = System.getenv("GOOGLE_CAPTCHA_SECRET");
+
 
     private final String REQUEST_METHOD = "POST";
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -39,6 +64,7 @@ public class CaptchaService {
      */
     public Mono<Boolean> verifyValue(String verificationValue){
         String errorMsg = "";
+        ODSLoggerService.logInfo("In CaptchaService.verifyValue: Received verificationValue of " + verificationValue);
 
         try{
             URL urlObj = new URL(GOOGLE_CAPTCHA_VERIFY_API_URL);
@@ -93,6 +119,7 @@ class GoogleCaptchaVerifyResponse{
     private Boolean success;
     private Date challenge_ts;
     private String hostname;
+    @JsonProperty("error-codes")
     private String[] error_codes;
 
 }
