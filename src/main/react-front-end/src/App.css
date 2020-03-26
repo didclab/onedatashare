@@ -215,19 +215,7 @@ div.homePage {
 .QueueView {
   margin-left: 10%;
   margin-right: 10%;
-  border-style: solid;
-  border-width: 2px;
-  border-color: #d9edf7;
-}
-
-.QueueView table {
-  table-layout: fixed;
-  width: 100%;
-}
-
-thead, tbody {
-  width: 100%;
-  display: block;
+  padding-bottom: 15vh;
 }
 
 tr {
@@ -242,20 +230,15 @@ th{
 }
 
 .QueueHeaderCell * {
-  text-align: center;
   color: #31708f;
   font-size: 2.25rem;
   font-weight: 500;
   text-align: center;
-}
-
-.QueueView .TableCell {
-  text-align: center;
+  margin: auto;
 }
 
 td * {
   width: auto;
-  text-align: center;
   font-size: 1.2rem;
   align-self: stretch;
 }
@@ -267,6 +250,12 @@ td * {
 
 tr * {
   font-size: 1.2rem;
+}
+
+.MuiTable-root {
+  border-style: solid;
+  border-width: 2px;
+  border-color: #d9edf7;
 }
 
 .idCell{
@@ -288,4 +277,19 @@ tr * {
 
 .actionCell {
   width: 17%
+}
+
+.mobileCell {
+  width: 150vw;
+  table-layout: fixed;
+  text-align: left;
+}
+
+tr {
+  width: 100vw
+}
+
+.queueDropDown {
+  margin: auto;
+  padding-top: 2vh;
 }

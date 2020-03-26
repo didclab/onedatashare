@@ -71,9 +71,10 @@ export default class QueueTableHeaderView extends React.Component {
                         {headerCells}
                         <TableCell className="QueueHeaderCell actionCell"> <p>Actions</p> </TableCell>
                     </Hidden>
-                    <Hidden mdUp>
-                        <TableCell className="QueueHeaderCell actionCell">
+                    <Hidden lgUp>
+                        <TableCell className="QueueHeaderCell mobileCell">
                             <p>Transfer History</p>
+                            <div className="queueDropDown">
                             <FormControl variant="outlined">
                                 <InputLabel> Sort by </InputLabel>
                                 <Select
@@ -83,6 +84,7 @@ export default class QueueTableHeaderView extends React.Component {
                                     {opts}
                                 </Select>
                             </FormControl>
+                            </div>
                         </TableCell>
                     </Hidden>
                 </TableRow>

@@ -14,6 +14,7 @@ import Cancel from "@material-ui/icons/Cancel";
 import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import {humanReadableSpeed} from "../../../utils";
+import {Hidden} from "@material-ui/core";
 
 export default class RowElement extends React.Component {
 
@@ -134,6 +135,7 @@ export default class RowElement extends React.Component {
         return (
             <React.Fragment>
                 <TableRow style={{alignSelf: "stretch"}}>
+                    <Hidden mdDown>
                     <TableCell className="idCell" numeric="true">
                         <p>{resp.job_id}</p>
                     </TableCell>
@@ -147,8 +149,19 @@ export default class RowElement extends React.Component {
                         <p>{decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}</p>
                     </TableCell>
                     <TableCell className="actionCell">
-                        <p>{this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}</p>
+                        {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
                     </TableCell>
+                    </Hidden>
+                    <Hidden lgUp>
+                        <TableCell className="mobileCell">
+                            <p><b>Job ID:</b>{resp.job_id}</p>
+                        <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
+                            <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
+                            <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>
+                        <p><b>Destination:</b> {decodeURIComponent(resp.dest.uri)}</p>
+                        {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
+                        </TableCell>
+                    </Hidden>
                 </TableRow>
                 { infoVisible && this.infoRow() }
             </React.Fragment>
