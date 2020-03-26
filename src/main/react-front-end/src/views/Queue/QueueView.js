@@ -4,7 +4,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableFooter from "@material-ui/core/TableFooter";
 import TablePagination from "@material-ui/core/TablePagination";
 import TablePaginationActions from "../TablePaginationActions";
-import QueueTableHeaderView from "./QueueTableHeaderView";
+import QueueTableHeaderView from "./QueueTableHeader/QueueTableHeaderView";
 import QueueTableBodyView from "./QueueTableBodyView";
 
 const QueueView = ({

@@ -1,8 +1,6 @@
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
-import Tooltip from "@material-ui/core/Tooltip";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
 import React from 'react';
 import QueueHeaderCell from "./QueueHeaderCell";
 
@@ -16,13 +14,14 @@ export default class QueueTableHeaderView extends React.Component {
     makeHeaderCells() {
         let retVal = [];
         let titles = ["Job ID", "Progress", "Average Speed", "Source & Destination"];
+        let keys = [this.sortableColumns.jobId, this.sortableColumns.status, this.sortableColumns.avgSpeed, this.sortableColumns.source];
         for (let i=0; i<titles.length; i+=1) {
             retVal.push(
                 <QueueHeaderCell
                     handleRequestSort={this.handleRequestSort}
                     order={this.order}
                     orderBy={this.orderBy}
-                    sortKey={this.sortableColumns[i]}
+                    sortKey={keys[i]}
                     title = {titles[i]}
                 />
             );

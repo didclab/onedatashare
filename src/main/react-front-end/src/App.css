@@ -231,7 +231,8 @@ div.homePage {
   text-align: center;
 }
 
-.QueueTableHeaderView {
+.MuiTableCell {
+  width: 3vw;
   text-align: center;
   background-color: #d9edf7;
 }
