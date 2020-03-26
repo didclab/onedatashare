@@ -4,7 +4,7 @@ import TableCell from "@material-ui/core/TableCell";
 import AppBar from "@material-ui/core/AppBar";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import TabContent from "./TabContent";
+import TabContent from "../TabContent";
 import {ProgressBar} from "react-bootstrap";
 import Tooltip from "@material-ui/core/Tooltip";
 import Zoom from "@material-ui/core/Zoom";
@@ -13,7 +13,7 @@ import Info from "@material-ui/icons/Info";
 import Cancel from "@material-ui/icons/Cancel";
 import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
-import {humanReadableSpeed} from "../../utils";
+import {humanReadableSpeed} from "../../../utils";
 
 export default class RowElement extends React.Component {
 
@@ -147,7 +147,7 @@ export default class RowElement extends React.Component {
                         {humanReadableSpeed(resp.bytes.avg)}
                     </TableCell>
                     <TableCell style={{width: '25%',  fontSize: '1.2rem'}}>
-                        {decodeURIComponent(resp.src.uri)} <b>-></b> {decodeURIComponent(resp.dest.uri)}
+                        {decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}
                     </TableCell>
                     <TableCell style={{width: '15%',  fontSize: '1.2rem'}}>
                         {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}

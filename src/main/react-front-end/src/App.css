@@ -212,11 +212,19 @@ div.homePage {
 /*    For Queue/QueueComponent.js   */
 /*                                  */
 /************************************/
-.QueueHeaderCell * {
+th{
   width: auto;
+  background-color: #d9edf7;
+}
+
+.QueueHeaderCell * {
   text-align: center;
   color: #31708f;
-  font-size: 2rem;
+  font-size: 2.25rem;
+  font-weight: 500;
+}
+
+.QueueTableHeader {
 }
 
 .QueueView {
@@ -231,8 +239,8 @@ div.homePage {
   text-align: center;
 }
 
-.MuiTableCell {
+tr {
   width: 3vw;
   text-align: center;
-  background-color: #d9edf7;
+  font-size: 5em;
 }

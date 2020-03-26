@@ -32,10 +32,10 @@ export default class QueueTableHeaderView extends React.Component {
     render() {
         let headerCells = this.makeHeaderCells();
         return (
-            <TableHead className="QueueTableHeaderView">
-                <TableRow>
+            <TableHead>
+                <TableRow className="QueueTableHeader">
                     {headerCells}
-                    <TableCell className="QueueHeaderCell"> Actions </TableCell>
+                    <TableCell className="QueueHeaderCell"> <p>Actions</p> </TableCell>
                 </TableRow>
             </TableHead>
         );

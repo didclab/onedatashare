@@ -29,23 +29,23 @@ import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
 import { withStyles } from '@material-ui/core';
 import QueueView from "./QueueView";
-import RowElement from "./RowElement";
+import RowElement from "./QueueTableRow/RowElement";
 
-const styles = theme => ({
-	root: {
-		width: 'fit-content'
-	},
-	toolbar: {
-		paddingLeft: '300px'
-	},
-	tablePaginationCaption: {
-		fontSize: '15px'
-	},
-	tablePaginationSelect: {
-		fontSize: '15px',
-		lineHeight: '20px'
-	}
-})
+// const styles = theme => ({
+// 	root: {
+// 		width: 'fit-content'
+// 	},
+// 	toolbar: {
+// 		paddingLeft: '300px'
+// 	},
+// 	tablePaginationCaption: {
+// 		fontSize: '15px'
+// 	},
+// 	tablePaginationSelect: {
+// 		fontSize: '15px',
+// 		lineHeight: '20px'
+// 	}
+// })
 const rowsPerPageOptions = [10, 20, 50, 100];
 
 class QueueComponent extends Component {
@@ -316,4 +316,6 @@ class QueueComponent extends Component {
 	}
 }
 
-export default withStyles(styles)(QueueComponent);
+// export default withStyles(styles)(QueueComponent);
+
+export default QueueComponent;

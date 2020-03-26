@@ -5,23 +5,23 @@ import TableRow from "@material-ui/core/TableRow";
 import React from "react";
 
 const QueueHeaderCell = ({
-                        handleRequestSort,
-                        order,
-                        orderBy,
-                        sortKey,
-                        title
-                    }) => {
+                             handleRequestSort,
+                             order,
+                             orderBy,
+                             sortKey,
+                             title
+                         }) => {
     return (
-        <TableCell>
-            <Tooltip title={"Sort by" + title} placement='bottom-end'>
+        <Tooltip title={"Sort by" + title} placement='bottom-end'>
+            <TableCell className="QueueHeaderCell">
                 <TableSortLabel
                     active={orderBy === sortKey}
                     direction={order}
                     onClick={() => {handleRequestSort(sortKey)}}>
-                    {title}
+                    <p>{title}</p>
                 </TableSortLabel>
-            </Tooltip>
-        </TableCell>
+            </TableCell>
+        </Tooltip>
     );
 };
 
