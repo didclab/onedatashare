@@ -98,7 +98,7 @@ export default class GlobusEndpointListingComponent extends Component {
 	render(){
 		const { search_text, loading, data } = this.state;
 		const greatDiscoveryList = data.map((v) =>
-    		<ListItem button key={v.canonical_name} style={{background: "white", height: 40}} onClick={() => {
+    		<ListItem button key={v.canonical_name} id="list-item" onClick={() => {
     			globusEndpointIds(v, (resp) => {
     				this.props.endpointAdded(v);
     			}, (error) => {
@@ -110,7 +110,7 @@ export default class GlobusEndpointListingComponent extends Component {
 		);
 
 		return (
-		<div style={{width: 300, height: 400, backgroundColor: "white", borderWidth: '1px', borderColor: '#005bbb', borderRadius: 2,borderStyle: 'solid', overflow: "hidden"}}>
+		<div id="outer-div">
 			{loading && <LinearProgress/>}
 			<Paper style={styles.root} elevation={0}>
 		      <InputBase style={styles.input} placeholder="Search for Endpoints" value={search_text} onChange={(event) => {
@@ -123,7 +123,7 @@ export default class GlobusEndpointListingComponent extends Component {
 		      </IconButton>
 		    </Paper>
 		    {(data.length === 0) && <h3 style={{margin: "100px"}}> No Result </h3>}
-		    <List component="nav" style={{overflow: 'auto', height: "100%"}}>
+		    <List component="nav" id="list-component">
 		    	{data.length > 0 &&
 			    	greatDiscoveryList
 			    }

@@ -28,6 +28,8 @@ import {makeFileNameFromPath, getMapFromEndpoint} from "./initialize_dnd";
 import FileInput from 'react-fine-uploader/file-input';
 import UploadButton from "@material-ui/icons/CloudUpload";
 import {eventEmitter} from "../../App";
+
+import "./styles/UploaderWrapper.css"
 export default class UploaderWrapper extends Component {
 
 	shouldComponentUpdate(nextProps, nextState) { 
@@ -40,9 +42,6 @@ export default class UploaderWrapper extends Component {
   	}
 render(){
 	let {endpoint, directoryPath, lastestId} = this.props;
-
-	const buttonStyle = {flexGrow: 1, padding: "5px"};
-	const iconStyle = {fontSize: "15px", width: "100%"};
 	const uploader = new FineUploaderTraditional({
 			debug: true,
 			options: {
@@ -84,8 +83,8 @@ render(){
 			}
 		})
 
-	return <FileInput uploader={uploader} style={buttonStyle}>
-                    <UploadButton style={iconStyle}/>
+	return <FileInput uploader={uploader} id="button-style">
+                    <UploadButton id="icon-style"/>
 		</FileInput>
 	}
 }

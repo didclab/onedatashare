@@ -1,0 +1,53 @@
+#nav-bar
+{
+    overflow: auto;
+}
+
+#end-point-modal
+{
+    display: flex;
+    align-items:center;
+    justify-content: center;
+    align-self:center;
+}
+
+#inner-div
+{
+    flex-grow: 1;
+    flex-direction: column;
+}
+
+#inner-div-not-ssh
+{
+    padding-left:1%;
+    padding-right: 1%;
+}
+
+.text-validator-uri
+{
+    width: 80%;
+}
+
+.text-validator-password
+{
+    width: 100%;
+}
+#password-validation
+{
+    padding-left: 1%;
+    padding-right: 1%; 
+}
+
+#button-style
+{
+    width: 100%;
+    text-align: left;
+}
+
+.auth-button
+{
+    width: 98%;
+    text-align: center;
+    margin-left: 1%;
+    margin-bottom: 1%;
+}

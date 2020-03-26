@@ -46,6 +46,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
+import "./styles/EndpointBrowseComponent.css"
 
 import {
 	listFiles,
@@ -455,9 +456,6 @@ export default class EndpointBrowseComponent extends Component {
 			}
 		} 
 		
-		const iconStyle = {fontSize: "15px", width: "100%"};
-		const buttonStyle = {flexGrow: 1, padding: "5px"};
-		const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
 		const selectedTasks = getSelectedTasksFromSide(endpoint);
 		const loading = getLoading();
@@ -468,25 +466,25 @@ export default class EndpointBrowseComponent extends Component {
 		);
 
 		return (
-		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
+		<div id="outer-div">
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
 						aria-labelledby="form-dialog-title"
 	        >
 	          <DialogTitle id="form-dialog-title">Share</DialogTitle>
-	          <DialogContent style={{width:"100%"}}>
+	          <DialogContent id="dialog-component">
 	            <DialogContentText>
 	              Share this URL to allow others access to the selected file:
 	            </DialogContentText>
-	            <div style={{width:"96%", float:"left"}}><TextField
+	            <div id="inner-div-name"><TextField
 								autoFocus
 								id="name"
 								disabled
 								value={this.state.shareUrl}
 								fullWidth
 	            ></TextField></div>
-							<CopyToClipboard text = {this.state.shareUrl} style={{float:"right", width:"3%"}}>
+							<CopyToClipboard text = {this.state.shareUrl} id="copytoclipboard">
 							<svg width="24" height="24" viewBox="0 0 24 24">
 								<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
 							</svg>								
@@ -520,15 +518,15 @@ export default class EndpointBrowseComponent extends Component {
 	            </Button>
 	          </DialogActions>
 	        </Dialog>
-			<div style={{display: "flex",alighSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
-				<Breadcrumb style={{float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>
-				  <Breadcrumb.Item key={endpoint.uri} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(0)}>{endpoint.uri}</Button></Breadcrumb.Item>
-				  {directoryPath.map((item, index) => <Breadcrumb.Item key={item+index} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Button></Breadcrumb.Item>)}
+			<div id="inner-div-1">
+				<Breadcrumb id="bread-crumb">
+				  <Breadcrumb.Item key={endpoint.uri} id="bread-crumb-item"><Button id="bread-crumb-button" onClick={() => this.breadcrumbClicked(0)}>{endpoint.uri}</Button></Breadcrumb.Item>
+				  {directoryPath.map((item, index) => <Breadcrumb.Item key={item+index} id="bread-crumb-item"><Button id="bread-crumb-button" onClick={() => this.breadcrumbClicked(index+1)}>{item}</Button></Breadcrumb.Item>)}
 				</Breadcrumb>
 			</div>
 			
-			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<ButtonGroup style={buttonGroupStyle}>
+			<div id="inner-div-button">
+				<ButtonGroup id="button-group">
 					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
 						<BootStrapButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 						onClick={() => {
@@ -544,7 +542,7 @@ export default class EndpointBrowseComponent extends Component {
 								download(downloadUrl, endpoint.credential, taskList[0].id)
 							}
 						}}
-						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+						id="button-style"><DownloadButton id="icon-style"/></BootStrapButton>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
@@ -555,7 +553,7 @@ export default class EndpointBrowseComponent extends Component {
 					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
 						<BootStrapButton id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
-						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
+						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} id="button-style"onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 							const taskList = getSelectedTasksFromSide(endpoint);
 							getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)
@@ -568,15 +566,15 @@ export default class EndpointBrowseComponent extends Component {
 								}	
 							})
 				  		}}>
-				  			<LinkButton style={iconStyle}/>
+				  			<LinkButton id="icon-style"/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-						<BootStrapButton id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {
+						<BootStrapButton id={endpoint.side + "MkdirButton"} id="button-style" onClick={() => {
 							this.handleClickOpenAddFolder()
 						}}>
-							<NewFolderIcon style={iconStyle}/>
+							<NewFolderIcon id="icon-style"/>
 						</BootStrapButton>
 					</OverlayTrigger>
 					
@@ -584,33 +582,33 @@ export default class EndpointBrowseComponent extends Component {
 						<BootStrapButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
 							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
 						}}
-						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
+						id="button-style"><DeleteIcon id="icon-style"/></BootStrapButton>
 					</OverlayTrigger>
 
 
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
-				  		<BootStrapButton id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {
+				  		<BootStrapButton id={endpoint.side + "RefreshButton"} id="button-style"  onClick={() => {
 				  			setLoading(true);
 				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 				  		}}>
-				  			<RefreshButton style={iconStyle}/>
+				  			<RefreshButton id="icon-style"/>
 				  		</BootStrapButton>
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
-				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
+				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" id="button-style" onClick={() =>
 				  		{
 				  			emptyFileNodesData(endpoint);
 				  			unselectAll();
 				  			back();
 				  		}}
-				  			><LogoutButton style={iconStyle}/></BootStrapButton>
+				  			><LogoutButton id="icon-style"/></BootStrapButton>
 					</OverlayTrigger>
 				</ButtonGroup>
 			</div>
 
-			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
+			<div id="inner-div-input">
+				<InputGroup id="input-group">
 					<FormControl id={endpoint.side + "Search"} placeholder="Search"
 						onChange={(event) => {
 							this.setState({searchText: event.target.value})
@@ -641,16 +639,16 @@ export default class EndpointBrowseComponent extends Component {
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
-						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "320px"}}
+						id="inner-div-droppable"
 					>
 						{!loading && Object.keys(list).length === 0 &&
-							<h2 style={{ textAlign: 'center' }}>
+							<h2 id="inner-header-droppable">
 								This directory is empty.
 							</h2>
 						}
 
 						{loading && Object.keys(list).length === 0 &&
-							<h2 style={{ textAlign: 'center' }}>
+							<h2 id="inner-header-droppable">
 								Loading...
 							</h2>
 						}

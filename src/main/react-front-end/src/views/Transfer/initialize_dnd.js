@@ -25,6 +25,8 @@
 import {store} from "../../App.js";
 import {eventEmitter} from "../../App";
 
+
+
 //left
 var column1 = {
 	id: "left",

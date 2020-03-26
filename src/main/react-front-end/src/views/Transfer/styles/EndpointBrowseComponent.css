@@ -1,0 +1,114 @@
+#icon-style
+{
+    font-size: 15px;
+    width: 100%;
+}
+
+#button-style
+{
+    flex-grow: 1;
+    padding: 5px;
+}
+
+#button-group
+{
+    display: flex;
+    flex-direction: row;
+    flex-grow: 2;
+}
+
+#outer-div
+{
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    max-height: 400px; 
+}
+
+#dialog-component
+{
+    width:100%;
+}
+
+#inner-div-name
+{
+    width:96%;
+    float:left;
+}
+
+#inner-div-1
+{
+    display: "flex";
+    align-self: stretch;
+    height: 60px;
+    background-color: #d9edf7;
+    width: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+#inner-div-button
+{
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    padding: 10px;
+    background-color: #d9edf7;
+}
+
+#inner-div-input
+{
+    align-self: stretch;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 40px;
+    padding: 10px;
+    background-color: #d9edf7;
+}
+
+#inner-div-droppable
+{
+    overflow-y: scroll;
+    width: 100%;
+    margin-top: 0px; 
+    height: 320px;
+}
+
+#inner-header-droppable
+{
+    text-align: center;
+}
+#input-group
+{
+    flex: 1; 
+    background: #d9edf7;
+    border-radius: 5px;
+}
+
+#copytoclipboard
+{
+    float:right;
+    width:3%;
+}
+
+#bread-crumb
+{
+    float: left;
+    background-color: #d9edf7;
+    white-space:nowrap;
+}
+
+#bread-crumb-item
+{
+    display: inline-block;
+}
+
+#bread-crumb-button
+{
+    padding: 0px;
+    margin: 0px;
+}
+

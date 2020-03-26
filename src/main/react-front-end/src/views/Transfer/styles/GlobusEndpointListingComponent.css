@@ -1,0 +1,23 @@
+#list-item
+{
+    background: white;
+    height: 40;
+}
+
+#list-component
+{
+    overflow: auto;
+    height: 100%
+}
+
+#outer-div
+{
+    width: 300;
+    height: 400;
+    background-color: white;
+    border-width: 1px;
+    border-color: #005bbb;
+    border-radius: 2;
+    border-style: solid;
+    overflow: hidden;
+}
