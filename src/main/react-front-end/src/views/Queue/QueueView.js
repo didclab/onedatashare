@@ -6,6 +6,8 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TablePaginationActions from "../TablePaginationActions";
 import QueueTableHeaderView from "./QueueTableHeader/QueueTableHeaderView";
 import QueueTableBodyView from "./QueueTableRow/QueueTableBodyView";
+import {TableContainer} from "@material-ui/core";
+import Paper from "@material-ui/core/Paper";
 
 const QueueView = ({
                        // Values and variables
@@ -27,47 +29,49 @@ const QueueView = ({
                    }) => {
     return (
         <div className="QueueView">
-            <Table style={{display: "block"}}>
-                <QueueTableHeaderView
-                    loading={loading}
-                    orderBy={orderBy}
-                    order={order}
-                    page={page}
-                    responsesToDisplay={responsesToDisplay}
-                    rowsPerPage={rowsPerPage}
-                    rowsPerPageOptions={rowsPerPageOptions}
-                    sortableColumns={sortableColumns}
-                    totalCount={totalCount}
-                    classes={classes}
-                    handleRequestSort={handleRequestSort}
-                />
-                <QueueTableBodyView
-                    loading={loading}
-                    populateRows={populateRows}
-                />
-                <TableFooter>
-                    <TableRow>
-                        <TablePagination
-                            rowsPerPageOptions={rowsPerPageOptions}
-                            colSpan={7}
-                            count={totalCount}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            SelectProps={{
-                                native: true,
-                            }}
-                            onChangePage={handleChangePage}
-                            onChangeRowsPerPage={handleChangeRowsPerPage}
-                            ActionsComponent={TablePaginationActions}
-                            classes={{
-                                caption: classes.tablePaginationCaption,
-                                select: classes.tablePaginationSelect,
-                                toolbar: classes.toolbar
-                            }}
-                        />
-                    </TableRow>
-                </TableFooter>
-            </Table>
+            <TableContainer component={Paper}>
+                <Table style={{display: "block"}}>
+                    <QueueTableHeaderView
+                        loading={loading}
+                        orderBy={orderBy}
+                        order={order}
+                        page={page}
+                        responsesToDisplay={responsesToDisplay}
+                        rowsPerPage={rowsPerPage}
+                        rowsPerPageOptions={rowsPerPageOptions}
+                        sortableColumns={sortableColumns}
+                        totalCount={totalCount}
+                        classes={classes}
+                        handleRequestSort={handleRequestSort}
+                    />
+                    <QueueTableBodyView
+                        loading={loading}
+                        populateRows={populateRows}
+                    />
+                    <TableFooter>
+                        <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={rowsPerPageOptions}
+                                colSpan={7}
+                                count={totalCount}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                SelectProps={{
+                                    native: true,
+                                }}
+                                onChangePage={handleChangePage}
+                                onChangeRowsPerPage={handleChangeRowsPerPage}
+                                ActionsComponent={TablePaginationActions}
+                                classes={{
+                                    caption: classes.tablePaginationCaption,
+                                    select: classes.tablePaginationSelect,
+                                    toolbar: classes.toolbar
+                                }}
+                            />
+                        </TableRow>
+                    </TableFooter>
+                </Table>
+            </TableContainer>
         </div>
     );
 };

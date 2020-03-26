@@ -9,9 +9,7 @@ const QueueTableBodyView = ({
     return (
         <TableBody style={{height:'100%', display: "block"}}>
             { loading ?
-                <div style={{textAlign: 'center'}}>
-                    <CircularProgress />
-                </div>
+                <CircularProgress />
                 :
                 populateRows
             }

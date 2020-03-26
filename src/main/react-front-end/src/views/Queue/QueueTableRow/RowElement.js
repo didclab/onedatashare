@@ -134,23 +134,20 @@ export default class RowElement extends React.Component {
         return (
             <React.Fragment>
                 <TableRow style={{alignSelf: "stretch"}}>
-                    {/* <TableCell scope="row" style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
-					{resp.owner}
-				</TableCell> */}
-                    <TableCell style={{width: '5%',  fontSize: '1.2rem'}} numeric="true">
-                        {resp.job_id}
+                    <TableCell className="idCell" numeric="true">
+                        <p>{resp.job_id}</p>
                     </TableCell>
-                    <TableCell style={{width: '30%',  fontSize: '1.2rem'}}>
-                        {this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
+                    <TableCell className="progressCell">
+                        <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
                     </TableCell>
-                    <TableCell style={{width: '5%', maxWidth: '20vw', overflow:"hidden", fontSize: '1.2rem', margin: "0px", maxHeight: "10px"}}>
-                        {humanReadableSpeed(resp.bytes.avg)}
+                    <TableCell className="speedCell">
+                        <p>{humanReadableSpeed(resp.bytes.avg)}</p>
                     </TableCell>
-                    <TableCell style={{width: '25%',  fontSize: '1.2rem'}}>
-                        {decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}
+                    <TableCell className="sourceCell">
+                        <p>{decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}</p>
                     </TableCell>
-                    <TableCell style={{width: '15%',  fontSize: '1.2rem'}}>
-                        {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
+                    <TableCell className="actionCell">
+                        <p>{this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}</p>
                     </TableCell>
                 </TableRow>
                 { infoVisible && this.infoRow() }

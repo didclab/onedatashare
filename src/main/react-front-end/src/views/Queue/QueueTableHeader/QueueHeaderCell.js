@@ -12,16 +12,12 @@ const QueueHeaderCell = ({
                              title
                          }) => {
     return (
-        <Tooltip title={"Sort by" + title} placement='bottom-end'>
-            <TableCell className="QueueHeaderCell">
-                <TableSortLabel
-                    active={orderBy === sortKey}
-                    direction={order}
-                    onClick={() => {handleRequestSort(sortKey)}}>
-                    <p>{title}</p>
-                </TableSortLabel>
-            </TableCell>
-        </Tooltip>
+        <TableSortLabel
+            active={orderBy === sortKey}
+            direction={order}
+            onClick={() => {handleRequestSort(sortKey)}}>
+            <p>{title}</p>
+        </TableSortLabel>
     );
 };
 
