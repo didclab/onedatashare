@@ -277,7 +277,7 @@ export async function CliInterface(inp_cmd, accept, fail) {
 	let callback = accept;
 	//console.log("Hiiiii");
 	//console.log(inp_cmd);
-	return  axios.post('http://localhost:3000/api/ssh/console',
+	return axios.post('http://localhost:3000/api/ssh/console',
                                 { "host": "localhost",
                                   "commandWithPath": inp_cmd,
                                   "credential" : {"username" : "root","password" : "root"},
@@ -286,6 +286,7 @@ export async function CliInterface(inp_cmd, accept, fail) {
 				callback = fail;
 			statusHandle(response, callback);
 		    console.log(response.data);
+		    return response.data;
 		})
 		.catch((error) => {
 			statusHandle(error, fail);

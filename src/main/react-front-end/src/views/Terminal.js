@@ -56,16 +56,16 @@ export default class Terminal extends Component{
          		 CliInterface(
                          				inputelement,
                          				(resp) => {
-                         					this.setState({response: resp.data});
-
-                         					console.log(this.state.response);
+                         					this.setState({response: resp});
+                                             console.log(this.state.response);
+                         					console.log(resp);
                          					this.setState({loading: false});
                          				}, (error) => {
                          					eventEmitter.emit("errorOccured", error);
                          					this.setState({loading: false});
                          				}
                          			)
-                         		//console.log(x);
+
             }
 
 
@@ -78,8 +78,7 @@ export default class Terminal extends Component{
                            element.appendChild(document.createTextNode('>>'+e.target.value));
                            var breakStatement= document.createElement("br");
                            element.appendChild(breakStatement);
-                           //console.log(this.response);
-                           var answer_node=document.createTextNode( this.response );
+                           var answer_node=document.createTextNode( this.state.response );
                            answer_node.id="answer-node";
                            element.appendChild(answer_node);
                            terminalOutput.append(element);
