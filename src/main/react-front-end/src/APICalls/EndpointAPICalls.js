@@ -247,3 +247,49 @@ export async function globusListEndpoints(filter_fulltext, accept, fail) {
 			statusHandle(error, fail);
 		});
 }
+
+
+
+/*
+export async function CliInterface(inp_cmd) {
+	//let callback = accept;
+	//console.log("Hiiiii");
+	//console.log(inp_cmd);
+	  let x;
+	  await axios.post('http://localhost:3000/api/ssh/console',
+                                { "host": "localhost",
+                                  "commandWithPath": inp_cmd,
+                                  "credential" : {"username" : "root","password" : "root"},
+                                  "port": 2222 }).then((response) => {
+                                                      x=response.data;
+
+                                                 		    console.log(response.data);
+                                               		})
+
+ console.log(x);
+ return x;
+}
+*/
+
+
+
+export async function CliInterface(inp_cmd, accept, fail) {
+	let callback = accept;
+	//console.log("Hiiiii");
+	//console.log(inp_cmd);
+	return  axios.post('http://localhost:3000/api/ssh/console',
+                                { "host": "localhost",
+                                  "commandWithPath": inp_cmd,
+                                  "credential" : {"username" : "root","password" : "root"},
+                                  "port": 2222 }).then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		    console.log(response.data);
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
+}
+
+
