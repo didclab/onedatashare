@@ -46,7 +46,6 @@ import java.util.Optional;
  *      https://youtu.be/Bgn4V8wpVDY
  *      http://springfox.github.io/springfox/docs/snapshot/#getting-started
  */
-@Profile({"local"}) // This class will execute in local environment only otherwise swagger-ui.html will not load.
 @Configuration
 @EnableSwagger2WebFlux
 public class SwaggerConfig {
@@ -55,9 +54,10 @@ public class SwaggerConfig {
     public Docket api(){
 
         return new Docket(DocumentationType.SWAGGER_2)
+                        .host("http://onedatashare.org")
                         .select()
                         .apis(RequestHandlerSelectors.basePackage("org.onedatashare.server.controller"))
-                        .paths(PathSelectors.ant("/**"))
+                        .paths(PathSelectors.any())
                         .build()
                         .genericModelSubstitutes(Mono.class, Flux.class, Optional.class)
                         .apiInfo(apiInfo());
@@ -69,12 +69,12 @@ public class SwaggerConfig {
      */
     private ApiInfo apiInfo() {
         return new ApiInfo("OneDataShare API Docs",
-                    "This page lists all the API endpoints for OneDataShare application",
+                    "REST API endpoints for OneDataShare",
                     "1.0",
                     null,
                     new Contact("OneDataShare Team","http://localhost:8080/support","admin@onedatashare.org"),
-                    null,
-                    null,
+                    "Apache-2.0",
+                    "https://github.com/didclab/onedatashare/blob/master/LICENSE",
                     Collections.EMPTY_LIST);
     }
 
