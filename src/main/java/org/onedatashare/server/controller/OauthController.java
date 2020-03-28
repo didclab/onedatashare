@@ -1,13 +1,35 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
-import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
-import org.onedatashare.server.model.error.NotFound;
-import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.onedatashare.server.service.oauth.GridftpAuthService;
+import org.onedatashare.server.service.oauth.*;
+
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -40,11 +62,15 @@ public class OauthController {
     @Autowired
     private GridftpAuthService gridftpAuthService;
 
-    ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private BoxOauthService boxOauthService;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     static final String googledrive = "googledrive";
     static final String dropbox = "dropbox";
     static final String gridftp = "gridftp";
+    static final String box = "box";
 
     /**
      * Handler for google drive oauth requests
@@ -152,33 +178,77 @@ public class OauthController {
                 .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
     }
-
-    @GetMapping
-    public Object handle(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
+    /**
+     * Handler for Box requests
+     * @param headers - Incoming request headers
+     * @param queryParameters - Query parameters
+     * @return Mono\<String\>
+     */
+    @GetMapping(value = "/box")
+    public Object boxOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters){
         String cookie = headers.getFirst(ODSConstants.COOKIE);
+        if (!queryParameters.containsKey("code")) {
+            StringBuilder errorStringBuilder = new StringBuilder();
+            if (queryParameters.containsKey("error")) {
+                try {
+                    errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error"), "UTF-8"));
+                    errorStringBuilder.insert(0, "?error=");
+                } catch (UnsupportedEncodingException e) {
+                    ODSLoggerService.logError("Invalid error message received from Google Drive " +
+                            "oauth after cancellation" + queryParameters.get("error_description"));
+                }
+            }
+            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+        }
 
-        if (queryParameters.get("type").equals(googledrive)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(googleDriveOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(dropbox)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(dbxOauthService.start()).build());
-        } else if (queryParameters.get("type").equals(gridftp)) {
-            return userService.userLoggedIn(cookie)
-                    .map(bool -> Rendering.redirectTo(gridftpAuthService.start()).build());
-        } else return Mono.error(new NotFound());
-
+        return userService.getLoggedInUser(cookie)
+                .flatMap(user -> {
+                    if (user.isSaveOAuthTokens()) {
+                        return boxOauthService.finish(queryParameters.get("code"), cookie)
+                                .flatMap(oAuthCred -> userService.saveCredential(cookie, oAuthCred))
+                                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
+                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
+                    } else {
+                        return boxOauthService.finish(queryParameters.get("code"), cookie)
+                                .map(oAuthCred -> {
+                                    try {
+                                        return "/oauth/box?creds=" +
+                                                URLEncoder.encode(objectMapper.writeValueAsString(oAuthCred), StandardCharsets.UTF_8.toString());
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    return null;
+                                })
+                                .map(oAuthCredLink -> Rendering.redirectTo(oAuthCredLink).build())
+                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
+                    }
+                });
     }
 
-    @ExceptionHandler(NotFound.class)
-    public Object handle(NotFound notfound) {
+    @GetMapping
+    public Rendering handle(@RequestParam String type) throws NotFoundException {
+        switch (type){
+            case box:
+                return Rendering.redirectTo(boxOauthService.start()).build();
+            case dropbox:
+                return Rendering.redirectTo(dbxOauthService.start()).build();
+            case googledrive:
+                return Rendering.redirectTo(googleDriveOauthService.start()).build();
+            case gridftp:
+                return Rendering.redirectTo(gridftpAuthService.start()).build();
+            default:
+                throw new NotFoundException();
+        }
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public Rendering handle(NotFoundException notfound) {
         ODSLoggerService.logError(notfound.status.toString());
         return Rendering.redirectTo("/404").build();
-
     }
 
     @ExceptionHandler(DuplicateCredentialException.class)
-    public Object handleDup(DuplicateCredentialException dce) {
+    public Rendering handleDup(DuplicateCredentialException dce) {
         ODSLoggerService.logError(dce.status.toString());
         return Rendering.redirectTo("/transfer").build();
     }

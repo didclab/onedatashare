@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from "react";
 
 import Card from "@material-ui/core/Card";
@@ -47,6 +70,31 @@ import { cookies } from "../../model/reducers";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
 import { updateGAPageView } from '../../analytics/ga'
+import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
+import InfoOutlined from '@material-ui/icons/InfoOutlined';
+import { makeStyles } from '@material-ui/core/styles';
+
+import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
+import InputAdornment from '@material-ui/core/InputAdornment';
+
+const useStylesBootstrap = makeStyles(theme => ({
+	arrow: {
+	  color: theme.palette.common.black,
+	},
+	tooltip: {
+	  color: theme.palette.common.white,
+	  backgroundColor: theme.palette.common.black,
+	  maxWidth: 180,
+	  fontSize: theme.typography.pxToRem(17),
+	},
+  }));
+
+ const BootstrapTooltip = (props) => {
+	const classes = useStylesBootstrap();
+	return <Tooltip arrow={true} classes={classes} {...props} />;
+}
 
 export default class UserAccountComponent extends Component {
 	constructor() {
@@ -66,8 +114,16 @@ export default class UserAccountComponent extends Component {
 			lName: "...",
 			openAlertDialog: false,
 			saveOAuthTokens: false,
-			canSubmit: false
+			canSubmit: false,
+			isOldPwdVisible: false,
+			isNewPwdVisible: false,
+			isConfirmPwdVisible: false
+
 		};
+		this.displayText = "When enabled, all your endpoint authentication tokens will be saved by OneDataShare. \
+		OneDataShare does not store any passwords. On disabling this feature, your endpoint authentication tokens \
+		will be saved in your browser session for a limited time and you may have to authenticate your accounts at \
+		regular intervals."
 		getUser(this.state.userEmail, (resp) => {
 			//success
 			this.setState({
@@ -88,6 +144,8 @@ export default class UserAccountComponent extends Component {
 		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
 		this.handleAlertClose = this.handleAlertClose.bind(this);
 		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
+		this.handleShowPassword = this.handleShowPassword.bind(this);
+		this.handleHidePassword = this.handleHidePassword.bind(this);
 		updateGAPageView();
 	}
 
@@ -228,7 +286,7 @@ export default class UserAccountComponent extends Component {
 							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
 								Account Preferences <br />
 							</Typography>
-							<FormGroup>
+							<FormGroup style={{flexDirection: "row", flexWrap: "nowrap"}}>
 								<FormControlLabel
 									value="new_source"
 									control={
@@ -241,6 +299,11 @@ export default class UserAccountComponent extends Component {
 									}
 									label={"Save endpoint authentication tokens with OneDataShare"}
 								/>
+								<BootstrapTooltip title={this.displayText} placement="right">
+									<IconButton aria-label="info-icon">
+										<InfoOutlined />
+									</IconButton>
+								</BootstrapTooltip>
 							</FormGroup>
 						</CardContent>
 					</Card>
@@ -301,27 +364,66 @@ export default class UserAccountComponent extends Component {
 				<TextField
 					id="Email"
 					label="Enter Your Old Password"
-					type="password"
+					type={this.state.isOldPwdVisible? "text":"password"}
 					value={this.state.oldPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={handleChange("oldPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('old')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isOldPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
 				<TextField
 					error={!this.state.isValidNewPassword}
 					label="Enter Your New Password"
-					type="password"
+					type={this.state.isNewPwdVisible? "text":"password"}
 					value={this.state.newPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={checkPassword("newPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('new')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isNewPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
 				<TextField
 					error={!this.state.isValidConfirmPassword}
 					id="Cpassword"
-					type="password"
+					type={this.state.isConfirmPwdVisible? "text":"password"}
 					label="Confirm Your New Password"
 					value={this.state.confirmNewPassword}
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={checkConfirmPassword("confirmNewPassword")}
+					InputProps={{
+						endAdornment: <React.Fragment>
+							<InputAdornment position="end">
+								<IconButton
+									aria-label="toggle password visibility"
+									onMouseDown={() => this.handleShowPassword('confirm')}
+									onMouseUp={this.handleHidePassword}
+								>
+								{this.state.isConfirmPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+								</IconButton>
+							</InputAdornment>
+							</React.Fragment>
+					}}
 				/>
 				<PasswordRequirementsComponent
 					showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
@@ -354,6 +456,27 @@ export default class UserAccountComponent extends Component {
 		} else if (!this.state.isSmall && window.innerWidth <= 640) {
 			this.setState({ isSmall: true });
 		}
+	}
+
+	handleShowPassword(field) {
+		switch(field){
+			case 'old': 
+				this.setState({isOldPwdVisible: true}); 
+				break;
+			case 'new': 
+				this.setState({isNewPwdVisible: true}); 
+				break;
+			case 'confirm': 
+				this.setState({isConfirmPwdVisible: true}); 
+				break;
+			default:
+				break;
+		}
+		this.setState({isPasswordVisible: true});
+	}
+
+	handleHidePassword() {
+		this.setState({isConfirmPwdVisible: false, isOldPwdVisible: false, isNewPwdVisible: false});
 	}
 
 	render() {

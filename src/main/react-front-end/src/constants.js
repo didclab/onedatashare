@@ -1,8 +1,42 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-between" };
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 // urls
+export const ENDPOINT_OP_URL = "/api"
+export const LIST_OP_URL = "/ls"
+export const DEL_OP_URL = "/rm"
+export const MKDIR_OP_URL = "/mkdir"
+export const DOWNLOAD_OP_URL = "/download"
+export const UPLOAD_OP_URL = "/upload"
+export const SHARE_OP_URL = "/share"
+export const SFTP_DOWNLOAD_URL = "download/file"
+export const OAUTH_URL = "download/file"
+
+
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
@@ -14,16 +48,39 @@ export const lostValidationCodeUrl = "/account/lostValidationCode";
 export const userPageUrl = "/user";
 export const userListPageUrl = "/clientsInfo";
 export const historyPageUrl = "/history";
+export const notificationPageUrl = "/sendNotifications";
+export const newNotifications = "/newNotifications";
 export const addAccountUrl = "/account/add";
 export const dataPageUrl = "/data";
 export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
-export const policyUrl = "/policy"
+export const policyUrl = "/policy";
+
+export const AUTH_ENDPOINT = "/authenticate";
+export const RESET_PASSWD_ENDPOINT = "/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
+export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
+
+export const REGISTRATION_ENDPOINT = "/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+
+export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
+
+
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users";
+export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";
+export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
@@ -33,6 +90,7 @@ export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
+export const BOX_NAME = "Box";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
@@ -41,6 +99,7 @@ export const SCP_NAME = "SCP";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "googledrive";
+export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
@@ -55,11 +114,11 @@ export const validPasswordLength = 6;
 export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
 
 //images
-export const fastImage = ODS_S3_BUCKET + 'fast.png';
-export const easyImage = ODS_S3_BUCKET + 'easy.png';
-export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
-export const precImage = ODS_S3_BUCKET + 'precise.png';
-export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
+// export const fastImage = ODS_S3_BUCKET + 'fast.png';
+// export const easyImage = ODS_S3_BUCKET + 'easy.png';
+// export const eteImage = ODS_S3_BUCKET + 'endtoend.png';
+// export const precImage = ODS_S3_BUCKET + 'precise.png';
+// export const intopImage = ODS_S3_BUCKET + 'interoperation.png';
 export const nsfImage = ODS_S3_BUCKET + 'NSF_Logo.png';
 export const ubImage = ODS_S3_BUCKET + 'ub.png';
 export const gs1 = ODS_S3_BUCKET + "gs1.png";
@@ -79,6 +138,7 @@ export const completeStatus = "complete";
 export const showText = {
 	dropbox: DROPBOX_NAME,
 	googledrive: GOOGLEDRIVE_NAME,
+	box: BOX_NAME,
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
@@ -90,6 +150,7 @@ export const showText = {
 export const showType = {
 	dropbox: DROPBOX_TYPE,
 	googledrive: GOOGLEDRIVE_TYPE,
+	box: BOX_TYPE,
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
@@ -111,6 +172,12 @@ export const defaultPort = {
 
 export const maxCookieAge = 7;
 
+export const jobStatus = {
+	COMPLETED: 'completed',
+	TRANSFERRING: 'transferring',
+	SCHEDULED: 'scheduled',
+	FAILED: 'failed'
+}
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)

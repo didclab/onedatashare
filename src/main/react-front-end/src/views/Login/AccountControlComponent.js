@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
 // ui import
 import Card from '@material-ui/core/Card';
@@ -93,12 +116,16 @@ export default class AccountControlComponent extends Component {
 	static propTypes = {}
 
   // Called when user clicked login
-  userLogin(email, hash, remember, saveOAuthTokens, compactViewEnabled){
-  	this.state.rememberMeAccounts[email] = { hash: hash };
+  userLogin(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn){
+	  let tempRememberMeAccounts = this.state.rememberMeAccounts;
+	  tempRememberMeAccounts[email] = { hash: token };
+	  this.setState({
+		rememberMeAccounts : tempRememberMeAccounts
+	  });
 	if(remember){
 		cookies.set('SavedUsers', JSON.stringify(this.state.rememberMeAccounts));
 	}
-	store.dispatch(loginAction(email, hash, remember, saveOAuthTokens, compactViewEnabled));
+	store.dispatch(loginAction(email, token, remember, saveOAuthTokens, compactViewEnabled, admin, expiresIn));
 	//this.setState({authenticated : true});
   }
 
@@ -117,8 +144,8 @@ export default class AccountControlComponent extends Component {
 	userSigningIn(email, password, remember, fail){
 		login(email, password,
 			(success) => {
-				console.log("success account", success);
-	    		this.userLogin(email, success.hash, remember, success.saveOAuthTokens, success.compactViewEnabled);
+				console.log("SuccessFull login");
+	    		this.userLogin(success.email, success.token, remember, success.saveOAuthTokens, success.compactViewEnabled, success.admin, success.expiresIn);
 	    	},
 	    	(error) => {fail(error)}
 	    );
@@ -188,7 +215,17 @@ export default class AccountControlComponent extends Component {
 	}
 
 	render() {
-		const { isSmall, loading, creatingAccount, signIn, forgotPasswordPressed, lostValidationCodePressed, rememberMeAccounts, redirectToSignIn } = this.state;
+		const {
+			isSmall,
+			loading,
+			creatingAccount,
+			signIn,
+			forgotPasswordPressed,
+			lostValidationCodePressed,
+			rememberMeAccounts,
+			redirectToSignIn
+		} = this.state;
+		const currentRoute = this.props.location.pathname
 		this.setState.signIn = Object.keys(rememberMeAccounts).length === 0 && currentRoute !== registerPageUrl;
 		this.setState.creatingAccount= false;
 		this.setState.lostValidationCodePressed= false;
@@ -196,7 +233,6 @@ export default class AccountControlComponent extends Component {
 		this.setState.redirectToSignIn= false;
 
 		
-		const currentRoute = this.props.location.pathname
 
 			return (
 

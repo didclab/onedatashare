@@ -1,3 +1,26 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
 
 import NavbarComponent from "./views/NavbarComponent";
@@ -13,12 +36,16 @@ import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
+import NotificationsComponent from './views/Admin/NotificationsComponent';
+import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
 
 import "./MainComponent.css"
+
+// XNOTE: split the components into logged in, not logged in, and admin using HOCs
 
 export default class MainComponent extends Component {
   constructor(props) {
@@ -55,7 +82,7 @@ export default class MainComponent extends Component {
           <Switch>
 
             <Route path='/account'
-              render={(props) => <AccountControlComponent {...props} /> }
+              render={(props) => <AccountControlComponent {...props} />}
             />
 
             <Route exact path='/'
@@ -78,12 +105,12 @@ export default class MainComponent extends Component {
 
             <Route exact path="/support"
               render={() =>
-               <SupportComponent />
+                <SupportComponent />
               }
             />
 
             <Route excat path="/get-started"
-              render = { () =>
+              render={() =>
                 <GetStartedComponent />
               }
             />
@@ -98,7 +125,7 @@ export default class MainComponent extends Component {
 
             {isLoggedIn &&
               <Route exact path='/queue'
-                render={ (props) =>
+                render={(props) =>
                   <QueueComponent {...props} />
                 }
               />
@@ -118,18 +145,33 @@ export default class MainComponent extends Component {
                 }
               />
             }
-
+            {isLoggedIn && admin &&
+              <Route exact path='/sendNotifications' render=
+                {(props) =>
+                  <NotificationsComponent {...props} store={store} />
+                }
+              />
+            }
+            {isLoggedIn && admin &&
+              <Route exact path='/newNotifications' render=
+                {(props) =>
+                  <NewNotificationsComponent {...props} store={store} />
+                }
+              />
+            }
             {isLoggedIn &&
               <Route exact path='/user'
-              render={ (props) =>
+                render={(props) =>
                   <UserAccountComponent {...props} />
                 }
               />
             }
 
-            {(isLoggedIn) &&
-              <h1 to='/transfer'>Page Not Found</h1>
-            }
+						{/*
+							(isLoggedIn) &&
+              	<h1 to='/transfer'>Page Not Found</h1>
+							
+						*/}
 
             {!isLoggedIn &&
               <Route render={() => <Redirect to="/" />} />

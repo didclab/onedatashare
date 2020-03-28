@@ -1,17 +1,41 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from "react";
 
-import { Redirect } from "react-router-dom";
 import {
   transferPageUrl,
   DROPBOX_TYPE,
   sideLeft,
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
-  GRIDFTP_NAME
+  GRIDFTP_NAME,
+  BOX_NAME
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
+import Redirect from "react-router/es/Redirect";
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
@@ -22,17 +46,24 @@ export default class OauthProcessComponent extends Component {
 
   processOAuth(tag) {
     if (tag === "ExistingCredGoogleDrive") {
+        setTimeout(() => {
+            eventEmitter.emit(
+                "errorOccured",
+                "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
+            );
+        }, 500);
+    }else if(tag === "ExistingCredDropbox"){
+            setTimeout( () => {
+              eventEmitter.emit(
+                "errorOccurred",
+                "Credential for that endpoint already exists. Please logout from Dropbox and try again."
+            );
+              }, 500);
+    } else if (tag === "ExistingCredBox") {
       setTimeout(() => {
         eventEmitter.emit(
           "errorOccured",
-          "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
-        );
-      }, 500);
-    } else if (tag === "ExistingCredDropbox") {
-      setTimeout(() => {
-        eventEmitter.emit(
-          "errorOccured",
-          "Credential for the endpoint already Exists. Please logout from Dropbox and try again."
+          "Credential for the endpoint already Exists. Please logout from Box and try again."
         );
       }, 500);
     } else if (tag === "uuid") {
@@ -57,9 +88,12 @@ export default class OauthProcessComponent extends Component {
       } else if (tag === "gridftp") {
         console.log("GridFTP oAuth identifier received");
         this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
+      } else if (tag === "box") {
+          console.log("Box oAuth identifier received");
+          this.updateLocalCredStore(BOX_NAME, qsObj);
+        }
       }
     }
-  }
 
   updateLocalCredStore(protocolType, qsObj) {
     let creds = cookies.get(protocolType) || 0;
@@ -87,12 +121,13 @@ export default class OauthProcessComponent extends Component {
     }
   }
 
+
   render() {
     return (
       <div>
-        <Redirect to={transferPageUrl}></Redirect>
+        <Redirect to={transferPageUrl}/>
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );
-  }
+    }
 }

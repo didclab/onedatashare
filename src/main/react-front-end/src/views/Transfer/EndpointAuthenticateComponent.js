@@ -1,15 +1,40 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, history, savedCredList,
-		listFiles, deleteCredentialFromServer, deleteHistory, globusEndpointIds, deleteEndpointId,
-		globusEndpointActivate, globusEndpointDetail} from "../../APICalls/APICalls";
-import {DROPBOX_TYPE, 
-				GOOGLEDRIVE_TYPE, 
-				FTP_TYPE, 
-				SFTP_TYPE, 
-				GRIDFTP_TYPE, 
-				HTTP_TYPE, 
-				SCP_TYPE, 
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId
+} from "../../APICalls/EndpointAPICalls";
+import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
+import {DROPBOX_TYPE,
+				GOOGLEDRIVE_TYPE,
+				BOX_TYPE,
+				FTP_TYPE,
+				SFTP_TYPE,
+				GRIDFTP_TYPE,
+				HTTP_TYPE,
+				SCP_TYPE,
 				HTTPS_TYPE,
 				ODS_PUBLIC_KEY
 			} from "../../constants";
@@ -144,7 +169,7 @@ export default class EndpointAuthenticateComponent extends Component {
         [name]: event.target.value
       });
 	};
-	
+
 	handleUrlChange = name => event => {
 		let url = event.target.value;
 
@@ -160,7 +185,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
-		
+
 		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
@@ -195,7 +220,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		}else{
 			this._handleError("Protocol is not understood");
 		}
-		
+
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
 				// console.log(suc)
@@ -362,9 +387,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
 		
-		this.endpointCheckin(this.state.url, 
+		this.endpointCheckin(this.state.url,
 			this.state.portNum,
-			{type: "userinfo", username: this.state.username, password: encryptedPwd}, 
+			{type: "userinfo", username: this.state.username, password: encryptedPwd},
 			() => {
 			this._handleError("Authentication Failed");
 			}
@@ -456,6 +481,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		openDropboxOAuth();
 		        	}else if(loginType === GOOGLEDRIVE_TYPE){
 		        		openGoogleDriveOAuth();
+		        	}else if(loginType === BOX_TYPE){
+		        	    openBoxOAuth();
 		        	}else if(loginType === FTP_TYPE){
 		        		let loginUri = "ftp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
@@ -482,12 +509,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemText primary={"Add New " + type} />
 		        </ListItem>
 		        <Divider />
-				{/* Google Drive and Dropbox login handler */}
-				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/* Google Drive, Dropbox, Box login handler */}
+				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
 				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== GRIDFTP_TYPE &&
+				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </List>}
 	    	<Modal
@@ -537,7 +564,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
-			          value={this.state.portNumField? this.state.portNum : "-"} 
+			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handleChange('portNum')}
 			          margin="normal"
 					  		variant="outlined"

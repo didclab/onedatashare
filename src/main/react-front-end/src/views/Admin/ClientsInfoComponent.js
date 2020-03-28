@@ -1,5 +1,28 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ## 
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ## 
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ## 
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 import React, {Component} from 'react';
-import { getUsers, updateAdminRightsApiCall } from '../../APICalls/APICalls';
+import { getUsers, updateAdminRightsApiCall, getAdmins } from '../../APICalls/APICalls';
 
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
@@ -78,7 +101,7 @@ class ClientsInfoComponent extends Component{
 		document.title = "OneDataShare - Client Info";
 	}
 
-	getUserInfo = () => getUsers('getUsers',  this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+	getUserInfo = () => getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 		//success
 		this.setState({users:resp.users, totalUsersCount: resp.totalCount});
 		}, (resp) => {
@@ -86,7 +109,7 @@ class ClientsInfoComponent extends Component{
 		console.log('Error encountered in getUsers request to API layer');
 	});
 
-	getAdminInfo = () => getUsers('getAdministrators',  this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
+	getAdminInfo = () => getAdmins(this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
 		//success
 		console.log(resp.users.length + "---")
 		this.setState({admins:resp.users, totalAdminsCount: resp.totalCount});
@@ -119,7 +142,7 @@ class ClientsInfoComponent extends Component{
 			else{
 				eventEmitter.emit("errorOccured", "Error while updating the user");
 			}
-			getUsers('getUsers', this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
+			getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
 				this.setState({users:resp.users, showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
 				}, (error) => {
 				console.log('Error encountered in getUsers request to API layer');

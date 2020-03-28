@@ -1,3 +1,10 @@
+@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+
+/************************************/
+/*                                  */
+/*    Comes with create-react-app   */
+/*                                  */
+/************************************/
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -23,6 +30,12 @@
   to { transform: rotate(360deg); }
 }
 
+/*******************************************/
+/*                                         */
+/*    Before revision and used on master   */
+/*                                         */
+/*******************************************/
+
 .navbar_navbar{
   width: 100%;
 }
@@ -37,5 +50,159 @@
 
 .flexSpacebetween {
   display: flex;
-  justify-content:"space-between"
+}
+
+/***************************/
+/*                         */
+/*    For the Entire App   */
+/*                         */
+/***************************/
+
+.content {
+  padding-top: 10vh;
+}
+
+.navbar {
+}
+
+button.defaultButton {
+  background-color: white;
+  font-size: 1.2em;
+  text-transform: none;
+  font-weight: normal;
+}
+
+/*********************************/
+/*                               */
+/*    For HomePageComponent.js   */
+/*                               */
+/*********************************/
+
+div.homePage {
+  /*background: #579;*/
+  overflow: hidden;
+  margin-top: -10vh;
+}
+
+.evenSlice {
+  background-color: #ffffff;
+}
+
+.oddSlice {
+  background-color: #F2F2F2;
+}
+
+/**************************************/
+/*                                    */
+/*    For HomePage/HomeInfoSlice.js   */
+/*                                    */
+/**************************************/
+
+.HomeInfoSlice {
+  /*padding-top: 2vh;*/
+  /*padding-bottom: 2vh;*/
+  padding: 2vh 15vw;
+  /*background-color: #ffffff;*/
+}
+
+.HomeInfoSlice h2 {
+  color: #172753;
+  font-size: 3em;
+  padding-bottom: 3vh;
+}
+
+.HomeInfoSlice p {
+  font-size: 1.7em;
+}
+
+.homeImg{
+  max-width: 100%;
+  max-height: 30vh;
+  object-fit: contain;
+  margin: auto;
+
+}
+
+.leftHomeTxt {
+  padding-right: 2.25vw;
+}
+
+.rightHomeTxt {
+  padding-left: 2.25vw;
+}
+
+/*****************************************/
+/*                                       */
+/*    For HomePage/RecognitionSlice.js   */
+/*                                       */
+/*****************************************/
+
+.RecognitionSlice {
+  background-color: white;
+  padding-top: 3vh;
+  padding-bottom: 3vh;
+}
+
+.RecognitionSlice img {
+  height: 10vh;
+  width: auto;
+  padding-left: 2vw;
+  padding-right:2vw;
+}
+
+/***********************************/
+/*                                 */
+/*    For HomePage/TitleSlice.js   */
+/*                                 */
+/***********************************/
+
+.TitleSlice {
+  padding: 7vh 15vw;
+  background-color: #172753;
+}
+
+.TitleSlice h1 {
+  color: #ffffff;
+  font-size: 5em;
+  font-style: oblique;
+  padding-top: 4.5vh;
+}
+
+.TitleSlice h1 ~ p {
+  font-size: 2.5em;
+  font-style: italic;
+  color: #d9eff6;
+}
+
+/****************************************/
+/*                                      */
+/*    For HomePage/TripleIconSlice.js   */
+/*                                      */
+/****************************************/
+
+.TripleIconSlice {
+  padding: 0vh 15vw;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  background-color: #172753;
+}
+
+.tripleContent h2 {
+  font-size: 2em;
+  color: #ffffff;
+  text-align: center;
+}
+
+.tripleContent {
+  padding-top: 2vh;
+  padding-bottom: 2vh;
+}
+
+.iconTrio {
+  max-height: 12vh;
+  max-width: 80%;
+  object-fit: contain;
+  margin-left: auto;
+  margin-right: auto;
 }
