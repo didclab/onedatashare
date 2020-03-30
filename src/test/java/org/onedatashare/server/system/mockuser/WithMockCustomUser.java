@@ -1,4 +1,4 @@
-package org.onedatashare.server.system;
+package org.onedatashare.server.system.mockuser;
 
 import org.onedatashare.server.model.core.Role;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;

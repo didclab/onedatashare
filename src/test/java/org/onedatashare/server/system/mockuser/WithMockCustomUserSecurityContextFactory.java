@@ -1,4 +1,4 @@
-package org.onedatashare.server.system;
+package org.onedatashare.server.system.mockuser;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
