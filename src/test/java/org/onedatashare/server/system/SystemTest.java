@@ -46,7 +46,7 @@ public abstract class SystemTest {
     protected EmailService emailService;
 
     protected Map<String, User> users = new HashMap<>();
-    protected Map<String, String> inbox = new HashMap<>();
+    protected Map<String, String> userInbox = new HashMap<>();
 
     @Before
     public void setup() {
@@ -62,7 +62,7 @@ public abstract class SystemTest {
         doCallRealMethod().when(emailService).isValidEmail(any());
 
         users.clear();
-        inbox.clear();
+        userInbox.clear();
     }
 
     protected User getFirstUser() {
@@ -77,9 +77,28 @@ public abstract class SystemTest {
         return processWithRequestData(requestData, get(url));
     }
 
-    protected ResultActions processWithRequestData(Object requestData,
+    private ResultActions processWithRequestData(Object requestData,
                                                       MockHttpServletRequestBuilder request) throws Exception {
         return mvc.perform(request.with(csrf()).content(toJson(requestData))
+                .contentType(MediaType.APPLICATION_JSON)).andDo(print());
+    }
+
+    /**
+     * To be used when the object has already been converted to json
+     * This is provided if the default json conversion needs to be overriden in cases where
+     * the fields have a different json field name than that in the class variable declaration
+     *
+     * @param url url to route to
+     * @param requestData json representation of the request data
+     * @return result of executing the mvc request
+     */
+    protected ResultActions processPostWithRequestData(String url, String requestData) throws Exception {
+        return processWithRequestData(requestData, post(url));
+    }
+
+    private ResultActions processWithRequestData(String requestData,
+                                                   MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(csrf()).content(requestData)
                 .contentType(MediaType.APPLICATION_JSON)).andDo(print());
     }
 
@@ -111,7 +130,7 @@ public abstract class SystemTest {
         return invocation -> {
             String recipient = invocation.getArgument(0);
             String body = invocation.getArgument(2);
-            inbox.put(recipient, body);
+            userInbox.put(recipient, body);
             return null;
         };
     }

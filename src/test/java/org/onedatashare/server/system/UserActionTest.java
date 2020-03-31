@@ -178,7 +178,7 @@ public class UserActionTest extends SystemTest {
 
     private void registerUserAndChangePassword(String userEmail, String userPassword, String username) throws Exception {
         registerUser(userEmail, username);
-        String verificationCodeEmail = inbox.get(userEmail);
+        String verificationCodeEmail = userInbox.get(userEmail);
         String verificationCode = extractVerificationCode(verificationCodeEmail);
         verifyCode(userEmail, verificationCode);
         String authToken = users.get(userEmail).getAuthToken();
