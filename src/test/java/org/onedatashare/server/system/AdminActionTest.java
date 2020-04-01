@@ -49,10 +49,13 @@ public class AdminActionTest extends SystemTest {
     private static final String GET_ALL_USERS_URL = ADMIN_BASE_URL + "getAllUsers";
     private static final String SEND_NOTIFICATION_URL = ADMIN_BASE_URL + "sendNotifications";
     private static final String DELETE_MAIL_URL = ADMIN_BASE_URL + "deleteMail";
+    private static final String GET_ALL_MAIL_URL = ADMIN_BASE_URL + "getMails";
+    public static final String GET_TRASH_MAIL_URL = ADMIN_BASE_URL + "getTrashMails";
 
-    private static final String MAIL_DELETED_STATUS = "deleted";
+    private static final String MAIL_STATUS_DELETED = "deleted";
     private static final int RESPONSE_STATUS_OK = 200;
     private static final int RESPONSE_STATUS_ERROR = 401;
+    public static final String MAIL_STATUS_SENT = "sent";
 
     private Map<UUID, Mail> sentMail = new HashMap<>();
 
@@ -63,7 +66,6 @@ public class AdminActionTest extends SystemTest {
     public void setup() {
         when(userRepository.insert((User) any())).thenAnswer(addToUsers());
         when(userRepository.save(any())).thenAnswer(addToUsers());
-
         when(userRepository.findAllUsers(any())).thenAnswer(getUsersSortedByEmail());
         when(userRepository.findAllAdministrators(any())).thenAnswer(getAdminsSortedByEmail());
         when(userRepository.findAll()).thenAnswer(getAllUsers());
@@ -72,6 +74,9 @@ public class AdminActionTest extends SystemTest {
 
         when(mailRepo.save(any())).thenAnswer(putToMailRepo());
         when(mailRepo.findById((UUID) any())).thenAnswer(getMailByUuid());
+        when(mailRepo.findAll()).thenAnswer(getAllMail());
+        when(mailRepo.findAllDeleted()).thenAnswer(getAllDeletedMail());
+
         doAnswer(addToEmails()).when(emailService).sendEmail(any(), any(), any());
     }
 
@@ -163,26 +168,100 @@ public class AdminActionTest extends SystemTest {
 
         // send email
         processPostWithRequestData(SEND_NOTIFICATION_URL, notificationBody);
-
         // get uuid of email that was just sent
         String firstEmailUuid = sentMail.keySet().toArray()[0].toString();
-
         // check that it was not marked as deleted
         Mail firstEmail = (Mail) sentMail.values().toArray()[0];
-        assertNotEquals(firstEmail.getStatus(), MAIL_DELETED_STATUS);
-
+        assertNotEquals(firstEmail.getStatus(), MAIL_STATUS_DELETED);
         // default json conversion is overridden here because the json
         // field name is different from the one in the class declaration
         String jsonRep = jsonRepresentationOf(mailUuidOf(firstEmailUuid));
-
         // delete email that was just sent
         Response response = (Response) processPostWithRequestData(DELETE_MAIL_URL, jsonRep)
                 .andReturn().getAsyncResult();
 
         // check if it has been marked as deleted
         firstEmail = (Mail) sentMail.values().toArray()[0];
-        assertEquals(firstEmail.getStatus(), MAIL_DELETED_STATUS);
+        assertEquals(firstEmail.getStatus(), MAIL_STATUS_DELETED);
         assertEquals(response.status, RESPONSE_STATUS_OK);
+    }
+
+    @Test
+    @WithMockCustomUser(role = Role.ADMIN)
+    public void givenEmailsStoredInRepo_WhenRequestingAllMail_ShouldReturnAllMail() throws Exception {
+        when(emailService.getSendQuota()).thenReturn(quotaOf(8, 0));
+        // 2 email types will be stored: ones that have marked "sent", and ones that have been marked "deleted"
+        // email 1 will be kept as "sent"
+        String toDeleteMailSubject = "To delete";
+        String toKeepMailSubject = "To keep";
+        ArrayList<String> recipients = arrayListOf("recipient1");
+        NotificationBody notificationBody = getTestEmailsFor(recipients, toKeepMailSubject);
+        processPostWithRequestData(SEND_NOTIFICATION_URL, notificationBody);
+        // email 2 will be marked "deleted"
+        recipients = arrayListOf("recipient3");
+        notificationBody = getTestEmailsFor(recipients, toDeleteMailSubject);
+        processPostWithRequestData(SEND_NOTIFICATION_URL, notificationBody);
+        String deletedMailUuid = getEmailBySubject(toDeleteMailSubject).getUuid().toString();
+        String jsonRep = jsonRepresentationOf(mailUuidOf(deletedMailUuid));
+        // delete email that was just sent
+        processPostWithRequestData(DELETE_MAIL_URL, jsonRep);
+
+        Iterable<Mail> response = (Iterable<Mail>) processGetWithNoRequestData(GET_ALL_MAIL_URL)
+                .andReturn().getAsyncResult();
+        List<Mail> allMail = toList(response);
+
+        assertEquals(2, allMail.size());
+        String firstMailStatus = allMail.get(0).getStatus();
+        String secondMailStatus = allMail.get(1).getStatus();
+        // deleted is going to be either first one or second one
+        assertTrue(MAIL_STATUS_DELETED.equalsIgnoreCase(firstMailStatus)
+                || MAIL_STATUS_SENT.equalsIgnoreCase(firstMailStatus));
+        // sent is going to be either first one or second one
+        assertTrue(MAIL_STATUS_DELETED.equalsIgnoreCase(secondMailStatus)
+                || MAIL_STATUS_SENT.equalsIgnoreCase(secondMailStatus));
+    }
+
+    @Test
+    @WithMockCustomUser(role = Role.ADMIN)
+    public void givenEmailsStoredInRepo_WhenRequestingTrashMail_ShouldOnlyReturnTrashMail() throws Exception {
+        when(emailService.getSendQuota()).thenReturn(quotaOf(8, 0));
+        // 2 email types will be stored: ones that have marked "sent", and ones that have been marked "deleted"
+        // email 1 will be kept as "sent"
+        String toDeleteMailSubject = "To delete";
+        String toKeepMailSubject = "To keep";
+        ArrayList<String> recipients = arrayListOf("recipient1");
+        NotificationBody notificationBody = getTestEmailsFor(recipients, toKeepMailSubject);
+        processPostWithRequestData(SEND_NOTIFICATION_URL, notificationBody);
+        // email 2 will be marked "deleted"
+        recipients = arrayListOf("recipient3");
+        notificationBody = getTestEmailsFor(recipients, toDeleteMailSubject);
+        processPostWithRequestData(SEND_NOTIFICATION_URL, notificationBody);
+        String deletedMailUuid = getEmailBySubject(toDeleteMailSubject).getUuid().toString();
+        String jsonRep = jsonRepresentationOf(mailUuidOf(deletedMailUuid));
+        // delete email that was just sent
+        processPostWithRequestData(DELETE_MAIL_URL, jsonRep);
+
+        Iterable<Mail> response = (Iterable<Mail>) processGetWithNoRequestData(GET_TRASH_MAIL_URL)
+                .andReturn().getAsyncResult();
+        List<Mail> allMail = toList(response);
+
+        // should only contain deleted mail
+        assertEquals(1, allMail.size());
+        String firstMailStatus = allMail.get(0).getStatus();
+        assertTrue(MAIL_STATUS_DELETED.equalsIgnoreCase(firstMailStatus));
+    }
+
+    private <T> List<T> toList(Iterable<T> iter) {
+        List<T> list = new ArrayList<>();
+        for(T val : iter)
+            list.add(val);
+        return list;
+    }
+
+    private Mail getEmailBySubject(String subject) {
+        return sentMail.entrySet().stream()
+                .filter(e -> subject.equals(e.getValue().getSubject()))
+                .findFirst().get().getValue();
     }
 
     private String jsonRepresentationOf(MailUUID firstEmailUuid) {
@@ -196,8 +275,11 @@ public class AdminActionTest extends SystemTest {
     }
 
     private NotificationBody getTestEmailsFor(ArrayList<String> recipients) {
+        return getTestEmailsFor(recipients, "subject");
+    }
+
+    private NotificationBody getTestEmailsFor(ArrayList<String> recipients, String subject) {
         String message = "testing is fun! :')";
-        String subject = "subject";
         String sender = "sender";
         boolean isHtml = true;
         return new NotificationBody(sender, subject, message, recipients, isHtml);
@@ -231,6 +313,7 @@ public class AdminActionTest extends SystemTest {
         admin.setRoles(singletonList(Role.ADMIN));
         return admin;
     }
+
     private Answer<Flux<User>> getAdminsSortedByEmail() {
         return invocationOnMock ->
                 fromIterable(sortUsersByEmail(adminPredicate()));
@@ -242,7 +325,7 @@ public class AdminActionTest extends SystemTest {
     }
 
     private Answer<Flux<User>> getAllUsers() {
-        return invocationOnMock -> Flux.fromIterable(users.values());
+        return invocationOnMock -> fromIterable(users.values());
     }
 
 
@@ -261,12 +344,22 @@ public class AdminActionTest extends SystemTest {
         return invocationOnMock -> just(valueOf(users.values().stream().filter(userPredicate()).count()));
     }
 
+    private Answer<Flux<Mail>> getAllMail() {
+        return invocationOnMock -> fromIterable(sentMail.values());
+    }
+
     private Answer<Mono<Mail>> putToMailRepo() {
         return invocationOnMock -> {
             Mail mail = invocationOnMock.getArgument(0);
             sentMail.put(mail.getUuid(), mail);
             return just(mail);
         };
+    }
+
+    private Answer<Flux<Mail>> getAllDeletedMail() {
+        return invocationOnMock -> fromIterable(sentMail.values().stream()
+                .filter(m -> MAIL_STATUS_DELETED.equals(m.getStatus()))
+                .collect(Collectors.toList()));
     }
 
     private Answer<Object> getAdminsSize() {

@@ -73,6 +73,10 @@ public abstract class SystemTest {
         return processWithRequestData(requestData, post(url));
     }
 
+    protected ResultActions processGetWithNoRequestData(String url) throws Exception {
+        return processWithNoRequestData(get(url));
+    }
+
     protected ResultActions processGetWithRequestData(String url, Object requestData) throws Exception {
         return processWithRequestData(requestData, get(url));
     }
@@ -81,6 +85,10 @@ public abstract class SystemTest {
                                                       MockHttpServletRequestBuilder request) throws Exception {
         return mvc.perform(request.with(csrf()).content(toJson(requestData))
                 .contentType(MediaType.APPLICATION_JSON)).andDo(print());
+    }
+
+    private ResultActions processWithNoRequestData(MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(csrf())).andDo(print());
     }
 
     /**
