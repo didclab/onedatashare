@@ -136,19 +136,19 @@ export default class RowElement extends React.Component {
             <React.Fragment>
                 <TableRow style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
-                    <TableCell className="idCell" numeric="true">
+                    <TableCell className="idCell queueBodyCell" numeric="true">
                         <p>{resp.job_id}</p>
                     </TableCell>
-                    <TableCell className="progressCell">
+                    <TableCell className="progressCell queueBodyCell">
                         <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
                     </TableCell>
-                    <TableCell className="speedCell">
+                    <TableCell className="speedCell queueBodyCell">
                         <p>{humanReadableSpeed(resp.bytes.avg)}</p>
                     </TableCell>
-                    <TableCell className="sourceCell">
+                    <TableCell className="sourceCell queueBodyCell">
                         <p>{decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}</p>
                     </TableCell>
-                    <TableCell className="actionCell">
+                    <TableCell className="actionCell queueBodyCell">
                         {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
                     </TableCell>
                     </Hidden>

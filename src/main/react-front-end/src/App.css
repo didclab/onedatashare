@@ -218,25 +218,6 @@ div.homePage {
   padding-bottom: 15vh;
 }
 
-tr {
-  width: 100%;
-  display: block;
-}
-
-th{
-  min-width: 12vw;
-  background-color: #d9edf7;
-  word-wrap: normal;
-}
-
-.QueueHeaderCell * {
-  color: #31708f;
-  font-size: 2.25rem;
-  font-weight: 500;
-  text-align: center;
-  margin: auto;
-}
-
 td * {
   width: auto;
   font-size: 1.2rem;
@@ -248,23 +229,35 @@ td * {
   text-align: center;
 }
 
-tr * {
-  font-size: 1.2rem;
-}
-
 .MuiTable-root {
   border-style: solid;
   border-width: 2px;
   border-color: #d9edf7;
 }
 
-.idCell{
-  width: 2%;
+.queueHeaderCell {
+  background-color: #d9edf7;
+}
+
+.queueHeaderCell * {
+  text-align: center;
+  align-content: center;
+  font-size: 2rem;
+}
+
+.queueBodyCell * {
+  text-align: center;
+  align-content: center;
+  font-size: 1.2rem;
   overflow-wrap: break-spaces;
 }
 
+.idCell{
+  width: 5%;
+}
+
 .progressCell {
-  width: 25%;
+  width: 30%;
 }
 
 .speedCell {
@@ -272,11 +265,11 @@ tr * {
 }
 
 .sourceCell {
-  width: 48%;
+  width: 25%;
 }
 
 .actionCell {
-  width: 17%
+  width: 15%
 }
 
 .mobileCell {

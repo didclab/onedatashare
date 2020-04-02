@@ -25,7 +25,7 @@ export default class QueueTableHeaderView extends React.Component {
         for (let i=0; i<titles.length; i+=1) {
             retVal.push(
                 <Tooltip title={"Sort by" + titles[i]} placement='bottom-end'>
-                    <TableCell className={"QueueHeaderCell "+ classes[i]}>
+                    <TableCell className={classes[i]}>
                         <QueueHeaderCell
                             handleRequestSort={this.handleRequestSort}
                             order={this.order}
@@ -44,17 +44,17 @@ export default class QueueTableHeaderView extends React.Component {
         let retVal = [];
         let titles = ["Job ID", "Progress", "Average Speed", "Source & Destination"];
         let keys = [this.sortableColumns.jobId, this.sortableColumns.status, this.sortableColumns.avgSpeed, this.sortableColumns.source];
-        let classes = ["", "", "", ""]
+        let classes = ["idCell", "progressCell", "speedCell", "sourceCell"]
         for (let i=0; i<titles.length; i+=1) {
             retVal.push(
-                <MenuItem>
-                <QueueHeaderCell
-                    handleRequestSort={this.handleRequestSort}
-                    order={this.order}
-                    orderBy={this.orderBy}
-                    sortKey={keys[i]}
-                    title = {titles[i]}
-                />
+                <MenuItem className={classes[i] + "queueHeaderCell"}>
+                    <QueueHeaderCell
+                        handleRequestSort={this.handleRequestSort}
+                        order={this.order}
+                        orderBy={this.orderBy}
+                        sortKey={keys[i]}
+                        title = {titles[i]}
+                    />
                 </MenuItem>
             );
         }
@@ -66,24 +66,24 @@ export default class QueueTableHeaderView extends React.Component {
         let opts = this.makeSortOptions()
         return (
             <TableHead>
-                <TableRow className="QueueTableHeader">
+                <TableRow>
                     <Hidden mdDown>
                         {headerCells}
-                        <TableCell className="QueueHeaderCell actionCell"> <p>Actions</p> </TableCell>
+                        <TableCell className="actionCell"> <p>Actions</p> </TableCell>
                     </Hidden>
                     <Hidden lgUp>
                         <TableCell className="QueueHeaderCell mobileCell">
                             <p>Transfer History</p>
                             <div className="queueDropDown">
-                            <FormControl variant="outlined">
-                                <InputLabel> Sort by </InputLabel>
-                                <Select
-                                    onChange={this.handleRequestSort}
-                                    label="Sort Category"
-                                >
-                                    {opts}
-                                </Select>
-                            </FormControl>
+                                <FormControl variant="outlined">
+                                    <InputLabel> Sort by </InputLabel>
+                                    <Select
+                                        onChange={this.handleRequestSort}
+                                        label="Sort Category"
+                                    >
+                                        {opts}
+                                    </Select>
+                                </FormControl>
                             </div>
                         </TableCell>
                     </Hidden>
