@@ -1,6 +1,7 @@
 package org.onedatashare.server.system;
 
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,6 +10,7 @@ import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.core.UserDetails;
+import org.onedatashare.server.model.request.ChangeRoleRequest;
 import org.onedatashare.server.model.request.PageRequest;
 import org.onedatashare.server.model.useraction.NotificationBody;
 import org.onedatashare.server.model.util.MailUUID;
@@ -50,12 +52,13 @@ public class AdminActionTest extends SystemTest {
     private static final String SEND_NOTIFICATION_URL = ADMIN_BASE_URL + "sendNotifications";
     private static final String DELETE_MAIL_URL = ADMIN_BASE_URL + "deleteMail";
     private static final String GET_ALL_MAIL_URL = ADMIN_BASE_URL + "getMails";
-    public static final String GET_TRASH_MAIL_URL = ADMIN_BASE_URL + "getTrashMails";
+    private static final String GET_TRASH_MAIL_URL = ADMIN_BASE_URL + "getTrashMails";
+    private static final String MAKE_ADMIN_URL = ADMIN_BASE_URL + "/change-role";
 
     private static final String MAIL_STATUS_DELETED = "deleted";
     private static final int RESPONSE_STATUS_OK = 200;
     private static final int RESPONSE_STATUS_ERROR = 401;
-    public static final String MAIL_STATUS_SENT = "sent";
+    private static final String MAIL_STATUS_SENT = "sent";
 
     private Map<UUID, Mail> sentMail = new HashMap<>();
 
@@ -69,6 +72,7 @@ public class AdminActionTest extends SystemTest {
         when(userRepository.findAllUsers(any())).thenAnswer(getUsersSortedByEmail());
         when(userRepository.findAllAdministrators(any())).thenAnswer(getAdminsSortedByEmail());
         when(userRepository.findAll()).thenAnswer(getAllUsers());
+        when(userRepository.findById((String) any())).thenAnswer(getFromUsers());
         when(userRepository.countUsers()).thenAnswer(getUsersSize());
         when(userRepository.countAdministrators()).thenAnswer(getAdminsSize());
 
@@ -251,6 +255,68 @@ public class AdminActionTest extends SystemTest {
         assertTrue(MAIL_STATUS_DELETED.equalsIgnoreCase(firstMailStatus));
     }
 
+    @Test
+    @WithMockCustomUser(role = Role.OWNER)
+    public void givenGrantingUserIsOwnerAndTargetUserIsNotAdmin_WhenMakingAdmin_ShouldGrantAdminRole() throws Exception {
+        User user = userWithEmail("user@do.co");
+        when(userRepository.findById(user.getEmail())).thenReturn(just(user));
+
+        ChangeRoleRequest request = changeRoleRequestOf(user, true);
+        Response response = (Response) processPutWithRequestData(MAKE_ADMIN_URL, request)
+                .andReturn().getAsyncResult();
+
+        assertEquals(RESPONSE_STATUS_OK, response.status);
+        assertTrue(user.getRoles().stream().anyMatch(Role.ADMIN::equals));
+    }
+
+    @Test
+    @WithMockCustomUser(role = Role.OWNER)
+    public void givenGrantingUserIsOwnerAndTargetUserIsAdmin_WhenMakingNotAdmin_ShouldRevokeAdminRole() throws Exception {
+        User user = userWithEmail("user@do.co");
+        when(userRepository.findById(user.getEmail())).thenReturn(just(user));
+
+        ChangeRoleRequest request = changeRoleRequestOf(user, false);
+        // grant admin role
+        processPutWithRequestData(MAKE_ADMIN_URL, request);
+        request.setMakeAdmin(false);
+        // revoke admin role
+        processPutWithRequestData(MAKE_ADMIN_URL, request);
+
+        assertFalse(user.getRoles().stream().anyMatch(Role.ADMIN::equals));
+    }
+
+    @Test
+    @WithMockCustomUser(role = Role.USER)
+    public void givenGrantingUserIsUserAndTargetUserIsNotAdmin_WhenMakingAdmin_ShouldNotGrantAdminRole() throws Exception {
+        User user = userWithEmail("user@do.co");
+        when(userRepository.findById(user.getEmail())).thenReturn(just(user));
+
+        ChangeRoleRequest request = changeRoleRequestOf(user, true);
+        processPutWithRequestData(MAKE_ADMIN_URL, request);
+
+        assertFalse(user.getRoles().stream().anyMatch(Role.ADMIN::equals));
+    }
+
+    @Test
+    @WithMockCustomUser(role = Role.ADMIN)
+    public void givenGrantingUserIsAdminAndTargetUserIsNotAdmin_WhenMakingAdmin_ShouldNotGrantAdminRole() throws Exception {
+        User user = userWithEmail("user@do.co");
+        when(userRepository.findById(user.getEmail())).thenReturn(just(user));
+
+        ChangeRoleRequest request = changeRoleRequestOf(user, true);
+        processPutWithRequestData(MAKE_ADMIN_URL, request);
+
+        assertFalse(user.getRoles().stream().anyMatch(Role.ADMIN::equals));
+    }
+
+    @NotNull
+    private ChangeRoleRequest changeRoleRequestOf(User user, boolean makeAdmin) {
+        ChangeRoleRequest request = new ChangeRoleRequest();
+        request.setEmail(user.getEmail());
+        request.setMakeAdmin(makeAdmin);
+        return request;
+    }
+
     private <T> List<T> toList(Iterable<T> iter) {
         List<T> list = new ArrayList<>();
         for(T val : iter)
@@ -304,7 +370,7 @@ public class AdminActionTest extends SystemTest {
     private User userWithEmail(String email) {
         User user = new User();
         user.setEmail(email);
-        user.setRoles(singletonList(Role.USER));
+        user.setRoles(new ArrayList<>(asList(Role.USER)));
         return user;
     }
 

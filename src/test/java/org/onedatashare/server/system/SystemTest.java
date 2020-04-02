@@ -73,12 +73,16 @@ public abstract class SystemTest {
         return processWithRequestData(requestData, post(url));
     }
 
-    protected ResultActions processGetWithNoRequestData(String url) throws Exception {
-        return processWithNoRequestData(get(url));
+    protected ResultActions processPutWithRequestData(String url, Object requestData) throws Exception {
+        return processWithRequestData(requestData, put(url));
     }
 
     protected ResultActions processGetWithRequestData(String url, Object requestData) throws Exception {
         return processWithRequestData(requestData, get(url));
+    }
+
+    protected ResultActions processGetWithNoRequestData(String url) throws Exception {
+        return processWithNoRequestData(get(url));
     }
 
     private ResultActions processWithRequestData(Object requestData,
@@ -143,7 +147,7 @@ public abstract class SystemTest {
         };
     }
 
-    private Answer<Mono<User>> getFromUsers() {
+    protected Answer<Mono<User>> getFromUsers() {
         return invocation -> {
             User user = users.get(invocation.getArgument(0));
             return user != null ? just(user) : empty();
