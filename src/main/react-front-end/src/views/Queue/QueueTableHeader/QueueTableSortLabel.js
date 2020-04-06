@@ -4,7 +4,7 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import TableRow from "@material-ui/core/TableRow";
 import React from "react";
 
-const QueueHeaderCell = ({
+const QueueTableSortLabel = ({
                              handleRequestSort,
                              order,
                              orderBy,
@@ -21,4 +21,4 @@ const QueueHeaderCell = ({
     );
 };
 
-export default QueueHeaderCell;
+export default QueueTableSortLabel;
