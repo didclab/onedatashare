@@ -45,6 +45,10 @@ public abstract class SystemTest {
     @MockBean
     protected EmailService emailService;
 
+    protected static final String TEST_USER_EMAIL = "bigstuff@bigwhoopcorp.com";
+    protected static final String TEST_USER_NAME = "test_user";
+    protected static final String TEST_USER_PASSWORD = "IamTheWalrus";
+
     protected Map<String, User> users = new HashMap<>();
     protected Map<String, String> userInbox = new HashMap<>();
 

@@ -49,10 +49,6 @@ import static org.junit.Assert.*;
 @AutoConfigureMockMvc
 public class UserActionTest extends SystemTest {
 
-    private static final String TEST_USER_EMAIL = "bigstuff@bigwhoopcorp.com";
-    private static final String TEST_USER_NAME = "test_user";
-    private static final String TEST_USER_PASSWORD = "IamTheWalrus";
-
     @Test
     @WithMockCustomUser(username = TEST_USER_EMAIL, role = Role.USER)
     public void givenUserDoesNotExist_WhenRegistered_ShouldBeAddedToUserRepository() throws Exception {
