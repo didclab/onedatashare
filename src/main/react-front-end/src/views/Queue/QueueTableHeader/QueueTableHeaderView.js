@@ -10,6 +10,8 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Tooltip from "@material-ui/core/Tooltip";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
+import Table from "@material-ui/core/Table";
+import Paper from "@material-ui/core/Paper";
 
 export default class QueueTableHeaderView extends React.Component {
 
