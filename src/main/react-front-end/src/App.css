@@ -221,15 +221,13 @@ div.homePage {
 .queueHeaderCell {
   background-color: #d9edf7;
   font-size: 2rem;
-  text-align: center;
   align-content: center;
 }
 
-.queueHeaderCell * {
-  text-align: center;
+.queueHeaderCell p {
   font-size: 2rem;
   color: #31708f;
-  margin: auto;
+  text-align: center;
 }
 
 .queueBodyCell * {
