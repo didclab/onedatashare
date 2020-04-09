@@ -6,6 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
+import org.onedatashare.server.controller.AdminController;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
@@ -16,6 +17,7 @@ import org.onedatashare.server.model.useraction.NotificationBody;
 import org.onedatashare.server.model.util.MailUUID;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.MailRepository;
+import org.onedatashare.server.system.base.SystemTest;
 import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,7 +41,11 @@ import static org.mockito.Mockito.when;
 import static reactor.core.publisher.Flux.fromIterable;
 import static reactor.core.publisher.Mono.just;
 
-@SuppressWarnings("unchecked")
+/**
+ * A system test suite that tests operations permitted by admins and owners on users and roles
+ * <br><br>
+ * Entry point for requests: {@link AdminController}
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
@@ -53,7 +59,7 @@ public class AdminActionTest extends SystemTest {
     private static final String DELETE_MAIL_URL = ADMIN_BASE_URL + "deleteMail";
     private static final String GET_ALL_MAIL_URL = ADMIN_BASE_URL + "getMails";
     private static final String GET_TRASH_MAIL_URL = ADMIN_BASE_URL + "getTrashMails";
-    private static final String MAKE_ADMIN_URL = ADMIN_BASE_URL + "/change-role";
+    private static final String MAKE_ADMIN_URL = ADMIN_BASE_URL + "change-role";
 
     private static final String MAIL_STATUS_DELETED = "deleted";
     private static final int RESPONSE_STATUS_OK = 200;
@@ -319,7 +325,7 @@ public class AdminActionTest extends SystemTest {
 
     private <T> List<T> toList(Iterable<T> iter) {
         List<T> list = new ArrayList<>();
-        for(T val : iter)
+        for (T val : iter)
             list.add(val);
         return list;
     }
@@ -370,7 +376,7 @@ public class AdminActionTest extends SystemTest {
     private User userWithEmail(String email) {
         User user = new User();
         user.setEmail(email);
-        user.setRoles(new ArrayList<>(asList(Role.USER)));
+        user.setRoles(new ArrayList<>(singletonList(Role.USER)));
         return user;
     }
 

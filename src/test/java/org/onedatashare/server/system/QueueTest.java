@@ -4,12 +4,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
+import org.onedatashare.server.controller.QueueController;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.jobaction.JobRequest;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.repository.JobRepository;
+import org.onedatashare.server.system.base.SystemTest;
 import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +32,11 @@ import static org.mockito.Mockito.when;
 import static reactor.core.publisher.Flux.fromIterable;
 import static reactor.core.publisher.Mono.just;
 
+/**
+ * A system test suite that tests actions on the queue of user jobs
+ * <br><br>
+ * Entry point for requests: {@link QueueController}
+ */
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc

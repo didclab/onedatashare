@@ -1,4 +1,4 @@
-package org.onedatashare.server.system;
+package org.onedatashare.server.system.base;
 
 import com.google.gson.Gson;
 import org.junit.Before;
@@ -31,6 +31,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static reactor.core.publisher.Mono.empty;
 import static reactor.core.publisher.Mono.just;
 
+/**
+ * A base for system tests that holds essential objects and operations on these objects
+ * that are useful in dealing with Spring's testing framework
+ */
 public abstract class SystemTest {
 
     @Autowired
@@ -90,7 +94,7 @@ public abstract class SystemTest {
     }
 
     private ResultActions processWithRequestData(Object requestData,
-                                                      MockHttpServletRequestBuilder request) throws Exception {
+                                                 MockHttpServletRequestBuilder request) throws Exception {
         return mvc.perform(request.with(csrf()).content(toJson(requestData))
                 .contentType(MediaType.APPLICATION_JSON)).andDo(print());
     }
@@ -104,7 +108,7 @@ public abstract class SystemTest {
      * This is provided if the default json conversion needs to be overriden in cases where
      * the fields have a different json field name than that in the class variable declaration
      *
-     * @param url url to route to
+     * @param url         url to route to
      * @param requestData json representation of the request data
      * @return result of executing the mvc request
      */
@@ -113,7 +117,7 @@ public abstract class SystemTest {
     }
 
     private ResultActions processWithRequestData(String requestData,
-                                                   MockHttpServletRequestBuilder request) throws Exception {
+                                                 MockHttpServletRequestBuilder request) throws Exception {
         return mvc.perform(request.with(csrf()).content(requestData)
                 .contentType(MediaType.APPLICATION_JSON)).andDo(print());
     }
