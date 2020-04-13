@@ -5,21 +5,31 @@ services:
   # Mongo service that runs the MongoDB server container 
   mongodb:
     image : mongo:4.0.4
-    container_name: springboot-mongodb
-    ports :
-      - 27017:27017           # mapping the container's 27017 port to the host machines 27017 port
-    volumes :  
-    # Please create /data/db directory structure on your host machine if it does not exist already.
-      - /data/db:/data/db     # Sharing the hosts database files with the container, so that the data persists even after the container is shut down
+    container_name: mongodb
     restart: always
-    command: mongod --smallfiles --logpath=/dev/null # --quiet
+    volumes :
+     - mongodb:/data/db
+    env_file: 
+      - .ods.db.env
+    command: mongod --smallfiles --logpath=/dev/null --quiet
 
   # ODS service that runs the Maven container
-  ods-service:
+  odsbackend:
     build: .
     env_file:
       - .ods.env
+      - .ods.db.env
+    restart: always
     ports:
       - 8080:8080
     depends_on :
       - mongodb         # ensuring that the Maven container is started only after the mongo-service is up
+
+  odsfrontend:
+    build: ./src/main
+    env_file:
+      - ./src/main/react-front-end/.frontend.env
+    ports:
+      - 3000:3000
+volumes: 
+  mongodb:
