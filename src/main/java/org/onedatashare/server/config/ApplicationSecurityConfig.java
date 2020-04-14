@@ -57,8 +57,6 @@ public class ApplicationSecurityConfig {
                 .authorizeExchange()
                 //Permit all the HTTP methods
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                //TODO: Remove this hack for ssh terminal testing
-                .pathMatchers("/api/ssh/**").permitAll()
                 .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                 //Need authentication for APICalls
                 .pathMatchers("/api/**").authenticated()
