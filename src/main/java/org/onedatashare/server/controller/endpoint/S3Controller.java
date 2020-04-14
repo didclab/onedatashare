@@ -27,12 +27,14 @@ public class S3Controller extends EndpointBaseController{
 
     @Override
     protected Mono<ResponseEntity> mkdirOperation(OperationRequestData operationRequestData) {
-        return null;
+        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+        return s3Service.mkdir(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
     }
 
     @Override
     protected Mono<ResponseEntity> deleteOperation(OperationRequestData operationRequestData) {
-        return null;
+        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+        return s3Service.delete(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
     }
 
     @Override
@@ -42,7 +44,8 @@ public class S3Controller extends EndpointBaseController{
 
     @Override
     protected Mono<String> downloadOperation(RequestData requestData) {
-        return null;
+        UserAction userAction = UserAction.convertToUserAction(requestData);
+        return s3Service.download(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override

@@ -1,10 +1,9 @@
 package org.onedatashare.server.module.s3;
 
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.*;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -19,10 +18,13 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,11 +38,51 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
     }
 
     public Mono<S3Resource> mkdir() {
-        return null;
+        return initialize().doOnSuccess(resource -> {
+            try{
+                String[] currpath = getPath().split("/");
+                String folderName = "";
+                for(int i = 2; i < currpath.length; i++){
+                    folderName+=currpath[i];
+                }
+                folderName+="/";
+                String bucketName = currpath[1];
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentLength(0);
+
+                InputStream content = new ByteArrayInputStream(new byte[0]);
+                PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, folderName, content, metadata);
+                getSession().s3Client.putObject(putObjectRequest);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        });
+
     }
 
     public Mono<S3Resource> delete() {
-        return null;
+        return initialize().map(resource -> {
+            try{
+                String path = getPath();
+                boolean isDir = path.substring(path.length() - 1).equals("/");
+                String[] currpath = path.split("/");
+                String objPath = "";
+                for(int i = 2; i < currpath.length; i++){
+                    objPath+=currpath[i];
+                }
+                String bucketName = currpath[1];
+               List<S3ObjectSummary> bucketContents = getSession().s3Client.listObjects(bucketName).getObjectSummaries();
+                if(isDir){
+                    objPath+="/";
+
+                }
+                getSession().s3Client.deleteObject(bucketName, objPath);
+            } catch(AmazonClientException ace) {
+                ace.printStackTrace();
+
+            }
+            return this;
+        });
     }
 
     @Override
@@ -54,16 +96,60 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
 
     private Stat onStat() {
         AmazonS3Client S3Client = getSession().s3Client;
+        String path = getPath();
+        if (getPath().equals("amazons3/")){
             List<Bucket> bucketList = S3Client.listBuckets();
-            Stat bucketStat = buildBucketStat(bucketList);
-            for (Bucket bucket : bucketList) {
-                ObjectListing listing = S3Client.listObjects(bucket.getName());
-            }
+            Stat bucketStat = buildRootStat(bucketList);
             return bucketStat;
-
+        }
+        String bucketName= path.split("/")[1];
+        String subpath = path.replace("amazons3/" + bucketName + "/", "");
+        Boolean isBucket = path.equals("amazons3/" + bucketName);
+        if(isBucket){
+            List<S3ObjectSummary> bucketContents = S3Client.listObjects(bucketName).getObjectSummaries();
+            Stat bucketContentStat = buildStat(bucketContents, subpath, isBucket);
+            return bucketContentStat;
+        }
+        List<S3ObjectSummary> contents = S3Client.listObjectsV2(bucketName, subpath).getObjectSummaries();
+        Stat contentStat = buildStat(contents, subpath, isBucket);
+        return contentStat;
     }
 
-    public Stat buildBucketStat(List<Bucket> bucketList){
+    //Builds the stat within a bucket
+    public Stat buildStat(List<S3ObjectSummary> objectList, String subpath, boolean isBucket){
+        if(!isBucket) objectList.remove(0); //Remove the first element if not a bucket, as it's always a duplicate of itself
+        Stat stat = new Stat();
+        ArrayList<Stat> contents =  new ArrayList<>();
+        boolean isDir;
+        LinkedHashSet<String> paths = new LinkedHashSet();
+
+        for(S3ObjectSummary obj : objectList){
+            Stat fileStat = new Stat();
+            String name = obj.getKey().replace(subpath + "/", ""); //Remove the common subpath from each object
+            isDir = name.contains("/");
+            name = name.split("/")[0];  //Get the first directory/file from the path
+            if(!paths.contains(name)) {
+                paths.add(name);
+                if(isDir){
+                    fileStat.setFile(false);
+                    fileStat.setDir(true);
+                }
+                else{
+                    fileStat.setFile(true);
+                    fileStat.setDir(false);
+                }
+                fileStat.setName(name);
+                fileStat.setTime(obj.getLastModified().getTime());
+                contents.add(fileStat);
+            }
+
+        }
+        stat.setFiles(new Stat[contents.size()]);
+        stat.setFiles(contents.toArray((stat.getFiles())));
+        return stat;
+    }
+    //builds the stat that holds the buckets
+    public Stat buildRootStat(List<Bucket> bucketList){
         Stat stat = new Stat();                         //All buckets under this stat
         ArrayList<Stat> contents = new ArrayList<>();
         for(Bucket bucket : bucketList){
@@ -81,28 +167,6 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
         return stat;
     }
 
-    public Stat buildDirStat(List<S3ObjectSummary> listing){
-        Stat stat = new Stat();
-        ArrayList<Stat> contents = new ArrayList<>();
-        for(int i = 0; i < listing.size(); i++){
-            S3ObjectSummary object = listing.get(i);
-            Stat statChild = new Stat();
-            if (object.getKey().endsWith("/")){
-                statChild.setFile(false);
-                statChild.setDir(true);
-            }
-            else{
-                statChild.setFile(true);
-                statChild.setDir(false);
-                statChild.setSize(object.getSize());
-            }
-            statChild.setName(object.getKey());
-            statChild.setPermissions(object.getOwner().getDisplayName());
-        }
-        stat.setFiles(new Stat[contents.size()]);
-        stat.setFiles(contents.toArray(stat.getFiles()));
-        return stat;
-    }
 
     public VfsTap tap() {
         return null;
@@ -210,8 +274,29 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
 
     }
 
-    public Mono<String> getDownloadURL() {
-       return null;
+    public Mono<String> generateDownloadLink() {
+            String downloadLink = "";
+            try{
+                String path = getPath();
+                boolean isDir = path.substring(path.length() - 1).equals("/");
+                String[] currpath = path.split("/");
+                String objPath = "";
+                for(int i = 2; i < currpath.length; i++){
+                    objPath+=currpath[i];
+                }
+                String bucketName = currpath[1];
+                GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, objPath);
+                ResponseHeaderOverrides overrides = new ResponseHeaderOverrides();
+                overrides.setContentDisposition("attachment; filename=\"report.html\"");
+                req.setResponseHeaders(overrides);
+                URL url = getSession().s3Client.generatePresignedUrl(req);
+                downloadLink = url.toString();
+
+            } catch(AmazonClientException ace) {
+                ace.printStackTrace();
+
+            }
+            return Mono.just(downloadLink);
     }
 
 }

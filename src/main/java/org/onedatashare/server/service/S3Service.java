@@ -4,11 +4,13 @@ import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
+import org.onedatashare.server.module.dropbox.DbxResource;
 import org.onedatashare.server.module.s3.S3Resource;
 import org.onedatashare.server.module.s3.S3Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -80,11 +82,12 @@ public class S3Service extends ResourceService {
 
     @Override
     public Mono<String> download(String cookie, UserAction userAction) {
-        return null;
+        return getResourceWithUserActionUri(cookie,userAction)
+                .flatMap(S3Resource::generateDownloadLink).subscribeOn(Schedulers.elastic());
     }
 
-    public Mono<String> getDownloadURL(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(S3Resource::getDownloadURL);
-    }
+//    public Mono<String> getDownloadURL(String cookie, UserAction userAction) {
+//        return getResourceWithUserActionUri(cookie, userAction).flatMap(S3Resource::getDownloadURL);
+//    }
 
 }
