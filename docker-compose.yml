@@ -7,6 +7,8 @@ services:
     image : mongo:4.0.4
     container_name: mongodb
     restart: always
+    ports:
+    - 27017:27017
     volumes :
      - mongodb:/data/db
     env_file: 
@@ -27,6 +29,7 @@ services:
 
   odsfrontend:
     build: ./src/main
+    stdin_open: true
     env_file:
       - ./src/main/react-front-end/.frontend.env
     ports:

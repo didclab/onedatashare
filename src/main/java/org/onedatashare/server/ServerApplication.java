@@ -37,12 +37,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 version = "1.0",
                 description = "OpenAPI REST API documentation",
                 license = @License(name = "Apache-2.0", url = "https://github.com/didclab/onedatashare/blob/master/LICENSE"),
-                contact = @Contact(url = "http://localhost:8080", name = "OneDataShare Team", email = "admin@onedatashare.org")
+                contact = @Contact(url = "http://onedatashare.org", name = "OneDataShare Team", email = "admin@onedatashare.org")
         ),
         servers = {
                 @Server(
                         description = "ODS backend",
-                        url = "http://localhost:8080"
+                        url = "http://onedatashare.org"
                 )
         }
 )
