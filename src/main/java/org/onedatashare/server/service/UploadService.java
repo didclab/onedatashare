@@ -23,80 +23,64 @@
 
 package org.onedatashare.server.service;
 
+import com.google.common.cache.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.useraction.IdMap;
-import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
-import org.onedatashare.server.model.useraction.UserActionResource;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @Service
+//TODO: check timeout, size overflow works
+//TODO: add check so that ongoing transfers do not crash when ongoing transfers greater than maximum uploads
 public class UploadService {
 
-    @Autowired
-    UserService userService;
+    private static LoadingCache<String, UploadSession> uploadCache;
+    private static final Logger logger = LoggerFactory.getLogger(UploadService.class);
+    private static final int MAXIMUM_UPLOADS = 100;
+    private static final int TIMEOUT_SECS = 60;
+    private static final int CONCURRENCY_LEVEL = 8;
 
-    @Autowired
-    JobService jobService;
-
-    @Autowired
-    ResourceServiceImpl resourceService;
-
-    private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
-
-    public Mono<Boolean> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
-                                 String directoryPath, String fileName, Long totalFileSize, String googleDriveId, String idmap) {
-        if (ongoingUploads.containsKey(uuid)) {
-            if(ongoingUploads.get(uuid).isEmpty())
-                return sendFilePart(filePart, ongoingUploads.get(uuid)).map(size -> true);
-            else return Mono.just(false);
-        } else {
-            UserAction ua = new UserAction();
-            ua.setSrc(new UserActionResource());
-            ua.getSrc().setUri(ODSConstants.UPLOAD_IDENTIFIER);
-            LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
-
-            ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
-            ua.setDest( new UserActionResource());
-            ua.getDest().setId( googleDriveId );
-
-            try {
-                if(directoryPath.endsWith("/")) {
-                    ua.getDest().setUri( directoryPath+URLEncoder.encode(fileName,"UTF-8") );
-                } else {
-                    ua.getDest().setUri( directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8") );
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                ua.getDest().setCredential( mapper.readValue(credential, UserActionCredential.class) );
-                IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
-                ua.getDest().setMap( new ArrayList<>(Arrays.asList(idms)) );
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            resourceService.submit(cookie, ua).subscribe();
-
-                return sendFilePart(filePart, uploadQueue).map(size -> {
-                    if (size < totalFileSize) {
-                        ongoingUploads.put(uuid, uploadQueue);
-                    }
-                    return true;
-                });
-        }
+    static {
+        uploadCache = CacheBuilder.newBuilder()
+                .maximumSize(MAXIMUM_UPLOADS)
+                .expireAfterAccess(TIMEOUT_SECS, TimeUnit.SECONDS)
+                .removalListener((RemovalListener<String, UploadSession>) notification ->
+                        logger.error(String.format("Upload %s stopped due to %s", notification.getKey(),
+                                notification.getCause())))
+                .concurrencyLevel(CONCURRENCY_LEVEL)
+                 .build(
+                        new CacheLoader<String, UploadSession>() {
+                            @Override
+                            public UploadSession load(String key) {
+                                logger.info("Added "+ key);
+                                return new UploadSession();
+                            }
+                        }
+                );
     }
 
-    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue){
+    private String createUploadCacheKey(String userId, String directoryPath, String uuid){
+        return String.format("%s-%s-%s",userId, directoryPath, uuid);
+    }
 
-        return pfr.flatMapMany(fp -> fp.content())
+    public Mono<Slice> sendFilePart(Mono<FilePart> filePartMono){
+        return filePartMono.flatMapMany(fp -> fp.content())
                 .reduce(new ByteArrayOutputStream(), (acc, newbuf)->{
                     try
                     {
@@ -105,18 +89,95 @@ public class UploadService {
                     }catch(Exception e){}
                     return acc;
         }).map(content ->  {
-            ODSLoggerService.logInfo("uploading " + content.size());
+            logger.debug("uploading " + content.size());
             Slice slc = new Slice(content.toByteArray());
-            qugue.add(slc);
-            return slc.length();
+            return slc;
         });
     }
 
-    public Mono<Void> finishUpload(UUID uuid) {
-        if(!ongoingUploads.containsKey(uuid)){
-            return Mono.error(null);
+
+
+    public Mono<Boolean> uploadChunk(String userId, String uploadUUID, Mono<FilePart> filePart,
+                                     String credential, String pathToWrite, String fileName,
+                                     String fileSize, String idMap, String chunkNumber, String totalChunks) {
+
+        long _fileSize;
+        int _chunkNumber = 0, _totalChunks=0;
+        UserActionCredential _credential;
+        IdMap[] _idMap;
+        String _pathToWrite = pathToWrite;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            _fileSize = Long.parseLong(fileSize);
+            if(chunkNumber!=null && totalChunks!=null) {
+                _chunkNumber = Integer.parseInt(chunkNumber);
+                _totalChunks = Integer.parseInt(totalChunks);
+            }
+            _credential = mapper.readValue(credential, UserActionCredential.class);
+            _idMap = mapper.readValue(idMap, IdMap[].class);
+        } catch (IOException e) {
+            Mono.error(new Exception("Unable to parse the form data"));
+            return Mono.just(false);
         }
-        ongoingUploads.remove(uuid);
-        return Mono.just(null);
+        try {
+            String slash = "";
+            if(pathToWrite.endsWith("/")){
+                slash = "/";
+            }
+            _pathToWrite = String.format("%s%s%s",
+                    pathToWrite , slash , URLEncoder.encode(fileName,
+                            "utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            Mono.error(new Exception("Unable to parse the destination path"));
+            return Mono.just(false);
+        }
+
+        String uploadCacheKey = createUploadCacheKey(userId, pathToWrite, uploadUUID);
+        try {
+            UploadSession session = uploadCache.get(uploadCacheKey);
+            //Check chunk number
+            if(_chunkNumber != session.getCurrentChunkNumber()){
+                throw new Exception("One or more chunks lost");
+            }
+
+//            //Write operation
+//            sendFilePart(filePart).map(slice -> {
+//
+//            });
+
+            //If only one chunk or all chunks received then remove from the map
+            if(session.getTotalChunks() == session.getCurrentChunkNumber()){
+                uploadCache.invalidate(uploadCacheKey);
+            }
+
+            return Mono.just(true);
+        }catch (Exception e){
+            logger.error("Error " + e.getMessage());
+        }
+
+        return Mono.just(false);
+    }
+}
+
+@Getter
+@Setter
+@NoArgsConstructor
+@Accessors(chain = true)
+final class UploadSession{
+    private int currentChunkNumber = 0;
+    private int totalChunks;
+    private long fileSize;
+    private long uploadedBytes;
+    private String url;
+    private OutputStream outputStream;
+
+    public void write(Slice slice) throws IOException {
+        this.currentChunkNumber++;
+        outputStream.write(slice.asBytes());
+        outputStream.flush();
+        this.uploadedBytes += slice.length();
+        if(this.uploadedBytes == this.fileSize){
+            outputStream.close();
+        }
     }
 }
