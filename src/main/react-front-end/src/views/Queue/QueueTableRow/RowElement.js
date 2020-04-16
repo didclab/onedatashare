@@ -146,15 +146,18 @@ export default class RowElement extends React.Component {
                         <p>{humanReadableSpeed(resp.bytes.avg)}</p>
                     </TableCell>
                     <TableCell className="sourceCell queueBodyCell">
-                        <p>{decodeURIComponent(resp.src.uri)} <br/><b>to</b><br/> {decodeURIComponent(resp.dest.uri)}</p>
+                        <p>{decodeURIComponent(resp.src.uri)}</p>
                     </TableCell>
+                        <TableCell className="destinationCell queueBodyCell">
+                            <p>{decodeURIComponent(resp.dest.uri)}</p>
+                        </TableCell>
                     <TableCell className="actionCell queueBodyCell">
                         {this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted)}
                     </TableCell>
                     </Hidden>
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
-                            <p><b>Job ID:</b>{resp.job_id}</p>
+                            <p><b>Job ID:</b> {resp.job_id}</p>
                         <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
                             <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
                             <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>

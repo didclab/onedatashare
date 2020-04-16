@@ -220,8 +220,10 @@ div.homePage {
 
 .queueHeaderCell {
   background-color: #d9edf7;
-  font-size: 2rem;
   align-content: center;
+  text-align: center !important;
+  display: table;
+  word-break: break-word;
 }
 
 .queueHeaderCell p {
@@ -234,33 +236,54 @@ div.homePage {
   text-align: center;
   align-content: center;
   font-size: 1.2rem;
-  overflow-wrap: break-spaces;
 }
 
+.queueBodyCell {
+  display: table;
+  word-break: break-word;
+}
+
+
 .idCell{
-  width: 5%;
+  width: 8%;
 }
 
 .progressCell {
-  width: 30%;
+  width: 20%;
 }
 
 .speedCell {
-  width: 5%;
+  width: 12%;
 }
 
 .sourceCell {
-  width: 25%;
+  width: 15%;
+}
+
+.destinationCell {
+  width: 15%;
 }
 
 .actionCell {
-  width: 15%;
+  width: 10%;
 }
 
 .mobileCell {
   width: 150vw;
   table-layout: fixed;
   text-align: left;
+  font-size: 1.5rem;
+}
+
+.mobileHeaderCell {
+  width: 100vw;
+  align-content: center;
+  text-align: center;
+}
+
+.mobileHeaderCell * {
+  width: 100%;
+  margin: auto;
 }
 
 .queueDropDown {

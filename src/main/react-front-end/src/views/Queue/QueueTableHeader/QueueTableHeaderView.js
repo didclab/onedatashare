@@ -13,87 +13,68 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import {OverrideMaterialUICss} from "override-material-ui-css";
+import QueueMobileHeader from "./QueueMobileHeader";
 
 
 function makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns) {
-    let retVal = [];
-    let titles = ["Job ID", "Progress", "Average Speed", "Source & Destination"];
-    let classes = ["idCell", "progressCell", "speedCell", "sourceCell"]
-    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source];
+    let labels = [];
+    let headers = [];
+    let menuOpts = [];
+    let titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
+    let classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"]
+    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
+/*    let keys = ['job_id','status',"bytes.avg","src.uri"];*/
     for (let i = 0; i < titles.length; i += 1) {
-        retVal.push(
-            <TableCell className={classes[i] + " queueHeaderCell"}>
-                <TableSortLabel
-                    active={orderBy === keys[i]}
-                    direction={order}
-                    onClick={() => {
-                        handleRequestSort(keys[i])
-                    }}>
-                    <p>{titles[i]}</p>
-                </TableSortLabel>
-            </TableCell>
+        labels.push(
+                    <QueueTableSortLabel
+                        handleRequestSort={handleRequestSort}
+                        order={order}
+                        orderBy={orderBy}
+                        sortKey={keys[i]}
+                        title={titles[i]}
+                    />
         );
     }
-    return retVal;
-};
-
-function makeSortOptions(order, orderBy, handleRequestSort, sortableColumns) {
-    let retVal = [];
-    let titles = ["Job ID", "Progress", "Average Speed", "Source & Destination"];
-    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source];
-    let classes = ["idCell", "progressCell", "speedCell", "sourceCell"]
     for (let i = 0; i < titles.length; i += 1) {
-        retVal.push(
-            <MenuItem className={classes[i]}>
-                <QueueTableSortLabel
-                    handleRequestSort={handleRequestSort}
-                    order={order}
-                    orderBy={orderBy}
-                    sortKey={keys[i]}
-                    title={titles[i]}
-                />
+        headers.push(
+            <Tooltip title={"Sort by" + titles[i]} placement='bottom-end'>
+                <TableCell className={classes[i] + " queueHeaderCell"}>
+                    {labels[i]}
+                </TableCell>
+            </Tooltip>
+        );
+        menuOpts.push(
+            <MenuItem value={keys[i]}>
+                {titles[i]}
             </MenuItem>
         );
     }
-    return retVal;
+    return [headers, menuOpts];
 };
 
 const QueueTableHeaderView = ({
-                                         handleRequestSort,
-                                         order,
-                                         orderBy,
-                                         sortableColumns,
-                                     }) => {
-        let headerCells = makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns);
-        let opts = makeSortOptions(order, orderBy, handleRequestSort, sortableColumns)
-        return (
-            <OverrideMaterialUICss>
-                <TableHead>
-                    <TableRow>
-                        <Hidden mdDown>
-                            {headerCells}
-                            <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell>
-                        </Hidden>
-                        <Hidden lgUp>
-                            <TableCell className="queueHeaderCell mobileCell">
-                                <p>Transfer History</p>
-                                <div className="queueDropDown">
-                                    <FormControl variant="outlined">
-                                        <InputLabel> Sort by </InputLabel>
-                                        <Select
-                                            onChange={handleRequestSort}
-                                            label="Sort Category"
-                                        >
-                                            {opts}
-                                        </Select>
-                                    </FormControl>
-                                </div>
-                            </TableCell>
-                        </Hidden>
-                    </TableRow>
-                </TableHead>
-            </OverrideMaterialUICss>
-        );
-    };
+                                  handleRequestSort,
+                                  order,
+                                  orderBy,
+                                  sortableColumns,
+                              }) => {
+    let [headerCells, menuOpts] = makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns);
+    return (
+        <TableHead>
+            <TableRow>
+                <Hidden mdDown>
+                    {headerCells}
+                    <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell>
+                </Hidden>
+                <Hidden lgUp>
+                    <QueueMobileHeader
+                        handleRequestSort={handleRequestSort}
+                        menuOpts={menuOpts}
+                        orderBy={orderBy}/>
+                </Hidden>
+            </TableRow>
+        </TableHead>
+    );
+};
 
 export default QueueTableHeaderView;

@@ -76,7 +76,7 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-/*		this.interval = setInterval(this.update, 2000)  */  // making a queue request every 2 seconds
+/*		this.interval = setInterval(this.update, 2000) */   // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
@@ -140,7 +140,7 @@ class QueueComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 
-	queueFuncSuccess(resp) {
+	queueFuncSuccess = (resp) => {
 		// const { page, rowsPerPage } = this.state
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
@@ -168,7 +168,7 @@ class QueueComponent extends Component {
 			order,
 			this.queueFuncSuccess,
 			this.queueFuncFail
-		)
+		);
 	}
 
 	getStatus(status, total, done) {
@@ -294,6 +294,7 @@ class QueueComponent extends Component {
 			status: 'status',
 			avgSpeed : "bytes.avg",
 			source : "src.uri",
+			destination: "dest.uri"
 		};
 		return(
 			<QueueView
@@ -318,4 +319,8 @@ class QueueComponent extends Component {
 
 // export default withStyles(styles)(QueueComponent);
 
-export default QueueComponent;
+export default QueueComponent
+
+
+
+

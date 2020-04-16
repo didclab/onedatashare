@@ -14,6 +14,7 @@ const QueueTableSortLabel = ({
     return (
         <TableSortLabel
             active={orderBy === sortKey}
+            className={"queueHeaderCell"}
             direction={order}
             onClick={() => {handleRequestSort(sortKey)}}>
             <p>{title}</p>
