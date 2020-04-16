@@ -15,6 +15,8 @@ import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import {humanReadableSpeed} from "../../../utils";
 import {Hidden} from "@material-ui/core";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import QueueProgressBar from "./QueueProgressBar";
 
 export default class RowElement extends React.Component {
 
@@ -49,33 +51,6 @@ export default class RowElement extends React.Component {
                 </TableCell>
             </TableRow>
         );
-    }
-
-    getStatus(status, total, done) {
-        //TODO: move to CSS file
-        let now, bsStyle, label
-        if (status === 'complete') {
-            now = 100
-            bsStyle = ''
-            label = 'Complete'
-        } else if (status === 'failed') {
-            now = 100
-            bsStyle = 'danger'
-            label = 'Failed'
-        } else if (status === 'removed' || status === 'cancelled') {
-            now = 100
-            bsStyle = 'danger'
-            label = 'Cancelled'
-        } else {
-            now = ((done / total) * 100).toFixed()
-            bsStyle = 'warning'
-            label = `Transferring ${now}%`
-        }
-        if(bsStyle == '') {
-            return <ProgressBar label={label} now={now} />
-        } else {
-            return <ProgressBar bsStyle={bsStyle} label={label} now={now} />
-        };
     }
 
     renderActions(owner, jobID, status, deleted) {
@@ -132,6 +107,7 @@ export default class RowElement extends React.Component {
 
     render() {
         const { resp, infoVisible } = this.props
+        let bar = (<QueueProgressBar status={resp.status} total={resp.bytes.total} done={resp.bytes.done} />);
         return (
             <React.Fragment>
                 <TableRow style={{alignSelf: "stretch"}}>
@@ -140,7 +116,7 @@ export default class RowElement extends React.Component {
                         <p>{resp.job_id}</p>
                     </TableCell>
                     <TableCell className="progressCell queueBodyCell">
-                        <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
+                        {bar}
                     </TableCell>
                     <TableCell className="speedCell queueBodyCell">
                         <p>{humanReadableSpeed(resp.bytes.avg)}</p>
@@ -158,7 +134,7 @@ export default class RowElement extends React.Component {
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
                             <p><b>Job ID:</b> {resp.job_id}</p>
-                        <p>{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}</p>
+                        <p>{bar}</p>
                             <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
                             <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>
                         <p><b>Destination:</b> {decodeURIComponent(resp.dest.uri)}</p>

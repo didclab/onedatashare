@@ -250,6 +250,7 @@ div.homePage {
 
 .progressCell {
   width: 20%;
+  display: inline-table;
 }
 
 .speedCell {
@@ -275,6 +276,10 @@ div.homePage {
   font-size: 1.5rem;
 }
 
+.mobileCell * {
+  font-size: 1.5rem;
+}
+
 .mobileHeaderCell {
   width: 100vw;
   align-content: center;
@@ -289,4 +294,30 @@ div.homePage {
 .queueDropDown {
   margin: auto;
   padding-top: 2vh;
+}
+
+.queueBar {
+  height: 20px !important;
+  border-radius: 5px;
+  width: 100%;
+}
+
+.queueBar * {
+  background-color: #337ab7 !important;
+}
+
+.queueBarFailed * {
+  background-color: #d9534f !important;
+}
+
+.queueBarLoading * {
+  background-color: #f0ad4e !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #FFF4E3 !important;
+}
+
+.QueueProgressBar * {
+  text-align: center;
 }

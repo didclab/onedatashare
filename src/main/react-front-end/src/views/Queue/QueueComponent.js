@@ -30,6 +30,7 @@ import { jobStatus } from '../../constants';
 import { withStyles } from '@material-ui/core';
 import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement";
+import LinearProgress from "@material-ui/core/LinearProgress";
 
 // const styles = theme => ({
 // 	root: {
@@ -169,21 +170,6 @@ class QueueComponent extends Component {
 			this.queueFuncSuccess,
 			this.queueFuncFail
 		);
-	}
-
-	getStatus(status, total, done) {
-		const style = {marginTop: '5%', fontWeight: 'bold'};
-		if (status === 'complete') {
-			return (<ProgressBar now={100} label={'Complete'} style={style}/>);
-		} else if (status === 'failed') {
-			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Failed'}/>);
-		} else if (status === 'removed' || status === "cancelled") {
-			return (<ProgressBar bsStyle="danger" now={100} style={style} label={'Cancelled'}/>);
-		} else {
-			let percentCompleted = Math.ceil(((done / total) * 100));
-			return (<ProgressBar bsStyle="warning" striped now={percentCompleted} style={style}
-								 label={'Transferring ' + percentCompleted + '%'}/>);
-		}
 	}
 
 	infoButtonOnClick(owner, jobID) {
