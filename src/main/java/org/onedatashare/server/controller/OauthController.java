@@ -60,7 +60,7 @@ public class OauthController {
     private DbxOauthService dbxOauthService;
 
     @Autowired
-    private GridftpAuthService gridftpAuthService;
+    private GridFtpAuthService gridFtpAuthService;
 
     @Autowired
     private BoxOauthService boxOauthService;
@@ -174,7 +174,7 @@ public class OauthController {
     @GetMapping(value = "/gridftp")
     public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
         String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return gridftpAuthService.finish(queryParameters.get("code"))
+        return gridFtpAuthService.finish(queryParameters)
                 .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
                 .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
     }
@@ -235,7 +235,7 @@ public class OauthController {
             case googledrive:
                 return Rendering.redirectTo(googleDriveOauthService.start()).build();
             case gridftp:
-                return Rendering.redirectTo(gridftpAuthService.start()).build();
+                return Rendering.redirectTo(gridFtpAuthService.start()).build();
             default:
                 throw new NotFoundException();
         }

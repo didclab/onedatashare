@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.3.RELEASE</version>
+        <version>2.2.4.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -181,11 +181,11 @@
             <version>2.32.0</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.onedatashare.module</groupId>
-            <artifactId>globus-api</artifactId>
-            <version>1.1-SNAPSHOT</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.onedatashare.module</groupId>-->
+        <!--            <artifactId>globus-api</artifactId>-->
+        <!--            <version>1.1-SNAPSHOT</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>io.springfox</groupId>
@@ -222,6 +222,12 @@
             <artifactId>testng</artifactId>
             <version>6.14.3</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>6.0.16.Final</version>
         </dependency>
 
         <!-- JWT and spring security dependencies start -->
@@ -268,8 +274,6 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
-
-
     </dependencies>
 
     <build>

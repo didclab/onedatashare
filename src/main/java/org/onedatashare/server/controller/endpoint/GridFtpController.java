@@ -1,85 +1,93 @@
-/**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
- */
-
-
 package org.onedatashare.server.controller.endpoint;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.error.UnsupportedOperationException;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.model.util.Response;
-import org.onedatashare.server.service.GridftpService;
-import org.onedatashare.server.service.oauth.GridftpAuthService;
+import org.onedatashare.server.service.GridFtpService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-@RestController
-@RequestMapping("/api/gridftp")
-public class GridFtpController extends EndpointBaseController{
+import java.util.Map;
+
+@Controller
+@RequestMapping("/api/gsiftp/")
+public class GridFtpController{// extends OAuthEndpointBaseController{
     @Autowired
-    private GridftpService gridftpService;
+    private GridFtpService gridftpService;
 
-    @Autowired
-    private GridftpAuthService gridftpAuthService;
-
-    @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return gridftpService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Rendering redirectTo(String url){
+        return Rendering.redirectTo(url).build();
     }
 
-    @Override
-    protected Mono<ResponseEntity> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gridftpService.mkdir(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(UserAction userAction) {
+        return gridftpService.list(null, userAction);
     }
 
-    @Override
-    protected Mono<ResponseEntity> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gridftpService.delete(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
+    protected Mono<Boolean> mkdirOperation(UserAction userAction) {
+        return gridftpService.mkdir(null, userAction);
     }
 
-    @Override
+    protected Mono<Boolean> deleteOperation(UserAction userAction) {
+        return gridftpService.delete(null, userAction);
+    }
+
     protected Mono<Stat> uploadOperation() {
         return Mono.error(new UnsupportedOperationException());
     }
 
-    @Override
-    protected Mono<String> downloadOperation(RequestData requestData){
+    protected Mono<String> downloadOperation(UserAction userAction){
         return Mono.error(new UnsupportedOperationException());
     }
 
-    @Override
-    protected Rendering oauthOperation() {
-        return Rendering.redirectTo(gridftpAuthService.start()).build();
+//    @Override
+    protected Mono<Rendering> initiateOauthOperation() {
+        return gridftpService.getOAuthUrl()
+                .map(this::redirectTo);
     }
+
+//    @Override
+    protected Mono<Rendering> completeOauthOperation(Map<String, String> queryParameters) {
+        return gridftpService.completeOAuth(queryParameters).map(this::redirectTo);
+    }
+
+    @GetMapping(value = "/initiate-oauth")
+    public Mono<Rendering> initiateOauth(){
+        return initiateOauthOperation();
+    }
+
+    @GetMapping(value = "/complete-oauth")
+    public Mono<Rendering> completeOauth(@RequestParam Map<String, String> queryParameters){
+        return completeOauthOperation(queryParameters);
+    }
+
+    @PostMapping("/ls")
+    public @ResponseBody Mono<Stat> list(@RequestBody UserAction userAction){
+        return listOperation(userAction);
+    }
+
+    @PostMapping("/mkdir")
+    public @ResponseBody
+    Mono<Boolean> mkdir(@RequestBody UserAction userAction){
+        return mkdirOperation(userAction);
+    }
+
+    @PostMapping("/rm")
+    public @ResponseBody
+    Mono<Boolean> delete(@RequestBody UserAction userAction){
+        return deleteOperation(userAction);
+    }
+
+    @PostMapping("/upload")
+    public @ResponseBody Mono<Stat> upload(){
+        return uploadOperation();
+    }
+
+    @PostMapping("/download")
+    public @ResponseBody Mono download(@RequestBody UserAction userAction){
+        return downloadOperation(userAction);
+    }
+
 }

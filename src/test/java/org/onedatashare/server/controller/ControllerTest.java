@@ -59,7 +59,7 @@ abstract class ControllerTest {
     VfsService vfsService;
 
     @MockBean
-    GridftpService gridService;
+    GridFtpService gridService;
 
     @MockBean
     ResourceServiceImpl resourceService;
