@@ -31,19 +31,20 @@ import lombok.experimental.Accessors;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.useraction.IdMap;
+import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 
 @Service
 //TODO: check timeout, size overflow works
@@ -64,7 +65,7 @@ public class UploadService {
                         logger.error(String.format("Upload %s stopped due to %s", notification.getKey(),
                                 notification.getCause())))
                 .concurrencyLevel(CONCURRENCY_LEVEL)
-                 .build(
+                .build(
                         new CacheLoader<String, UploadSession>() {
                             @Override
                             public UploadSession load(String key) {
@@ -75,11 +76,14 @@ public class UploadService {
                 );
     }
 
+    @Autowired
+    private VfsService vfsService;
+
     private String createUploadCacheKey(String userId, String directoryPath, String uuid){
         return String.format("%s-%s-%s",userId, directoryPath, uuid);
     }
 
-    public Mono<Slice> sendFilePart(Mono<FilePart> filePartMono){
+    public Mono<Slice> createSlice(Mono<FilePart> filePartMono){
         return filePartMono.flatMapMany(fp -> fp.content())
                 .reduce(new ByteArrayOutputStream(), (acc, newbuf)->{
                     try
@@ -88,73 +92,83 @@ public class UploadService {
                         acc.write(slc.asBytes(), 0, slc.length());
                     }catch(Exception e){}
                     return acc;
-        }).map(content ->  {
-            logger.debug("uploading " + content.size());
-            Slice slc = new Slice(content.toByteArray());
-            return slc;
-        });
+                }).map(content ->  {
+                    logger.debug("uploading " + content.size());
+                    Slice slc = new Slice(content.toByteArray());
+                    return slc;
+                });
     }
-
-
 
     public Mono<Boolean> uploadChunk(String userId, String uploadUUID, Mono<FilePart> filePart,
                                      String credential, String pathToWrite, String fileName,
-                                     String fileSize, String idMap, String chunkNumber, String totalChunks) {
-
-        long _fileSize;
-        int _chunkNumber = 0, _totalChunks=0;
+                                     String fileSize, String idMap, String chunkNumber, String totalChunks,
+                                     String destFolderId) {
+        //Processing
+        long _fileSize = Long.parseLong(fileSize);;
+        int _chunkNumber = chunkNumber == null ? 0 : Integer.parseInt(chunkNumber);
+        long _totalChunks = totalChunks == null ? 0 : Long.parseLong(totalChunks);
         UserActionCredential _credential;
         IdMap[] _idMap;
         String _pathToWrite = pathToWrite;
         try {
+            fileName = URLEncoder.encode(fileName, "utf-8");
+            _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
             ObjectMapper mapper = new ObjectMapper();
-            _fileSize = Long.parseLong(fileSize);
-            if(chunkNumber!=null && totalChunks!=null) {
-                _chunkNumber = Integer.parseInt(chunkNumber);
-                _totalChunks = Integer.parseInt(totalChunks);
-            }
             _credential = mapper.readValue(credential, UserActionCredential.class);
             _idMap = mapper.readValue(idMap, IdMap[].class);
         } catch (IOException e) {
             Mono.error(new Exception("Unable to parse the form data"));
             return Mono.just(false);
         }
-        try {
-            String slash = "";
-            if(pathToWrite.endsWith("/")){
-                slash = "/";
-            }
-            _pathToWrite = String.format("%s%s%s",
-                    pathToWrite , slash , URLEncoder.encode(fileName,
-                            "utf-8"));
-        } catch (UnsupportedEncodingException e) {
-            Mono.error(new Exception("Unable to parse the destination path"));
-            return Mono.just(false);
-        }
 
-        String uploadCacheKey = createUploadCacheKey(userId, pathToWrite, uploadUUID);
+        String uploadCacheKey = createUploadCacheKey(userId, _pathToWrite, uploadUUID);
         try {
             UploadSession session = uploadCache.get(uploadCacheKey);
             //Check chunk number
             if(_chunkNumber != session.getCurrentChunkNumber()){
                 throw new Exception("One or more chunks lost");
             }
-
-//            //Write operation
-//            sendFilePart(filePart).map(slice -> {
-//
-//            });
-
-            //If only one chunk or all chunks received then remove from the map
-            if(session.getTotalChunks() == session.getCurrentChunkNumber()){
-                uploadCache.invalidate(uploadCacheKey);
+            if(session.getCurrentChunkNumber() == 0){
+                UserAction userAction = new UserAction().setUri(_pathToWrite).setCredential(_credential);
+                logger.info("Wrote 1st chunk");
+                return vfsService.getResourceWithUserActionUri(null, userAction)
+                        .flatMap(resource -> {
+                            session.setDrain(resource.sink());
+                            return createSlice(filePart)
+                                    .map(slice -> {
+                                        try {
+                                            session.write(slice, _chunkNumber);
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                            return false;
+                                        }
+                                        return true;
+                                    });
+                        });
             }
-
-            return Mono.just(true);
+            else {
+                logger.info("Wrote other chunks");
+                return createSlice(filePart)
+                        .map(slice -> {
+                            try {
+                                session.write(slice, _chunkNumber);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                return false;
+                            }
+                            logger.info("Wrote other chunks success");
+                            return true;
+                        })
+                        .doOnSuccess(s -> {
+                            //If only one chunk or all chunks received then remove from the map
+                            if(session.getTotalChunks() == session.getCurrentChunkNumber()){
+                                uploadCache.invalidate(uploadCacheKey);
+                            }
+                        });
+            }
         }catch (Exception e){
             logger.error("Error " + e.getMessage());
         }
-
         return Mono.just(false);
     }
 }
@@ -169,15 +183,13 @@ final class UploadSession{
     private long fileSize;
     private long uploadedBytes;
     private String url;
-    private OutputStream outputStream;
+    private Drain drain;
 
-    public void write(Slice slice) throws IOException {
+    public void write(Slice slice, int chunkNumber) throws Exception {
+        if(this.currentChunkNumber != chunkNumber)
+            throw new Exception("Missed one or more chunks");
+        drain.drain(slice);
         this.currentChunkNumber++;
-        outputStream.write(slice.asBytes());
-        outputStream.flush();
         this.uploadedBytes += slice.length();
-        if(this.uploadedBytes == this.fileSize){
-            outputStream.close();
-        }
     }
 }

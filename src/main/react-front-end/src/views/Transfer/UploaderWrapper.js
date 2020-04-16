@@ -56,7 +56,7 @@ render(){
 				request: {
 					endpoint: '/api/stork/upload',
 					params: {
-						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri, directoryPath,'')),
 						credential: JSON.stringify(endpoint.credential),
 						id: lastestId,
 						map: JSON.stringify(getMapFromEndpoint(endpoint))

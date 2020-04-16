@@ -23,21 +23,15 @@
 
 package org.onedatashare.server.controller;
 
-import lombok.Data;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.response.FineUploaderResponse;
-import org.onedatashare.server.model.useraction.IdMap;
-import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.security.Principal;
 
 @RestController
@@ -48,28 +42,28 @@ public class UploadController {
     UploadService uploadService;
 
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<Object> upload(@RequestPart("qqfile") Mono<FilePart> filePart,
-                               @RequestPart("qquuid") String uploadUUID,
-                               @RequestPart("qqfilename") String fileName,
-                               @RequestPart(value = "qqpartindex", required = false) String chunkNumber,
-                               @RequestPart("qqtotalparts") String totalChunks,
-                               @RequestPart("qqtotalfilesize") String fileSize,
-                               @RequestPart("directoryPath") String pathToWrite,
-                               @RequestPart("credential") String credential,
-                               @RequestPart("id") String destFolderId,
-                               @RequestPart("map") String idMap,
-                               Mono<Principal> principalMono){
+    public Mono<FineUploaderResponse> upload(@RequestPart("qqfile") Mono<FilePart> filePart,
+                                             @RequestPart("qquuid") String uploadUUID,
+                                             @RequestPart("qqfilename") String fileName,
+                                             @RequestPart(value = "qqpartindex", required = false) String chunkNumber,
+                                             @RequestPart(value = "qqtotalparts", required = false) String totalChunks,
+                                             @RequestPart("qqtotalfilesize") String fileSize,
+                                             @RequestPart("directoryPath") String pathToWrite,
+                                             @RequestPart("credential") String credential,
+                                             @RequestPart("id") String destFolderId,
+                                             @RequestPart("map") String idMap,
+                                             Mono<Principal> principalMono){
         return principalMono.map(Principal::getName)
                 .flatMap(userId -> uploadService.uploadChunk(userId, uploadUUID,
                         filePart, credential, pathToWrite, fileName, fileSize, idMap,
-                        chunkNumber, totalChunks)
+                        chunkNumber, totalChunks, destFolderId)
                         .map(x -> {
                             if(x) {
                                 return FineUploaderResponse.ok();
                             }
                             return FineUploaderResponse.error();
                         })
-                );
+                ).subscribeOn(Schedulers.elastic());
     }
 }
 
