@@ -103,6 +103,7 @@ public class UploadService {
         String _pathToWrite = pathToWrite;
         try {
             fileName = URLEncoder.encode(fileName, "utf-8");
+            pathToWrite = "ftp://localhost:2121/temp/";
             _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
             ObjectMapper mapper = new ObjectMapper();
             _credential = mapper.readValue(credential, UserActionCredential.class);
@@ -126,7 +127,10 @@ public class UploadService {
                 throw new Exception("One or more chunks lost");
             }
             if(session.getCurrentChunkNumber() == 0){
-                return writeFirstChunk(filePart, session, _pathToWrite, _credential);
+                UserAction userAction = new UserAction().setUri(_pathToWrite).setCredential(_credential);
+                Mono<Drain> drainMono = vfsService.getResourceWithUserActionUri(null, userAction)
+                        .map(Resource::sink);
+                return writeFirstChunk(filePart, session, drainMono);
             }
             else {
                 return writeSubsequentChunks(filePart, session, uploadCacheKey, _chunkNumber);
@@ -137,24 +141,21 @@ public class UploadService {
         return Mono.just(false);
     }
 
-    private Mono<Boolean> writeFirstChunk(Mono<FilePart> filePart, UploadSession session, String pathToWrite,
-                                          UserActionCredential credential){
-        UserAction userAction = new UserAction().setUri(pathToWrite).setCredential(credential);
+    private Mono<Boolean> writeFirstChunk(Mono<FilePart> filePart, UploadSession session, Mono<Drain> drainMono){
         logger.debug("Wrote 1st chunk");
-        return vfsService.getResourceWithUserActionUri(null, userAction)
-                .flatMap(resource -> {
-                    session.setDrain(resource.sink());
-                    return createSlice(filePart)
-                            .map(slice -> {
-                                try {
-                                    session.write(slice, 0);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    return false;
-                                }
-                                return true;
-                            });
-                });
+        return drainMono.flatMap(d -> {
+            session.setDrain(d);
+            return createSlice(filePart)
+                    .map(slice -> {
+                        try {
+                            session.write(slice, 0);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        return true;
+                    });
+        });
     }
 
     private Mono<Boolean> writeSubsequentChunks(Mono<FilePart> filePart, UploadSession session, String uploadCacheKey,
