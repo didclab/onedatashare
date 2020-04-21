@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -49,22 +49,24 @@ import { updateGAPageView } from "../../analytics/ga";
 import CircularProgress from '@material-ui/core/CircularProgress'
 import RefreshIcon from '@material-ui/icons/Refresh';
 import { withStyles } from '@material-ui/core';
+import QueueView from "../Queue/QueueView";
+import RowElement from "../Queue/QueueTableRow/RowElement/RowElement";
 
 const styles = theme => ({
-		root:{
-			width:'fit-content'
-		},
-		toolbar:{
-			paddingLeft:'300px'
-		},
+	root:{
+		width:'fit-content'
+	},
+	toolbar:{
+		paddingLeft:'300px'
+	},
 	tablePaginationCaption: {
-			fontSize: '15px'
-		},
+		fontSize: '15px'
+	},
 	tablePaginationSelect: {
-			fontSize: '15px',
-			lineHeight:'20px'
-		}
-	})
+		fontSize: '15px',
+		lineHeight:'20px'
+	}
+})
 
 const rowsPerPageOptions = [1, 10, 20, 50, 100]
 const tbcellStyle = {textAlign: 'center'}
@@ -194,7 +196,7 @@ class HistoryComponent extends Component {
 			loading: true
 		});
 	}
-	handleChangeRowsPerPage(event) {		
+	handleChangeRowsPerPage(event) {
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value), loading: true })
 	}
 	handleRequestSort(property) {
@@ -205,7 +207,7 @@ class HistoryComponent extends Component {
 			newOrder = 'asc'
 		}
 		this.setState({order: newOrder, orderBy: property, loading: true})
-  }
+	}
 	handleSearchChange(event) {
 		this.setState({searchValue: event.target.value})
 	}
@@ -225,18 +227,25 @@ class HistoryComponent extends Component {
 			/>
 		</form>
 	}
-	populateRows(rows) {
-		const { selectedRowId } = this.state
-		return rows.map(row => {
+
+	populateRows = () => {
+		const {selectedRowId} = this.state;
+		return this.state.responsesToDisplay.map(row => {
 			let identifier = `${row.owner}-${row.job_id}`
-			return <RowElement
-				key={identifier}
-				infoVisible={selectedRowId === identifier}
-				resp={row}
-				infoButtonOnClick={this.infoButtonOnClick}
-			/>
-		})
+			return (
+				<RowElement
+					key={identifier}
+					infoVisible={selectedRowId === identifier}
+					resp={row}
+					infoButtonOnClick={this.infoButtonOnClick}
+					cancelButtonOnClick={this.cancelButtonOnClick}
+					restartButtonOnClick={this.restartButtonOnClick}
+					deleteButtonOnClick={this.deleteButtonOnClick}
+				/>
+			);
+		});
 	}
+
 	render() {
 		const {
 			totalCount,
@@ -246,7 +255,7 @@ class HistoryComponent extends Component {
 			order,
 			orderBy,
 			loading
-		} = this.state
+		} = this.state;
 		const {classes} = this.props;
 		const sortableColumns = {
 			jobId: 'job_id',
@@ -255,131 +264,151 @@ class HistoryComponent extends Component {
 			source : "src.uri",
 			userName: "owner",
 			startTime: 'times.started'
-		}
-		return <Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
-			<Table style={{display: "block"}}>
-				<TableHead style={{backgroundColor: '#d9edf7'}}>
-					<TableRow>
-						<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
-							Transfer History
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
-							<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation 
-							onClick={this.queueFunc} size="small">
-								Refresh
-							</Button>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
-							{ this.customToolbar() }
-						</TableCell>
-					</TableRow>
-					<TableRow>
-						<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={orderBy === sortableColumns.userName}
-									direction={order}
-									id={"HistoryUsername"}
-									onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
-									Username
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={orderBy === sortableColumns.jobId}
-									direction={order}
-									id={"HistoryJobID"}
-									onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
-									Job ID
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '30%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={orderBy === sortableColumns.status}
-									direction={order}
-									id={"HistoryProgress"}
-									onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
-									Progress
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={orderBy === sortableColumns.avgSpeed}
-									direction={order}
-									id={"HistorySpeed"}
-									onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
-									Average Speed
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>
-							<Tooltip title="Sort on Start Time" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									id="QueueStartTime"
-									active={orderBy === sortableColumns.source}
-									direction={order}
-									onClick={() => this.handleRequestSort(sortableColumns.startTime)}>
-									Start Time
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
-								<TableSortLabel
-									active={orderBy === sortableColumns.source}
-									direction={order}
-									id={"HistorySD"}
-									onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
-									Source/Destination
-								</TableSortLabel>
-							</Tooltip>
-						</TableCell>
-						<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody style={{height:'100%', display: "block"}}>
-					{ loading ?
-						<div style={{textAlign: 'center'}}>
-							<CircularProgress />
-						</div>
-						:
-						this.populateRows(responsesToDisplay)
-					}
-				</TableBody>
-				<TableFooter style={{textAlign:'center'}}>
-					<TableRow>
-						<TablePagination
-							rowsPerPageOptions={rowsPerPageOptions}
-							colSpan={7}
-							count={totalCount}
-							rowsPerPage={rowsPerPage}
-							page={page}
-							SelectProps={{
-							native: true,
-							}}
-							onChangePage={this.handleChangePage}
-							onChangeRowsPerPage={this.handleChangeRowsPerPage}
-							ActionsComponent={TablePaginationActions}
-							classes={{
-							caption: classes.tablePaginationCaption,
-							select: classes.tablePaginationSelect,
-							toolbar: classes.toolbar
-							}}
-						/>
-					</TableRow>
-				</TableFooter>
-			</Table>
-		</Paper>
+		};
+		return(
+			<div>
+				<QueueView
+					loading={this.state.loading}
+					orderBy={this.state.orderBy}
+					order={this.state.order}
+					page={this.state.page}
+					responsesToDisplay={this.state.responsesToDisplay}
+					rowsPerPage={this.state.rowsPerPage}
+					rowsPerPageOptions={rowsPerPageOptions}
+					sortableColumns={sortableColumns}
+					totalCount={this.state.totalCount}
+					classes={this.props}
+					handleChangePage={this.handleChangePage}
+					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+					handleRequestSort={this.handleRequestSort}
+					populateRows={this.populateRows()}
+				/>
+				<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
+					<Table style={{display: "block"}}>
+						<TableHead style={{backgroundColor: '#d9edf7'}}>
+							<TableRow>
+								<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
+									Transfer History
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
+									<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation
+											onClick={this.queueFunc} size="small">
+										Refresh
+									</Button>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
+									{ this.customToolbar() }
+								</TableCell>
+							</TableRow>
+							<TableRow>
+								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.userName}
+											direction={order}
+											id={"HistoryUsername"}
+											onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
+											Username
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.jobId}
+											direction={order}
+											id={"HistoryJobID"}
+											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
+											Job ID
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '30%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.status}
+											direction={order}
+											id={"HistoryProgress"}
+											onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
+											Progress
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.avgSpeed}
+											direction={order}
+											id={"HistorySpeed"}
+											onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
+											Average Speed
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>
+									<Tooltip title="Sort on Start Time" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											id="QueueStartTime"
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											onClick={() => this.handleRequestSort(sortableColumns.startTime)}>
+											Start Time
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
+									<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
+										<TableSortLabel
+											active={orderBy === sortableColumns.source}
+											direction={order}
+											id={"HistorySD"}
+											onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
+											Source/Destination
+										</TableSortLabel>
+									</Tooltip>
+								</TableCell>
+								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody style={{height:'100%', display: "block"}}>
+							{ loading ?
+								<div style={{textAlign: 'center'}}>
+									<CircularProgress />
+								</div>
+								:
+								this.populateRows(responsesToDisplay)
+							}
+						</TableBody>
+						<TableFooter style={{textAlign:'center'}}>
+							<TableRow>
+								<TablePagination
+									rowsPerPageOptions={rowsPerPageOptions}
+									colSpan={7}
+									count={totalCount}
+									rowsPerPage={rowsPerPage}
+									page={page}
+									SelectProps={{
+										native: true,
+									}}
+									onChangePage={this.handleChangePage}
+									onChangeRowsPerPage={this.handleChangeRowsPerPage}
+									ActionsComponent={TablePaginationActions}
+									classes={{
+										caption: classes.tablePaginationCaption,
+										select: classes.tablePaginationSelect,
+										toolbar: classes.toolbar
+									}}
+								/>
+							</TableRow>
+						</TableFooter>
+					</Table>
+				</Paper>
+			</div>
+		);
 	}
 }
 
-class RowElement extends React.PureComponent {
+/*class RowElement extends React.PureComponent {
 	constructor(props) {
 		super(props)
 		this.state = { selectedTab: 0 }
@@ -440,17 +469,17 @@ class RowElement extends React.PureComponent {
 		return <div>
 			<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
 				<Button onClick={infoButtonOnClick.bind(null, owner, jobID)} variant="contained" size="small" color="primary"
-					style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
-					fontWeight: 'bold', width: '20%', textTransform: 'none',
-					minWidth: '0px', minHeigth: '0px'}}>
+						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
+							fontWeight: 'bold', width: '20%', textTransform: 'none',
+							minWidth: '0px', minHeigth: '0px'}}>
 					<Info />
 				</Button>
 			</Tooltip>
 			{status === 'transferring' &&
 			<Tooltip TransitionComponent={Zoom} title="Cancel">
 				<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
-					style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
-					textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
+						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
+							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
 					<Cancel />
 				</Button>
 			</Tooltip>
@@ -486,7 +515,7 @@ class RowElement extends React.PureComponent {
 			{ infoVisible && this.infoRow() }
 		</React.Fragment>
 	}
-}
+}*/
 
 class TabContent extends React.PureComponent {
 	render() {

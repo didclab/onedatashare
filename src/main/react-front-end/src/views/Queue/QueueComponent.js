@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
 import { withStyles } from '@material-ui/core';
 import QueueView from "./QueueView";
-import RowElement from "./QueueTableRow/RowElement";
+import RowElement from "./QueueTableRow/RowElement/RowElement";
 import LinearProgress from "@material-ui/core/LinearProgress";
 
 // const styles = theme => ({
@@ -77,7 +77,7 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-/*		this.interval = setInterval(this.update, 2000) */   // making a queue request every 2 seconds
+		/*		this.interval = setInterval(this.update, 2000) */   // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
@@ -246,21 +246,18 @@ class QueueComponent extends Component {
 
 	populateRows = () => {
 		const {selectedRowId} = this.state;
-		const { Provider, Consumer } = React.createContext();
 		return this.state.responsesToDisplay.map(row => {
 			let identifier = `${row.owner}-${row.job_id}`
 			return (
-				<Provider value={this.state}>
-					<RowElement
-						key={identifier}
-						infoVisible={selectedRowId === identifier}
-						resp={row}
-						infoButtonOnClick={this.infoButtonOnClick}
-						cancelButtonOnClick={this.cancelButtonOnClick}
-						restartButtonOnClick={this.restartButtonOnClick}
-						deleteButtonOnClick={this.deleteButtonOnClick}
-					/>
-				</Provider>
+				<RowElement
+					key={identifier}
+					infoVisible={selectedRowId === identifier}
+					resp={row}
+					infoButtonOnClick={this.infoButtonOnClick}
+					cancelButtonOnClick={this.cancelButtonOnClick}
+					restartButtonOnClick={this.restartButtonOnClick}
+					deleteButtonOnClick={this.deleteButtonOnClick}
+				/>
 			);
 		});
 	}
