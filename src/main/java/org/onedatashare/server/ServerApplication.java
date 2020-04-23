@@ -43,7 +43,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
                 @Server(
                         description = "ODS backend",
                         url = "http://onedatashare.org"
-                )
+                ) 
         }
 )
 @SpringBootApplication
