@@ -69,12 +69,11 @@ public class DeleteJobTest extends SystemTest {
 
     @Before
     public void setup() {
+        super.setup();
         when(jobRepository.insert((Job)any())).thenAnswer(addToJobs());
         when(jobRepository.save(any())).thenAnswer(updateJob());
         when(jobRepository.findById((UUID) any())).thenAnswer(findJobById());
 
-        when(userRepository.insert((User) any())).thenAnswer(addToUsers());
-        when(userRepository.findById(anyString())).thenAnswer(getFromUsers());
         jobs.clear();
         users.clear();
     }

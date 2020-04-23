@@ -29,6 +29,7 @@ import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -68,6 +69,7 @@ public class DbxServiceTest {
     }
 
     @Test
+    @Ignore
     public void givenUnauthorizedUser_WhenCallingAnyServiceMethod_ShouldThrowException() {
         UUID uuid = UUID.randomUUID();
         UserAction userAction = userActionWithCredential(userActionCredentialWithId(uuid));

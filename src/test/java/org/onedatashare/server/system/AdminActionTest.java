@@ -73,12 +73,10 @@ public class AdminActionTest extends SystemTest {
 
     @Before
     public void setup() {
-        when(userRepository.insert((User) any())).thenAnswer(addToUsers());
-        when(userRepository.save(any())).thenAnswer(addToUsers());
+        super.setup();
         when(userRepository.findAllUsers(any())).thenAnswer(getUsersSortedByEmail());
         when(userRepository.findAllAdministrators(any())).thenAnswer(getAdminsSortedByEmail());
         when(userRepository.findAll()).thenAnswer(getAllUsers());
-        when(userRepository.findById((String) any())).thenAnswer(getFromUsers());
         when(userRepository.countUsers()).thenAnswer(getUsersSize());
         when(userRepository.countAdministrators()).thenAnswer(getAdminsSize());
 
