@@ -44,6 +44,7 @@ public class ODSConstants {
     public static final String UPLOAD_IDENTIFIER = "Upload";
 
     public static final String COOKIE = "cookie";
+    public static final String TOKEN_PREFIX = "Bearer ";
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
             "/clientsInfo", "/history", "/account", "/account/signIn", "/account/register", "/oauth",
