@@ -44,36 +44,27 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 @Service
 //TODO: check timeout, size overflow works
 //TODO: add check so that ongoing transfers do not crash when ongoing transfers greater than maximum uploads
 public class UploadService {
 
-    private static LoadingCache<String, UploadSession> uploadCache;
+    private static Cache<String, UploadSession> uploadCache;
     private static final Logger logger = LoggerFactory.getLogger(UploadService.class);
-    private static final int MAXIMUM_UPLOADS = 100;
+    private static final int MAXIMUM_UPLOAD_LIMIT = 100;
     private static final int TIMEOUT_SECS = 60;
     private static final int CONCURRENCY_LEVEL = 8;
 
     static {
         uploadCache = CacheBuilder.newBuilder()
-                .maximumSize(MAXIMUM_UPLOADS)
+                .maximumSize(MAXIMUM_UPLOAD_LIMIT)
                 .expireAfterAccess(TIMEOUT_SECS, TimeUnit.SECONDS)
                 .removalListener((RemovalListener<String, UploadSession>) notification ->
                         logger.error(String.format("Upload %s stopped due to %s", notification.getKey(),
                                 notification.getCause())))
                 .concurrencyLevel(CONCURRENCY_LEVEL)
-                .build(
-                        new CacheLoader<String, UploadSession>() {
-                            @Override
-                            public UploadSession load(String key) {
-                                logger.info("Added "+ key);
-                                return new UploadSession();
-                            }
-                        }
-                );
+                .build();
     }
 
     @Autowired
@@ -112,6 +103,7 @@ public class UploadService {
         String _pathToWrite = pathToWrite;
         try {
             fileName = URLEncoder.encode(fileName, "utf-8");
+            pathToWrite = "ftp://localhost:2121/temp/";
             _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
             ObjectMapper mapper = new ObjectMapper();
             _credential = mapper.readValue(credential, UserActionCredential.class);
@@ -123,53 +115,69 @@ public class UploadService {
 
         String uploadCacheKey = createUploadCacheKey(userId, _pathToWrite, uploadUUID);
         try {
-            UploadSession session = uploadCache.get(uploadCacheKey);
+            UploadSession tempSession = uploadCache.getIfPresent(uploadCacheKey);
+            //Issues can still arise due to race conditions. Also, only returns the approximate size .TODO: fix
+            if(tempSession == null && uploadCache.size() < MAXIMUM_UPLOAD_LIMIT){
+                tempSession = new UploadSession();
+                uploadCache.put(uploadCacheKey, tempSession);
+            }
+            UploadSession session = tempSession;
             //Check chunk number
             if(_chunkNumber != session.getCurrentChunkNumber()){
                 throw new Exception("One or more chunks lost");
             }
             if(session.getCurrentChunkNumber() == 0){
                 UserAction userAction = new UserAction().setUri(_pathToWrite).setCredential(_credential);
-                logger.info("Wrote 1st chunk");
-                return vfsService.getResourceWithUserActionUri(null, userAction)
-                        .flatMap(resource -> {
-                            session.setDrain(resource.sink());
-                            return createSlice(filePart)
-                                    .map(slice -> {
-                                        try {
-                                            session.write(slice, _chunkNumber);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            return false;
-                                        }
-                                        return true;
-                                    });
-                        });
+                Mono<Drain> drainMono = vfsService.getResourceWithUserActionUri(null, userAction)
+                        .map(Resource::sink);
+                return writeFirstChunk(filePart, session, drainMono);
             }
             else {
-                logger.info("Wrote other chunks");
-                return createSlice(filePart)
-                        .map(slice -> {
-                            try {
-                                session.write(slice, _chunkNumber);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                return false;
-                            }
-                            logger.info("Wrote other chunks success");
-                            return true;
-                        })
-                        .doOnSuccess(s -> {
-                            //If only one chunk or all chunks received then remove from the map
-                            if(session.getTotalChunks() == session.getCurrentChunkNumber()){
-                                uploadCache.invalidate(uploadCacheKey);
-                            }
-                        });
+                return writeSubsequentChunks(filePart, session, uploadCacheKey, _chunkNumber);
             }
         }catch (Exception e){
             logger.error("Error " + e.getMessage());
         }
         return Mono.just(false);
+    }
+
+    private Mono<Boolean> writeFirstChunk(Mono<FilePart> filePart, UploadSession session, Mono<Drain> drainMono){
+        logger.debug("Wrote 1st chunk");
+        return drainMono.flatMap(d -> {
+            session.setDrain(d);
+            return createSlice(filePart)
+                    .map(slice -> {
+                        try {
+                            session.write(slice, 0);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        return true;
+                    });
+        });
+    }
+
+    private Mono<Boolean> writeSubsequentChunks(Mono<FilePart> filePart, UploadSession session, String uploadCacheKey,
+                                                int _chunkNumber){
+        logger.debug("Wrote other chunks");
+        return createSlice(filePart)
+                .map(slice -> {
+                    try {
+                        session.write(slice, _chunkNumber);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                    logger.debug("Wrote other chunks success");
+                    return true;
+                })
+                .doOnSuccess(s -> {
+                    //If only one chunk or all chunks received then remove from the map
+                    if(session.getTotalChunks() == session.getCurrentChunkNumber()){
+                        uploadCache.invalidate(uploadCacheKey);
+                    }
+                });
     }
 }
 
