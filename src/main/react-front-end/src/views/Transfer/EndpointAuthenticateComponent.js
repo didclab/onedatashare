@@ -34,9 +34,8 @@ import {DROPBOX_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
 				HTTP_TYPE,
-				SCP_TYPE,
-				HTTPS_TYPE,
-				ODS_PUBLIC_KEY
+				ODS_PUBLIC_KEY,
+				generateURLFromPortNumber
 			} from "../../constants";
 import {store} from "../../App";
 
@@ -170,38 +169,38 @@ export default class EndpointAuthenticateComponent extends Component {
       });
 	};
 
-	handleUrlChange = name => event => {
+	handleUrlChange = event => {
 		let url = event.target.value;
+		let portNum = this.state.portNum;
 
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
+		
+		url = generateURLFromPortNumber(url, portNum);
 
 		this.setState({
 			"portNumField": colonCount>=2 ? false : true,
-			"url" : event.target.value
+			"url" : url
+		});
+	}
+
+	handlePortNumChange = event => {
+		let portNum = event.target.value;
+		let url = this.state.url;
+		
+		url = generateURLFromPortNumber(url, portNum);
+
+		this.setState({
+			"portNum" : portNum,
+			"url" : url
 		});
 	}
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
 
-		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
-		let colonCount = 0;
-		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
-
-		// Find if the port is a standard port
-		let standardPort = portNum === getDefaultPortFromUri(url);
-		if(getTypeFromUri(url) === HTTP_TYPE){
-			standardPort = portNum === getDefaultPortFromUri(HTTP_TYPE) || portNum === getDefaultPortFromUri(HTTPS_TYPE);
-		}
-
-		// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
-		if(colonCount===1 && !standardPort){
-			let tempUrl = new URL(url);
-			tempUrl.port = portNum.toString;
-			url = tempUrl.toString();
-		}
+		console.log(`Url is ${url}`);
 
 		let endpointSet = {
 			uri: url,
@@ -212,12 +211,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 
 		// scp protocol is set into a sftp automatically
-		if(getTypeFromUri(endpointSet.uri)){
-			if(endpointSet.uri.startsWith("scp://")){
-				endpointSet.uri = "sftp://" + endpointSet.uri.substring(6);
-				url = endpointSet.uri;
-			}
-		}else{
+		if(!getTypeFromUri(endpointSet.uri)){
 			this._handleError("Protocol is not understood");
 		}
 
@@ -495,10 +489,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        		let loginUri = "http://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === SCP_TYPE){
-		        		let loginUri = "scp://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType === GRIDFTP_TYPE){
 		        		this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
 		        	}
@@ -546,7 +536,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
-			          onChange={this.handleUrlChange('url')}
+			          onChange={this.handleUrlChange}
 			          margin="normal"
 					  		variant="outlined"
 					  		autoFocus={true}
@@ -565,7 +555,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
 			          value={this.state.portNumField? this.state.portNum : "-"}
-			          onChange={this.handleChange('portNum')}
+			          onChange={this.handlePortNumChange}
 			          margin="normal"
 					  		variant="outlined"
 					  		onKeyPress={(e) => {
