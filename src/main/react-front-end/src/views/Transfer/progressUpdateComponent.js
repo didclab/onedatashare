@@ -38,23 +38,47 @@ export default class ProgressUpdateComponent extends Component {
             progress: false,
 			uploadPercent: 0,
 			uplaodFileName: '',
-			progressMinimize: false
+            progressMinimize: false,
+            errorUploadFiles: []
         }
         this.files = {}
     }
 
     componentDidMount() {
-		eventEmitter.on("progressChange", this.progressChangeHandler); 
+        eventEmitter.on("progressChange", this.progressChangeHandler); 
+        eventEmitter.on("progressUpdateError", this.progressErrorHandler); 
 	}
 
 	progressChangeHandler = (name, progressPercent) => {
         try {
             this.files[name] = progressPercent;
+            var errorFiles = this.state.errorUploadFiles;
+            if (errorFiles.length != 0 && progressPercent == 100) {
+                const index = errorFiles.indexOf(name);
+                if (index > -1) {
+                    errorFiles.splice(index, 1);
+                }
+            }
             this.setState({
                 uploadPercent: progressPercent,
                 uplaodFileName: name,
-                progress: true
+                progress: true,
+                errorUploadFiles: errorFiles
             });
+        } catch {
+            console.error("error in progress update::progressChangeHandler");
+        }
+    }
+
+    progressErrorHandler = (name) => {
+        try {
+            var errorFiles = this.state.errorUploadFiles;
+            if (errorFiles.indexOf(name) < 0) {
+                errorFiles.push(name);
+                this.setState({
+                    errorUploadFiles: errorFiles,
+                });
+            }
         } catch {
             console.error("error in progress update::progressChangeHandler");
         }
@@ -101,8 +125,12 @@ export default class ProgressUpdateComponent extends Component {
                             {Object.keys(this.files).map((file) => 
                                 <React.Fragment key={file}>
                                     <div style={{height: '40px', display:'inline-block', marginRight:'10px', verticalAlign: 'middle', width:"75%", 
-                                    textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap"}}>{file}</div>  
-                                    <CircularProgress variant="static" value={this.files[file]} />
+                                    textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap"}}>{file}</div> 
+                                    {this.state.errorUploadFiles.includes(file) ? 
+                                        <CircularProgress variant="static" value={this.files[file]} color="secondary"/> 
+                                        :
+                                        <CircularProgress variant="static" value={this.files[file]} />
+                                    }
                                 </React.Fragment>
                             )}
                          </DialogContent>

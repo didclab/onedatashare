@@ -72,6 +72,7 @@ render(){
 				callbacks :{
 					onError: function(id, name, errorReason, xhr){
 						console.log('error occurred - ' + errorReason);
+						eventEmitter.emit("progressUpdateError", name);
 					},
 					onStatusChange: function(id, old_status, new_status){
 						if(new_status === "submitted"){
@@ -79,7 +80,6 @@ render(){
 						}
 						if(new_status === "upload successful"){
 							eventEmitter.emit("messageOccured", "Upload complete!");
-						
 						}
 					},
 					onProgress: function(id, name, upload, total) {
