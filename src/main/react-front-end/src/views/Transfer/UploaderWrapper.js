@@ -30,10 +30,6 @@ import UploadButton from "@material-ui/icons/CloudUpload";
 import {eventEmitter} from "../../App";
 export default class UploaderWrapper extends Component {
 
-	constructor(props){
-		super(props);
-	}
-
 	shouldComponentUpdate(nextProps, nextState) { 
 
     	if (nextProps.directoryPath === this.props.directoryPath && 
@@ -85,7 +81,7 @@ render(){
 					onProgress: function(id, name, upload, total) {
 						//console.log(id, name, upload, total, Math.floor(upload/total*100));
 						eventEmitter.emit("progressChange", name, Math.floor(upload/total*100));
-					}.bind(this)
+					}
 
 				}
 				// "qqchunksize": 1000000

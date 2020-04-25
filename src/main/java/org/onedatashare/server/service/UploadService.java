@@ -103,7 +103,7 @@ public class UploadService {
         String _pathToWrite = pathToWrite;
         try {
             fileName = URLEncoder.encode(fileName, "utf-8");
-            pathToWrite = "ftp://localhost:2121/temp/";
+            pathToWrite = "ftp://localhost:2121/";
             _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
             ObjectMapper mapper = new ObjectMapper();
             _credential = mapper.readValue(credential, UserActionCredential.class);
