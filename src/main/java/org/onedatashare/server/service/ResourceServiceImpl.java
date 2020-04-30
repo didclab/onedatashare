@@ -171,8 +171,7 @@ public class ResourceServiceImpl extends ResourceService {
             GlobusClient gc = userService.getGlobusClientFromUser(user);
             return Mono.just(new GlobusWebClientCredential(userActionResource.getCredential().getGlobusEndpoint(), gc));
         }
-        else if (userActionResource.getUri().startsWith(SFTP_URI_SCHEME) ||
-                userActionResource.getUri().startsWith(SCP_URI_SCHEME)){
+        else if (userActionResource.getUri().startsWith(SFTP_URI_SCHEME)){
             return decryptionService.getDecryptedCredential(userActionResource.getCredential())
                     .map(cred -> new UserInfoCredential(cred));
         }

@@ -34,7 +34,6 @@ import {DROPBOX_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
 				HTTP_TYPE,
-				SCP_TYPE,
 				HTTPS_TYPE,
 				ODS_PUBLIC_KEY
 			} from "../../constants";
@@ -211,13 +210,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			portNumber: portNum
 		}
 
-		// scp protocol is set into a sftp automatically
-		if(getTypeFromUri(endpointSet.uri)){
-			if(endpointSet.uri.startsWith("scp://")){
-				endpointSet.uri = "sftp://" + endpointSet.uri.substring(6);
-				url = endpointSet.uri;
-			}
-		}else{
+		//Check for a valid endpoint
+		if(! getTypeFromUri(endpointSet.uri)){
 			this._handleError("Protocol is not understood");
 		}
 
@@ -493,10 +487,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === SCP_TYPE){
-		        		let loginUri = "scp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType === GRIDFTP_TYPE){
