@@ -25,8 +25,6 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.dropbox.DbxResource;
@@ -38,7 +36,6 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -99,16 +96,16 @@ public class DbxService extends ResourceService{
         return getDbxResourceWithUserActionUri(cookie, userAction).flatMap(DbxResource::stat);
     }
 
-    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
+    public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getDbxResourceWithUserActionUri(cookie, userAction)
                 .flatMap(DbxResource::mkdir)
-                .map(r -> true);
+                .then();
     }
 
-    public Mono<Boolean> delete(String cookie, UserAction userAction) {
+    public Mono<Void> delete(String cookie, UserAction userAction) {
         return getDbxResourceWithUserActionUri(cookie, userAction)
                 .flatMap(DbxResource::delete)
-                .map(val -> true);
+                .then();
     }
 
     public Mono<Job> submit(String cookie, UserAction userAction) {

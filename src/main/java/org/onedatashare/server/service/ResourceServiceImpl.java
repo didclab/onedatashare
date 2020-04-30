@@ -29,6 +29,8 @@ import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
+import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SynchronousSink;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
@@ -57,7 +60,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
-public class ResourceServiceImpl extends ResourceService {
+public class ResourceServiceImpl {
     @Autowired
     private UserService userService;
 
@@ -68,6 +71,19 @@ public class ResourceServiceImpl extends ResourceService {
     private DecryptionService decryptionService;
 
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
+
+    private void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){
+        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
+            sink.error(new AuthenticationRequired("oauth"));
+        }
+        Map credMap = usr.getCredentials();
+        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
+        if(credential == null){
+            sink.error(new NotFoundException("Credentials for the given UUID not found"));
+        }
+        sink.next(credential);
+    }
+
 
     public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
@@ -203,22 +219,6 @@ public class ResourceServiceImpl extends ResourceService {
         }
     }
 
-    public Mono<Stat> list(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
-    }
-
-    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::mkdir)
-                .map(r -> true);
-    }
-
-    public Mono<Boolean> delete(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::delete)
-                .map(val -> true);
-    }
-
     public Mono<Job> submit(String cookie, UserAction userAction) {
         AtomicReference<User> u = new AtomicReference<>();
         return userService.getLoggedInUser(cookie)
@@ -233,12 +233,6 @@ public class ResourceServiceImpl extends ResourceService {
                 .flatMap(jobService::saveJob)
                 .doOnSuccess(job -> processTransferFromJob(job, u))
                 .subscribeOn(Schedulers.elastic());
-    }
-
-    //@Override
-    public Mono<String> download(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction)
-                .flatMap(Resource::download);
     }
 
     public Mono<Job> restartJob(String cookie, UserAction userAction) {
