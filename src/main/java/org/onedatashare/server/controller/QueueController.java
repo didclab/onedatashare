@@ -26,6 +26,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.model.jobaction.JobRequest;
+import org.onedatashare.server.model.jobaction.SearchRequest;
 import org.onedatashare.server.service.JobService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -67,6 +68,16 @@ public class QueueController {
         return jobService.getJobForAdmin(jobDetails);
     }
 
+    /**
+     * Handler for queue GET requests
+     * @param jobDetails - Request data needed for fetching Jobs as per search
+     * @return Mono\<JobDetails\>
+     */
+    @PostMapping("/search-jobs")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public Mono<JobDetails> getSearchJobs(@RequestBody SearchRequest jobDetails){
+        return jobService.getSearchJobs(jobDetails);
+    }
 
     //TODO: change the function to use query instead of using filter (might make it faster)
     @PostMapping("/update-user-jobs")

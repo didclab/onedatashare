@@ -31,6 +31,7 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	GET_USER_UPDATES_ENDPOINT,
 	GET_ADMIN_UPDATES_ENDPOINT,
 	UPDATE_PASSWD_ENDPOINT,
+	GET_SEARCH_JOBS_ENDPOINT,
 	LOGOUT_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
@@ -417,6 +418,29 @@ export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, ac
 	})
 	.catch((error) => {
 		handleRequestFailure(error, fail);
+	});
+}
+
+export async function getSearchJobs(username, startJobId, endJobId, progress, pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
+	axios.post(url+GET_SEARCH_JOBS_ENDPOINT, {
+		status: 'all',
+		username: username,
+		startJobId: startJobId,
+		endJobId: endJobId,
+		progress: progress,
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+		fail(error);
 	});
 }
 

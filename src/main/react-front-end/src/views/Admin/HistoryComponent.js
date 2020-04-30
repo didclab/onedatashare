@@ -49,6 +49,7 @@ import { updateGAPageView } from "../../analytics/ga";
 import CircularProgress from '@material-ui/core/CircularProgress'
 import RefreshIcon from '@material-ui/icons/Refresh';
 import { withStyles } from '@material-ui/core';
+import SearchComponent from '../SearchComponent.js';
 
 const styles = theme => ({
 		root:{
@@ -119,7 +120,7 @@ class HistoryComponent extends Component {
 		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
 			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
 			order !== prevOrder) {
-			this.queueFunc()
+			//this.queueFunc()
 		}
 	}
 	queueFunc() {
@@ -271,6 +272,18 @@ class HistoryComponent extends Component {
 						</TableCell>
 						<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
 							{ this.customToolbar() }
+						</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableCell style={{...tbcellStyle, width: '100%', fontSize: '2rem', color: '#31708f'}} colSpan='8'>
+							<SearchComponent 
+								refreshSuccess = {this.refreshSuccess} 
+								refreshFailure = {this.refreshFailure}
+								rowsPerPage = {this.state.rowsPerPage}
+								page = {this.state.page}
+								order = {this.state.order}
+								orderBy = {this.state.orderBy}
+							/>
 						</TableCell>
 					</TableRow>
 					<TableRow>
