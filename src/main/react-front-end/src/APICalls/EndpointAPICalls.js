@@ -170,19 +170,19 @@ export async function getDownload(uri, credential) {
 
 
 export async function openDropboxOAuth() {
-	openOAuth("/api/stork/oauth?type=dropbox");
+	openOAuth("/api/oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/stork/oauth?type=googledrive");
+	openOAuth("/api/oauth?type=googledrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/stork/oauth?type=gridftp");
+	openOAuth("/api/oauth?type=gridftp");
 }
 
 export async function openBoxOAuth(){
-    openOAuth("api/stork/oauth?type=box");
+    openOAuth("api/oauth?type=box");
 }
 
 export async function openOAuth(url){

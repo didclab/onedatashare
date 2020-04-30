@@ -33,66 +33,84 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 @Component
 @Data
-public class GoogleDriveConfig {
+public class GDriveConfig {
 
-    @Value("${drive.auth.uri}")
+    @Value("${gdrive.authUri}")
     private String authUri;
-
-    @Value("${drive.token.uri}")
+    @Value("${gdrive.tokenUri}")
     private String tokenUri;
-
-    @Value("${drive.auth.provider.x509.cert.uri}")
+    @Value("${gdrive.authProviderUri}")
     private String authProviderX509CertUrl;
-
-    @Value("${drive.redirect.uri}")
+    @Value("${gdrive.redirectUri}")
     private String redirectUri;
+    @Value("${gdrive.clientId}")
+    private String clientId;
+    @Value("${gdrive.clientSecret}")
+    private String clientSecret;
+    @Value("${gdrive.projectId}")
+    private String projectId;
 
-    private String clientId, clientSecret, projectId;
     private GoogleClientSecrets driveClientSecrets;
     private GoogleAuthorizationCodeFlow flow;
 
-    private final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_READONLY);
-    private final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_READONLY);
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
-    private final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/ods");
-    private FileDataStoreFactory dataStoreFactory;
-    private HttpTransport httpTransport;
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    private static HttpTransport HTTP_TRANSPORT;
 
-    public GoogleDriveConfig() {
-        clientId = System.getenv("ods_drive_client_id");
-        clientSecret = System.getenv("ods_drive_client_secret");
-        projectId = System.getenv("ods_drive_project_id");
-
-        if (getClientId() != null || getClientSecret() != null || getTokenUri() != null || getRedirectUri() != null){
-            GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
-
-            details.setAuthUri(authUri).setClientId(clientId)
-                    .setClientSecret(clientSecret).setRedirectUris(Arrays.asList(redirectUri))
-                    .setTokenUri(tokenUri);
-            driveClientSecrets = new GoogleClientSecrets().setInstalled(details);
+    static {
+        try{
+            File DATA_STORE_DIR = new File(System.getProperty("user.home"), ".credentials/ods");
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        } catch (Exception e){
+            e.printStackTrace();
         }
+    }
 
-        try {
-            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-            dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
-        } catch (Throwable t) {
-            throw new RuntimeException(t);
-        }
+    public static final HttpTransport getHttpTransport(){
+        return HTTP_TRANSPORT;
+    }
+
+    public static final JsonFactory getJsonFactory() {
+        return JSON_FACTORY;
+    }
+
+    public static final FileDataStoreFactory getDataStoreFactory() {
+        return DATA_STORE_FACTORY;
+    }
+
+    public GDriveConfig(){
+
+    }
+
+    @PostConstruct
+    public void initialize() {
+        GoogleClientSecrets.Details details = new GoogleClientSecrets.Details();
+
+        details.setAuthUri(authUri).setClientId(clientId)
+                .setClientSecret(clientSecret).setRedirectUris(Arrays.asList(redirectUri))
+                .setTokenUri(tokenUri);
+        driveClientSecrets = new GoogleClientSecrets().setInstalled(details);
 
         try {
             flow = new GoogleAuthorizationCodeFlow.Builder(
-                    httpTransport, JSON_FACTORY, driveClientSecrets, SCOPES)
-                    .setDataStoreFactory(dataStoreFactory)
+                    HTTP_TRANSPORT, JSON_FACTORY, driveClientSecrets, SCOPES)
+                    .setDataStoreFactory(DATA_STORE_FACTORY)
                     .build();
-        }catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
