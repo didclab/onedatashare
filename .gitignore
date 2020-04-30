@@ -102,6 +102,10 @@ src/main/resources/static/
 #Package-lock.json
 src/main/react-front-end/package-lock.json
 
+# ENV files
+.ods.db.env
+.ods.env
+
 #Scripts
 *.sh
 *.py

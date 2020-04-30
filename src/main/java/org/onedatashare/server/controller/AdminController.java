@@ -43,6 +43,7 @@ import reactor.core.publisher.Mono;
  * Controller to do the generic admin operations
  */
 @RestController
+@io.swagger.v3.oas.annotations.Hidden
 @RequestMapping("/api/stork/admin")
 public class AdminController {
 
