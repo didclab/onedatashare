@@ -14,25 +14,36 @@ import Table from "@material-ui/core/Table";
 import Paper from "@material-ui/core/Paper";
 import {OverrideMaterialUICss} from "override-material-ui-css";
 import QueueMobileHeader from "./QueueMobileHeader";
+import Button from "@material-ui/core/Button";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import AdminHistoryTools from "../AdminHistoryTools";
 
 
-function makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns) {
+function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns) {
     let labels = [];
     let headers = [];
     let menuOpts = [];
-    let titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
-    let classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"]
-    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
-/*    let keys = ['job_id','status',"bytes.avg","src.uri"];*/
+    let titles;
+    let classes;
+    let keys;
+    if (adminPg) {
+        titles = ["User", "Job ID", "Progress", "Average Speed", "Start Time", "Source", "Destination"];
+        classes = ["userCell","idCell", "progressCell", "speedCell", "timeCell", "sourceCell", "destinationCell"]
+        keys = [sortableColumns.userName, sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.startTime, sortableColumns.source, sortableColumns.destination];
+    } else {
+        titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
+        classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"]
+        keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
+    }
     for (let i = 0; i < titles.length; i += 1) {
         labels.push(
-                    <QueueTableSortLabel
-                        handleRequestSort={handleRequestSort}
-                        order={order}
-                        orderBy={orderBy}
-                        sortKey={keys[i]}
-                        title={titles[i]}
-                    />
+            <QueueTableSortLabel
+                handleRequestSort={handleRequestSort}
+                order={order}
+                orderBy={orderBy}
+                sortKey={keys[i]}
+                title={titles[i]}
+            />
         );
     }
     for (let i = 0; i < titles.length; i += 1) {
@@ -53,14 +64,21 @@ function makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns) {
 };
 
 const QueueTableHeaderView = ({
+                                  adminPg,
+                                  customToolbar,
                                   handleRequestSort,
                                   order,
                                   orderBy,
+                                  queueFunc,
                                   sortableColumns,
                               }) => {
-    let [headerCells, menuOpts] = makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns);
+    let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
     return (
         <TableHead>
+            { adminPg &&
+            <AdminHistoryTools
+                customToolbar={customToolbar}
+                queueFunc={queueFunc} /> }
             <TableRow>
                 <Hidden mdDown>
                     {headerCells}

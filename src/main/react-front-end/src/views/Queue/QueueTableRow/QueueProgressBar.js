@@ -36,8 +36,8 @@ const QueueProgressBar = ({
     }
     return (
         <Grid className={QueueProgressBar} container direction='row'>
-            <Grid container md={2}>
-                {progress}
+            <Grid container xs={2}>
+                <p>{progress}</p>
             </Grid>
             <Grid container xs={10}>
                 {bar}

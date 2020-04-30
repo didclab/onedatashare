@@ -59,10 +59,7 @@
 /***************************/
 
 .content {
-  padding-top: 10vh;
-}
-
-.navbar {
+  padding-top: 15vh;
 }
 
 button.defaultButton {
@@ -163,13 +160,13 @@ div.homePage {
 
 .TitleSlice h1 {
   color: #ffffff;
-  font-size: 5em;
+  font-size: 5rem;
   font-style: oblique;
   padding-top: 4.5vh;
 }
 
 .TitleSlice h1 ~ p {
-  font-size: 2.5em;
+  font-size: 2.5rem;
   font-style: italic;
   color: #d9eff6;
 }
@@ -218,6 +215,10 @@ div.homePage {
   padding-bottom: 15vh;
 }
 
+.QueueView p {
+  font-size: 1.25rem;
+}
+
 .queueHeaderCell {
   background-color: #d9edf7;
   align-content: center;
@@ -226,16 +227,18 @@ div.homePage {
   word-break: break-word;
 }
 
-.queueHeaderCell p {
-  font-size: 2rem;
+.queueHeaderCell p, .queueHeaderCell h1 {
+  font-size: 2.25rem !important;
   color: #31708f;
   text-align: center;
+  padding-top: .5vh;
 }
 
 .queueBodyCell * {
   text-align: center;
   align-content: center;
   font-size: 1.2rem;
+  vertical-align: middle;
 }
 
 .queueBodyCell {
@@ -274,6 +277,7 @@ div.homePage {
   table-layout: fixed;
   text-align: left;
   font-size: 1.5rem;
+  word-break: break-word;
 }
 
 .mobileCell * {
@@ -319,5 +323,14 @@ div.homePage {
 }
 
 .QueueProgressBar * {
-  text-align: center;
 }
+
+.MuiTablePagination-toolbar {
+  font-size: 1.5rem;
+}
+
+/**************************************/
+/*                                    */
+/*    For Admin/HistoryComponent.js   */
+/*                                    */
+/**************************************/

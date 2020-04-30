@@ -264,14 +264,6 @@ class QueueComponent extends Component {
 
 	render() {
 		const rowsPerPageOptions = [1, 10, 20, 50, 100];
-		// const sortableColumns = {
-		// 	jobId: 'job_id',
-		// 	status: 'status',
-		// 	avgSpeed : "bytes.avg",
-		// 	source : "src.uri",
-		// 	userName: "owner",
-		// 	startTime: 'times.started'
-		// };
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',
@@ -281,6 +273,7 @@ class QueueComponent extends Component {
 		};
 		return(
 			<QueueView
+				adminPg={false}
 				loading={this.state.loading}
 				orderBy={this.state.orderBy}
 				order={this.state.order}
@@ -294,13 +287,11 @@ class QueueComponent extends Component {
 				handleChangePage={this.handleChangePage}
 				handleChangeRowsPerPage={this.handleChangeRowsPerPage}
 				handleRequestSort={this.handleRequestSort}
-				populateRows={this.populateRows()}
+				populateRows={this.populateRows}
 			/>
 		);
 	}
 }
-
-// export default withStyles(styles)(QueueComponent);
 
 export default QueueComponent
 

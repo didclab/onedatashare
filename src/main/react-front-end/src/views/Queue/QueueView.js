@@ -8,10 +8,14 @@ import QueueTableHeaderView from "./QueueTableHeader/QueueTableHeaderView";
 import QueueTableBodyView from "./QueueTableRow/QueueTableBodyView";
 import {TableContainer} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
+import QueuePagination from "./QueuePagination";
 
 const QueueView = ({
+                       // A boolean to determine if this is for the admin page
+                       adminPg,
                        // Values and variables
                        classes,
+                       customToolbar,
                        loading,
                        order,
                        orderBy,
@@ -26,13 +30,15 @@ const QueueView = ({
                        handleChangeRowsPerPage,
                        handleRequestSort,
                        populateRows,
+                       queueFunc,
                    }) => {
     return (
         <div className="QueueView">
             <TableContainer component={Paper}>
                 <Table style={{display: "block"}}>
                     <QueueTableHeaderView
-                        loading={loading}
+                        adminPg={adminPg}
+                        customToolbar={customToolbar}
                         orderBy={orderBy}
                         order={order}
                         page={page}
@@ -43,32 +49,23 @@ const QueueView = ({
                         totalCount={totalCount}
                         classes={classes}
                         handleRequestSort={handleRequestSort}
+                        queueFunc={queueFunc}
                     />
                     <QueueTableBodyView
                         loading={loading}
                         populateRows={populateRows}
                     />
                     <TableFooter>
-                        <TableRow>
-                            <TablePagination
-                                rowsPerPageOptions={rowsPerPageOptions}
-                                colSpan={7}
-                                count={totalCount}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                SelectProps={{
-                                    native: true,
-                                }}
-                                onChangePage={handleChangePage}
-                                onChangeRowsPerPage={handleChangeRowsPerPage}
-                                ActionsComponent={TablePaginationActions}
-                                classes={{
-                                    caption: classes.tablePaginationCaption,
-                                    select: classes.tablePaginationSelect,
-                                    toolbar: classes.toolbar
-                                }}
-                            />
-                        </TableRow>
+                        <QueuePagination
+                            colSpan={7}
+                            classes={classes}
+                            handleChangePage={handleChangePage}
+                            handleChangeRowsPerPage={handleChangeRowsPerPage}
+                            page={page}
+                            rowsPerPage={rowsPerPage}
+                            rowsPerPageOptions={rowsPerPageOptions}
+                            TablePaginationActions={TablePaginationActions}
+                            totalCount={totalCount} />
                     </TableFooter>
                 </Table>
             </TableContainer>

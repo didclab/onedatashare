@@ -13,7 +13,7 @@ const QueueMobileHeader = ({
                            }) => {
     return (
         <TableCell className="queueHeaderCell mobileHeaderCell">
-            <p>Transfer History</p>
+            <h1>Transfer History</h1>
             <div className="queueDropDown">
                 <FormControl variant="">
                     <InputLabel id="mobile-queue-sort-select"> Sort by </InputLabel>

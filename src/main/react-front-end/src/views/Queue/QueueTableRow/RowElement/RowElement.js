@@ -100,7 +100,7 @@ export default class RowElement extends React.Component {
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         return (
             <React.Fragment>
-                <TableRow style={{alignSelf: "stretch"}}>
+                <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
                         <TableCell className="idCell queueBodyCell" numeric="true">
                             <p>{resp.job_id}</p>
@@ -124,7 +124,7 @@ export default class RowElement extends React.Component {
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
                             <p><b>Job ID:</b> {resp.job_id}</p>
-                            <p>{bar}</p>
+                            <p><b>Progress: </b>{bar}</p>
                             <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
                             <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>
                             <p><b>Destination:</b> {decodeURIComponent(resp.dest.uri)}</p>

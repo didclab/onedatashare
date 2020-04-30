@@ -23,34 +23,13 @@
 
 import React, { Component } from 'react';
 import { getJobsForAdmin } from '../../APICalls/APICalls';
-import { humanReadableSpeed } from '../../utils';
-import moment from 'moment';
-
 import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import Button from '@material-ui/core/Button';
-import TableRow from '@material-ui/core/TableRow';
-import { ProgressBar, Grid, Row, Col } from 'react-bootstrap';
-import Paper from '@material-ui/core/Paper';
-import AppBar from '@material-ui/core/AppBar';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Tooltip from '@material-ui/core/Tooltip';
-import Zoom from '@material-ui/core/Zoom';
-import Info from '@material-ui/icons/Info';
-import Cancel from '@material-ui/icons/Cancel';
-import TablePagination from '@material-ui/core/TablePagination'
 import TableFooter from '@material-ui/core/TableFooter'
 import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
-import CircularProgress from '@material-ui/core/CircularProgress'
-import RefreshIcon from '@material-ui/icons/Refresh';
-import { withStyles } from '@material-ui/core';
 import QueueView from "../Queue/QueueView";
 import RowElement from "../Queue/QueueTableRow/RowElement/RowElement";
+import QueuePagination from "../Queue/QueuePagination";
 
 const styles = theme => ({
 	root:{
@@ -87,6 +66,7 @@ class HistoryComponent extends Component {
 			totalCount: 0,
 			loading: true,
 		}
+
 		this.queueFunc = this.queueFunc.bind(this)
 		this.toggleTabs = this.toggleTabs.bind(this);
 		this.refreshSuccess = this.refreshSuccess.bind(this)
@@ -98,16 +78,18 @@ class HistoryComponent extends Component {
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage	= this.handleChangePage.bind(this)
 		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
-
 		updateGAPageView()
 	}
+
 	componentDidMount() {
 		document.title = "OneDataShare - History";
 		this.queueFunc()
 	}
+
 	componentWillUnmount() {
 		clearInterval(this.interval);
 	}
+
 	componentDidUpdate(prevProps, prevState) {
 		const {
 			page: prevPage,
@@ -124,13 +106,16 @@ class HistoryComponent extends Component {
 			this.queueFunc()
 		}
 	}
+
 	queueFunc() {
 		this.refreshTransfers()
 	}
+
 	paginateResults(results, page, limit) {
 		let offset = page * limit
 		return results.slice(offset, offset + limit)
 	}
+
 	refreshSuccess(resp) {
 		// const { page, rowsPerPage } = this.state
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
@@ -143,8 +128,10 @@ class HistoryComponent extends Component {
 			loading: false
 		})
 	}
+
 	refreshFailure() {
 	}
+
 	refreshTransfers() {
 		const { searchValue, page, rowsPerPage, orderBy, order } = this.state
 		getJobsForAdmin(
@@ -157,6 +144,7 @@ class HistoryComponent extends Component {
 			this.refreshFailure
 		)
 	}
+
 	infoButtonOnClick(owner, jobID) {
 		const { selectedRowId } = this.state
 		let identifier = `${owner}-${jobID}`
@@ -166,26 +154,21 @@ class HistoryComponent extends Component {
 			this.setState({selectedRowId: identifier})
 		}
 	}
-	// deleteButtonOnClick(jobID, owner){
-	// 	deleteJob(jobID, owner, (resp) => {
-	// 		//success
-	// 		this.queueFunc();
-	// 	}, (resp) => {
-	// 		//failed
-	// 		console.log('Error in delete job request to API layer');
-	// 	});
-	// }
+
 	closeAllInfoRows() {
 		this.setState({selectedRowId: null})
 	}
+
 	cancelButtonClick(jobID){
 		console.log('cancel')
 	}
+
 	toggleTabs() {
 		const { selectedTab } = this.state
 		this.setState({selectedTab: !selectedTab})
 	}
-	handleChangePage(event, page) {
+
+	handleChangePage = (event, page) => {
 		const { response } = this.state
 		// const { response, rowsPerPage } = this.state
 		//let nextRecords = this.paginateResults(response, page, rowsPerPage)
@@ -196,10 +179,12 @@ class HistoryComponent extends Component {
 			loading: true
 		});
 	}
-	handleChangeRowsPerPage(event) {
+
+	handleChangeRowsPerPage = (event) => {
 		this.setState({ page: 0, rowsPerPage: parseInt(event.target.value), loading: true })
 	}
-	handleRequestSort(property) {
+
+	handleRequestSort = (property) => {
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
 		const { order, orderBy } = this.state
@@ -208,24 +193,29 @@ class HistoryComponent extends Component {
 		}
 		this.setState({order: newOrder, orderBy: property, loading: true})
 	}
-	handleSearchChange(event) {
+
+	handleSearchChange = (event) => {
 		this.setState({searchValue: event.target.value})
 	}
-	handleSearch(event) {
+
+	handleSearch = (event) => {
 		event.preventDefault()
 		this.setState({loading: true})
 	}
+
 	customToolbar() {
 		const { searchValue } = this.state
-		return <form onSubmit={this.handleSearch}>
-			<input
-				name="searchByOwner"
-				label="Search By Owner"
-				value={searchValue}
-				onChange={this.handleSearchChange}
-				placeholder='	Search By Owner'
-			/>
-		</form>
+		return (
+			<form onSubmit={this.handleSearch}>
+				<input
+					name="searchByOwner"
+					label="Search By Owner"
+					value={searchValue}
+					onChange={this.handleSearchChange}
+					placeholder='	Search By Owner'
+				/>
+			</form>
+		);
 	}
 
 	populateRows = () => {
@@ -266,319 +256,27 @@ class HistoryComponent extends Component {
 			startTime: 'times.started'
 		};
 		return(
-			<div>
-				<QueueView
-					loading={this.state.loading}
-					orderBy={this.state.orderBy}
-					order={this.state.order}
-					page={this.state.page}
-					responsesToDisplay={this.state.responsesToDisplay}
-					rowsPerPage={this.state.rowsPerPage}
-					rowsPerPageOptions={rowsPerPageOptions}
-					sortableColumns={sortableColumns}
-					totalCount={this.state.totalCount}
-					classes={this.props}
-					handleChangePage={this.handleChangePage}
-					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-					handleRequestSort={this.handleRequestSort}
-					populateRows={this.populateRows()}
-				/>
-				<Paper className={classes.root} style={{marginLeft: '10%', marginRight: '10%', border: 'solid 2px #d9edf7'}}>
-					<Table style={{display: "block"}}>
-						<TableHead style={{backgroundColor: '#d9edf7'}}>
-							<TableRow>
-								<TableCell style={{...tbcellStyle, width: '50%', fontSize: '2rem', color: '#31708f'}} colSpan='4'>
-									Transfer History
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '20%', fontSize: '2rem', color: '#31708f'}} colSpan='1'>
-									<Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation
-											onClick={this.queueFunc} size="small">
-										Refresh
-									</Button>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
-									{ this.customToolbar() }
-								</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '2rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={orderBy === sortableColumns.userName}
-											direction={order}
-											id={"HistoryUsername"}
-											onClick={() => {this.handleRequestSort(sortableColumns.userName)}}>
-											Username
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Job ID" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={orderBy === sortableColumns.jobId}
-											direction={order}
-											id={"HistoryJobID"}
-											onClick={() => {this.handleRequestSort(sortableColumns.jobId)}}>
-											Job ID
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '30%',  fontSize: '2rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Progress" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={orderBy === sortableColumns.status}
-											direction={order}
-											id={"HistoryProgress"}
-											onClick={() => {this.handleRequestSort(sortableColumns.status)}}>
-											Progress
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Average Speed" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={orderBy === sortableColumns.avgSpeed}
-											direction={order}
-											id={"HistorySpeed"}
-											onClick={() => {this.handleRequestSort(sortableColumns.avgSpeed)}}>
-											Average Speed
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '2rem', color: '#31708f' }}>
-									<Tooltip title="Sort on Start Time" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											id="QueueStartTime"
-											active={orderBy === sortableColumns.source}
-											direction={order}
-											onClick={() => this.handleRequestSort(sortableColumns.startTime)}>
-											Start Time
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '2rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Source/Destination" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={orderBy === sortableColumns.source}
-											direction={order}
-											id={"HistorySD"}
-											onClick={() => {this.handleRequestSort(sortableColumns.source)}}>
-											Source/Destination
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '2rem', color: '#31708f'}}>Actions</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody style={{height:'100%', display: "block"}}>
-							{ loading ?
-								<div style={{textAlign: 'center'}}>
-									<CircularProgress />
-								</div>
-								:
-								this.populateRows(responsesToDisplay)
-							}
-						</TableBody>
-						<TableFooter style={{textAlign:'center'}}>
-							<TableRow>
-								<TablePagination
-									rowsPerPageOptions={rowsPerPageOptions}
-									colSpan={7}
-									count={totalCount}
-									rowsPerPage={rowsPerPage}
-									page={page}
-									SelectProps={{
-										native: true,
-									}}
-									onChangePage={this.handleChangePage}
-									onChangeRowsPerPage={this.handleChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-									classes={{
-										caption: classes.tablePaginationCaption,
-										select: classes.tablePaginationSelect,
-										toolbar: classes.toolbar
-									}}
-								/>
-							</TableRow>
-						</TableFooter>
-					</Table>
-				</Paper>
-			</div>
+			<QueueView
+				adminPg={true}
+				loading={this.state.loading}
+				orderBy={this.state.orderBy}
+				order={this.state.order}
+				page={this.state.page}
+				responsesToDisplay={this.state.responsesToDisplay}
+				rowsPerPage={this.state.rowsPerPage}
+				rowsPerPageOptions={rowsPerPageOptions}
+				sortableColumns={sortableColumns}
+				totalCount={this.state.totalCount}
+				classes={this.props}
+				handleChangePage={this.handleChangePage}
+				handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+				handleRequestSort={this.handleRequestSort}
+				populateRows={this.populateRows}
+				queueFunc={this.queueFunc}
+				customToolbar={this.customToolbar()}
+			/>
 		);
 	}
 }
 
-/*class RowElement extends React.PureComponent {
-	constructor(props) {
-		super(props)
-		this.state = { selectedTab: 0 }
-		this.toggleTabs = this.toggleTabs.bind(this)
-	}
-	toggleTabs() {
-		const { selectedTab } = this.state
-		this.setState({selectedTab: !selectedTab})
-	}
-	infoRow() {
-		const { resp } = this.props
-		const { selectedTab } = this.state
-		return <TableRow>
-			<TableCell colSpan={7} style={{...tbcellStyle, fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%' }}>
-				<div id="infoBox" style={{ marginBottom : '0.5%' }}>
-					<AppBar position="static" style={{ boxShadow: 'unset' }}>
-						<Tabs value={selectedTab ? 1: 0} onChange={this.toggleTabs} style={{ backgroundColor: '#e8e8e8' }}>
-							<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="Formatted" />
-							<Tab style={{ backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px' }} label="JSON" />
-						</Tabs>
-					</AppBar>
-					<div style={{ backgroundColor: 'white', borderRadius: '4px', textAlign: 'left', marginTop: '0.3%'}}>
-						<TabContent resp={resp} selectedTab={selectedTab}/>
-					</div>
-				</div>
-			</TableCell>
-		</TableRow>
-	}
-	getStatus(status, total, done) {
-		//TODO: move to CSS file
-		let now, bsStyle, label
-		if (status === 'complete') {
-			now = 100
-			bsStyle = ''
-			label = 'Complete'
-		} else if (status === 'failed') {
-			now = 100
-			bsStyle = 'danger'
-			label = 'Failed'
-		} else if (status === 'removed' || status === 'cancelled') {
-			now = 100
-			bsStyle = 'danger'
-			label = 'Cancelled'
-		} else {
-			now = ((done / total) * 100).toFixed()
-			bsStyle = 'warning'
-			label = `Transferring ${now}%`
-		}
-		return <ProgressBar
-			bsStyle={bsStyle}
-			label={label}
-			now={now}
-		/>
-	}
-	renderActions(owner, jobID, status) {
-		const { infoButtonOnClick } = this.props
-		// Convert all these to CSS files
-		return <div>
-			<Tooltip TransitionComponent={Zoom} placement="top" title="Detailed Information">
-				<Button onClick={infoButtonOnClick.bind(null, owner, jobID)} variant="contained" size="small" color="primary"
-						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontFamily: 'FontAwesome', fontSize: '1.5rem', height: '30%',
-							fontWeight: 'bold', width: '20%', textTransform: 'none',
-							minWidth: '0px', minHeigth: '0px'}}>
-					<Info />
-				</Button>
-			</Tooltip>
-			{status === 'transferring' &&
-			<Tooltip TransitionComponent={Zoom} title="Cancel">
-				<Button onClick={() => {this.cancelButtonOnClick(jobID)}}  variant="contained" size="small" color="primary"
-						style={{backgroundColor: 'rgb(224, 224, 224)', color: '#333333', fontSize: '1.5rem', fontWeight: 'bold', width: '20%', height: '20%',
-							textTransform: 'none', minWidth: '0px', minHeigth: '0px'}}>
-					<Cancel />
-				</Button>
-			</Tooltip>
-			}
-		</div>
-	}
-	render() {
-		const { resp, infoVisible } = this.props
-		return <React.Fragment>
-			<TableRow style={{alignSelf: "stretch"}}>
-				<TableCell scope="row" style={{...tbcellStyle, width: '15%',  fontSize: '1.2rem'}}>
-					{resp.owner}
-				</TableCell>
-				<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.2rem'}} numeric="true">
-					{resp.job_id}
-				</TableCell>
-				<TableCell style={{...tbcellStyle, width: '30%',  fontSize: '1.2rem'}}>
-					{this.getStatus(resp.status, resp.bytes.total, resp.bytes.done)}
-				</TableCell>
-				<TableCell style={{...tbcellStyle, width: '5%', maxWidth: '20vw', overflow:"hidden", fontSize: '1.2rem', margin: "0px", maxHeight: "10px"}}>
-					{humanReadableSpeed(resp.bytes.avg)}
-				</TableCell>
-				<TableCell style={{ ...tbcellStyle, width: '15%', fontSize: '1rem' }}>
-					{moment(resp.times.started).fromNow()}
-				</TableCell>
-				<TableCell style={{...tbcellStyle, width: '25%',  fontSize: '1.2rem'}}>
-					{decodeURIComponent(resp.src.uri)} <b>-></b> {decodeURIComponent(resp.dest.uri)}
-				</TableCell>
-				<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.2rem'}}>
-					{this.renderActions(resp.owner, resp.job_id, resp.status)}
-				</TableCell>
-			</TableRow>
-			{ infoVisible && this.infoRow() }
-		</React.Fragment>
-	}
-}*/
-
-class TabContent extends React.PureComponent {
-	render() {
-		const { resp, selectedTab } = this.props
-		if (selectedTab) {
-			return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
-				<Row>
-					<pre>{JSON.stringify(resp, null, "\t")}</pre>
-				</Row>
-			</Grid>
-		} else {
-			return <Grid style={{ paddingTop : '0.5%', paddingBottom: '0.5%', width:'fit-content'}}>
-				<Row>
-					<Col md={6}><b>User</b></Col>
-					<Col md={6}>{resp.owner}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Job ID</b></Col>
-					<Col md={6}>{resp.job_id}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Source</b></Col>
-					<Col md={6}>{decodeURIComponent(resp.src.uri)}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Destination</b></Col>
-					<Col md={6}>{decodeURIComponent(resp.dest.uri)}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Instant Speed</b></Col>
-					<Col md={6}>{humanReadableSpeed(resp.bytes.inst)}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Average Speed</b></Col>
-					<Col md={6}>{humanReadableSpeed(resp.bytes.avg)}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Scheduled Time</b></Col>
-					<Col md={6}>{moment(resp.times.scheduled).format("DD-MM-YYYY HH:mm:ss")}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Started Time</b></Col>
-					<Col md={6}>{moment(resp.times.started).format("DD-MM-YYYY HH:mm:ss")}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Completed Time</b></Col>
-					<Col md={6}>{moment(resp.times.completed).format("DD-MM-YYYY HH:mm:ss")}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Time Duration</b></Col>
-					<Col md={6}>{((resp.times.completed - resp.times.started)/1000).toFixed(2)} sec</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Attempts</b></Col>
-					<Col md={6}>{resp.attempts}</Col>
-				</Row>
-				<Row>
-					<Col md={6}><b>Status</b></Col>
-					<Col md={6}>{resp.status}</Col>
-				</Row>
-			</Grid>
-		}
-	}
-}
-
-export default withStyles(styles)(HistoryComponent)
+export default HistoryComponent;
