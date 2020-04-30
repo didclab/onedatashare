@@ -1,41 +1,56 @@
+/**
+ ##**************************************************************
+ ##
+ ## Copyright (C) 2018-2020, OneDataShare Team,
+ ## Department of Computer Science and Engineering,
+ ## University at Buffalo, Buffalo, NY, 14260.
+ ##
+ ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ ## may not use this file except in compliance with the License.  You may
+ ## obtain a copy of the License at
+ ##
+ ##    http://www.apache.org/licenses/LICENSE-2.0
+ ##
+ ## Unless required by applicable law or agreed to in writing, software
+ ## distributed under the License is distributed on an "AS IS" BASIS,
+ ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ## See the License for the specific language governing permissions and
+ ## limitations under the License.
+ ##
+ ##**************************************************************
+ */
+
+
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.Credential;
-import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.gridftp.GridftpResource;
 import org.onedatashare.server.module.gridftp.GridftpSession;
-import org.onedatashare.server.service.oauth.GridFtpAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.util.Map;
 
 @Service
-public class GridFtpService extends ResourceService{
+public class GridFtpService {
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private GridFtpAuthService gridFtpAuthService;
-
     public Mono<Stat> list(String cookie, UserAction userAction) {
-        return getResourceWithUserUserAction(cookie, userAction)
-                .flatMap(GridftpResource::stat);
+        return getResourceWithUserUserAction(cookie, userAction).flatMap(GridftpResource::stat);
     }
 
     public Mono<GridftpResource> getResourceWithUserUserAction(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
-                .flatMap(user -> userService.getGlobusClient(null).map(client -> new GlobusWebClientCredential(userAction.getCredential().getGlobusEndpoint(), client)))
+                .flatMap(user -> userService.getGlobusClient(cookie).map(client -> new GlobusWebClientCredential(userAction.getCredential().getGlobusEndpoint(), client)))
                 .map(credential -> new GridftpSession(URI.create(userAction.getUri()), credential))
                 .flatMap(GridftpSession::initialize)
                 .flatMap(GridftpSession -> GridftpSession.select(path));
@@ -47,12 +62,6 @@ public class GridFtpService extends ResourceService{
                 .then();
     }
 
-    @Override
-    public Mono<String> download(String cookie, UserAction userAction) {
-        return null;
-    }
-
-    @Override
     public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserUserAction(cookie, userAction)
                 .flatMap(GridftpResource::mkdir)
@@ -71,19 +80,5 @@ public class GridFtpService extends ResourceService{
             e.printStackTrace();
         }
         return path;
-    }
-
-    public Mono<String> getOAuthUrl() {
-        return Mono.fromSupplier(() -> gridFtpAuthService.start());
-    }
-
-    public Mono<String> completeOAuth(Map<String, String> queryParameters) {
-        return gridFtpAuthService.finish(queryParameters)
-                .flatMap(oauthCred -> {
-                    oauthCred.setType(Credential.CredentialType.GLOBUS);
-                    return userService.saveCredential(null, oauthCred);
-                })
-                .map(uuid -> "/oauth/uuid?identifier=" + uuid)
-                .switchIfEmpty(Mono.just("/oauth/ExistingCredDropbox"));
     }
 }

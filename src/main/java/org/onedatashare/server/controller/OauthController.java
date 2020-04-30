@@ -24,7 +24,6 @@
 package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.*;
@@ -32,7 +31,6 @@ import org.onedatashare.server.service.oauth.*;
 import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
@@ -67,9 +65,9 @@ public class OauthController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String googledrive = "googledrive";
+    private static final String gDrive = "gdrive";
     private static final String dropbox = "dropbox";
-    private static final String gridftp = "gridftp";
+    private static final String gridFtp = "gftp";
     private static final String box = "box";
 
     /**
@@ -77,7 +75,7 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = googledrive)
+    @GetMapping(value = gDrive)
     public Object googledriveOauthFinish(@RequestParam Map<String, String> queryParameters) {
 
         if (!queryParameters.containsKey("code")) {
@@ -166,12 +164,11 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = "/gridftp")
-    public Object gridftpOauthFinish(@RequestHeader HttpHeaders headers, @RequestParam Map<String, String> queryParameters) {
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
+    @GetMapping(value = gridFtp)
+    public Object gridftpOauthFinish(@RequestParam Map<String, String> queryParameters) {
         return gridFtpAuthService.finish(queryParameters)
-                .flatMap(oauthCred -> userService.saveCredential(cookie, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/" + uuid).build());
+                .flatMap(oauthCred -> userService.saveCredential(null, oauthCred))
+                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build());
     }
     /**
      * Handler for Box requests
@@ -225,9 +222,9 @@ public class OauthController {
                 return Rendering.redirectTo(boxOauthService.start()).build();
             case dropbox:
                 return Rendering.redirectTo(dbxOauthService.start()).build();
-            case googledrive:
+            case gDrive:
                 return Rendering.redirectTo(googleDriveOauthService.start()).build();
-            case gridftp:
+            case gridFtp:
                 return Rendering.redirectTo(gridFtpAuthService.start()).build();
             default:
                 throw new NotFoundException();

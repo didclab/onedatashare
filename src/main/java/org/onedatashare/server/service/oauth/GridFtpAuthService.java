@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 @Getter
+@Configuration
 class GridFTPConfig{
     @Value("${gftp.clientId}")
     private String clientId;
@@ -34,7 +36,6 @@ public class GridFtpAuthService {
 
     @PostConstruct
     public void initializeGlobusClient(){
-        logger.info(gridFTPConfig.getRedirectUri());
         globusclient.setRedirectUri(gridFTPConfig.getRedirectUri())
                 .setClientId(gridFTPConfig.getClientId())
                 .setClientSecret(gridFTPConfig.getClientSecret());
@@ -44,7 +45,6 @@ public class GridFtpAuthService {
         try {
             // Authorize the DbxWebAuth auth as well as redirect the user to the finishURI, done this way to appease OAuth 2.0
             String url = globusclient.generateAuthURL();
-            logger.info("Url is " + url);
             return url;
         } catch (Exception e) {
             throw new RuntimeException(e);

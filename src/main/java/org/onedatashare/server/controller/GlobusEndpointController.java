@@ -1,11 +1,9 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 

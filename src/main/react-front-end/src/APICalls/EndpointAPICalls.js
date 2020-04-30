@@ -174,11 +174,11 @@ export async function openDropboxOAuth() {
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/oauth?type=googledrive");
+	openOAuth("/api/oauth?type=gdrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/oauth?type=gridftp");
+	openOAuth("/api/oauth?type=gftp");
 }
 
 export async function openBoxOAuth(){

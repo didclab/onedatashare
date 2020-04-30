@@ -4,7 +4,7 @@ import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.service.GridftpService;
+import org.onedatashare.server.service.GridFtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/gsiftp/")
 public class GridFtpController extends EndpointBaseController{
     @Autowired
-    private GridftpService gridftpService;
+    private GridFtpService gridftpService;
 
     @Override
     protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
