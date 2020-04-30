@@ -23,9 +23,9 @@
 
 package org.onedatashare.server.system.base;
 
-import org.onedatashare.server.controller.LoginController.LoginControllerRequest;
 import org.onedatashare.server.controller.RegistrationController.RegistrationControllerRequest;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.request.LoginControllerRequest;
 
 /**
  * A base that holds common user actions

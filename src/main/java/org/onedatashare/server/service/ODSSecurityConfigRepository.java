@@ -68,7 +68,7 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
                     token = token.substring(TOKEN_PREFIX.length());
                 }
                 // Try fetching token from the cookies
-                if(token == null) {
+                else if(token == null) {
                   token = request.getCookies().getFirst("ATOKEN").getValue();
                 }
             } catch (NullPointerException npe) {

@@ -35,7 +35,7 @@ export const UPLOAD_OP_URL = "/upload"
 export const SHARE_OP_URL = "/share"
 export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
-
+export const LOGOUT_ENDPOINT = "/deauthenticate";
 
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
@@ -170,7 +170,8 @@ export const defaultPort = {
 	https: 443
 }
 
-export const maxCookieAge = 7;
+//Seconds for which the cookie is valid
+export const maxCookieAge = 3600;
 
 export const jobStatus = {
 	COMPLETED: 'completed',

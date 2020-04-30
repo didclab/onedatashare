@@ -21,8 +21,8 @@
  */
 
 
-import { url, ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL } from '../constants';
-import { axios, statusHandle } from "./APICalls";
+import { url, ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, OAUTH_URL } from '../constants';
+import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
 
@@ -52,7 +52,7 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
@@ -71,13 +71,13 @@ export async function share(uri, endpoint, accept, fail) {
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
 export async function mkdir(uri, type, endpoint, accept, fail) {
     let callback = accept;
-    
+
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
@@ -85,14 +85,14 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
         uri: encodeURI(uri),
         id: id,
         map: getMapFromEndpoint(endpoint),
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
@@ -104,7 +104,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
         uri: encodeURI(uri),
         id: id,
         map: getMapFromEndpoint(endpoint)
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -112,17 +112,17 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
         })
         .catch((error) => {
 
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
 // Returns the url for file. It is used to download the file and also to display in share url popup
 async function getDownloadLink(uri, credential, _id) {
-    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DOWNLOAD_OP_URL), {
+    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), OAUTH_URL), {
         credential: credential,
         uri: encodeURI(uri),
         id: _id,
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 console.log("Error in download API call");
@@ -131,6 +131,7 @@ async function getDownloadLink(uri, credential, _id) {
             }
         })
         .catch((error) => {
+            handleRequestFailure(error);
             console.log("Error encountered while generating download link");
         });
 }
@@ -201,7 +202,7 @@ export async function globusEndpointIds(gep, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -216,7 +217,7 @@ export async function globusEndpointDetail(gep, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -233,7 +234,7 @@ export async function globusEndpointActivate(gep, _username, _password, accept, 
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -250,7 +251,7 @@ export async function deleteEndpointId(ged, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -267,6 +268,6 @@ export async function globusListEndpoints(filter_fulltext, accept, fail) {
 		})
 		.catch((error) => {
 
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }

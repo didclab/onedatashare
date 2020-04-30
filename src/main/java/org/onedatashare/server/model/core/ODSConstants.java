@@ -44,6 +44,7 @@ public class ODSConstants {
     public static final String UPLOAD_IDENTIFIER = "Upload";
 
     public static final String COOKIE = "cookie";
+    public static final String TOKEN_COOKIE_NAME = "ATOKEN";
     public static final String TOKEN_PREFIX = "Bearer ";
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
@@ -55,6 +56,7 @@ public class ODSConstants {
     public static final Set<String> ODS_URIS_SET = new HashSet<String>(Arrays.asList(ODS_URIS_ARR));
 
     public static final String AUTH_ENDPOINT = "/authenticate";
+    public static final String LOGOUT_ENDPOINT = "/deauthenticate";
     public static final String RESET_PASSWD_ENDPOINT = "/reset-password";
     public static final String UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
     public static final String IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
