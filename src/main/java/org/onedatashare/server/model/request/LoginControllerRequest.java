@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,19 +21,15 @@
  */
 
 
-package org.onedatashare.server.service;
+package org.onedatashare.server.model.request;
 
-import org.junit.jupiter.api.Test;
+import lombok.Data;
 
-import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.springframework.beans.factory.annotation.Autowired;
-
-public class DbxOauthServiceTest {
-
-    @Autowired
-    private DbxOauthService dbxOauthService;
-
-    @Test
-    public void start_givenNothing_throwsRuntimeException() {
-    }
+@Data
+public class LoginControllerRequest {
+    private String email;
+    private String password;
+    private String confirmPassword;
+    private String newPassword;
+    private String code;
 }

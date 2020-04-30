@@ -37,7 +37,7 @@ public class NotificationBody {
     private boolean isHtml;
     private ArrayList<String> emailList;
 
-    NotificationBody(String senderEmail, String subject, String message, ArrayList<String> emailList, boolean isHtml){
+    public NotificationBody(String senderEmail, String subject, String message, ArrayList<String> emailList, boolean isHtml){
         this.senderEmail = senderEmail;
         this.subject = subject;
         this.message = message;

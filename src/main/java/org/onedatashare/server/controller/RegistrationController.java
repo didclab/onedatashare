@@ -36,6 +36,7 @@ import reactor.core.publisher.Mono;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @RestController
+@io.swagger.v3.oas.annotations.Hidden
 public class RegistrationController {
     @Autowired
     private UserService userService;

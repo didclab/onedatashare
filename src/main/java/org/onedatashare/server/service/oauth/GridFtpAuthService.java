@@ -1,27 +1,25 @@
 package org.onedatashare.server.service.oauth;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
 
-@ConfigurationProperties(prefix = "gsiftp")
-@ConstructorBinding
 @Getter
-@AllArgsConstructor
 class GridFTPConfig{
+    @Value("${gftp.clientId}")
     private String clientId;
+    @Value("${gftp.clientSecret}")
     private String clientSecret;
+    @Value("${gftp.redirectUri}")
     private String redirectUri;
 }
 
