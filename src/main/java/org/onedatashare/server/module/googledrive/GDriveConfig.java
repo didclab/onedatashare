@@ -34,7 +34,6 @@ import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -42,7 +41,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-@Component
+@Configuration
 @Data
 public class GDriveConfig {
 
@@ -90,10 +89,6 @@ public class GDriveConfig {
 
     public static final FileDataStoreFactory getDataStoreFactory() {
         return DATA_STORE_FACTORY;
-    }
-
-    public GDriveConfig(){
-
     }
 
     @PostConstruct
