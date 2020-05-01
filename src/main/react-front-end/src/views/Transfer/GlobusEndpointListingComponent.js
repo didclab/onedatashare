@@ -35,7 +35,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import {globusListEndpoints, globusEndpointIds} from '../../APICalls/EndpointAPICalls';
+import { globusListEndpoints, globusEndpointIds } from "../../APICalls/globusAPICalls";
 import {eventEmitter} from "../../App";
 
 const styles = {

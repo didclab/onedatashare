@@ -27,6 +27,7 @@ class GlobusConstants{
     public static final String TRANSFER_BASE_URL = "https://transfer.api.globusonline.org/v0.10";
     public static final String SUBMISSION_URI = "/submission_id";
     public static final String ENDPOINT_ACTIVATION_URI = "/endpoint/{id}/activate";
+    public static final String ENDPOINT_AUTO_ACTIVATE_URI = "/endpoint/{id}/autoactivate?if_expires_in=7200";
     public static final String ENDPOINT_SEARCH_URI = "/endpoint_search";
     public static final String ENDPOINT_DETAIL_URI = "/endpoint/{id}";
     public static final String ENDPOINT_FILE_LIST_URI = "/endpoint/{id}/ls";
@@ -58,8 +59,6 @@ public class GlobusClient {
                 .baseUrl(GlobusConstants.TRANSFER_BASE_URL)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, GlobusConstants.CONTENT_TYPE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-                //TODO: remove this line
-                .filter(logRequest())
                 .build();
     }
 
@@ -167,6 +166,15 @@ public class GlobusClient {
                 .retrieve()
                 .bodyToMono(Result.class);
     }
+
+    public Mono<ActivationResult> autoActivateEndPoint(String endPointId){
+        String uri = GlobusConstants.ENDPOINT_AUTO_ACTIVATE_URI.replace("{id}",endPointId);
+        return webClient.post()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(ActivationResult.class);
+    }
+
 
     public Mono<ActivationResult> activateEndPoint(String endPointId, String hostName, String serverDN, String userName, String password){
 

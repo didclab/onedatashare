@@ -24,8 +24,8 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
-		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId
-} from "../../APICalls/EndpointAPICalls";
+		listFiles} from "../../APICalls/EndpointAPICalls";
+import { globusEndpointIds, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
