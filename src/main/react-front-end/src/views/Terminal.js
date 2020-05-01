@@ -13,22 +13,41 @@ export default class Terminal extends Component{
   this.state={show:false};
   this.state = {
         value:'',
-        loading: false,
+        history:[],
+        host:'',
+        uname:'',
+        epw:'',
+        port:'',
+
       };
-      this.history=[];
-      this.commandhistory=[];
-      this.autosuggest=[];
-      this.temp=[];
   this.toggleDiv=this.toggleDiv.bind(this);
   this.KeyPress = this.KeyPress.bind(this);
   this.textChange = this.textChange.bind(this);
+  this.onLoginSuccess=this.onLoginSuccess.bind(this);
   }
+  componentDidMount(){
+      	eventEmitter.on("sftploginsuccessmessage", this.onLoginSuccess);
+
+    	}
+
+  onLoginSuccess(url,username,epw,port){
+  		this.setState({
+                host: url.slice(7),
+                uname:username,
+                epw:epw,
+                port:port
+              })
+
+        //console.log('hiii');
+        //console.log(this.state.epw)
+  	}
+
+
+
   toggleDiv=()=>
   {
   const{show}=this.state;
-  this.setState({show:!show,value:'',response:''});
-  this.history=[];
-  this.commandhistory=[];
+  this.setState({show:!show,value:'',history:[]});
   }
 
   textChange(event) {
@@ -39,91 +58,40 @@ export default class Terminal extends Component{
       KeyPress(e) {
       if(e.keyCode === 13) {
            var inputelement=e.target.value;
-
-           if(inputelement==="help"){
-               this.history.push(inputelement);
-               this.commandhistory.push(inputelement);
-               this.commandhistory.push(',');
-               this.history.push('welcome to OneDataShare, Please enter commands to submit');
-           }
-           else if(inputelement==="clear"){
+           if(inputelement==="clear"){
                      var myNode = document.getElementById("terminalOutput");
                        while (myNode.firstChild) {
                           myNode.removeChild(myNode.firstChild);
                        }
+                       this.setState({value:'' });
                    }
-            else if(inputelement==="history")
-            {
-                if(this.commandhistory.length===0)
-                {
-                  this.history.push(inputelement);
-                  this.history.push('History is empty. Keep entering commands.');
-                }
-                else
-                {
-                this.history.push(inputelement);
-                  this.history.push(this.commandhistory);
-                  //this.commandhistory.push(',');
-                 }
-            }
+
            else
            {
-         		this.history.push(inputelement);
-         		this.commandhistory.push(inputelement);
-         		this.commandhistory.push(',');
+         		var his=this.state.history;
+         		his.push(inputelement);
          		 CliInterface(
-                         				inputelement,
+                         				inputelement,this.state.host,this.state.uname,this.state.epw,this.state.port,
                          				(resp) => {
                          				     var newArr = Object.values(resp);
                                              var parseArr = newArr[0].split("\n")
                                             parseArr.pop();
-                         				     this.history.push(parseArr);
-                         					this.setState({response: resp, loading: false});
+                                            his.push(parseArr);
+
+                                           this.setState({
+
+                                                    history:his,
+                                                    value:'',
+                                                  })
+
                          				}, (error) => {
                          					eventEmitter.emit("errorOccured", error);
-                         					this.setState({loading: false});
                          				}
                          			)
+           }
 
-            }
-            this.setState({
-                                      value:''
-                                    });
 
       }
-
-      /*else if(e.keyCode === 9)
-      {
-
-
-         var files='ls /';
-
-         CliInterface(
-                        files,
-                        (resp) => {
-                            this.autosuggest = resp;
-                            console.log(this.autosuggest);
-                            console.log(typeof this.autosuggest);
-                            console.log(typeof this.autosuggest[0]);
-                            var words = this.autosuggest[0].split(" ");
-                            console.log(typeof words);
-                            console.log(words);
-                            //for(i=0;i<)
-
-                        }, (error) => {
-                            eventEmitter.emit("errorOccured", error);
-                            this.setState({loading: false});
-                        }
-                       )
-
-
-
-        //console.log(myJSON);
-
-
-
-      }*/
-
   }
    render() {
            return (
@@ -140,8 +108,8 @@ export default class Terminal extends Component{
            {(this.state.show)?
            <div id ="show">
                 <div style={{height:'300px', backgroundColor:"black",color:"white",fontFamily: "courier",overflow: "scroll"}}>
-                <div style={{fontFamily: "courier"}}>Welcome to OneDataShare, Please enter your commands. Enter help for more information</div>
-                <div id="terminalOutput"> {this.history.map((name,index)=>{
+                <div style={{fontFamily: "courier"}}>Welcome to OneDataShare, Please enter your commands.</div>
+                <div id="terminalOutput"> {this.state.history.map((name,index)=>{
                                                  if(index%2!==0)
                                                  {
                                                     return(name.map((results,index1) =>{

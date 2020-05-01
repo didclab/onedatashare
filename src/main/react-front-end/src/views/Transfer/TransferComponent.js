@@ -72,7 +72,8 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: store.getState().compactViewEnabled
+      compact: store.getState().compactViewEnabled,
+      terminalFlag:false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -91,6 +92,7 @@ export default class TransferComponent extends Component {
     this.sendFile = this.sendFile.bind(this);
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
+    this.terminalAccess=this.terminalAccess.bind(this);
 
     this.printError();
 
@@ -111,7 +113,7 @@ export default class TransferComponent extends Component {
     window.addEventListener("resize", this.updateDimensions);
     this.setState({ width: window.innerWidth, height: window.innerHeight });
     this.setState({ compact: store.getState().compactViewEnabled });
-
+    eventEmitter.on("sftpterminalaccess", this.terminalAccess);
   }
 
   sendFile = (processed) => {
@@ -174,7 +176,10 @@ export default class TransferComponent extends Component {
     }
   }
 
-
+terminalAccess(msg)
+{
+this.setState({terminalFlag:msg})
+}
 
   _returnBrowseComponent1() {
     const { mode1, endpoint1, history, compact } = this.state;
@@ -606,7 +611,10 @@ export default class TransferComponent extends Component {
 
               </Panel.Body>
             </Panel>}
-            <Terminal />
+    { this.state.terminalFlag?(<Terminal />):null
+
+     }
+
         </Col>
 
       </div>

@@ -276,13 +276,13 @@ export async function globusListEndpoints(filter_fulltext, accept, fail) {
 
 
 //api call for terminal
-export async function CliInterface(inp_cmd, accept, fail) {
+export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 	let callback = accept;
 	return axios.post('http://localhost:3000/api/ssh/console',
-                                { "host": "timberlake.cse.buffalo.edu",
+                                { "host": host,
                                   "commandWithPath": inp_cmd,
-                                  "credential" : {"username" : "stella3","password" : "P@ssword234"},
-                                  "port": 22 }).then((response) => {
+                                  "credential" : {"username" : uname,"password" : epw},
+                                  "port": port}).then((response) => {
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);

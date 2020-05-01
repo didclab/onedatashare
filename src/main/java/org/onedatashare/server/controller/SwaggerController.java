@@ -48,8 +48,8 @@ import java.io.IOException;
 @Slf4j
 public class SwaggerController {
 
-    @RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)
+    /*@RequestMapping(value = "swagger-ui.html", method = RequestMethod.GET)*//*
     public void getSwagger(HttpServletResponse httpResponse) throws IOException {
-        httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-    }
+        httpResponse.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());*//*
+    }*/
 }
