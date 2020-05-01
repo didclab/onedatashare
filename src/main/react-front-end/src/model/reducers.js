@@ -32,12 +32,12 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, UPDATE_HASH, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
-import { maxCookieAge } from '../constants';
+import Cookies from 'universal-cookie';
+export const cookies = new Cookies();
 
-export const cookies = require("js-cookie");
 export const beforeLogin = 0;
 export const duringLogin = 1;
 export const afterLogin = 2;
@@ -48,14 +48,14 @@ const initialState = {
 	email: cookies.get('email'),
 	compactViewEnabled: cookies.get('compactViewEnabled') === 'true' || false,
   saveOAuthTokens: cookies.get('saveOAuthTokens') === 'true' || false,
-	endpoint1: cookies.get('endpoint1') ? JSON.parse(cookies.get('endpoint1')) : {
+	endpoint1: cookies.get('endpoint1') ? cookies.get('endpoint1') : {
 		login: false,
 		credential: {},
 		uri: "",
     side: "left"
 	},
 
-	endpoint2: cookies.get('endpoint2') ? JSON.parse(cookies.get('endpoint2')) : {
+	endpoint2: cookies.get('endpoint2') ? cookies.get('endpoint2') : {
     login: false,
 		credential: {},
 		uri: "",
@@ -81,15 +81,14 @@ export function onedatashareModel(state = initialState, action) {
   switch (action.type) {
     case LOGIN:
    		const {email, token, saveOAuthTokens, compactViewEnabled, admin, expiresIn} = action.credential;
-      console.log(`logging in  ${email}. Token is valid for ${expiresIn} seconds`);
-      cookies.set('email', email, { expires : 1 });
-      cookies.set('ATOKEN', token, {expires: 1 });
-      cookies.set('saveOAuthTokens', saveOAuthTokens, { expires : 1 });
-      cookies.set('compactViewEnabled', compactViewEnabled, { expires : 1 });
+      console.debug(`logging in  ${email}. Access token is valid for ${expiresIn} seconds`);
+      cookies.set('email', email, { maxAge : expiresIn });
+      cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
+      cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
 
       //Only set the admin cookie if admin
       if(admin){
-        cookies.set('admin', admin, { expires : 1 });
+        cookies.set('admin', admin, { maxAge : expiresIn });
       }
       
     	return Object.assign({}, state, {
@@ -102,11 +101,7 @@ export function onedatashareModel(state = initialState, action) {
       });
 
     case LOGOUT:
-      console.log("logging out");
-      // Removing HTTP cookie by overwriting it and then removing it
-      cookies.set('ATOKEN', '' );
-      cookies.remove('ATOKEN');
-
+      console.debug("logging out");
       cookies.remove('email');
       cookies.remove('admin');
       cookies.remove('endpoint1');
@@ -142,35 +137,29 @@ export function onedatashareModel(state = initialState, action) {
 
     case ENDPOINT_UPDATE:
       if(action.side === "left"){
-        cookies.set('endpoint1', JSON.stringify({...state.endpoint1, ...action.endpoint}, { expires : maxCookieAge }));
+        cookies.set('endpoint1', {...state.endpoint1, ...action.endpoint});
           return Object.assign({}, state, {
             endpoint1: {...state.endpoint1, ...action.endpoint},
           });
         }
       else{
-        cookies.set('endpoint2', JSON.stringify({...state.endpoint2, ...action.endpoint}), { expires : maxCookieAge });
+        cookies.set('endpoint2', {...state.endpoint2, ...action.endpoint});
         return Object.assign({}, state, {
           endpoint2: {...state.endpoint2, ...action.endpoint},
         });
       }
 
-    case UPDATE_HASH:
-      cookies.remove('hash');
-      cookies.set('hash',  action.hash, { expires : maxCookieAge });
+    case COMPACT_VIEW_PREFERENCE:
+      cookies.set('compactViewEnabled', action.compactViewEnabled );
       return Object.assign({}, state, {
-                hash: action.hash
+                compactViewEnabled: action.compactViewEnabled
               });
-		case COMPACT_VIEW_PREFERENCE:
-			cookies.set('compactViewEnabled', action.compactViewEnabled);
-			return Object.assign({}, state, {
-								compactViewEnabled: action.compactViewEnabled
-							});
 
     case ACCOUNT_PREFERENCE_TOGGLED:
-      cookies.set('saveOAuthTokens', action.saveOAuthTokens);
+      cookies.set('saveOAuthTokens', action.saveOAuthTokens );
       // logout From the endpoints
-      cookies.set('endpoint1', JSON.stringify({ ...state.endpoint1, login : false }));
-      cookies.set('endpoint2', JSON.stringify({ ...state.endpoint2, login : false }));
+      cookies.set('endpoint1', { ...state.endpoint1, login : false } );
+      cookies.set('endpoint2', { ...state.endpoint2, login : false } );
       return Object.assign({}, state, {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },

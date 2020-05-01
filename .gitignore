@@ -104,3 +104,16 @@ src/main/react-front-end/package-lock.json
 
 #Resources
 src/main/resources/static/
+# ENV files
+.ods.db.env
+.ods.env
+
+#Scripts
+*.sh
+*.py
+
+#Data/config
+*.json
+
+#.DS_Store for maxs
+.DS_Stores

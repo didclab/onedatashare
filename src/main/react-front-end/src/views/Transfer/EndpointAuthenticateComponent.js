@@ -23,9 +23,8 @@
 
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
-		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId,CliInterface
-} from "../../APICalls/EndpointAPICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth, listFiles} from "../../APICalls/EndpointAPICalls";
+import { globusFetchEndpoints, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
@@ -34,7 +33,6 @@ import {DROPBOX_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
 				HTTP_TYPE,
-				SCP_TYPE,
 				HTTPS_TYPE,
 				ODS_PUBLIC_KEY
 			} from "../../constants";
@@ -143,10 +141,10 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointIdsListUpdateFromBackend = () => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
@@ -214,13 +212,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			portNumber: portNum
 		}
 
-		// scp protocol is set into a sftp automatically
-		if(getTypeFromUri(endpointSet.uri)){
-			if(endpointSet.uri.startsWith("scp://")){
-				endpointSet.uri = "sftp://" + endpointSet.uri.substring(6);
-				url = endpointSet.uri;
-			}
-		}else{
+		//Check for a valid endpoint
+		if(! getTypeFromUri(endpointSet.uri)){
 			this._handleError("Protocol is not understood");
 		}
 
@@ -262,7 +255,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteEndpointId(endpointIdsList[v], (accept) => {
+	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
 	            		this._handleError("Delete Credential Failed");
@@ -426,7 +419,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
     globusActivateSignin = () => {
     	const {endpointSelected} = this.state;
-    	this.props.setLoading(true);
+		this.props.setLoading(true);
 		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
 			this.props.setLoading(false);
 			endpointSelected.activated = true;
@@ -439,11 +432,11 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.endpointModalLogin(endpoint);
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
@@ -455,7 +448,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential.");
 			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
-			
 			this.setState({selectingEndpoint: false});
 			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
 				
@@ -506,10 +498,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType === HTTP_TYPE){
 		        		let loginUri = "http://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === SCP_TYPE){
-		        		let loginUri = "scp://";
 		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
 		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 		        	}else if(loginType === GRIDFTP_TYPE){

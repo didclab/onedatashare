@@ -40,7 +40,7 @@ import static org.testng.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value = CancelController.class, secure = false)
-//@WithMockUser
+@WithMockUser
 public class CancelControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;

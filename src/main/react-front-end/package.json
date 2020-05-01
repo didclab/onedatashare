@@ -1,4 +1,4 @@
-{
+src/main/resources/static/{
   "name": "react-front-end",
   "version": "0.1.0",
   "private": true,
@@ -45,7 +45,8 @@
     "redux": "^4.0.5",
     "slick-carousel": "^1.8.1",
     "styled-components": "^4.4.1",
-    "terminal-in-react": "^4.3.1"
+    "terminal-in-react": "^4.3.1",
+    "universal-cookie": "^4.0.3"
   },
   "scripts": {
     "start": "react-scripts start",

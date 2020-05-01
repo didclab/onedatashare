@@ -70,7 +70,7 @@ import { eventEmitter } from "../../App";
 
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, SCP_TYPE, FTP_TYPE } from "../../constants";
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -546,7 +546,7 @@ export default class EndpointBrowseComponent extends Component {
 						onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 								const taskList = getSelectedTasksFromSide(endpoint);
-								if(getType(endpoint) === SFTP_TYPE || getType(endpoint) === SCP_TYPE){
+								if(getType(endpoint) === SFTP_TYPE){
 									getDownload(downloadUrl, endpoint.credential, taskList);
 								}
 								else if(getType(endpoint) === HTTP_TYPE){

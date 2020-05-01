@@ -39,7 +39,7 @@ import Icon from '@material-ui/core/Icon';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -120,7 +120,7 @@ export default class BrowseModuleComponent extends Component {
 
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-
+		
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
@@ -211,12 +211,12 @@ export default class BrowseModuleComponent extends Component {
 					<Icon className={'fas fa-bold'} style={iconStyle}/>
                     Box
                 </Button>
-				{/* <Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
+				<Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
 					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 				}}>
 					<Icon className={'fas fa-server'} style={iconStyle}/>
 				GridFTP
-				</Button>  */}
+				</Button> 
 				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>
@@ -227,16 +227,10 @@ export default class BrowseModuleComponent extends Component {
 		      	<Button id={endpoint.side + "SFTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
 		      	}}>
-		      		<Icon className={'fas fa-folder-open'} style={iconStyle}/>
+		      		<Icon className={'fas fa-terminal'} style={iconStyle}/>
 		      		SFTP
 		      	</Button>
 
-	      		<Button id={endpoint.side + "SSH"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-	      			loginPrep(SCP_TYPE)()
-	      		}}>
-	      			<Icon className={'fas fa-terminal'} style={iconStyle}/>
-	      			SCP
-	      		</Button>
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&

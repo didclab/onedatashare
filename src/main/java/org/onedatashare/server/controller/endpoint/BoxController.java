@@ -30,10 +30,8 @@ import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.BoxService;
 import org.onedatashare.server.service.oauth.BoxOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -53,31 +51,21 @@ public class BoxController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<ResponseEntity> mkdirOperation(OperationRequestData operationRequestData) {
+    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return boxService.mkdir(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
+        return boxService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override
-    protected Mono<ResponseEntity> deleteOperation(OperationRequestData operationRequestData) {
+    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return boxService.delete(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
-    }
-
-    @Override
-    protected Mono<Stat> uploadOperation() {
-        return Mono.error(new UnsupportedOperationException());
+        return boxService.delete(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override
     protected Mono<String> downloadOperation(RequestData requestData){
         UserAction userAction = UserAction.convertToUserAction(requestData);
         return boxService.download(null, userAction).subscribeOn(Schedulers.elastic());
-    }
-
-    @Override
-    protected Rendering oauthOperation() {
-        return Rendering.redirectTo(boxOauthService.start()).build();
     }
 
 }
