@@ -58,6 +58,7 @@ public class GlobusClient {
                 .baseUrl(GlobusConstants.TRANSFER_BASE_URL)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, GlobusConstants.CONTENT_TYPE)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                //TODO: remove this line
                 .filter(logRequest())
                 .build();
     }
@@ -103,11 +104,7 @@ public class GlobusClient {
                         .queryParam("offset", String.valueOf(offset))
                     .build())
                 .retrieve()
-                .bodyToMono(FileList.class)
-                .map(f -> {
-                    System.out.println(f);
-                    return f;
-                });
+                .bodyToMono(FileList.class);
     }
 
     public Mono<Result> mkdir(String endpointId, String path) {

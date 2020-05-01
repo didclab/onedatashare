@@ -122,7 +122,7 @@ public class UserService {
 
     public GlobusClient getGlobusClientFromUser(User user){
         for (Credential credential : user.getCredentials().values()) {
-            if (credential.type == Credential.CredentialType.GLOBUS) {
+            if (credential.type == Credential.CredentialType.OAUTH) {
                 OAuthCredential oaucr = (OAuthCredential) credential;
                 if (oaucr.name.contains("GridFTP")) {
                     return new GlobusClient(oaucr.token);

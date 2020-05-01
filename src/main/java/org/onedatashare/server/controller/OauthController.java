@@ -24,6 +24,7 @@
 package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.*;
@@ -243,5 +244,3 @@ public class OauthController {
         return Rendering.redirectTo("/transfer").build();
     }
 }
-
-
