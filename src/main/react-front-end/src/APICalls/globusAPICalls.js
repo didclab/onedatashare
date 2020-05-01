@@ -59,6 +59,19 @@ export async function globusEndpointActivate(gep, _username, _password, accept, 
         });
 }
 
+
+export async function globusEndpointActivateWeb(id) {
+    axios.get(url + 'globus/endpoint-activate/' + id)
+        .then((response) => {
+            if (!(response.status === 200)){
+                window.open(response.data);
+            }
+        })
+        .catch((error) => {
+            console.error("Unable to fetch globus activation URL");
+        });
+}
+
 export async function deleteEndpointId(id, accept, fail) {
     let callback = accept;
     axios.delete(url + 'globus/delete-endpoint/' + id)

@@ -37,6 +37,7 @@ class GlobusConstants{
     public static final String TASK_DETAIL_URI = "/task/{id}";
     public static final String TASK_CANCEL_URI = "/task/{id}/cancel";
     public static final String TOKEN_URI = "/token";
+    public static final String ENDPOINT_ACTIVATE_URI = "https://app.globus.org/file-manager?origin_id={id}";
 }
 
 @Accessors(chain = true)
@@ -71,6 +72,12 @@ public class GlobusClient {
         b.addParameter("redirect_uri", redirectUri);
         b.addParameter("state", code);
         return b.build().toURL().toString();
+    }
+
+    public static String getGlobusEndpointActivationUri(String id){
+        String url =  GlobusConstants.ENDPOINT_ACTIVATE_URI.replace("{id}", id);
+        return url;
+
     }
 
     public Mono<CustomTokenResponse> getAccessToken(String authCode) {

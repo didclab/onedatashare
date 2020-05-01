@@ -25,7 +25,7 @@ import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
 		listFiles} from "../../APICalls/EndpointAPICalls";
-import { globusAddEndpoint, globusFetchEndpoints, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
+import { globusFetchEndpoints, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
@@ -407,7 +407,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
     globusActivateSignin = () => {
     	const {endpointSelected} = this.state;
-    	this.props.setLoading(true);
+		this.props.setLoading(true);
 		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
 			this.props.setLoading(false);
 			endpointSelected.activated = true;
@@ -436,7 +436,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential.");
 			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
-			
 			this.setState({selectingEndpoint: false});
 			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
 				

@@ -2,11 +2,13 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.EndPointList;
+import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -29,6 +31,11 @@ public class GlobusEndpointController {
         return userService.getGlobusClient(null)
                 .flatMap(globusClient -> globusClient.autoActivateEndPoint(id))
                 .then();
+    }
+
+    @GetMapping("/endpoint-activate/{id}")
+    public Mono<String> activateViaWebUri(@PathVariable String id){
+        return Mono.just(GlobusClient.getGlobusEndpointActivationUri(id));
     }
 
     @GetMapping("/fetch-endpoints")
