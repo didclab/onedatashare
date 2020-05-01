@@ -101,3 +101,6 @@ src/main/resources/static/
 
 #Package-lock.json
 src/main/react-front-end/package-lock.json
+
+#Resources
+src/main/resources/static/

@@ -13,7 +13,9 @@ import java.io.InputStreamReader;
 @Service
 public class SSHConsoleService {
 
-    JSch jsch;
+    private JSch jsch;
+
+    private DecryptionService decryptionService;
 
     public SSHConsoleService(){
         jsch = new JSch();
@@ -28,7 +30,7 @@ public class SSHConsoleService {
                 ODSLoggerService.logError("Error occurred while trying to create SSH session for " + userName);
                 sink.error(new Exception("Failed to create SSH session"));
             }
-            session.setUserInfo(new SSHUserInfo(password));
+            session.setUserInfo(new SSHUserInfo(decryptionService.getDecryptedPassword(password)));
             sink.success(session);
         });
     }    //createSession()
