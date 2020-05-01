@@ -25,7 +25,7 @@ import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
 		listFiles} from "../../APICalls/EndpointAPICalls";
-import { globusEndpointIds, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
+import { globusAddEndpoint, globusFetchEndpoints, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
@@ -139,10 +139,10 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointIdsListUpdateFromBackend = () => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
@@ -244,7 +244,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteEndpointId(endpointIdsList[v], (accept) => {
+	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
 	            		this._handleError("Delete Credential Failed");
@@ -420,11 +420,11 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.endpointModalLogin(endpoint);
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});

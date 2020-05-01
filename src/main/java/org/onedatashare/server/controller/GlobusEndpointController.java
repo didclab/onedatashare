@@ -31,25 +31,24 @@ public class GlobusEndpointController {
                 .then();
     }
 
-    @GetMapping("/add-endpoint/")
-    public Mono<Map<UUID, EndPoint>> addEndpoint(@PathVariable EndPoint endPoint){
+    @GetMapping("/fetch-endpoints")
+    public Mono<Map<UUID, EndPoint>> fetchEndpoints(){
+        return userService.getEndpointId(null);
+    }
+
+    @PostMapping("/add-endpoint")
+    public Mono<Map<UUID, EndPoint>> addEndpoint(@RequestBody EndPoint endPoint){
         return userService.saveEndpointId(UUID.fromString(endPoint.getId()), endPoint, null);
+    }
+
+    @DeleteMapping("/delete-endpoint/{id}")
+    public Mono<Void> deleteEndpoint(@PathVariable String id){
+        return userService.deleteEndpointId(null, UUID.fromString(id));
     }
 
     @PostMapping
     public Object globusRequest(@RequestBody UserAction gea) {
         switch(gea.getAction()) {
-            case "endpoint":
-                return userService.getGlobusClient(null)
-                        .flatMap(gc -> gc.getEndPoint(gea.getGlobusEndpoint().getId()));
-            case "endpointId":
-                if(gea.getGlobusEndpoint().getId() == null){
-                    return userService.getEndpointId(null);
-                }
-                return userService.saveEndpointId(UUID.fromString(gea.getGlobusEndpoint().getId()),
-                                                  gea.getGlobusEndpoint(), null);
-            case "deleteEndpointId":
-                return userService.deleteEndpointId(null, UUID.fromString(gea.getGlobusEndpoint().getId()));
             case "endpointActivate":
                 return userService.getGlobusClient(null).flatMap(gc ->
                     gc.activateEndPoint(gea.getGlobusEndpoint().getId(), gea.getGlobusEndpoint().getMyProxyServer(),
