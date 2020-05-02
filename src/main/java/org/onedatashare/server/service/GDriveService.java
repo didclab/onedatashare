@@ -73,7 +73,7 @@ public class GDriveService extends ResourceService {
 
     public String pathFromUri(String uri) {
         String path = "";
-        path = uri.substring(DRIVE_URI_SCHEME.length() - 1);
+        path = uri.substring(GDRIVE_URI_SCHEME.length() - 1);
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {

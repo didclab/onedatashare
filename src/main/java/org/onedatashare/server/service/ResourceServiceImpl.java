@@ -153,8 +153,8 @@ public class ResourceServiceImpl {
         String path = "";
         if (uri.startsWith(DROPBOX_URI_SCHEME))
             path = uri.substring(DROPBOX_URI_SCHEME.length() - 1);
-        else if (uri.startsWith(DRIVE_URI_SCHEME))
-            path = uri.substring(DRIVE_URI_SCHEME.length() - 1);
+        else if (uri.startsWith(GDRIVE_URI_SCHEME))
+            path = uri.substring(GDRIVE_URI_SCHEME.length() - 1);
         else
             path = uri;
 
@@ -168,7 +168,7 @@ public class ResourceServiceImpl {
 
     public Mono<Credential> createCredential(UserActionResource userActionResource, User user) {
         if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME) || userActionResource.getUri().startsWith(BOX_URI_SCHEME)) {
+                userActionResource.getUri().startsWith(GDRIVE_URI_SCHEME) || userActionResource.getUri().startsWith(BOX_URI_SCHEME)) {
             if (user.isSaveOAuthTokens()) {
                 return Mono.just(
                         user.getCredentials().get(
@@ -203,7 +203,7 @@ public class ResourceServiceImpl {
         else if (uri.equals(UPLOAD_IDENTIFIER)) {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        } else if (uri.startsWith(DRIVE_URI_SCHEME))
+        } else if (uri.startsWith(GDRIVE_URI_SCHEME))
             return new GoogleDriveSession(URI.create(uri), credential);
         else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
             return new BoxSession(URI.create(uri), credential);

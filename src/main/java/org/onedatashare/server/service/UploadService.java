@@ -24,8 +24,8 @@
 package org.onedatashare.server.service;
 
 import com.google.common.cache.*;
+import edu.emory.mathcs.backport.java.util.Arrays;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -43,7 +43,11 @@ import reactor.core.publisher.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+
+import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
 //TODO: check timeout, size overflow works
@@ -69,6 +73,38 @@ public class UploadService {
 
     @Autowired
     private VfsService vfsService;
+
+    @Autowired
+    private GDriveService gDriveService;
+
+    @Autowired
+    private DbxService dbxService;
+
+    @Autowired
+    private BoxService boxService;
+
+    private Mono<Drain> getDrainFromUserAction(UserAction userAction, Long size){
+        String uri = userAction.getUri();
+        if(uri.startsWith(DROPBOX_URI_SCHEME)){
+            return dbxService.getDbxResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        } else if(uri.startsWith(FTP_URI_SCHEME) || uri.startsWith(SFTP_URI_SCHEME)){
+            return vfsService.getResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        } else if(uri.startsWith(BOX_URI_SCHEME)){
+            return boxService.getBoxResourceUserActionUri(null, userAction)
+                    .map(boxResource -> {
+                        Stat stat = new Stat().setSize(size);
+                        return boxResource.sink(stat, false);
+                    });
+        } else if(uri.startsWith(GDRIVE_URI_SCHEME)){
+            return gDriveService.getResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        }
+        else{
+            return Mono.error(new RuntimeException("Invalid uri type"));
+        }
+    }
 
     private String createUploadCacheKey(String userId, String directoryPath, String uuid){
         return String.format("%s-%s-%s",userId, directoryPath, uuid);
@@ -97,17 +133,17 @@ public class UploadService {
         //Processing
         long _fileSize = Long.parseLong(fileSize);;
         int _chunkNumber = chunkNumber == null ? 0 : Integer.parseInt(chunkNumber);
-        long _totalChunks = totalChunks == null ? 0 : Long.parseLong(totalChunks);
+        int _totalChunks = totalChunks == null ? 0 : Integer.parseInt(totalChunks);
         UserActionCredential _credential;
-        IdMap[] _idMap;
+        ArrayList<IdMap> _idMap = new ArrayList<>();
         String _pathToWrite = pathToWrite;
         try {
             fileName = URLEncoder.encode(fileName, "utf-8");
-            pathToWrite = "ftp://localhost:2121/";
             _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
             ObjectMapper mapper = new ObjectMapper();
             _credential = mapper.readValue(credential, UserActionCredential.class);
-            _idMap = mapper.readValue(idMap, IdMap[].class);
+            IdMap[] idMapArray = mapper.readValue(idMap, IdMap[].class);
+            Collections.addAll(_idMap, idMapArray);
         } catch (IOException e) {
             Mono.error(new Exception("Unable to parse the form data"));
             return Mono.just(false);
@@ -118,7 +154,7 @@ public class UploadService {
             UploadSession tempSession = uploadCache.getIfPresent(uploadCacheKey);
             //Issues can still arise due to race conditions. Also, only returns the approximate size .TODO: fix
             if(tempSession == null && uploadCache.size() < MAXIMUM_UPLOAD_LIMIT){
-                tempSession = new UploadSession();
+                tempSession = new UploadSession(_totalChunks, _fileSize);
                 uploadCache.put(uploadCacheKey, tempSession);
             }
             UploadSession session = tempSession;
@@ -127,9 +163,12 @@ public class UploadService {
                 throw new Exception("One or more chunks lost");
             }
             if(session.getCurrentChunkNumber() == 0){
-                UserAction userAction = new UserAction().setUri(_pathToWrite).setCredential(_credential);
-                Mono<Drain> drainMono = vfsService.getResourceWithUserActionUri(null, userAction)
-                        .map(Resource::sink);
+                UserAction userAction = new UserAction()
+                        .setUri(_pathToWrite)
+                        .setCredential(_credential)
+                        .setId(destFolderId)
+                        .setMap(_idMap);
+                Mono<Drain> drainMono = getDrainFromUserAction(userAction, _fileSize);
                 return writeFirstChunk(filePart, session, drainMono);
             }
             else {
@@ -181,17 +220,18 @@ public class UploadService {
     }
 }
 
-@Getter
-@Setter
-@NoArgsConstructor
 @Accessors(chain = true)
 final class UploadSession{
-    private int currentChunkNumber = 0;
-    private int totalChunks;
+    @Getter private int currentChunkNumber = 0;
+    @Getter private int totalChunks;
     private long fileSize;
     private long uploadedBytes;
-    private String url;
-    private Drain drain;
+    @Setter private Drain drain;
+
+    public UploadSession(int totalChunks, long fileSize) {
+        this.totalChunks = totalChunks;
+        this.fileSize = fileSize;
+    }
 
     public void write(Slice slice, int chunkNumber) throws Exception {
         if(this.currentChunkNumber != chunkNumber)
@@ -199,5 +239,9 @@ final class UploadSession{
         drain.drain(slice);
         this.currentChunkNumber++;
         this.uploadedBytes += slice.length();
+
+        if(this.uploadedBytes == this.fileSize){
+            drain.finish();
+        }
     }
 }
