@@ -1,9 +1,17 @@
 import { url } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 
+
+let globusBaseUrl = url + 'globus/';
+
+/**
+ * Fetches the globus endpoints stored in the database
+ * @param {Function} accept 
+ * @param {Function} fail 
+ */
 export async function globusFetchEndpoints(accept, fail) {
     let callback = accept;
-    axios.get(url + 'globus/fetch-endpoints')
+    axios.get(globusBaseUrl + 'endpoints')
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -14,9 +22,15 @@ export async function globusFetchEndpoints(accept, fail) {
         });
 }
 
+/**
+ * Adds a new globus endpoint on the backed
+ * @param {Object} gep 
+ * @param {Function} accept 
+ * @param {Function} fail 
+ */
 export async function globusAddEndpoint(gep, accept, fail) {
     let callback = accept;
-    axios.post(url + 'globus/add-endpoint', gep)
+    axios.post(globusBaseUrl + 'endpoint', gep)
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -27,44 +41,36 @@ export async function globusAddEndpoint(gep, accept, fail) {
         });
 }
 
-export async function globusEndpointDetail(gep, accept, fail) {
+/**
+ * Fetches the globus endpoint details on the frontend
+ * @param {String} endpointId 
+ * @param {*} accept 
+ * @param {*} fail 
+ */
+export async function globusEndpointDetail(endpointId, accept, fail) {
     let callback = accept;
-    axios.post(url + 'globus', {
-        action: 'endpoint',
-        globusEndpoint: gep,
-    }).then((response) => {
-        if (!(response.status === 200))
-            callback = fail;
-        statusHandle(response, callback);
-    })
-        .catch((error) => {
-            handleRequestFailure(error, fail);
-        });
-}
-
-export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
-    let callback = accept;
-    axios.post(url + 'globus', {
-        action: 'endpointActivate',
-        globusEndpoint: gep,
-        username: _username,
-        password: _password
-    }).then((response) => {
-        if (!(response.status === 200))
-            callback = fail;
-        statusHandle(response, callback);
-    })
+    
+    axios.get(globusBaseUrl + 'endpoint/' + endpointId)
+        .then((response) => {
+            if (!(response.status === 200))
+                callback = fail;
+            statusHandle(response, callback);
+        })
         .catch((error) => {
             handleRequestFailure(error, fail);
         });
 }
 
 
+/**
+ * Opens a new window to activate globus endoint via globus website
+ * @param {String} id 
+ */
 export async function globusEndpointActivateWeb(id) {
-    axios.get(url + 'globus/endpoint-activate/' + id)
+    axios.get(globusBaseUrl + 'endpoint-activate/' + id)
         .then((response) => {
             if (!(response.status === 200)){
-                window.open(response.data);
+                window.open(response.data.url);
             }
         })
         .catch((error) => {
@@ -72,9 +78,15 @@ export async function globusEndpointActivateWeb(id) {
         });
 }
 
+/**
+ * Deletes the endpoint with the given Id from the backend database
+ * @param {String} id 
+ * @param {*} accept 
+ * @param {*} fail 
+ */
 export async function deleteEndpointId(id, accept, fail) {
     let callback = accept;
-    axios.delete(url + 'globus/delete-endpoint/' + id)
+    axios.delete(globusBaseUrl + 'endpoint/' + id)
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -85,9 +97,15 @@ export async function deleteEndpointId(id, accept, fail) {
         });
 }
 
+/**
+ * Fetches the endpoints with the filtered text visible to the user
+ * @param {String} filter_fulltext 
+ * @param {*} accept 
+ * @param {*} fail 
+ */
 export async function globusListEndpoints(filter_fulltext, accept, fail) {
     let callback = accept;
-    let getUrl = url + 'globus/list-endpoints?filter=' + filter_fulltext;
+    let getUrl = globusBaseUrl + 'endpoints/all?filter=' + filter_fulltext;
     return axios.get(getUrl)
         .then((response) => {
             if (!(response.status === 200))
