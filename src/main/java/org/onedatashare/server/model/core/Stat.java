@@ -24,11 +24,13 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Collection;
 import java.util.List;
 
 @Data
+@Accessors(chain = true)
 public class Stat {
   /**
    * The id of the resource (Used in Google Drive SDK for now)

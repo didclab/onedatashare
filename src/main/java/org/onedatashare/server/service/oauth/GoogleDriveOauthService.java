@@ -32,7 +32,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.module.googledrive.GoogleDriveConfig;
+import org.onedatashare.server.module.googledrive.GDriveConfig;
 import org.onedatashare.server.module.googledrive.GoogleDriveSession;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
@@ -44,15 +44,13 @@ import reactor.core.publisher.Mono;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GoogleDriveOauthService{
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
-    private GoogleDriveConfig driveConfig;
+    private GDriveConfig driveConfig;
 
     private final List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
 
@@ -61,7 +59,7 @@ public class GoogleDriveOauthService{
         try {
             // Build flow and trigger user authorization request.
             GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
-                            driveConfig.getHttpTransport(), driveConfig.getJSON_FACTORY(),
+                            driveConfig.getHttpTransport(), driveConfig.getJsonFactory(),
                             driveConfig.getDriveClientSecrets(), SCOPES)
                             .setAccessType("offline").setApprovalPrompt("force")
                             .setDataStoreFactory(driveConfig.getDataStoreFactory())
@@ -110,22 +108,15 @@ public class GoogleDriveOauthService{
         }
     }
 
-    public synchronized Mono<OAuthCredential> finish( String token, String cookie) {
+    public Mono<OAuthCredential> finish(Map<String, String> queryParameters) {
+        String token = queryParameters.get("code");
         OAuthCredential oauth = storeCredential(token);
         try {
-            Drive service = new GoogleDriveSession().getDriveService(oauth.getToken());
+            Drive service = new GoogleDriveSession().getDriveService(token);
             String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
 
             oauth.name = "GoogleDrive: " + userId;
-            return userService.getCredentials(cookie).flatMap(val -> {
-                for (Credential value : val.values()) {
-                    OAuthCredential oauthVal = ((OAuthCredential) value);
-                    if ((oauthVal.name != null && oauthVal.name.equals(oauth.name))) { //Checks if the ID already matches
-                        return Mono.empty(); //Account already exists
-                    }
-                }
-                return Mono.just(oauth);
-            });
+            return Mono.just(oauth);
         } catch (Exception e) {
             ODSLoggerService.logError("Runtime exception occurred while finishing initializing Google drive oauth session");
             throw new RuntimeException(e);

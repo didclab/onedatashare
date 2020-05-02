@@ -70,19 +70,14 @@ public class HttpFileService extends ResourceService {
 
     @Override
     /* Not allowed */
-    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
+    public Mono<Void> mkdir(String cookie, UserAction userAction) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     /* Not allowed */
-    public Mono<Boolean> delete(String cookie, UserAction userAction) {
+    public Mono<Void> delete(String cookie, UserAction userAction) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Mono<Job> submit(String cookie, UserAction userAction) {
-        return null;
     }
 
     @Override

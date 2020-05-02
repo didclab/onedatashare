@@ -509,8 +509,9 @@ public class UserService {
      * @return a map containing all the endpoint credentials linked to the user account as a Mono
      */
     public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
-        return getLoggedInUser(cookie).map(User::getCredentials).map(
-                credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
+        return getLoggedInUser(cookie)
+                .map(User::getCredentials)
+                .map(credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
     }
 
 

@@ -37,14 +37,14 @@ import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
-import org.onedatashare.server.module.dropbox.DbxResource;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static reactor.core.publisher.Mono.just;
 
@@ -77,7 +77,6 @@ public class DbxServiceTest {
         when(userService.getLoggedInUser(cookie)).thenReturn(just(user));
 
         Consumer<? super Stat> statConsumer = stat -> assertNull(stat.getFilesList());
-        Consumer<Boolean> rsrcConsumer = Assert::assertFalse;
         Consumer<? super Job> jobConsumer = Assert::assertNull;
         Consumer<Throwable> throwableConsumer =
                 throwable -> assertTrue(
@@ -86,8 +85,8 @@ public class DbxServiceTest {
                 );
 
         dbxService.list(cookie, userAction).subscribe(statConsumer, throwableConsumer);
-        dbxService.delete(cookie, userAction).subscribe(rsrcConsumer, throwableConsumer);
-        dbxService.mkdir(cookie, userAction).subscribe(rsrcConsumer, throwableConsumer);
+        dbxService.delete(cookie, userAction).subscribe(aVoid -> {}, throwableConsumer);
+        dbxService.mkdir(cookie, userAction).subscribe(aVoid -> {}, throwableConsumer);
         dbxService.submit(cookie, userAction).subscribe(jobConsumer, throwableConsumer);
     }
 

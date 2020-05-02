@@ -33,13 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
-
-import static org.onedatashare.server.model.core.ODSConstants.TRANSFER_SLICE_SIZE;
 
 @Service
 public class VfsService extends ResourceService {
@@ -129,56 +126,20 @@ public class VfsService extends ResourceService {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::stat);
     }
 
-    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
+    public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(VfsResource::mkdir)
-                .map(r -> true);
+                .then();
     }
 
-    public Mono<Boolean> delete(String cookie, UserAction userAction) {
+    public Mono<Void> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(VfsResource::delete)
-                .map(val -> true);
-    }
-
-    public Mono<Job> submit(String cookie, UserAction userAction) {
-        return userService.getLoggedInUser(cookie)
-                .map(user -> {
-                    Job job = new Job(userAction.getSrc(), userAction.getDest());
-                    job.setStatus(JobStatus.scheduled);
-                    job = user.saveJob(job);
-                    userService.saveUser(user).subscribe();
-                    return job;
-                })
-                .flatMap(jobService::saveJob)
-                .doOnSuccess(job -> processTransferFromJob(job, cookie))
-                .subscribeOn(Schedulers.elastic());
+                .then();
     }
 
     @Override
     public Mono<String> download(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
-    }
-
-    public void processTransferFromJob(Job job, String cookie) {
-        Transfer<Resource, Resource> transfer = new Transfer<>();
-        getResourceWithUserActionResource(cookie, job.getSrc())
-                .map(transfer::setSource)
-                .flatMap(t -> getResourceWithUserActionResource(cookie, job.getDest()))
-                .map(transfer::setDestination)
-                .flux()
-                .flatMap(transfer1 -> transfer1.start(TRANSFER_SLICE_SIZE))
-                .doOnSubscribe(s -> job.setStatus(JobStatus.transferring))
-                .doFinally(s -> {
-                    job.setStatus(JobStatus.complete);
-                    jobService.saveJob(job).subscribe();
-                })
-                .map(job::updateJobWithTransferInfo)
-                .flatMap(jobService::saveJob)
-                .subscribe();
-    }
-
-    public Mono<String> getDownloadURL(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 

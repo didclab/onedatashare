@@ -36,16 +36,23 @@ import java.util.UUID;
 
 public interface JobRepository extends ReactiveMongoRepository<Job, UUID> {
 
-    static final String fieldFilter = "{'status' : 1, 'bytes' : 1, 'job_id' : 1, 'owner' : 1, 'times' : 1, 'src.uri' : 1, 'dest.uri' : 1}";
+    String fieldFilter = "{'status' : 1, 'bytes' : 1, 'job_id' : 1, 'owner' : 1, 'times' : 1, 'src.uri' : 1, 'dest.uri' : 1}";
 
     @Query(value="{$and: [{'owner':?0},{'deleted': false}]}", fields = fieldFilter)
     Flux<Job> findJobsForUser(String owner, Pageable pageable);
+
+    @Query(value = "{$and: [{'owner':{ $regex: '?0', $options:'i' }}, {'status':{ $regex: '?1', $options:'i' }}, " +
+            "{'job_id' : {$gt: '?2', $lt: '?3'}}, {'deleted': false}]}", fields = fieldFilter)
+    Flux<Job> findSearchJobs(String owner, String status, int start, int end, Pageable pageable);
 
     @Query(value = "{'deleted' : false}", fields = fieldFilter)
     Flux<Job> findAllBy(Pageable pageable);
 
     @Query(value="{$and: [{'owner':?0},{'deleted': false}]}", count = true)
     Mono<Long> getJobCountForUser(String owner);
+
+    @Query(value = "{$and: [{'owner': { $regex: ?0, $options:'i' }}, {'status':{ $regex: '?1', $options:'i' }}, {'job_id' : {$lt: '?3'}}, {'deleted': false}]}", count = true)
+    Mono<Long> getSearchJobsCount(String owner, String status, int start, int end);
 
     @Query(value = "{'deleted': false}", count = true)
     Mono<Long> getCount();

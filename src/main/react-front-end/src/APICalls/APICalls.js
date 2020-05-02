@@ -30,7 +30,9 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	GET_ADMINS_ENDPOINT,
 	GET_USER_UPDATES_ENDPOINT,
 	GET_ADMIN_UPDATES_ENDPOINT,
-	UPDATE_PASSWD_ENDPOINT} from '../constants';
+	UPDATE_PASSWD_ENDPOINT,
+	GET_SEARCH_JOBS_ENDPOINT,
+	LOGOUT_ENDPOINT} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -46,6 +48,20 @@ export const axios = Axios.create({
 		'Content-Type': 'application/json'
 	}
 });
+
+
+export function handleRequestFailure(error, failureCallback){
+	console.debug(`Error is` , error);
+	const responseCode = error.response.status;
+	console.debug(`In status handle error code is ${responseCode}`);
+	if(responseCode.code === 401 && store.getState.login === true){
+		console.debug(`UnAuthorized api call. Please login`);
+		store.dispatch(logoutAction);
+	}
+	if(failureCallback !== undefined){
+		failureCallback(error);
+	}
+}
 
 export function statusHandle(response, callback) {
 	//console.log(response)
@@ -63,7 +79,6 @@ export function statusHandle(response, callback) {
 				if (window.confirm('You have been logged out. Login again?')) {
 					store.dispatch(logoutAction());
 				}
-			}
 			if (response.status === 408 || response.code === 'ECONNABORTED') {
 				callback(`Timeout 10000ms`)
 				return;
@@ -72,6 +87,7 @@ export function statusHandle(response, callback) {
 			//const errorText = JSON.stringify(response.response.data);
 			callback(`500`);
 		}
+	}
 }
 
 /*
@@ -91,7 +107,7 @@ export async function checkLogin(email, accept, fail){
 		}
 	})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -113,7 +129,7 @@ export async function resetPasswordSendCode(email, accept, fail) {
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-		statusHandle(error, fail);
+		handleRequestFailure(error, fail);
 	});
 }
 
@@ -136,7 +152,7 @@ export async function resetPasswordVerifyCode(email, code, accept, fail) {
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-		statusHandle(error, fail);
+		handleRequestFailure(error, fail);
 	});
 }
 
@@ -159,7 +175,7 @@ export async function resetPassword(email, code, password, cpassword, accept, fa
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-		statusHandle(error, fail);
+		handleRequestFailure(error, fail);
 	});
 }
 
@@ -171,7 +187,7 @@ export async function resendVerificationCode(emailId){
 			return response.data;
 		})
 		.catch((error) => {
-
+			// statusHandle(error, fail);
 		});
 	}
 
@@ -182,9 +198,7 @@ export async function getAllUsers(email) {
 		if (response.status === 200 && response.data) {
 			return response.data
 		}
-	}).catch((error) => {
-
-	});
+	}).catch(error => handleRequestFailure(error));
 }
 
 export async function getAllMails(email) {
@@ -194,9 +208,7 @@ export async function getAllMails(email) {
 		if (response.status === 200 && response.data) {
 			return response.data
 		}
-	}).catch((error) => {
-
-	});
+	}).catch(error => handleRequestFailure(error));
 }
 
 export async function getAllTrashMails(email) {
@@ -206,9 +218,7 @@ export async function getAllTrashMails(email) {
 		if (response.status === 200 && response.data) {
 			return response.data
 		}
-	}).catch((error) => {
-
-	});
+	}).catch(error => handleRequestFailure(error));
 }
 
 export async function deleteMail(uuid) {
@@ -228,6 +238,7 @@ export async function deleteMail(uuid) {
 			return response;
 		}
 	}).catch((error) => {
+		handleRequestFailure(error);
 		return error.data;
 	});
 }
@@ -243,10 +254,7 @@ export async function sendEmailNotification(senderEmail, subject, message, email
 		})
 		.then((response) => {
 			return response.data;
-		})
-		.catch((error) => {
-
-		});
+		}).catch(error => handleRequestFailure(error));
 }
 
 /** Set passowrd for the first time is the same as reset password */
@@ -265,7 +273,8 @@ export async function setPassword(emailId, code, password, confirmPassword) {
                 }
     	})
     	.catch((error) => {
-          return {status : 500}
+			handleRequestFailure(error);
+			return {status : 500}
         });
 }
 
@@ -288,9 +297,18 @@ export async function login(email, password, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
+}
+
+export async function logout(){
+	axios.post(LOGOUT_ENDPOINT, {})
+		.then((response) => {
+			console.debug(`Logout success`);
+			store.dispatch(logoutAction());
+		}).catch((error) => {
+			console.debug(`Logout failed ${error}`)
+		})
 }
 
 export async function isAdmin(email, hash, accept, fail) {
@@ -305,8 +323,7 @@ export async function isAdmin(email, hash, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -323,7 +340,7 @@ export async function history(uri, portNum, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -340,7 +357,7 @@ export async function deleteHistory(uri, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -356,8 +373,7 @@ export async function savedCredList(accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -373,12 +389,13 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 		sortOrder: order
 	})
 		.then((response) => {
+			console.log(`Get jobs response ${response}`)
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			fail(error);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -389,6 +406,29 @@ export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, ac
 	let callback = accept;
 	axios.post(url+GET_ADMIN_JOBS_ENDPOINT, {
 		status: 'all',
+		pageNo: pageNo,
+		pageSize: pageSize,
+		sortBy: sortBy,
+		sortOrder: order
+	})
+	.then((response) => {
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	})
+	.catch((error) => {
+		handleRequestFailure(error, fail);
+	});
+}
+
+export async function getSearchJobs(username, startJobId, endJobId, progress, pageNo, pageSize, sortBy, order, accept, fail) {
+	let callback = accept;
+	axios.post(url+GET_SEARCH_JOBS_ENDPOINT, {
+		status: 'all',
+		username: username,
+		startJobId: startJobId,
+		endJobId: endJobId,
+		progress: progress,
 		pageNo: pageNo,
 		pageSize: pageSize,
 		sortBy: sortBy,
@@ -413,7 +453,7 @@ export async function getJobUpdatesForUser(jobIds, accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      fail(error);
+		handleRequestFailure(error, fail);
     });
 }
 
@@ -427,7 +467,7 @@ export async function getJobUpdatesForAdmin(jobIds,accept, fail){
 		statusHandle(response, callback);
 	})
 	.catch((error) => {
-      fail(error);
+		handleRequestFailure(error, fail);
     });
 }
 
@@ -440,8 +480,8 @@ export async function submitIssue(reqBody, success, fail) {
 			callback = fail;
 		statusHandle(resp, callback)
 	})
-		.catch((err) => {
-			fail(err)
+		.catch((error) => {
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -466,8 +506,7 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options, acce
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-
-		statusHandle(error, fail);
+		handleRequestFailure(error, fail);
 	});
 }
 
@@ -483,8 +522,7 @@ export async function upload(uri, credential, accept, fail) {
 		statusHandle(response, callback);
 	})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -506,7 +544,7 @@ export async function getUsers(pageNo, pageSize, sortBy, order, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -529,7 +567,7 @@ export async function getAdmins(pageNo, pageSize, sortBy, order, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -547,7 +585,7 @@ export async function getUser(email, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		})
 }
 
@@ -562,7 +600,8 @@ export async function updateSaveOAuth(email, saveOAuth, successCallback) {
 				successCallback();
 		})
 		.catch((error) => {
-			console.log("Error encountered while updating the user.");
+			handleRequestFailure(error);
+			console.debug("Error encountered while updating the user.");
 		});
 }
 
@@ -583,7 +622,7 @@ export async function saveOAuthCredentials(credentials, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			fail(error);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -600,7 +639,8 @@ export async function updateAdminRightsApiCall(email, isAdmin) {
 			}
 		})
 		.catch((error) => {
-			console.log("Error encountered while updating the user.");
+			handleRequestFailure(error);
+			console.debug("Error encountered while updating the user.");
 		});
 }
 
@@ -622,7 +662,7 @@ export async function changePassword(oldPassword, newPassword, confirmPassword, 
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			fail(error);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -644,7 +684,7 @@ export async function cancelJob(jobID, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			fail(error);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -661,7 +701,7 @@ export async function deleteCredentialFromServer(uri, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -677,8 +717,7 @@ export async function restartJob(jobID, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -693,8 +732,7 @@ export async function deleteJob(jobID, accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-
-			statusHandle(error, fail);
+			handleRequestFailure(error, fail);
 		});
 }
 
@@ -716,7 +754,7 @@ export async function updateViewPreference(email, compactViewEnabled, accept, fa
 			callback = fail;
 		statusHandle(response, callback);
 	}).catch((error) => {
-		statusHandle(error, fail);
+		handleRequestFailure(error, fail);
 	});
 }
 
@@ -736,8 +774,7 @@ export async function registerUser(requestBody, errorCallback) {
 					}
 				)
 				.catch((error) => {
-						//statusHandle(error, fail);
-						console.error("Error while registering user");
+					console.error("Error while registering user");
 						errorCallback();
 						return new Error({status: 500});
 					}
@@ -755,7 +792,6 @@ export async function verifyRegistraionCode(emailId, code) {
     		//statusHandle(response, callback);
     	})
     	.catch((error) => {
-          //statusHandle(error, fail);
           console.error("Error while verifying the registration code")
           return {status : 500}
         });

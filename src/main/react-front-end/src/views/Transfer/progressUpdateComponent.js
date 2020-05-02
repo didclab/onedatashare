@@ -52,7 +52,7 @@ export default class ProgressUpdateComponent extends Component {
         try {
             this.files[name] = progressPercent;
             var errorFiles = this.state.errorUploadFiles;
-            if (errorFiles.length != 0 && progressPercent == 100) {
+            if (errorFiles.length !== 0 && progressPercent === 100) {
                 const index = errorFiles.indexOf(name);
                 if (index > -1) {
                     errorFiles.splice(index, 1);

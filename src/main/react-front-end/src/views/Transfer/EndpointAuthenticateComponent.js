@@ -24,8 +24,8 @@
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
 import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
-		globusEndpointIds, listFiles, globusEndpointActivate, globusEndpointDetail, deleteEndpointId
-} from "../../APICalls/EndpointAPICalls";
+		listFiles} from "../../APICalls/EndpointAPICalls";
+import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
@@ -35,7 +35,7 @@ import {DROPBOX_TYPE,
 				GRIDFTP_TYPE,
 				HTTP_TYPE,
 				ODS_PUBLIC_KEY,
-				generateURLFromPortNumber
+				generateURLFromPortNumber,
 			} from "../../constants";
 import {store} from "../../App";
 
@@ -139,10 +139,10 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointIdsListUpdateFromBackend = () => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
@@ -210,8 +210,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			portNumber: portNum
 		}
 
-		// scp protocol is set into a sftp automatically
-		if(!getTypeFromUri(endpointSet.uri)){
+		//Check for a valid endpoint
+		if(! getTypeFromUri(endpointSet.uri)){
 			this._handleError("Protocol is not understood");
 		}
 
@@ -232,7 +232,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		return Object.keys(endpointIdsList)
 			.map((v) =>
 			<ListItem button key={v} onClick={() => {
-				globusEndpointDetail(endpointIdsList[v], (resp) => {
+				globusEndpointDetail(endpointIdsList[v].id, (resp) => {
 					this.endpointModalLogin(resp);
 				}, (error) => {
 					this._handleError("Unable to get detail of this endpoint");
@@ -244,7 +244,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	deleteEndpointId(endpointIdsList[v], (accept) => {
+	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
 	            		this._handleError("Delete Credential Failed");
@@ -405,26 +405,27 @@ export default class EndpointAuthenticateComponent extends Component {
     	}
 	}
 
-    globusActivateSignin = () => {
-    	const {endpointSelected} = this.state;
-    	this.props.setLoading(true);
-		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
-			this.props.setLoading(false);
-			endpointSelected.activated = true;
-			this.endpointModalLogin(endpointSelected);
-		}, (error) => {
-			this.props.setLoading(false);
-			this._handleError("Authentication Failed");
-		});
-	}
+	// Globus has deprecated singing in with username and password and instead recommends using globus url
+    // globusActivateSignin = () => {
+    // 	const {endpointSelected} = this.state;
+	// 	this.props.setLoading(true);
+	// 	globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
+	// 		this.props.setLoading(false);
+	// 		endpointSelected.activated = true;
+	// 		this.endpointModalLogin(endpointSelected);
+	// 	}, (error) => {
+	// 		this.props.setLoading(false);
+	// 		this._handleError("Authentication Failed");
+	// 	});
+	// }
 
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
-		globusEndpointIds({},(data) =>{
-			this.setState({endpointIdsList: data});
+		globusFetchEndpoints((data) => {
+			this.setState({ endpointIdsList: data });
 			this.endpointModalLogin(endpoint);
 			this.props.setLoading(false);
-		}, (error) =>{
+		}, (error) => {
 			this._handleError(error);
 			this.props.setLoading(false);
 		});
@@ -433,10 +434,10 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointModalLogin = (endpoint) => {
 		if(endpoint.activated === "false"){
-			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential.");
-			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
+			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential on the new tab");
+			globusEndpointActivateWeb(endpoint.id);
+			// this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
-			
 			this.setState({selectingEndpoint: false});
 			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
 				
