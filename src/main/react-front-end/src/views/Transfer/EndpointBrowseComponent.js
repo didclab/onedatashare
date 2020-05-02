@@ -70,7 +70,7 @@ import { eventEmitter } from "../../App";
 
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE } from "../../constants";
+import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default class EndpointBrowseComponent extends Component {
@@ -533,7 +533,7 @@ export default class EndpointBrowseComponent extends Component {
 
 				<ButtonGroup style={buttonGroupStyle}>
 
-					{ new Set([SFTP_TYPE, FTP_TYPE, SCP_TYPE]).has(getType(endpoint)) &&
+					{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&
 						<OverlayTrigger placement="top" overlay={tooltip("Console")}>
 							<BootStrapButton onClick={() => {}} style={buttonStyle}>
 								<Code style={iconStyle} />

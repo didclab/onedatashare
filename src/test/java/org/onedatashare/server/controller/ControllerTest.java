@@ -24,7 +24,6 @@
 package org.onedatashare.server.controller;
 
 import com.google.gson.Gson;
-import jdk.nashorn.internal.objects.annotations.Getter;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.*;

@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -118,7 +118,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
 
 // Returns the url for file. It is used to download the file and also to display in share url popup
 async function getDownloadLink(uri, credential, _id) {
-    return axios.post(buildEndpointOperatsrc/main/resources/static/ionURL(ENDPOINT_OP_URL, getUriType(uri), OAUTH_URL), {
+    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), OAUTH_URL), {
         credential: credential,
         uri: encodeURI(uri),
         id: _id,
@@ -132,7 +132,8 @@ async function getDownloadLink(uri, credential, _id) {
         })
         .catch((error) => {
             handleRequestFailure(error);
-            console.log("Error encounteresrc/main/resources/static/
+            console.log("Error encountered while generating download link");
+        });
 }
 
 export async function getSharableLink(uri, credential, _id) {
@@ -152,7 +153,7 @@ export async function download(uri, credential, _id) {
     })
 }
 
-export async function getDownload(uri, crsrc/main/resources/static/edential) {
+export async function getDownload(uri, credential) {
     let json_to_send = {
         credential: credential,
         uri: uri,
@@ -168,7 +169,7 @@ export async function getDownload(uri, crsrc/main/resources/static/edential) {
 }
 
 
-export async function openDropboxOAuth()src/main/resources/static/ {
+export async function openDropboxOAuth() {
 	openOAuth("/api/oauth?type=dropbox");
 }
 
@@ -187,7 +188,6 @@ export async function openBoxOAuth(){
 export async function openOAuth(url){
 	window.location = url;
 }
-
 //api call for terminal
 export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 	let callback = accept;
