@@ -50,17 +50,17 @@ public class LoginController {
         return userService.login(request.getEmail(), request.getPassword())
                 // Access token
                 .map(loginResponse -> {
-                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
-                            .httpOnly(true)
-                            .maxAge(Duration.ofSeconds(loginResponse.getExpiresIn()))
-                            .build().toString();
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    //;SameSite=Strict;
-                    responseHeaders.set(HttpHeaders.SET_COOKIE,
-                            cookieString);
-                    //Remove the token from the response
-                    loginResponse.setToken(null);
-                    return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
+//                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
+//                            .httpOnly(true)
+//                            .maxAge(Duration.ofSeconds(loginResponse.getExpiresIn()))
+//                            .build().toString();
+//                    HttpHeaders responseHeaders = new HttpHeaders();
+//                    responseHeaders.set(HttpHeaders.SET_COOKIE,
+//                            cookieString);
+//                    //Remove the token from the response
+//                    loginResponse.setToken(null);
+//                    return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
+                    return ResponseEntity.ok(loginResponse);
                 });
     }
 

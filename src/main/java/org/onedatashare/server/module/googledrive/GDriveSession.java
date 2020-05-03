@@ -160,7 +160,7 @@ public class GDriveSession extends Session<GDriveSession, GDriveResource> {
         }
         return new Drive.Builder(
                 driveConfig.getHttpTransport(), driveConfig.getJsonFactory(), setHttpTimeout(credential))
-                .setApplicationName("OneDataShare")
+                .setApplicationName(driveConfig.getAppName())
                 .build();
     }
 
