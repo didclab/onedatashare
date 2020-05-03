@@ -430,7 +430,8 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
                 request.setRequestMethod("POST");
                 request.setDoInput(true);
                 request.setDoOutput(true);
-                request.setRequestProperty("Authorization", "Bearer " + ((OAuthCredential)(getSession().getCredential())).getToken());
+                String tokenStr = ((OAuthCredential)(getSession().getCredential())).getToken();
+                request.setRequestProperty("Authorization", "Bearer " + tokenStr);
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                 String body;
                 if(getId() !=null){
