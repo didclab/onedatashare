@@ -40,50 +40,52 @@ import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.service.ODSLoggerService;
-import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 
 @Getter(AccessLevel.PROTECTED)
 @Setter(AccessLevel.PUBLIC)
-public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveResource> {
+public class GDriveSession extends Session<GDriveSession, GDriveResource> {
 
-    private GDriveConfig driveConfig;
+    private GDriveConfig driveConfig = GDriveConfig.getInstance();
 
     private Drive service;
     private transient HashMap<String, String> pathToParentIdMap = new HashMap<>();
     protected ArrayList<IdMap> idMap = null;
 
-    public GoogleDriveSession() {
+    public GDriveSession() {
     }
 
-    public GoogleDriveSession(URI uri, Credential credential) {
+    public GDriveSession(URI uri, Credential credential) {
         super(uri, credential);
     }
 
     @Override
-    public Mono<GoogleDriveResource> select(String path) {
-        return Mono.just(new GoogleDriveResource(this, path));
+    public Mono<GDriveResource> select(String path) {
+        return Mono.just(new GDriveResource(this, path));
     }
 
     @Override
-    public Mono<GoogleDriveResource> select(String path, String id, ArrayList<IdMap> idMap) {
+    public Mono<GDriveResource> select(String path, String id, ArrayList<IdMap> idMap) {
         this.idMap = idMap;
         if (idMap != null && idMap.size() > 0)
             for (IdMap idPath : idMap) {
                 pathToParentIdMap.put(idPath.getPath(), idPath.getId());
             }
-        return Mono.just(new GoogleDriveResource(this, path, id));
+        return Mono.just(new GDriveResource(this, path, id));
     }
 
     /**
      * This method is used for initializing googleDriveSession when OAuth tokens are not saved in the backend
      * It skips refresh token check as refresh tokens are not stored in the front-end
      */
-    public Mono<GoogleDriveSession> initializeNotSaved() {
+    public Mono<GDriveSession> initializeNotSaved() {
         return Mono.create(s -> {
             if (getCredential() instanceof OAuthCredential) {
                 try {
@@ -103,7 +105,7 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
     }
 
     @Override
-    public Mono<GoogleDriveSession> initialize() {
+    public Mono<GDriveSession> initialize() {
         return Mono.create(s -> {
             if (getCredential() instanceof OAuthCredential) {
                 try {
@@ -125,15 +127,16 @@ public class GoogleDriveSession extends Session<GoogleDriveSession, GoogleDriveR
     }
 
     public com.google.api.client.auth.oauth2.Credential authorize(String token) throws IOException {
-        // Load client secrets.
-        if (driveConfig == null) {
-            driveConfig = new GDriveConfig();
-        }
+        OAuthCredential oAuthCredential = (OAuthCredential) this.getCredential();
         com.google.api.client.auth.oauth2.Credential credential = driveConfig.getFlow().loadCredential(token);
-        return credential;
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.setAccessToken(oAuthCredential.getToken());
+        tokenResponse.setRefreshToken(oAuthCredential.getRefreshToken());
+        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        return driveConfig.getFlow().createAndStoreCredential(tokenResponse, "user");
     }
 
-    private static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
+    public static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
         return new HttpRequestInitializer() {
             @Override
             public void initialize(HttpRequest httpRequest) {

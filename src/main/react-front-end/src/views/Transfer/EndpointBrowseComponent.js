@@ -541,7 +541,7 @@ export default class EndpointBrowseComponent extends Component {
 									window.open(downloadUrl);
 								}
 								else{
-								download(downloadUrl, endpoint.credential, taskList[0].id)
+									download(downloadUrl, endpoint.credential, taskList[0].id)
 							}
 						}}
 						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>

@@ -23,12 +23,13 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -37,7 +38,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
 
-import static org.onedatashare.server.model.core.ODSConstants.*;
+import static org.onedatashare.server.model.core.ODSConstants.DRIVE_URI_SCHEME;
 
 @Service
 public class GDriveService extends ResourceService {
@@ -54,19 +55,19 @@ public class GDriveService extends ResourceService {
                     .handle((usr, sink) -> {
                         this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
-                    .flatMap(GoogleDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                                    .flatMap(GoogleDriveSession::initialize)
-                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    );
+                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
+                    .flatMap(GDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
+//                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
+//                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
+//                                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), credential))
+//                                    .flatMap(GDriveSession::initialize)
+//                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+//                    );
         } else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GoogleDriveSession::initializeNotSaved)
+                    .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(GDriveSession::initializeNotSaved)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }

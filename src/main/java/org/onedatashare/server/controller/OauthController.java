@@ -24,7 +24,6 @@
 package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.*;
@@ -53,7 +52,7 @@ public class OauthController {
     public UserService userService;
 
     @Autowired
-    private GoogleDriveOauthService googleDriveOauthService;
+    private GDriveOauthService gDriveOauthService;
 
     @Autowired
     private DbxOauthService dbxOauthService;
@@ -96,12 +95,12 @@ public class OauthController {
         return userService.getLoggedInUser()
                 .flatMap(user -> {
                     if (user.isSaveOAuthTokens()) {
-                        return googleDriveOauthService.finish(queryParameters)
+                        return gDriveOauthService.finish(queryParameters)
                                 .flatMap(oAuthCred -> userService.saveCredential(null, oAuthCred))
                                 .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
                                 .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive").build()));
                     } else {
-                        return googleDriveOauthService.finish(queryParameters)
+                        return gDriveOauthService.finish(queryParameters)
                                 .map(oAuthCred -> {
                                     try {
                                         return "/oauth/googledrive?creds=" +
@@ -224,7 +223,7 @@ public class OauthController {
             case dropbox:
                 return Rendering.redirectTo(dbxOauthService.start()).build();
             case gDrive:
-                return Rendering.redirectTo(googleDriveOauthService.start()).build();
+                return Rendering.redirectTo(gDriveOauthService.start()).build();
             case gridFtp:
                 return Rendering.redirectTo(gridFtpAuthService.start()).build();
             default:
