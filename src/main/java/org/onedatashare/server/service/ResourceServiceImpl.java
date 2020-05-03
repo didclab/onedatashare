@@ -38,7 +38,7 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxSession;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
-import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.http.HttpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
@@ -95,19 +95,19 @@ public class ResourceServiceImpl {
                     .handle((usr, sink) -> {
                         this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
-                    .flatMap(GoogleDriveSession::initialize)
+                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
+                    .flatMap(GDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
                             Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                                    .flatMap(GoogleDriveSession::initialize)
+                                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), credential))
+                                    .flatMap(GDriveSession::initialize)
                                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     );
         } else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GoogleDriveSession::initializeNotSaved)
+                    .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(GDriveSession::initializeNotSaved)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }
@@ -120,8 +120,8 @@ public class ResourceServiceImpl {
                 .flatMap(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> {
-                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof GDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GDriveSession) session).initializeNotSaved();
                     if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
                         return ((BoxSession) session).initializeNotSaved();
                     else
@@ -139,8 +139,8 @@ public class ResourceServiceImpl {
                 .flatMap(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> {
-                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof GDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GDriveSession) session).initializeNotSaved();
                     if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
                         return ((BoxSession) session).initializeNotSaved();
                     else
@@ -204,7 +204,7 @@ public class ResourceServiceImpl {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
         } else if (uri.startsWith(GDRIVE_URI_SCHEME))
-            return new GoogleDriveSession(URI.create(uri), credential);
+            return new GDriveSession(URI.create(uri), credential);
         else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
             return new BoxSession(URI.create(uri), credential);
         }

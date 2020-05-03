@@ -28,7 +28,7 @@ import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.GDriveService;
-import org.onedatashare.server.service.oauth.GoogleDriveOauthService;
+import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,7 +42,7 @@ public class GdriveController extends EndpointBaseController{
     private GDriveService gdriveService;
 
     @Autowired
-    private GoogleDriveOauthService googleDriveOauthService;
+    private GDriveOauthService gDriveOauthService;
 
     @Override
     protected Mono<Stat> listOperation(RequestData requestData) {

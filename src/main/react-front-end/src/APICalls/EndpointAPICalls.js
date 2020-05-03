@@ -21,7 +21,7 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, OAUTH_URL } from '../constants';
+import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
@@ -118,7 +118,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
 
 // Returns the url for file. It is used to download the file and also to display in share url popup
 async function getDownloadLink(uri, credential, _id) {
-    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), OAUTH_URL), {
+    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DOWNLOAD_OP_URL), {
         credential: credential,
         uri: encodeURI(uri),
         id: _id,
