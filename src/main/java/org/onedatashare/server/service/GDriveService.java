@@ -27,6 +27,7 @@ import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.googledrive.GDriveSession;
@@ -57,13 +58,14 @@ public class GDriveService extends ResourceService {
                     })
                     .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
                     .flatMap(GDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
-//                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-//                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-//                                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), credential))
-//                                    .flatMap(GDriveSession::initialize)
-//                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-//                    );
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException,
+                            throwable -> Mono.just(userService.updateCredential(cookie, userAction.getCredential(),
+                                    ((TokenExpiredException) throwable).cred))
+                                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), credential))
+                                    .flatMap(GDriveSession::initialize)
+                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    );
         } else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
                     .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
