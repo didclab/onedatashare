@@ -5,17 +5,8 @@ import React from 'react';
 import QueueTableSortLabel from "./QueueTableSortLabel";
 import {Hidden} from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
-import InputLabel from "@material-ui/core/InputLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import Tooltip from "@material-ui/core/Tooltip";
-import TableSortLabel from "@material-ui/core/TableSortLabel";
-import Table from "@material-ui/core/Table";
-import Paper from "@material-ui/core/Paper";
-import {OverrideMaterialUICss} from "override-material-ui-css";
 import QueueMobileHeader from "./QueueMobileHeader";
-import Button from "@material-ui/core/Button";
-import RefreshIcon from "@material-ui/icons/Refresh";
 import AdminHistoryTools from "../AdminHistoryTools";
 
 
@@ -23,17 +14,19 @@ function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableCol
     let labels = [];
     let headers = [];
     let menuOpts = [];
-    let titles;
-    let classes;
-    let keys;
+    let titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
+    let classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"];
+    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
     if (adminPg) {
-        titles = ["User", "Job ID", "Progress", "Average Speed", "Source", "Destination", "Start Time"];
-        classes = ["userCell","idCell", "progressCell", "speedCell", "sourceCell", "destinationCell", "timeCell"]
-        keys = [sortableColumns.userName, sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination, sortableColumns.startTime];
-    } else {
-        titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
-        classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"]
-        keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
+        for (let i = 0; i < classes.length; i += 1) {
+            classes[i] = classes[i] + "-admin";
+        }
+        titles.splice(0, 0, "User");
+        classes.splice(0, 0, "userCell-admin");
+        keys.splice(0,0, sortableColumns.userName);
+        titles.push("Start Time");
+        classes.push("timeCell-admin");
+        keys.push(sortableColumns.startTime);
     }
     for (let i = 0; i < titles.length; i += 1) {
         labels.push(

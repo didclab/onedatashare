@@ -334,3 +334,28 @@ div.homePage {
 /*    For Admin/HistoryComponent.js   */
 /*                                    */
 /**************************************/
+
+.idCell-admin{
+  width: 8%;
+}
+
+.progressCell-admin {
+  width: 20%;
+  display: inline-table;
+}
+
+.speedCell-admin {
+  width: 12%;
+}
+
+.sourceCell-admin {
+  width: 15%;
+}
+
+.destinationCell-admin {
+  width: 15%;
+}
+
+.actionCell-admin {
+  width: 10%;
+}

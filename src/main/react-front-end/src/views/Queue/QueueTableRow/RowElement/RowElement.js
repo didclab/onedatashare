@@ -100,34 +100,35 @@ export default class RowElement extends React.Component {
         let bar = (<QueueProgressBar status={resp.status} total={resp.bytes.total} done={resp.bytes.done}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let time = moment(resp.times.started).fromNow();
+        let admin = this.props.adminPg;
         return (
             <React.Fragment>
                 <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
-                        { this.props.adminPg &&
-                        <TableCell className="userCell queueBodyCell" numeric="true">
+                        { admin &&
+                        <TableCell className={"userCell" + (admin ? "-admin" : "") + " queueBodyCell"} numeric="true">
                             <p>{resp.owner}</p>
                         </TableCell> }
-                        <TableCell className="idCell queueBodyCell" numeric="true">
+                        <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"} numeric="true">
                             <p>{resp.job_id}</p>
                         </TableCell>
-                        <TableCell className="progressCell queueBodyCell">
+                        <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             {bar}
                         </TableCell>
-                        <TableCell className="speedCell queueBodyCell">
+                        <TableCell className={"speedCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             <p>{humanReadableSpeed(resp.bytes.avg)}</p>
                         </TableCell>
-                        <TableCell className="sourceCell queueBodyCell">
+                        <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             <p>{decodeURIComponent(resp.src.uri)}</p>
                         </TableCell>
-                        <TableCell className="destinationCell queueBodyCell">
+                        <TableCell className={"destinationCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             <p>{decodeURIComponent(resp.dest.uri)}</p>
                         </TableCell>
                         { this.props.adminPg &&
-                        <TableCell className="startCell queueBodyCell">
+                        <TableCell className={"startCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             <p>{time}</p>
                         </TableCell>}
-                        <TableCell className="actionCell queueBodyCell">
+                        <TableCell className={"actionCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             {actions}
                         </TableCell>
                     </Hidden>

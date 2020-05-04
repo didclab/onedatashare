@@ -20,7 +20,7 @@ const AdminHistoryTools = ({
                     Refresh
                 </Button>
             </TableCell>
-            <TableCell colSpan='2'>
+            <TableCell>
                 { customToolbar }
             </TableCell>
         </TableRow>

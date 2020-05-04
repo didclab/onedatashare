@@ -94,12 +94,12 @@ class HistoryComponent extends Component {
 			order: prevOrder,
 			response: prevResponse,
 			loading: prevLoading
-		} = prevState
+		} = prevState;
 		const { loading, response, page, rowsPerPage, orderBy, order } = this.state
 		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
 			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
 			order !== prevOrder) {
-			this.queueFunc()
+			this.queueFunc();
 		}
 	}
 
@@ -199,7 +199,7 @@ class HistoryComponent extends Component {
 		this.setState({loading: true})
 	}
 
-	customToolbar() {
+	customToolbar = () => {
 		const { searchValue } = this.state
 		return (
 			<form onSubmit={this.handleSearch}>
@@ -208,7 +208,7 @@ class HistoryComponent extends Component {
 					label="Search By Owner"
 					value={searchValue}
 					onChange={this.handleSearchChange}
-					placeholder='	Search By Owner'
+					placeholder='Search By Owner'
 				/>
 			</form>
 		);
@@ -234,16 +234,6 @@ class HistoryComponent extends Component {
 	}
 
 	render() {
-		const {
-			totalCount,
-			responsesToDisplay,
-			rowsPerPage,
-			page,
-			order,
-			orderBy,
-			loading
-		} = this.state;
-		const {classes} = this.props;
 		const sortableColumns = {
 			userName: "owner",
 			jobId: 'job_id',
