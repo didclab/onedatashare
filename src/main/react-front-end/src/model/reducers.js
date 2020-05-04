@@ -85,7 +85,6 @@ export function onedatashareModel(state = initialState, action) {
       cookies.set('email', email, { maxAge : expiresIn });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
       cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
-      cookies.set('ATOKEN', token, {maxAge : expiresIn});
       //Only set the admin cookie if admin
       if(admin){
         cookies.set('admin', admin, { maxAge : expiresIn });
@@ -110,7 +109,6 @@ export function onedatashareModel(state = initialState, action) {
       cookies.remove(DROPBOX_NAME);
       cookies.remove(GOOGLEDRIVE_NAME);
 			cookies.remove('compactViewEnabled');
-      cookies.remove('ATOKEN');
       window.location.replace('/');
 
       return Object.assign({}, state, {
