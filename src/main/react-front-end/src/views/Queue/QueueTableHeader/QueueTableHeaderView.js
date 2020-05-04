@@ -14,7 +14,7 @@ function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableCol
     let labels = [];
     let headers = [];
     let menuOpts = [];
-    let titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
+    let titles = ["Job ID", "Progress", "Speed", "Source", "Destination"];
     let classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"];
     let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
     if (adminPg) {
@@ -68,10 +68,10 @@ const QueueTableHeaderView = ({
     let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
     return (
         <TableHead>
-            { adminPg &&
+            {/*{ adminPg &&
             <AdminHistoryTools
                 customToolbar={customToolbar}
-                queueFunc={queueFunc} /> }
+                queueFunc={queueFunc} /> }*/}
             <TableRow>
                 <Hidden mdDown>
                     {headerCells}

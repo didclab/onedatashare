@@ -106,10 +106,10 @@ export default class RowElement extends React.Component {
                 <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
                         { admin &&
-                        <TableCell className={"userCell" + (admin ? "-admin" : "") + " queueBodyCell"} numeric="true">
+                        <TableCell className={"userCell-admin queueBodyCell"}>
                             <p>{resp.owner}</p>
                         </TableCell> }
-                        <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"} numeric="true">
+                        <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             <p>{resp.job_id}</p>
                         </TableCell>
                         <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
@@ -125,7 +125,7 @@ export default class RowElement extends React.Component {
                             <p>{decodeURIComponent(resp.dest.uri)}</p>
                         </TableCell>
                         { this.props.adminPg &&
-                        <TableCell className={"startCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"startCell-admin queueBodyCell"}>
                             <p>{time}</p>
                         </TableCell>}
                         <TableCell className={"actionCell" + (admin ? "-admin" : "") + " queueBodyCell"}>

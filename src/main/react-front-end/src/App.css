@@ -304,6 +304,7 @@ div.homePage {
   height: 20px !important;
   border-radius: 5px;
   width: 100%;
+  display: block !important;
 }
 
 .queueBar * {
@@ -335,17 +336,21 @@ div.homePage {
 /*                                    */
 /**************************************/
 
+.userCell-admin{
+  width: 12.5%;
+}
+
 .idCell-admin{
-  width: 8%;
+  width: 9%;
 }
 
 .progressCell-admin {
-  width: 20%;
+  width: 15.5%;
   display: inline-table;
 }
 
 .speedCell-admin {
-  width: 12%;
+  width: 10%;
 }
 
 .sourceCell-admin {
@@ -356,6 +361,15 @@ div.homePage {
   width: 15%;
 }
 
+.startCell-admin {
+  width: 12.5%;
+}
+
 .actionCell-admin {
-  width: 10%;
+  width: 10.5%;
+}
+
+table * {
+  display: table;
+  margin: auto !important;
 }
