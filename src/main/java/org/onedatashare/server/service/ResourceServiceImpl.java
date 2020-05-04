@@ -29,9 +29,6 @@ import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
-import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.NotFoundException;
-import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
@@ -46,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
@@ -71,46 +67,6 @@ public class ResourceServiceImpl {
     private DecryptionService decryptionService;
 
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
-
-    private void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){
-        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
-            sink.error(new AuthenticationRequired("oauth"));
-        }
-        Map credMap = usr.getCredentials();
-        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
-        if(credential == null){
-            sink.error(new NotFoundException("Credentials for the given UUID not found"));
-        }
-        sink.next(credential);
-    }
-
-
-    public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        final String path = pathFromUri(userAction.getUri());
-        String id = userAction.getId();
-        ArrayList<IdMap> idMap = userAction.getMap();
-
-        if (userAction.getCredential().isTokenSaved()) {
-            return userService.getLoggedInUser(cookie)
-                    .handle((usr, sink) -> {
-                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
-                    })
-                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
-                    .flatMap(GDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-                                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), credential))
-                                    .flatMap(GDriveSession::initialize)
-                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    );
-        } else {
-            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GDriveSession::initializeNotSaved)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
-        }
-    }
 
     public Mono<Resource> getResourceWithUserActionResource(User userObj, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());

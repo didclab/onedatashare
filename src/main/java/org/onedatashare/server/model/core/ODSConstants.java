@@ -65,14 +65,9 @@ public class ODSConstants {
     public static final String EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
     public static final String RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
-    public static final String[] OPEN_ENDPOINTS = new String[]{
-            AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT, RESEND_ACC_ACT_CODE_ENDPOINT
-    };
-
     public static final int TOKEN_TIMEOUT_IN_MINUTES = 3;
 
     public static final long TRANSFER_SLICE_SIZE = 1<<20;
 
-    public static final long JWT_TOKEN_EXPIRES_IN = 28800;
-
+    public static final long JWT_TOKEN_EXPIRES_IN = 86400;
 }
