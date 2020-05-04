@@ -114,7 +114,7 @@ export default class ProgressUpdateComponent extends Component {
 				style={{position: 'absolute', top: '', left: '', width: '33%', height:'36%'}}
 				hideBackdrop={true}
 	        >
-				<DialogTitle id="form-dialog-title" style={{textAlign: 'center'}}>PROGRESS UPDATE:</DialogTitle>
+				<DialogTitle id="form-dialog-title" style={{textAlign: 'center', backgroundColor: '#337ab7', color: '#fff'}}>PROGRESS UPDATE:</DialogTitle>
                     {!this.state.progressMinimize ? 
                     (   
                         <React.Fragment>
