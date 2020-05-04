@@ -228,7 +228,7 @@ div.homePage {
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
-  font-size: 2.25rem !important;
+  font-size: 2rem !important;
   color: #31708f;
   text-align: center;
   padding-top: .5vh;

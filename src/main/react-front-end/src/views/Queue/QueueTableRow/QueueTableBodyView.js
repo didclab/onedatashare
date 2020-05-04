@@ -11,7 +11,7 @@ const QueueTableBodyView = ({
             { loading ?
                 <CircularProgress />
                 :
-                populateRows
+                populateRows()
             }
         </TableBody>
     );

@@ -19,6 +19,7 @@ import LinearProgress from "@material-ui/core/LinearProgress";
 import QueueProgressBar from "../QueueProgressBar";
 import JobActionButton from "./JobActionButton";
 import JobInfoButton from "./JobInfoButton";
+import moment from "moment";
 
 export default class RowElement extends React.Component {
 
@@ -89,7 +90,7 @@ export default class RowElement extends React.Component {
                     jobId={jobID}
                     onClick={infoButtonOnClick}
                     owner={owner} />
-                {butts}
+                {!this.props.adminPg && butts}
             </div>
         );
     }
@@ -98,10 +99,15 @@ export default class RowElement extends React.Component {
         const {resp, infoVisible} = this.props
         let bar = (<QueueProgressBar status={resp.status} total={resp.bytes.total} done={resp.bytes.done}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
+        let time = moment(resp.times.started).fromNow();
         return (
             <React.Fragment>
                 <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
+                        { this.props.adminPg &&
+                        <TableCell className="userCell queueBodyCell" numeric="true">
+                            <p>{resp.owner}</p>
+                        </TableCell> }
                         <TableCell className="idCell queueBodyCell" numeric="true">
                             <p>{resp.job_id}</p>
                         </TableCell>
@@ -117,6 +123,10 @@ export default class RowElement extends React.Component {
                         <TableCell className="destinationCell queueBodyCell">
                             <p>{decodeURIComponent(resp.dest.uri)}</p>
                         </TableCell>
+                        { this.props.adminPg &&
+                        <TableCell className="startCell queueBodyCell">
+                            <p>{time}</p>
+                        </TableCell>}
                         <TableCell className="actionCell queueBodyCell">
                             {actions}
                         </TableCell>
@@ -128,6 +138,7 @@ export default class RowElement extends React.Component {
                             <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
                             <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>
                             <p><b>Destination:</b> {decodeURIComponent(resp.dest.uri)}</p>
+                            <p>{time}</p>
                             {actions}
                         </TableCell>
                     </Hidden>

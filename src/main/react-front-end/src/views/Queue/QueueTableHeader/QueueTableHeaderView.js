@@ -27,9 +27,9 @@ function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableCol
     let classes;
     let keys;
     if (adminPg) {
-        titles = ["User", "Job ID", "Progress", "Average Speed", "Start Time", "Source", "Destination"];
-        classes = ["userCell","idCell", "progressCell", "speedCell", "timeCell", "sourceCell", "destinationCell"]
-        keys = [sortableColumns.userName, sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.startTime, sortableColumns.source, sortableColumns.destination];
+        titles = ["User", "Job ID", "Progress", "Average Speed", "Source", "Destination", "Start Time"];
+        classes = ["userCell","idCell", "progressCell", "speedCell", "sourceCell", "destinationCell", "timeCell"]
+        keys = [sortableColumns.userName, sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination, sortableColumns.startTime];
     } else {
         titles = ["Job ID", "Progress", "Average Speed", "Source", "Destination"];
         classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"]

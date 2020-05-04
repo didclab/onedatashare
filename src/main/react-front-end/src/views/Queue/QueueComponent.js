@@ -32,21 +32,6 @@ import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement/RowElement";
 import LinearProgress from "@material-ui/core/LinearProgress";
 
-// const styles = theme => ({
-// 	root: {
-// 		width: 'fit-content'
-// 	},
-// 	toolbar: {
-// 		paddingLeft: '300px'
-// 	},
-// 	tablePaginationCaption: {
-// 		fontSize: '15px'
-// 	},
-// 	tablePaginationSelect: {
-// 		fontSize: '15px',
-// 		lineHeight: '20px'
-// 	}
-// })
 const rowsPerPageOptions = [10, 20, 50, 100];
 
 class QueueComponent extends Component {
@@ -77,7 +62,7 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-		/*		this.interval = setInterval(this.update, 2000) */   // making a queue request every 2 seconds
+		this.interval = setInterval(this.update, 2000)    // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
@@ -250,6 +235,7 @@ class QueueComponent extends Component {
 			let identifier = `${row.owner}-${row.job_id}`
 			return (
 				<RowElement
+					adminPg={false}
 					key={identifier}
 					infoVisible={selectedRowId === identifier}
 					resp={row}

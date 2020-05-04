@@ -224,6 +224,7 @@ class HistoryComponent extends Component {
 			let identifier = `${row.owner}-${row.job_id}`
 			return (
 				<RowElement
+					adminPg={true}
 					key={identifier}
 					infoVisible={selectedRowId === identifier}
 					resp={row}
