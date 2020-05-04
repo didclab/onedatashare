@@ -73,7 +73,7 @@ class HistoryComponent extends Component {
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage	= this.handleChangePage.bind(this)
-		//this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
+		this.interval = setInterval(this.queueFunc, 2000);    //making a queue request every 2 seconds
 		updateGAPageView()
 	}
 
@@ -99,7 +99,7 @@ class HistoryComponent extends Component {
 		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
 			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
 			order !== prevOrder) {
-			//this.queueFunc()
+			this.queueFunc()
 		}
 	}
 
@@ -183,7 +183,7 @@ class HistoryComponent extends Component {
 	handleRequestSort = (property) => {
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
-		const { order, orderBy } = this.state
+		const { order, orderBy} = this.state;
 		if (orderBy === property && order === defaultOrder) {
 			newOrder = 'asc'
 		}
@@ -245,11 +245,12 @@ class HistoryComponent extends Component {
 		} = this.state;
 		const {classes} = this.props;
 		const sortableColumns = {
+			userName: "owner",
 			jobId: 'job_id',
 			status: 'status',
 			avgSpeed : "bytes.avg",
 			source : "src.uri",
-			userName: "owner",
+			destination: "dest.uri",
 			startTime: 'times.started'
 		};
 		return(
@@ -273,7 +274,6 @@ class HistoryComponent extends Component {
 				customToolbar={this.customToolbar()}
 			/>
 		);
-
 	}
 }
 

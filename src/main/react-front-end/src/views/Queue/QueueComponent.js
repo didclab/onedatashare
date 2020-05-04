@@ -222,7 +222,7 @@ class QueueComponent extends Component {
 	handleRequestSort = (property) => {
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
-		const {order, orderBy} = this.state;
+		const { order, orderBy} = this.state;
 		if (orderBy === property && order === defaultOrder) {
 			newOrder = 'asc'
 		}
