@@ -23,21 +23,16 @@
 
 package org.onedatashare.server.controller;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import org.onedatashare.server.model.core.Credential;
-import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.response.FineUploaderResponse;
 import org.onedatashare.server.service.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.util.UUID;
+import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/stork")
@@ -46,34 +41,29 @@ public class UploadController {
     @Autowired
     UploadService uploadService;
 
-    //TODO: make asynchronous
     @PostMapping(value="/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<Object> upload(@RequestHeader HttpHeaders headers,
-                               @RequestPart("directoryPath") String directoryPath,
-                               @RequestPart("qqfilename") String fileName,
-                               @RequestPart("map") String idMap,
-                               @RequestPart("credential") String credential,
-                               @RequestPart("id") String googledriveid,
-                               @RequestPart("qquuid") String fileUUID,
-                               @RequestPart("qqtotalfilesize") String totalFileSize,
-                               @RequestPart("qqfile") Mono<FilePart> filePart){
-
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        return uploadService.uploadChunk(cookie, UUID.fromString(fileUUID),
-            filePart, credential, directoryPath, fileName,
-            Long.parseLong(totalFileSize), googledriveid, idMap).map(success -> {
-                FineUploaderResponse resp = new FineUploaderResponse();
-                resp.success = success;
-                resp.error = !success;
-                return resp;
-            });
-    }
-
-    @Data
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private class FineUploaderResponse {
-        public boolean success;
-        public boolean error;
+    public Mono<FineUploaderResponse> upload(@RequestPart("qqfile") Mono<FilePart> filePart,
+                                             @RequestPart("qquuid") String uploadUUID,
+                                             @RequestPart("qqfilename") String fileName,
+                                             @RequestPart(value = "qqpartindex", required = false) String chunkNumber,
+                                             @RequestPart(value = "qqtotalparts", required = false) String totalChunks,
+                                             @RequestPart("qqtotalfilesize") String fileSize,
+                                             @RequestPart("directoryPath") String pathToWrite,
+                                             @RequestPart("credential") String credential,
+                                             @RequestPart("id") String destFolderId,
+                                             @RequestPart("map") String idMap,
+                                             Mono<Principal> principalMono){
+        return principalMono.map(Principal::getName)
+                .flatMap(userId -> uploadService.uploadChunk(userId, uploadUUID,
+                        filePart, credential, pathToWrite, fileName, fileSize, idMap,
+                        chunkNumber, totalChunks, destFolderId)
+                        .map(x -> {
+                            if(x) {
+                                return FineUploaderResponse.ok();
+                            }
+                            return FineUploaderResponse.error();
+                        })
+                ).subscribeOn(Schedulers.elastic());
     }
 }
 

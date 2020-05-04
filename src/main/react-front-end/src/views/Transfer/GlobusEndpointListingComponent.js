@@ -35,7 +35,7 @@ import ListItemText from '@material-ui/core/ListItemText';
 
 import LinearProgress from '@material-ui/core/LinearProgress';
 
-import {globusListEndpoints, globusEndpointIds} from '../../APICalls/EndpointAPICalls';
+import { globusListEndpoints, globusAddEndpoint } from "../../APICalls/globusAPICalls";
 import {eventEmitter} from "../../App";
 
 const styles = {
@@ -99,7 +99,7 @@ export default class GlobusEndpointListingComponent extends Component {
 		const { search_text, loading, data } = this.state;
 		const greatDiscoveryList = data.map((v) =>
     		<ListItem button key={v.canonical_name} style={{background: "white", height: 40}} onClick={() => {
-    			globusEndpointIds(v, (resp) => {
+    			globusAddEndpoint(v, (resp) => {
     				this.props.endpointAdded(v);
     			}, (error) => {
     				eventEmitter.emit("errorOccured", "Error Saving Your endpoint.");

@@ -1,33 +1,10 @@
-/**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
- */
-
-
 package org.onedatashare.server.module.gridftp;
 
 import com.dropbox.core.v2.files.*;
 import org.onedatashare.module.globusapi.*;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.service.GridftpService;
+import org.onedatashare.server.service.GridFtpService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -72,8 +49,8 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
             TaskItem item = new TaskItem();
             item.setDataType("transfer_item");
             item.setRecursive(true);
-            item.setSourcePath(GridftpService.pathFromUri(this.getPath()));
-            item.setDestinationPath(GridftpService.pathFromUri(grsf.getPath()));
+            item.setSourcePath(GridFtpService.pathFromUri(this.getPath()));
+            item.setDestinationPath(GridFtpService.pathFromUri(grsf.getPath()));
             data.add(item);
             request.setData(data);
             return getSession().client.submitTask(request);
@@ -102,7 +79,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
     }
 
     public Mono<Stat> stat() {
-        return initialize().flatMap(GridftpResource::onStat);
+        return onStat();
     }
 
     public Mono<Stat> onStat() {
@@ -110,7 +87,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                 .listFiles(getSession().endpoint.getId(), getPath(), showHidden, offset, limit, orderedBy, filter)
                 .map(
                     fileList -> {
-                    Stat stat = new Stat();
+                    Stat stat = new Stat().setDir(true).setFile(false).setName("");
                     Stat filesStat[] = new Stat[fileList.getData().size()];
                     for(int i = 0; i < fileList.getData().size(); i++){
                         Stat tempStat = new Stat();
@@ -131,8 +108,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
                     }
                     stat.setFiles(filesStat);
                     return stat;
-                }
-        );
+                });
     }
 
     private Stat mDataToStat(Metadata data) {
@@ -149,12 +125,12 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return stat;
     }
 
-    public GridftpResource.GridftpTap tap() {
-        return new GridftpResource.GridftpTap();
+    public GridftpTap tap() {
+        return new GridftpTap();
     }
 
-    public GridftpResource.GridftpDrain sink() {
-        return new GridftpResource.GridftpDrain().start();
+    public GridftpDrain sink() {
+        return new GridftpDrain().start();
 //    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
     }
 
@@ -183,7 +159,7 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         String sessionId;
         UploadSessionCursor cursor;
 
-        public GridftpResource.GridftpDrain start() {
+        public GridftpDrain start() {
               return this;
         }
 
