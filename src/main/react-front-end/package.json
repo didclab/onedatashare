@@ -44,7 +44,8 @@
     "react-virtualized": "^9.21.2",
     "redux": "^4.0.5",
     "slick-carousel": "^1.8.1",
-    "styled-components": "^4.4.1"
+    "styled-components": "^4.4.1",
+    "universal-cookie": "^4.0.3"
   },
   "scripts": {
     "start": "react-scripts start",

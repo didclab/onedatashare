@@ -23,13 +23,9 @@
 
 import React, { Component } from 'react';
 import { getJobsForAdmin } from '../../APICalls/APICalls';
-import Table from '@material-ui/core/Table';
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from '../TablePaginationActions'
 import { updateGAPageView } from "../../analytics/ga";
 import QueueView from "../Queue/QueueView";
 import RowElement from "../Queue/QueueTableRow/RowElement/RowElement";
-import QueuePagination from "../Queue/QueuePagination";
 
 const styles = theme => ({
 	root:{
@@ -103,7 +99,7 @@ class HistoryComponent extends Component {
 		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
 			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
 			order !== prevOrder) {
-			this.queueFunc()
+			//this.queueFunc()
 		}
 	}
 
@@ -277,6 +273,7 @@ class HistoryComponent extends Component {
 				customToolbar={this.customToolbar()}
 			/>
 		);
+
 	}
 }
 

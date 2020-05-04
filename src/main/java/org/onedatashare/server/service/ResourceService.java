@@ -38,9 +38,8 @@ import java.util.UUID;
 
 public abstract class ResourceService {
     public abstract Mono<Stat> list(String cookie, UserAction userAction);
-    public abstract Mono<Boolean> mkdir(String cookie, UserAction userAction);
-    public abstract Mono<Boolean> delete(String cookie, UserAction userAction);
-    public abstract Mono<Job> submit(String cookie, UserAction userAction);
+    public abstract Mono<Void> mkdir(String cookie, UserAction userAction);
+    public abstract Mono<Void> delete(String cookie, UserAction userAction);
     public abstract Mono<String> download(String cookie, UserAction userAction);
 
     protected void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){

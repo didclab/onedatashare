@@ -24,7 +24,6 @@
 package org.onedatashare.server.model.ticket;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
