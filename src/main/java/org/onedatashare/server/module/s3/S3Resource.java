@@ -2,6 +2,8 @@ package org.onedatashare.server.module.s3;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.SDKGlobalConfiguration;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.*;
 import org.apache.commons.vfs2.FileContent;
@@ -18,11 +20,10 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -43,8 +44,9 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
                 String[] currpath = getPath().split("/");
                 String folderName = "";
                 for(int i = 2; i < currpath.length; i++){
-                    folderName+=currpath[i];
+                    folderName += "/" + currpath[i];
                 }
+                folderName = folderName.replaceFirst("/", "");
                 folderName+="/";
                 String bucketName = currpath[1];
                 ObjectMetadata metadata = new ObjectMetadata();
@@ -64,26 +66,27 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
         return initialize().map(resource -> {
             try{
                 String path = getPath();
-                boolean isDir = path.substring(path.length() - 1).equals("/");
                 String[] currpath = path.split("/");
-                String objPath = "";
-                for(int i = 2; i < currpath.length; i++){
-                    objPath+=currpath[i];
-                }
+                String objPath = currpath[currpath.length - 1];
+                ArrayList<String> paths = new ArrayList<>();
                 String bucketName = currpath[1];
                List<S3ObjectSummary> bucketContents = getSession().s3Client.listObjects(bucketName).getObjectSummaries();
-                if(isDir){
-                    objPath+="/";
-
-                }
-                getSession().s3Client.deleteObject(bucketName, objPath);
+               for(S3ObjectSummary sum : bucketContents){
+                   String key = sum.getKey();
+                   if (key.contains(objPath)){
+                       paths.add(key);
+                   }
+               }
+               for (String p : paths){
+                   getSession().s3Client.deleteObject(bucketName, p);
+               }
             } catch(AmazonClientException ace) {
                 ace.printStackTrace();
-
             }
             return this;
         });
     }
+
 
     @Override
     public Mono<S3Resource> select(String path) {
@@ -102,7 +105,7 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
             Stat bucketStat = buildRootStat(bucketList);
             return bucketStat;
         }
-        String bucketName= path.split("/")[1];
+        String bucketName= path.split("/")[1]; //Get Bucket name
         String subpath = path.replace("amazons3/" + bucketName + "/", "");
         Boolean isBucket = path.equals("amazons3/" + bucketName);
         if(isBucket){
@@ -278,19 +281,23 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
             String downloadLink = "";
             try{
                 String path = getPath();
-                boolean isDir = path.substring(path.length() - 1).equals("/");
                 String[] currpath = path.split("/");
-                String objPath = "";
+                String fileName = "";
                 for(int i = 2; i < currpath.length; i++){
-                    objPath+=currpath[i];
+                    fileName += "/" + currpath[i];
                 }
+                fileName = fileName.replaceFirst("/", "");
                 String bucketName = currpath[1];
-                GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, objPath);
+//                downloadLink = getSession().s3Client.getResourceUrl(bucketName, "report/" + fileName);
+//                fileName = URLEncoder.encode(fileName, "UTF-8");
+                GeneratePresignedUrlRequest req = new GeneratePresignedUrlRequest(bucketName, fileName);
                 ResponseHeaderOverrides overrides = new ResponseHeaderOverrides();
-                overrides.setContentDisposition("attachment; filename=\"report.html\"");
+                overrides.setContentDisposition("attachment; filename=" + fileName);
                 req.setResponseHeaders(overrides);
+                //System.setProperty(SDKGlobalConfiguration.ENABLE_S3_SIGV4_SYSTEM_PROPERTY, "true");
                 URL url = getSession().s3Client.generatePresignedUrl(req);
                 downloadLink = url.toString();
+//                downloadLink = URLEncoder.encode(url.toString(), "UTF-8");
 
             } catch(AmazonClientException ace) {
                 ace.printStackTrace();
