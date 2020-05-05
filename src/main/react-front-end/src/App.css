@@ -223,7 +223,6 @@ div.homePage {
   background-color: #d9edf7;
   align-content: center;
   text-align: center !important;
-  display: table;
   word-break: break-word;
 }
 
@@ -242,7 +241,6 @@ div.homePage {
 }
 
 .queueBodyCell {
-  display: table;
   word-break: break-word;
 }
 
@@ -372,4 +370,25 @@ div.homePage {
 table * {
   display: table;
   margin: auto !important;
+}
+
+.infoCell {
+  width: 200% !important;
+  background-color: #e8e8e8
+}
+
+.detailedInfo {
+  width: 100% !important;
+}
+
+.infoBox header {
+  background-color: rgba(0,0,0,0);
+}
+
+.infoBox {
+  width: 100%;
+}
+
+tr {
+  width: 100% !important;
 }

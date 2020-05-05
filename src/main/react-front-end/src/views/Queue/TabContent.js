@@ -8,13 +8,13 @@ export default class TabContent extends React.Component {
     render() {
         const {resp, selectedTab} = this.props
         if (selectedTab) {
-            return <Grid style={{paddingTop: '0.5%', paddingBottom: '0.5%', width: 'fit-content'}}>
+            return <Grid className={"detailedInfo"}>
                 <Row>
                     <pre>{JSON.stringify(resp, null, "\t")}</pre>
                 </Row>
             </Grid>
         } else {
-            return <Grid style={{paddingTop: '0.5%', paddingBottom: '0.5%', width: 'fit-content'}}>
+            return <Grid className={"detailedInfo"}>
                 <Row>
                     <Col md={6}><b>User</b></Col>
                     <Col md={6}>{resp.owner}</Col>

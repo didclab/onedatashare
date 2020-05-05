@@ -15,11 +15,11 @@ import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import {humanReadableSpeed} from "../../../../utils";
 import {Hidden} from "@material-ui/core";
-import LinearProgress from "@material-ui/core/LinearProgress";
 import QueueProgressBar from "../QueueProgressBar";
 import JobActionButton from "./JobActionButton";
 import JobInfoButton from "./JobInfoButton";
 import moment from "moment";
+import InfoRow from "./InfoRow";
 
 export default class RowElement extends React.Component {
 
@@ -29,38 +29,18 @@ export default class RowElement extends React.Component {
         this.toggleTabs = this.toggleTabs.bind(this)
     }
 
-    toggleTabs() {
+    toggleTabs = () => {
         const {selectedTab} = this.state
         this.setState({selectedTab: !selectedTab})
     }
 
     infoRow() {
-        const {resp} = this.props
-        const {selectedTab} = this.state
         return (
-            <TableRow>
-                <TableCell colSpan={7} style={{fontSize: '1rem', backgroundColor: '#e8e8e8', margin: '2%'}}>
-                    <div id="infoBox" style={{marginBottom: '0.5%'}}>
-                        <AppBar position="static" style={{boxShadow: 'unset'}}>
-                            <Tabs value={selectedTab ? 1 : 0} onChange={this.toggleTabs}
-                                  style={{backgroundColor: '#e8e8e8'}}>
-                                <Tab style={{backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px'}}
-                                     label="Formatted"/>
-                                <Tab style={{backgroundColor: '#428bca', margin: '0.5%', borderRadius: '4px'}}
-                                     label="JSON"/>
-                            </Tabs>
-                        </AppBar>
-                        <div style={{
-                            backgroundColor: 'white',
-                            borderRadius: '4px',
-                            textAlign: 'left',
-                            marginTop: '0.3%'
-                        }}>
-                            <TabContent resp={resp} selectedTab={selectedTab}/>
-                        </div>
-                    </div>
-                </TableCell>
-            </TableRow>
+            <InfoRow
+                resp={this.props}
+                selectedTab={this.props}
+                toggleTabs={this.toggleTabs}
+                />
         );
     }
 
