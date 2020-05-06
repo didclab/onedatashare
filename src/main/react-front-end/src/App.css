@@ -227,7 +227,7 @@ div.homePage {
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
-  font-size: 2rem !important;
+  font-size: 1.75rem !important;
   color: #31708f;
   text-align: center;
   padding-top: .5vh;
@@ -391,4 +391,25 @@ div.homePage {
 
 tr {
   width: 100% !important;
+}
+
+.detailedInfo {
+  max-width: 90%;
+  margin: auto !important;
+  padding: 1.5%;
+}
+
+div.detailedInfo {
+  background-color: #ffffff;
+  border-radius: 4px;
+  text-align: left;
+  margin-top: 0.3%;
+}
+
+.detailedInfo *, .SearchComponent * {
+  font-size: 1.25rem !important;
+}
+
+queueHeaderCell button {
+  width: 15% !important;
 }

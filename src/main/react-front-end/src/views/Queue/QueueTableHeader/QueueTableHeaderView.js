@@ -8,6 +8,9 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import QueueMobileHeader from "./QueueMobileHeader";
 import AdminHistoryTools from "../AdminHistoryTools";
+import SearchComponent from "../../SearchComponent";
+import Button from "@material-ui/core/Button";
+import RefreshIcon from '@material-ui/icons/Refresh';
 
 
 function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns) {
@@ -62,16 +65,27 @@ const QueueTableHeaderView = ({
                                   handleRequestSort,
                                   order,
                                   orderBy,
+                                  page,
                                   queueFunc,
+                                  refreshSuccess,
+                                  refreshFailure,
+                                  rowsPerPage,
                                   sortableColumns,
                               }) => {
     let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
     return (
         <TableHead>
-            {/*{ adminPg &&
-            <AdminHistoryTools
+            { adminPg && <AdminHistoryTools
                 customToolbar={customToolbar}
-                queueFunc={queueFunc} /> }*/}
+                order={order}
+                orderBy={orderBy}
+                page={page}
+                refreshFailure={refreshFailure}
+                refreshSuccess={refreshSuccess}
+                rowsPerPage={rowsPerPage}
+                queueFunc={queueFunc}
+            />
+            }
             <TableRow>
                 <Hidden mdDown>
                     {headerCells}

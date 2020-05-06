@@ -14,18 +14,11 @@ import InfoRow from "./InfoRow";
 
 export default class RowElement extends React.Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {selectedTab: 0}
-    }
-
-
     infoRow() {
         return (
             <InfoRow
                 resp={this.props.resp}
                 span={this.props.adminPg ? 9 : 7}
-                toggleTabs={this.toggleTabs}
                 />
         );
     }

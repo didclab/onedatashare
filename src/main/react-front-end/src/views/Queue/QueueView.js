@@ -28,7 +28,10 @@ const QueueView = ({
                        handleChangeRowsPerPage,
                        handleRequestSort,
                        populateRows,
+                       // For admin history
                        queueFunc,
+                       refreshSuccess,
+                       refreshFailure,
                    }) => {
     return (
         <div className="QueueView">
@@ -48,6 +51,8 @@ const QueueView = ({
                         classes={classes}
                         handleRequestSort={handleRequestSort}
                         queueFunc={queueFunc}
+                        refreshFailure={refreshFailure}
+                        refreshSuccess={refreshSuccess}
                     />
                     <QueueTableBodyView
                         loading={loading}

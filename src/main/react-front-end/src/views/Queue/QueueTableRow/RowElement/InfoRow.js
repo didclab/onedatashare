@@ -24,12 +24,7 @@ const InfoRow = ({
                                  label="JSON"/>
                         </Tabs>
                     </AppBar>
-                    <div style={{
-                        backgroundColor: 'white',
-                        borderRadius: '4px',
-                        textAlign: 'left',
-                        marginTop: '0.3%'
-                    }}>
+                    <div className={"detailedInfo"}>
                         <TabContent resp={resp} selectedTab={selectedTab}/>
                     </div>
                 </div>

@@ -112,7 +112,7 @@ class HistoryComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 
-	refreshSuccess(resp) {
+	refreshSuccess = (resp) => {
 		// const { page, rowsPerPage } = this.state
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage)
 		//commented to fix second page render issue as it slices all jobs and returns null object
@@ -125,7 +125,7 @@ class HistoryComponent extends Component {
 		})
 	}
 
-	refreshFailure() {
+	refreshFailure = () => {
 	}
 
 	refreshTransfers() {
