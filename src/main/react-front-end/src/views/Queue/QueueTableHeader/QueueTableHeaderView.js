@@ -7,7 +7,7 @@ import {Hidden} from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import QueueMobileHeader from "./QueueMobileHeader";
-import AdminHistoryTools from "../AdminHistoryTools";
+import AdminHistoryTools from "./AdminHistoryTools";
 import SearchComponent from "../../SearchComponent";
 import Button from "@material-ui/core/Button";
 import RefreshIcon from '@material-ui/icons/Refresh';

@@ -1,6 +1,6 @@
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
-import TablePaginationActions from "../TablePaginationActions";
+import TablePaginationActions from "../../TablePaginationActions";
 import TableFooter from "@material-ui/core/TableFooter";
 import React from "react";
 

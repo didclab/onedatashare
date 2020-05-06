@@ -1,6 +1,6 @@
 import React from "react";
 import {Col, Grid, Row} from "react-bootstrap";
-import {humanReadableSpeed} from "../../utils";
+import {humanReadableSpeed} from "../../../utils";
 import moment from "moment";
 
 

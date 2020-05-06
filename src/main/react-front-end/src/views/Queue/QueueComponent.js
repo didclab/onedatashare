@@ -249,7 +249,7 @@ class QueueComponent extends Component {
 	}
 
 	render() {
-		const rowsPerPageOptions = [1, 10, 20, 50, 100];
+		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = {
 			jobId: 'job_id',
 			status: 'status',

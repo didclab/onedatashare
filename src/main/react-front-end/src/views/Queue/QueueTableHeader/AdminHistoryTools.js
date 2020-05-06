@@ -3,7 +3,7 @@ import TableCell from "@material-ui/core/TableCell";
 import Button from "@material-ui/core/Button";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import React from "react";
-import SearchComponent from "../SearchComponent";
+import SearchComponent from "../../SearchComponent";
 import {Hidden} from "@material-ui/core";
 
 const AdminHistoryTools = ({

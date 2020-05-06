@@ -6,7 +6,7 @@ import QueueTableHeaderView from "./QueueTableHeader/QueueTableHeaderView";
 import QueueTableBodyView from "./QueueTableRow/QueueTableBodyView";
 import {TableContainer} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
-import QueuePagination from "./QueuePagination";
+import QueuePagination from "./QueueTableFooter/QueuePagination";
 
 const QueueView = ({
                        // A boolean to determine if this is for the admin page

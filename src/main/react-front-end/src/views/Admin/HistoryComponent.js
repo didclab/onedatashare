@@ -43,8 +43,7 @@ const styles = theme => ({
 	}
 })
 
-const rowsPerPageOptions = [1, 10, 20, 50, 100]
-const tbcellStyle = {textAlign: 'center'}
+const rowsPerPageOptions = [10, 20, 50, 100]
 
 class HistoryComponent extends Component {
 	constructor(props) {
