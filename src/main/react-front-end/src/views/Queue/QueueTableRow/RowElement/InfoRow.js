@@ -9,11 +9,12 @@ import React from "react";
 const InfoRow = ({
                      resp,
                      selectedTab,
+                     span,
                      toggleTabs
                  })  => {
     return (
         <TableRow className={"QueueRow"}>
-            <TableCell className={"infoCell"} colSpan={6} style={{fontSize: '1rem', backgroundColor: '#e8e8e8'}}>
+            <TableCell className={"infoCell"} colSpan={span} style={{fontSize: '1rem', backgroundColor: '#e8e8e8'}}>
                 <div className="infoBox" style={{marginBottom: '0.5%'}}>
                     <AppBar position="static" style={{boxShadow: 'unset'}}>
                         <Tabs value={selectedTab ? 1 : 0} onChange={toggleTabs}
