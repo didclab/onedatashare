@@ -367,7 +367,7 @@ div.homePage {
   width: 10.5%;
 }
 
-table * {
+.QueueView table {
   display: table;
   margin: auto !important;
 }
