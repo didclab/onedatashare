@@ -5,8 +5,11 @@ import moment from "moment";
 
 
 export default class TabContent extends React.Component {
+
     render() {
-        const {resp, selectedTab} = this.props
+        const resp = this.props.resp;
+        const selectedTab = this.props.selectedTab;
+
         if (selectedTab) {
             return <Grid className={"detailedInfo"}>
                 <Row>

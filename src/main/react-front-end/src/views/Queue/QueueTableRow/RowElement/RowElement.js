@@ -17,19 +17,13 @@ export default class RowElement extends React.Component {
     constructor(props) {
         super(props)
         this.state = {selectedTab: 0}
-        this.toggleTabs = this.toggleTabs.bind(this)
     }
 
-    toggleTabs = () => {
-        const {selectedTab} = this.state
-        this.setState({selectedTab: !selectedTab})
-    }
 
     infoRow() {
         return (
             <InfoRow
-                resp={this.props}
-                selectedTab={this.props}
+                resp={this.props.resp}
                 span={this.props.adminPg ? 9 : 7}
                 toggleTabs={this.toggleTabs}
                 />
