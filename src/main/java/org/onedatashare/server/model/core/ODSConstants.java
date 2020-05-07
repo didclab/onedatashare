@@ -31,7 +31,7 @@ import java.util.Set;
 public class ODSConstants {
 
     public static final String DROPBOX_URI_SCHEME = "dropbox:///";
-    public static final String DRIVE_URI_SCHEME = "googledrive:/";
+    public static final String GDRIVE_URI_SCHEME = "googledrive:/";
     public static final String BOX_URI_SCHEME = "box:///";
     public static final String SFTP_URI_SCHEME = "sftp://";
     public static final String FTP_URI_SCHEME = "ftp://";
@@ -65,14 +65,9 @@ public class ODSConstants {
     public static final String EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
     public static final String RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
-    public static final String[] OPEN_ENDPOINTS = new String[]{
-            AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT, RESEND_ACC_ACT_CODE_ENDPOINT
-    };
-
     public static final int TOKEN_TIMEOUT_IN_MINUTES = 3;
 
     public static final long TRANSFER_SLICE_SIZE = 1<<20;
 
-    public static final long JWT_TOKEN_EXPIRES_IN = 28800;
-
+    public static final long JWT_TOKEN_EXPIRES_IN = 86400;
 }

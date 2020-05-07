@@ -23,12 +23,15 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -36,8 +39,9 @@ import reactor.core.publisher.Mono;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
-import static org.onedatashare.server.model.core.ODSConstants.*;
+import static org.onedatashare.server.model.core.ODSConstants.GDRIVE_URI_SCHEME;
 
 @Service
 public class GDriveService extends ResourceService {
@@ -48,32 +52,35 @@ public class GDriveService extends ResourceService {
         final String path = pathFromUri(userAction.getUri());
         String id = userAction.getId();
         ArrayList<IdMap> idMap = userAction.getMap();
-
+        //Hack for updating credential as security context doesn't allow multiple reads of principal
+        AtomicReference<User> userAtomicReference = new AtomicReference<>();
         if (userAction.getCredential().isTokenSaved()) {
             return userService.getLoggedInUser(cookie)
                     .handle((usr, sink) -> {
+                        userAtomicReference.set(usr);
                         this.fetchCredentialsFromUserAction(usr, sink, userAction);
                     })
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
-                    .flatMap(GoogleDriveSession::initialize)
+                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
+                    .flatMap(GDriveSession::initialize)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                                    .flatMap(GoogleDriveSession::initialize)
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException,
+                            throwable -> userService.updateCredential(userAtomicReference.get(),
+                                    ((TokenExpiredException) throwable).cred, userAction.getCredential().getUuid())
+                                    .map(cred -> new GDriveSession(URI.create(userAction.getUri()), cred))
+                                    .flatMap(GDriveSession::initialize)
                                     .flatMap(driveSession -> driveSession.select(path, id, idMap))
                     );
         } else {
             return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GoogleDriveSession::initializeNotSaved)
+                    .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(GDriveSession::initializeNotSaved)
                     .flatMap(driveSession -> driveSession.select(path, id, idMap));
         }
     }
 
     public String pathFromUri(String uri) {
         String path = "";
-        path = uri.substring(DRIVE_URI_SCHEME.length() - 1);
+        path = uri.substring(GDRIVE_URI_SCHEME.length() - 1);
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {

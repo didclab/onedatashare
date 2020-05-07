@@ -265,3 +265,30 @@ export function validatePassword(password, confirmPassword) {
 
 	return validations;
 }
+
+export function generateURLFromPortNumber(url, portNum) {
+	// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
+	let finalUrl = url;
+
+	// Find if the port is a standard port
+	let standardPort = portNum === getDefaultPortFromUri(url);
+
+	//Special condition for HTTP
+	if(getTypeFromUri(url) === HTTP_TYPE){
+		standardPort = portNum === getDefaultPortFromUri(HTTP_TYPE) || portNum === getDefaultPortFromUri(HTTPS_TYPE);
+	}
+
+
+	// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
+	if(!standardPort){
+		try{
+			let temp = new URL(url);
+			temp.port = portNum;
+			finalUrl = temp.toString();
+		} catch(e){
+			//Do nothing when URL is invalid
+		}
+	}
+
+	return finalUrl;
+}

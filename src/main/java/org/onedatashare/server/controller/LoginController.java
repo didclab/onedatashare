@@ -23,7 +23,6 @@
 
 package org.onedatashare.server.controller;
 
-import lombok.Data;
 import org.onedatashare.server.model.request.LoginControllerRequest;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
@@ -31,10 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
@@ -52,10 +52,9 @@ public class LoginController {
                 .map(loginResponse -> {
                     String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
                             .httpOnly(true)
-                            .maxAge(Duration.ofSeconds(loginResponse.getExpiresIn()))
                             .build().toString();
+                    cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
                     HttpHeaders responseHeaders = new HttpHeaders();
-                    //;SameSite=Strict;
                     responseHeaders.set(HttpHeaders.SET_COOKIE,
                             cookieString);
                     //Remove the token from the response

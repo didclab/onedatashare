@@ -85,7 +85,6 @@ export function onedatashareModel(state = initialState, action) {
       cookies.set('email', email, { maxAge : expiresIn });
       cookies.set('saveOAuthTokens', saveOAuthTokens, { maxAge : expiresIn });
       cookies.set('compactViewEnabled', compactViewEnabled, { maxAge : expiresIn });
-
       //Only set the admin cookie if admin
       if(admin){
         cookies.set('admin', admin, { maxAge : expiresIn });

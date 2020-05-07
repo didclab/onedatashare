@@ -97,6 +97,8 @@ public class DecryptionService {
         try {
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
             cipher.init(Cipher.DECRYPT_MODE, privateKey);
+            if(encryptedPwd == null)
+                return null;
             byte[] encPwdBytes = Base64.getDecoder().decode(encryptedPwd.getBytes());
             return new String(cipher.doFinal( encPwdBytes ));
         }

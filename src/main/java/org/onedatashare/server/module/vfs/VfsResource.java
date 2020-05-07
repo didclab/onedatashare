@@ -261,7 +261,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
         }
     }
 
-    class VfsDrain implements Drain {
+    public class VfsDrain implements Drain {
         OutputStream outputStream;
         FileObject drainFileObject = fileObject;
 

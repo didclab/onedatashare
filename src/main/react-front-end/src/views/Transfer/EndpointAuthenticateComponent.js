@@ -23,8 +23,9 @@
 
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth, listFiles} from "../../APICalls/EndpointAPICalls";
-import { globusFetchEndpoints, globusEndpointActivate, globusEndpointDetail, deleteEndpointId } from "../../APICalls/globusAPICalls";
+import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+		listFiles} from "../../APICalls/EndpointAPICalls";
+import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 import {DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
@@ -33,8 +34,8 @@ import {DROPBOX_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
 				HTTP_TYPE,
-				HTTPS_TYPE,
-				ODS_PUBLIC_KEY
+				ODS_PUBLIC_KEY,
+				generateURLFromPortNumber,
 			} from "../../constants";
 import {store} from "../../App";
 
@@ -171,38 +172,38 @@ export default class EndpointAuthenticateComponent extends Component {
       });
 	};
 
-	handleUrlChange = name => event => {
+	handleUrlChange = event => {
 		let url = event.target.value;
+		let portNum = this.state.portNum;
 
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
+		
+		url = generateURLFromPortNumber(url, portNum);
 
 		this.setState({
 			"portNumField": colonCount>=2 ? false : true,
-			"url" : event.target.value
+			"url" : url
+		});
+	}
+
+	handlePortNumChange = event => {
+		let portNum = event.target.value;
+		let url = this.state.url;
+		
+		url = generateURLFromPortNumber(url, portNum);
+
+		this.setState({
+			"portNum" : portNum,
+			"url" : url
 		});
 	}
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		this.props.setLoading(true);
 
-		// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
-		let colonCount = 0;
-		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
-
-		// Find if the port is a standard port
-		let standardPort = portNum === getDefaultPortFromUri(url);
-		if(getTypeFromUri(url) === HTTP_TYPE){
-			standardPort = portNum === getDefaultPortFromUri(HTTP_TYPE) || portNum === getDefaultPortFromUri(HTTPS_TYPE);
-		}
-
-		// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
-		if(colonCount===1 && !standardPort){
-			let tempUrl = new URL(url);
-			tempUrl.port = portNum.toString;
-			url = tempUrl.toString();
-		}
+		console.log(`Url is ${url}`);
 
 		let endpointSet = {
 			uri: url,
@@ -243,7 +244,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		return Object.keys(endpointIdsList)
 			.map((v) =>
 			<ListItem button key={v} onClick={() => {
-				globusEndpointDetail(endpointIdsList[v], (resp) => {
+				globusEndpointDetail(endpointIdsList[v].id, (resp) => {
 					this.endpointModalLogin(resp);
 				}, (error) => {
 					this._handleError("Unable to get detail of this endpoint");
@@ -417,18 +418,19 @@ export default class EndpointAuthenticateComponent extends Component {
     	}
 	}
 
-    globusActivateSignin = () => {
-    	const {endpointSelected} = this.state;
-		this.props.setLoading(true);
-		globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
-			this.props.setLoading(false);
-			endpointSelected.activated = true;
-			this.endpointModalLogin(endpointSelected);
-		}, (error) => {
-			this.props.setLoading(false);
-			this._handleError("Authentication Failed");
-		});
-	}
+	// Globus has deprecated singing in with username and password and instead recommends using globus url
+    // globusActivateSignin = () => {
+    // 	const {endpointSelected} = this.state;
+	// 	this.props.setLoading(true);
+	// 	globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
+	// 		this.props.setLoading(false);
+	// 		endpointSelected.activated = true;
+	// 		this.endpointModalLogin(endpointSelected);
+	// 	}, (error) => {
+	// 		this.props.setLoading(false);
+	// 		this._handleError("Authentication Failed");
+	// 	});
+	// }
 
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
@@ -445,8 +447,9 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointModalLogin = (endpoint) => {
 		if(endpoint.activated === "false"){
-			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential.");
-			this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
+			eventEmitter.emit("messageOccured", "Please activate your globus endpoint using credential on the new tab");
+			globusEndpointActivateWeb(endpoint.id);
+			// this.setState({settingAuth: true, authFunction : this.globusActivateSignin, needPassword: true, endpointSelected: endpoint, selectingEndpoint: false});
 		}else{
 			this.setState({selectingEndpoint: false});
 			this.endpointCheckin("gsiftp:///", this.state.portNum, {type: "globus", globusEndpoint: endpoint}, (msg) => {
@@ -547,7 +550,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
-			          onChange={this.handleUrlChange('url')}
+			          onChange={this.handleUrlChange}
 			          margin="normal"
 					  		variant="outlined"
 					  		autoFocus={true}
@@ -566,7 +569,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  		disabled = {!this.state.portNumField}
 			          label="Port Number"
 			          value={this.state.portNumField? this.state.portNum : "-"}
-			          onChange={this.handleChange('portNum')}
+			          onChange={this.handlePortNumChange}
 			          margin="normal"
 					  		variant="outlined"
 					  		onKeyPress={(e) => {

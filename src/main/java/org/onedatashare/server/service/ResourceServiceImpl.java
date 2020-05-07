@@ -29,16 +29,13 @@ import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
-import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.NotFoundException;
-import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxSession;
 import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
-import org.onedatashare.server.module.googledrive.GoogleDriveSession;
+import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.onedatashare.server.module.gridftp.GridftpSession;
 import org.onedatashare.server.module.http.HttpSession;
 import org.onedatashare.server.module.vfs.VfsSession;
@@ -46,7 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
@@ -72,46 +68,6 @@ public class ResourceServiceImpl {
 
     private HashMap<UUID, Disposable> ongoingJobs = new HashMap<>();
 
-    private void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){
-        if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
-            sink.error(new AuthenticationRequired("oauth"));
-        }
-        Map credMap = usr.getCredentials();
-        Credential credential = (Credential) credMap.get(UUID.fromString(userAction.getCredential().getUuid()));
-        if(credential == null){
-            sink.error(new NotFoundException("Credentials for the given UUID not found"));
-        }
-        sink.next(credential);
-    }
-
-
-    public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        final String path = pathFromUri(userAction.getUri());
-        String id = userAction.getId();
-        ArrayList<IdMap> idMap = userAction.getMap();
-
-        if (userAction.getCredential().isTokenSaved()) {
-            return userService.getLoggedInUser(cookie)
-                    .handle((usr, sink) -> {
-                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
-                    })
-                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), (Credential) credential))
-                    .flatMap(GoogleDriveSession::initialize)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException, throwable ->
-                            Mono.just(userService.updateCredential(cookie, userAction.getCredential(), ((TokenExpiredException) throwable).cred))
-                                    .map(credential -> new GoogleDriveSession(URI.create(userAction.getUri()), credential))
-                                    .flatMap(GoogleDriveSession::initialize)
-                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
-                    );
-        } else {
-            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
-                    .map(oAuthCred -> new GoogleDriveSession(URI.create(userAction.getUri()), oAuthCred))
-                    .flatMap(GoogleDriveSession::initializeNotSaved)
-                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
-        }
-    }
-
     public Mono<Resource> getResourceWithUserActionResource(User userObj, UserActionResource userActionResource) {
         final String path = pathFromUri(userActionResource.getUri());
         String id = userActionResource.getId();
@@ -120,8 +76,8 @@ public class ResourceServiceImpl {
                 .flatMap(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> {
-                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof GDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GDriveSession) session).initializeNotSaved();
                     if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
                         return ((BoxSession) session).initializeNotSaved();
                     else
@@ -139,8 +95,8 @@ public class ResourceServiceImpl {
                 .flatMap(user -> createCredential(userActionResource, user))
                 .map(credential -> createSession(userActionResource.getUri(), credential))
                 .flatMap(session -> {
-                    if (session instanceof GoogleDriveSession && !userActionResource.getCredential().isTokenSaved())
-                        return ((GoogleDriveSession) session).initializeNotSaved();
+                    if (session instanceof GDriveSession && !userActionResource.getCredential().isTokenSaved())
+                        return ((GDriveSession) session).initializeNotSaved();
                     if (session instanceof BoxSession && !userActionResource.getCredential().isTokenSaved())
                         return ((BoxSession) session).initializeNotSaved();
                     else
@@ -153,8 +109,8 @@ public class ResourceServiceImpl {
         String path = "";
         if (uri.startsWith(DROPBOX_URI_SCHEME))
             path = uri.substring(DROPBOX_URI_SCHEME.length() - 1);
-        else if (uri.startsWith(DRIVE_URI_SCHEME))
-            path = uri.substring(DRIVE_URI_SCHEME.length() - 1);
+        else if (uri.startsWith(GDRIVE_URI_SCHEME))
+            path = uri.substring(GDRIVE_URI_SCHEME.length() - 1);
         else
             path = uri;
 
@@ -168,7 +124,7 @@ public class ResourceServiceImpl {
 
     public Mono<Credential> createCredential(UserActionResource userActionResource, User user) {
         if (userActionResource.getUri().startsWith(DROPBOX_URI_SCHEME) ||
-                userActionResource.getUri().startsWith(DRIVE_URI_SCHEME) || userActionResource.getUri().startsWith(BOX_URI_SCHEME)) {
+                userActionResource.getUri().startsWith(GDRIVE_URI_SCHEME) || userActionResource.getUri().startsWith(BOX_URI_SCHEME)) {
             if (user.isSaveOAuthTokens()) {
                 return Mono.just(
                         user.getCredentials().get(
@@ -203,8 +159,8 @@ public class ResourceServiceImpl {
         else if (uri.equals(UPLOAD_IDENTIFIER)) {
             UploadCredential upc = (UploadCredential) credential;
             return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        } else if (uri.startsWith(DRIVE_URI_SCHEME))
-            return new GoogleDriveSession(URI.create(uri), credential);
+        } else if (uri.startsWith(GDRIVE_URI_SCHEME))
+            return new GDriveSession(URI.create(uri), credential);
         else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
             return new BoxSession(URI.create(uri), credential);
         }

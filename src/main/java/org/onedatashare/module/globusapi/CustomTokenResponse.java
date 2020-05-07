@@ -5,7 +5,6 @@
 
 package org.onedatashare.module.globusapi;
 
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.json.GenericJson;
 import com.google.api.client.util.Key;
 import com.google.api.client.util.Preconditions;

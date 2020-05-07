@@ -25,6 +25,7 @@ package org.onedatashare.server.model.useraction;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.server.model.request.*;
 import org.onedatashare.server.model.requestdata.SSHCommandData;
@@ -32,6 +33,7 @@ import org.onedatashare.server.model.requestdata.SSHCommandData;
 import java.util.ArrayList;
 
 @Data
+@Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserAction {
     // For selecting action on the endpoint

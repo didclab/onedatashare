@@ -146,4 +146,8 @@ public class VfsService extends ResourceService {
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
         return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
     }
+
+    public void upload(){
+        return;
+    }
 }

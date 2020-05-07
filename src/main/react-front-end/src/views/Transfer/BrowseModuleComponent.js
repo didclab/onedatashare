@@ -230,7 +230,6 @@ export default class BrowseModuleComponent extends Component {
 		      		<Icon className={'fas fa-terminal'} style={iconStyle}/>
 		      		SFTP
 		      	</Button>
-
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&

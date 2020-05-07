@@ -52,14 +52,19 @@ export const axios = Axios.create({
 
 export function handleRequestFailure(error, failureCallback){
 	console.debug(`Error is` , error);
-	const responseCode = error.response.status;
-	console.debug(`In status handle error code is ${responseCode}`);
-	if(responseCode.code === 401 && store.getState.login === true){
-		console.debug(`UnAuthorized api call. Please login`);
-		store.dispatch(logoutAction);
+	if(error.response !== undefined){
+		const responseCode = error.response.status;
+		console.debug(`In status handle error code is ${responseCode}`);
+		if(responseCode.code === 401 && store.getState.login === true){
+			console.debug(`UnAuthorized api call. Please login`);
+			store.dispatch(logoutAction);
+		}
 	}
 	if(failureCallback !== undefined){
 		failureCallback(error);
+	}
+	else{
+		console.error("Undefined callback APICalls:handleRequestFailure");
 	}
 }
 

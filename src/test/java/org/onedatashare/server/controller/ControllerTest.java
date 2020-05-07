@@ -88,7 +88,7 @@ abstract class ControllerTest {
     private static Map<Class<? extends ResourceService>, String> serviceUri = unmodifiableMap(
             new HashMap<Class<? extends ResourceService>, String>(){{
                 put(DbxService.class, DROPBOX_URI_SCHEME);
-                put(GDriveService.class, DRIVE_URI_SCHEME);
+                put(GDriveService.class, GDRIVE_URI_SCHEME);
                 put(HttpFileService.class, HTTP_URI_SCHEME);
                 put(VfsService.class, FTP_URI_SCHEME);
                 put(BoxService.class, BOX_URI_SCHEME);
