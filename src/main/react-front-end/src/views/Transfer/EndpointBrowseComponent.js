@@ -377,9 +377,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
-		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
-			dirName = addFolderName;
-		}
 		//make api call
 		mkdir(dirName,dirType, endpoint, (response) => {
 			setLoading(true);

@@ -63,6 +63,9 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
             try {
                 String[] currpath = getPath().split("/");
                 for(int i =0; i<currpath.length; i++){
+                    if(currpath[i].equals("")){
+                        continue;
+                    }
                     File fileMetadata = new File();
                     fileMetadata.setName(currpath[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -70,7 +73,6 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
                     File file = getSession().getService().files().create(fileMetadata)
                             .setFields("id")
                             .execute();
-                    ODSLoggerService.logInfo("Folder ID: " + file.getId());
                     setId(file.getId());
                 }
             } catch (IOException e) {
