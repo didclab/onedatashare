@@ -2,6 +2,7 @@ package org.onedatashare.server.service;
 
 import com.jcraft.jsch.*;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,6 +16,7 @@ public class SSHConsoleService {
 
     private JSch jsch;
 
+    @Autowired
     private DecryptionService decryptionService;
 
     public SSHConsoleService(){

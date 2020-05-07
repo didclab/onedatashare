@@ -191,7 +191,7 @@ export async function openOAuth(url){
 //api call for terminal
 export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 	let callback = accept;
-	return axios.post('http://localhost:3000/api/ssh/console',
+	return axios.post('/api/ssh/console',
                                 { "host": host,
                                   "commandWithPath": inp_cmd,
                                   "credential" : {"username" : uname,"password" : epw},
