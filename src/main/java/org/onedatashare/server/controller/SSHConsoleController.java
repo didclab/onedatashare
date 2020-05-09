@@ -4,37 +4,23 @@ import org.onedatashare.server.model.requestdata.SSHCommandData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.SSHConsoleService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = "/api/ssh/console")
 public class SSHConsoleController {
 
     @Autowired
-    SSHConsoleService consoleService;
+    private SSHConsoleService consoleService;
 
     @PostMapping
-    public Flux<Object> runCommand(@RequestHeader  HttpHeaders headers, @RequestBody SSHCommandData commandData){
+    public Flux runCommand(@RequestBody SSHCommandData commandData){
 
         UserAction ua = UserAction.convertToUserAction(commandData);
         return consoleService.runCommand(ua, commandData.getCommandWithPath());
     }
-
-    /**
-     * Example request
-     * {
-     * 	"host": "localhost",
-     * 	"commandWithPath": "ls /",
-     * 	"credential" : {
-     * 		"username" : "root",
-     * 		"password" : "root"
-     *        },
-     * 	"port": 2222
-     *
-     * }
-     */
-
 }

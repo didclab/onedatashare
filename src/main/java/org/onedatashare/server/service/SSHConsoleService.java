@@ -1,15 +1,14 @@
 package org.onedatashare.server.service;
 
 import com.jcraft.jsch.*;
+import org.onedatashare.server.model.response.ShellCommandResponse;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 @Service
 public class SSHConsoleService {
@@ -37,20 +36,15 @@ public class SSHConsoleService {
         });
     }    //createSession()
 
-    public Flux<Object> runCommand(UserAction ua, String commandWithPath){
+    public Flux runCommand(UserAction ua, String commandWithPath){
         return createSession(ua.getUri(), ua.getCredential().getUsername(), ua.getCredential().getPassword(), Integer.parseInt(ua.getPortNumber()))
                 .flux()
                 .flatMap(session -> {
                     try {
                         session.connect();
-                        Channel channel = session.openChannel("exec");
-                        ((ChannelExec) channel).setCommand(commandWithPath);
-                        channel.setInputStream(null);
-                        ((ChannelExec) channel).setErrStream(System.err);
-                        InputStream in = channel.getInputStream();
-                        channel.connect();
-
-                        return readData(in, channel);
+                        ChannelExec channel = (ChannelExec)session.openChannel("exec");
+                        channel.setCommand(commandWithPath);
+                        return connectAndReadOutput(channel);
                     }
                     catch(Exception e){
                         ODSLoggerService.logError("Error occurred while executing SSH command");
@@ -60,18 +54,31 @@ public class SSHConsoleService {
                 });
     }
 
-    public Flux<String> readData(InputStream in, Channel channel){
+    public Flux connectAndReadOutput(Channel channel){
         try {
-            String output = new String();
+            InputStream in = channel.getInputStream();
+            InputStream err = channel.getExtInputStream();
+
+            channel.connect();
+
+            StringBuilder outputBuffer = new StringBuilder();
+            StringBuilder errorBuffer = new StringBuilder();
+
             byte[] tmp = new byte[1024];
             while (true) {
                 while (in.available() > 0) {
                     int i = in.read(tmp, 0, 1024);
                     if (i < 0) break;
-                    output = output + new String(tmp, 0, i);
+                    outputBuffer.append(new String(tmp, 0, i));
+                }
+                while (err.available() > 0) {
+                    int i = err.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    errorBuffer.append(new String(tmp, 0, i));
                 }
                 if (channel.isClosed()) {
-                    if (in.available() > 0) continue;
+                    if ((in.available() > 0) || (err.available() > 0))
+                        continue;
                     break;
                 }
                 try {
@@ -79,44 +86,24 @@ public class SSHConsoleService {
                 } catch (Exception ee) {
                 }
             }
-            return Flux.just(output);
+            channel.disconnect();
+            ShellCommandResponse response = new ShellCommandResponse();
+            response.setOutput(outputBuffer.toString());
+            if(errorBuffer.length() > 0){
+                response.setError(errorBuffer.toString());
+            }
+            return Flux.just(response);
         }
-        catch(Exception e){
-            ODSLoggerService.logError("Error occurred while executing SSH command");
+        catch (Exception e){
             e.printStackTrace();
-            return Flux.error(new Exception("Error occurred while executing SSH command"));
+            return Flux.error(new Exception("Error while Executing command"));
         }
-
-//        return Flux.generate(sink ->{
-//            try {
-//                byte[] tmp=new byte[1024];
-//                while(true){
-//                    while(in.available()>0){
-//                        int i=in.read(tmp, 0, 1024);
-//                        if(i<0)break;
-//                        sink.next(new String(tmp,0, i));
-//                    }
-//                    if(channel.isClosed()){
-//                        if(in.available()>0) continue;
-//                        sink.complete();
-//                        break;
-//                    }
-//                    try{Thread.sleep(500);}catch(Exception ee){}
-//                }
-//
-//            }
-//            catch(Exception e) {
-//                ODSLoggerService.logError("Error occurred while reading result of SSH command execution");
-//                sink.error(new Exception("Error occurred while reading result of SSH command execution"));
-//            }
-//        });
     }
 
 }
 
 
 class SSHUserInfo implements UserInfo{
-
     private String password;
 
     public SSHUserInfo(String pwd){
