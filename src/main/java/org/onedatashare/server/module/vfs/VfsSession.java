@@ -31,6 +31,7 @@ import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
@@ -49,7 +50,11 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
     super(uri, credential);
   }
 
-  @Override
+    public VfsSession(URI uri, AccountEndpointCredential credential) {
+        super(uri, credential);
+    }
+
+    @Override
   public Mono<VfsResource> select(String path) {
     FileObject fo = null;
     try {
@@ -125,6 +130,38 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
                 try {
                     fileSystemManager = VFS.getManager();
 
+                    s.success(this);
+                } catch (FileSystemException e) {
+                    s.error(new AuthenticationRequired("userinfo"));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public Mono<VfsSession> initialize2() {
+        return Mono.create(s -> {
+            AccountEndpointCredential credential = (AccountEndpointCredential) this.endpointCredential;
+            fileSystemOptions = new FileSystemOptions();
+            FtpFileSystemConfigBuilder.getInstance().setPassiveMode(fileSystemOptions, true);
+            SftpFileSystemConfigBuilder sfscb = SftpFileSystemConfigBuilder.getInstance();
+            sfscb.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+            if(credential.getSecret() != null) {
+                StaticUserAuthenticator auth = new StaticUserAuthenticator(getUri().getHost(),
+                        credential.getUsername(), credential.getSecret());
+                try {
+                    DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(fileSystemOptions, auth);
+                    fileSystemManager = VFS.getManager();
+                    s.success(this);
+                } catch (FileSystemException e) {
+                    e.printStackTrace();
+                    s.error(new AuthenticationRequired("Invalid credential"));
+                }
+            }
+            else {
+                try {
+                    fileSystemManager = VFS.getManager();
                     s.success(this);
                 } catch (FileSystemException e) {
                     s.error(new AuthenticationRequired("userinfo"));

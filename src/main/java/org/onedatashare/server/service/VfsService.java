@@ -23,8 +23,10 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -44,10 +46,10 @@ public class VfsService extends ResourceService {
     private UserService userService;
 
     @Autowired
-    private JobService jobService;
+    private DecryptionService decryptionService;
 
     @Autowired
-    private DecryptionService decryptionService;
+    private CredentialService credentialService;
 
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
@@ -143,11 +145,29 @@ public class VfsService extends ResourceService {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
-    public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
-        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
+    public Mono<TransferJobRequest.Source> listRecursive(TransferJobRequest.Source source) {
+        return getResource(source)
+                .flatMap(resource -> resource.listRecursive(source));
     }
 
-    public void upload(){
-        return;
+    protected Mono<VfsResource> getResource(TransferJobRequest.Source source) {
+        return credentialService.fetchAccountCredential(source.getType(), source.getCredId())
+                .flatMap(credential -> {
+                    String encodedURI = source.getInfo().getPath();
+                    try {
+                        encodedURI = URLEncoder.encode(encodedURI, "UTF-8");
+                    }
+                    catch(UnsupportedEncodingException uee){
+                        ODSLoggerService.logError("Exception encountered while encoding input URI");
+                        Mono.error(uee);
+                    }
+                    VfsSession session = new VfsSession(URI.create(encodedURI), credential);
+                    return session.initialize2();
+                })
+                .flatMap(vfsSession -> vfsSession.select(source.getInfo().getPath()));
+    }
+
+    public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
+        return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
     }
 }

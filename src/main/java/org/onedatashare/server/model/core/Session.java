@@ -24,6 +24,8 @@
 package org.onedatashare.server.model.core;
 
 import lombok.Data;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
+import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.useraction.IdMap;
 import reactor.core.publisher.Mono;
 
@@ -41,6 +43,7 @@ import java.util.ArrayList;
 public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>> {
   private final URI uri;
   private final Credential credential;
+  protected EndpointCredential endpointCredential;
 
   /**
    * Default constructor.
@@ -56,7 +59,8 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
    * @param uri - Endpoint URI of the resource
    */
   protected Session(URI uri) {
-    this(uri, null);
+    this.uri = uri;
+    credential = null;
   }
 
   /**
@@ -70,7 +74,13 @@ public abstract class Session<S extends Session<S, R>, R extends Resource<S, R>>
     this.credential = credential;
   }
 
-  /**
+  public Session(URI uri, AccountEndpointCredential credential) {
+    this.uri = uri;
+    this.credential = null;
+    this.endpointCredential = credential;
+  }
+
+    /**
    * This method creates the resource object corresponding to the session endpoint type.
    * All child classes must override this method and generate a resource object in return.
    *

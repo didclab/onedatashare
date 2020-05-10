@@ -26,8 +26,10 @@ package org.onedatashare.server.module.vfs;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -42,6 +44,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
+
+import static org.onedatashare.server.model.core.ODSConstants.MAX_FILES_TRANSFERRABLE;
 
 /**
  * Resource class that provides services for FTP, SFTP and SSH protocols
@@ -347,4 +352,45 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(inputStreamResource));
      }
+
+    public Mono<TransferJobRequest.Source> listRecursive(TransferJobRequest.Source source){
+        return Mono.create(s -> {
+            String basePath = source.getInfo().getPath();
+            List<TransferJobRequest.EntityInfo> filesToTransferList = new LinkedList<>();
+            Stack<FileObject> traversalStack = new Stack<>();
+            try {
+                for(TransferJobRequest.EntityInfo e : source.getInfoList()){
+                    FileObject fObject = getSession().fileSystemManager.resolveFile(basePath + e.getPath(),
+                            getSession().fileSystemOptions);
+                    traversalStack.push(fObject);
+                }
+                for(int files = MAX_FILES_TRANSFERRABLE ; files > 0 && ! traversalStack.isEmpty(); --files){
+                    FileObject curr = traversalStack.pop();
+                    if(curr.getType() == FileType.FOLDER){
+                        for(FileObject f : curr.getChildren()) {
+                            traversalStack.add(f);
+                        }
+                        //Add empty folders as well
+                        if(curr.getChildren().length == 0){
+                            String filePath = curr.getPublicURIString().substring(basePath.length());
+                            TransferJobRequest.EntityInfo fileInfo = new TransferJobRequest.EntityInfo()
+                                    .setPath(filePath);
+                            filesToTransferList.add(fileInfo);
+                        }
+                    }else if(curr.getType() == FileType.FILE) {
+                        String filePath = curr.getPublicURIString().substring(basePath.length());
+                        TransferJobRequest.EntityInfo fileInfo = new TransferJobRequest.EntityInfo()
+                                .setPath(filePath)
+                                .setSize(curr.getContent().getSize());
+                        filesToTransferList.add(fileInfo);
+                    }
+                }
+            }catch (Exception e){
+                s.error(e);
+            }
+            source.setInfoList(filesToTransferList);
+            s.success(source);
+            return;
+        });
+    }
 }
