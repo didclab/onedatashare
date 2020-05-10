@@ -56,32 +56,31 @@ public class CredentialService {
                 .build();
     }
 
-    private Mono<String> getUserToken(){
+    private Mono<String> getUserId(){
         return ReactiveSecurityContextHolder.getContext()
-                .map(securityContext -> (String) securityContext.getAuthentication().getCredentials());
+                .map(securityContext -> (String) securityContext.getAuthentication().getPrincipal());
     }
 
-    private WebClient.ResponseSpec fetchCredential(String accessToken, EndpointType type, String credId){
+    private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
         return client.get()
-                .uri(URI.create(String.format("%s/%s/%s",credentialServiceUrl, type, credId)))
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+                .uri(URI.create(String.format("%s/%s/%s/%s",credentialServiceUrl, userId, type, credId)))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
     }
 
     public Mono<AccountEndpointCredential> fetchAccountCredential(EndpointType type, String credId){
-        return getUserToken()
+        return getUserId()
                 .flatMap(
-                        accessToken -> fetchCredential(accessToken, type, credId)
+                        userId -> fetchCredential(userId, type, credId)
                         .bodyToMono(AccountEndpointCredential.class)
                 );
     }
 
     public Mono<OAuthEndpointCredential> fetchOAuthCredential(EndpointType type, String credId){
-        return getUserToken()
+        return getUserId()
                 .flatMap(
-                        accessToken -> fetchCredential(accessToken, type, credId)
+                        userId -> fetchCredential(userId, type, credId)
                                 .bodyToMono(OAuthEndpointCredential.class)
                 );
     }
