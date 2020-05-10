@@ -30,6 +30,7 @@ import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -55,6 +56,11 @@ public class CredentialService {
                 .build();
     }
 
+    private Mono<String> getUserToken(){
+        return ReactiveSecurityContextHolder.getContext()
+                .map(securityContext -> (String) securityContext.getAuthentication().getCredentials());
+    }
+
     private WebClient.ResponseSpec fetchCredential(String accessToken, EndpointType type, String credId){
         return client.get()
                 .uri(URI.create(String.format("%s/%s/%s",credentialServiceUrl, type, credId)))
@@ -64,13 +70,19 @@ public class CredentialService {
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
     }
 
-    public Mono<AccountEndpointCredential> fetchAccountCredential(String accessToken, EndpointType type, String credId){
-        return fetchCredential(accessToken, type, credId)
-                .bodyToMono(AccountEndpointCredential.class);
+    public Mono<AccountEndpointCredential> fetchAccountCredential(EndpointType type, String credId){
+        return getUserToken()
+                .flatMap(
+                        accessToken -> fetchCredential(accessToken, type, credId)
+                        .bodyToMono(AccountEndpointCredential.class)
+                );
     }
 
-    public Mono<OAuthEndpointCredential> fetchOAuthCredential(String accessToken, EndpointType type, String credId){
-        return fetchCredential(accessToken, type, credId)
-                .bodyToMono(OAuthEndpointCredential.class);
+    public Mono<OAuthEndpointCredential> fetchOAuthCredential(EndpointType type, String credId){
+        return getUserToken()
+                .flatMap(
+                        accessToken -> fetchCredential(accessToken, type, credId)
+                                .bodyToMono(OAuthEndpointCredential.class)
+                );
     }
 }

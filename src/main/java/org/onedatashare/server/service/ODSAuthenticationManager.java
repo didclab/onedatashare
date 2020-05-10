@@ -64,7 +64,7 @@ public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
             }
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                     userName,
-                    null,
+                    authToken,
                     roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList())
             );
             return Mono.just(auth);
