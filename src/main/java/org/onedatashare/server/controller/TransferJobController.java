@@ -19,8 +19,8 @@ public class TransferJobController {
     private TransferJobService transferJobService;
 
     @PostMapping
-    public Mono<Mono<TransferJobSubmittedResponse>> submit(@RequestBody TransferJobRequest request,
-                                                           Mono<Principal> principalMono){
+    public Mono<TransferJobSubmittedResponse> submit(@RequestBody TransferJobRequest request,
+                                                     Mono<Principal> principalMono){
         return principalMono.flatMap(p -> transferJobService.submitRequest(p.getName(), request));
     }
 }

@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 
@@ -48,12 +49,12 @@ public class TransferJobService {
 
     @Autowired
     private FtpService ftpService;
-    
+
     @Autowired
     private SftpService sftpService;
 
     private WebClient client;
-    private static final int TIMEOUT_IN_MILLIS = 10000;
+    private static final Duration timeoutDuration = Duration.ofSeconds(10);
 
     @PostConstruct
     private void initialize(){
@@ -80,23 +81,23 @@ public class TransferJobService {
         return null;
     }
 
-    public Mono<Mono<TransferJobSubmittedResponse>> submitRequest(String ownerId, TransferJobRequest request){
+    public Mono<TransferJobSubmittedResponse> submitRequest(String ownerId, TransferJobRequest request){
         TransferJobRequest.Source source = request.getSource();
         return updateSource(source)
                 .map(updatedInfoList -> {
                     TransferJobRequestWithMetaData requestWithMetaData =
                             TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, request);
                     requestWithMetaData.getSource().setInfoList(new HashSet<>(updatedInfoList));
-                    System.out.println(requestWithMetaData);
-                    return client.post()
-                            .uri(URI.create(transferQueueingServiceUri))
-                            .syncBody(requestWithMetaData)
-                            .retrieve()
-                            .onStatus(HttpStatus::is4xxClientError,
-                                    response -> Mono.error(new CredentialNotFoundException()))
-                            .onStatus(HttpStatus::is5xxServerError,
-                                    response -> Mono.error(new Exception("Internal server error")))
-                            .bodyToMono(TransferJobSubmittedResponse.class);
-                });
+                    return requestWithMetaData;
+                }).flatMap(requestWithMetaData -> client.post()
+                        .uri(URI.create(transferQueueingServiceUri))
+                        .syncBody(requestWithMetaData)
+                        .retrieve()
+                        .onStatus(HttpStatus::is4xxClientError,
+                                response -> Mono.error(new CredentialNotFoundException()))
+                        .onStatus(HttpStatus::is5xxServerError,
+                                response -> Mono.error(new Exception("Internal server error")))
+                        .bodyToMono(TransferJobSubmittedResponse.class)
+                        .timeout(timeoutDuration));
     }
 }
