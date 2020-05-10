@@ -24,15 +24,18 @@
 package org.onedatashare.server.service;
 
 import org.apache.http.entity.ContentType;
+import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import java.net.URI;
 
 @Service
 public class TransferJobService {
@@ -40,16 +43,10 @@ public class TransferJobService {
     private String transferQueueingServiceUri;
 
     @Autowired
-    private GDriveService gDriveService;
-
+    private FtpService ftpService;
+    
     @Autowired
-    private DbxService dbxService;
-
-    @Autowired
-    private BoxService boxService;
-
-    @Autowired
-    private VfsService vfsService;
+    private SftpService sftpService;
 
     private WebClient client;
     private static final int TIMEOUT_IN_MILLIS = 10000;
@@ -66,12 +63,15 @@ public class TransferJobService {
             case s3: throw new RuntimeException("Not yet implemented");
             case gridftp: throw new RuntimeException("Not yet supported");
             case dropbox:
-            case box:
             case gdrive:
-            case sftp:
-            case ftp:
+            case box:
+                break;
             case http:
-                return vfsService.listRecursive(source);
+                break;
+            case sftp:
+                return sftpService.listAllRecursively(source);
+            case ftp:
+                return ftpService.listAllRecursively(source);
         }
         return null;
     }
@@ -79,18 +79,17 @@ public class TransferJobService {
     public Mono<Void> submitRequest(TransferJobRequest request){
         TransferJobRequest.Source source = request.getSource();
         return updateSource(source)
-                .map(source1 -> {
-                    request.setSource(source);
+                .map(updatedSource -> {
+                    request.setSource(updatedSource);
                     System.out.println(request);
-                    return 5;
-//                    return client.post()
-//                            .uri(URI.create(transferQueueingServiceUri))
-//                            .syncBody(request)
-//                            .retrieve()
-//                            .onStatus(HttpStatus::is4xxClientError,
-//                                    response -> Mono.error(new CredentialNotFoundException()))
-//                            .onStatus(HttpStatus::is5xxServerError,
-//                                    response -> Mono.error(new Exception("Internal server error")));
+                    return client.post()
+                            .uri(URI.create(transferQueueingServiceUri))
+                            .syncBody(request)
+                            .retrieve()
+                            .onStatus(HttpStatus::is4xxClientError,
+                                    response -> Mono.error(new CredentialNotFoundException()))
+                            .onStatus(HttpStatus::is5xxServerError,
+                                    response -> Mono.error(new Exception("Internal server error")));
                 }).then();
     }
 }

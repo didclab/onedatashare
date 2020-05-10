@@ -26,7 +26,6 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.UserInfoCredential;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -47,10 +46,7 @@ public class VfsService extends ResourceService {
 
     @Autowired
     private DecryptionService decryptionService;
-
-    @Autowired
-    private CredentialService credentialService;
-
+    
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
@@ -143,28 +139,6 @@ public class VfsService extends ResourceService {
     @Override
     public Mono<String> download(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
-    }
-
-    public Mono<TransferJobRequest.Source> listRecursive(TransferJobRequest.Source source) {
-        return getResource(source)
-                .flatMap(resource -> resource.listRecursive(source));
-    }
-
-    protected Mono<VfsResource> getResource(TransferJobRequest.Source source) {
-        return credentialService.fetchAccountCredential(source.getType(), source.getCredId())
-                .flatMap(credential -> {
-                    String encodedURI = source.getInfo().getPath();
-                    try {
-                        encodedURI = URLEncoder.encode(encodedURI, "UTF-8");
-                    }
-                    catch(UnsupportedEncodingException uee){
-                        ODSLoggerService.logError("Exception encountered while encoding input URI");
-                        Mono.error(uee);
-                    }
-                    VfsSession session = new VfsSession(URI.create(encodedURI), credential);
-                    return session.initialize2();
-                })
-                .flatMap(vfsSession -> vfsSession.select2(source.getInfo().getPath()));
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
