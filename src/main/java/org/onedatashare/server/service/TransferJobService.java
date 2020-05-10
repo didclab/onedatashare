@@ -26,6 +26,8 @@ package org.onedatashare.server.service;
 import org.apache.http.entity.ContentType;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.TransferJobRequest;
+import org.onedatashare.server.model.request.TransferJobRequestWithMetaData;
+import org.onedatashare.server.model.response.TransferJobSubmittedResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +38,8 @@ import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class TransferJobService {
@@ -58,7 +62,7 @@ public class TransferJobService {
                 .build();
     }
 
-    private Mono<TransferJobRequest.Source> updateSource(TransferJobRequest.Source source){
+    private Mono<List<TransferJobRequest.EntityInfo>> updateSource(TransferJobRequest.Source source){
         switch (source.getType()){
             case s3: throw new RuntimeException("Not yet implemented");
             case gridftp: throw new RuntimeException("Not yet supported");
@@ -76,20 +80,23 @@ public class TransferJobService {
         return null;
     }
 
-    public Mono<Void> submitRequest(TransferJobRequest request){
+    public Mono<Mono<TransferJobSubmittedResponse>> submitRequest(String ownerId, TransferJobRequest request){
         TransferJobRequest.Source source = request.getSource();
         return updateSource(source)
-                .map(updatedSource -> {
-                    request.setSource(updatedSource);
-                    System.out.println(request);
+                .map(updatedInfoList -> {
+                    TransferJobRequestWithMetaData requestWithMetaData =
+                            TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, request);
+                    requestWithMetaData.getSource().setInfoList(new HashSet<>(updatedInfoList));
+                    System.out.println(requestWithMetaData);
                     return client.post()
                             .uri(URI.create(transferQueueingServiceUri))
-                            .syncBody(request)
+                            .syncBody(requestWithMetaData)
                             .retrieve()
                             .onStatus(HttpStatus::is4xxClientError,
                                     response -> Mono.error(new CredentialNotFoundException()))
                             .onStatus(HttpStatus::is5xxServerError,
-                                    response -> Mono.error(new Exception("Internal server error")));
-                }).then();
+                                    response -> Mono.error(new Exception("Internal server error")))
+                            .bodyToMono(TransferJobSubmittedResponse.class);
+                });
     }
 }

@@ -27,42 +27,24 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-import org.onedatashare.server.model.core.EndpointType;
-
-import java.util.HashSet;
 
 @Data
-@NoArgsConstructor
 @Accessors(chain = true)
-public class TransferJobRequest {
-    @NonNull protected Source source;
-    @NonNull protected Destination destination;
+@NoArgsConstructor
+public class TransferJobRequestWithMetaData{
+    private String ownerId;
+
+    @NonNull protected TransferJobRequest.Source source;
+    @NonNull protected TransferJobRequest.Destination destination;
     protected TransferOptions options;
 
-
-    @Data
-    @Accessors(chain = true)
-    public static class Destination {
-        @NonNull protected EndpointType type;
-        @NonNull protected String credId;
-        @NonNull protected EntityInfo info;
+    public static TransferJobRequestWithMetaData getTransferRequestWithMetaData(String owner,
+                                                                                TransferJobRequest request){
+        TransferJobRequestWithMetaData requestWithMetaData = new TransferJobRequestWithMetaData();
+        requestWithMetaData.ownerId = owner;
+        requestWithMetaData.source = request.getSource();
+        requestWithMetaData.destination = request.getDestination();
+        requestWithMetaData.options = request.getOptions();
+        return requestWithMetaData;
     }
-
-    @Data
-    @Accessors(chain = true)
-    public static class Source {
-        @NonNull protected EndpointType type;
-        @NonNull protected String credId;
-        @NonNull protected EntityInfo info;
-        @NonNull protected HashSet<EntityInfo> infoList;
-    }
-
-    @Data
-    @Accessors(chain = true)
-    public static class EntityInfo {
-        protected String id;
-        protected String path;
-        protected long size;
-    }
-
 }

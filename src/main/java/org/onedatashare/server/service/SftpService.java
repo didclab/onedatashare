@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 public class SftpService extends ResourceServiceBase {
     @Autowired
@@ -20,7 +22,7 @@ public class SftpService extends ResourceServiceBase {
     }
 
     @Override
-    public Mono<TransferJobRequest.Source> listAllRecursively(TransferJobRequest.Source source) {
+    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
         return getResource(source)
                 .flatMap(resource -> resource.listAllRecursively(source));
     }

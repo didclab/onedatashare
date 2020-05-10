@@ -25,17 +25,15 @@ public class VfsResource extends Resource {
     
 
     @Override
-    public Mono<TransferJobRequest.Source> listAllRecursively(TransferJobRequest.Source source) {
+    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
         return Mono.create(s -> {
             String basePath = source.getInfo().getPath();
             List<TransferJobRequest.EntityInfo> filesToTransferList = new LinkedList<>();
             Stack<FileObject> traversalStack = new Stack<>();
             try {
                 for(TransferJobRequest.EntityInfo e : source.getInfoList()){
-                    FileObject fObject = this.fileSystemManager.resolveFile(basePath ,
-                            this.fileSystemOptions);
+                    FileObject fObject = this.fileSystemManager.resolveFile(basePath + e.getPath(), this.fileSystemOptions);
                     traversalStack.push(fObject);
-                    break;
                 }
                 for(int files = MAX_FILES_TRANSFERRABLE ; files > 0 && ! traversalStack.isEmpty(); --files){
                     FileObject curr = traversalStack.pop();
@@ -61,8 +59,7 @@ public class VfsResource extends Resource {
             }catch (Exception e){
                 s.error(e);
             }
-            source.setInfoList(filesToTransferList);
-            s.success(source);
+            s.success(filesToTransferList);
             return;
         });
     }
