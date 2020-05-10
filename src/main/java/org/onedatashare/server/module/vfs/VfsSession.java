@@ -54,6 +54,16 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
         super(uri, credential);
     }
 
+    public Mono<VfsResource> select2(String path){
+        FileObject fo = null;
+        try {
+            fo = fileSystemManager.resolveFile(path, fileSystemOptions);
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+        return Mono.just(new VfsResource(this, path, fo));
+    }
+
     @Override
   public Mono<VfsResource> select(String path) {
     FileObject fo = null;

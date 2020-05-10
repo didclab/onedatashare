@@ -164,7 +164,7 @@ public class VfsService extends ResourceService {
                     VfsSession session = new VfsSession(URI.create(encodedURI), credential);
                     return session.initialize2();
                 })
-                .flatMap(vfsSession -> vfsSession.select(source.getInfo().getPath()));
+                .flatMap(vfsSession -> vfsSession.select2(source.getInfo().getPath()));
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {

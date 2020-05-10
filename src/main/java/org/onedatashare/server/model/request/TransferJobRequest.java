@@ -33,8 +33,7 @@ import java.util.List;
 @Data
 @Accessors(chain = true)
 public class TransferJobRequest {
-    @NonNull
-    private String id;
+    @NonNull private String id;
     @NonNull private Source source;
     @NonNull private Destination destination;
     private TransferOptions options;
