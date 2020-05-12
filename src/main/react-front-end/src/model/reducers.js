@@ -32,7 +32,7 @@ queue
 [{endpoint1: string, endpoint2: string, speed: number}]
 */
 
-import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE } from './actions';
+import { LOGIN, LOGOUT, PROMOTE, ENDPOINT_PROGRESS, ENDPOINT_UPDATE, ACCOUNT_PREFERENCE_TOGGLED, COMPACT_VIEW_PREFERENCE, PROGRESS_FILE_UPDATE } from './actions';
 import { transferOptimizations } from "./actions";
 import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from '../constants';
 import Cookies from 'universal-cookie';
@@ -70,7 +70,11 @@ const initialState = {
 		verifyFileInterity : false,
 		encryptDataChannel : false,
 		compressDataChannel : false
-	}
+  },
+  progressUpdate: {
+    files: {}, 
+    errorFiles: []
+  }
 }
 
 
@@ -163,6 +167,11 @@ export function onedatashareModel(state = initialState, action) {
         saveOAuthTokens: action.saveOAuthTokens,
         endpoint1 : { ...state.endpoint1, login : false },
         endpoint2 : { ...state.endpoint2, login : false },
+      });
+
+    case PROGRESS_FILE_UPDATE:
+      return Object.assign({}, state, {
+        progressUpdate: action.progressUpdate
       });
 
     default:

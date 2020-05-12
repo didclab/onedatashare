@@ -159,3 +159,11 @@ export const transferOptimizations = {
   SecondOrder : "2ndOrder",
   PCP : "PCP"
 }
+
+export const PROGRESS_FILE_UPDATE = 'PROGRESS_FILE_UPDATE';
+export function progressFilesUpdate(progressFileUpdate) {
+  return {
+    type: PROGRESS_FILE_UPDATE,
+    progressUpdate : progressFileUpdate,
+  }
+}

@@ -50,7 +50,7 @@ import Switch from '@material-ui/core/Switch';
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
-
+import ProgressUpdateComponent from "./progressUpdateComponent";
 export default class TransferComponent extends Component {
 
   constructor(props) {
@@ -409,7 +409,7 @@ export default class TransferComponent extends Component {
     return (
         <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
           <Col xs={11} style={{ display: "flex", justifyContent: 'center', flexDirection: 'column' }}>
-
+          
             {!isSmall &&
             <Panel bsStyle="primary">
               <FormControlLabel
@@ -452,6 +452,7 @@ export default class TransferComponent extends Component {
                 </Row>
 
                 <ErrorMessagesConsole/>
+                <ProgressUpdateComponent />
               </Panel.Body>
             </Panel>
 
@@ -497,7 +498,9 @@ export default class TransferComponent extends Component {
                 </Row>
                 <div> </div>
                 <ErrorMessagesConsole />
+                <ProgressUpdateComponent small={true}/> 
               </Panel.Body>
+              
             </Panel>}
           </Col>
         </div>

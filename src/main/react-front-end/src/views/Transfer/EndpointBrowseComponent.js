@@ -70,7 +70,6 @@ import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import ProgressUpdateComponent from "./progressUpdateComponent"
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -470,7 +469,6 @@ export default class EndpointBrowseComponent extends Component {
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
-			<ProgressUpdateComponent />
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
