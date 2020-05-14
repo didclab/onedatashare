@@ -28,6 +28,7 @@ import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
 import lombok.Getter;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -57,11 +58,15 @@ public class DbxOauthService  {
     @Autowired
     private DbxConfig dbxConfig;
 
+    @Autowired
+    private UserService userService;
+
     private DbxAppInfo secrets;
     private DbxRequestConfig config;
     private DbxSessionStore sessionStore;
     private DbxWebAuth auth;
     private String token = null;
+    private Map<String, String> userTokens = new HashMap<>();
 
     private static final String STATE = "state", CODE = "code";
 
@@ -71,9 +76,13 @@ public class DbxOauthService  {
         config = DbxRequestConfig.newBuilder(dbxConfig.getIdentifier()).build();
         sessionStore = new DbxSessionStore() {
             public void clear() { set(null); }
-            public String get() { return token; }
+            public String get() {
+//                return token;
+                return userTokens.get(userService.getLoggedInUserEmail().block()); }
             public void set(String s) {
-                token = s;
+                userService.getLoggedInUserEmail()
+                        .subscribe(email -> userTokens.put(email, s));
+//                token = s;
             }
         };
         auth = new DbxWebAuth(config, secrets);
@@ -101,6 +110,9 @@ public class DbxOauthService  {
                 return cred;
             } catch (Exception e) {
                 throw new RuntimeException(e);
+            } finally {
+                userService.getLoggedInUserEmail()
+                        .subscribe(email -> userTokens.remove(email));
             }
         });
     }
