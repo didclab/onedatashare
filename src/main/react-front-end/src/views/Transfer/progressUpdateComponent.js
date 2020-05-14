@@ -132,7 +132,7 @@ export default class ProgressUpdateComponent extends Component {
                                         {this.state.errorUploadFiles.includes(file) ? 
                                             <CircularProgress variant="static" value={this.files[file]} color="secondary"/> 
                                             :
-                                            <CircularProgress variant="static" value={this.files[file]} />
+                                            <CircularProgress variant="static" value={this.files[file]} style={{color:"#337ab7"}}/>
                                         }
                                     </React.Fragment>
                                 )}
@@ -146,10 +146,10 @@ export default class ProgressUpdateComponent extends Component {
                     {/* <DialogActions> //style={{height: '10%'}} */}
                     <DialogActions>
                     <ButtonGroup variant="contained">
-                        <Button onClick={this.handleMinimise} color="primary">
+                        <Button onClick={this.handleMinimise} style={{backgroundColor:"#337ab7", color: '#fff'}}>
                         {this.state.progressMinimize ? 'Maximize' : 'Minimize'}
                         </Button>
-                        <Button onClick={this.handleClose} color="primary">
+                        <Button onClick={this.handleClose} style={{backgroundColor:"#337ab7", color: '#fff'}}>
                         Close
                         </Button>
                     </ButtonGroup>
