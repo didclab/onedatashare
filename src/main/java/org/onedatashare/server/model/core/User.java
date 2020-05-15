@@ -26,17 +26,15 @@ package org.onedatashare.server.model.core;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
+import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.IDN;
 import java.net.URI;
-import java.security.*;
-
-import org.onedatashare.module.globusapi.EndPoint;
-
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.util.*;
 
 @Data
@@ -79,7 +77,7 @@ public class User {
     private boolean isAdmin = false;
 
     /** Set to true if user want to save OAuth credentials */
-    private boolean saveOAuthTokens = false;
+    private boolean saveOAuthTokens = true;
 
     /** Token for reset password. */
     private String authToken;

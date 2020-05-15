@@ -301,15 +301,14 @@ export default class TransferComponent extends Component {
     const handleChangeRetry = (event, value) => {
       this.setState({ settings: { ...this.state.settings, retry: value } });
     }
-    const formlabelstyle = { fontSize: "15px" }
-    const formStyle = { marginLeft: "5%", marginRight: "5%" }
+    
     return <Panel bsStyle="primary">
-      <div style={{ textAlign: "center" }}>
+      <div id="outer-div">
         <Panel.Heading>Transfer Setting</Panel.Heading>
       </div>
       <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
+        <FormControl component="fieldset" id="form-style">
+          <FormLabel component="legend" id="form-lable">Optimization</FormLabel>
           <RadioGroup
               aria-label="Optimization"
               value={this.state.settings.optimizer}
@@ -321,8 +320,8 @@ export default class TransferComponent extends Component {
           </RadioGroup>
         </FormControl>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
+        <FormControl component="fieldset" id="form-style">
+          <FormLabel component="legend" id="form-lable">Overwrite</FormLabel>
           <RadioGroup
               aria-label="Overwrite"
               value={this.state.settings.overwrite}
@@ -332,8 +331,8 @@ export default class TransferComponent extends Component {
             <FormControlLabel value="false" control={<Radio />} label="False" />
           </RadioGroup>
         </FormControl>
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
+        <FormControl component="fieldset" id="form-style">
+          <FormLabel component="legend" id="form-lable">Integrity</FormLabel>
           <RadioGroup
               aria-label="Integrity"
               value={this.state.settings.verify}
@@ -344,8 +343,8 @@ export default class TransferComponent extends Component {
           </RadioGroup>
         </FormControl>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
+        <FormControl component="fieldset" id="form-style">
+          <FormLabel component="legend" id="form-lable">Encrypt</FormLabel>
           <RadioGroup
               aria-label="Encrypt"
               value={this.state.settings.encrypt}
@@ -356,8 +355,8 @@ export default class TransferComponent extends Component {
           </RadioGroup>
         </FormControl>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
+        <FormControl component="fieldset" id="form-style">
+          <FormLabel component="legend" id="form-lable">Compress</FormLabel>
           <RadioGroup
               aria-label="Compress"
               value={this.state.settings.compress}
@@ -369,7 +368,7 @@ export default class TransferComponent extends Component {
         </FormControl>
 
         <FormControl component="fieldset">
-          <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
+          <FormLabel component="legend" id="form-lable">Retry Counts</FormLabel>
           <Slider
 
               value={this.state.settings.retry}
@@ -378,7 +377,7 @@ export default class TransferComponent extends Component {
               step={1}
               onChange={handleChangeRetry}
           />
-          <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>
+          <FormLabel id="inner-form-label">{this.state.settings.retry} Times</FormLabel>
         </FormControl>
       </Panel.Body>
 
@@ -407,30 +406,128 @@ export default class TransferComponent extends Component {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
-          <Col xs={11} style={{ display: "flex", justifyContent: 'center', flexDirection: 'column' }}>
+      <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
+        <Col xs={11} id="col-style">
 
             {!isSmall &&
             <Panel bsStyle="primary">
               <FormControlLabel
-                  style={{ width: "200px", right: "10px", color: "white", position: "absolute" }}
-                  control={
-                    <Switch
-                        color="default"
-                        style={{ colorPrimary: "white", colorSecondary: "white" }}
-                        checked={this.state.compact}
-                        onChange={updateCompactViewPreference('compact')}
-                        value="compact"
-                    />
-                  }
-                  label={<Typography style={{ color: "white", fontSize: "12px" }}>Compact</Typography>}
+                style={{ width: "200px", right: "10px", color: "white", position: "absolute" }}
+                control={
+                  <Switch
+                    color="default"
+                    style={{ colorPrimary: "white", colorSecondary: "white" }}
+                    checked={this.state.compact}
+                    onChange={updateCompactViewPreference('compact')}
+                    value="compact"
+                  />
+                }
+                label={<Typography id="typography-style">Compact</Typography>}
               />
               <Panel.Heading>
                 <div style={headerStyle}>
                   <p>
                     Browse and Transfer Files
-                  </p>
-                </div>
+              </p>
+            </div>
+          </Panel.Heading>
+
+          <Panel.Body key={isSmall} id="panel-body">
+            <Row id="row-style" key="browseComponents">
+              <DragDropContext
+                onDragStart={this.onDragStart}
+                onDragEnd={this.onDragEnd}>
+                <Col xs={6} style={panelStyle}  >
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Col xs={6} style={panelStyle} >
+                  {this._returnBrowseComponent2()}
+                </Col>
+              </DragDropContext>
+            </Row>
+            <Row style={{display: 'block', ...headerStyle}} key="sendButtons">
+                <Button id="sendFromRightToLeft" className="send-button" onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                <Button id="sendFromLeftToRight" className="send-button" onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+            </Row>
+
+            <ErrorMessagesConsole/>
+          </Panel.Body>
+          </Panel>
+
+
+        }
+        {/* !isSmall && this.getSettingComponent(isSmall) */}
+        {isSmall &&
+        <Panel bsStyle="primary">
+        <Panel.Heading id="outer-div">
+          <p>
+            Browse and Transfer Files
+          </p>
+
+          { /* Disabling compact mode toggle for mobile screens */
+            /* <FormControlLabel
+            style={{ color: "white" }}
+            control={
+              <Switch
+                color="default"
+                style={{colorPrimary: "white", colorSecondary:"white"}}
+                checked={this.state.compact}
+                onChange={updateCompactViewPreference('compact')}
+                value="compact"
+              />
+            }
+            label={<Typography style={{fontSize: "12px"}}>Compact</Typography>}
+          /> */}
+        </Panel.Heading>
+
+
+        <Panel.Body key={isSmall} id="panel-body">
+            <Row id="row-style">
+              <DragDropContext
+                  onDragStart={this.onDragStart}
+                  onDragEnd={this.onDragEnd}
+              >
+                <Col style={panelStyle}>
+                  {this._returnBrowseComponent1()}
+                </Col>
+                <Row style={{display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
+                  <Button id="sendFromRightToLeft" className="send-button" onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
+                  <Button id="sendFromLeftToRight" className="send-button" onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+                </Row>
+                <Row style={{ display: 'block', ...headerStyle }}>
+                  <Button id="sendFromRightToLeft" className="send-button" onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                  <Button id="sendFromLeftToRight" className="send-button" onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+                </Row>
+
+                <ErrorMessagesConsole />
+              </DragDropContext>
+              </Row>
+              </Panel.Body>
+            </Panel>
+
+
+          }
+          {/* !isSmall && this.getSettingComponent(isSmall) */}
+          {isSmall &&
+            <Panel bsStyle="primary">
+              <Panel.Heading style={{ textAlign: "center" }}>
+                <p>
+                  Browse and Transfer Files
+          </p>
+
+                <FormControlLabel
+                  style={{ color: "white" }}
+                  control={
+                    <Switch
+                      color="default"
+                      style={{ colorPrimary: "white", colorSecondary: "white" }}
+                      checked={this.state.compact}
+                      onChange={updateCompactViewPreference('compact')}
+                      value="compact"
+                    />
+                  }
+                  label={<Typography style={{ fontSize: "12px" }}>Compact</Typography>}
+                />
               </Panel.Heading>
 
               <Panel.Body key={isSmall} style={{overflow: "hidden"}}>

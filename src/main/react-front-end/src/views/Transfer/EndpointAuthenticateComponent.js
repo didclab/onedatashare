@@ -57,6 +57,8 @@ import Modal from '@material-ui/core/Modal';
 
 import {getCred} from "./initialize_dnd.js";
 
+import './styles/EndpointAuthenticateComponent.css'
+
 import {eventEmitter} from "../../App";
 
 import GlobusEndpointListingComponent from "./GlobusEndpointListingComponent";
@@ -461,7 +463,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		return(
 		<div >
-			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
+			{!settingAuth && <List component="nav" id="nav-bar">
 		        <ListItem button onClick={() =>{
 		        	back()
 		        }}>
@@ -513,19 +515,19 @@ export default class EndpointAuthenticateComponent extends Component {
 	          aria-describedby="To Select globus endpoints"
 	          open={selectingEndpoint}
 	          onClose={endpointModalClose}
-	          style={{display: "flex", alignItems: "center", justifyContent: "center", alignSelf: "center"}}
+	          id="end-point-modal"
 	    	>
 		    	<GlobusEndpointListingComponent close={endpointModalClose} endpointAdded={this.endpointModalAdd}/>
         	</Modal>
 		    {settingAuth &&
 
-		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
+		    	<div id="inner-div">
+		    	<Button id="button-style" onClick={() => {
 		    		this.setState({settingAuth: false})}
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
 		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+		    		<div id="inner-div-not-ssh">
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
@@ -533,7 +535,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 			    		<TextValidator
 								required
-					  		style={{width: "80%"}}
+					  className="text-validator-uri"
 			          id={endpoint.side+"LoginURI"}
 			          label="Url"
 			          value={this.state.url}
@@ -550,7 +552,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 
 			        <TextValidator
-								required
+						required
 			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField}
@@ -570,7 +572,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		    	}	
 
 		      {needPassword &&
-		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+		        <div id="password-validation">
 
 							<ValidatorForm
 								ref="form"
@@ -578,7 +580,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        
 								<TextValidator
 					  			required
-			    	  		style={{width: "100%"}}
+								className="text-validator-password"
 									id={endpoint.side+"LoginUsername"}
 									label="Username"
 									value={this.state.username}
@@ -595,7 +597,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 			        	<TextValidator
 					  			required
-			    	  		style={{width: "100%"}}
+								  	className="text-validator-password"
 									id={endpoint.side+"LoginPassword"}
 									label="Password"
 									type="password"
@@ -612,12 +614,11 @@ export default class EndpointAuthenticateComponent extends Component {
 
 							</ValidatorForm>
 			      </div>
-					}
-					
+					}		
 					<Button 
 						id={endpoint.side + "LoginAuth"}  
 						ref={input => this.inputElement = input} 
-						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+						className="auth-button" 
 						onClick={authFunction}
 						color="primary"
 						variant="contained">

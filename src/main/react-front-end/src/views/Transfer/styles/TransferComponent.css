@@ -1,0 +1,68 @@
+#form-label
+{
+    font-size: "15px"
+}
+
+#inner-form-label
+{
+    margin-top: 20px;
+    font-size: 20px;
+}
+
+#form-style
+{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+.form-control-style
+{
+    width: 200px;
+    right: 10px;
+    color: white;
+    position: absolute;
+}
+
+#outer-div
+{
+    text-align: center; 
+}
+
+#inner-div-1
+{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#col-style
+{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+#row-style
+{
+    flex-direction: column;
+}
+
+.send-button
+{
+    padding: 15px;
+    margin-right: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+#panel-body
+{
+    overflow: hidden; 
+}
+
+#typography-style
+{
+    color: white;
+    font-size: 12px;
+}

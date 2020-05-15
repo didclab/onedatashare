@@ -1,0 +1,34 @@
+#outer-div
+{
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+#outer-paragraph
+{
+    margin-left: 10px;
+    flex-grow: 1;
+    text-align: left;
+}
+
+#outer-attribute-div
+{
+    display: flex;
+    flex-grow: 1;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#button-style
+{
+    width: 40px;
+    float: right;
+}
+
+#inner-paragraph
+{
+    font-size: 10px;
+    color: #444;
+}
