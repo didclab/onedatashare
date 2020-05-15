@@ -21,8 +21,8 @@
  */
 
 
-import { url, ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL } from '../constants';
-import { axios, statusHandle } from "./APICalls";
+import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType } from '../constants';
+import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
 
@@ -52,7 +52,7 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
@@ -71,13 +71,13 @@ export async function share(uri, endpoint, accept, fail) {
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
 export async function mkdir(uri, type, endpoint, accept, fail) {
     let callback = accept;
-    
+
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
@@ -85,14 +85,14 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
         uri: encodeURI(uri),
         id: id,
         map: getMapFromEndpoint(endpoint),
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
             statusHandle(response, callback);
         })
         .catch((error) => {
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
@@ -104,7 +104,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
         uri: encodeURI(uri),
         id: id,
         map: getMapFromEndpoint(endpoint)
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -112,7 +112,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
         })
         .catch((error) => {
 
-            statusHandle(error, fail);
+            handleRequestFailure(error, fail);
         });
 }
 
@@ -122,7 +122,7 @@ async function getDownloadLink(uri, credential, _id) {
         credential: credential,
         uri: encodeURI(uri),
         id: _id,
-        })
+    })
         .then((response) => {
             if (!(response.status === 200))
                 console.log("Error in download API call");
@@ -131,6 +131,7 @@ async function getDownloadLink(uri, credential, _id) {
             }
         })
         .catch((error) => {
+            handleRequestFailure(error);
             console.log("Error encountered while generating download link");
         });
 }
@@ -169,19 +170,19 @@ export async function getDownload(uri, credential) {
 
 
 export async function openDropboxOAuth() {
-	openOAuth("/api/stork/oauth?type=dropbox");
+	openOAuth("/api/oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/stork/oauth?type=googledrive");
+	openOAuth("/api/oauth?type=gdrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/stork/oauth?type=gridftp");
+	openOAuth("/api/oauth?type=gftp");
 }
 
 export async function openBoxOAuth(){
-    openOAuth("api/stork/oauth?type=box");
+    openOAuth("api/oauth?type=box");
 }
 
 export async function openOAuth(url){
@@ -189,84 +190,3 @@ export async function openOAuth(url){
 }
 
 
-export async function globusEndpointIds(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointId',
-
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointDetail(gep, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpoint',
-		globusEndpoint: gep,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusEndpointActivate(gep, _username, _password, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'globus', {
-		action: 'endpointActivate',
-		globusEndpoint: gep,
-		username: _username,
-		password: _password
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function deleteEndpointId(ged, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + 'globus', {
-		action: "deleteEndpointId",
-		globusEndpoint: ged,
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
-
-export async function globusListEndpoints(filter_fulltext, accept, fail) {
-	let callback = accept;
-	return axios.post(url + 'globus', {
-		action: "endpoint_list",
-		filter_fulltext: filter_fulltext
-		})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-
-			statusHandle(error, fail);
-		});
-}

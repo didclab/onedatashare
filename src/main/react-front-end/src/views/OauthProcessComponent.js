@@ -46,19 +46,19 @@ export default class OauthProcessComponent extends Component {
 
   processOAuth(tag) {
     if (tag === "ExistingCredGoogleDrive") {
-        setTimeout(() => {
-            eventEmitter.emit(
-                "errorOccured",
-                "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
-            );
-        }, 500);
-    }else if(tag === "ExistingCredDropbox"){
-            setTimeout( () => {
-              eventEmitter.emit(
-                "errorOccurred",
-                "Credential for that endpoint already exists. Please logout from Dropbox and try again."
-            );
-              }, 500);
+      setTimeout(() => {
+        eventEmitter.emit(
+          "errorOccured",
+          "Credential for the endpoint already Exists. Please logout from Google Drive and try again."
+        );
+      }, 500);
+    } else if (tag === "ExistingCredDropbox") {
+      setTimeout(() => {
+        eventEmitter.emit(
+          "errorOccurred",
+          "Credential for that endpoint already exists. Please logout from Dropbox and try again."
+        );
+      }, 500);
     } else if (tag === "ExistingCredBox") {
       setTimeout(() => {
         eventEmitter.emit(
@@ -89,11 +89,11 @@ export default class OauthProcessComponent extends Component {
         console.log("GridFTP oAuth identifier received");
         this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
       } else if (tag === "box") {
-          console.log("Box oAuth identifier received");
-          this.updateLocalCredStore(BOX_NAME, qsObj);
-        }
+        console.log("Box oAuth identifier received");
+        this.updateLocalCredStore(BOX_NAME, qsObj);
       }
     }
+  }
 
   updateLocalCredStore(protocolType, qsObj) {
     let creds = cookies.get(protocolType) || 0;
@@ -125,9 +125,9 @@ export default class OauthProcessComponent extends Component {
   render() {
     return (
       <div>
-        <Redirect to={transferPageUrl}/>
+        <Redirect to={transferPageUrl} />
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );
-    }
+  }
 }

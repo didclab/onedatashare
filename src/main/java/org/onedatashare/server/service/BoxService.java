@@ -26,8 +26,6 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -40,8 +38,6 @@ import reactor.core.publisher.Mono;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class BoxService extends ResourceService {
@@ -55,22 +51,17 @@ public class BoxService extends ResourceService {
     }
 
     @Override
-    public Mono<Boolean> mkdir(String cookie, UserAction userAction) {
+    public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::mkdir)
-                .map(r -> true);
+                .then();
     }
 
     @Override
-    public Mono<Boolean> delete(String cookie, UserAction userAction) {
+    public Mono<Void> delete(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::delete)
-                .map(val -> true);
-    }
-
-    @Override
-    public Mono<Job> submit(String cookie, UserAction userAction) {
-        return null;
+                .then();
     }
 
     @Override

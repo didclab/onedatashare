@@ -55,7 +55,7 @@ render(){
 				request: {
 					endpoint: '/api/stork/upload',
 					params: {
-						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri,directoryPath,'')),
+						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri, directoryPath,'')),
 						credential: JSON.stringify(endpoint.credential),
 						id: lastestId,
 						map: JSON.stringify(getMapFromEndpoint(endpoint))
@@ -67,6 +67,7 @@ render(){
 				callbacks :{
 					onError: function(id, name, errorReason, xhr){
 						console.log('error occurred - ' + errorReason);
+						eventEmitter.emit("progressUpdateError", name);
 					},
 					onStatusChange: function(id, old_status, new_status){
 						if(new_status === "submitted"){
@@ -74,8 +75,11 @@ render(){
 						}
 						if(new_status === "upload successful"){
 							eventEmitter.emit("messageOccured", "Upload complete!");
-						
 						}
+					},
+					onProgress: function(id, name, upload, total) {
+						//console.log(id, name, upload, total, Math.floor(upload/total*100));
+						eventEmitter.emit("progressChange", name, Math.floor(upload/total*100));
 					}
 
 				}
@@ -83,9 +87,11 @@ render(){
 			}
 		})
 
-	return <FileInput uploader={uploader} id="button-style">
-                    <UploadButton id="icon-style"/>
+	return (
+		<FileInput multiple={true} uploader={uploader} if="button-style">
+			<UploadButton id="icon-style"/>
 		</FileInput>
+		)
 	}
 }
 

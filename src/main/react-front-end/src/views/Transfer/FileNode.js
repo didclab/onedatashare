@@ -31,7 +31,6 @@ import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "./initialize_dnd";
 
-import "./styles/FileNode.css"
 /**
 	Component for file and directory
 	Example 
@@ -267,12 +266,12 @@ export default class FileNode extends Component {
 					>
 						
 
-							<div id="outer-div">
+							<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "flex-start"}}>
 								{ dir && <FolderIcon/>}
 								{!dir && <FileIcon />  }
-								<p id="outer-paragraph" > {name} </p>
+								<p style={{marginLeft: "10px", flexGrow: 1, textAlign: "left"}} > {name} </p>
 								{dir && 
-									<Button id="button-style" 
+									<Button style={{width: "40px", float: "right"}} 
 										onTouchStart={() => {
 											onDoubleClick(this.props.file.name);
 										}}>
@@ -284,11 +283,11 @@ export default class FileNode extends Component {
 								<SelectionCount>{selectionCount}</SelectionCount>
 							}
 							{hasAttr && 
-								<div id="outer-attribute-div">
+								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between"}}>
 							
-									{time !== 0 && <p id="inner-paragraph">{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
+									{time !== 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
 									{perm && <p > {perm} </p>}
-									{size !== 0 && <p id="inner-paragraph"> {this.humanFileSize(size)} </p>}
+									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
 								</div>
 							}
 					 </FileDiv>

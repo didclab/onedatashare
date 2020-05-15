@@ -40,7 +40,7 @@ import './styles/BrowseModuleComponent.css'
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, SCP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -121,7 +121,7 @@ export default class BrowseModuleComponent extends Component {
 
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
-
+		
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
@@ -226,16 +226,9 @@ export default class BrowseModuleComponent extends Component {
 		      	<Button id={endpoint.side + "SFTP"} id="custom-button" disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
 		      	}}>
-		      		<Icon className={'fas fa-folder-open'} id="icon"/>
+		      		<Icon className={'fas fa-terminal'} id="icon"/>
 		      		SFTP
 		      	</Button>
-
-	      		<Button id={endpoint.side + "SSH"} id="custom-button" disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-	      			loginPrep(SCP_TYPE)()
-	      		}}>
-	      			<Icon className={'fas fa-terminal'} id="icon"/>
-	      			SCP
-	      		</Button>
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&
