@@ -33,16 +33,14 @@ import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
 public abstract class EndpointBaseController {
     
-    @PostMapping("/ls")
-    public Mono<Stat> list(@RequestBody RequestData requestData){
+    @GetMapping("/ls")
+    public Mono<Stat> list(RequestData requestData){
         return listOperation(requestData);
     }
 

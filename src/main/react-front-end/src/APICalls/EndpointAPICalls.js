@@ -39,13 +39,14 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         uri: encodeURI(uri),
         id: id,
         portNumber: endpoint.portNumber,
+        type: LIST_OP_URL,
+        credential : "",
     };
-
-    body = Object.keys(endpoint.credential).length > 0 ? { ...body, credential: endpoint.credential } : body;
-
+    endpoint.credential["type"] = LIST_OP_URL
+    body["credential"] = endpoint.credential
     let callback = accept;
-
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL), JSON.stringify(body))
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)
+    axios.get(url, {params: body})
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
