@@ -9,9 +9,9 @@ All Objects found in our Open Api Definition supersedes all object references in
 
 ## Table of Contents ##
 1. [Ticket](#ticket-submission)
-1. [Overview](#Need to Know)
-1. [Authentication](#example)
-2. [Transfer](#example2)
+1. [Overview](#overview)
+1. [Authentication](#authentication)
+2. [Transfer](#transfer)
 
 #### Ticket Submission
 If you encounter an issue using any ODS service please submit a ticket to our [GitHome][3]
