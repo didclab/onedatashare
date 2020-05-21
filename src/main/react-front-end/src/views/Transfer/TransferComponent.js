@@ -498,7 +498,7 @@ export default class TransferComponent extends Component {
                 </Row>
                 <div> </div>
                 <ErrorMessagesConsole />
-                <ProgressUpdateComponent small={true}/> 
+                <ProgressUpdateComponent/> 
               </Panel.Body>
               
             </Panel>}

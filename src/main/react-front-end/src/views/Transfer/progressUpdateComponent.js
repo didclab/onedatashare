@@ -33,6 +33,10 @@ import ButtonGroup from '@material-ui/core/ButtonGroup';
 import {
 	progressFilesUpdate,
 } from "../../model/actions";
+import IconButton from '@material-ui/core/IconButton';
+import CloseIcon from '@material-ui/icons/Close';
+import MinimizeIcon from '@material-ui/icons/Minimize';
+import CheckBoxOutlineBlankIcon from '@material-ui/icons/CheckBoxOutlineBlank';
 
 export default class ProgressUpdateComponent extends Component {
     constructor(props){
@@ -42,7 +46,7 @@ export default class ProgressUpdateComponent extends Component {
 			uplaodFileName: '',
             progressMinimize: false,
             errorUploadFiles: store.getState().progressUpdate.errorFiles,
-            progress: Object.keys(store.getState().progressUpdate.files).length !== 0,
+            progress: true//Object.keys(store.getState().progressUpdate.files).length !== 0,
         }
         this.files = store.getState().progressUpdate.files;
     }
@@ -119,7 +123,16 @@ export default class ProgressUpdateComponent extends Component {
                 {this.state.progress ? 
                 ( 
                 <Card raised={true} style={{overflow: '', position: 'absolute', bottom: '5%', right: '2%', float: 'right', width: '17em', height: heightSize, zIndex: '2'}}>
-                    <DialogTitle id="form-dialog-title" style={{heigth: '25%', textAlign: 'center', backgroundColor: '#337ab7', color: '#fff'}}>PROGRESS UPDATE</DialogTitle>
+                    <DialogTitle id="form-dialog-title" style={{heigth: '25%', backgroundColor: '#337ab7', color: '#fff', paddingLeft: '1em', paddingRight: '1em', textAlign: 'center'}}>
+                        PROGRESS UPDATE
+                        <IconButton  onClick={this.handleMinimise} style={{color:'#fff', marginLeft: '0.40em' }}aria-label="upload picture" component="span">
+                        {this.state.progressMinimize ?  <CheckBoxOutlineBlankIcon /> :  <MinimizeIcon />}
+                           
+                        </IconButton>
+                        <IconButton  onClick={this.handleClose} style={{color:'#fff' }}aria-label="upload picture" component="span">
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
                         {!this.state.progressMinimize &&  Object.keys(this.files).length !== 0? 
                         (   
                             // <React.Fragment>
@@ -143,17 +156,6 @@ export default class ProgressUpdateComponent extends Component {
                         :
                         <React.Fragment></React.Fragment>
                         }
-                    {/* <DialogActions> //style={{height: '10%'}} */}
-                    <DialogActions>
-                    <ButtonGroup variant="contained">
-                        <Button onClick={this.handleMinimise} style={{backgroundColor:"#337ab7", color: '#fff'}}>
-                        {this.state.progressMinimize ? 'Maximize' : 'Minimize'}
-                        </Button>
-                        <Button onClick={this.handleClose} style={{backgroundColor:"#337ab7", color: '#fff'}}>
-                        Close
-                        </Button>
-                    </ButtonGroup>
-                    </DialogActions>
                 </Card>
                 )
                 : ('') }
