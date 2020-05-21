@@ -14,7 +14,7 @@ All Objects found in our Open Api Definition supersedes all object references in
 2. [Transfer](#transfer)
 
 #### Ticket Submission
-If you encounter an issue using any ODS service please submit a ticket to our [GitHome][3]
+If you encounter an issue using any ODS service please submit a ticket to our [Git Home][3]
 When submitting a ticket, it must contain a few pieces of information. 
 1. Date and Time
 2. The ODS Service you are using.
@@ -45,8 +45,8 @@ At a minimum the body must contain an email and a password. The response being
 ```
 as the user is not registered.<br/>
 
-To receive your token you must use go to [ODS Home][1] and retrieve it. There currently no permanent tokens nor are there any plans to add them currently. There is no programmatic way to refresh your token(feature in development).
-Once you are authenticated and you have your token, you will need to add this token to the Authorization Header of your request. Not all routes are secure so please double check your routes to see if a token is required or not.
+To receive your token you must use go to [ODS Home][1] and retrieve it. There currently no permanent tokens nor are there any plans to add them currently. There is no programmatic way to refresh your token(feature in development). The place to put your credentials is the **Authorization Header**, or you can add **ATOKEN** as a header to your JWT token. 
+Only once you have fully registered with ODS will you be able to recieve your token. Note not all routes are secure so please double check the [JSON Doc's][2] routes to see if a token is required or not.
 <br/>**Please keep this token secure**
 
 ### Transfer ###
