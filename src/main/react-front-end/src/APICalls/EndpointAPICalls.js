@@ -42,7 +42,7 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         type: LIST_OP_URL,
         credential : "",
     };
-    endpoint.credential["type"] = LIST_OP_URL
+    endpoint.credential = {'type':LIST_OP_URL, ...endpoint.credential}
     body["credential"] = endpoint.credential
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)
