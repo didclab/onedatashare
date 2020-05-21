@@ -1,6 +1,7 @@
 import LinearProgress from "@material-ui/core/LinearProgress";
 import React from "react";
 import Grid from "@material-ui/core/Grid";
+import {Hidden} from "@material-ui/core";
 
 const QueueProgressBar = ({
                               status,
@@ -12,7 +13,7 @@ const QueueProgressBar = ({
     if (status === 'complete') {
         bar = (
             <LinearProgress className={"queueBar"} variant="determinate" value={100} />
-            );
+        );
         progress = "Done"
     }
     else if (status === 'failed') {
@@ -36,10 +37,10 @@ const QueueProgressBar = ({
     }
     return (
         <Grid className={QueueProgressBar} container direction='row'>
-            <Grid container xs={4}>
+            <Grid container xs={2} md={4}>
                 <p>{progress}</p>
             </Grid>
-            <Grid container xs={8}>
+            <Grid xs={10} md={8}>
                 {bar}
             </Grid>
         </Grid>

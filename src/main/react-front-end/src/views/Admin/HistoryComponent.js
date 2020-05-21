@@ -27,22 +27,6 @@ import { updateGAPageView } from "../../analytics/ga";
 import QueueView from "../Queue/QueueView";
 import RowElement from "../Queue/QueueTableRow/RowElement/RowElement";
 
-const styles = theme => ({
-	root:{
-		width:'fit-content'
-	},
-	toolbar:{
-		paddingLeft:'300px'
-	},
-	tablePaginationCaption: {
-		fontSize: '15px'
-	},
-	tablePaginationSelect: {
-		fontSize: '15px',
-		lineHeight:'20px'
-	}
-})
-
 const rowsPerPageOptions = [10, 20, 50, 100]
 
 class HistoryComponent extends Component {

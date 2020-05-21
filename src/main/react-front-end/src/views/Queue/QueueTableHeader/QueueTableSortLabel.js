@@ -1,7 +1,4 @@
-import TableCell from "@material-ui/core/TableCell";
-import Tooltip from "@material-ui/core/Tooltip";
 import TableSortLabel from "@material-ui/core/TableSortLabel";
-import TableRow from "@material-ui/core/TableRow";
 import React from "react";
 
 const QueueTableSortLabel = ({

@@ -413,3 +413,7 @@ div.detailedInfo {
 queueHeaderCell button {
   width: 15% !important;
 }
+
+.mobileCell .queueBar {
+  max-width: 75%;
+}

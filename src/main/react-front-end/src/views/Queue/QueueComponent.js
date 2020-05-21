@@ -23,16 +23,11 @@
 
 import React, { Component } from 'react';
 import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
-import { eventEmitter } from '../../App'
-import { ProgressBar, Grid, Row, Col } from 'react-bootstrap';
+import { eventEmitter } from '../../App';
 import { updateGAPageView } from '../../analytics/ga';
 import { jobStatus } from '../../constants';
-import { withStyles } from '@material-ui/core';
 import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement/RowElement";
-import LinearProgress from "@material-ui/core/LinearProgress";
-
-const rowsPerPageOptions = [10, 20, 50, 100];
 
 class QueueComponent extends Component {
 

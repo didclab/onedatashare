@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-//import { makeStyles } from '@material-ui/core/styles';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
@@ -7,23 +6,6 @@ import {getSearchJobs} from '../APICalls/APICalls';
 import {Hidden} from "@material-ui/core";
 import TableCell from "@material-ui/core/TableCell";
 import TableRow from "@material-ui/core/TableRow";
-
-// const useStyles = makeStyles(theme => ({
-//     root: {
-//       '& .MuiTextField-root': {
-//         marginRight: theme.spacing(1),
-//         width: 200,
-//       },
-//     },
-//     strech: {
-//         marginRight: theme.spacing(3),
-//         width: 200,
-//     }
-// }));
-
-// const theme = {
-//     spacing: value => value ** 2,
-// }
 
 export default class SearchComponent extends Component {
     constructor(props) {
@@ -35,15 +17,9 @@ export default class SearchComponent extends Component {
             progress: '',
             searchBtnEnable: 'false' //make it '' to enable
         };
-        //const classes = useStyles();
-    }
-
-    componentDidMount() {
-        //console.info('');
     }
 
     handleSearch() {
-        //console.log('Search called');
         const {username, startJobId, endJobId, progress} = this.state
         getSearchJobs(
             username,

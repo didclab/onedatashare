@@ -18,20 +18,6 @@ const AdminHistoryTools = ({
                            }) => {
     return(
         <React.Fragment>
-            {/*            <TableRow>
-                <TableCell className={"queueHeaderCell"} colSpan='7'>
-                    <h1> Transfer History </h1>
-                </TableCell>
-                <TableCell className={"queueHeaderCell"} colSpan='1'>
-                    <Button variant="outlined" startIcon={<RefreshIcon />} color="primary" disableElevation
-                            onClick={queueFunc} size="small">
-                        Refresh
-                    </Button>
-                </TableCell>
-                <TableCell style={{width: '30%', fontSize: '2rem', color: '#31708f'}} colSpan='2'>
-                    { customToolbar }
-                </TableCell>
-            </TableRow>*/}
             <Hidden mdDown>
                 <TableRow>
                     <TableCell className={"queueHeaderCell"} colSpan='7'>
