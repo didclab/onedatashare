@@ -30,6 +30,7 @@ import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
+import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public abstract class EndpointBaseController {
     
     @GetMapping("/ls")
-    public Mono<Stat> list(RequestData requestData){
+    public Mono<Stat> list(@RequestParam Map<String, String> params) {
+        RequestData requestData = new RequestData();
+        requestData.setUri(params.get("uri"));
+        requestData.setType(params.get("type"));
+        requestData.setPortNumber(params.get("portNumber"));
+        requestData.setId("id");
         return listOperation(requestData);
     }
 
