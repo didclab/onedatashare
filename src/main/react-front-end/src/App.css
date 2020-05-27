@@ -59,10 +59,7 @@
 /***************************/
 
 .content {
-  padding-top: 10vh;
-}
-
-.navbar {
+  padding-top: 15vh;
 }
 
 button.defaultButton {
@@ -163,13 +160,13 @@ div.homePage {
 
 .TitleSlice h1 {
   color: #ffffff;
-  font-size: 5em;
+  font-size: 5rem;
   font-style: oblique;
   padding-top: 4.5vh;
 }
 
 .TitleSlice h1 ~ p {
-  font-size: 2.5em;
+  font-size: 2.5rem;
   font-style: italic;
   color: #d9eff6;
 }
@@ -205,4 +202,218 @@ div.homePage {
   object-fit: contain;
   margin-left: auto;
   margin-right: auto;
+}
+
+/************************************/
+/*                                  */
+/*    For Queue/QueueComponent.js   */
+/*                                  */
+/************************************/
+.QueueView {
+  margin-left: 10%;
+  margin-right: 10%;
+  padding-bottom: 15vh;
+}
+
+.QueueView p {
+  font-size: 1.25rem;
+}
+
+.queueHeaderCell {
+  background-color: #d9edf7;
+  align-content: center;
+  text-align: center !important;
+  word-break: break-word;
+}
+
+.queueHeaderCell p, .queueHeaderCell h1 {
+  font-size: 1.75rem !important;
+  color: #31708f;
+  text-align: center;
+  padding-top: .5vh;
+}
+
+.queueBodyCell * {
+  text-align: center;
+  align-content: center;
+  font-size: 1.2rem;
+  vertical-align: middle;
+}
+
+.queueBodyCell {
+  word-break: break-word;
+}
+
+
+.idCell{
+  width: 8%;
+}
+
+.progressCell {
+  width: 20%;
+  display: inline-table;
+}
+
+.speedCell {
+  width: 12%;
+}
+
+.sourceCell {
+  width: 15%;
+}
+
+.destinationCell {
+  width: 15%;
+}
+
+.actionCell {
+  width: 10%;
+}
+
+.mobileCell {
+  width: 150vw;
+  table-layout: fixed;
+  text-align: left;
+  font-size: 1.5rem;
+  word-break: break-word;
+}
+
+.mobileCell * {
+  font-size: 1.5rem;
+}
+
+.mobileHeaderCell {
+  width: 100vw;
+  align-content: center;
+  text-align: center;
+}
+
+.mobileHeaderCell * {
+  width: 100%;
+  margin: auto;
+}
+
+.queueDropDown {
+  margin: auto;
+  padding-top: 2vh;
+}
+
+.queueBar {
+  height: 20px !important;
+  border-radius: 5px;
+  width: 100%;
+  display: block !important;
+}
+
+.queueBar * {
+  background-color: #337ab7 !important;
+}
+
+.queueBarFailed * {
+  background-color: #d9534f !important;
+}
+
+.queueBarLoading * {
+  background-color: #f0ad4e !important;
+}
+
+.MuiLinearProgress-colorPrimary {
+  background-color: #FFF4E3 !important;
+}
+
+.QueueProgressBar * {
+}
+
+.MuiTablePagination-toolbar {
+  font-size: 1.5rem;
+}
+
+/**************************************/
+/*                                    */
+/*    For Admin/HistoryComponent.js   */
+/*                                    */
+/**************************************/
+
+.userCell-admin{
+  width: 12.5%;
+}
+
+.idCell-admin{
+  width: 9%;
+}
+
+.progressCell-admin {
+  width: 15.5%;
+  display: inline-table;
+}
+
+.speedCell-admin {
+  width: 10%;
+}
+
+.sourceCell-admin {
+  width: 15%;
+}
+
+.destinationCell-admin {
+  width: 15%;
+}
+
+.startCell-admin {
+  width: 12.5%;
+}
+
+.actionCell-admin {
+  width: 10.5%;
+}
+
+.QueueView table {
+  display: table;
+  margin: auto !important;
+}
+
+.infoCell {
+  width: 200% !important;
+  background-color: #e8e8e8
+}
+
+.detailedInfo {
+  width: 100% !important;
+}
+
+.infoBox header {
+  background-color: rgba(0,0,0,0);
+}
+
+.infoBox {
+  width: 100%;
+}
+
+tr {
+  width: 100% !important;
+}
+
+.detailedInfo {
+  max-width: 90%;
+  margin: auto !important;
+  padding: 1.5%;
+}
+
+div.detailedInfo {
+  background-color: #ffffff;
+  border-radius: 4px;
+  text-align: left;
+  margin-top: 0.3%;
+}
+
+.detailedInfo *, .SearchComponent * {
+  font-size: 1.25rem !important;
+}
+
+queueHeaderCell button {
+  width: 15% !important;
+}
+
+.mobileCell .queueBar {
+  max-width: 75%;
 }
