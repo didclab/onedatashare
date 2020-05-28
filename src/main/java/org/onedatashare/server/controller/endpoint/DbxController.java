@@ -24,11 +24,11 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.DbxService;
-import org.onedatashare.server.service.oauth.DbxOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,13 +41,9 @@ public class DbxController extends EndpointBaseController{
     @Autowired
     private DbxService dbxService;
 
-    @Autowired
-    private DbxOauthService dbxOauthService;
-
     @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return dbxService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return null;
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -15,6 +16,11 @@ import reactor.core.publisher.Mono;
 public class GridFtpController extends EndpointBaseController{
     @Autowired
     private GridFtpService gridftpService;
+
+    @Override
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return null;
+    }
 
     @Override
     protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
@@ -33,7 +39,6 @@ public class GridFtpController extends EndpointBaseController{
         return null;
     }
 
-    @Override
     protected Mono<Stat> listOperation(RequestData requestData) {
         UserAction userAction = UserAction.convertToUserAction(requestData);
         return gridftpService.list(null, userAction);

@@ -85,19 +85,6 @@ public class VfsSession extends Session<VfsSession, VfsResource> {
     }
 
     @Override
-    public Mono<VfsResource> select(String path, String portNum) {
-        FileObject fo = null;
-        path = path.replace(" ", "%20");
-        String pathWithPort = getURIWithPortNumber(URI.create(path), portNum).toString();
-        try {
-            fo = fileSystemManager.resolveFile(pathWithPort, fileSystemOptions);
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }
-        return initialize().then(Mono.just(new VfsResource(this, pathWithPort, fo)));
-    }
-
-    @Override
     public Mono<VfsResource> select(String path, String id, ArrayList<IdMap> idMap) {
         FileObject fo = null;
         try {

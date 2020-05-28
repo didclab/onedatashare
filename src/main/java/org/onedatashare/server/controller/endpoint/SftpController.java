@@ -29,6 +29,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.error.UnsupportedOperationException;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -39,7 +40,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -53,10 +53,15 @@ public class SftpController extends EndpointBaseController{
     @Autowired
     private VfsService vfsService;
 
-    @Override
     protected Mono<Stat> listOperation(RequestData requestData) {
         UserAction userAction = UserAction.convertToUserAction(requestData);
-        return vfsService.list(null, userAction).subscribeOn(Schedulers.elastic());
+//        return vfsService.list(null, userAction).subscribeOn(Schedulers.elastic());
+        return null;
+    }
+
+    @Override
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return null;
     }
 
     @Override

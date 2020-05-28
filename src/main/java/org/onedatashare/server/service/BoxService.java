@@ -27,6 +27,10 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.box.BoxResource;
@@ -45,26 +49,22 @@ public class BoxService extends ResourceService {
     @Autowired
     private UserService userService;
 
-    @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction).flatMap(BoxResource::stat);
     }
 
-    @Override
     public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::mkdir)
                 .then();
     }
 
-    @Override
     public Mono<Void> delete(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::delete)
                 .then();
     }
 
-    @Override
     public Mono<String> download(String cookie, UserAction userAction) {
         return getBoxResourceUserActionUri(cookie, userAction)
                 .flatMap(BoxResource::download);
@@ -106,5 +106,25 @@ public class BoxService extends ResourceService {
         }
         return path;
         }
+
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
     }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+}
 

@@ -24,11 +24,14 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Credential;
-import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.NotFoundException;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.useraction.UserAction;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
@@ -37,10 +40,10 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class ResourceService {
-    public abstract Mono<Stat> list(String cookie, UserAction userAction);
-    public abstract Mono<Void> mkdir(String cookie, UserAction userAction);
-    public abstract Mono<Void> delete(String cookie, UserAction userAction);
-    public abstract Mono<String> download(String cookie, UserAction userAction);
+    public abstract Mono<Stat> list(ListOperation listOperation);
+    public abstract Mono<Void> mkdir(MkdirOperation mkdirOperation);
+    public abstract Mono<Void> delete(DeleteOperation deleteOperation);
+    public abstract Mono<String> download(DownloadOperation downloadOperation);
 
     protected void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){
         if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {
@@ -53,5 +56,4 @@ public abstract class ResourceService {
         }
         sink.next(credential);
     }
-
 }

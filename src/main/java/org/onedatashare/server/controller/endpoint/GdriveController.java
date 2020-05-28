@@ -24,6 +24,7 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -44,10 +45,14 @@ public class GdriveController extends EndpointBaseController{
     @Autowired
     private GDriveOauthService gDriveOauthService;
 
-    @Override
     protected Mono<Stat> listOperation(RequestData requestData) {
         UserAction userAction = UserAction.convertToUserAction(requestData);
         return gdriveService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    }
+
+    @Override
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return null;
     }
 
     @Override

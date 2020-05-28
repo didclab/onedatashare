@@ -29,6 +29,10 @@ import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.googledrive.GDriveSession;
@@ -89,28 +93,44 @@ public class GDriveService extends ResourceService {
         return path;
     }
 
-    @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
     }
 
-    @Override
     public Mono<Void> mkdir(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
                 .then();
     }
 
-    @Override
     public Mono<Void> delete(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::delete)
                 .then();
     }
 
-    @Override
     public Mono<String> download(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::download);
+    }
+
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
     }
 }

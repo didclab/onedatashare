@@ -28,9 +28,9 @@ import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.error.TokenExpiredException;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,18 +38,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
-import java.util.Map;
-
 public abstract class EndpointBaseController {
     
     @GetMapping("/ls")
-    public Mono<Stat> list(@RequestParam Map<String, String> params) {
-        RequestData requestData = new RequestData();
-        requestData.setUri(params.get("uri"));
-        requestData.setType(params.get("type"));
-        requestData.setPortNumber(params.get("portNumber"));
-        requestData.setId("id");
-        return listOperation(requestData);
+    public Mono<Stat> list(@RequestParam String credId, @RequestParam String path,
+                           @RequestParam String identifier) {
+        ListOperation operation = ListOperation.builder()
+                .credId(credId)
+                .path(path)
+                .id(identifier)
+                .build();
+        return listOperation(operation);
     }
 
     @PostMapping("/mkdir")
@@ -67,7 +66,8 @@ public abstract class EndpointBaseController {
         return downloadOperation(requestData);
     }
 
-    protected abstract Mono<Stat> listOperation(RequestData requestData);
+    protected abstract Mono<Stat> listOperation(ListOperation listOperation);
+
     protected abstract Mono<Void> mkdirOperation(OperationRequestData operationRequestData);
     protected abstract Mono<Void> deleteOperation(OperationRequestData operationRequestData);
     protected abstract Mono<String> downloadOperation(RequestData requestData);

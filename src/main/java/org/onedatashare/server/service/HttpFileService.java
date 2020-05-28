@@ -23,10 +23,13 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.error.UnsupportedOperationException;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.http.HttpResource;
 import org.onedatashare.server.module.http.HttpSession;
@@ -63,25 +66,41 @@ public class HttpFileService extends ResourceService {
         return path;
     }
 
-    @Override
     public Mono<Stat> list(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(HttpResource::stat);
     }
 
-    @Override
     /* Not allowed */
     public Mono<Void> mkdir(String cookie, UserAction userAction) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     /* Not allowed */
     public Mono<Void> delete(String cookie, UserAction userAction) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
     public Mono<String> download(String cookie, UserAction userAction) {
+        return null;
+    }
+
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
         return null;
     }
 }

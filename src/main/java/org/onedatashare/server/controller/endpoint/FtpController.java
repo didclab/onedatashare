@@ -24,6 +24,7 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -40,9 +41,8 @@ public class FtpController extends EndpointBaseController{
     private VfsService vfsService;
 
     @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return vfsService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return null;
     }
 
     @Override

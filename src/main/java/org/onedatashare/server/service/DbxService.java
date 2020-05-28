@@ -25,6 +25,10 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.dropbox.DbxResource;
@@ -122,7 +126,6 @@ public class DbxService extends ResourceService{
                 .subscribeOn(Schedulers.elastic());
     }
 
-    @Override
     public Mono<String> download(String cookie, UserAction userAction) {
         return getDbxResourceWithUserActionUri(cookie,userAction)
                 .flatMap(DbxResource::generateDownloadLink).subscribeOn(Schedulers.elastic());
@@ -151,4 +154,23 @@ public class DbxService extends ResourceService{
                 .flatMap(DbxResource::generateDownloadLink).subscribeOn(Schedulers.elastic());
     }
 
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
 }
