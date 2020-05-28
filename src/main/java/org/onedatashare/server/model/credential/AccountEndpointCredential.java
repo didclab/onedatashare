@@ -31,6 +31,7 @@ import lombok.Data;
  */
 @Data
 public class AccountEndpointCredential extends EndpointCredential {
+    private String uri;
     private String username;
     private String secret;
 }

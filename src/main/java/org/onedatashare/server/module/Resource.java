@@ -1,7 +1,10 @@
-package org.onedatashare.server.module.resource;
+package org.onedatashare.server.module;
 
 import lombok.NoArgsConstructor;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
 
@@ -19,6 +22,8 @@ public abstract class Resource {
     }
 
     public abstract Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(Source source);
+    public abstract Mono<Stat> list(ListOperation listOperation);
+    public abstract Mono<Void> mkdir(MkdirOperation mkdirOperation);
 
     public String pathFromUri(String uri) throws UnsupportedEncodingException {
         String path = "";

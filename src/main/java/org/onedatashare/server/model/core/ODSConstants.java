@@ -69,7 +69,7 @@ public class ODSConstants {
 
     public static final long TRANSFER_SLICE_SIZE = 1<<20;
 
-    public static final long JWT_TOKEN_EXPIRES_IN = 86400;
+    public static final long JWT_TOKEN_EXPIRES_IN = 86400*100;
 
     public static final int MAX_FILES_TRANSFERRABLE = 1000;
 }

@@ -28,6 +28,7 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.service.FtpService;
 import org.onedatashare.server.service.VfsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -40,9 +41,12 @@ public class FtpController extends EndpointBaseController{
     @Autowired
     private VfsService vfsService;
 
+    @Autowired
+    private FtpService ftpService;
+
     @Override
     protected Mono<Stat> listOperation(ListOperation listOperation) {
-        return null;
+        return ftpService.list(listOperation);
     }
 
     @Override

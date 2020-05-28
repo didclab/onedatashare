@@ -24,14 +24,12 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.NotFoundException;
-import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
-import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
-import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.UserAction;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
@@ -44,6 +42,8 @@ public abstract class ResourceService {
     public abstract Mono<Void> mkdir(MkdirOperation mkdirOperation);
     public abstract Mono<Void> delete(DeleteOperation deleteOperation);
     public abstract Mono<String> download(DownloadOperation downloadOperation);
+
+    protected abstract Mono<? extends Resource> createResource(OperationBase operationBase);
 
     protected void fetchCredentialsFromUserAction(User usr, SynchronousSink sink, UserAction userAction){
         if(userAction.getCredential() == null || userAction.getCredential().getUuid() == null) {

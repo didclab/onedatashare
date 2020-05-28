@@ -7,8 +7,8 @@ import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.module.resource.Resource;
-import org.onedatashare.server.module.vfsBase.VfsResource;
+import org.onedatashare.server.module.Resource;
+import org.onedatashare.server.module.VfsResource;
 import reactor.core.publisher.Mono;
 
 public class FtpResource extends VfsResource {
@@ -25,7 +25,6 @@ public class FtpResource extends VfsResource {
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
         }
 
-        
         this.fileSystemManager = VFS.getManager();
     }
 
@@ -37,7 +36,6 @@ public class FtpResource extends VfsResource {
             } catch (Exception e) {
                 s.error(e);
             }
-            return;
         });
     }
 }

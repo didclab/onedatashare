@@ -29,10 +29,7 @@ import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
-import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
-import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.googledrive.GDriveSession;
@@ -131,6 +128,11 @@ public class GDriveService extends ResourceService {
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
         return null;
     }
 }

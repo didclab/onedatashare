@@ -27,10 +27,7 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
-import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
-import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.module.box.BoxResource;
@@ -124,6 +121,11 @@ public class BoxService extends ResourceService {
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
         return null;
     }
 }

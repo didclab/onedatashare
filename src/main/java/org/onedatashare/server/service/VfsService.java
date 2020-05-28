@@ -23,12 +23,10 @@
 
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.core.Resource;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.UserInfoCredential;
-import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
-import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
-import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -121,8 +119,6 @@ public class VfsService extends ResourceService {
 
     @Override
     public Mono<Stat> list(ListOperation listOperation) {
-//        return getResourceWithUserActionUri(cookie, userAction)
-//                .flatMap(VfsResource::list);
         return null;
     }
 
@@ -138,6 +134,11 @@ public class VfsService extends ResourceService {
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
         return null;
     }
 

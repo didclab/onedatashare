@@ -8,8 +8,6 @@ import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.module.resource.Resource;
-import org.onedatashare.server.module.vfsBase.VfsResource;
 import reactor.core.publisher.Mono;
 
 public class SftpResource extends VfsResource {
@@ -37,7 +35,6 @@ public class SftpResource extends VfsResource {
             } catch (Exception e) {
                 s.error(e);
             }
-            return;
         });
     }
 }
