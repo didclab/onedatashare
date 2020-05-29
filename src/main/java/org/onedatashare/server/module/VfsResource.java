@@ -4,6 +4,11 @@ import org.apache.commons.vfs2.*;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.model.filesystem.exceptions.FileAlreadyExistsException;
+import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
+import org.onedatashare.server.model.filesystem.exceptions.NoWritePermissionException;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
@@ -24,6 +29,32 @@ public class VfsResource extends Resource {
     public VfsResource(EndpointCredential credential){
         this.credential = credential;
         this.baseUri = ((AccountEndpointCredential) credential).getUri();
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation operation) {
+        return Mono.create(s ->{
+            try {
+                FileObject fileObject = this.resolveFile(this.baseUri + operation.getPath() + operation.getToDelete());
+                if(!fileObject.exists()){
+                    s.error(new FileNotFoundException());
+                    return;
+                }
+                if(fileObject.isWriteable()){
+                    fileObject.deleteAll();
+                    s.success();
+                }
+                else {
+                    s.error(new NoWritePermissionException());
+                }
+            } catch (FileSystemException e) {
+                s.error(e);
+            }
+        });
+    }
+
+    protected FileObject resolveFile(String path) throws FileSystemException {
+        return this.fileSystemManager.resolveFile(path, this.fileSystemOptions);
     }
 
     private Stat fileToStat(FileObject file) throws FileSystemException{
@@ -89,8 +120,11 @@ public class VfsResource extends Resource {
         return Mono.create(s -> {
             try {
                 Stat stat;
-                FileObject fileObject = this.fileSystemManager.resolveFile(this.baseUri + listOperation.getId(),
-                        this.fileSystemOptions);
+                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());
+                if(!fileObject.exists()){
+                    s.error(new FileNotFoundException());
+                    return;
+                }
                 stat = fileToStat(fileObject);
                 if(fileObject.getType() == FileType.FOLDER) {
                     FileObject[] children = fileObject.getChildren();
@@ -111,14 +145,29 @@ public class VfsResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
         return Mono.create(s -> {
             try {
-                FileObject fileObject = this.fileSystemManager.resolveFile(this.baseUri + mkdirOperation.getId(),
-                        this.fileSystemOptions);
+                FileObject fileObject = this.resolveFile(this.baseUri
+                        + mkdirOperation.getId() + mkdirOperation.getFolderToCreate());
+                if(fileObject.exists()){
+                    s.error(new FileAlreadyExistsException());
+                    return;
+                }
+                if(fileObject.isWriteable()){
+                    s.error(new NoWritePermissionException());
+                    return;
+                }
                 fileObject.createFolder();
                 s.success();
             } catch (FileSystemException e) {
                 e.printStackTrace();
                 s.error(e);
             }
+        });
+    }
+
+    @Override
+    public Mono download(DownloadOperation operation) {
+        return Mono.create(s -> {
+
         });
     }
 }

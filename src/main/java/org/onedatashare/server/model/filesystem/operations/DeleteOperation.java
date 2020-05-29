@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class DeleteOperation extends OperationBase{
-    private String folderToDelete;
+    private String toDelete;
 
     @Builder
     public DeleteOperation(String credId, String path, String id) {

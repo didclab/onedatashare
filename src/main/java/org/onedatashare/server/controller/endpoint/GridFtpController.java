@@ -1,7 +1,10 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.OperationRequestData;
 import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.useraction.UserAction;
@@ -23,18 +26,30 @@ public class GridFtpController extends EndpointBaseController{
     }
 
     @Override
+    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<String> downloadOperation(DownloadOperation downloadOperation) {
+        return null;
+    }
+
     protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
         return gridftpService.mkdir(null, userAction);
     }
 
-    @Override
     protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
         return gridftpService.delete(null, userAction);
     }
 
-    @Override
     protected Mono<String> downloadOperation(RequestData requestData) {
         return null;
     }

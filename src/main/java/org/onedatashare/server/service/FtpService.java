@@ -2,7 +2,10 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.module.ftp.FtpResource;
 import org.onedatashare.server.module.Resource;
@@ -29,9 +32,26 @@ public class FtpService extends ResourceServiceBase {
     }
 
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return this.getResource(listOperation.getCredId())
-                .flatMap(resource -> resource.list(listOperation));
+    public Mono<Void> delete(DeleteOperation operation) {
+        return this.getResource(operation.getCredId())
+                .flatMap(resource -> resource.delete(operation));
+    }
+
+    @Override
+    public Mono<Stat> list(ListOperation operation) {
+        return this.getResource(operation.getCredId())
+                .flatMap(resource -> resource.list(operation));
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation operation) {
+        return this.getResource(operation.getCredId())
+                .flatMap(resource -> resource.mkdir(operation));
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation operation) {
+        return null;
     }
 
     @Override
