@@ -27,7 +27,7 @@ import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
 import lombok.Getter;
-import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -87,20 +87,19 @@ public class DbxOauthService  {
                 .build());
     }
 
-    public Mono<OAuthCredential> finish(Map<String, String> queryParameters) {
-        return Mono.fromSupplier(() -> {
+    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
+        return Mono.create(s -> {
             Map<String,String[]> map = new HashMap();
             map.put(STATE, new String[] {queryParameters.get(STATE)});
             map.put(CODE, new String[] {queryParameters.get(CODE)});
             try {
                 DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
-                OAuthCredential cred = new OAuthCredential(finish.getAccessToken());
                 FullAccount account = new DbxClientV2(config, finish.getAccessToken()).users().getCurrentAccount();
-                cred.name = "Dropbox: " + account.getEmail();
-                cred.dropboxID = account.getAccountId();
-                return cred;
+                OAuthEndpointCredential credential = new OAuthEndpointCredential(account.getAccountId())
+                        .setToken(finish.getAccessToken());
+                s.success(credential);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                s.error(e);
             }
         });
     }

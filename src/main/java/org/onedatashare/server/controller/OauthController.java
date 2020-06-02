@@ -24,22 +24,27 @@
 package org.onedatashare.server.controller;
 
 import org.codehaus.jackson.map.ObjectMapper;
+import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.service.ODSLoggerService;
-import org.onedatashare.server.service.oauth.*;
-
 import org.onedatashare.server.model.error.NotFoundException;
+import org.onedatashare.server.service.CredentialService;
+import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.UserService;
+import org.onedatashare.server.service.oauth.BoxOauthService;
+import org.onedatashare.server.service.oauth.DbxOauthService;
+import org.onedatashare.server.service.oauth.GDriveOauthService;
+import org.onedatashare.server.service.oauth.GridFtpAuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
@@ -63,11 +68,14 @@ public class OauthController {
     @Autowired
     private BoxOauthService boxOauthService;
 
+    @Autowired
+    private CredentialService credentialService;
+
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private static final String gDrive = "gdrive";
+    private static final String gdrive = "gdrive";
     private static final String dropbox = "dropbox";
-    private static final String gridFtp = "gftp";
+    private static final String gridftp = "gftp";
     private static final String box = "box";
 
     /**
@@ -75,9 +83,8 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = gDrive)
-    public Object googledriveOauthFinish(@RequestParam Map<String, String> queryParameters) {
-
+    @GetMapping(value = gdrive)
+    public Mono googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters) {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
@@ -92,28 +99,12 @@ public class OauthController {
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
 
-        return userService.getLoggedInUser()
-                .flatMap(user -> {
-                    if (user.isSaveOAuthTokens()) {
-                        return gDriveOauthService.finish(queryParameters)
-                                .flatMap(oAuthCred -> userService.saveCredential(null, oAuthCred))
-                                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
-                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive").build()));
-                    } else {
-                        return gDriveOauthService.finish(queryParameters)
-                                .map(oAuthCred -> {
-                                    try {
-                                        return "/oauth/googledrive?creds=" +
-                                                URLEncoder.encode(objectMapper.writeValueAsString(oAuthCred), StandardCharsets.UTF_8.toString());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    return null;
-                                })
-                                .map(oAuthCredLink -> Rendering.redirectTo(oAuthCredLink).build())
-                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredGoogleDrive").build()));
-                    }
-                });
+        return userService.getLoggedInUserEmail()
+                .flatMap(user -> gDriveOauthService.finish(queryParameters)
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)
+                                .map(v -> credential.getAccountId())
+                        )
+                );
     }
 
     /**
@@ -122,8 +113,7 @@ public class OauthController {
      * @return Mono\<String\>
      */
     @GetMapping(value = dropbox)
-    public Object dropboxOauthFinish(@RequestParam Map<String, String> queryParameters) {
-
+    public Mono dropboxOauthFinish(@RequestParam Map<String, String> queryParameters) {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error_description")) {
@@ -138,25 +128,12 @@ public class OauthController {
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
 
-        return userService.getLoggedInUser().flatMap(user -> {
-            if (user.isSaveOAuthTokens())
-                return dbxOauthService.finish(queryParameters)
-                        .flatMap(oauthCred -> userService.saveCredential(null, oauthCred))
-                        .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
-                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
-            else
-                return dbxOauthService.finish(queryParameters)
-                        .map(oAuthCredential -> {
-                            try {
-                                return "/oauth/dropbox?creds=" + URLEncoder.encode(objectMapper.writeValueAsString(oAuthCredential), StandardCharsets.UTF_8.toString());
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                            return null;
-                        })
-                        .map(oauthCred -> Rendering.redirectTo(oauthCred).build())
-                        .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredDropbox").build()));
-        });
+        return userService.getLoggedInUserEmail()
+                .flatMap(user -> dbxOauthService.finish(queryParameters)
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.dropbox)
+                                .map(v -> credential.getAccountId())
+                        )
+                );
     }
 
     /**
@@ -164,19 +141,26 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = gridFtp)
-    public Object gridftpOauthFinish(@RequestParam Map<String, String> queryParameters) {
-        return gridFtpAuthService.finish(queryParameters)
-                .flatMap(oauthCred -> userService.saveCredential(null, oauthCred))
-                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build());
+    @GetMapping(value = gridftp)
+    public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters) {
+        if (!queryParameters.containsKey("code")) {
+            return Mono.just(Rendering.redirectTo("/transfer").build());
+        }
+        return userService.getLoggedInUserEmail()
+                .flatMap(user -> gridFtpAuthService.finish(queryParameters)
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.dropbox)
+                                .map(v -> credential.getAccountId())
+                        )
+                );
     }
+
     /**
      * Handler for Box requests
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
     @GetMapping(value = box)
-    public Object boxOauthFinish(@RequestParam Map<String, String> queryParameters){
+    public Mono boxOauthFinish(@RequestParam Map<String, String> queryParameters){
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
@@ -191,28 +175,12 @@ public class OauthController {
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
 
-        return userService.getLoggedInUser()
-                .flatMap(user -> {
-                    if (user.isSaveOAuthTokens()) {
-                        return boxOauthService.finish(queryParameters)
-                                .flatMap(oAuthCred -> userService.saveCredential(null, oAuthCred))
-                                .map(uuid -> Rendering.redirectTo("/oauth/uuid?identifier=" + uuid).build())
-                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
-                    } else {
-                        return boxOauthService.finish(queryParameters)
-                                .map(oAuthCred -> {
-                                    try {
-                                        return "/oauth/box?creds=" +
-                                                URLEncoder.encode(objectMapper.writeValueAsString(oAuthCred), StandardCharsets.UTF_8.toString());
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                    return null;
-                                })
-                                .map(oAuthCredLink -> Rendering.redirectTo(oAuthCredLink).build())
-                                .switchIfEmpty(Mono.just(Rendering.redirectTo("/oauth/ExistingCredBox").build()));
-                    }
-                });
+        return userService.getLoggedInUserEmail()
+                .flatMap(user -> boxOauthService.finish(queryParameters)
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.box)
+                                .map(v -> credential.getAccountId())
+                        )
+                );
     }
 
     @GetMapping
@@ -222,9 +190,9 @@ public class OauthController {
                 return Rendering.redirectTo(boxOauthService.start()).build();
             case dropbox:
                 return Rendering.redirectTo(dbxOauthService.start()).build();
-            case gDrive:
+            case gdrive:
                 return Rendering.redirectTo(gDriveOauthService.start()).build();
-            case gridFtp:
+            case gridftp:
                 return Rendering.redirectTo(gridFtpAuthService.start()).build();
             default:
                 throw new NotFoundException();

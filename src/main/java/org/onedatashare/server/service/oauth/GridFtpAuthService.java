@@ -2,7 +2,7 @@ package org.onedatashare.server.service.oauth;
 
 import lombok.Getter;
 import org.onedatashare.module.globusapi.GlobusClient;
-import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,6 @@ public class GridFtpAuthService {
 
     public String start() {
         try {
-            // Authorize the DbxWebAuth auth as well as redirect the user to the finishURI, done this way to appease OAuth 2.0
             String url = globusclient.generateAuthURL();
             return url;
         } catch (Exception e) {
@@ -51,20 +50,15 @@ public class GridFtpAuthService {
         }
     }
 
-    public Mono<OAuthCredential> finish(Map<String, String> queryParameters) {
+    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
         String token = queryParameters.get("code");
-        try {
-            return globusclient.getAccessToken(token).map(
-                    accessToken -> {
-                        OAuthCredential oa = new OAuthCredential(accessToken.getTransferAccessToken());
-                        oa.expiredTime = accessToken.getExpiredTime();
-                        oa.name = "GridFTP Client";
-                        return oa;
-                    }
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
+        return globusclient.getAccessToken(token)
+                .map(accessToken -> {
+                    OAuthEndpointCredential credential = new OAuthEndpointCredential("GridFTP Client")
+                            .setToken(accessToken.getTransferAccessToken())
+                            .setRefreshToken(accessToken.getRefreshToken())
+                            .setExpiresAt(accessToken.getExpiredTime());
+                    return credential;
+                });
     }
 }

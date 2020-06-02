@@ -23,15 +23,14 @@
 
 package org.onedatashare.server.service;
 
-import org.apache.http.entity.ContentType;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -45,14 +44,15 @@ public class CredentialService {
 
     @Value("${cred.service.uri}")
     private String credentialServiceUrl;
+    private String urlFormatted;
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
     @PostConstruct
     private void initialize(){
+        this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
         this.client = WebClient.builder()
                 .baseUrl(credentialServiceUrl)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
                 .build();
     }
 
@@ -63,7 +63,7 @@ public class CredentialService {
 
     private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
         return client.get()
-                .uri(URI.create(String.format("%s/%s/%s/%s",credentialServiceUrl, userId, type, credId)))
+                .uri(URI.create(String.format(urlFormatted, userId, type, credId)))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
@@ -75,6 +75,22 @@ public class CredentialService {
                         userId -> fetchCredential(userId, type, credId)
                         .bodyToMono(AccountEndpointCredential.class)
                 );
+    }
+
+    public Mono<Void> createCredential(AccountEndpointCredential credential, String userId, EndpointType type){
+        return client.post()
+                .uri(URI.create(String.format(urlFormatted, userId, "account-cred", type)))
+                .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
+                .exchange()
+                .then();
+    }
+
+    public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type){
+        return client.post()
+                .uri(URI.create(String.format(urlFormatted, userId, "oauth-cred" ,type)))
+                .body(BodyInserters.fromPublisher(Mono.just(credential), OAuthEndpointCredential.class))
+                .exchange()
+                .then();
     }
 
     public Mono<OAuthEndpointCredential> fetchOAuthCredential(EndpointType type, String credId){

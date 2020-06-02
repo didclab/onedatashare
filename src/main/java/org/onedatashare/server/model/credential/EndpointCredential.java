@@ -34,4 +34,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class EndpointCredential{
     protected String accountId;
+
+    public EndpointCredential(String accountId){
+        this.accountId = accountId;
+    }
+
+    public EndpointCredential(){}
 }
