@@ -28,15 +28,11 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.service.DbxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/dropbox")
@@ -45,37 +41,22 @@ public class DbxController extends EndpointBaseController{
     private DbxService dbxService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation listOperation) {
-        return null;
+    protected Mono<Stat> listOperation(ListOperation operation) {
+        return dbxService.list(operation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        return null;
+        return dbxService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
-        return null;
+    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+        return dbxService.delete(operation);
     }
 
     @Override
-    protected Mono<String> downloadOperation(DownloadOperation downloadOperation) {
-        return null;
-    }
-
-    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return dbxService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
-    }
-
-    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return dbxService.delete(null, userAction).subscribeOn(Schedulers.elastic());
-    }
-    
-    protected Mono<String> downloadOperation(RequestData requestData){
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return dbxService.download(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<String> downloadOperation(DownloadOperation operation) {
+        return dbxService.download(operation);
     }
 }
