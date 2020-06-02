@@ -28,9 +28,7 @@ public abstract class Resource {
 
     public abstract Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source);
 
-    public String pathFromUri(String uri) throws UnsupportedEncodingException {
-        String path = "";
-        path = java.net.URLDecoder.decode(path, "UTF-8");
-        return path;
+    public String pathFromUrl(String url) throws UnsupportedEncodingException {
+        return java.net.URLDecoder.decode(url, "UTF-8");
     }
 }

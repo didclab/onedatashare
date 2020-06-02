@@ -12,6 +12,7 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
+import org.onedatashare.server.model.response.DownloadResponse;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class VfsResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s ->{
             try {
-                FileObject fileObject = this.resolveFile(this.baseUri + operation.getPath() + operation.getToDelete());
+                FileObject fileObject = this.resolveFile(this.baseUri + operation.getId() + operation.getToDelete());
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;
@@ -77,12 +78,12 @@ public class VfsResource extends Resource {
     @Override
     public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
         return Mono.create(s -> {
-            String basePath = source.getInfo().getPath();
+            String basePath = source.getInfo().getId();
             List<TransferJobRequest.EntityInfo> filesToTransferList = new LinkedList<>();
             Stack<FileObject> traversalStack = new Stack<>();
             try {
                 for(TransferJobRequest.EntityInfo e : source.getInfoList()){
-                    FileObject fObject = this.fileSystemManager.resolveFile(this.baseUri + basePath + e.getPath(),
+                    FileObject fObject = this.fileSystemManager.resolveFile(this.baseUri + basePath + e.getId(),
                             this.fileSystemOptions);
                     traversalStack.push(fObject);
                 }
@@ -158,7 +159,6 @@ public class VfsResource extends Resource {
                 fileObject.createFolder();
                 s.success();
             } catch (FileSystemException e) {
-                e.printStackTrace();
                 s.error(e);
             }
         });
@@ -167,7 +167,17 @@ public class VfsResource extends Resource {
     @Override
     public Mono download(DownloadOperation operation) {
         return Mono.create(s -> {
-
+            try {
+                String url = this.baseUri + operation.getId() + operation.fileToDownload;
+                FileObject fileObject = this.resolveFile(url);
+                if(!fileObject.exists()){
+                    s.error(new FileNotFoundException());
+                    return;
+                }
+                s.success(new DownloadResponse(url));
+            } catch (FileSystemException e) {
+                s.error(e);
+            }
         });
     }
 }
