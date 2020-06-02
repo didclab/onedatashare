@@ -26,9 +26,9 @@ export default class Terminal extends Component{
 checkEndpointlogin = () =>
 {
 
- if(this.props.endpoint1.login===true)
+ if(this.props.endpoint.login===true)
  {
-    if(this.props.endpoint1.uri.startsWith("sftp://"))
+    if(this.props.endpoint.uri.startsWith("sftp://"))
     {
        return true;
     }
@@ -64,7 +64,7 @@ return false;
          		his.push(inputelement);
          		this.setState({isLoading:true});
          		 CliInterface(
-                         				inputelement,this.props.endpoint1.uri.slice(7),this.props.endpoint1.credential.username,this.props.endpoint1.credential.password,this.props.endpoint1.portNumber,
+                         				inputelement,this.props.endpoint.uri.slice(7),this.props.endpoint.credential.username,this.props.endpoint.credential.password,this.props.endpoint.portNumber,
                          				(resp) => {
 
                          				     this.setState({isLoading:false});
@@ -104,7 +104,7 @@ return false;
                    <Toolbar>
                    <Grid>
                      <Typography variant="h6">
-                       CLI for first endpoint &nbsp;&nbsp;&nbsp;>>
+                       CLI &nbsp;&nbsp;&nbsp;>>
                      </Typography>
                      </Grid>
                    </Toolbar>
@@ -113,7 +113,7 @@ return false;
            {(this.state.show)?
            <div id ="show">
                 <div style={{height:'300px', backgroundColor:"black",color:"white",fontFamily: "courier",overflow: "scroll"}}>
-                <div style={{fontFamily: "courier"}}>Welcome to OneDataShare, You are in first endpoint Terminal. Please enter your commands. <br/>logged as {this.props.endpoint1.credential.username}.</div>
+                <div style={{fontFamily: "courier"}}>Welcome to OneDataShare. Please enter your commands. <br/>logged as {this.props.endpoint.credential.username}.</div>
 
                 <div id="terminalOutput"> {this.state.history.map((name,index)=>{
                                                  if(index%2!==0)
@@ -129,7 +129,7 @@ return false;
                                                  }
                  })}</div>
                  {(this.state.isLoading)?<div> <Bounce color="green" size={20}  /></div>:<div>
-              {this.props.endpoint1.credential.username}>><input type="text" autoFocus='autoFocus' size='40' style ={{backgroundColor:"black",border:"none",background:"black",outline:"none"}}  onChange={this.textChange} value={this.state.value} onKeyDown={this.KeyPress} id="terminalInput"/></div>}
+              {this.props.endpoint.credential.username}>><input type="text" autoFocus='autoFocus' size='40' style ={{backgroundColor:"black",border:"none",background:"black",outline:"none"}}  onChange={this.textChange} value={this.state.value} onKeyDown={this.KeyPress} id="terminalInput"/></div>}
                </div>
            </div>:null
            }

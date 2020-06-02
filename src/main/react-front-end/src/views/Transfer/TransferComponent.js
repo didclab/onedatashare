@@ -49,7 +49,6 @@ import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import  Terminal  from '../Terminal';
-import  Terminal2  from '../Terminal2';
 
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
@@ -506,8 +505,8 @@ export default class TransferComponent extends Component {
               </Panel.Body>
             </Panel>}
             <div>
-            <Terminal endpoint1={this.state.endpoint1} /> <br/>
-            <Terminal2 endpoint2={this.state.endpoint2} />
+            <Terminal endpoint={this.state.endpoint1} /> <br/>
+            <Terminal endpoint={this.state.endpoint2} />
 
             </div>
         </Col>
