@@ -616,7 +616,6 @@ export default class EndpointBrowseComponent extends Component {
 				  			emptyFileNodesData(endpoint);
 				  			unselectAll();
 				  			back();
-				  			eventEmitter.emit("sftpterminalaccess",false);
 				  		}}
 				  			><LogoutButton style={iconStyle}/></BootStrapButton>
 					</OverlayTrigger>

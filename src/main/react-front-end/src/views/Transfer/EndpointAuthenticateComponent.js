@@ -64,7 +64,7 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import  Terminal  from '../Terminal';
+
 
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
 export default class EndpointAuthenticateComponent extends Component {
@@ -94,7 +94,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			selectingEndpoint: false,
 			portNum: -1,
 			portNumField: true,
-			//flag:0
 		};
 
 		let loginType = getType(props.endpoint);
@@ -221,15 +220,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
 				 //console.log(suc)
-				 if(this.state.url.startsWith("sftp://"))
-				 {
-				 let jsEncrypt = new JSEncrypt();
-                 jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-                 let sftpencryptedPwd = jsEncrypt.encrypt(this.state.password);
-                 eventEmitter.emit("sftpterminalaccess",true);
-				 eventEmitter.emit("sftploginsuccessmessage", this.state.url,this.state.username,sftpencryptedPwd,this.state.portNum);
 
-				 }
 			}, (error) => {
 				this._handleError(error);
 			})

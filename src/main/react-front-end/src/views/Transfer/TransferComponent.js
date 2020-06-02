@@ -49,6 +49,8 @@ import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import  Terminal  from '../Terminal';
+import  Terminal2  from '../Terminal2';
+
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
 
@@ -73,7 +75,7 @@ export default class TransferComponent extends Component {
         retry: 5
       },
       compact: store.getState().compactViewEnabled,
-      terminalFlag:false
+     // terminalFlag:false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -92,7 +94,6 @@ export default class TransferComponent extends Component {
     this.sendFile = this.sendFile.bind(this);
     this.onSendToRight = this.onSendToRight.bind(this);
     this.onSendToLeft = this.onSendToLeft.bind(this);
-    this.terminalAccess=this.terminalAccess.bind(this);
 
     this.printError();
 
@@ -113,7 +114,6 @@ export default class TransferComponent extends Component {
     window.addEventListener("resize", this.updateDimensions);
     this.setState({ width: window.innerWidth, height: window.innerHeight });
     this.setState({ compact: store.getState().compactViewEnabled });
-    eventEmitter.on("sftpterminalaccess", this.terminalAccess);
   }
 
   sendFile = (processed) => {
@@ -176,10 +176,7 @@ export default class TransferComponent extends Component {
     }
   }
 
-terminalAccess(msg)
-{
-this.setState({terminalFlag:msg})
-}
+
 
   _returnBrowseComponent1() {
     const { mode1, endpoint1, history, compact } = this.state;
@@ -508,7 +505,11 @@ this.setState({terminalFlag:msg})
 
               </Panel.Body>
             </Panel>}
-            { this.state.terminalFlag?(<Terminal />) : null }
+            <div>
+            <Terminal endpoint1={this.state.endpoint1} /> <br/>
+            <Terminal2 endpoint2={this.state.endpoint2} />
+
+            </div>
         </Col>
       </div>
     );
