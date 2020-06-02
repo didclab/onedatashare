@@ -116,4 +116,4 @@ src/main/resources/static/
 *.json
 
 #.DS_Store for maxs
-.DS_Stores
+.DS_Store
