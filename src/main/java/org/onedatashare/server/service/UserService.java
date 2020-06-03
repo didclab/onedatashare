@@ -80,7 +80,7 @@ public class UserService {
                 .doOnSuccess(userLogin -> saveLastActivity(email,System.currentTimeMillis()).subscribe());
     }
 
-    public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
+    public Object register(String email, String firstName, String lastName, String password, String organization, String captchaVerificationValue) {
         if (!emailService.isValidEmail(email)) {
             return Mono.error(new InvalidFieldException("Invalid Email id"));
         }
@@ -91,7 +91,7 @@ public class UserService {
 
                             // This would be a same temporary password for each user while creating,
                             // once the user goes through the whole User creation workflow, he/she can change the password.
-                            String password = User.salt(20);
+//                            String password = User.salt(20);
                             if(user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
                                 ODSLoggerService.logWarning("User with email " + email + " already exists.");
                                 if(!user.isValidated()){
@@ -288,7 +288,11 @@ public class UserService {
             userRepository.save(user).subscribe();
             try {
                 String subject = "OneDataShare Authorization Code";
-                String emailText = "The authorization code for your OneDataShare account is : " + code;
+//                String emailText = "The authorization code for your OneDataShare account is : " + code;
+                String emailText = "To confirm your account, please click here: "
+//                        + "http://localhost:3000/confirm-account?token="+code;
+                + "/confirm-account?token="+code;
+
                 emailService.sendEmail(email, subject, emailText);
             }
             catch (Exception ex) {
@@ -346,7 +350,8 @@ public class UserService {
                 userRepository.save(user).subscribe();
                 return Mono.just(user.getAuthToken());
             }else{
-                return Mono.error(new Exception("Code not match"));
+//                return Mono.error(new Exception("Code not match"));
+                return Mono.error(new Exception("The link is invalid or broken!"));
             }
         });
     }
