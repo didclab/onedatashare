@@ -59,6 +59,8 @@ public class User {
     /** User last name */
     private String lastName;
 
+    private String password;
+
     /** User last Activity */
     private Long lastActivity;
 
@@ -124,6 +126,7 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
         this.organization = organization;
+//        this.password = password;
         this.setPassword(password);
         this.roles = new ArrayList<>();
         this.roles.add(Role.USER);

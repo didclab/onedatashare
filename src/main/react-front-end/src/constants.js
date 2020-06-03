@@ -65,6 +65,7 @@ export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
 
 export const REGISTRATION_ENDPOINT = "/register";
 export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+//export const EMAIL_VERIFICATION_ENDPOINT = "/confirm-account";
 export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
 export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";

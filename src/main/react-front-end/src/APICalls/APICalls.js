@@ -747,6 +747,7 @@ export async function registerUser(requestBody, errorCallback) {
 
 export async function verifyRegistraionCode(emailId, code) {
     return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
+//    return axios.post(/confirm-account, {
     	    email : emailId,
     	    code : code
     	})

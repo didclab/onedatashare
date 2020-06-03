@@ -63,6 +63,8 @@ export default class CreateAccountComponent extends Component {
       cpassword: "",
       code: "",
       screen: props.loadVerifyCode ? "verifyCode" : "registration",
+//      screen: props.loadVerifyCode ? "setPassword" : "registration",
+
       verificationError: "",
       passwordError: "",
       firstName: "",
@@ -90,6 +92,8 @@ export default class CreateAccountComponent extends Component {
     this.firstNameValidationMsg = "Please Enter Your First Name"
     this.lastNameValidationMsg = "Please Enter Your Last Name"
     this.emailValidationMsg = "Please Enter EmailId"
+    this.password = "Please enter the password"
+    this.confirmPassword = "Please re-enter the password"
     this.captchaRef = null;
 
     this.registerAccount = this.registerAccount.bind(this);
@@ -112,6 +116,8 @@ export default class CreateAccountComponent extends Component {
         lastName: this.state.lastName,
         organization: this.state.organization,
         description: this.state.description,
+        password: this.state.password,
+        confirmPassword: this.state.cpassword,
         captchaVerificationValue: this.state.captchaVerificationValue
       }
 
@@ -297,89 +303,6 @@ export default class CreateAccountComponent extends Component {
             />
 
             <TextField
-              id="Organization"
-              label={"Organization"}
-              value={this.state.organization}
-              style={textBoxStyle}
-              onChange={handleChange('organization')}
-            />
-
-            <FormControlLabel
-              control={
-                <Checkbox checked={confirmation} value={"ok"}
-                  onChange={(event) => {
-                    this.setState({ confirmation: !confirmation })
-                  }}
-                  color="primary"
-                />
-              } label={disclaimer} />
-
-            <div style={captchaStyle}>
-              <ReCAPTCHA
-                sitekey={process.env.REACT_APP_GC_CLIENT_KEY}
-                onChange={this.handleCaptchaEvent}
-                ref={r => this.captchaRef = r}
-              />
-            </div>
-
-            <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
-              <Button size="medium" variant="outlined" color="primary">
-                <Link to="/account/signIn">
-                  Sign in
-                </Link>
-              </Button>
-              <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
-                Next
-              </Button>
-            </CardActions>
-
-          </ValidatorForm>
-        </div>);
-    }
-
-    if (screen === "verifyCode") {
-      return (
-        <div className="enter-from-right slide-in">
-          <Typography style={{ fontSize: "1.1em", margin: "2%", overflowWrap: 'break-word' }}>
-            Please check {this.state.email} for authorization code
-            </Typography>
-          <TextField
-            id="code"
-            label={this.state.verificationError === "" ? "Enter Verification Code" : "Please Enter Valid Verification Code"}
-            value={this.state.verificationCode}
-            style={{ width: '100%', marginBottom: '50px' }}
-            onChange={handleChange('verificationCode')}
-            error={this.state.verificationError === "Please Enter Valid Verification Code"}
-          />
-
-          <CardActions style={{ ...spaceBetweenStyle }}>
-            <Button size="medium" variant="outlined" color="primary"
-              onClick={() => {
-                if (this.state.isLostVerifyCode) {
-                  this.setState({ screen: "validateEmail" })
-                }
-                else {
-                  this.setState({ screen: "registration" });
-                }
-              }}>
-              Back
-            </Button>
-            <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
-              Next
-                </Button>
-          </CardActions>
-        </div>
-      );
-    }
-
-    if (screen === "setPassword") {
-      return (
-        <div className="enter-from-right slide-in">
-          <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
-            Code Verified! Please set password for your account
-          </Typography>
-
-          <TextField
             id="Password"
             label="Password"
             type={this.state.isPwdVisible ? "text" : "password"}
@@ -423,21 +346,168 @@ export default class CreateAccountComponent extends Component {
                 </React.Fragment>
             }}
           />
+
           <PasswordRequirementsComponent
-            showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
-            errorMsg={this.state.passwordErrorMsg} />
-          <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
-            <Button size="medium" variant="outlined" color="primary" onClick={() => {
-              this.setState({ screen: "verifyCode" });
-            }}>
-              Back
+              showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
+              errorMsg={this.state.passwordErrorMsg}
+
+          />
+
+
+            <TextField
+              id="Organization"
+              label={"Organization"}
+              value={this.state.organization}
+              style={textBoxStyle}
+              onChange={handleChange('organization')}
+            />
+
+            <FormControlLabel
+              control={
+                <Checkbox checked={confirmation} value={"ok"}
+                  onChange={(event) => {
+                    this.setState({ confirmation: !confirmation })
+                  }}
+                  color="primary"
+                />
+              } label={disclaimer} />
+
+            <div style={captchaStyle}>
+              <ReCAPTCHA
+                sitekey={process.env.REACT_APP_GC_CLIENT_KEY}
+                onChange={this.handleCaptchaEvent}
+                ref={r => this.captchaRef = r}
+              />
+            </div>
+
+            <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
+              <Button size="medium" variant="outlined" color="primary">
+                <Link to="/account/signIn">
+                  Sign in
+                </Link>
               </Button>
-            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.password && this.state.cpassword)}>
-              Next
+              <Button size="medium" variant="contained" color="primary" disabled={!confirmation} style={{ marginLeft: '4vw' }} type="submit">
+                Next
               </Button>
-          </CardActions>
+            </CardActions>
+
+          </ValidatorForm>
+        </div>);
+    }
+
+//    if (screen === "verifyCode") {
+//      return (
+//        <div className="enter-from-right slide-in">
+//          <Typography style={{ fontSize: "1.1em", margin: "2%", overflowWrap: 'break-word' }}>
+//            Please check {this.state.email} for authorization code
+//            </Typography>
+//          <TextField
+//            id="code"
+//            label={this.state.verificationError === "" ? "Enter Verification Code" : "Please Enter Valid Verification Code"}
+//            value={this.state.verificationCode}
+//            style={{ width: '100%', marginBottom: '50px' }}
+//            onChange={handleChange('verificationCode')}
+//            error={this.state.verificationError === "Please Enter Valid Verification Code"}
+//          />
+//
+//          <CardActions style={{ ...spaceBetweenStyle }}>
+//            <Button size="medium" variant="outlined" color="primary"
+//              onClick={() => {
+//                if (this.state.isLostVerifyCode) {
+//                  this.setState({ screen: "validateEmail" })
+//                }
+//                else {
+//                  this.setState({ screen: "registration" });
+//                }
+//              }}>
+//              Back
+//            </Button>
+//            <Button size="large" variant="contained" color="primary" type="submit" style={{ marginLeft: '4vw' }} onClick={this.verifyAccount}>
+//              Next
+//                </Button>
+//          </CardActions>
+//        </div>
+//      );
+//    }
+
+
+    if (screen === "verifyCode") {
+      return (
+        <div className="enter-from-right slide-in">
+         <Typography style={{ fontSize: "1.1em", margin: "2%", overflowWrap: 'break-word' }}>
+            A verification email has been sent to: {this.state.email}
+         </Typography>
         </div>
       );
     }
+
+
+//    if (screen === "setPassword") {
+//      return (
+//        <div className="enter-from-right slide-in">
+//          <Typography style={{ fontSize: "1.6em", marginBottom: "0.4em" }}>
+//            Code Verified! Please set password for your account
+//          </Typography>
+//
+//          <TextField
+//            id="Password"
+//            label="Password"
+//            type={this.state.isPwdVisible ? "text" : "password"}
+//            value={this.state.password}
+//            error={!this.state.isValidNewPassword}
+//            style={{ width: '100%', marginBottom: '30px' }}
+//            onChange={checkPassword('password')}
+//            InputProps={{
+//              endAdornment: <React.Fragment>
+//                <InputAdornment position="end">
+//                  <IconButton
+//                    aria-label="toggle password visibility"
+//                    onMouseDown={() => this.handleShowPassword('enter')}
+//                    onMouseUp={this.handleHidePassword}
+//                  >
+//                  {this.state.isPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+//                  </IconButton>
+//                </InputAdornment>
+//                </React.Fragment>
+//            }}
+//          />
+//          <TextField
+//            id="Cpassword"
+//            type={this.state.isReEnterPwdVisible ? "text" : "password"}
+//            label={"Confirm Password"}
+//            value={this.state.cpassword}
+//            style={{ width: '100%', marginBottom: '30px' }}
+//            onChange={checkPassword("cpassword")}
+//            error={!this.state.isValidConfirmPassword}
+//            InputProps={{
+//              endAdornment: <React.Fragment>
+//                <InputAdornment position="end">
+//                  <IconButton
+//                    aria-label="toggle password visibility"
+//                    onMouseDown={() => this.handleShowPassword('reenter')}
+//                    onMouseUp={this.handleHidePassword}
+//                  >
+//                  {this.state.isReEnterPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+//                  </IconButton>
+//                </InputAdornment>
+//                </React.Fragment>
+//            }}
+//          />
+//          <PasswordRequirementsComponent
+//            showList={(!this.state.isValidNewPassword) || (!this.state.isValidConfirmPassword)}
+//            errorMsg={this.state.passwordErrorMsg} />
+//          <CardActions style={{ ...spaceBetweenStyle, float: 'center' }}>
+//            <Button size="medium" variant="outlined" color="primary" onClick={() => {
+//              this.setState({ screen: "verifyCode" });
+//            }}>
+//              Back
+//              </Button>
+//            <Button size="large" variant="contained" color="primary" style={{ marginLeft: '4vw' }} onClick={this.login} disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.password && this.state.cpassword)}>
+//              Next
+//              </Button>
+//          </CardActions>
+//        </div>
+//      );
+//    }
   }
 }

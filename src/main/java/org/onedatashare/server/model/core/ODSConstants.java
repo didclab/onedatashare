@@ -47,7 +47,7 @@ public class ODSConstants {
 
     public static final String[] ODS_URIS_ARR = new String[]{"/", "/transfer", "/terms", "/policy", "/user", "/queue",
             "/clientsInfo", "/history", "/account", "/account/signIn", "/account/register", "/oauth",
-            "/support", "/get-started", "/oauth/uuid",
+            "/support", "/get-started", "/oauth/uuid", "/confirm-account",
             "/oauth/googledrive", "/oauth/dropbox", "/oauth/gridftp", "/oauth/box",
             "/oauth/ExistingCredDropbox" ,"/oauth/ExistingCredGoogleDrive", "/oauth/ExistingCredBox"};
 
@@ -61,6 +61,7 @@ public class ODSConstants {
 
     public static final String REGISTRATION_ENDPOINT = "/register";
     public static final String EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
+//    public static final String EMAIL_VERIFICATION_ENDPOINT = "/confirm-account";
     public static final String RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
     public static final String[] OPEN_ENDPOINTS = new String[]{
