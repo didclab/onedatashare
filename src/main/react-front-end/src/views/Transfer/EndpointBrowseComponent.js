@@ -377,9 +377,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
-		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
-			dirName = addFolderName;
-		}
 		//make api call
 		mkdir(dirName,dirType, endpoint, (response) => {
 			setLoading(true);
@@ -470,7 +467,7 @@ export default class EndpointBrowseComponent extends Component {
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
-			<ProgressUpdateComponent />
+
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
@@ -712,6 +709,7 @@ export default class EndpointBrowseComponent extends Component {
 					</div>
 				)}
 			</Droppable>
+			<ProgressUpdateComponent />
 		</div>);
 	}
 }
