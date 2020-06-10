@@ -29,36 +29,35 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
-import org.onedatashare.server.service.BoxService;
+import org.onedatashare.server.service.SftpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/box")
-public class BoxController extends EndpointBaseController{
+@RequestMapping("/api/s3")
+public class S3Controller extends EndpointBaseController{
     @Autowired
-    private BoxService boxService;
+    private SftpService sftpService;
 
     @Override
     protected Mono<Stat> listOperation(ListOperation operation) {
-        return boxService.list(operation);
+        return sftpService.list(operation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        return boxService.mkdir(operation);
+        return sftpService.mkdir(operation);
     }
 
     @Override
     protected Mono<Void> deleteOperation(DeleteOperation operation) {
-        return boxService.delete(operation);
+        return sftpService.delete(operation);
     }
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return boxService.download(operation).map(DownloadResponse::new);
+        return sftpService.download(operation).map(DownloadResponse::new);
     }
-
 }

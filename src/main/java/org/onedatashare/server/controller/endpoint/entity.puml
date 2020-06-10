@@ -1,0 +1,108 @@
+@startuml
+
+title OneDataShare Client UML diagram
+
+package "onedatashare" {
+class OneDataShare
+abstract class Endpoint
+class GDrive
+class Dropbox
+class Box
+class S3
+class FTP
+class SFTP
+class HTTP
+class GridFTP
+
+
+class Transfer
+
+enum FileType
+class AccountEndpointCredential
+class Stat
+}
+
+class OneDataShare{
++ initialize(String token)
+}
+
+OneDataShare <|-- Endpoint
+OneDataShare <|-- Transfer
+Endpoint <|-- Dropbox
+Endpoint <|-- Box
+Endpoint <|-- S3
+Endpoint <|-- GDrive
+Endpoint <|-- GridFTP
+Endpoint <|-- FTP
+Endpoint <|-- SFTP
+Endpoint <|-- HTTP
+
+class Stat{
+- String id
+- String name
+- long size
+- FileType type
+- boolean String link
+- String permissions;
+- List<Stat> filesList;
+}
+
+enum FileType{
+LINK
+FILE
+FOLDER
+}
+
+abstract class Endpoint{
+- Stat stat
++ void select(Stat stat)
++ Stat list(ListOperation operation)
++ void mkdir(MkdirOperation operation)
++ void download(DownloadOperation operation, String pathToSave)
++ mkdir(ListOperation operation)
++ delete(DeleteOperation operation)
+}
+
+class Dropbox{
++ void add()
+}
+
+class Box{
++ void add()
+}
+
+class S3{
++ void add(AccountEndpointCredential cred)
+}
+
+class GDrive{
++ void add()
+}
+
+class GridFTP{
++ void add()
+}
+
+class FTP{
++ void add(AccountEndpointCredential cred)
+}
+
+class SFTP{
++ void add(AccountEndpointCredential cred)
+}
+
+class HTTP{
+}
+
+class Transfer{
++ transfer(Endpoint src, Endpoint dest)
+}
+
+class AccountEndpointCredential{
+- String accountId
+- String uri
+- String username
+- String secret
+}
+
+@enduml

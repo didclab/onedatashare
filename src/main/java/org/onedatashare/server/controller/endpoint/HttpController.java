@@ -28,35 +28,36 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.service.GDriveService;
+import org.onedatashare.server.model.response.DownloadResponse;
+import org.onedatashare.server.service.SftpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/googledrive")
-public class GdriveController extends EndpointBaseController{
+@RequestMapping("/api/http")
+public class HttpController extends EndpointBaseController{
     @Autowired
-    private GDriveService gdriveService;
+    private SftpService sftpService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation listOperation) {
-        return gdriveService.list(listOperation);
+    protected Mono<Stat> listOperation(ListOperation operation) {
+        return sftpService.list(operation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        return gdriveService.mkdir(operation);
+        return sftpService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
-        return gdriveService.delete(deleteOperation);
+    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+        return sftpService.delete(operation);
     }
 
     @Override
-    protected Mono<String> downloadOperation(DownloadOperation downloadOperation) {
-        return gdriveService.download(downloadOperation);
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+        return sftpService.download(operation).map(DownloadResponse::new);
     }
 }

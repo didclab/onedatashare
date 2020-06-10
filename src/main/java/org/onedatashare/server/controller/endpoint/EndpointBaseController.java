@@ -31,6 +31,7 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -67,7 +68,7 @@ public abstract class EndpointBaseController {
     protected abstract Mono<Stat> listOperation(ListOperation listOperation);
     protected abstract Mono<Void> mkdirOperation(MkdirOperation operation);
     protected abstract Mono<Void> deleteOperation(DeleteOperation deleteOperation);
-    protected abstract Mono<String> downloadOperation(DownloadOperation downloadOperation);
+    protected abstract Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation);
 
     @ExceptionHandler(ErrorResponder.class)
     public ResponseEntity<ErrorMessage> handle(ErrorResponder errorResponder) {

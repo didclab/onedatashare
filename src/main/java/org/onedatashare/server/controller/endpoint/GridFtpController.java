@@ -5,9 +5,7 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.GridFtpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,26 +34,26 @@ public class GridFtpController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<String> downloadOperation(DownloadOperation downloadOperation) {
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation) {
         return null;
     }
 
-    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gridftpService.mkdir(null, userAction);
-    }
-
-    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gridftpService.delete(null, userAction);
-    }
-
-    protected Mono<String> downloadOperation(RequestData requestData) {
-        return null;
-    }
-
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return gridftpService.list(null, userAction);
-    }
+//    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
+//        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+//        return gridftpService.mkdir(null, userAction);
+//    }
+//
+//    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
+//        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+//        return gridftpService.delete(null, userAction);
+//    }
+//
+//    protected Mono<String> downloadOperation(RequestData requestData) {
+//        return null;
+//    }
+//
+//    protected Mono<Stat> listOperation(RequestData requestData) {
+//        UserAction userAction = UserAction.convertToUserAction(requestData);
+//        return gridftpService.list(null, userAction);
+//    }
 }

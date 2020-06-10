@@ -28,6 +28,7 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.DbxService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,7 +57,7 @@ public class DbxController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<String> downloadOperation(DownloadOperation operation) {
-        return dbxService.download(operation);
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+        return dbxService.download(operation).map(DownloadResponse::new);
     }
 }
