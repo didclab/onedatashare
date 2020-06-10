@@ -52,7 +52,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/api/oauth")
-public class OauthController {
+public class EndpointOauthController {
     @Autowired
     public UserService userService;
 
@@ -83,7 +83,7 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = gdrive)
+    @GetMapping("/gdrive")
     public Mono googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters) {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
@@ -112,7 +112,7 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = dropbox)
+    @GetMapping("/dropbox")
     public Mono dropboxOauthFinish(@RequestParam Map<String, String> queryParameters) {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
@@ -141,7 +141,7 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = gridftp)
+    @GetMapping("/gridftp")
     public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters) {
         if (!queryParameters.containsKey("code")) {
             return Mono.just(Rendering.redirectTo("/transfer").build());
@@ -159,7 +159,7 @@ public class OauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping(value = box)
+    @GetMapping("/box")
     public Mono boxOauthFinish(@RequestParam Map<String, String> queryParameters){
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
