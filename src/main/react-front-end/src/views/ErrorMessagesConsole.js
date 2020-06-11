@@ -68,7 +68,7 @@ export default class ErrorMessagesConsole extends Component {
 	render(){
 		const {errorMessages} = this.state;
 		return(
-			<div style={{textAlign: "left", borderWidth: 1, height: "150px", 
+			<div style={{textAlign: "left", borderWidth: 1, height: "50px",
 					overflow: "scroll", wordWrap: "break-word", borderStyle: "solid",
 					borderColor: "black", padding: "5px", borderRadius: "10px"
 				}}
@@ -76,7 +76,12 @@ export default class ErrorMessagesConsole extends Component {
 			>
 				{errorMessages.map((msg, i) => <p key={i} style={{color: msg.color}}>{msg.msg}</p>)}
 				<p ref={(msgsList) => { this.messagesEnd = msgsList; }}> ></p>
+
 			</div>
+
+
+
+
 			);
 		;
 	}
