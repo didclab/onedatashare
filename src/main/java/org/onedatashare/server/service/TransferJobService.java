@@ -66,7 +66,7 @@ public class TransferJobService {
     private Mono<List<TransferJobRequest.EntityInfo>> updateSource(TransferJobRequest.Source source){
         switch (source.getType()){
             case s3: throw new RuntimeException("Not yet implemented");
-            case gridftp: throw new RuntimeException("Not yet supported");
+            case gftp: throw new RuntimeException("Not yet supported");
             case dropbox:
             case gdrive:
             case box:

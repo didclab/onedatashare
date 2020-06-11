@@ -146,7 +146,7 @@ public class EndpointOauthController {
 
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gridFtpAuthService.finish(queryParameters)
-                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gridftp)
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gftp)
                                 .thenReturn(
                                         Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
                                                 .build()
@@ -196,7 +196,7 @@ public class EndpointOauthController {
                 return Rendering.redirectTo(dbxOauthService.start()).build();
             case gdrive:
                 return Rendering.redirectTo(gDriveOauthService.start()).build();
-            case gridftp:
+            case gftp:
                 return Rendering.redirectTo(gridFtpAuthService.start()).build();
             default:
                 throw new NotFoundException();

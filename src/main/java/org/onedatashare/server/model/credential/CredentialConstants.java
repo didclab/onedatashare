@@ -34,6 +34,6 @@ public class CredentialConstants {
     }));
 
     public static final HashSet<EndpointType> OAUTH_CRED_TYPE = new HashSet<>(Arrays.asList(new EndpointType[]{
-            EndpointType.box, EndpointType.dropbox, EndpointType.gdrive, EndpointType.gridftp
+            EndpointType.box, EndpointType.dropbox, EndpointType.gdrive, EndpointType.gftp
     }));
 }
