@@ -26,6 +26,7 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.core.Job;
 import org.onedatashare.server.model.core.JobDetails;
 import org.onedatashare.server.model.jobaction.JobRequest;
+import org.onedatashare.server.model.jobaction.SearchRequest;
 import org.onedatashare.server.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -55,6 +56,13 @@ public class JobService {
         return page;
     }
 
+    private static Pageable generatePageFromRequest(SearchRequest request){
+        Sort.Direction direction = request.getSortOrder().equals("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        request.setPageNo(Math.max(request.getPageNo(), 0));
+        Pageable page = PageRequest.of(request.getPageNo(), request.getPageSize(), Sort.by(direction, request.getSortBy()));
+        return page;
+    }
+
     public Mono<Job> getJobByUUID(UUID uuid) {
         return jobRepository.findById(uuid);
     }
@@ -78,6 +86,15 @@ public class JobService {
         return userService.getLoggedInUserEmail().flatMap(userEmail -> {
             Mono<List<Job>> jobList = jobRepository.findAllBy(pageable).collectList();
             Mono<Long> jobCount = jobRepository.getCount();
+            return jobList.zipWith(jobCount, JobDetails::new);
+        });
+    }
+
+    public Mono<JobDetails> getSearchJobs(SearchRequest request) {
+        Pageable pageable = this.generatePageFromRequest(request);
+        return userService.getLoggedInUserEmail().flatMap(userEmail -> {
+            Mono<List<Job>> jobList = jobRepository.findSearchJobs(request.getUsername(), request.progress, request.startJobId, request.endJobId, pageable).collectList();
+            Mono<Long> jobCount = jobRepository.getSearchJobsCount(request.getUsername(), request.progress, request.startJobId, request.endJobId);
             return jobList.zipWith(jobCount, JobDetails::new);
         });
     }

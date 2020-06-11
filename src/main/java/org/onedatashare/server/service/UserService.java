@@ -437,25 +437,22 @@ public class UserService {
                 }).then();
     }
 
-    public OAuthCredential updateCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
-//Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
-        getLoggedInUser(cookie)
-                .doOnSuccess(user -> {
-                    Map<UUID,Credential> credsTemporary = user.getCredentials();
-                    UUID uid = UUID.fromString(userActionCredential.getUuid());
-                    OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
-                    if(credential.refreshTokenExp){
-                        credsTemporary.remove(uid);
-                    }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
-                        credsTemporary.replace(uid, credential);
-                    }
-                    if(user.isSaveOAuthTokens()) {
-                        user.setCredentials(credsTemporary);
-                        userRepository.save(user).subscribe();
-                    }
-                }).subscribe();
 
-        return credential;
+    public Mono<OAuthCredential> updateCredential(User user, OAuthCredential credential, String id) {
+        //Updating the access token for googledrive using refresh token or deleting credential if refresh token is expired.
+        Map<UUID,Credential> credsTemporary = user.getCredentials();
+        UUID uid = UUID.fromString(id);
+        OAuthCredential val = (OAuthCredential) credsTemporary.get(uid);
+        if(credential.refreshTokenExp){
+            credsTemporary.remove(uid);
+        }else if(val.refreshToken != null && val.refreshToken.equals(credential.refreshToken)){
+            credsTemporary.replace(uid, credential);
+        }
+        if(user.isSaveOAuthTokens()) {
+            user.setCredentials(credsTemporary);
+            userRepository.save(user).subscribe();
+        }
+        return Mono.just(credential);
     }
 
     public Mono<User> deleteBoxCredential(String cookie, UserActionCredential userActionCredential, OAuthCredential credential) {
@@ -509,8 +506,9 @@ public class UserService {
      * @return a map containing all the endpoint credentials linked to the user account as a Mono
      */
     public Mono<Map<UUID, Credential>> getCredentials(String cookie) {
-        return getLoggedInUser(cookie).map(User::getCredentials).map(
-                credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
+        return getLoggedInUser(cookie)
+                .map(User::getCredentials)
+                .map(credentials -> removeIfExpired(credentials)).flatMap(creds -> saveCredToUser(creds, cookie));
     }
 
 

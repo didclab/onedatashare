@@ -67,7 +67,6 @@ public class ApplicationSecurityConfig {
                 .exceptionHandling()
                 .authenticationEntryPoint(this::authenticationFailedHandler).accessDeniedHandler(this::accessDeniedHandler)
                 .and()
-                //Disable Cross-site request forgery TODO: fix
                 .csrf().disable().authorizeExchange().and()
                 .build();
 

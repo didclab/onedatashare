@@ -60,29 +60,20 @@ public class SftpController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<ResponseEntity> mkdirOperation(OperationRequestData operationRequestData) {
+    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return vfsService.mkdir(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
+        return vfsService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override
-    protected Mono<ResponseEntity> deleteOperation(OperationRequestData operationRequestData) {
+    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
         UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return vfsService.delete(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
-    }
-
-    @Override
-    protected Mono<Stat> uploadOperation() {
-        return Mono.error(new UnsupportedOperationException());
+        return vfsService.delete(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override
     protected Mono<String> downloadOperation(@RequestBody RequestData requestData){
         return Mono.error(new UnsupportedOperationException());
-    }
-    @Override
-    protected Rendering oauthOperation() {
-        throw new UnsupportedOperationException();
     }
 
     @PostMapping(value = "/file")

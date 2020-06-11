@@ -35,7 +35,7 @@ export const UPLOAD_OP_URL = "/upload"
 export const SHARE_OP_URL = "/share"
 export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
-
+export const LOGOUT_ENDPOINT = "/deauthenticate";
 
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
@@ -72,6 +72,7 @@ export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
 export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
 export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
 
+export const GET_SEARCH_JOBS_ENDPOINT = "q/search-jobs";
 
 export const GET_ADMINS_ENDPOINT = "admin/get-admins";
 export const GET_USERS_ENDPOINT = "admin/get-users";
@@ -87,7 +88,6 @@ export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
-export const SCP_TYPE = "scp://";
 
 export const DROPBOX_NAME = "DropBox";
 export const AMAZONS3_NAME="AMAZONS3"
@@ -97,7 +97,6 @@ export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
-export const SCP_NAME = "SCP";
 
 export const DROPBOX = "dropbox";
 export const AMAZONS3="amazons3"
@@ -107,7 +106,7 @@ export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
 export const GRIDFTP = "gsiftp";
-export const SCP = "scp";
+
 //side
 export const sideLeft = "left";
 export const sideRight = "right";
@@ -147,7 +146,6 @@ export const showText = {
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
 	gsiftp: GRIDFTP_NAME,
-	scp: SCP_NAME,
 	https: HTTP_NAME
 }
 
@@ -160,7 +158,6 @@ export const showType = {
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
 	gsiftp: GRIDFTP_TYPE,
-	scp: SCP_TYPE,
 	https: HTTP_TYPE
 }
 
@@ -172,11 +169,11 @@ export const defaultPort = {
 	sftp: 22,
 	http: 80,
 	gsiftp: -1,
-	scp: 22,
 	https: 443
 }
 
-export const maxCookieAge = 7;
+//Seconds for which the cookie is valid
+export const maxCookieAge = 3600;
 
 export const jobStatus = {
 	COMPLETED: 'completed',
@@ -277,4 +274,31 @@ export function validatePassword(password, confirmPassword) {
 	}
 
 	return validations;
+}
+
+export function generateURLFromPortNumber(url, portNum) {
+	// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
+	let finalUrl = url;
+
+	// Find if the port is a standard port
+	let standardPort = portNum === getDefaultPortFromUri(url);
+
+	//Special condition for HTTP
+	if(getTypeFromUri(url) === HTTP_TYPE){
+		standardPort = portNum === getDefaultPortFromUri(HTTP_TYPE) || portNum === getDefaultPortFromUri(HTTPS_TYPE);
+	}
+
+
+	// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
+	if(!standardPort){
+		try{
+			let temp = new URL(url);
+			temp.port = portNum;
+			finalUrl = temp.toString();
+		} catch(e){
+			//Do nothing when URL is invalid
+		}
+	}
+
+	return finalUrl;
 }

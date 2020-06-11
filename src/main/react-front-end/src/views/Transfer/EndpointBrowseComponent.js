@@ -68,8 +68,9 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 import { eventEmitter } from "../../App";
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, AMAZONS3_TYPE, HTTP_TYPE, SCP_TYPE, SFTP_TYPE} from "../../constants";
+import { AMAZONS3_TYPE, DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import ProgressUpdateComponent from "./progressUpdateComponent"
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -119,8 +120,8 @@ export default class EndpointBrowseComponent extends Component {
 	componentDidMount() {
 	    window.addEventListener('click', this.onWindowClick);
 	    window.addEventListener('keydown', this.onWindowKeyDown);
-	    window.addEventListener('touchend', this.onWindowTouchEnd);
-	    eventEmitter.on("fileChange", this.fileChangeHandler);
+		window.addEventListener('touchend', this.onWindowTouchEnd);
+		eventEmitter.on("fileChange", this.fileChangeHandler);
 		this.timestamp = Date.now();
 	}
 
@@ -376,9 +377,6 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
-		if(getType(endpoint) === GOOGLEDRIVE_TYPE){
-			dirName = addFolderName;
-		}
 		//make api call
 		mkdir(dirName,dirType, endpoint, (response) => {
 			setLoading(true);
@@ -469,6 +467,7 @@ export default class EndpointBrowseComponent extends Component {
 
 		return (
 		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
+
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
@@ -534,14 +533,14 @@ export default class EndpointBrowseComponent extends Component {
 						onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 								const taskList = getSelectedTasksFromSide(endpoint);
-								if(getType(endpoint) === SFTP_TYPE || getType(endpoint) === SCP_TYPE){
+								if(getType(endpoint) === SFTP_TYPE){
 									getDownload(downloadUrl, endpoint.credential, taskList);
 								}
 								else if(getType(endpoint) === HTTP_TYPE){
 									window.open(downloadUrl);
 								}
 								else{
-								download(downloadUrl, endpoint.credential, taskList[0].id)
+									download(downloadUrl, endpoint.credential, taskList[0].id)
 							}
 						}}
 						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
@@ -710,6 +709,7 @@ export default class EndpointBrowseComponent extends Component {
 					</div>
 				)}
 			</Droppable>
+			<ProgressUpdateComponent />
 		</div>);
 	}
 }

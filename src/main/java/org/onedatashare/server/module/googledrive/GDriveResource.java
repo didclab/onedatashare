@@ -47,22 +47,25 @@ import java.util.Locale;
 /**
  * Resource class that provides services for Google Drive endpoint.
  */
-public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriveResource> {
+public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
 
     public static final String ROOT_DIR_ID = "root";
 
-    protected GoogleDriveResource(GoogleDriveSession session, String path, String id) {
+    protected GDriveResource(GDriveSession session, String path, String id) {
         super(session, path, id);
     }
-    protected GoogleDriveResource(GoogleDriveSession session, String path) {
+    protected GDriveResource(GDriveSession session, String path) {
         super(session, path,null);
     }
 
-    public Mono<GoogleDriveResource> mkdir() {
+    public Mono<GDriveResource> mkdir() {
         return Mono.create(s -> {
             try {
                 String[] currpath = getPath().split("/");
                 for(int i =0; i<currpath.length; i++){
+                    if(currpath[i].equals("")){
+                        continue;
+                    }
                     File fileMetadata = new File();
                     fileMetadata.setName(currpath[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
@@ -70,7 +73,6 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                     File file = getSession().getService().files().create(fileMetadata)
                             .setFields("id")
                             .execute();
-                    ODSLoggerService.logInfo("Folder ID: " + file.getId());
                     setId(file.getId());
                 }
             } catch (IOException e) {
@@ -140,7 +142,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return null;
     }
 
-    public Mono<GoogleDriveResource> delete() {
+    public Mono<GDriveResource> delete() {
        return Mono.create(s -> {
            try {
                getSession().getService().files().delete(getId()).execute();
@@ -331,12 +333,12 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         return stat;
     }
 
-    public GoogleDriveTap tap() {
-        GoogleDriveTap gDriveTap = new GoogleDriveTap();
+    public GDrive tap() {
+        GDrive gDriveTap = new GDrive();
         return gDriveTap;
     }
 
-    class GoogleDriveTap implements Tap {
+    class GDrive implements Tap {
         long size;
         Drive drive = getSession().getService();
         com.google.api.client.http.HttpRequest httpRequestGet;
@@ -392,15 +394,15 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         }
     }
 
-    public GoogleDriveDrain sink() {
-        return new GoogleDriveDrain().start();
+    public GDriveDrain sink() {
+        return new GDriveDrain().start();
     }
 
-    public GoogleDriveDrain sink(Stat stat){
-        return new GoogleDriveDrain().start(getPath() + stat.getName());
+    public GDriveDrain sink(Stat stat){
+        return new GDriveDrain().start(getPath() + stat.getName());
     }
 
-    class GoogleDriveDrain implements Drain {
+    class GDriveDrain implements Drain {
         ByteArrayOutputStream chunk = new ByteArrayOutputStream();
         long size = 0;
         String resumableSessionURL;
@@ -409,14 +411,14 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         Boolean isDirTransfer = false;
 
         @Override
-        public GoogleDriveDrain start(String drainPath) {
+        public GDriveDrain start(String drainPath) {
             this.drainPath = drainPath;
             this.isDirTransfer = true;
             return start();
         }
 
         @Override
-        public GoogleDriveDrain start() {
+        public GDriveDrain start() {
             try{
                 String name[] = drainPath.split("/");
 
@@ -430,7 +432,8 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
                 request.setRequestMethod("POST");
                 request.setDoInput(true);
                 request.setDoOutput(true);
-                request.setRequestProperty("Authorization", "Bearer " + ((OAuthCredential)(getSession().getCredential())).getToken());
+                String tokenStr = ((OAuthCredential)(getSession().getCredential())).getToken();
+                request.setRequestProperty("Authorization", "Bearer " + tokenStr);
                 request.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
                 String body;
                 if(getId() !=null){
@@ -528,7 +531,7 @@ public class GoogleDriveResource extends Resource<GoogleDriveSession, GoogleDriv
         }
     }
     @Override
-    public Mono<GoogleDriveResource> select(String path) {
+    public Mono<GDriveResource> select(String path) {
         return null;
     }
 }

@@ -23,80 +23,95 @@
 
 package org.onedatashare.server.service;
 
+import com.google.common.cache.*;
+import edu.emory.mathcs.backport.java.util.Arrays;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionCredential;
-import org.onedatashare.server.model.useraction.UserActionResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.TimeUnit;
+
+import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Service
+//TODO: check timeout, size overflow works
+//TODO: add check so that ongoing transfers do not crash when ongoing transfers greater than maximum uploads
 public class UploadService {
 
-    @Autowired
-    UserService userService;
+    private static Cache<String, UploadSession> uploadCache;
+    private static final Logger logger = LoggerFactory.getLogger(UploadService.class);
+    private static final int MAXIMUM_UPLOAD_LIMIT = 100;
+    private static final int TIMEOUT_SECS = 60;
+    private static final int CONCURRENCY_LEVEL = 8;
+
+    static {
+        uploadCache = CacheBuilder.newBuilder()
+                .maximumSize(MAXIMUM_UPLOAD_LIMIT)
+                .expireAfterAccess(TIMEOUT_SECS, TimeUnit.SECONDS)
+                .removalListener((RemovalListener<String, UploadSession>) notification ->
+                        logger.error(String.format("Upload %s stopped due to %s", notification.getKey(),
+                                notification.getCause())))
+                .concurrencyLevel(CONCURRENCY_LEVEL)
+                .build();
+    }
 
     @Autowired
-    JobService jobService;
+    private VfsService vfsService;
 
     @Autowired
-    ResourceServiceImpl resourceService;
+    private GDriveService gDriveService;
 
-    private static Map<UUID, LinkedBlockingQueue<Slice>> ongoingUploads = new HashMap<UUID, LinkedBlockingQueue<Slice>>();
+    @Autowired
+    private DbxService dbxService;
 
-    public Mono<Boolean> uploadChunk(String cookie, UUID uuid, Mono<FilePart> filePart, String credential,
-                                 String directoryPath, String fileName, Long totalFileSize, String googleDriveId, String idmap) {
-        if (ongoingUploads.containsKey(uuid)) {
-            if(ongoingUploads.get(uuid).isEmpty())
-                return sendFilePart(filePart, ongoingUploads.get(uuid)).map(size -> true);
-            else return Mono.just(false);
-        } else {
-            UserAction ua = new UserAction();
-            ua.setSrc(new UserActionResource());
-            ua.getSrc().setUri(ODSConstants.UPLOAD_IDENTIFIER);
-            LinkedBlockingQueue<Slice> uploadQueue = new LinkedBlockingQueue<Slice>();
+    @Autowired
+    private BoxService boxService;
 
-            ua.getSrc().setUploader( new UploadCredential(uploadQueue, totalFileSize, fileName) );
-            ua.setDest( new UserActionResource());
-            ua.getDest().setId( googleDriveId );
-
-            try {
-                if(directoryPath.endsWith("/")) {
-                    ua.getDest().setUri( directoryPath+URLEncoder.encode(fileName,"UTF-8") );
-                } else {
-                    ua.getDest().setUri( directoryPath+"/"+URLEncoder.encode(fileName,"UTF-8") );
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                ua.getDest().setCredential( mapper.readValue(credential, UserActionCredential.class) );
-                IdMap[] idms = mapper.readValue(idmap, IdMap[].class);
-                ua.getDest().setMap( new ArrayList<>(Arrays.asList(idms)) );
-            }catch(Exception e){
-                e.printStackTrace();
-            }
-            resourceService.submit(cookie, ua).subscribe();
-
-                return sendFilePart(filePart, uploadQueue).map(size -> {
-                    if (size < totalFileSize) {
-                        ongoingUploads.put(uuid, uploadQueue);
-                    }
-                    return true;
-                });
+    private Mono<Drain> getDrainFromUserAction(UserAction userAction, Long size){
+        String uri = userAction.getUri();
+        if(uri.startsWith(DROPBOX_URI_SCHEME)){
+            return dbxService.getDbxResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        } else if(uri.startsWith(FTP_URI_SCHEME) || uri.startsWith(SFTP_URI_SCHEME)){
+            return vfsService.getResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        } else if(uri.startsWith(BOX_URI_SCHEME)){
+            return boxService.getBoxResourceUserActionUri(null, userAction)
+                    .map(boxResource -> {
+                        Stat stat = new Stat().setSize(size);
+                        return boxResource.sink(stat, false);
+                    });
+        } else if(uri.startsWith(GDRIVE_URI_SCHEME)){
+            return gDriveService.getResourceWithUserActionUri(null, userAction)
+                    .map(Resource::sink);
+        }
+        else{
+            return Mono.error(new RuntimeException("Invalid uri type"));
         }
     }
 
-    public Mono<Integer> sendFilePart(Mono<FilePart> pfr, LinkedBlockingQueue<Slice> qugue){
+    private String createUploadCacheKey(String userId, String directoryPath, String uuid){
+        return String.format("%s-%s-%s",userId, directoryPath, uuid);
+    }
 
-        return pfr.flatMapMany(fp -> fp.content())
+    public Mono<Slice> createSlice(Mono<FilePart> filePartMono){
+        return filePartMono.flatMapMany(fp -> fp.content())
                 .reduce(new ByteArrayOutputStream(), (acc, newbuf)->{
                     try
                     {
@@ -104,19 +119,129 @@ public class UploadService {
                         acc.write(slc.asBytes(), 0, slc.length());
                     }catch(Exception e){}
                     return acc;
-        }).map(content ->  {
-            ODSLoggerService.logInfo("uploading " + content.size());
-            Slice slc = new Slice(content.toByteArray());
-            qugue.add(slc);
-            return slc.length();
+                }).map(content ->  {
+                    logger.debug("uploading " + content.size());
+                    Slice slc = new Slice(content.toByteArray());
+                    return slc;
+                });
+    }
+
+    public Mono<Boolean> uploadChunk(String userId, String uploadUUID, Mono<FilePart> filePart,
+                                     String credential, String pathToWrite, String fileName,
+                                     String fileSize, String idMap, String chunkNumber, String totalChunks,
+                                     String destFolderId) {
+        //Processing
+        long _fileSize = Long.parseLong(fileSize);;
+        int _chunkNumber = chunkNumber == null ? 0 : Integer.parseInt(chunkNumber);
+        int _totalChunks = totalChunks == null ? 0 : Integer.parseInt(totalChunks);
+        UserActionCredential _credential;
+        ArrayList<IdMap> _idMap = new ArrayList<>();
+        String _pathToWrite = pathToWrite;
+        try {
+            fileName = URLEncoder.encode(fileName, "utf-8");
+            _pathToWrite = pathToWrite.endsWith("/") ? pathToWrite + fileName : pathToWrite + "/" + fileName;
+            ObjectMapper mapper = new ObjectMapper();
+            _credential = mapper.readValue(credential, UserActionCredential.class);
+            IdMap[] idMapArray = mapper.readValue(idMap, IdMap[].class);
+            Collections.addAll(_idMap, idMapArray);
+        } catch (IOException e) {
+            Mono.error(new Exception("Unable to parse the form data"));
+            return Mono.just(false);
+        }
+
+        String uploadCacheKey = createUploadCacheKey(userId, _pathToWrite, uploadUUID);
+        try {
+            UploadSession tempSession = uploadCache.getIfPresent(uploadCacheKey);
+            //Issues can still arise due to race conditions. Also, only returns the approximate size .TODO: fix
+            if(tempSession == null && uploadCache.size() < MAXIMUM_UPLOAD_LIMIT){
+                tempSession = new UploadSession(_totalChunks, _fileSize);
+                uploadCache.put(uploadCacheKey, tempSession);
+            }
+            UploadSession session = tempSession;
+            //Check chunk number
+            if(_chunkNumber != session.getCurrentChunkNumber()){
+                throw new Exception("One or more chunks lost");
+            }
+            if(session.getCurrentChunkNumber() == 0){
+                UserAction userAction = new UserAction()
+                        .setUri(_pathToWrite)
+                        .setCredential(_credential)
+                        .setId(destFolderId)
+                        .setMap(_idMap);
+                Mono<Drain> drainMono = getDrainFromUserAction(userAction, _fileSize);
+                return writeFirstChunk(filePart, session, drainMono);
+            }
+            else {
+                return writeSubsequentChunks(filePart, session, uploadCacheKey, _chunkNumber);
+            }
+        }catch (Exception e){
+            logger.error("Error " + e.getMessage());
+        }
+        return Mono.just(false);
+    }
+
+    private Mono<Boolean> writeFirstChunk(Mono<FilePart> filePart, UploadSession session, Mono<Drain> drainMono){
+        logger.debug("Wrote 1st chunk");
+        return drainMono.flatMap(d -> {
+            session.setDrain(d);
+            return createSlice(filePart)
+                    .map(slice -> {
+                        try {
+                            session.write(slice, 0);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            return false;
+                        }
+                        return true;
+                    });
         });
     }
 
-    public Mono<Void> finishUpload(UUID uuid) {
-        if(!ongoingUploads.containsKey(uuid)){
-            return Mono.error(null);
+    private Mono<Boolean> writeSubsequentChunks(Mono<FilePart> filePart, UploadSession session, String uploadCacheKey,
+                                                int _chunkNumber){
+        logger.debug("Wrote other chunks");
+        return createSlice(filePart)
+                .map(slice -> {
+                    try {
+                        session.write(slice, _chunkNumber);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                    logger.debug("Wrote other chunks success");
+                    return true;
+                })
+                .doOnSuccess(s -> {
+                    //If only one chunk or all chunks received then remove from the map
+                    if(session.getTotalChunks() == session.getCurrentChunkNumber()){
+                        uploadCache.invalidate(uploadCacheKey);
+                    }
+                });
+    }
+}
+
+@Accessors(chain = true)
+final class UploadSession{
+    @Getter private int currentChunkNumber = 0;
+    @Getter private int totalChunks;
+    private long fileSize;
+    private long uploadedBytes;
+    @Setter private Drain drain;
+
+    public UploadSession(int totalChunks, long fileSize) {
+        this.totalChunks = totalChunks;
+        this.fileSize = fileSize;
+    }
+
+    public void write(Slice slice, int chunkNumber) throws Exception {
+        if(this.currentChunkNumber != chunkNumber)
+            throw new Exception("Missed one or more chunks");
+        drain.drain(slice);
+        this.currentChunkNumber++;
+        this.uploadedBytes += slice.length();
+
+        if(this.uploadedBytes == this.fileSize){
+            drain.finish();
         }
-        ongoingUploads.remove(uuid);
-        return Mono.just(null);
     }
 }

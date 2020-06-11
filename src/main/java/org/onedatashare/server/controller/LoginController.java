@@ -23,26 +23,62 @@
 
 package org.onedatashare.server.controller;
 
-import lombok.Data;
-import org.onedatashare.server.model.response.LoginResponse;
+import org.onedatashare.server.model.request.LoginControllerRequest;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @RestController
+@io.swagger.v3.oas.annotations.Hidden
 public class LoginController {
 
     @Autowired
     private UserService userService;
 
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
-    public Mono<LoginResponse> login(@RequestBody LoginControllerRequest request) {
-        return userService.login(request.getEmail(), request.getPassword());
+    public Mono<ResponseEntity> login(@RequestBody LoginControllerRequest request) {
+        return userService.login(request.getEmail(), request.getPassword())
+                // Access token
+                .map(loginResponse -> {
+                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
+                            .httpOnly(true)
+                            .build().toString();
+                    cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
+                    HttpHeaders responseHeaders = new HttpHeaders();
+                    responseHeaders.set(HttpHeaders.SET_COOKIE,
+                            cookieString);
+                    //Remove the token from the response
+                    loginResponse.setToken(null);
+                    return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
+                });
+    }
+
+
+    /**
+     * This function removes the ATOKEN cookie from the browser
+     * @return Mono<ResponseEntity>
+     */
+    @RequestMapping(value = LOGOUT_ENDPOINT, method = RequestMethod.POST)
+    public Mono<ResponseEntity> logout() {
+        return Mono.fromSupplier(() -> {
+            String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
+                    .httpOnly(true)
+                    .build().toString();
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set(HttpHeaders.SET_COOKIE,
+                    cookieString + 	"; Max-Age=" + 0);
+            return ResponseEntity.ok().headers(responseHeaders).body(null);
+        });
     }
 
     @RequestMapping(value = IS_REGISTERED_EMAIL_ENDPOINT, method = RequestMethod.POST)
@@ -65,14 +101,5 @@ public class LoginController {
     public Mono<String> updatePassword(@RequestBody LoginControllerRequest request){
         return userService.resetPasswordWithOld(null, request.getPassword(), request.getNewPassword(),
                 request.getConfirmPassword());
-    }
-
-    @Data
-    public static class LoginControllerRequest {
-        private String email;
-        private String password;
-        private String confirmPassword;
-        private String newPassword;
-        private String code;
     }
 }

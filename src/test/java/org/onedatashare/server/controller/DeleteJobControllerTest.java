@@ -56,7 +56,7 @@ public class DeleteJobControllerTest extends ControllerTest {
         assertTrue(wasCalled,
                 String.format(
                         "Expected service %s to be called on deleteJob request, but it was not called",
-                        getServiceClass(resourceService).getSimpleName()
+                        resourceService.getClass().getSimpleName()
                 ));
     }
 
