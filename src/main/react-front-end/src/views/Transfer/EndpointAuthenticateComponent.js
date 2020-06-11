@@ -65,6 +65,8 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+
+
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
@@ -92,7 +94,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			endpointSelected: {},
 			selectingEndpoint: false,
 			portNum: -1,
-			portNumField: true
+			portNumField: true,
 		};
 
 		let loginType = getType(props.endpoint);
@@ -218,7 +220,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
-				// console.log(suc)
+				 //console.log(suc)
+
 			}, (error) => {
 				this._handleError(error);
 			})
@@ -381,7 +384,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		let jsEncrypt = new JSEncrypt();
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-		
+
+
 		this.endpointCheckin(this.state.url,
 			this.state.portNum,
 			{type: "userinfo", username: this.state.username, password: encryptedPwd},

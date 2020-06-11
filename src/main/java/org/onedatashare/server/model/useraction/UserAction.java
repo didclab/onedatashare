@@ -28,6 +28,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.server.model.request.*;
+import org.onedatashare.server.model.requestdata.SSHCommandData;
 
 import java.util.ArrayList;
 
@@ -170,6 +171,19 @@ public class UserAction {
         ua.setSortOrder(userRequestData.getSortOrder());
         ua.setCaptchaVerificationValue(userRequestData.getCaptchaVerificationValue());
         ua.setCompactViewEnabled(userRequestData.isCompactViewEnabled());
+        return ua;
+    }
+
+    /**
+     * Factory method that converts the SSH command request data to UserAction
+     * @param commandData - SSH command request data
+     * @return ua - UserAction object containing data received in the request
+     */
+    public static UserAction convertToUserAction(SSHCommandData commandData){
+        UserAction ua = new UserAction();
+        ua.setUri(commandData.getHost());
+        ua.setCredential(commandData.getCredential());
+        ua.setPortNumber(commandData.getPort());
         return ua;
     }
 

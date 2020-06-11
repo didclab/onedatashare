@@ -25,7 +25,7 @@ import { multiSelectTo as multiSelect } from './utils';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
 
-import {Droppable } from 'react-beautiful-dnd';
+import { Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -33,6 +33,7 @@ import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
+import Code from '@material-ui/icons/Code';
 import Button from '@material-ui/core/Button';
 
 import {InputGroup, FormControl} from "react-bootstrap";
@@ -66,9 +67,10 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
 import { eventEmitter } from "../../App";
+
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { AMAZONS3_TYPE, DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE } from "../../constants";
+import { AMAZONS3_TYPE, DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ProgressUpdateComponent from "./progressUpdateComponent"
 
@@ -527,7 +529,17 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 			
 			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
+
 				<ButtonGroup style={buttonGroupStyle}>
+
+					{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&
+						<OverlayTrigger placement="top" overlay={tooltip("Console")}>
+							<BootStrapButton onClick={() => {}} style={buttonStyle}>
+								<Code style={iconStyle} />
+							</BootStrapButton>
+						</OverlayTrigger>
+					}
+
 					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
 						<BootStrapButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
 						onClick={() => {
@@ -543,7 +555,9 @@ export default class EndpointBrowseComponent extends Component {
 									download(downloadUrl, endpoint.credential, taskList[0].id)
 							}
 						}}
-						style={buttonStyle}><DownloadButton style={iconStyle}/></BootStrapButton>
+						style={buttonStyle}>
+							<DownloadButton style={iconStyle}/>
+						</BootStrapButton>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
@@ -683,10 +697,15 @@ export default class EndpointBrowseComponent extends Component {
 
 						{displayStyle === "comfort" && displayList.map((fileId, index) => {
 							const file = list[fileId];
-							const isSelected = Boolean(selectedTasks.indexOf(file)!==-1);
-			        const isGhosting = isSelected && Boolean(draggingTask) && draggingTask.name !== file.name;
+							const isSelected = Boolean(
+			                  selectedTasks.indexOf(file)!==-1,
+			                );
+			                const isGhosting =
+			                  isSelected &&
+			                  Boolean(draggingTask) &&
+			                  draggingTask.name !== file.name;
 
-							return(
+							  return(
 								<FileNode
 									key={fileId}
 									index={index}
