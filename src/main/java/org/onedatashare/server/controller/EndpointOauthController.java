@@ -23,9 +23,7 @@
 
 package org.onedatashare.server.controller;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.onedatashare.server.model.core.EndpointType;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.NotFoundException;
 import org.onedatashare.server.service.CredentialService;
@@ -69,13 +67,6 @@ public class EndpointOauthController {
     @Autowired
     private CredentialService credentialService;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final String gdrive = "gdrive";
-    private static final String dropbox = "dropbox";
-    private static final String gridftp = "gftp";
-    private static final String box = "box";
-
     /**
      * Handler for google drive oauth requests
      * @param queryParameters - Query parameters
@@ -101,15 +92,12 @@ public class EndpointOauthController {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gDriveOauthService.finish(queryParameters)
                         .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)
-                                .thenReturn(credential)
+                                .thenReturn(
+                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
+                                                .build()
+                                )
                         )
-                        .switchIfEmpty(Mono.error(new Exception("Some error")))
-                        .map(credential -> {
-                            OAuthEndpointCredential oAuthEndpointCredential =
-                                    new OAuthEndpointCredential(credential.getAccountId());
-                            return oAuthEndpointCredential;
-                        })
-                ).doOnSuccess(System.out::println);
+                );
     }
 
     /**
@@ -136,11 +124,11 @@ public class EndpointOauthController {
 
         return principalMono.map(Principal::getName)
                 .flatMap(user -> dbxOauthService.finish(queryParameters)
-                        .map(credential -> {
-                            credentialService.createCredential(credential, user,
-                                            EndpointType.dropbox).subscribe();
-                            return new OAuthEndpointCredential(credential.getAccountId());
-                            }
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.dropbox)
+                                .thenReturn(
+                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
+                                                .build()
+                                )
                         )
                 );
     }
@@ -158,8 +146,11 @@ public class EndpointOauthController {
 
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gridFtpAuthService.finish(queryParameters)
-                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.dropbox)
-                                .map(v -> credential.getAccountId())
+                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gridftp)
+                                .thenReturn(
+                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
+                                                .build()
+                                )
                         )
                 );
     }
@@ -188,13 +179,16 @@ public class EndpointOauthController {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> boxOauthService.finish(queryParameters)
                         .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.box)
-                                .map(v -> credential.getAccountId())
+                                .thenReturn(
+                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
+                                                .build()
+                                )
                         )
                 );
     }
 
     @GetMapping
-    public Rendering handle(@RequestParam String type) throws NotFoundException {
+    public Rendering handle(@RequestParam EndpointType type) throws NotFoundException {
         switch (type){
             case box:
                 return Rendering.redirectTo(boxOauthService.start()).build();
