@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
@@ -44,13 +45,15 @@ public class CredentialService {
 
     @Value("${cred.service.uri}")
     private String credentialServiceUrl;
-    private String urlFormatted;
+    private String urlFormatted, credListUrl;
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
     @PostConstruct
     private void initialize(){
         this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
+        this.credListUrl = this.credentialServiceUrl + "/%s/%s";
+
         this.client = WebClient.builder()
                 .baseUrl(credentialServiceUrl)
                 .build();
@@ -67,6 +70,13 @@ public class CredentialService {
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
+    }
+
+    public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type){
+        return client.get()
+                .uri(URI.create(String.format(this.credentialServiceUrl, userId, type)))
+                .retrieve()
+                .bodyToMono(CredList.class);
     }
 
     public Mono<AccountEndpointCredential> fetchAccountCredential(EndpointType type, String credId){

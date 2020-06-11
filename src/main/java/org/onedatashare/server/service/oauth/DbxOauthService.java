@@ -26,30 +26,14 @@ package org.onedatashare.server.service.oauth;
 import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
-import lombok.Getter;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
-
-@Getter
-@Configuration
-class DbxConfig {
-    @Value("${dropbox.key}")
-    private String key;
-    @Value("${dropbox.secret}")
-    private String secret;
-    @Value("${dropbox.redirectUri}")
-    private String redirectUri;
-    @Value("${dropbox.identifier}")
-    private String identifier;
-}
 
 
 @Service
@@ -95,7 +79,7 @@ public class DbxOauthService  {
             try {
                 DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
                 FullAccount account = new DbxClientV2(config, finish.getAccessToken()).users().getCurrentAccount();
-                OAuthEndpointCredential credential = new OAuthEndpointCredential(account.getAccountId())
+                OAuthEndpointCredential credential = new OAuthEndpointCredential(account.getEmail())
                         .setToken(finish.getAccessToken());
                 s.success(credential);
             } catch (Exception e) {

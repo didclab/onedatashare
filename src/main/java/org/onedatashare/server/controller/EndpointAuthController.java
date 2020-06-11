@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.AuthType;
+import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.service.CredentialService;
@@ -22,5 +23,11 @@ public class EndpointAuthController {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> credentialService.createCredential(credential, user,
                         EndpointType.valueOf(type.toString())));
+    }
+
+    @GetMapping("{type}")
+    public Mono<CredList> getCredential(@PathVariable EndpointType type, Mono<Principal> principalMono){
+        return principalMono.map(Principal::getName)
+                .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
     }
 }
