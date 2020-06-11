@@ -3,6 +3,7 @@ package org.onedatashare.server.service;
 import com.jcraft.jsch.*;
 import org.onedatashare.server.model.response.ShellCommandResponse;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.SSHUserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -103,39 +104,3 @@ public class SSHConsoleService {
 }
 
 
-class SSHUserInfo implements UserInfo{
-    private String password;
-
-    public SSHUserInfo(String pwd){
-        this.password = pwd;
-    }
-
-    @Override
-    public String getPassphrase() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public boolean promptPassword(String s) {
-        return true;
-    }
-
-    @Override
-    public boolean promptPassphrase(String s) {
-        return false;
-    }
-
-    @Override
-    public boolean promptYesNo(String s) {
-        return true;
-    }
-
-    @Override
-    public void showMessage(String s) {
-    }
-}
