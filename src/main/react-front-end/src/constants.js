@@ -196,9 +196,6 @@ export function getTypeFromUri(uri) {
 }
 
 export function getName(endpoint) {
-	let a=endpoint.uri.split(":")[0].toLowerCase();
-	let b=showText[a]; 	
-	let c=showText[endpoint.uri.split(":")[0].toLowerCase()]
 	return showText[endpoint.uri.split(":")[0].toLowerCase()]
 }
 
