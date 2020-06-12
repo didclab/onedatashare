@@ -66,7 +66,7 @@ public class CredentialService {
 
     private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
         return client.get()
-                .uri(URI.create(String.format(urlFormatted, userId, type, credId)))
+                .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
                 .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
@@ -74,7 +74,7 @@ public class CredentialService {
 
     public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type){
         return client.get()
-                .uri(URI.create(String.format(this.credentialServiceUrl, userId, type)))
+                .uri(URI.create(String.format(this.credListUrl, userId, type)))
                 .retrieve()
                 .bodyToMono(CredList.class);
     }
@@ -89,7 +89,7 @@ public class CredentialService {
 
     public Mono<Void> createCredential(AccountEndpointCredential credential, String userId, EndpointType type){
         return client.post()
-                .uri(URI.create(String.format(urlFormatted, userId, "account-cred", type)))
+                .uri(URI.create(String.format(this.urlFormatted, userId, "account-cred", type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
                 .exchange()
                 .then();
@@ -97,7 +97,7 @@ public class CredentialService {
 
     public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type){
         return client.post()
-                .uri(URI.create(String.format(urlFormatted, userId, "oauth-cred" ,type)))
+                .uri(URI.create(String.format(this.urlFormatted, userId, "oauth-cred" ,type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), OAuthEndpointCredential.class))
                 .exchange()
                 .then();

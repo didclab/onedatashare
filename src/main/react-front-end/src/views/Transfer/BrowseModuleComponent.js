@@ -121,15 +121,12 @@ export default class BrowseModuleComponent extends Component {
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
 		
-		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
 			console.log("Checking backend for " + containsType + " credentials");
 
-			savedCredList((data) => {
-				if(Object.keys(data).some(id => {
-					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1
-				})){
+			savedCredList(containsType, (data) => {
+				if(data !== undefined && data.length > 0){
 					succeed(data);
 				}else{
 					failed();
@@ -140,23 +137,6 @@ export default class BrowseModuleComponent extends Component {
 				failed();
 				this.setLoading(false);
 			});
-		}
-		else{
-			// If the user has opted not to store tokens on ODS server,
-			// query cookies for saved credentials
-			console.log("Checking cookies for " + containsType + " credentials");
-
-			let creds = cookies.get(containsType) || 0;
-			if(creds !== 0){
-				creds= JSON.parse(creds);
-				succeed(creds);
-				this.setLoading(false);
-			}
-			else{
-				failed();
-				this.setLoading(false);
-			}
-		}
 	}
 
 	render() {

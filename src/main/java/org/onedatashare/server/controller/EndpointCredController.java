@@ -12,8 +12,8 @@ import reactor.core.publisher.Mono;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/auth/")
-public class EndpointAuthController {
+@RequestMapping("/api/cred/")
+public class EndpointCredController {
     @Autowired
     private CredentialService credentialService;
 

@@ -38,6 +38,9 @@ export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
 export const url = "/api/stork/";
+export const apiBaseUrl = "/api/";
+export const apiCredUrl = apiBaseUrl + "cred";
+
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
 export const accountPageUrl = "/account";
