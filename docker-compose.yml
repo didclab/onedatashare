@@ -11,28 +11,17 @@ services:
     - 27017:27017
     volumes :
      - mongodb:/data/db
-    env_file: 
-      - .ods.db.env
     command: mongod --smallfiles --logpath=/dev/null --quiet
 
   # ODS service that runs the Maven container
   odsbackend:
-    build: .
+    image: onedatashare_odsbackend:latest #replace this with "build: ." if u want to build what you have locally. Make sure to update your env appropriately
     env_file:
       - .ods.env
-      - .ods.db.env
     restart: always
     ports:
       - 8080:8080
     depends_on :
       - mongodb         # ensuring that the Maven container is started only after the mongo-service is up
-
-  odsfrontend:
-    build: ./src/main
-    stdin_open: true
-    env_file:
-      - ./src/main/react-front-end/.frontend.env
-    ports:
-      - 3000:3000
-volumes: 
+volumes:
   mongodb:
