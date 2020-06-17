@@ -24,6 +24,7 @@
     "moment": "^2.24.0",
     "query-string": "^6.9.0",
     "react": "^16.12.0",
+    "react-activity": "^1.2.2",
     "react-beautiful-dnd": "^9.0.2",
     "react-bootstrap": "^0.32.4",
     "react-copy-to-clipboard": "^5.0.2",
