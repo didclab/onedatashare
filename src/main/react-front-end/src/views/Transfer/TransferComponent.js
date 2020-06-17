@@ -48,6 +48,8 @@ import Slider from '@material-ui/lab/Slider';
 import Switch from '@material-ui/core/Switch';
 
 import ErrorMessagesConsole from '../ErrorMessagesConsole';
+import  Terminal  from '../Terminal';
+
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
 
@@ -71,7 +73,8 @@ export default class TransferComponent extends Component {
         compress: "true",
         retry: 5
       },
-      compact: store.getState().compactViewEnabled
+      compact: store.getState().compactViewEnabled,
+     // terminalFlag:false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -110,7 +113,6 @@ export default class TransferComponent extends Component {
     window.addEventListener("resize", this.updateDimensions);
     this.setState({ width: window.innerWidth, height: window.innerHeight });
     this.setState({ compact: store.getState().compactViewEnabled });
-
   }
 
   sendFile = (processed) => {
@@ -497,10 +499,18 @@ export default class TransferComponent extends Component {
                 </Row>
                 <div> </div>
                 <ErrorMessagesConsole />
+                <div> </div>
+
+
               </Panel.Body>
             </Panel>}
-          </Col>
-        </div>
+            <div>
+            <Terminal endpoint={this.state.endpoint1} /> <br/>
+            <Terminal endpoint={this.state.endpoint2} />
+
+            </div>
+        </Col>
+      </div>
     );
   }
 }
