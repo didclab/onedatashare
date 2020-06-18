@@ -283,15 +283,18 @@ public class UserService {
 
     public Mono<Response> sendVerificationCode(String email, int expire_in_minutes) {
         return getUser(email).flatMap(user -> {
-            String code = RandomStringUtils.randomAlphanumeric(6);
+//            String code = RandomStringUtils.randomAlphanumeric(6);
+            String code = UUID.randomUUID().toString();
             user.setVerifyCode(code, expire_in_minutes);
             userRepository.save(user).subscribe();
             try {
                 String subject = "OneDataShare Authorization Code";
 //                String emailText = "The authorization code for your OneDataShare account is : " + code;
                 String emailText = "To confirm your account, please click here: "
-//                        + "http://localhost:3000/confirm-account?token="+code;
-                + "/confirm-account?token="+code;
+//                        + "/confirm-account?token="+code;
+                        + "http://localhost:3000/confirm-account?token="+code;
+
+
 
                 emailService.sendEmail(email, subject, emailText);
             }
