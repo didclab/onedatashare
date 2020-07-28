@@ -99,7 +99,7 @@ return false;
    render() {
            return (
            <React.Fragment>
-           { this.checkEndpointlogin() ?(<div>
+           { !this.checkEndpointlogin() ?(<div>
            <AppBar position="relative" style={{backgroundColor:'#337ab7'}} onClick={this.toggleDiv} >
                    <Toolbar>
                    <Grid>

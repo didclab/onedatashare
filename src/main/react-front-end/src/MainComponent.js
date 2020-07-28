@@ -31,7 +31,8 @@ import { store } from './App.js';
 
 import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 
-import TransferComponent from './views/Transfer/TransferComponent';
+// import TransferComponent from './views/Transfer/TransferComponent';
+import TransferComponent from './views/Transfer/TransferComponent2';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
@@ -115,7 +116,7 @@ export default class MainComponent extends Component {
               }
             />
 
-            {isLoggedIn &&
+            {!isLoggedIn &&
               <Route exact path='/transfer'
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />
@@ -123,7 +124,7 @@ export default class MainComponent extends Component {
               />
             }
 
-            {isLoggedIn &&
+            {!isLoggedIn &&
               <Route exact path='/queue'
                 render={(props) =>
                   <QueueComponent {...props} />
@@ -159,7 +160,7 @@ export default class MainComponent extends Component {
                 }
               />
             }
-            {isLoggedIn &&
+            {!isLoggedIn &&
               <Route exact path='/user'
                 render={(props) =>
                   <UserAccountComponent {...props} />

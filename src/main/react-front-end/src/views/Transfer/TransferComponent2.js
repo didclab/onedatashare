@@ -25,7 +25,8 @@ import React, { Component } from 'react';
 import { Panel, Col, Row, Glyphicon } from 'react-bootstrap';
 
 import { store } from '../../App';
-import BrowseModuleComponent from './BrowseModuleComponent';
+import BrowseModuleComponent from './BrowseModuleComponent2';
+// import BrowserSlice from "./BrowserSlice";
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 
@@ -34,6 +35,8 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
+import Grid from "@material-ui/core/Grid";
+import {Hidden} from "@material-ui/core";
 
 import { submit, updateViewPreference } from "../../APICalls/APICalls";
 import { endpointUpdate, compactViewPreference } from "../../model/actions";
@@ -388,7 +391,8 @@ export default class TransferComponent extends Component {
   }
 
   render() {
-    const isSmall = screenIsSmall();
+    // const isSmall = screenIsSmall();
+    const isSmall = false;
     const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
     const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
@@ -401,7 +405,7 @@ export default class TransferComponent extends Component {
       let email = store.getState().email;
       updateViewPreference(email, compactViewEnabled,
           (success) => {
-            console.log("Compact View Preference Switched Succesfully", success);
+            console.log("Compact View Preference Switched Successfully", success);
             store.dispatch(compactViewPreference(compactViewEnabled));
           },
           (error) => { console.log("ERROR in updation" + error) }
@@ -410,9 +414,9 @@ export default class TransferComponent extends Component {
 
     return (
         <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
-          <Col xs={11} style={{ display: "flex", justifyContent: 'center', flexDirection: 'column' }}>
+          <Grid container direction="column" xs={11} justify="center">
 
-            {!isSmall &&
+            {/*{!isSmall &&*/}
             <Panel bsStyle="primary">
               <FormControlLabel
                   style={{ width: "200px", right: "10px", color: "white", position: "absolute" }}
@@ -428,88 +432,120 @@ export default class TransferComponent extends Component {
                   label={<Typography style={{ color: "white", fontSize: "12px" }}>Compact</Typography>}
               />
               <Panel.Heading>
-                <div style={headerStyle}>
+                <Hidden smDown>
+                  <div style={headerStyle}>
+                    <p>
+                      Browse and Transfer File
+                    </p>
+                  </div>
+                </Hidden>
+                <Hidden mdUp>
                   <p>
                     Browse and Transfer Files
                   </p>
-                </div>
+                </Hidden>
+
               </Panel.Heading>
 
               <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
-                <Row style={{flexDirection: 'column'}} key="browseComponents">
+                <Grid container direction="row" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
                       onDragEnd={this.onDragEnd}>
-                    <Col xs={6} style={panelStyle}  >
+                    <Grid item md={6} xs={12}>
                       {this._returnBrowseComponent1()}
-                    </Col>
-                    <Col xs={6} style={panelStyle} >
+                    </Grid>
+                    <Hidden mdUp>
+                      <Grid container direction="row" align-items="center" justify="center">
+                        <Grid item>
+                          <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" />    Send</Button>
+                        </Grid>
+                        <Grid item>
+                          <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+                        </Grid>
+                      </Grid>
+                    </Hidden>
+                    <Grid item md={6} xs={12}>
                       {this._returnBrowseComponent2()}
-                    </Col>
+                    </Grid>
                   </DragDropContext>
-                </Row>
-                <Row style={{display: 'block', ...headerStyle}} key="sendButtons">
-                  <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
-                  <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
-                </Row>
+                </Grid>
+                {/*<Row style={{flexDirection: 'column'}} key="browseComponents">*/}
+
+                {/*</Row>*/}
+                <Hidden smDown>
+                  <Grid container direction="row" align-items="center" justify="center">
+                    <Grid item>
+                      <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                    </Grid>
+                    <Grid item>
+                      <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+                    </Grid>
+
+                  </Grid>
+                {/*<Row style={{display: 'block', ...headerStyle}} key="sendButtons">*/}
+
+                {/*</Row>*/}
+                </Hidden>
+
 
                 <ErrorMessagesConsole/>
               </Panel.Body>
             </Panel>
 
 
-            }
-            {/* !isSmall && this.getSettingComponent(isSmall) */}
-            {isSmall &&
-            <Panel bsStyle="primary">
-              <FormControlLabel
-                  style={{ width: "200px", float: "right", color: "white" }}
-                  control={
-                    <Switch
-                        color="default"
-                        style={{ colorPrimary: "white", colorSecondary: "white" }}
-                        checked={this.state.compact}
-                        onChange={handleChange('compact')}
-                        value="compact"
-                    />
-                  }
-                  label={<Typography style={{ fontSize: "12px" }}>Compact</Typography>}
-              />
-              <Panel.Heading>
-                <p>
-                  Browse and Transfer Files</p>
-              </Panel.Heading>
-              <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>
-                <Row style={{ flexDirection: 'column' }}>
-                  <DragDropContext
-                      onDragStart={this.onDragStart}
-                      onDragEnd={this.onDragEnd}
-                  >
-                    <Col style={panelStyle}>
-                      {this._returnBrowseComponent1()}
-                    </Col>
-                    <Row style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>
-                      <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>
-                      <Button id="sendFromLeftToRight" style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
-                    </Row>
-                    <Row style={panelStyle}>
-                      {this._returnBrowseComponent2()}
-                    </Row>
-                  </DragDropContext>
-                </Row>
-                <div> </div>
-                <ErrorMessagesConsole />
-                <div> </div>
+            {/*}*/}
+            {!isSmall && this.getSettingComponent(isSmall)}
+            {/*{isSmall &&*/}
+            {/*<Panel bsStyle="primary">*/}
+            {/*  <FormControlLabel*/}
+            {/*      style={{ width: "200px", float: "right", color: "white" }}*/}
+            {/*      control={*/}
+            {/*        <Switch*/}
+            {/*            color="default"*/}
+            {/*            style={{ colorPrimary: "white", colorSecondary: "white" }}*/}
+            {/*            checked={this.state.compact}*/}
+            {/*            onChange={handleChange('compact')}*/}
+            {/*            value="compact"*/}
+            {/*        />*/}
+            {/*      }*/}
+            {/*      label={<Typography style={{ fontSize: "12px" }}>Compact</Typography>}*/}
+            {/*  />*/}
+            {/*  <Panel.Heading>*/}
+            {/*    <p>*/}
+            {/*      Browse and Transfer Files</p>*/}
+            {/*  </Panel.Heading>*/}
+            {/*  <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>*/}
+            {/*    <Row style={{ flexDirection: 'column' }}>*/}
+            {/*      <DragDropContext*/}
+            {/*          onDragStart={this.onDragStart}*/}
+            {/*          onDragEnd={this.onDragEnd}*/}
+            {/*      >*/}
+            {/*        <Col style={panelStyle}>*/}
+            {/*          {this._returnBrowseComponent1()}*/}
+            {/*        </Col>*/}
+            {/*        <Row style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>*/}
+            {/*          <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>*/}
+            {/*          <Button id="sendFromLeftToRight" style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>*/}
+            {/*        </Row>*/}
+            {/*        <Row style={panelStyle}>*/}
+            {/*          {this._returnBrowseComponent2()}*/}
+            {/*        </Row>*/}
+            {/*      </DragDropContext>*/}
+            {/*    </Row>*/}
+            {/*    <div> </div>*/}
+            {/*    <ErrorMessagesConsole />*/}
+            {/*    <div> </div>*/}
 
 
-              </Panel.Body>
-            </Panel>}
+            {/*  </Panel.Body>*/}
+            {/*</Panel>}*/}
             <div>
             <Terminal endpoint={this.state.endpoint1} /> <br/>
             <Terminal endpoint={this.state.endpoint2} />
 
             </div>
-        </Col>
+        </Grid>
       </div>
     );
   }

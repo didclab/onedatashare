@@ -58,7 +58,7 @@ class NavbarComponent extends Component {
 					<Navbar.Toggle />
 				</Navbar.Header>
 				<Navbar.Collapse>
-					{(this.state.login) &&
+					{(!this.state.login) &&
 						<Nav>
 							<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 							<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
@@ -76,8 +76,9 @@ class NavbarComponent extends Component {
 		    </Nav>}
 
 		    <Nav pullRight>
-		        {this.state.login &&
-			        <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
+		        {!this.state.login &&
+			        // <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
+				<NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >ACCOUNT</NavItem>
 		    	}
 		        {!this.state.login &&
 			        <NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
@@ -85,7 +86,7 @@ class NavbarComponent extends Component {
 		        {!this.state.login &&
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
-				{this.state.login &&
+				{!this.state.login &&
 					<NavItem id="NavLogout" onClick={()=>{logout()}}>
 			            <span>Log out</span>
 					</NavItem>}
