@@ -417,3 +417,31 @@ queueHeaderCell button {
 .mobileCell .queueBar {
   max-width: 75%;
 }
+
+/**************************************/
+/*                                    */
+/*  For Transfer/TransferComponent.js */
+/*                                    */
+/**************************************/
+
+.wrapperBox{
+  border: solid 1px #172753;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+.innerBox{
+  padding: 20px;
+}
+
+.boxHeader{
+  padding: 10px;
+  background-color: #172753;
+  color: white;
+}
+
+@media only screen and (min-width: 625px){
+  .boxHeader{
+    text-align: center;
+  }
+}

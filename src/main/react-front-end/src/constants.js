@@ -176,6 +176,29 @@ export const jobStatus = {
 	FAILED: 'failed'
 }
 
+
+//screen sizes for mobile/desktop switch
+
+//using grid column
+export const gridFullWidth = 12;
+export const gridHalfWidth = 6;
+export const gridThirdWidth = 4;
+export const gridQuarterWidth = 3;
+
+//grid column/row
+export const gridRow = "row";
+export const gridCol = "column";
+
+
+
+//using width sizing
+export const FullWidth = 1;
+export const HalfWidth = 1/2;
+export const ThirdWidth = 1/3;
+export const QuarterWidth = 1/4;
+
+
+
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)
 }

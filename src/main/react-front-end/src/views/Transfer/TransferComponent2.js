@@ -36,7 +36,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import Grid from "@material-ui/core/Grid";
-import {Hidden} from "@material-ui/core";
+import {Hidden, Container, Box} from "@material-ui/core";
 
 import { submit, updateViewPreference } from "../../APICalls/APICalls";
 import { endpointUpdate, compactViewPreference } from "../../model/actions";
@@ -46,6 +46,7 @@ import { mutliDragAwareReorder, screenIsSmall } from "./utils.js";
 import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
+import { gridFullWidth, gridHalfWidth} from "../../constants";
 import Slider from '@material-ui/lab/Slider';
 
 import Switch from '@material-ui/core/Switch';
@@ -414,16 +415,16 @@ export default class TransferComponent extends Component {
 
     return (
         <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
-          <Grid container direction="column" xs={11} justify="center">
+          <Container>
 
             {/*{!isSmall &&*/}
-            <Panel bsStyle="primary">
+            <Box className="wrapperBox">
               <FormControlLabel
-                  style={{ width: "200px", right: "10px", color: "white", position: "absolute" }}
+                  style={{ width: "200px", right: "1%", color: "white", position: "absolute" }}
                   control={
                     <Switch
                         color="default"
-                        style={{ colorPrimary: "white", colorSecondary: "white" }}
+                        style={{colorPrimary: "white", colorSecondary: "white"}}
                         checked={this.state.compact}
                         onChange={updateCompactViewPreference('compact')}
                         value="compact"
@@ -431,31 +432,23 @@ export default class TransferComponent extends Component {
                   }
                   label={<Typography style={{ color: "white", fontSize: "12px" }}>Compact</Typography>}
               />
-              <Panel.Heading>
-                <Hidden smDown>
-                  <div style={headerStyle}>
-                    <p>
-                      Browse and Transfer File
-                    </p>
-                  </div>
-                </Hidden>
-                <Hidden mdUp>
+              <Box className="boxHeader">
+
                   <p>
-                    Browse and Transfer Files
+                    Browse and Transfer File
                   </p>
-                </Hidden>
 
-              </Panel.Heading>
+              </Box>
 
-              <Panel.Body key={isSmall} style={{overflow: "hidden"}}>
+              <Box className="innerBox">
                 <Grid container direction="row" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
                       onDragEnd={this.onDragEnd}>
-                    <Grid item md={6} xs={12}>
+                    <Grid item sm={gridHalfWidth} xs={gridFullWidth}>
                       {this._returnBrowseComponent1()}
                     </Grid>
-                    <Hidden mdUp>
+                    <Hidden smUp>
                       <Grid container direction="row" align-items="center" justify="center">
                         <Grid item>
                           <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" />    Send</Button>
@@ -465,7 +458,7 @@ export default class TransferComponent extends Component {
                         </Grid>
                       </Grid>
                     </Hidden>
-                    <Grid item md={6} xs={12}>
+                    <Grid item sm={gridHalfWidth} xs={gridFullWidth}>
                       {this._returnBrowseComponent2()}
                     </Grid>
                   </DragDropContext>
@@ -473,7 +466,7 @@ export default class TransferComponent extends Component {
                 {/*<Row style={{flexDirection: 'column'}} key="browseComponents">*/}
 
                 {/*</Row>*/}
-                <Hidden smDown>
+                <Hidden xsDown>
                   <Grid container direction="row" align-items="center" justify="center">
                     <Grid item>
                       <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
@@ -490,8 +483,8 @@ export default class TransferComponent extends Component {
 
 
                 <ErrorMessagesConsole/>
-              </Panel.Body>
-            </Panel>
+              </Box>
+            </Box>
 
 
             {/*}*/}
@@ -545,7 +538,7 @@ export default class TransferComponent extends Component {
             <Terminal endpoint={this.state.endpoint2} />
 
             </div>
-        </Grid>
+        </Container>
       </div>
     );
   }
