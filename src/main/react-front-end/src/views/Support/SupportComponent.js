@@ -46,6 +46,7 @@ import { updateGAPageView } from "../../analytics/ga";
 // import Switch from "@material-ui/core/Switch";
 // import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
+import Grid from "@material-ui/core";
 
 export default class SupportComponent extends Component{
 

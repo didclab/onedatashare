@@ -37,6 +37,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import Grid from "@material-ui/core/Grid";
 import {Hidden, Container, Box} from "@material-ui/core";
+import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded} from "@material-ui/icons";
 
 import { submit, updateViewPreference } from "../../APICalls/APICalls";
 import { endpointUpdate, compactViewPreference } from "../../model/actions";
@@ -299,7 +300,7 @@ export default class TransferComponent extends Component {
     this.sendFile(processed);
   }
 
-  getSettingComponent(isSmall) {
+  getSettingComponent() {
     const handleChange = (name) => event => {
       var value = event.target.value;
       this.setState({ settings: { ...this.state.settings, [name]: value } });
@@ -309,93 +310,113 @@ export default class TransferComponent extends Component {
     }
     const formlabelstyle = { fontSize: "15px" }
     const formStyle = { marginLeft: "5%", marginRight: "5%" }
-    return <Panel bsStyle="primary">
+    const desktopWidth = 2;
+    const tabletWidth = 4;
+    return (
+    <Box className="transferSettings">
       <div style={{ textAlign: "center" }}>
-        <Panel.Heading>Transfer Setting</Panel.Heading>
+        <h5>Transfer Setting</h5>
       </div>
-      <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
-          <RadioGroup
-              aria-label="Optimization"
-              value={this.state.settings.optimizer}
-              onChange={handleChange("optimizer")}
-          >
-            <FormControlLabel value="None" control={<Radio />} label="None" />
-            <FormControlLabel value="2nd Order" control={<Radio />} label="2nd Order" />
-            <FormControlLabel value="PCP" control={<Radio />} label="PCP" />
-          </RadioGroup>
-        </FormControl>
+      <Grid container className="innerBox" direction="row" align-items="center" justify="space-around" spacing={2}>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset" style={formStyle}>
+            <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
+            <RadioGroup
+                aria-label="Optimization"
+                value={this.state.settings.optimizer}
+                onChange={handleChange("optimizer")}
+            >
+              <FormControlLabel value="None" control={<Radio />} label="None" />
+              <FormControlLabel value="2nd Order" control={<Radio />} label="2nd Order" />
+              <FormControlLabel value="PCP" control={<Radio />} label="PCP" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
-          <RadioGroup
-              aria-label="Overwrite"
-              value={this.state.settings.overwrite}
-              onChange={handleChange("overwrite")}
-          >
-            <FormControlLabel value="true" control={<Radio />} label="True" />
-            <FormControlLabel value="false" control={<Radio />} label="False" />
-          </RadioGroup>
-        </FormControl>
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
-          <RadioGroup
-              aria-label="Integrity"
-              value={this.state.settings.verify}
-              onChange={handleChange("verify")}
-          >
-            <FormControlLabel value="true" control={<Radio />} label="True" />
-            <FormControlLabel value="false" control={<Radio />} label="False" />
-          </RadioGroup>
-        </FormControl>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
-          <RadioGroup
-              aria-label="Encrypt"
-              value={this.state.settings.encrypt}
-              onChange={handleChange("encrypt")}
-          >
-            <FormControlLabel value="true" control={<Radio />} label="True" />
-            <FormControlLabel value="false" control={<Radio />} label="False" />
-          </RadioGroup>
-        </FormControl>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset" style={formStyle}>
+            <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
+            <RadioGroup
+                aria-label="Overwrite"
+                value={this.state.settings.overwrite}
+                onChange={handleChange("overwrite")}
+            >
+              <FormControlLabel value="true" control={<Radio />} label="True" />
+              <FormControlLabel value="false" control={<Radio />} label="False" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
 
-        <FormControl component="fieldset" style={formStyle}>
-          <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
-          <RadioGroup
-              aria-label="Compress"
-              value={this.state.settings.compress}
-              onChange={handleChange("compress")}
-          >
-            <FormControlLabel value="true" control={<Radio />} label="True" />
-            <FormControlLabel value="false" control={<Radio />} label="False" />
-          </RadioGroup>
-        </FormControl>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset" style={formStyle}>
+            <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
+            <RadioGroup
+                aria-label="Integrity"
+                value={this.state.settings.verify}
+                onChange={handleChange("verify")}
+            >
+              <FormControlLabel value="true" control={<Radio />} label="True" />
+              <FormControlLabel value="false" control={<Radio />} label="False" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
 
-        <FormControl component="fieldset">
-          <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
-          <Slider
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset" style={formStyle}>
+            <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
+            <RadioGroup
+                aria-label="Encrypt"
+                value={this.state.settings.encrypt}
+                onChange={handleChange("encrypt")}
+            >
+              <FormControlLabel value="true" control={<Radio />} label="True" />
+              <FormControlLabel value="false" control={<Radio />} label="False" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
 
-              value={this.state.settings.retry}
-              min={0}
-              max={10}
-              step={1}
-              onChange={handleChangeRetry}
-          />
-          <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>
-        </FormControl>
-      </Panel.Body>
 
-    </Panel>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset" style={formStyle}>
+            <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
+            <RadioGroup
+                aria-label="Compress"
+                value={this.state.settings.compress}
+                onChange={handleChange("compress")}
+            >
+              <FormControlLabel value="true" control={<Radio />} label="True" />
+              <FormControlLabel value="false" control={<Radio />} label="False" />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
+
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
+            <Slider
+
+                value={this.state.settings.retry}
+                min={0}
+                max={10}
+                step={1}
+                onChange={handleChangeRetry}
+            />
+            <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>
+          </FormControl>
+        </Grid>
+
+      </Grid>
+
+    </Box>
+    );
   }
 
   render() {
     // const isSmall = screenIsSmall();
-    const isSmall = false;
-    const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
-    const headerStyle = { textAlign: "center" }
+    // const isSmall = false;
+    // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
+    // const headerStyle = { textAlign: "center" }
     let handleChange = name => event => {
       this.setState({ [name]: event.target.checked });
     };
@@ -414,13 +435,21 @@ export default class TransferComponent extends Component {
     };
 
     return (
-        <div style={{ display: "flex", flexDirection: 'row', justifyContent: 'center' }}>
-          <Container>
+        <div>
+        <Grid container direction="column" className={"outertransferContainer"}>
+          <Container className={"boxHeader"}>
+
+            <p>
+              Browse and Transfer File
+            </p>
+
+          </Container>
+          <Container className={"transferContainer"}>
 
             {/*{!isSmall &&*/}
-            <Box className="wrapperBox">
+            <Box className={"wrapperBox"}>
               <FormControlLabel
-                  style={{ width: "200px", right: "1%", color: "white", position: "absolute" }}
+                  className={"wrapperBoxForm"}
                   control={
                     <Switch
                         color="default"
@@ -430,35 +459,29 @@ export default class TransferComponent extends Component {
                         value="compact"
                     />
                   }
-                  label={<Typography style={{ color: "white", fontSize: "12px" }}>Compact</Typography>}
+                  label={<Typography /*classname={wrapperBoxLabel}*/ style={{ color: "black", fontSize: "12px" }}>Compact</Typography>}
               />
-              <Box className="boxHeader">
 
-                  <p>
-                    Browse and Transfer File
-                  </p>
-
-              </Box>
 
               <Box className="innerBox">
                 <Grid container direction="row" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
                       onDragEnd={this.onDragEnd}>
-                    <Grid item sm={gridHalfWidth} xs={gridFullWidth}>
+                    <Grid item md={gridHalfWidth} xs={gridFullWidth}>
                       {this._returnBrowseComponent1()}
                     </Grid>
-                    <Hidden smUp>
+                    <Hidden mdUp>
                       <Grid container direction="row" align-items="center" justify="center">
                         <Grid item>
-                          <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" />    Send</Button>
+                          <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowUpRounded />    Send</Button>
                         </Grid>
                         <Grid item>
-                          <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>
+                          <Button id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowDownRounded/></Button>
                         </Grid>
                       </Grid>
                     </Hidden>
-                    <Grid item sm={gridHalfWidth} xs={gridFullWidth}>
+                    <Grid item md={gridHalfWidth} xs={gridFullWidth}>
                       {this._returnBrowseComponent2()}
                     </Grid>
                   </DragDropContext>
@@ -466,13 +489,13 @@ export default class TransferComponent extends Component {
                 {/*<Row style={{flexDirection: 'column'}} key="browseComponents">*/}
 
                 {/*</Row>*/}
-                <Hidden xsDown>
+                <Hidden smDown>
                   <Grid container direction="row" align-items="center" justify="center">
                     <Grid item>
-                      <Button id="sendFromRightToLeft" style={{padding: '15px', marginRight: '10px'}} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-left" />    Send</Button>
+                      <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                     </Grid>
                     <Grid item>
-                      <Button id="sendFromLeftToRight" style={{padding: '15px', marginLeft: '10px'}} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-right" /></Button>
+                      <Button id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
                     </Grid>
 
                   </Grid>
@@ -482,13 +505,16 @@ export default class TransferComponent extends Component {
                 </Hidden>
 
 
-                <ErrorMessagesConsole/>
+
               </Box>
             </Box>
+            <ErrorMessagesConsole/>
+
+
 
 
             {/*}*/}
-            {!isSmall && this.getSettingComponent(isSmall)}
+            {/*{!isSmall && this.getSettingComponent(isSmall)}*/}
             {/*{isSmall &&*/}
             {/*<Panel bsStyle="primary">*/}
             {/*  <FormControlLabel*/}
@@ -533,13 +559,18 @@ export default class TransferComponent extends Component {
 
             {/*  </Panel.Body>*/}
             {/*</Panel>}*/}
+
+        </Container>
+      </Grid>
+          {this.getSettingComponent()}
+          <Container className={"terminalContainer"}>
             <div>
-            <Terminal endpoint={this.state.endpoint1} /> <br/>
-            <Terminal endpoint={this.state.endpoint2} />
+              <Terminal endpoint={this.state.endpoint1} /> <br/>
+              <Terminal endpoint={this.state.endpoint2} />
 
             </div>
-        </Container>
-      </div>
+          </Container>
+        </div>
     );
   }
 }

@@ -46,7 +46,7 @@ import { updateGAPageView } from "../../analytics/ga";
 // import Switch from "@material-ui/core/Switch";
 // import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
-import Grid from "@material-ui/core";
+import {Grid, Box, Container} from "@material-ui/core";
 
 export default class SupportComponent extends Component{
 
@@ -133,14 +133,14 @@ export default class SupportComponent extends Component{
     // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
-        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center'}}>
-          <Grid xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
-            <Panel bsStyle="primary">
-              <Panel.Heading>
-                <p style={{ textAlign: 'center' }}>
+        <div className={"outertransferContainer"}>
+          <Grid container direction={"column"} justify={"center"} xs={11} className={"wrapperBox"}>
+            <Box>
+              <Box className={"boxHeader"}>
+                <p >
                   Report an Issue
                 </p>
-              </Panel.Heading>
+              </Box>
               {/* <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
@@ -209,7 +209,7 @@ export default class SupportComponent extends Component{
 
               </ValidatorForm> */}
 
-              <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%' }}>
+              <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%'}}>
                 <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
                 <style type="text/css" media="screen, projection">
                     @import url(http://assets.freshdesk.com/widget/freshwidget.css);
@@ -225,7 +225,7 @@ export default class SupportComponent extends Component{
                   frameborder="0" >
                 </iframe>
               </div>
-            </Panel>
+            </Box>
           </Grid>
         </div>
     );

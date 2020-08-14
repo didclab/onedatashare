@@ -39,7 +39,8 @@ import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
-import SupportComponent from './views/Support/SupportComponent';
+// import SupportComponent from './views/Support/SupportComponent';
+import SupportComponent from './views/Support/SupportComponent2';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
@@ -124,7 +125,7 @@ export default class MainComponent extends Component {
               />
             }
 
-            {!isLoggedIn &&
+            {isLoggedIn &&
               <Route exact path='/queue'
                 render={(props) =>
                   <QueueComponent {...props} />
@@ -160,7 +161,7 @@ export default class MainComponent extends Component {
                 }
               />
             }
-            {!isLoggedIn &&
+            {isLoggedIn &&
               <Route exact path='/user'
                 render={(props) =>
                   <UserAccountComponent {...props} />

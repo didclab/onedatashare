@@ -76,9 +76,8 @@ class NavbarComponent extends Component {
 		    </Nav>}
 
 		    <Nav pullRight>
-		        {!this.state.login &&
-			        // <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
-				<NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >ACCOUNT</NavItem>
+		        {this.state.login &&
+			        <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
 		    	}
 		        {!this.state.login &&
 			        <NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
@@ -86,7 +85,7 @@ class NavbarComponent extends Component {
 		        {!this.state.login &&
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
-				{!this.state.login &&
+				{this.state.login &&
 					<NavItem id="NavLogout" onClick={()=>{logout()}}>
 			            <span>Log out</span>
 					</NavItem>}

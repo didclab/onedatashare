@@ -177,58 +177,59 @@ export default class BrowseModuleComponent extends Component {
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
 
-		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
-		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
+		// const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
+		const buttonStyle1 = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
+		const buttonStyle = {label: "browseButton"};
 
 	  return (
 	    // saved credential
 	    // login manually
-	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
+	    <div id={"browser"+endpoint.side} className={"transferGroup"} /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/>
 	      	{(!endpoint.login && mode === pickModule) &&
-	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
-	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
+	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
 		      	}}>
-		      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
+		      		<Icon className={'fab fa-dropbox browseIcon'}/>
 		      		DropBox
 		      	</Button>
-	      		<Button id={endpoint.side + "FTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+	      		<Button id={endpoint.side + "FTP"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 		      		loginPrep(FTP_TYPE)()
 		      	}}>
-		      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
+		      		<Icon className={'far fa-folder-open browseIcon'}/>
 		      		FTP
 	      		</Button>
-		      	<Button id={endpoint.side + "GoogleDrive"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+		      	<Button id={endpoint.side + "GoogleDrive"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
 		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
 		      	}}>
-			      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
+			      	<Icon className={'fab fa-google-drive browseIcon'}/>
 			      	Google Drive
 		      	</Button>
-                <Button id={endpoint.side + "Box"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+                <Button id={endpoint.side + "Box"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
                     this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
                 }}>
-					<Icon className={'fas fa-bold'} style={iconStyle}/>
+					<Icon className={'fas fa-bold browseIcon'}/>
                     Box
                 </Button>
-				<Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
+				<Button id={endpoint.side + "GridFTP"} style={buttonStyle1} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
 					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 				}}>
-					<Icon className={'fas fa-server'} style={iconStyle}/>
+					<Icon className={'fas fa-server browseIcon'}/>
 				GridFTP
 				</Button> 
-				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+				<Button id={endpoint.side + "HTTP"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 	      			loginPrep(HTTP_TYPE)()
 	      		}}>
-		      		<Icon className={'fas fa-globe'} style={iconStyle}/>
+		      		<Icon className={'fas fa-globe browseIcon'}/>
 		      		HTTP/HTTPS
 	      		</Button>
 
-		      	<Button id={endpoint.side + "SFTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
+		      	<Button id={endpoint.side + "SFTP"} style={buttonStyle1} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
 		      		loginPrep(SFTP_TYPE)()
 		      	}}>
-		      		<Icon className={'fas fa-terminal'} style={iconStyle}/>
+		      		<Icon className={'fas fa-terminal browseIcon'}/>
 		      		SFTP
 		      	</Button>
 		    </div>}
