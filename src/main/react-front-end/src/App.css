@@ -424,24 +424,172 @@ queueHeaderCell button {
 /*                                    */
 /**************************************/
 
+.outertransferContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  height: auto;
+  margin-top: -10vh
+}
+
+.transferContainer{
+  margin-top: -200px;
+  margin-bottom: 50px;
+}
+
 .wrapperBox{
-  border: solid 1px #172753;
+  background-color: white;
   margin-bottom: 20px;
   border-radius: 5px;
+  height: auto;
+  box-shadow: 0 2px 5px gray;
+  border: solid 1px #172753;
+}
+
+.wrapperBoxForm{
+  width: 200px;
+  right: 1%;
+  position: absolute;
+}
+
+.wrapperBoxLabel{
+  color: white;
+  font-size: 12px;
 }
 
 .innerBox{
   padding: 20px;
 }
 
-.boxHeader{
-  padding: 10px;
-  background-color: #172753;
-  color: white;
+#sendFromRightToLeft{
+  padding: 15px;
+  margin-right: 10px;
 }
 
-@media only screen and (min-width: 625px){
+#sendFromLeftToRight{
+  padding: 15px;
+  margin-left: 10px;
+}
+
+.boxHeader{
+  padding: 50px 25px;
+  background-color: #172753;
+  color: white;
+  min-height: 300px;
+}
+
+.transferGroup{
+  border: solid 1px #005bbb;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+  margin-top: 30px;
+}
+
+.browseContainer{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.browseButton{
+  flex-grow: 1;
+  text-align: left;
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 12px;
+  /*padding-left: 30%;*/
+}
+
+.browseIcon{
+  margin-right: 10px;
+  font-size: 16px;
+  width: 20px;
+  text-align: left;
+}
+
+
+.transferSettings{
+  border-top: solid 1px #172753;
+  border-bottom: solid 1px #172753;
+  color: #172753;
+  padding: 10px;
+  margin-bottom: 20px;
+  /*border-radius: 5px;*/
+  background-color: #F2F2F2;
+}
+
+
+
+@media only screen and (min-width: 800px){
   .boxHeader{
     text-align: center;
+  }
+}
+
+.errorConsole{
+  text-align: left;
+  border: solid 1px #172753;
+  height: 125px;
+  overflow: scroll;
+  word-wrap: break-word;
+  padding: 5px;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 5px gray;
+}
+
+.instructions{
+  font-size: 16px;
+  box-shadow: 1px 1px 1px gray;
+  border: solid 1px #172753;
+  height: 125px;
+  padding: 1% 1%;
+  border-radius: 10px;
+}
+
+.terminalContainer{
+  margin-bottom: 50px;
+
+}
+
+/**************************************/
+/*                                    */
+/*  For Terminal */
+/*                                    */
+/**************************************/
+
+.terminalBar{
+  background-color: #337ab7;
+}
+
+.terminalWrapper{
+  height:300px;
+  padding-left: 5px;
+  padding-top: 5px;
+  background-color: black;
+  color:white;
+  font-family: courier, serif;
+  overflow: scroll;
+}
+
+
+/**************************************/
+/*                                    */
+/*  For Account */
+/*                                    */
+/**************************************/
+
+.accCardStyle{
+  width: 450px;
+  border: 2px #74bdf1 solid;
+  border-radius: 1%;
+  align-self: center;
+}
+
+@media only screen and (max-width: 640px) {
+  .accCardStyle{
+    align-self: flex-start;
   }
 }
