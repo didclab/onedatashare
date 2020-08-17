@@ -53,12 +53,14 @@ export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedIn: store.getState().login,
+      // isLoggedIn: store.getState().login,
+      isLoggedIn: true,
       admin: store.getState().admin,
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
-        isLoggedIn: store.getState().login,
+        // isLoggedIn: store.getState().login,
+        isLoggedIn: true,
         admin: store.getState().admin
       });
     });
@@ -117,7 +119,7 @@ export default class MainComponent extends Component {
               }
             />
 
-            {!isLoggedIn &&
+            {isLoggedIn &&
               <Route exact path='/transfer'
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />

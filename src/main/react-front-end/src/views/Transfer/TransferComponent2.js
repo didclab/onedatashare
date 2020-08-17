@@ -34,6 +34,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from '@material-ui/core/FormLabel';
 import Grid from "@material-ui/core/Grid";
 import {Hidden, Container, Box} from "@material-ui/core";
@@ -57,6 +58,7 @@ import  Terminal  from '../Terminal';
 
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
+import {makeStyles, styled} from "@material-ui/core/styles";
 
 export default class TransferComponent extends Component {
 
@@ -72,10 +74,14 @@ export default class TransferComponent extends Component {
       height: window.innerHeight,
       settings: {
         optimizer: "None",
-        overwrite: "true",
-        verify: "true",
-        encrypt: "true",
-        compress: "true",
+        // overwrite: "true",
+        // verify: "true",
+        // encrypt: "true",
+        // compress: "true",
+        overwrite: true,
+        verify: true,
+        encrypt: true,
+        compress: true,
         retry: 5
       },
       compact: store.getState().compactViewEnabled,
@@ -104,6 +110,11 @@ export default class TransferComponent extends Component {
     updateGAPageView();
 
   }
+
+  labelStyle = () => styled(Typography)({
+    fontSize: "12px",
+    color: "black"
+  })
 
   printError() {
     const error = queryString.parse(this.props.location.search);
@@ -303,6 +314,12 @@ export default class TransferComponent extends Component {
   getSettingComponent() {
     const handleChange = (name) => event => {
       var value = event.target.value;
+      console.log(value);
+      this.setState({ settings: { ...this.state.settings, [name]: value } });
+    };
+    const handleChangeCheckbox = (name) => event => {
+      var value = event.target.checked;
+      console.log(value);
       this.setState({ settings: { ...this.state.settings, [name]: value } });
     };
     const handleChangeRetry = (event, value) => {
@@ -312,13 +329,14 @@ export default class TransferComponent extends Component {
     const formStyle = { marginLeft: "5%", marginRight: "5%" }
     const desktopWidth = 2;
     const tabletWidth = 4;
+    const ToggleLabel = this.labelStyle();
     return (
     <Box className="transferSettings">
       <div style={{ textAlign: "center" }}>
         <h5>Transfer Setting</h5>
       </div>
       <Grid container className="innerBox" direction="row" align-items="center" justify="space-around" spacing={2}>
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset" style={formStyle}>
             <FormLabel component="legend" style={formlabelstyle}>Optimization</FormLabel>
             <RadioGroup
@@ -334,12 +352,12 @@ export default class TransferComponent extends Component {
         </Grid>
 
 
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset" style={formStyle}>
             <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>
             <RadioGroup
                 aria-label="Overwrite"
-                value={this.state.settings.overwrite}
+                value={String(this.state.settings.overwrite)}
                 onChange={handleChange("overwrite")}
             >
               <FormControlLabel value="true" control={<Radio />} label="True" />
@@ -348,12 +366,12 @@ export default class TransferComponent extends Component {
           </FormControl>
         </Grid>
 
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset" style={formStyle}>
             <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>
             <RadioGroup
                 aria-label="Integrity"
-                value={this.state.settings.verify}
+                value={String(this.state.settings.verify)}
                 onChange={handleChange("verify")}
             >
               <FormControlLabel value="true" control={<Radio />} label="True" />
@@ -362,12 +380,12 @@ export default class TransferComponent extends Component {
           </FormControl>
         </Grid>
 
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset" style={formStyle}>
             <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>
             <RadioGroup
                 aria-label="Encrypt"
-                value={this.state.settings.encrypt}
+                value={String(this.state.settings.encrypt)}
                 onChange={handleChange("encrypt")}
             >
               <FormControlLabel value="true" control={<Radio />} label="True" />
@@ -377,12 +395,12 @@ export default class TransferComponent extends Component {
         </Grid>
 
 
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset" style={formStyle}>
             <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>
             <RadioGroup
                 aria-label="Compress"
-                value={this.state.settings.compress}
+                value={String(this.state.settings.compress)}
                 onChange={handleChange("compress")}
             >
               <FormControlLabel value="true" control={<Radio />} label="True" />
@@ -391,7 +409,62 @@ export default class TransferComponent extends Component {
           </FormControl>
         </Grid>
 
-        <Grid item md={desktopWidth} sm={tabletWidth}>
+
+
+        {/* checkbox version */}
+
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
+          <Grid container direction={"column"}>
+            <Grid item>
+              <FormControlLabel
+                  control=
+                      {<Checkbox
+                          aria-label="Overwrite"
+                          checked={this.state.settings.overwrite}
+                          onChange={handleChangeCheckbox("overwrite")}
+                      />}
+                  label={<ToggleLabel>Overwrite</ToggleLabel>}
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                  control=
+                      {<Checkbox
+                          aria-label="Integrity"
+                          checked={this.state.settings.verify}
+                          onChange={handleChangeCheckbox("verify")}
+                      />}
+                  label={"Integrity"}
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                  control=
+                      {<Checkbox
+                          aria-label="Encrypt"
+                          checked={this.state.settings.encrypt}
+                          onChange={handleChangeCheckbox("encrypt")}
+                      />}
+                  label={"Encrypt"}
+              />
+            </Grid>
+            <Grid item>
+              <FormControlLabel
+                  control=
+                      {<Checkbox
+                          aria-label="Compress"
+                          checked={this.state.settings.compress}
+                          onChange={handleChangeCheckbox("compress")}
+                      />}
+                  label={"Compress"}
+                  style={{fontSize: "16px"}}
+              />
+            </Grid>
+
+          </Grid>
+        </Grid>
+
+        <Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>
           <FormControl component="fieldset">
             <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>
             <Slider
@@ -410,7 +483,8 @@ export default class TransferComponent extends Component {
 
     </Box>
     );
-  }
+  };
+
 
   render() {
     // const isSmall = screenIsSmall();
@@ -434,9 +508,11 @@ export default class TransferComponent extends Component {
       );
     };
 
+    const ToggleLabel = this.labelStyle();
+
     return (
         <div>
-        <Grid container direction="column" className={"outertransferContainer"}>
+        <Grid container direction="column" className={"outeractionContainer"}>
           <Container className={"boxHeader"}>
 
             <p>
@@ -444,7 +520,7 @@ export default class TransferComponent extends Component {
             </p>
 
           </Container>
-          <Container className={"transferContainer"}>
+          <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
             <Box className={"wrapperBox"}>
@@ -459,7 +535,7 @@ export default class TransferComponent extends Component {
                         value="compact"
                     />
                   }
-                  label={<Typography /*classname={wrapperBoxLabel}*/ style={{ color: "black", fontSize: "12px" }}>Compact</Typography>}
+                  label={<ToggleLabel>Compact</ToggleLabel>}
               />
 
 
