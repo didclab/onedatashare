@@ -90,9 +90,7 @@ class NavbarComponent extends Component {
 			            <span>Log out</span>
 					</NavItem>}
 					<NavItem href="/support">
-						<Tooltip title="Report an issue" placement="top">
-							<ContactSupportOutlined />
-						</Tooltip>
+						Support
 					</NavItem>
 					</Nav>
 				</Navbar.Collapse>
