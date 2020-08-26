@@ -105,8 +105,8 @@ export default class BrowseModuleComponent extends Component {
 		flexGrow: 1,
 		justifyContent: "flex-start",
 		width: "100%",
-		fontSize: "12px",
-		paddingLeft: "30%"
+		fontSize: "16px",
+		paddingLeft: "35%"
 	});
 
 	setLoading(bool){

@@ -24,6 +24,7 @@
 import { multiSelectTo as multiSelect } from './utils';
 import FileNode from "./FileNode.js";
 import CompactFileNodeWrapper from './CompactFileNode/CompactFileNodeWrapper.js';
+import { updateViewPreference } from "../../APICalls/APICalls";
 
 import { Droppable } from 'react-beautiful-dnd';
 
@@ -34,15 +35,17 @@ import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
 import Code from '@material-ui/icons/Code';
-import Button from '@material-ui/core/Button';
+import {Button, ButtonGroup, Popover, FormControl, FormGroup , Grid, Container, Box} from '@material-ui/core';
 
-import {InputGroup, FormControl} from "react-bootstrap";
+import {InputGroup} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import Typography from "@material-ui/core/Typography";
+// import Tooltip from '@material-ui/core/Tooltip';
 
 import UploaderWrapper from "./UploaderWrapper.js";
 
@@ -61,18 +64,21 @@ import {
 } from "../../APICalls/EndpointAPICalls";
 
 
-import { Breadcrumb, ButtonGroup, Button as BootStrapButton, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Breadcrumb, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
 
-import { eventEmitter } from "../../App";
+import {eventEmitter, store} from "../../App";
 
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ProgressUpdateComponent from "./progressUpdateComponent"
+import {compactViewPreference} from "../../model/actions";
+import Switch from "@material-ui/core/Switch";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
 
 export default class EndpointBrowseComponent extends Component {
 
@@ -429,7 +435,19 @@ export default class EndpointBrowseComponent extends Component {
 	render(){
 		const {endpoint, back, setLoading, getLoading, displayStyle} = this.props;
 		const {directoryPath, searchText} = this.state;
-		
+
+		let updateCompactViewPreference = name => event => {
+			this.setState({ [name]: event.target.checked });
+			let compactViewEnabled = event.target.checked;
+			let email = store.getState().email;
+			updateViewPreference(email, compactViewEnabled,
+				(success) => {
+					console.log("Compact View Preference Switched Successfully", success);
+					store.dispatch(compactViewPreference(compactViewEnabled));
+				},
+				(error) => { console.log("ERROR in updation" + error) }
+			);
+		};
 
 		const list = getFilesFromMemory(endpoint) || [];
 		let displayList = Object.keys(list);
@@ -468,7 +486,7 @@ export default class EndpointBrowseComponent extends Component {
 		);
 
 		return (
-		<div style={{display: "flex", flexDirection: "column",  minHeight: "100%", maxHeight: "400px", }}>
+		<Box style={{/*display: "flex", flexDirection: "column",*/  minHeight: "100%", maxHeight: "400px", }}>
 
 	        <Dialog
 	          open={this.state.openShare}
@@ -534,14 +552,14 @@ export default class EndpointBrowseComponent extends Component {
 
 					{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&
 						<OverlayTrigger placement="top" overlay={tooltip("Console")}>
-							<BootStrapButton onClick={() => {}} style={buttonStyle}>
+							<Button onClick={() => {}} style={buttonStyle}>
 								<Code style={iconStyle} />
-							</BootStrapButton>
+							</Button>
 						</OverlayTrigger>
 					}
 
 					<OverlayTrigger placement="top" overlay={tooltip("Download")}>
-						<BootStrapButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir} 
+						<Button id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}
 						onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 								const taskList = getSelectedTasksFromSide(endpoint);
@@ -557,17 +575,17 @@ export default class EndpointBrowseComponent extends Component {
 						}}
 						style={buttonStyle}>
 							<DownloadButton style={iconStyle}/>
-						</BootStrapButton>
+						</Button>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Upload")}>
-						<BootStrapButton id={endpoint.side + "UploadButton"} >
+						<Button id={endpoint.side + "UploadButton"} >
 							<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>
-						</BootStrapButton>
+						</Button>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top"  overlay={tooltip("Share")}>
-						<BootStrapButton id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
+						<Button id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
 						|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {
 							const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 							const taskList = getSelectedTasksFromSide(endpoint);
@@ -582,74 +600,107 @@ export default class EndpointBrowseComponent extends Component {
 							})
 				  		}}>
 				  			<LinkButton style={iconStyle}/>
-				  		</BootStrapButton>
+				  		</Button>
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>
-						<BootStrapButton id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {
+						<Button id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {
 							this.handleClickOpenAddFolder()
 						}}>
 							<NewFolderIcon style={iconStyle}/>
-						</BootStrapButton>
+						</Button>
 					</OverlayTrigger>
 					
 					<OverlayTrigger placement="top" overlay={tooltip("Delete")}>
-						<BootStrapButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
+						<Button id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {
 							this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
 						}}
-						style={buttonStyle}><DeleteIcon style={iconStyle}/></BootStrapButton>
+						style={buttonStyle}><DeleteIcon style={iconStyle}/></Button>
 					</OverlayTrigger>
 
 
 					<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>
-				  		<BootStrapButton id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {
+				  		<Button id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {
 				  			setLoading(true);
 				  			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 				  		}}>
 				  			<RefreshButton style={iconStyle}/>
-				  		</BootStrapButton>
+				  		</Button>
 					</OverlayTrigger>
 
 					<OverlayTrigger placement="top" overlay={tooltip("Log out")}>
-				  		<BootStrapButton id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
+				  		<Button id={endpoint.side + "LogoutButton"} bsStyle="primary" style={buttonStyle} onClick={() =>
 				  		{
 				  			emptyFileNodesData(endpoint);
 				  			unselectAll();
 				  			back();
 				  		}}
-				  			><LogoutButton style={iconStyle}/></BootStrapButton>
+				  			><LogoutButton style={iconStyle}/></Button>
 					</OverlayTrigger>
 				</ButtonGroup>
 			</div>
 
-			<div style={{alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>
-				<InputGroup style={{flex: 1, background: "#d9edf7", borderRadius: "5px"}}>
-					<FormControl id={endpoint.side + "Search"} placeholder="Search"
-						onChange={(event) => {
-							this.setState({searchText: event.target.value})
-						}}/>
-					<InputGroup.Button>	
-					<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>
-						<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
-						 border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", minWidth : "17px"}} 
-						onClick={() => {
-							this.setState({ignoreCase : !this.state.ignoreCase})
-							}
-						}>Aa</Button>
-					</OverlayTrigger>
-					<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>
-						<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
-						  border: "1px solid #ccc", fontSize : "10px", minWidth : "17px"}}
-						  onClick={() => {
-							this.setState({regex : !this.state.regex})
-						  }}><b>*.</b></Button>
-					</OverlayTrigger>
-					</InputGroup.Button>
-				</InputGroup>
-			</div>
+			{/*<div style={{ alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px", padding: "10px", backgroundColor: "#d9edf7"}}>*/}
+				<FormGroup style={{margin: "0 1%", display: "flex", alignItems: "center"}} >
+					<FormControl margin={"dense"} fullWidth={true} >
+						<TextField
+							variant={"outlined"}
+							id={endpoint.side + "Search"}
+							margin={"dense"}
+							placeholder={"Search"}
+							onChange={(event) => {
+								this.setState({searchText: event.target.value})
+							}}
+						/>
+					</FormControl>
 
-			
-			<Droppable droppableId={endpoint.side} > 
+					{/*Remember to put popover hover after*/}
+					<FormControl margin={"dense"} style={{marginLeft: "85%"}}>
+						<ButtonGroup fullWidth={true}>
+							<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
+								border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px", width: "5%"}}
+									onClick={() => {
+										this.setState({ignoreCase : !this.state.ignoreCase})
+									}
+									}>Aa</Button>
+							<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
+								border: "1px solid #ccc", fontSize : "10px"}}
+									onClick={() => {
+										this.setState({regex : !this.state.regex})
+									}}><b>*.</b></Button>
+						</ButtonGroup>
+					</FormControl>
+
+					{/*<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>*/}
+					{/*	*/}
+					{/*</OverlayTrigger>*/}
+					{/*<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>*/}
+					{/*	*/}
+					{/*</OverlayTrigger>*/}
+
+
+
+				</FormGroup>
+
+			{/*</div>*/}
+
+			{/*<div>*/}
+			{/*	<FormControlLabel*/}
+			{/*		className={"compactSwitch"}*/}
+			{/*		control={*/}
+			{/*			<Switch*/}
+			{/*				color="default"*/}
+			{/*				style={{colorPrimary: "white", colorSecondary: "white"}}*/}
+			{/*				checked={this.state.compact}*/}
+			{/*				onChange={updateCompactViewPreference('compact')}*/}
+			{/*				value="compact"*/}
+			{/*			/>*/}
+			{/*		}*/}
+			{/*		label={<Typography>Compact</Typography>}*/}
+			{/*	/>*/}
+			{/*</div>*/}
+			<Droppable droppableId={endpoint.side} >
+
 				{(provided, snapshot) => (
 					<div
 						ref={provided.innerRef}
@@ -729,7 +780,7 @@ export default class EndpointBrowseComponent extends Component {
 				)}
 			</Droppable>
 			<ProgressUpdateComponent />
-		</div>);
+		</Box>);
 	}
 }
 

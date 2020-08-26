@@ -156,6 +156,20 @@ export const showType = {
 	https: HTTP_TYPE
 }
 
+export const SERVICES = {
+	OAuth: [
+		[DROPBOX_TYPE, DROPBOX_NAME, DROPBOX],
+		[GOOGLEDRIVE_TYPE, GOOGLEDRIVE_NAME, GOOGLEDRIVE],
+		[BOX_TYPE, BOX_NAME, BOX],
+		[GRIDFTP_TYPE, GRIDFTP_NAME, GRIDFTP],
+	],
+	Login: [
+		[FTP_TYPE, FTP_NAME, FTP],
+		[HTTP_TYPE, HTTP_NAME, HTTP],
+		[SFTP_TYPE, SFTP_NAME, SFTP],
+	]
+};
+
 export const defaultPort = {
 	dropbox: -1,
 	googledrive: -1,
