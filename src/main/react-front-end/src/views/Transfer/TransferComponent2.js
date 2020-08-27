@@ -37,7 +37,11 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from '@material-ui/core/FormLabel';
 // import Grid from "@material-ui/core/Grid";
-import {Hidden, Container, Box, TextField, Grid, useMediaQuery, Accordion, AccordionSummary, AccordionDetails} from "@material-ui/core";
+import {Hidden, Container, Box, TextField, Grid, useMediaQuery, /*Accordion, AccordionSummary, AccordionDetails*/} from "@material-ui/core";
+import Accordion from "@material-ui/core/Accordion";
+import AccordionSummary from "@material-ui/core/AccordionSummary";
+import AccordionDetails from "@material-ui/core/AccordionDetails";
+
 import Divider from "@material-ui/core/Divider";
 import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, ExpandMore} from "@material-ui/icons";
 
