@@ -429,7 +429,8 @@ queueHeaderCell button {
   flex-direction: row;
   justify-content: center;
   height: auto;
-  margin-top: -10vh
+  margin-top: -10vh;
+  width: 100vw;
 }
 
 .actionContainer{
@@ -480,6 +481,8 @@ queueHeaderCell button {
   background-color: #172753;
   color: white;
   min-height: 300px;
+  font-size: 20px;
+  font-weight: bold;
 }
 
 .transferGroup{
@@ -523,6 +526,10 @@ queueHeaderCell button {
   margin-bottom: 20px;
   /*border-radius: 5px;*/
   background-color: #F2F2F2;
+}
+
+.searchTextfield{
+  background-color: white;
 }
 
 

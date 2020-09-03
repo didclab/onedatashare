@@ -21,7 +21,7 @@
  */
 
 
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import { Panel, Col, Row, Glyphicon } from 'react-bootstrap';
 
 import { store } from '../../App';
@@ -37,7 +37,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from '@material-ui/core/FormLabel';
 // import Grid from "@material-ui/core/Grid";
-import {Hidden, Container, Box, TextField, Grid, useMediaQuery, /*Accordion, AccordionSummary, AccordionDetails*/} from "@material-ui/core";
+import {Hidden, Container, Box, TextField, Grid, useMediaQuery, Snackbar, Fade /*Accordion, AccordionSummary, AccordionDetails*/} from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -79,18 +79,19 @@ export default class TransferComponent extends Component {
       width: window.innerWidth,
       height: window.innerHeight,
       settings: {
-        optimizer: "None",
+        optimizer: localStorage.hasOwnProperty("optimizer") ? localStorage.getItem("optimizer") : "None",
         // overwrite: "true",
         // verify: "true",
         // encrypt: "true",
         // compress: "true",
-        overwrite: true,
-        verify: true,
-        encrypt: true,
-        compress: true,
-        retry: 5
+        overwrite: localStorage.hasOwnProperty("overwrite") ? JSON.parse(localStorage.getItem("overwrite")) : true,
+        verify: localStorage.hasOwnProperty("verify") ? JSON.parse(localStorage.getItem("verify")) : true,
+        encrypt: localStorage.hasOwnProperty("encrypt") ? JSON.parse(localStorage.getItem("encrypt")) : true,
+        compress: localStorage.hasOwnProperty("compress") ? JSON.parse(localStorage.getItem("compress")) : true,
+        retry: localStorage.hasOwnProperty("retry") ? Number(localStorage.getItem("retry")) : 5
       },
       compact: store.getState().compactViewEnabled,
+      notif: false
      // terminalFlag:false
     }
 
@@ -124,6 +125,7 @@ export default class TransferComponent extends Component {
       fontSize: "16px"
     }
   })
+
 
   headerStyle = () => styled(Typography)({
     fontSize: "15px",
@@ -352,6 +354,21 @@ export default class TransferComponent extends Component {
       }
       this.setState({ settings: { ...this.state.settings, retry: value } });
     }
+
+    const setDefault = () => {
+      const settings = this.state.settings;
+      for(let [key, val] of Object.entries(settings)){
+        localStorage.setItem(key, String(val));
+      }
+      this.setState({notif: true});
+      setTimeout(() => {
+        this.setState({notif: false})
+      },1000);
+    }
+    const closeNotif = () => {
+      this.setState({notif: false});
+    }
+
     const formlabelstyle = { fontSize: "15px" }
     // const formStyle = { marginLeft: "5%", marginRight: "5%" }
     const formStyle = { marginLeft: "35%", marginRight: "35%"}
@@ -361,6 +378,14 @@ export default class TransferComponent extends Component {
     const ToggleLabel = this.labelStyle();
     const ToggleHeader = this.headerStyle();
     const FieldLabel = this.fieldLabelStyle();
+    const radioStyles = {
+      formLabel: {
+        color: "black",
+        '&.Mui-focused': {
+          color: "black",
+        }
+      }
+    };
     // style={formlabelstyle}
     // style={formStyle}
     // md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}
@@ -373,7 +398,7 @@ export default class TransferComponent extends Component {
       <Grid container className="innerBox" direction="row" align-items="flex-start" justify="center" spacing={2} style={{paddingLeft: "20px"}}>
         <Grid item md={desktopWidth} sm={tabletWidth}>
           <FormControl component="fieldset" >
-            <FormLabel component="legend" ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
+            <FormLabel component="legend" classes={{root: radioStyles.formLabel}} ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
             <RadioGroup
                 aria-label="Optimization"
                 value={this.state.settings.optimizer}
@@ -536,13 +561,20 @@ export default class TransferComponent extends Component {
       <Grid item>
         <FormControlLabel
             control=
-                {<Checkbox
+                {
+                  <Button
                     aria-label="Set as Default"
-                    // checked={false}
-                    // onChange={handleChangeCheckbox("compress")}
-                />}
-            label={<Typography>Set as default</Typography>}
+                    style={{backgroundColor: "#172753", color: "white", marginTop: "10px"}}
+                    onClick={setDefault}
+                    // checked={this.state.settings.default}
+                    // onChange={handleChangeCheckbox("default")}
+                >
+                  Set as Default
+                </Button>
+                  }
         />
+        {/*<Snackbar open={this.state.notif} autoHideDuration={1000} onClose={closeNotif} message={"Default Set!"}/>*/}
+        <Fade in={this.state.notif}><Typography style={{paddingLeft: "5px"}}>Default Set!</Typography></Fade>
       </Grid>
     </Grid>
         </Container>
