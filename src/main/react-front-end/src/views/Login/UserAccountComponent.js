@@ -50,7 +50,7 @@ import {
 	changePassword,
 	getUser
 } from "../../APICalls/APICalls";
-import { eventEmitter } from "../../App.js";
+import { eventEmitter, store } from "../../App.js";
 
 
 import { updateGAPageView } from '../../analytics/ga'
@@ -74,11 +74,10 @@ export default class UserAccountComponent extends Component {
 			isValidNewPassword: true,
 			isValidConfirmPassword: true,
 			errorMsg: null,
-			//userEmail: store.getState().email,
-			userEmail:"placeholder@gmail.com",
-			userOrganization: "placeholder",
-			fName: "placeholder",
-			lName: "placeholder",
+			userEmail: store.getState().email,
+			userOrganization: "...",
+			fName: "...",
+			lName: "...",
 			openAlertDialog: false,
 			saveOAuthTokens: false,
 			canSubmit: false,
