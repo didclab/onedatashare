@@ -105,13 +105,10 @@ export default class AccountControlComponent extends Component {
     this.userLogin = this.userLogin.bind(this);
     this.userSigningIn = this.userSigningIn.bind(this);
   }
-  componentWillMount() {
-    //Change body background color to grey
-    //Doing this separately to prevent styling conflicts
-    document.body.style.backgroundColor = GREY;
-  }
+  
 
   componentDidMount() {
+    document.body.style.backgroundColor = GREY;
     document.title = "OneDataShare - Account";
     window.addEventListener("resize", this.resize.bind(this));
     this.setState({ loading: false });
