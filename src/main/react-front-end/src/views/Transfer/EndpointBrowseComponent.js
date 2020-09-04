@@ -581,17 +581,17 @@ export default class EndpointBrowseComponent extends Component {
 
 				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "94%", padding: "0"}}>
 
-					{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&
-						<BrowseButton
-						id={endpoint.side + "Console"}
-						disabled={false}
-						click={() => {}}
-						style={buttonStyle}
-						label={"Console"}
-						buttonIcon={<Code style={iconStyle} />}
-						/>
+					{/*{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&*/}
+					{/*	<BrowseButton*/}
+					{/*	id={endpoint.side + "Console"}*/}
+					{/*	disabled={false}*/}
+					{/*	click={() => {}}*/}
+					{/*	style={buttonStyle}*/}
+					{/*	label={"Console"}*/}
+					{/*	buttonIcon={<Code style={iconStyle} />}*/}
+					{/*	/>*/}
 
-					}
+					{/*}*/}
 
 					<BrowseButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}
 								  click={() => {
