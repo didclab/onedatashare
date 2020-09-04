@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { store } from '../../App';
-import BrowseModuleComponent from './BrowseModuleComponent2';
+import BrowseModuleComponent from './BrowseModuleComponent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 

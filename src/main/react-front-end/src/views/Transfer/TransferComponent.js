@@ -25,7 +25,7 @@ import React, { Component, useState } from 'react';
 import { Panel, Col, Row, Glyphicon } from 'react-bootstrap';
 
 import { store } from '../../App';
-import BrowseModuleComponent from './BrowseModuleComponent2';
+import BrowseModuleComponent from './BrowseModuleComponent';
 // import BrowserSlice from "./BrowserSlice";
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
@@ -412,65 +412,6 @@ export default class TransferComponent extends Component {
         </Grid>
 
 
-        {/*<Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>*/}
-        {/*  <FormControl component="fieldset" style={formStyle}>*/}
-        {/*    <FormLabel component="legend" style={formlabelstyle}>Overwrite</FormLabel>*/}
-        {/*    <RadioGroup*/}
-        {/*        aria-label="Overwrite"*/}
-        {/*        value={String(this.state.settings.overwrite)}*/}
-        {/*        onChange={handleChange("overwrite")}*/}
-        {/*    >*/}
-        {/*      <FormControlLabel value="true" control={<Radio />} label="True" />*/}
-        {/*      <FormControlLabel value="false" control={<Radio />} label="False" />*/}
-        {/*    </RadioGroup>*/}
-        {/*  </FormControl>*/}
-        {/*</Grid>*/}
-
-        {/*<Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>*/}
-        {/*  <FormControl component="fieldset" style={formStyle}>*/}
-        {/*    <FormLabel component="legend" style={formlabelstyle}>Integrity</FormLabel>*/}
-        {/*    <RadioGroup*/}
-        {/*        aria-label="Integrity"*/}
-        {/*        value={String(this.state.settings.verify)}*/}
-        {/*        onChange={handleChange("verify")}*/}
-        {/*    >*/}
-        {/*      <FormControlLabel value="true" control={<Radio />} label="True" />*/}
-        {/*      <FormControlLabel value="false" control={<Radio />} label="False" />*/}
-        {/*    </RadioGroup>*/}
-        {/*  </FormControl>*/}
-        {/*</Grid>*/}
-
-        {/*<Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>*/}
-        {/*  <FormControl component="fieldset" style={formStyle}>*/}
-        {/*    <FormLabel component="legend" style={formlabelstyle}>Encrypt</FormLabel>*/}
-        {/*    <RadioGroup*/}
-        {/*        aria-label="Encrypt"*/}
-        {/*        value={String(this.state.settings.encrypt)}*/}
-        {/*        onChange={handleChange("encrypt")}*/}
-        {/*    >*/}
-        {/*      <FormControlLabel value="true" control={<Radio />} label="True" />*/}
-        {/*      <FormControlLabel value="false" control={<Radio />} label="False" />*/}
-        {/*    </RadioGroup>*/}
-        {/*  </FormControl>*/}
-        {/*</Grid>*/}
-
-
-        {/*<Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>*/}
-        {/*  <FormControl component="fieldset" style={formStyle}>*/}
-        {/*    <FormLabel component="legend" style={formlabelstyle}>Compress</FormLabel>*/}
-        {/*    <RadioGroup*/}
-        {/*        aria-label="Compress"*/}
-        {/*        value={String(this.state.settings.compress)}*/}
-        {/*        onChange={handleChange("compress")}*/}
-        {/*    >*/}
-        {/*      <FormControlLabel value="true" control={<Radio />} label="True" />*/}
-        {/*      <FormControlLabel value="false" control={<Radio />} label="False" />*/}
-        {/*    </RadioGroup>*/}
-        {/*  </FormControl>*/}
-        {/*</Grid>*/}
-
-
-
         {/* checkbox version */}
         {/*direction={"column"} justify={"center"}*/}
         <Grid item container direction={"row"} justify={"space-evenly"} md={desktopWidth} sm={tabletWidth} spacing={(theme) => theme.breakpoints.up('sm') ? 2 : 8}>
@@ -521,22 +462,7 @@ export default class TransferComponent extends Component {
 
         </Grid>
 
-        {/*<Grid item md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}>*/}
-        {/*  <FormControl component="fieldset">*/}
-        {/*    <FormLabel component="legend" style={formlabelstyle}>Retry Counts</FormLabel>*/}
-        {/*    <Slider*/}
 
-        {/*        value={this.state.settings.retry}*/}
-        {/*        min={0}*/}
-        {/*        max={10}*/}
-        {/*        step={1}*/}
-        {/*        marks={true}*/}
-        {/*        valueLabelDisplay={"auto"}*/}
-        {/*        onChange={handleChangeRetry}*/}
-        {/*    />*/}
-        {/*    <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>*/}
-        {/*  </FormControl>*/}
-        {/*</Grid>*/}
         <Grid item md={desktopWidth} sm={tabletWidth}>
           <FormControl component="fieldset">
             <FormLabel component="legend"><ToggleHeader>Retries</ToggleHeader></FormLabel>
@@ -689,53 +615,6 @@ export default class TransferComponent extends Component {
             <ErrorMessagesConsole/>
 
 
-
-            {/*}*/}
-            {/*{!isSmall && this.getSettingComponent(isSmall)}*/}
-            {/*{isSmall &&*/}
-            {/*<Panel bsStyle="primary">*/}
-            {/*  <FormControlLabel*/}
-            {/*      style={{ width: "200px", float: "right", color: "white" }}*/}
-            {/*      control={*/}
-            {/*        <Switch*/}
-            {/*            color="default"*/}
-            {/*            style={{ colorPrimary: "white", colorSecondary: "white" }}*/}
-            {/*            checked={this.state.compact}*/}
-            {/*            onChange={handleChange('compact')}*/}
-            {/*            value="compact"*/}
-            {/*        />*/}
-            {/*      }*/}
-            {/*      label={<Typography style={{ fontSize: "12px" }}>Compact</Typography>}*/}
-            {/*  />*/}
-            {/*  <Panel.Heading>*/}
-            {/*    <p>*/}
-            {/*      Browse and Transfer Files</p>*/}
-            {/*  </Panel.Heading>*/}
-            {/*  <Panel.Body key={isSmall} style={{ overflow: "hidden" }}>*/}
-            {/*    <Row style={{ flexDirection: 'column' }}>*/}
-            {/*      <DragDropContext*/}
-            {/*          onDragStart={this.onDragStart}*/}
-            {/*          onDragEnd={this.onDragEnd}*/}
-            {/*      >*/}
-            {/*        <Col style={panelStyle}>*/}
-            {/*          {this._returnBrowseComponent1()}*/}
-            {/*        </Col>*/}
-            {/*        <Row style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center' }}>*/}
-            {/*          <Button id="sendFromRightToLeft" style={{ padding: '15px', marginRight: '10px' }} onClick={this.onSendToLeft}> <Glyphicon glyph="arrow-up" /> Send</Button>*/}
-            {/*          <Button id="sendFromLeftToRight" style={{ padding: '15px', marginLeft: '10px' }} onClick={this.onSendToRight}> Send<Glyphicon glyph="arrow-down" /></Button>*/}
-            {/*        </Row>*/}
-            {/*        <Row style={panelStyle}>*/}
-            {/*          {this._returnBrowseComponent2()}*/}
-            {/*        </Row>*/}
-            {/*      </DragDropContext>*/}
-            {/*    </Row>*/}
-            {/*    <div> </div>*/}
-            {/*    <ErrorMessagesConsole />*/}
-            {/*    <div> </div>*/}
-
-
-            {/*  </Panel.Body>*/}
-            {/*</Panel>}*/}
 
         </Container>
       </Grid>

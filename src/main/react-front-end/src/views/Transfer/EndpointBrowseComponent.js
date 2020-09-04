@@ -582,13 +582,6 @@ export default class EndpointBrowseComponent extends Component {
 				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "94%", padding: "0"}}>
 
 					{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&
-						// <Grid item xs={1}>
-						// <OverlayTrigger placement="top" overlay={tooltip("Console")}>
-						// 	<Button onClick={() => {}} style={buttonStyle}>
-						// 		<Code style={iconStyle} />
-						// 	</Button>
-						// </OverlayTrigger>
-						// </Grid>
 						<BrowseButton
 						id={endpoint.side + "Console"}
 						disabled={false}
@@ -619,30 +612,7 @@ export default class EndpointBrowseComponent extends Component {
 								  buttonIcon={<DownloadButton style={iconStyle}/>}
 					/>
 
-					{/*<Grid item xs={1}>*/}
-					{/*	/!*<OverlayTrigger placement="top" overlay={tooltip("Download")}>*!/*/}
-					{/*	/!*	<Popover open={onHover}></Popover>*!/*/}
-					{/*		<Button id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}*/}
-					{/*				onClick={() => {*/}
-					{/*					const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);*/}
-					{/*					const taskList = getSelectedTasksFromSide(endpoint);*/}
-					{/*					if(getType(endpoint) === SFTP_TYPE){*/}
-					{/*						getDownload(downloadUrl, endpoint.credential, taskList);*/}
-					{/*					}*/}
-					{/*					else if(getType(endpoint) === HTTP_TYPE){*/}
-					{/*						window.open(downloadUrl);*/}
-					{/*					}*/}
-					{/*					else{*/}
-					{/*						download(downloadUrl, endpoint.credential, taskList[0].id)*/}
-					{/*					}*/}
-					{/*				}}*/}
-					{/*				// onMouseEnter={openHover}*/}
-					{/*				// onMouseLeave={closeHover}*/}
-					{/*				style={buttonStyle}>*/}
-					{/*			<DownloadButton style={iconStyle}/>*/}
-					{/*		</Button>*/}
-					{/*	/!*</OverlayTrigger>*!/*/}
-					{/*</Grid>*/}
+
 
 					<BrowseButton id={endpoint.side + "UploadButton"} disabled={false}
 								  click={() => {}}
@@ -651,13 +621,6 @@ export default class EndpointBrowseComponent extends Component {
 								  buttonIcon={<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>}
 					/>
 
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top" overlay={tooltip("Upload")}>*/}
-					{/*		<Button id={endpoint.side + "UploadButton"} >*/}
-					{/*			<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>*/}
-					{/*		</Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 					<BrowseButton
 						id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
@@ -678,26 +641,6 @@ export default class EndpointBrowseComponent extends Component {
 						buttonIcon={<LinkButton style={iconStyle}/>}
 					/>
 
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top"  overlay={tooltip("Share")}>*/}
-					{/*		<Button id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir*/}
-					{/*		|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} onClick={() => {*/}
-					{/*			const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);*/}
-					{/*			const taskList = getSelectedTasksFromSide(endpoint);*/}
-					{/*			getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)*/}
-					{/*				.then(response => {*/}
-					{/*					if(response !== ""){*/}
-					{/*						this.handleClickOpen(response);*/}
-					{/*					}*/}
-					{/*					else{*/}
-					{/*						eventEmitter.emit("errorOccured", "Error encountered while generating link");*/}
-					{/*					}*/}
-					{/*				})*/}
-					{/*		}}>*/}
-					{/*			<LinkButton style={iconStyle}/>*/}
-					{/*		</Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 					<BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
 						this.handleClickOpenAddFolder()
@@ -705,15 +648,6 @@ export default class EndpointBrowseComponent extends Component {
 								  label={"New Folder"}
 								  buttonIcon={<NewFolderIcon style={iconStyle}/>}
 					/>
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top" overlay={tooltip("New Folder")}>*/}
-					{/*		<Button id={endpoint.side + "MkdirButton"} style={buttonStyle} onClick={() => {*/}
-					{/*			this.handleClickOpenAddFolder()*/}
-					{/*		}}>*/}
-					{/*			<NewFolderIcon style={iconStyle}/>*/}
-					{/*		</Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 					<BrowseButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} click={() => {
 						this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
@@ -722,14 +656,6 @@ export default class EndpointBrowseComponent extends Component {
 								  label={"Delete"}
 								  buttonIcon={<DeleteIcon style={iconStyle}/>}
 					/>
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top" overlay={tooltip("Delete")}>*/}
-					{/*		<Button id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} onClick={() => {*/}
-					{/*			this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));*/}
-					{/*		}}*/}
-					{/*				style={buttonStyle}><DeleteIcon style={iconStyle}/></Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 					<BrowseButton d={endpoint.side + "RefreshButton"} style={buttonStyle}  click={() => {
 						setLoading(true);
@@ -739,16 +665,6 @@ export default class EndpointBrowseComponent extends Component {
 								  buttonIcon={<RefreshButton style={iconStyle}/>}
 					/>
 
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top" overlay={tooltip("Refresh")}>*/}
-					{/*		<Button id={endpoint.side + "RefreshButton"} style={buttonStyle}  onClick={() => {*/}
-					{/*			setLoading(true);*/}
-					{/*			this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);*/}
-					{/*		}}>*/}
-					{/*			<RefreshButton style={iconStyle}/>*/}
-					{/*		</Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 					<BrowseButton id={endpoint.side + "LogoutButton"} style={buttonStyle} click={() =>
 					{
@@ -760,17 +676,6 @@ export default class EndpointBrowseComponent extends Component {
 								  buttonIcon={<LogoutButton style={iconStyle}/>}
 								  />
 
-					{/*<Grid item xs={1}>*/}
-					{/*	<OverlayTrigger placement="top" overlay={tooltip("Log out")}>*/}
-					{/*		<Button id={endpoint.side + "LogoutButton"} style={buttonStyle} onClick={() =>*/}
-					{/*		{*/}
-					{/*			emptyFileNodesData(endpoint);*/}
-					{/*			unselectAll();*/}
-					{/*			back();*/}
-					{/*		}}*/}
-					{/*		><LogoutButton style={iconStyle}/></Button>*/}
-					{/*	</OverlayTrigger>*/}
-					{/*</Grid>*/}
 
 				</Grid>
 			</div>
@@ -820,27 +725,10 @@ export default class EndpointBrowseComponent extends Component {
 							buttonIcon={["Aa", "*."]}
 						/>
 
-						{/*<ButtonGroup fullWidth>*/}
-						{/*	<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,*/}
-						{/*		border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"}}*/}
-						{/*			onClick={() => {*/}
-						{/*				this.setState({ignoreCase : !this.state.ignoreCase})*/}
-						{/*			}*/}
-						{/*			}>Aa</Button>*/}
-						{/*	<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,*/}
-						{/*		border: "1px solid #ccc", fontSize : "10px"}}*/}
-						{/*			onClick={() => {*/}
-						{/*				this.setState({regex : !this.state.regex})*/}
-						{/*			}}><b>*.</b></Button>*/}
-						{/*</ButtonGroup>*/}
+
 					</Grid>
 
-					{/*<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>*/}
-					{/*	*/}
-					{/*</OverlayTrigger>*/}
-					{/*<OverlayTrigger placement="top" overlay={tooltip("Regular Expression")}>*/}
-					{/*	*/}
-					{/*</OverlayTrigger>*/}
+
 
 
 
@@ -848,8 +736,6 @@ export default class EndpointBrowseComponent extends Component {
 			</div>
 
 
-
-			{/*/!*</div>*!/*/}
 
 
 			<Droppable droppableId={endpoint.side} >

@@ -31,16 +31,16 @@ import { store } from './App.js';
 
 import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 
-// import TransferComponent from './views/Transfer/TransferComponent';
-import TransferComponent from './views/Transfer/TransferComponent2';
+// import TransferComponentOld from './views/Transfer/TransferComponentOld';
+import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
-// import SupportComponent from './views/Support/SupportComponent';
-import SupportComponent from './views/Support/SupportComponent2';
+// import SupportComponentOld from './views/Support/SupportComponentOld';
+import SupportComponent from './views/Support/SupportComponent';
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
