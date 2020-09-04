@@ -46,7 +46,7 @@ import { updateGAPageView } from "../../analytics/ga";
 // import Switch from "@material-ui/core/Switch";
 // import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
-import Grid from "@material-ui/core";
+import {Grid, Box, Container} from "@material-ui/core";
 
 export default class SupportComponent extends Component{
 
@@ -133,21 +133,22 @@ export default class SupportComponent extends Component{
     // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
-        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center'}}>
-          <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
-            <Panel bsStyle="primary">
-              <Panel.Heading>
-                <p style={{ textAlign: 'center' }}>
-                  Report an Issue
-                </p>
-              </Panel.Heading>
-              {/* <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
+        <div className={"outeractionContainer"}>
+          <Grid container direction={"column"} justify={"center"}>
+            <Box className={"boxHeader"}>
+              <p >
+                Report an Issue
+              </p>
+            </Box>
+            <Container className={"actionContainer"}>
+
+                {/* <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
                     classes={{label:'support'}}
                     label = 'Name'
-                    name = 'name' 
+                    name = 'name'
                     onChange = {this.handleChange}
                     style = {{ marginRight : '5%', width :'30%' }}
                   />
@@ -167,7 +168,7 @@ export default class SupportComponent extends Component{
                     required
                     label = 'Subject'
                     name = 'subject'
-                    onChange = {this.handleChange}   
+                    onChange = {this.handleChange}
                     style = {{ width :'70%' }}
                   />
                 </div>
@@ -183,15 +184,15 @@ export default class SupportComponent extends Component{
                     style={{ width : '70%' }}
                   />
                 </div>
-                
+
                 <div style={ captchaStyle }>
-                    <ReCAPTCHA 
+                    <ReCAPTCHA
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                       onChange={this.handleCaptchaEvent}
                       ref = { r => this.captchaRef = r}
                     />
-                </div> 
-                
+                </div>
+
 
                 <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
                   <LinearProgress />
@@ -203,30 +204,35 @@ export default class SupportComponent extends Component{
                   </Button>
                 </div>
 
-                <div id="msg" style={{marginLeft : '19%', marginRight : '19%', marginTop : '2%', marginBottom : '2%', 
+                <div id="msg" style={{marginLeft : '19%', marginRight : '19%', marginTop : '2%', marginBottom : '2%',
                             textAlign : 'center', paddingTop : '1%', paddingBottom : '1%', visibility : 'hidden'}}>
                 </div>
 
               </ValidatorForm> */}
 
-              <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%' }}>
-                <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
-                <style type="text/css" media="screen, projection">
-                    @import url(http://assets.freshdesk.com/widget/freshwidget.css);
-                </style>
-                <iframe 
-                  title="Feedback Form" 
-                  class="freshwidget-embedded-form" 
-                  id="freshwidget-embedded-form" 
-                  src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no" 
-                  scrolling="no" 
-                  height="400px" 
-                  width="100%" 
-                  frameborder="0" >
-                </iframe>
-              </div>
-            </Panel>
-          </Col>
+                <Box className={"wrapperBox"}>
+                  <Box id="feshdesk-submit-form" className={"innerBox"} >
+                    <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
+                    <style type="text/css" media="screen, projection">
+                      @import url(http://assets.freshdesk.com/widget/freshwidget.css);
+                    </style>
+                    <iframe
+                        title="Feedback Form"
+                        class="freshwidget-embedded-form"
+                        id="freshwidget-embedded-form"
+                        src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no"
+                        scrolling="no"
+                        height="500px"
+                        width="100%"
+                        frameborder="0" >
+                    </iframe>
+                  </Box>
+                </Box>
+            </Container>
+
+
+          </Grid>
+
         </div>
     );
   }
