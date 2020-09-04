@@ -26,7 +26,7 @@ import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl, endpoint_db } from '../constants';
 import { store } from '../App';
 import { logout } from '../APICalls/APICalls';
 
@@ -92,6 +92,7 @@ class NavbarComponent extends Component {
 					<NavItem href="/support">
 						Support
 					</NavItem>
+					<NavItem href={endpoint_db} to={endpoint_db} id="NavEndpoint">Authorization Database</NavItem>
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>

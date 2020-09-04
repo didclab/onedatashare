@@ -197,13 +197,13 @@ export default class SupportComponent extends Component{
                   />
                 </div>
                 
-                <div style={ captchaStyle }>
+                {/* <div style={ captchaStyle }>
                     <ReCAPTCHA 
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                       onChange={this.handleCaptchaEvent}
                       ref = { r => this.captchaRef = r}
                     />
-                </div> 
+                </div>  */}
                 
 
                 <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
