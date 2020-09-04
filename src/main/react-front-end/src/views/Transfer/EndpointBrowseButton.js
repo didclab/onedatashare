@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Popper, Grid, Typography} from '@material-ui/core';
+import {Button, Popper, Grid, Typography, ButtonGroup} from '@material-ui/core';
 import styled from "@material-ui/core/styles/styled";
 
 const BrowseButton = (props) => {
@@ -25,29 +25,58 @@ const BrowseButton = (props) => {
 
     }
     const isMouseOn = Boolean(mouseOn);
-    const buttonStyle = {flexGrow: 1, padding: "5px"};
+    const id = props.id;
 
-    return(
-        <Grid item xs={1}>
-            <ButtonLabel open={isMouseOn}
-                     anchorEl={mouseOn}
-                     placement={"top"}
-                     transition
-            >
-                {props.label}
-            </ButtonLabel>
-            <Button
-                id={props.id}
-                style={buttonStyle}
-                disabled={props.disabled}
-                onClick={props.click}
-                onMouseOver={hoverOpen}
-                onMouseOut={hoverClose}
-            >
-                {props.buttonIcon}
-            </Button>
-        </Grid>
-    );
+    if(!props.buttongroup){
+        return(
+            <Grid item xs={1}>
+                <ButtonLabel open={isMouseOn}
+                             anchorEl={mouseOn}
+                             placement={"top"}
+                             transition
+                >
+                    {props.label}
+                </ButtonLabel>
+                <Button
+                    id={props.id}
+                    style={props.style}
+                    disabled={props.disabled}
+                    onClick={props.click}
+                    onMouseOver={hoverOpen}
+                    onMouseOut={hoverClose}
+                >
+                    {props.buttonIcon}
+                </Button>
+            </Grid>
+        );
+    }else{
+        return(
+            <ButtonGroup fullWidth>
+                {id.map(function (value,index){
+                    return(
+                        <Button
+                            id={props.id[index]}
+                            style={props.style[index]}
+                            onClick={props.click[index]}
+                            onMouseOver={hoverOpen}
+                            onMouseOut={hoverClose}
+                        >
+                            <ButtonLabel open={isMouseOn}
+                                         anchorEl={mouseOn}
+                                         placement={"top"}
+                                         transition
+                            >
+                                {props.label[index]}
+                            </ButtonLabel>
+                            {props.buttonIcon[index]}
+                        </Button>
+                    )
+                })}
+            </ButtonGroup>
+        );
+    }
+
+
 }
 
 export default BrowseButton;

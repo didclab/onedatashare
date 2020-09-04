@@ -36,9 +36,9 @@ import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
 import Code from '@material-ui/icons/Code';
-import {Button, ButtonGroup, Popover, FormControl, FormGroup , Grid, Container, Box, Breadcrumbs, Link} from '@material-ui/core';
+import {Button, ButtonGroup, FormControl, FormGroup , Grid, Container, Box, Breadcrumbs, Link, Popper} from '@material-ui/core';
 
-import {InputGroup} from "react-bootstrap";
+// import {InputGroup} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -439,45 +439,6 @@ export default class EndpointBrowseComponent extends Component {
 		}
 	}
 
-	// hoverButton = (props) => {
-	// 	const [mouseOn, setMouse] = React.useState(null);
-	// 	const hoverOpen = (event) => {
-	// 		setMouse(event.currentTarget);
-	// 	};
-	// 	const hoverClose = () => {
-	// 		setMouse(null);
-	// 	}
-	// 	const isMouseOn = Boolean(mouseOn);
-	// 	const buttonStyle = {flexGrow: 1, padding: "5px"};
-	//
-	// 	return(
-	// 		<Grid item xs={1}>
-	// 			<Popover open={isMouseOn}
-	// 					 anchorEl={mouseOn}
-	// 					 anchorOrigin={{
-	// 						 vertical: 'top',
-	// 						 horizontal: 'center',
-	// 					 }}
-	// 					 transformOrigin={{
-	// 						 vertical: 'bottom',
-	// 						 horizontal: 'center',
-	// 					 }}
-	// 					 onClose={hoverClose}
-	// 			>
-	// 				{props.label}
-	// 			</Popover>
-	// 			<Button
-	// 				id={props.id}
-	// 				style={buttonStyle}
-	// 				disabled={props.disabled}
-	// 				onClick={props.click}
-	// 			>
-	// 				{props.buttonIcon}
-	// 			</Button>
-	// 		</Grid>
-	// 	)
-	// }
-
 	render(){
 		const {endpoint, back, setLoading, getLoading, /*displayStyle*/} = this.props;
 		const {directoryPath, searchText, compact} = this.state;
@@ -836,19 +797,42 @@ export default class EndpointBrowseComponent extends Component {
 					{/*Remember to put popover hover after*/}
 					<Grid item md={2} xs={12}>
 
-						<ButtonGroup fullWidth>
-							<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
-								border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"}}
-									onClick={() => {
-										this.setState({ignoreCase : !this.state.ignoreCase})
-									}
-									}>Aa</Button>
-							<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
-								border: "1px solid #ccc", fontSize : "10px"}}
-									onClick={() => {
-										this.setState({regex : !this.state.regex})
-									}}><b>*.</b></Button>
-						</ButtonGroup>
+						<BrowseButton
+							buttongroup={true}
+							id={[endpoint.side + "IgnoreCase", endpoint.side + "Regex"]}
+							style={[
+								{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
+									border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"},
+								{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
+									border: "1px solid #ccc", fontSize : "10px"}
+							]}
+							click={[
+								() => {
+									this.setState({ignoreCase : !this.state.ignoreCase})
+								},
+								() => {
+									this.setState({regex : !this.state.regex})
+								}
+							]}
+							label={[
+								"Ignore Case", "Regular Expression"
+							]}
+							buttonIcon={["Aa", "*."]}
+						/>
+
+						{/*<ButtonGroup fullWidth>*/}
+						{/*	<Button id={endpoint.side + "IgnoreCase"} style={{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,*/}
+						{/*		border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"}}*/}
+						{/*			onClick={() => {*/}
+						{/*				this.setState({ignoreCase : !this.state.ignoreCase})*/}
+						{/*			}*/}
+						{/*			}>Aa</Button>*/}
+						{/*	<Button id={endpoint.side + "Regex"} style={{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,*/}
+						{/*		border: "1px solid #ccc", fontSize : "10px"}}*/}
+						{/*			onClick={() => {*/}
+						{/*				this.setState({regex : !this.state.regex})*/}
+						{/*			}}><b>*.</b></Button>*/}
+						{/*</ButtonGroup>*/}
 					</Grid>
 
 					{/*<OverlayTrigger placement="top" overlay={tooltip("Ignore Case")}>*/}
