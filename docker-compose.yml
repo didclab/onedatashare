@@ -11,8 +11,6 @@ services:
     - 27017:27017
     volumes :
      - mongodb:/data/db
-    env_file: 
-      - .ods.db.env
     command: mongod --smallfiles --logpath=/dev/null --quiet
 
   # ODS service that runs the Maven container
