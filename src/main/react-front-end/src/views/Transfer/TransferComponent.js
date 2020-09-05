@@ -524,14 +524,14 @@ export default class TransferComponent extends Component {
 
     return (
         <div className={"outeractionContainer"}>
-        <Grid container direction="column" >
-          <Container className={"boxHeader"}>
+        <Grid container direction="column" justify={"center"}>
+          <Box className={"boxHeader"}>
 
             <p>
               Browse and Transfer Files
             </p>
 
-          </Container>
+          </Box>
           <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
