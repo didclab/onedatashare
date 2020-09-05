@@ -21,7 +21,7 @@
  */
 
 
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -42,9 +42,13 @@ import Divider from "@material-ui/core/Divider";
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import IconButton from "@material-ui/core/IconButton";
+import CreateIcon from "@material-ui/icons/Create";
+import Input from "@material-ui/core/Input";
+import DoneIcon from "@material-ui/icons/Done";
+import CancelIcon from "@material-ui/icons/Clear";
 
 import { validPassword, spaceBetweenStyle } from "../../constants";
-import AccountAttribute from "./EditUserAccountAttributes";
 
 import {
 	changePassword,
@@ -54,7 +58,6 @@ import { eventEmitter, store } from "../../App.js";
 
 
 import { updateGAPageView } from '../../analytics/ga'
-import IconButton from '@material-ui/core/IconButton';
 
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
@@ -153,7 +156,7 @@ export default class UserAccountComponent extends Component {
 					<ListItemText
 						primary="Email"
 						secondary={
-							<AccountAttribute textDisplayed={this.state.userEmail} />
+							<UserAccountField textDisplayed={this.state.userEmail} />
 						}
 					/>
 				</ListItem>
@@ -162,7 +165,7 @@ export default class UserAccountComponent extends Component {
 					<ListItemText
 						primary="First Name"
 						secondary={
-							<AccountAttribute textDisplayed={this.state.fName} editable />
+							<UserAccountField textDisplayed={this.state.fName} />
 						}
 					/>
 				</ListItem>
@@ -171,7 +174,7 @@ export default class UserAccountComponent extends Component {
 					<ListItemText
 						primary="Last Name"
 						secondary={
-							<AccountAttribute textDisplayed={this.state.lName} editable />
+							<UserAccountField textDisplayed={this.state.lName} />
 						}
 					/>
 				</ListItem>
@@ -180,7 +183,7 @@ export default class UserAccountComponent extends Component {
 					<ListItemText
 						primary="Organization"
 						secondary={
-							<AccountAttribute textDisplayed={this.state.userOrganization} editable />
+							<UserAccountField textDisplayed={this.state.userOrganization} />
 						}
 					/>
 				</ListItem>
@@ -374,3 +377,42 @@ export default class UserAccountComponent extends Component {
 		);
 	}
 }
+
+function UserAccountField({textDisplayed, editable=false}) {
+    const buttonStyling = {minWidth:"0", padding:"10px"};
+    const [editModeActive, setEditActive] = useState(false);
+
+    //if attribute is not editable, display only the text with no attached functions 
+    if (!editable){
+        return(
+            <Typography color="textSecondary" style={{padding:"10px"}}>
+                <Typography >{textDisplayed}</Typography>
+            </Typography>    
+        )
+    }
+
+    
+    return (
+        <Typography component="div" style={spaceBetweenStyle} >
+            <Typography style={{padding:"10px"}}>
+                {editModeActive ?
+                <Input defaultValue={textDisplayed} autoFocus/> :
+                <Typography >{textDisplayed}</Typography>}
+            </Typography> 
+            {editModeActive ?
+            <Typography component="span">
+                {/** Dummy button, need to create backend API call in the future */}
+                <IconButton style={buttonStyling}>
+                    <DoneIcon/>
+                </IconButton>
+                <IconButton style={buttonStyling} onClick={()=> {setEditActive(false)}}>
+                    <CancelIcon/>
+                </IconButton>
+            </Typography> :
+            <IconButton style={buttonStyling} onClick={()=>{setEditActive(true)}}>
+            <   CreateIcon/>
+            </IconButton>}  
+        </Typography>
+    )
+}
+
