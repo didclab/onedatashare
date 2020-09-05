@@ -15,8 +15,12 @@ services:
 
   # ODS service that runs the Maven container
   odsbackend:
+<<<<<<< HEAD
   #    image: onedatashare_odsbackend:latest #replace this with "build: ." if u want to build what you have locally. Make sure to update your env appropriately
     build: .
+=======
+    image: onedatashare_odsbackend:latest #replace this with "build: ." if u want to build what you have locally. Make sure to update your env appropriately
+>>>>>>> 812973d82fa8b786e9143a1bc74afdfd36c47f39
     env_file:
       - .ods.env
     restart: always
@@ -24,5 +28,10 @@ services:
       - 8080:8080
     depends_on :
       - mongodb         # ensuring that the Maven container is started only after the mongo-service is up
+<<<<<<< HEAD
 volumes: 
   mongodb:
+=======
+volumes:
+  mongodb:
+>>>>>>> 812973d82fa8b786e9143a1bc74afdfd36c47f39

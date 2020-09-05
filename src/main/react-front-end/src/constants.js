@@ -40,6 +40,7 @@ export const LOGOUT_ENDPOINT = "/deauthenticate";
 export const url = "/api/stork/";
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
+export const endpoint_db = "/endpoint_db"
 export const accountPageUrl = "/account";
 export const registerPageUrl = "/account/register";
 export const signInUrl = "/account/signIn";
