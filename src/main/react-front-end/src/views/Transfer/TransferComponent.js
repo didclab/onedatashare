@@ -523,8 +523,8 @@ export default class TransferComponent extends Component {
     const ToggleLabel = this.labelStyle();
 
     return (
-        <div>
-        <Grid container direction="column" className={"outeractionContainer"}>
+        <div className={"outeractionContainer"}>
+        <Grid container direction="column" >
           <Container className={"boxHeader"}>
 
             <p>

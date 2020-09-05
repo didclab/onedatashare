@@ -425,12 +425,12 @@ queueHeaderCell button {
 /**************************************/
 
 .outeractionContainer{
-  display: flex;
-  flex-direction: row;
+  /*display: flex;*/
+  /*flex-direction: row;*/
   justify-content: center;
-  height: auto;
+  /*height: auto;*/
   margin-top: -10vh;
-  width: 100vw;
+  /*width: 100vw;*/
 }
 
 .actionContainer{
