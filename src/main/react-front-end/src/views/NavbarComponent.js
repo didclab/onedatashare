@@ -92,7 +92,7 @@ class NavbarComponent extends Component {
 					<NavItem href="/support">
 						Support
 					</NavItem>
-					<NavItem href={endpoint_db} to={endpoint_db} id="NavEndpoint">Authorization Database</NavItem>
+//					<NavItem href={endpoint_db} to={endpoint_db} id="NavEndpoint">Authorization Database</NavItem>
 					</Nav>
 				</Navbar.Collapse>
 			</Navbar>
