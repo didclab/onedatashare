@@ -115,12 +115,7 @@ export default class UserAccountComponent extends Component {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
-		document.body.style.backgroundColor = GREY;
 
-	}
-
-	componentWillUnmount(){
-		document.body.style.backgroundColor = null;
 	}
 
 	onPasswordUpdate = (oldPass, newPass, confPass) => {
@@ -220,6 +215,9 @@ export default class UserAccountComponent extends Component {
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={handleChange("oldPassword")}
 					InputProps={{
+						style: {
+							fontSize: 14,
+						  },
 						endAdornment:   <React.Fragment>
 											<InputAdornment position="end">
 												<IconButton
@@ -240,6 +238,9 @@ export default class UserAccountComponent extends Component {
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={checkPassword("newPassword")}
 					InputProps={{
+						style: {
+							fontSize: 14,
+						  },
 						endAdornment: <React.Fragment>
 							<InputAdornment position="end">
 								<IconButton
@@ -261,6 +262,9 @@ export default class UserAccountComponent extends Component {
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={checkConfirmPassword("confirmNewPassword")}
 					InputProps={{
+						style: {
+							fontSize: 14,
+						  },
 						endAdornment: <React.Fragment>
 							<InputAdornment position="end">
 								<IconButton
@@ -338,6 +342,7 @@ export default class UserAccountComponent extends Component {
 	}
 
 	render() {
+		
 		const { isSmall, loading, modalIsOpen } = this.state;
 		return (
 			<div
@@ -350,7 +355,7 @@ export default class UserAccountComponent extends Component {
 			>
 				<div
 					style={{
-						width: "450px",
+						width: "550px",
 						alignSelf: isSmall ? "flex-start" : "center"
 					}}
 				>
@@ -378,7 +383,7 @@ export default class UserAccountComponent extends Component {
 	}
 }
 
-function UserAccountField({textDisplayed, editable=false}) {
+const UserAccountField = ({textDisplayed, editable=false}) => {
     const buttonStyling = {minWidth:"0", padding:"10px"};
     const [editModeActive, setEditActive] = useState(false);
 
@@ -386,7 +391,7 @@ function UserAccountField({textDisplayed, editable=false}) {
     if (!editable){
         return(
             <Typography color="textSecondary" style={{padding:"10px"}}>
-                <Typography >{textDisplayed}</Typography>
+                <Typography style={{fontSize:14}} >{textDisplayed}</Typography>
             </Typography>    
         )
     }
@@ -396,8 +401,8 @@ function UserAccountField({textDisplayed, editable=false}) {
         <Typography component="div" style={spaceBetweenStyle} >
             <Typography style={{padding:"10px"}}>
                 {editModeActive ?
-                <Input defaultValue={textDisplayed} autoFocus/> :
-                <Typography >{textDisplayed}</Typography>}
+                <Input defaultValue={textDisplayed} autoFocus style={{fontSize:14}}/> :
+                <Typography style={{fontSize:14}} >{textDisplayed}</Typography>}
             </Typography> 
             {editModeActive ?
             <Typography component="span">

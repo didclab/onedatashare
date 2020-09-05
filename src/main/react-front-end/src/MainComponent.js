@@ -54,14 +54,12 @@ export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // isLoggedIn: store.getState().login,
-      isLoggedIn: true,
+      isLoggedIn: store.getState().login,
       admin: store.getState().admin,
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
-        // isLoggedIn: store.getState().login,
-        isLoggedIn: true,
+        isLoggedIn: store.getState().login,
         admin: store.getState().admin
       });
     });
