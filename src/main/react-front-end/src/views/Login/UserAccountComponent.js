@@ -32,14 +32,6 @@ import TextField from "@material-ui/core/TextField";
 
 import './UserAccountComponent.css';
 
-import {
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle
-} from "@material-ui/core";
-
 import Button from "@material-ui/core/Button";
 import CardActions from "@material-ui/core/CardActions";
 
@@ -47,53 +39,28 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Divider from "@material-ui/core/Divider";
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
-import FormGroup from "@material-ui/core/FormGroup";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
-
-import { validPassword } from "../../constants";
+import { validPassword, spaceBetweenStyle } from "../../constants";
+import AccountAttribute from "./EditUserAccountAttributes";
 
 import {
 	changePassword,
-	getUser,
-	updateSaveOAuth,
-	saveOAuthCredentials
+	getUser
 } from "../../APICalls/APICalls";
 import { eventEmitter, store } from "../../App.js";
 
-import {
-	accountPreferenceToggledAction,
-} from "../../model/actions";
-import { cookies } from "../../model/reducers";
-import { DROPBOX_NAME, GOOGLEDRIVE_NAME } from "../../constants";
 
 import { updateGAPageView } from '../../analytics/ga'
 import IconButton from '@material-ui/core/IconButton';
-import Tooltip from '@material-ui/core/Tooltip';
-import InfoOutlined from '@material-ui/icons/InfoOutlined';
-import { makeStyles } from '@material-ui/core/styles';
 
 import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
-const useStylesBootstrap = makeStyles(theme => ({
-	arrow: {
-	  color: theme.palette.common.black,
-	},
-	tooltip: {
-	  color: theme.palette.common.white,
-	  backgroundColor: theme.palette.common.black,
-	  maxWidth: 180,
-	  fontSize: theme.typography.pxToRem(17),
-	},
-  }));
-
- const BootstrapTooltip = (props) => {
-	const classes = useStylesBootstrap();
-	return <Tooltip arrow={true} classes={classes} {...props} />;
-}
+import {GREY} from './../../color.js';
 
 export default class UserAccountComponent extends Component {
 	constructor() {
@@ -116,7 +83,8 @@ export default class UserAccountComponent extends Component {
 			canSubmit: false,
 			isOldPwdVisible: false,
 			isNewPwdVisible: false,
-			isConfirmPwdVisible: false
+			isConfirmPwdVisible: false,
+			modalIsOpen: false
 
 		};
 		this.displayText = "When enabled, all your endpoint authentication tokens will be saved by OneDataShare. \
@@ -137,14 +105,6 @@ export default class UserAccountComponent extends Component {
 			this.setState({ loading: false });
 			console.log('Error encountered in getUser request to API layer');
 		});
-		this.getInnerCard = this.getInnerCard.bind(this);
-		this.onPasswordUpdate = this.onPasswordUpdate.bind(this);
-		this.accountDetails = this.accountDetails.bind(this);
-		this.handleAccountPreferenceToggle = this.handleAccountPreferenceToggle.bind(this);
-		this.handleAlertClose = this.handleAlertClose.bind(this);
-		this.handleAlertCloseYes = this.handleAlertCloseYes.bind(this);
-		this.handleShowPassword = this.handleShowPassword.bind(this);
-		this.handleHidePassword = this.handleHidePassword.bind(this);
 		updateGAPageView();
 	}
 
@@ -152,10 +112,15 @@ export default class UserAccountComponent extends Component {
 		document.title = "OneDataShare - Account";
 		window.addEventListener("resize", this.resize.bind(this));
 		this.resize();
+		document.body.style.backgroundColor = GREY;
 
 	}
 
-	onPasswordUpdate(oldPass, newPass, confPass) {
+	componentWillUnmount(){
+		document.body.style.backgroundColor = null;
+	}
+
+	onPasswordUpdate = (oldPass, newPass, confPass) => {
 		if (newPass === "" || oldPass === "" || confPass === "") {
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
 		} else if (oldPass === newPass) {
@@ -173,171 +138,59 @@ export default class UserAccountComponent extends Component {
 			});
 		}
 	}
+	
 
-	handleAccountPreferenceToggle() {
-		this.setState({ openAlertDialog: true });
-	}
-
-	handleAlertClose() {
-		this.setState({ openAlertDialog: false });
-	}
-
-	handleAlertCloseYes() {
-		this.handleAlertClose();
-		let currentSaveStatus = this.state.saveOAuthTokens;
-
-		// Toggle the change
-		currentSaveStatus = !currentSaveStatus;
-		updateSaveOAuth(this.state.email, currentSaveStatus, () => {
-			store.dispatch(accountPreferenceToggledAction(currentSaveStatus));
-			if (currentSaveStatus) {
-				// if the user opted to switch from saving tokens on browser to
-				// storing tokens on the server, we clear all saved tokens in the current browser session.
-
-				let credentials = []
-				if (!(typeof cookies.get(GOOGLEDRIVE_NAME) == "undefined")) {
-					var googleDriveCredentials = JSON.parse(cookies.get(GOOGLEDRIVE_NAME));
-					googleDriveCredentials.forEach(function (element) {
-						element.name = "GoogleDrive: " + element.name;
-					});
-					credentials.push(...googleDriveCredentials);
-				}
-				if (!(typeof cookies.get(DROPBOX_NAME) == "undefined")) {
-					var dropBoxCredentials = JSON.parse(cookies.get(DROPBOX_NAME));
-					dropBoxCredentials.forEach(function (element) {
-						element.name = "Dropbox: " + element.name;
-					});
-					credentials.push(...dropBoxCredentials);
-				}
-				saveOAuthCredentials(credentials, (success) => { console.log("Credentials saved Successfully") }, (error) => {
-					console.log("Error in saving credentials", error);
-					eventEmitter.emit("errorOccured", "Error in saving credentials. You might have to re-authenticate your accounts");
-				});
-
-				cookies.remove(DROPBOX_NAME);
-				cookies.remove(GOOGLEDRIVE_NAME);
-
-			}
-			//Update the variables
-			this.setState({ saveOAuthTokens: currentSaveStatus });
-		});
-	}
-
-	accountDetails() {
+	accountDetails = () => {
 		return (
-			<div>
-				<List>
-					<Card className="userAccCardStyle">
-						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
-								Account Details <br />
-							</Typography>
-
-							<ListItem>
-								<ListItemText
-									classes={{
-										primary: "userDescThemeFont",
-										secondary: "userDescValueFont"
-									}}
-									primary="Email"
-									id="UserEmail"
-									secondary={this.state.userEmail}
-								/>
-
-								<Divider />
-								<ListItemText
-									classes={{
-										primary: "userDescThemeFont",
-										secondary: "userDescValueFont"
-									}}
-									primary="First Name"
-									id="UserFirstName"
-									secondary={this.state.fName}
-								/>
-								<Divider />
-								<ListItemText
-									classes={{
-										primary: "userDescThemeFont",
-										secondary: "userDescValueFont"
-									}}
-									primary="Last Name"
-									id="UserLastName"
-									secondary={this.state.lName}
-								/>
-								<Divider />
-								<ListItemText
-									classes={{
-										primary: "userDescThemeFont",
-										secondary: "userDescValueFont"
-									}}
-									primary="Organization"
-									id="UserOrganization"
-									secondary={this.state.userOrganization}
-								/>
-							</ListItem>
-						</CardContent>
-					</Card>
-				</List>
-
-				<List>
-					<Card className="userAccCardStyle" style={{ paddingLeft: '2em', paddingRight: '2em' }}>
-						<CardContent>
-							<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
-								Account Preferences <br />
-							</Typography>
-							<FormGroup style={{flexDirection: "row", flexWrap: "nowrap"}}>
-								<FormControlLabel
-									value="new_source"
-									control={
-										<Switch
-											checked={this.state.saveOAuthTokens}
-											onClick={() => this.handleAccountPreferenceToggle()}
-											value="saveOAuthTokenSwitch"
-											color="primary"
-										/>
-									}
-									label={"Save endpoint authentication tokens with OneDataShare"}
-								/>
-								<BootstrapTooltip title={this.displayText} placement="right">
-									<IconButton aria-label="info-icon">
-										<InfoOutlined />
-									</IconButton>
-								</BootstrapTooltip>
-							</FormGroup>
-						</CardContent>
-					</Card>
-				</List>
-
-				<Dialog
-					open={this.state.openAlertDialog}
-					onClose={this.handleAlertClose}
-					aria-labelledby="alert-dialog-title"
-					aria-describedby="alert-dialog-description">
-
-					<DialogTitle id="alert-dialog-title">
-						{"Change how OAuth tokens are saved?"}
-					</DialogTitle>
-					<DialogContent>
-						<DialogContentText id="alert-dialog-description">
-							Warning! This might delete all your existing credentials and may
-							interrupt ongoing transfers. Are you sure?
-            			</DialogContentText>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={this.handleAlertCloseYes} color="primary">
-							Yes
-            			</Button>
-						<Button onClick={this.handleAlertClose} color="primary" autoFocus>
-							No
-			            </Button>
-					</DialogActions>
-				</Dialog>
-			</div>
-		);
+			
+		
+		<React.Fragment>
+			<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: "center" }}>
+				Account Details <br />
+			</Typography>
+			<List>
+				<ListItem alignItems="flex-start">
+					<ListItemText
+						primary="Email"
+						secondary={
+							<AccountAttribute textDisplayed={this.state.userEmail} />
+						}
+					/>
+				</ListItem>
+				<Divider variant="middle" />
+				<ListItem alignItems="flex-start">
+					<ListItemText
+						primary="First Name"
+						secondary={
+							<AccountAttribute textDisplayed={this.state.fName} editable />
+						}
+					/>
+				</ListItem>
+				<Divider variant="middle" />
+				<ListItem alignItems="flex-start">
+					<ListItemText
+						primary="Last Name"
+						secondary={
+							<AccountAttribute textDisplayed={this.state.lName} editable />
+						}
+					/>
+				</ListItem>
+				<Divider variant="middle" />
+				<ListItem alignItems="flex-start">
+					<ListItemText
+						primary="Organization"
+						secondary={
+							<AccountAttribute textDisplayed={this.state.userOrganization} editable />
+						}
+					/>
+				</ListItem>
+				<Divider variant="middle" />
+			</List>
+		</React.Fragment>);
 	}
 
 
-	getInnerCard() {
+	changePasswordForm = () => {
 		const handleChange = name => event => {
 			this.setState({
 				[name]: event.target.value
@@ -355,11 +208,7 @@ export default class UserAccountComponent extends Component {
 		}
 
 		return (
-			<div>
-				<Typography style={{ fontSize: "1.6em", marginBottom: "0.6em", textAlign: 'center' }}>
-					Change your Password
-        		</Typography>
-
+			<React.Fragment>
 				<TextField
 					id="Email"
 					label="Enter Your Old Password"
@@ -368,17 +217,16 @@ export default class UserAccountComponent extends Component {
 					style={{ width: "100%", marginBottom: "1em" }}
 					onChange={handleChange("oldPassword")}
 					InputProps={{
-						endAdornment: <React.Fragment>
-							<InputAdornment position="end">
-								<IconButton
-									aria-label="toggle password visibility"
-									onMouseDown={() => this.handleShowPassword('old')}
-									onMouseUp={this.handleHidePassword}
-								>
-								{this.state.isOldPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
-								</IconButton>
-							</InputAdornment>
-							</React.Fragment>
+						endAdornment:   <React.Fragment>
+											<InputAdornment position="end">
+												<IconButton
+													aria-label="toggle password visibility"
+													onClick={()=>{this.togglePwdVisibility('old')}}
+												>
+												{this.state.isOldPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
+												</IconButton>
+											</InputAdornment>
+										</React.Fragment>
 					}}
 				/>
 				<TextField
@@ -393,8 +241,7 @@ export default class UserAccountComponent extends Component {
 							<InputAdornment position="end">
 								<IconButton
 									aria-label="toggle password visibility"
-									onMouseDown={() => this.handleShowPassword('new')}
-									onMouseUp={this.handleHidePassword}
+									onClick={()=>{this.togglePwdVisibility('new')}}
 								>
 								{this.state.isNewPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
 								</IconButton>
@@ -415,8 +262,7 @@ export default class UserAccountComponent extends Component {
 							<InputAdornment position="end">
 								<IconButton
 									aria-label="toggle password visibility"
-									onMouseDown={() => this.handleShowPassword('confirm')}
-									onMouseUp={this.handleHidePassword}
+									onClick={()=>{this.togglePwdVisibility('confirm')}}
 								>
 								{this.state.isConfirmPwdVisible ? <VisibilityOutlinedIcon /> : <VisibilityOffOutlinedIcon />}
 								</IconButton>
@@ -431,9 +277,14 @@ export default class UserAccountComponent extends Component {
 					<Button
 						size="small"
 						color="primary"
-						style={{ width: "100%" }}
+						onClick={this.toggleModalClose}
+					>
+						Cancel
+					</Button>
+					<Button
+						size="small"
+						color="primary"
 						disabled={!(this.state.isValidNewPassword && this.state.isValidConfirmPassword && this.state.newPassword && this.state.confirmNewPassword)}
-						variant="contained"
 						onClick={() =>
 							this.onPasswordUpdate(
 								this.state.oldPassword,
@@ -445,7 +296,7 @@ export default class UserAccountComponent extends Component {
 						Update Password
          			</Button>
 				</CardActions>
-			</div>
+			</React.Fragment>
 		);
 	}
 
@@ -457,38 +308,40 @@ export default class UserAccountComponent extends Component {
 		}
 	}
 
-	handleShowPassword(field) {
+	
+	togglePwdVisibility = (field) => {
+		const {isOldPwdVisible, isNewPwdVisible, isConfirmPwdVisible} = this.state
 		switch(field){
-			case 'old': 
-				this.setState({isOldPwdVisible: true}); 
+			case 'old':
+				this.setState({isOldPwdVisible: !isOldPwdVisible});
 				break;
-			case 'new': 
-				this.setState({isNewPwdVisible: true}); 
+			case 'new':
+				this.setState({isNewPwdVisible:!isNewPwdVisible});
 				break;
-			case 'confirm': 
-				this.setState({isConfirmPwdVisible: true}); 
+			case'confirm':
+				this.setState({isConfirmPwdVisible:!isConfirmPwdVisible});
 				break;
 			default:
 				break;
 		}
-		this.setState({isPasswordVisible: true});
 	}
 
-	handleHidePassword() {
-		this.setState({isConfirmPwdVisible: false, isOldPwdVisible: false, isNewPwdVisible: false});
+	toggleModalOpen = () => {
+		this.setState({modalIsOpen: true});
+	}
+
+	toggleModalClose = () => {
+		this.setState({modalIsOpen:false});
 	}
 
 	render() {
-		const { isSmall, loading } = this.state;
-		const height = window.innerHeight + "px";
+		const { isSmall, loading, modalIsOpen } = this.state;
 		return (
 			<div
 				style={{
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
-					width: "..",
-					height: height,
 					marginBottom: '5%'
 				}}
 			>
@@ -500,11 +353,22 @@ export default class UserAccountComponent extends Component {
 				>
 					{loading && <LinearProgress />}
 
-					{this.accountDetails()}
-
-					<Card className="userAccCardStyle resetPasswordCard">
-						{this.getInnerCard()}
-					</Card>
+					<Card className="userAccCardStyle" elevation="3">
+						<CardContent>
+							{this.accountDetails()}
+							<div style={{width:"100%", display:"flex", justifyContent:"center"}}>
+								<Button color="primary" onClick={this.toggleModalOpen}>
+									Change Password
+								</Button>
+							</div>
+						</CardContent>
+					</Card>	
+					<Dialog open={modalIsOpen} onClose={this.toggleModalClose} >
+						<DialogTitle style={{display:"flex", justifyContent:"center"}}>Change Password</DialogTitle>
+						<DialogContent>
+							{this.changePasswordForm()}
+						</DialogContent>
+					</Dialog>
 				</div>
 			</div>
 		);
