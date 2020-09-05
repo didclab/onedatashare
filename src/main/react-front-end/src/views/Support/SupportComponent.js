@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,7 +23,7 @@
 
 /*
   Note - All commented code is for the custom integration that was developed for the support page.
-  This was replaced by a free Freshdesk widget just before the release as a workaround for free Freshdesk API restrictions 
+  This was replaced by a free Freshdesk widget just before the release as a workaround for free Freshdesk API restrictions
 */
 
 import React, { Component } from 'react';
@@ -52,8 +52,8 @@ export default class SupportComponent extends Component{
 
   constructor(){
     super();
-    this.state = { 
-      captchaVerified : false, 
+    this.state = {
+      captchaVerified : false,
       captchaVerificationValue : null,
       email : (store.getState().email === "noemail" ? "" : store.getState().email)
     };
@@ -126,7 +126,7 @@ export default class SupportComponent extends Component{
   }
 
   render(){
-    
+
     const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
     const divStyle = { margin : '2% 5%', alignItems: "center" };
     const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
@@ -150,17 +150,6 @@ export default class SupportComponent extends Component{
               </Typography>
 
               <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
-
-        <div className={"outeractionContainer"}>
-          <Grid container direction={"column"} justify={"center"}>
-            <Box className={"boxHeader"}>
-              <p >
-                Report an Issue
-              </p>
-            </Box>
-            <Container className={"actionContainer"}>
-
-             <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
@@ -208,13 +197,13 @@ export default class SupportComponent extends Component{
                   />
                 </div>
 
-                <div style={ captchaStyle }>
+                {/* <div style={ captchaStyle }>
                     <ReCAPTCHA
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                       onChange={this.handleCaptchaEvent}
                       ref = { r => this.captchaRef = r}
                     />
-                </div>
+                </div>  */}
 
 
                 <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
@@ -233,29 +222,8 @@ export default class SupportComponent extends Component{
 
               </ValidatorForm>
 
-                <Box className={"wrapperBox"}>
-                  <Box id="feshdesk-submit-form" className={"innerBox"} >
-                    <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
-                    <style type="text/css" media="screen, projection">
-                      @import url(http://assets.freshdesk.com/widget/freshwidget.css);
-                    </style>
-                    <iframe
-                        title="Feedback Form"
-                        class="freshwidget-embedded-form"
-                        id="freshwidget-embedded-form"
-                        src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no"
-                        scrolling="no"
-                        height="500px"
-                        width="100%"
-                        frameborder="0" >
-                    </iframe>
-                  </Box>
-                </Box>
-            </Container>
-
-
-          </Grid>
-
+            </Box>
+          </Col>
         </div>
     );
   }
