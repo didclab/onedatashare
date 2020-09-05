@@ -96,13 +96,14 @@ return false;
 
       }
   }
+    // outerTerminal style={{height:'300px', backgroundColor:"black",color:"white",fontFamily: "courier",overflow: "scroll"}}
    render() {
            return (
            <React.Fragment>
            { this.checkEndpointlogin() ?(<div>
-           <AppBar position="relative" style={{backgroundColor:'#337ab7'}} onClick={this.toggleDiv} >
+           <AppBar position="relative" style={{backgroundColor:'#172753'}} onClick={this.toggleDiv} >
                    <Toolbar>
-                   <Grid>
+                   <Grid container>
                      <Typography variant="h6">
                        CLI &nbsp;&nbsp;&nbsp;>>
                      </Typography>
@@ -112,8 +113,8 @@ return false;
 
            {(this.state.show)?
            <div id ="show">
-                <div style={{height:'300px', backgroundColor:"black",color:"white",fontFamily: "courier",overflow: "scroll"}}>
-                <div style={{fontFamily: "courier"}}>Welcome to OneDataShare. Please enter your commands. <br/>logged as {this.props.endpoint.credential.username}.</div>
+                <div className={"terminalWrapper"} >
+                <p style={{fontFamily: "courier"}}>Welcome to OneDataShare. Please enter your commands. <br/>logged as {this.props.endpoint.credential.username}.</p>
 
                 <div id="terminalOutput"> {this.state.history.map((name,index)=>{
                                                  if(index%2!==0)

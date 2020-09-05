@@ -109,6 +109,7 @@ export default class CreateAccountComponent extends Component {
     this.handleHidePassword = this.handleHidePassword.bind(this);
   }
 
+
   registerAccount() {
     if (this.state.captchaVerified) {
       this.setState({ loading: true });
@@ -254,6 +255,7 @@ export default class CreateAccountComponent extends Component {
     };
     var screen = this.state.screen;
     const showLoader = this.state.loading;
+    console.log(process.env);
 
     const handleChange = (name) => (event) => {
       this.setState({

@@ -68,7 +68,8 @@ class App extends Component {
 
   componentDidMount(){
     this.setState({loaded: true});
-    eventEmitter.on("errorOccured", this.handleOpen); 
+    eventEmitter.on("errorOccured", this.handleOpen);
+    // console.log(process.env);
   }
 
   

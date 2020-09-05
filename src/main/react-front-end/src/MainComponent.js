@@ -31,6 +31,7 @@ import { store } from './App.js';
 
 import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 
+// import TransferComponentOld from './views/Transfer/TransferComponentOld';
 import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
@@ -38,6 +39,7 @@ import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
+// import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
 import Endpoint_DB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
@@ -52,12 +54,14 @@ export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedIn: store.getState().login,
+      // isLoggedIn: store.getState().login,
+      isLoggedIn: true,
       admin: store.getState().admin,
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
-        isLoggedIn: store.getState().login,
+        // isLoggedIn: store.getState().login,
+        isLoggedIn: true,
         admin: store.getState().admin
       });
     });

@@ -157,6 +157,20 @@ export const showType = {
 	https: HTTP_TYPE
 }
 
+export const SERVICES = {
+	OAuth: [
+		[DROPBOX_TYPE, DROPBOX_NAME, DROPBOX],
+		[GOOGLEDRIVE_TYPE, GOOGLEDRIVE_NAME, GOOGLEDRIVE],
+		[BOX_TYPE, BOX_NAME, BOX],
+		[GRIDFTP_TYPE, GRIDFTP_NAME, GRIDFTP],
+	],
+	Login: [
+		[FTP_TYPE, FTP_NAME, FTP],
+		[HTTP_TYPE, HTTP_NAME, HTTP],
+		[SFTP_TYPE, SFTP_NAME, SFTP],
+	]
+};
+
 export const defaultPort = {
 	dropbox: -1,
 	googledrive: -1,
@@ -176,6 +190,29 @@ export const jobStatus = {
 	SCHEDULED: 'scheduled',
 	FAILED: 'failed'
 }
+
+
+//screen sizes for mobile/desktop switch
+
+//using grid column
+export const gridFullWidth = 12;
+export const gridHalfWidth = 6;
+export const gridThirdWidth = 4;
+export const gridQuarterWidth = 3;
+
+//grid column/row
+export const gridRow = "row";
+export const gridCol = "column";
+
+
+
+//using width sizing
+export const FullWidth = 1;
+export const HalfWidth = 1/2;
+export const ThirdWidth = 1/3;
+export const QuarterWidth = 1/4;
+
+
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)

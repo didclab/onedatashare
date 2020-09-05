@@ -150,12 +150,23 @@ export default class SupportComponent extends Component{
               </Typography>
 
               <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
+
+        <div className={"outeractionContainer"}>
+          <Grid container direction={"column"} justify={"center"}>
+            <Box className={"boxHeader"}>
+              <p >
+                Report an Issue
+              </p>
+            </Box>
+            <Container className={"actionContainer"}>
+
+             <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
                     classes={{label:'support'}}
                     label = 'Name'
-                    name = 'name' 
+                    name = 'name'
                     onChange = {this.handleChange}
                     style = {{ marginRight : '5%', width :'32.4%' }}
                     variant="outlined"
@@ -177,7 +188,7 @@ export default class SupportComponent extends Component{
                     required
                     label = 'Subject&nbsp;'
                     name = 'subject'
-                    onChange = {this.handleChange}   
+                    onChange = {this.handleChange}
                     style = {{ width :'70%' }}
                     variant="outlined"
                   />
@@ -196,7 +207,7 @@ export default class SupportComponent extends Component{
                     variant="outlined"
                   />
                 </div>
-                
+
                 <div style={ captchaStyle }>
                     <ReCAPTCHA
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
@@ -216,30 +227,35 @@ export default class SupportComponent extends Component{
                   </Button>
                 </div>
 
-                <div id="msg" style={{marginLeft : '19%', marginRight : '19%', marginTop : '2%', marginBottom : '2%', 
+                <div id="msg" style={{marginLeft : '19%', marginRight : '19%', marginTop : '2%', marginBottom : '2%',
                             textAlign : 'center', paddingTop : '1%', paddingBottom : '1%', visibility : 'hidden'}}>
                 </div>
 
               </ValidatorForm>
 
-              {/* <div id="feshdesk-submit-form" style={{ margin: '5%', marginTop : '0%' }}>
-                <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
-                <style type="text/css" media="screen, projection">
-                    @import url(http://assets.freshdesk.com/widget/freshwidget.css);
-                </style>
-                <iframe 
-                  title="Feedback Form" 
-                  class="freshwidget-embedded-form" 
-                  id="freshwidget-embedded-form" 
-                  src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no" 
-                  scrolling="no" 
-                  height="550px" 
-                  width="100%" 
-                  frameborder="0" >
-                </iframe>
-              </div> */}
-            </Box>
-          </Col>
+                <Box className={"wrapperBox"}>
+                  <Box id="feshdesk-submit-form" className={"innerBox"} >
+                    <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
+                    <style type="text/css" media="screen, projection">
+                      @import url(http://assets.freshdesk.com/widget/freshwidget.css);
+                    </style>
+                    <iframe
+                        title="Feedback Form"
+                        class="freshwidget-embedded-form"
+                        id="freshwidget-embedded-form"
+                        src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no"
+                        scrolling="no"
+                        height="500px"
+                        width="100%"
+                        frameborder="0" >
+                    </iframe>
+                  </Box>
+                </Box>
+            </Container>
+
+
+          </Grid>
+
         </div>
     );
   }

@@ -35,7 +35,8 @@ class NavbarComponent extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			login: store.getState().login,
+			// login: store.getState().login,
+			login: true,
 			email: store.getState().email,
 			admin: store.getState().admin
 		};
@@ -79,10 +80,10 @@ class NavbarComponent extends Component {
 		        {this.state.login &&
 			        <NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
 		    	}
-		        {!this.state.login &&
+		        {this.state.login &&
 			        <NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
 			    }
-		        {!this.state.login &&
+		        {this.state.login &&
 			        <NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
 		    	}
 				{this.state.login &&

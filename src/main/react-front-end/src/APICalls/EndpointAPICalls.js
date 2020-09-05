@@ -25,6 +25,7 @@ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
+import { GOOGLEDRIVE, BOX, DROPBOX, GRIDFTP} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -188,6 +189,15 @@ export async function openBoxOAuth(){
 export async function openOAuth(url){
 	window.location = url;
 }
+
+export const OAuthFunctions = {
+    [DROPBOX]: openDropboxOAuth,
+    [GOOGLEDRIVE]: openGoogleDriveOAuth,
+    [GRIDFTP]: openGridFtpOAuth,
+    [BOX]: openBoxOAuth,
+    other: openOAuth
+};
+
 //api call for terminal
 export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 	let callback = accept;

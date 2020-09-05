@@ -63,10 +63,13 @@ import GlobusEndpointListingComponent from "./GlobusEndpointListingComponent";
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import useMediaQuery from '@material-ui/core/useMediaQuery';
 
 
 
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
+import {makeStyles, styled} from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -107,6 +110,10 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 	}
+
+	fieldLabelStyle = () => styled(Typography)({
+		fontSize: "12px"
+	})
 
 	credentialListUpdateFromBackend = () => {
 		this.props.setLoading(true);
@@ -374,10 +381,11 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 	else{
 		// User is expected to enter password to login
-		if(username.length === 0 || password.length === 0) {
+		const loginType = getType(this.state.endpoint);
+		/*if(username.length === 0 || password.length === 0 && loginType !== HTTP_TYPE) {
 			this._handleError("Incorrect username or password");
 			return;
-		}
+		}*/
 
 		// Encrypting user password
 		let jsEncrypt = new JSEncrypt();
@@ -454,6 +462,15 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.inputElement.click();
 	}
 
+	nextButton = () => styled(Button)({
+		width: "30%", textAlign: "center", marginLeft:"67%", marginBottom: "3%",
+		["@media only screen and (max-width: 600px)"]:{
+			width: "94%",
+			marginLeft:"3%",
+		}
+	})
+
+
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
 		const { back } = this.props;
@@ -462,18 +479,24 @@ export default class EndpointAuthenticateComponent extends Component {
 		const loginType = getType(endpoint);
 
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
+		const FieldLabel = this.fieldLabelStyle();
+		const NextButton = this.nextButton();
 
 		return(
 		<div >
-			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
-		        <ListItem button onClick={() =>{
-		        	back()
-		        }}>
-		          <ListItemIcon>
-		          	<BackIcon/>
-		          </ListItemIcon>
-		          <ListItemText primary="Back" />
-		        </ListItem>
+			{!settingAuth && <div className={"authenticationContainer"}>
+		        {/*<ListItem button onClick={() =>{*/}
+		        {/*	back()*/}
+		        {/*}}>*/}
+		        {/*  <ListItemIcon>*/}
+		        {/*  	<BackIcon/>*/}
+		        {/*  </ListItemIcon>*/}
+		        {/*  <ListItemText primary="Back" />*/}
+		        {/*</ListItem>*/}
+				<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{
+					back()
+				}}> <BackIcon/>Back</Button>
+				<Divider/>
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
 		        	if(loginType === DROPBOX_TYPE){
@@ -511,7 +534,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				{/* Other login handlers*/}
 				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&
 		        	this.getHistoryListComponentFromList(historyList)}
-		    </List>}
+		    </div>}
 	    	<Modal
 	    	  aria-labelledby="simple-modal-title"
 	          aria-describedby="To Select globus endpoints"
@@ -523,13 +546,62 @@ export default class EndpointAuthenticateComponent extends Component {
         	</Modal>
 		    {settingAuth &&
 
-		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
+		    	<div className={"authenticationContainer"}>
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
-		    		this.setState({settingAuth: false})}
+		    		if(needPassword){
+		    			this.setState({needPassword: false})
+					}else{
+						this.setState({settingAuth: false})}
+					}
+
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
+					{needPassword &&
+					<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
+
+						<ValidatorForm
+							ref="form"
+							onError={errors => console.log(errors)}>
+
+							<TextValidator
+								required
+								style={{width: "100%"}}
+								id={endpoint.side+"LoginUsername"}
+								label="Username"
+								value={this.state.username}
+								onChange={this.handleChange('username')}
+								margin="normal"
+								variant="outlined"
+								autoFocus={(this.state.url !== 'sftp://') }
+								onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+									}
+								}}
+							/>
+
+							<TextValidator
+								required
+								style={{width: "100%"}}
+								id={endpoint.side+"LoginPassword"}
+								label="Password"
+								type="password"
+								value={this.state.password}
+								onChange={this.handleChange('password')}
+								margin="normal"
+								variant="outlined"
+								onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+									}
+								}}
+							/>
+
+						</ValidatorForm>
+					</div>
+					}
 		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+		    		<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
@@ -539,10 +611,14 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 					  		style={{width: "80%"}}
 			          id={endpoint.side+"LoginURI"}
-			          label="Url"
+					  disabled = {needPassword}
+			          label={"Url"}
 			          value={this.state.url}
 			          onChange={this.handleUrlChange}
 			          margin="normal"
+								InputProps={{
+									disableUnderline: true
+								}}
 					  		variant="outlined"
 					  		autoFocus={true}
 					  		onKeyPress={(e) => {
@@ -557,8 +633,8 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  		id={endpoint.side+"LoginPort"}
-					  		disabled = {!this.state.portNumField}
-			          label="Port Number"
+					  		disabled = {!this.state.portNumField || needPassword}
+			          label={ "Port Num."}
 			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handlePortNumChange}
 			          margin="normal"
@@ -573,60 +649,21 @@ export default class EndpointAuthenticateComponent extends Component {
 			        </div>
 		    	}	
 
-		      {needPassword &&
-		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 
-							<ValidatorForm
-								ref="form"
-								onError={errors => console.log(errors)}>
-			        
-								<TextValidator
-					  			required
-			    	  		style={{width: "100%"}}
-									id={endpoint.side+"LoginUsername"}
-									label="Username"
-									value={this.state.username}
-									onChange={this.handleChange('username')}
-									margin="normal"
-									variant="outlined"
-									autoFocus={(this.state.url !== 'sftp://') }
-									onKeyPress={(e) => {
-									if (e.key === 'Enter') {
-										this.handleClick()
-										}
-									}}
-								/>
 
-			        	<TextValidator
-					  			required
-			    	  		style={{width: "100%"}}
-									id={endpoint.side+"LoginPassword"}
-									label="Password"
-									type="password"
-									value={this.state.password}
-									onChange={this.handleChange('password')}
-									margin="normal"
-									variant="outlined"
-									onKeyPress={(e) => {
-									if (e.key === 'Enter') {
-										this.handleClick()
-										}
-									}}
-			        	/>
-
-							</ValidatorForm>
-			      </div>
-					}
-					
-					<Button 
-						id={endpoint.side + "LoginAuth"}  
-						ref={input => this.inputElement = input} 
-						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+					<NextButton
+						id={endpoint.side + "LoginAuth"}
+						ref={input => this.inputElement = input}
+						// style={{width: "30%", textAlign: "center", marginLeft:"69%", marginBottom: "1%",
+						// 	["@media only screen and (max-width: 500px)"]:{
+						// 		width: "100%"
+						// 	}
+						// }}
 						onClick={authFunction}
 						color="primary"
 						variant="contained">
 						Next
-					</Button>
+					</NextButton>
 		    	</div>
 
 		    }

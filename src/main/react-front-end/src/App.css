@@ -417,3 +417,201 @@ queueHeaderCell button {
 .mobileCell .queueBar {
   max-width: 75%;
 }
+
+/**************************************/
+/*                                    */
+/*  For Transfer/TransferComponent.js */
+/*                                    */
+/**************************************/
+
+.outeractionContainer{
+  /*display: flex;*/
+  /*flex-direction: row;*/
+  justify-content: center;
+  /*height: auto;*/
+  margin-top: -10vh;
+  /*width: 100vw;*/
+}
+
+.actionContainer{
+  margin-top: -200px;
+  margin-bottom: 10px;
+}
+
+.wrapperBox{
+  background-color: white;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  height: auto;
+  /*min-height: 100% !important;*/
+  position: relative;
+  box-shadow: 0 2px 2px gray;
+  border: solid 1px #172753;
+}
+
+.compactSwitch{
+  /*width: 200px;*/
+  /*right: 1%;*/
+  /*position: absolute;*/
+  margin-left: 50px;
+}
+
+.wrapperBoxLabel{
+  color: black;
+  font-size: 12px;
+}
+
+.innerBox{
+  margin-top: 20px;
+  padding: 20px;
+}
+
+#sendFromRightToLeft{
+  padding: 15px;
+  margin-right: 10px;
+}
+
+#sendFromLeftToRight{
+  padding: 15px;
+  margin-left: 10px;
+}
+
+.boxHeader{
+  padding: 50px 25px;
+  background-color: #172753;
+  color: white;
+  min-height: 300px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.transferGroup{
+  border: solid 1px #172753;
+  border-radius: 10px;
+  width: auto;
+  height: auto;
+  overflow: hidden;
+  /*margin-top: 30px;*/
+}
+
+.browseContainer{
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.browseButton{
+  flex-grow: 1;
+  text-align: left;
+  justify-content: flex-start;
+  width: 100%;
+  font-size: 12px;
+  /*padding-left: 30%;*/
+}
+
+.browseIcon{
+  margin-right: 10px;
+  font-size: 16px;
+  width: 20px;
+  text-align: left;
+}
+
+
+.transferSettings{
+  border-top: solid 1px #172753;
+  border-bottom: solid 1px #172753;
+  color: #172753;
+  padding: 10px;
+  margin-bottom: 20px;
+  /*border-radius: 5px;*/
+  background-color: #F2F2F2;
+}
+
+.searchTextfield{
+  background-color: white;
+}
+
+
+@media only screen and (min-width: 800px){
+  .boxHeader{
+    text-align: center;
+  }
+}
+
+.errorConsole{
+  text-align: left;
+  border: solid 1px #172753;
+  height: 125px;
+  overflow: scroll;
+  word-wrap: break-word;
+  padding: 5px;
+  border-radius: 10px;
+  margin-bottom: 2%;
+  box-shadow: inset 0 1px 1px gray;
+}
+
+/*.instructions{*/
+/*  font-size: 16px;*/
+/*  box-shadow: 1px 1px 1px gray;*/
+/*  border: solid 1px #172753;*/
+/*  height: 125px;*/
+/*  padding: 1% 1%;*/
+/*  border-radius: 10px;*/
+/*}*/
+
+.terminalContainer{
+  margin-bottom: 50px;
+
+}
+
+/**************************************/
+/*                                    */
+/*  For EndpointAuthenticateComponent.js */
+/*                                    */
+/**************************************/
+
+.authenticationContainer{
+  flex-grow: 1;
+  flex-direction: column;
+}
+
+/**************************************/
+/*                                    */
+/*  For Terminal */
+/*                                    */
+/**************************************/
+
+.terminalBar{
+  background-color: #337ab7;
+}
+
+.terminalWrapper{
+  height:300px;
+  padding-left: 5px;
+  padding-top: 5px;
+  background-color: black;
+  color:white;
+  font-family: courier, serif;
+  overflow: scroll;
+}
+
+
+/**************************************/
+/*                                    */
+/*  For Account */
+/*                                    */
+/**************************************/
+
+.accCardStyle{
+  width: 450px;
+  border: 2px #74bdf1 solid;
+  border-radius: 1%;
+  align-self: center;
+}
+
+@media only screen and (max-width: 640px) {
+  .accCardStyle{
+    align-self: flex-start;
+  }
+}
