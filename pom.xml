@@ -228,6 +228,11 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.jcraft</groupId>
+            <artifactId>jsch</artifactId>
+            <version>0.1.55</version>
+        </dependency>
         <!-- Cache loader for uploads -->
         <dependency>
             <groupId>com.google.guava</groupId>

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/gsiftp/")
+@RequestMapping("/api/gridftp/")
 public class GridFtpController extends EndpointBaseController{
     @Autowired
     private GridFtpService gridftpService;
