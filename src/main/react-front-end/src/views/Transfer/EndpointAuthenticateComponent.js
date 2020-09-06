@@ -285,7 +285,8 @@ export default class EndpointAuthenticateComponent extends Component {
 							uri: endpoint.uri,
 							login: true,
 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
-							side: endpoint.side
+							side: endpoint.side,
+							oauth: true
 						}
 						loginSuccess(endpointSet);
 					}}>
@@ -316,7 +317,8 @@ export default class EndpointAuthenticateComponent extends Component {
 						uri: endpoint.uri,
 						login: true,
 						credential: {name: cred.name, tokenSaved: false, token: cred.token},
-						side: endpoint.side
+						side: endpoint.side,
+						oauth: true
 					}
 					loginSuccess(endpointSet);
 				}}>

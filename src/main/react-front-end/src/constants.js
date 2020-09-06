@@ -80,9 +80,9 @@ export const GET_USERS_ENDPOINT = "admin/get-users";
 export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
-export const DROPBOX_TYPE = "dropbox:///";
+export const DROPBOX_TYPE = "dropbox:/";
 export const GOOGLEDRIVE_TYPE = "googledrive:/";
-export const BOX_TYPE = "box:///";
+export const BOX_TYPE = "box:/";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";

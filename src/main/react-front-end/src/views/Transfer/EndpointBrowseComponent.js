@@ -97,7 +97,9 @@ export default class EndpointBrowseComponent extends Component {
 			searchText: "",
 			ignoreCase : false,
 			regex : false,
-			compact: store.getState().compactViewEnabled
+			compact: store.getState().compactViewEnabled,
+			oauth: false,
+			name: ""
 		};
 
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
@@ -326,6 +328,7 @@ export default class EndpointBrowseComponent extends Component {
 
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
+		// console.log(endpoint);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
@@ -550,17 +553,13 @@ export default class EndpointBrowseComponent extends Component {
 	          </DialogActions>
 	        </Dialog>
 			<div style={{display: "flex",alighSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
-				{/*<Breadcrumb style={{float: "left", backgroundColor: "#d9edf7", whiteSpace:"nowrap"}}>*/}
-				{/*  <Breadcrumb.Item key={endpoint.uri} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(0)}>{endpoint.uri}</Button></Breadcrumb.Item>*/}
-				{/*  {directoryPath.map((item, index) => <Breadcrumb.Item key={item+index} style={{display: "inline-block"}}><Button style={{padding: "0px", margin: "0px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Button></Breadcrumb.Item>)}*/}
-				{/*</Breadcrumb>*/}
 				<Breadcrumbs style={{whiteSpace:"nowrap", padding: "3%"}}>
 					<Link key={endpoint.uri} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(0)}>
-						{endpoint.uri}
+						{endpoint.oauth ? endpoint.uri + endpoint.credential.name.split(" ")[1]: endpoint.uri}
 					</Link>
 					{directoryPath.map((item, index) => <Link key={item+index} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Link>)}
 				</Breadcrumbs>
-				<div style={{paddingLeft: "50%"}}>
+				<div style={{paddingLeft: "30%"}}>
 					<FormControlLabel
 						className={"compactSwitch"}
 						control={
