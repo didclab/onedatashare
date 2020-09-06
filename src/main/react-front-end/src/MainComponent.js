@@ -132,7 +132,7 @@ export default class MainComponent extends Component {
               />
             }
 
-            {!isLoggedIn &&
+            {isLoggedIn &&
               <Route exact path='/queue'
                 render={(props) =>
                   <QueueComponent {...props} />
