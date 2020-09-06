@@ -6,10 +6,14 @@ const QueueTableBodyView = ({
                                 loading,
                                 populateRows
                             }) => {
+    const [timeout,setTime] = React.useState(false);
+    setTimeout(() => {
+        setTime(true)
+    },15000);
     return (
         <TableBody style={{height:'100%', display: "block"}}>
             { loading ?
-                <CircularProgress />
+                timeout ? '' : <CircularProgress/>
                 :
                 populateRows()
             }
