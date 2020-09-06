@@ -20,5 +20,12 @@
  ##**************************************************************
  */
 
+export const titleBlue = "#3f51b5";
 
-export const titleBlue = '#3f51b5';
+/*
+    Primary Theme Colors Hexcode Values
+*/
+
+export const BLUE = "#172753";
+export const GREY = "#f2f2f2";
+export const WHITE = "#ffffff";

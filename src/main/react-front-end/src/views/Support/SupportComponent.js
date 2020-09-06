@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,37 +23,37 @@
 
 /*
   Note - All commented code is for the custom integration that was developed for the support page.
-  This was replaced by a free Freshdesk widget just before the release as a workaround for free Freshdesk API restrictions 
+  This was replaced by a free Freshdesk widget just before the release as a workaround for free Freshdesk API restrictions
 */
 
 import React, { Component } from 'react';
-
 import { submitIssue } from '../../APICalls/APICalls';
 import {store} from '../../App';
 
-// import Card from '@material-ui/core/Card';
-// import CardHeader from '@material-ui/core/CardHeader';
-// import TextField from '@material-ui/core/TextField';
-// import Button from '@material-ui/core/Button';
-// import LinearProgress from '@material-ui/core/LinearProgress';
+import Card from '@material-ui/core/Card';
+import CardHeader from '@material-ui/core/CardHeader';
+import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
+import LinearProgress from '@material-ui/core/LinearProgress';
 import { eventEmitter } from "../../App";
-// import ReCAPTCHA from 'react-google-recaptcha';
+import ReCAPTCHA from 'react-google-recaptcha';
+import Box from '@material-ui/core/Box';
 
-
-// import { ValidatorForm } from 'react-material-ui-form-validator';
+import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
-// import FormControlLabel from "@material-ui/core/FormControlLabel";
-// import Switch from "@material-ui/core/Switch";
-// import Typography from "@material-ui/core/Typography";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Switch from "@material-ui/core/Switch";
+import Typography from "@material-ui/core/Typography";
 import {Col, Panel} from "react-bootstrap";
-import {Grid, Box, Container} from "@material-ui/core";
+import Logo from "./logo-blue.png";
+import './support_style.css';
 
 export default class SupportComponent extends Component{
 
   constructor(){
     super();
-    this.state = { 
-      captchaVerified : false, 
+    this.state = {
+      captchaVerified : false,
       captchaVerificationValue : null,
       email : (store.getState().email === "noemail" ? "" : store.getState().email)
     };
@@ -125,24 +125,31 @@ export default class SupportComponent extends Component{
         eventEmitter.emit("errorOccured", "Please verify you are not a robot!");
   }
 
-
   render(){
-    
-    // const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
-    // const divStyle = { margin : '2% 5%' };
-    // const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
+
+    const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
+    const divStyle = { margin : '2% 5%', alignItems: "center" };
+    const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
     return(
-        <div className={"outeractionContainer"}>
-          <Grid container direction={"column"} justify={"center"}>
-            <Box className={"boxHeader"}>
-              <p >
-                Report an Issue
-              </p>
-            </Box>
-            <Container className={"actionContainer"}>
+        <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', textAlign: 'center'}} >
+          <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
+            <Box boxShadow={3} style={{borderRadius: "8px", backgroundColor: "#fff"}}>
+              {/* <Panel.Heading>
+                <h4 style={{ textAlign: 'center' }}>
+                  Report an Issue
+                </h4>
+              </Panel.Heading> */}
+              <div style={divStyle}>
+                <img src={Logo} style={{width: "20%"}}/>
+              </div>
+              <Typography component="h1" variant="h4" align="center">
+              <div style={divStyle}>
+                <b style={{color: "#172753"}}>Report an Issue</b>
+                </div>
+              </Typography>
 
-                {/* <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
+              <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
@@ -150,26 +157,29 @@ export default class SupportComponent extends Component{
                     label = 'Name'
                     name = 'name'
                     onChange = {this.handleChange}
-                    style = {{ marginRight : '5%', width :'30%' }}
+                    style = {{ marginRight : '5%', width :'32.4%' }}
+                    variant="outlined"
                   />
 
                   <TextField
                     required
-                    label = 'Email Address'
+                    label = 'Email'
                     name = 'email'
                     value = { this.state.email }
                     onChange = {this.handleChange}
-                    style = {{ marginRight : '5%', width :'30%' }}
+                    style = {{ width :'32.4%' }}
+                    variant="outlined"
                   />
                 </div>
 
                 <div style={divStyle}>
                   <TextField
                     required
-                    label = 'Subject'
+                    label = 'Subject&nbsp;'
                     name = 'subject'
                     onChange = {this.handleChange}
                     style = {{ width :'70%' }}
+                    variant="outlined"
                   />
                 </div>
 
@@ -178,28 +188,30 @@ export default class SupportComponent extends Component{
                     required
                     multiline
                     rows="6"
-                    label="Issue Description"
+                    label="Issue"
                     name="description"
                     onChange = {this.handleChange}
                     style={{ width : '70%' }}
+                    helperText="Enter Issue Description"
+                    variant="outlined"
                   />
                 </div>
 
-                <div style={ captchaStyle }>
+                {/* <div style={ captchaStyle }>
                     <ReCAPTCHA
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                       onChange={this.handleCaptchaEvent}
                       ref = { r => this.captchaRef = r}
                     />
-                </div>
+                </div>  */}
 
 
                 <div id="progress-bar" style={{ marginLeft : '19%', marginRight : '19%', visibility : 'hidden' }}>
                   <LinearProgress />
                 </div>
 
-                <div style={{marginLeft : '5%', marginRight : '5%', marginTop : '1%', marginBottom : '2%'}}>
-                  <Button type="submit" size="medium" variant="contained" color="primary" style={{ width : '70%' }}>
+                <div style={{marginLeft : '5%', marginRight : '5%', marginTop : '1.5%', marginBottom : '2%'}}>
+                  <Button type="submit" size="large" variant="contained" color="primary">
                     Submit
                   </Button>
                 </div>
@@ -208,31 +220,10 @@ export default class SupportComponent extends Component{
                             textAlign : 'center', paddingTop : '1%', paddingBottom : '1%', visibility : 'hidden'}}>
                 </div>
 
-              </ValidatorForm> */}
+              </ValidatorForm>
 
-                <Box className={"wrapperBox"}>
-                  <Box id="feshdesk-submit-form" className={"innerBox"} >
-                    <script type="text/javascript" src="http://assets.freshdesk.com/widget/freshwidget.js"></script>
-                    <style type="text/css" media="screen, projection">
-                      @import url(http://assets.freshdesk.com/widget/freshwidget.css);
-                    </style>
-                    <iframe
-                        title="Feedback Form"
-                        class="freshwidget-embedded-form"
-                        id="freshwidget-embedded-form"
-                        src="https://onedatashare.freshdesk.com/widgets/feedback_widget/new?&widgetType=embedded&formTitle=&submitTitle=Submit&submitThanks=Thanks+for+your+feedback&screenshot=No&searchArea=no"
-                        scrolling="no"
-                        height="500px"
-                        width="100%"
-                        frameborder="0" >
-                    </iframe>
-                  </Box>
-                </Box>
-            </Container>
-
-
-          </Grid>
-
+            </Box>
+          </Col>
         </div>
     );
   }

@@ -41,6 +41,7 @@ import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 // import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
+import Endpoint_DB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
@@ -54,13 +55,11 @@ export default class MainComponent extends Component {
     super(props);
     this.state = {
       isLoggedIn: store.getState().login,
-      // isLoggedIn: true,
       admin: store.getState().admin,
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
         isLoggedIn: store.getState().login,
-        // isLoggedIn: true,
         admin: store.getState().admin
       });
     });
@@ -110,6 +109,12 @@ export default class MainComponent extends Component {
             <Route exact path="/support"
               render={() =>
                 <SupportComponent />
+              }
+            />
+
+            <Route exact path="/endpoint_db"
+              render={() =>
+                <Endpoint_DB />
               }
             />
 
@@ -170,12 +175,6 @@ export default class MainComponent extends Component {
                 }
               />
             }
-
-						{/*
-							(isLoggedIn) &&
-              	<h1 to='/transfer'>Page Not Found</h1>
-							
-						*/}
 
             {!isLoggedIn &&
               <Route render={() => <Redirect to="/" />} />
