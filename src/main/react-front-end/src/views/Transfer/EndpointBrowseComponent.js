@@ -555,7 +555,8 @@ export default class EndpointBrowseComponent extends Component {
 			<div style={{display: "flex",alighSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
 				<Breadcrumbs style={{whiteSpace:"nowrap", padding: "3%"}}>
 					<Link key={endpoint.uri} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(0)}>
-						{endpoint.oauth ? endpoint.uri + endpoint.credential.name.split(" ")[1]: endpoint.uri}
+						{/*{endpoint.oauth ? endpoint.uri + endpoint.credential.name.split(" ")[1]: endpoint.uri}*/}
+						{endpoint.uri}
 					</Link>
 					{directoryPath.map((item, index) => <Link key={item+index} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Link>)}
 				</Breadcrumbs>
