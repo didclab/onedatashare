@@ -227,14 +227,6 @@
             <version>6.14.3</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- Cache loader for uploads -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>19.0</version>
-        </dependency>
-
         <!-- JWT and spring security dependencies start -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
