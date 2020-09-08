@@ -127,6 +127,8 @@ export default class UserAccountComponent extends Component {
 		else {
 			changePassword(oldPass, newPass, confPass, (hash) => {
 				console.debug(`Password change successful`);
+				//if password change is successful, close the modal
+				this.toggleModalClose();
 			}, (error) => {
 				if (error && error.response && error.response.data && error.response.data.message) {
 					eventEmitter.emit("errorOccured", error.response.data.message);
