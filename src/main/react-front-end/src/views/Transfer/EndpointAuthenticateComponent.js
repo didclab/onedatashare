@@ -286,10 +286,11 @@ export default class EndpointAuthenticateComponent extends Component {
 							login: true,
 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
 							side: endpoint.side,
-							oauth: true
 						}
 						loginSuccess(endpointSet);
-					}}>
+					}}
+						  ContainerComponent="div"
+				>
 					<ListItemIcon>
 						<DataIcon/>
 					</ListItemIcon>

@@ -71,7 +71,7 @@ const QueueTableHeaderView = ({
                               }) => {
     let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
     return (
-        <TableHead>
+        <TableHead >
             { adminPg && <AdminHistoryTools
                 customToolbar={customToolbar}
                 order={order}
@@ -83,7 +83,7 @@ const QueueTableHeaderView = ({
                 queueFunc={queueFunc}
             />
             }
-            <TableRow>
+            <TableRow >
                 <Hidden mdDown>
                     {headerCells}
                     <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell>

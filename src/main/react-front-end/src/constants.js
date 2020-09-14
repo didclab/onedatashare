@@ -111,7 +111,7 @@ export const sideRight = "right";
 
 export const validPasswordLength = 6;
 
-export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
+export const ODS_S3_BUCKET = "https://ods-image.s3.us-east-2.amazonaws.com/";
 
 //images
 // export const fastImage = ODS_S3_BUCKET + 'fast.png';

@@ -36,7 +36,7 @@ const QueueView = ({
     return (
         <div className="QueueView">
             <TableContainer component={Paper}>
-                <Table style={{display: "block"}}>
+                <Table >
                     <QueueTableHeaderView
                         adminPg={adminPg}
                         customToolbar={customToolbar}

@@ -11,7 +11,7 @@ const QueueTableBodyView = ({
         setTime(true)
     },15000);
     return (
-        <TableBody style={{height:'100%', display: "block"}}>
+        <TableBody style={{height:'100%'}}>
             { loading ?
                 timeout ? '' : <CircularProgress/>
                 :

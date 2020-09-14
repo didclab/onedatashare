@@ -14,10 +14,11 @@ const BrowseButton = (props) => {
     });
 
     const [mouseOn, setMouse] = React.useState(null);
-    const hoverOpen = (event) => {
+    const [label, setLabel] = React.useState("");
+    const hoverOpen = (event, label) => {
         setMouse(event.currentTarget);
         // console.log(mouseOn);
-        // console.log(event.currentTarget);
+        setLabel(label);
     };
     const hoverClose = () => {
         console.log(mouseOn);
@@ -30,23 +31,23 @@ const BrowseButton = (props) => {
     if(!props.buttongroup){
         return(
             <Grid item xs={1}>
-                <ButtonLabel open={isMouseOn}
-                             anchorEl={mouseOn}
-                             placement={"top"}
-                             transition
-                >
-                    {props.label}
-                </ButtonLabel>
                 <Button
                     id={props.id}
                     style={props.style}
                     disabled={props.disabled}
                     onClick={props.click}
-                    onMouseOver={hoverOpen}
+                    onMouseOver={(event, label) => hoverOpen(event, props.label)}
                     onMouseOut={hoverClose}
                 >
                     {props.buttonIcon}
                 </Button>
+                <ButtonLabel open={isMouseOn}
+                             anchorEl={mouseOn}
+                             placement={"top"}
+                             transition
+                >
+                    {label}
+                </ButtonLabel>
             </Grid>
         );
     }else{
@@ -58,20 +59,20 @@ const BrowseButton = (props) => {
                             id={props.id[index]}
                             style={props.style[index]}
                             onClick={props.click[index]}
-                            onMouseOver={hoverOpen}
+                            onMouseOver={(event, label) => hoverOpen(event, props.label[index])}
                             onMouseOut={hoverClose}
                         >
-                            <ButtonLabel open={isMouseOn}
-                                         anchorEl={mouseOn}
-                                         placement={"top"}
-                                         transition
-                            >
-                                {props.label[index]}
-                            </ButtonLabel>
                             {props.buttonIcon[index]}
                         </Button>
                     )
                 })}
+                <ButtonLabel open={isMouseOn}
+                             anchorEl={mouseOn}
+                             placement={"top"}
+                             transition
+                >
+                    {label}
+                </ButtonLabel>
             </ButtonGroup>
         );
     }

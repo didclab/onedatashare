@@ -38,7 +38,54 @@
 
 .navbar_navbar{
   width: 100%;
+  background-color: black;
 }
+
+.leftNav{
+  display: flex;
+  flex-grow: 1;
+}
+
+.rightNav{
+  display: flex;
+  justify-content: flex-end;
+  margin-left: auto;
+  width: 50%;
+}
+
+.navbarHome{
+  color: #F2F2F2;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0 3%;
+}
+
+.navbarHome:hover{
+  color: lightgray;
+  text-decoration: none;
+}
+
+.navbarHome:visited .navbarHome:active .navbarHome:link{
+  text-decoration: none;
+}
+
+.navbarButton{
+  color: lightgray;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0 5%;
+}
+.navbarButton:hover{
+  color: darkgray;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.navbarButton:visited .navbarButton:active .navbarButton:link{
+  text-decoration: none;
+}
+
+
 
 .homepage_section{
   width: 100%;
