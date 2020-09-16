@@ -25,7 +25,7 @@ const AdminDropdown = (props) => {
                     <p className={"navbarButton"}>Admin</p>
                 </ListItem>
                 <Collapse in={open}>
-                    <List style={{backgroundColor: "gray"}}>
+                    <List style={{backgroundColor: "#505c6b"}}>
                         <ListItem>
                             <a id="NavAdminClients" href={userListPageUrl} className={"navbarButton"}>
                                 User Information

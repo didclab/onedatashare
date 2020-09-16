@@ -54,14 +54,14 @@
 }
 
 .navbarHome{
-  color: #F2F2F2;
+  color: #ccd6e3;
   text-decoration: none;
   display: inline-block;
   margin: 0 3%;
 }
 
 .navbarHome:hover{
-  color: lightgray;
+  color: #F2F2F2;
   text-decoration: none;
 }
 
@@ -70,13 +70,13 @@
 }
 
 .navbarButton{
-  color: lightgray;
+  color: #ccd6e3;
   text-decoration: none;
   display: inline-block;
   margin: 0 5%;
 }
 .navbarButton:hover{
-  color: darkgray;
+  color: #F2F2F2;
   text-decoration: none;
   cursor: pointer;
 }

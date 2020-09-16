@@ -81,7 +81,7 @@ class App extends Component {
 
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
-          style={{marginTop: "20px"}}
+          style={{marginTop: "20px", zIndex: 1500}}
           open={open}
           onClose={this.handleClose}
           ContentProps={{

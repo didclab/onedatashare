@@ -39,14 +39,14 @@ import zIndex from "@material-ui/core/styles/zIndex";
 const styles = makeStyles((theme) => ({
 	appBar: {
 		position: "relative",
-		backgroundColor: "black",
+		backgroundColor: "#323840",
 		zIndex: 1400
 	},
 	drawer: {
 		flexShrink: 0,
 	},
 	drawerContainer: {
-		backgroundColor: "black",
+		backgroundColor: "#323840",
 		overflow: "auto"
 	}
 }));
@@ -94,13 +94,13 @@ const NavbarComponent = () => {
 						<a href={"/"} color={"inherit"} className={"navbarHome"}><h4>OneDataShare</h4></a>
 
 						<Hidden xsDown>
-							{!(login) &&
+							{(login) &&
 
 							<Box display="flex" width={"50%"}>
 								<a href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</a>
 								<a href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</a>
 
-								{!admin===true &&
+								{admin===true &&
 								<AdminDropdown mobile={false}/>
 								}
 
@@ -131,28 +131,28 @@ const NavbarComponent = () => {
 						</Box>
 					</Hidden>
 					<Hidden smUp>
-						<IconButton onClick={toggleMobileMenu} style={{color: "white", padding: "5px"}}>
-							<MenuIcon/>
-						</IconButton>
+						<Button onClick={toggleMobileMenu} >
+							<MenuIcon style={{color: "#ccd6e3", fontSize: "20px" }}/>
+						</Button>
 					</Hidden>
 				</Toolbar>
 			</AppBar>
-			<Hidden xsUp>
-			<Drawer anchor={"top"}  open={mobileMenu} onClose={toggleMobileMenu} className={classes.drawer}>
+			<Hidden smUp>
+			<Drawer anchor={"top"} open={mobileMenu} onClose={toggleMobileMenu} className={classes.drawer}>
 				<Toolbar/>
 				<div className={classes.drawerContainer}>
 					<List>
-						{!login &&
+						{login &&
 						<ListItem>
 							<a href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</a>
 						</ListItem>
 						}
-						{!login &&
+						{login &&
 							<ListItem>
 								<a href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</a>
 							</ListItem>
 						}
-						{!(login && admin) &&
+						{(login && admin) &&
 							<AdminDropdown mobile={true}/>
 						}
 						{login &&
@@ -195,167 +195,167 @@ const NavbarComponent = () => {
 
 };
 
-class Navibar extends Component {
-
-	constructor(props) {
-		super(props);
-		this.state = {
-			login: store.getState().login,
-			// login: true,
-			email: store.getState().email,
-			admin: store.getState().admin,
-			mobileMenu: false
-		};
-
-		this.unsubscribe = store.subscribe(()=>{
-			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
-		});
-
-	}
-
-	componentWillUnmount() {
-		this.unsubscribe();
-	}
-
-	Navbar = () => styled(withTheme(AppBar))(props =>({
-		backgroundColor: "black",
-		zIndex: props.theme.zIndex.drawer + 1,
-	}))
-
-
-	toggleMobileMenu(){
-		console.log(this.state.mobileMenu);
-		this.setState((prevState) => ({
-			mobileMenu: !prevState.mobileMenu
-		}));
-	}
-
-
-	render() {
-		const Navigation = this.Navbar();
-		const theme = createMuiTheme();
-		const classes = styles();
-		return (
-			<ThemeProvider theme={theme}>
-				<AppBar id="navbar" position="fixed" className={classes.appBar}>
-					<Toolbar style={{marginLeft: "1%"}}>
-						<Grid className={"leftNav"} alignItems={"center"}>
-							<a href={"/"} color={"inherit"} className={"navbarHome"}><h4>OneDataShare</h4></a>
-
-							<Hidden xsDown>
-								{!(this.state.login) &&
-
-								<Box display="flex" width={"50%"}>
-									<a href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</a>
-									<a href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</a>
-
-									{!this.state.admin===true &&
-									<AdminDropdown/>
-									}
-
-
-								</Box>
-								}
-							</Hidden>
-						</Grid>
-						<Hidden xsDown>
-							<Box className={"rightNav"}>
-								{this.state.login &&
-								<a id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</a>
-								}
-								{!this.state.login &&
-								<a id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</a>
-								}
-								{!this.state.login &&
-								<a id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</a>
-								}
-								{this.state.login &&
-								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
-									<span>Log out</span>
-								</p>}
-								<a href="/support" className={"navbarButton"}>
-									Support
-								</a>
-								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
-							</Box>
-						</Hidden>
-						<Hidden smUp>
-							<IconButton onClick={() => this.toggleMobileMenu()} style={{color: "white", padding: "5px"}}>
-								<MenuIcon/>
-							</IconButton>
-						</Hidden>
-					</Toolbar>
-				</AppBar>
-				<Drawer variant={"persistent"} open={this.state.mobileMenu} onClose={() => this.toggleMobileMenu()}>
-					{this.state.login &&
-					<a id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</a>
-					}
-					{!this.state.login &&
-					<a id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</a>
-					}
-					{!this.state.login &&
-					<a id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</a>
-					}
-					{this.state.login &&
-					<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
-						<span>Log out</span>
-					</p>}
-					<a href="/support" className={"navbarButton"}>
-						Support
-					</a>
-				</Drawer>
-			</ThemeProvider>
-
-
-			// <Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar" >
-			// 	<Navbar.Header >
-			// 		<Navbar.Brand>
-			// 			<Link to="/">OneDataShare</Link>
-			// 		</Navbar.Brand>
-			// 		<Navbar.Toggle />
-			// 	</Navbar.Header>
-			// 	<Navbar.Collapse>
-			// 		{(this.state.login) &&
-			// 		<Nav>
-			// 			<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
-			// 			<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
-			//
-			// 			{this.state.admin===true &&
-			// 			<NavDropdown title="Admin" id="NavDropdown">
-			// 				<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
-			// 					User Information
-			// 				</NavItem>
-			// 				<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>Transfer History</NavItem>
-			// 				<NavItem id="NavAdminSendNotifications" componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
-			// 			</NavDropdown>
-			// 			}
-			//
-			// 		</Nav>}
-			//
-			// 		<Nav pullRight>
-			// 			{this.state.login &&
-			// 			<NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
-			// 			}
-			// 			{!this.state.login &&
-			// 			<NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
-			// 			}
-			// 			{!this.state.login &&
-			// 			<NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
-			// 			}
-			// 			{this.state.login &&
-			// 			<NavItem id="NavLogout" onClick={()=>{logout()}}>
-			// 				<span>Log out</span>
-			// 			</NavItem>}
-			// 			<NavItem href="/support">
-			// 				Support
-			// 			</NavItem>
-			// 			{/*<NavItem href={endpoint_db} to={endpoint_db} id="NavEndpoint">Authorization Database</NavItem>*/}
-			// 		</Nav>
-			// 	</Navbar.Collapse>
-			// </Navbar>
-		);
-	}
-}
+// class Navibar extends Component {
+//
+// 	constructor(props) {
+// 		super(props);
+// 		this.state = {
+// 			login: store.getState().login,
+// 			// login: true,
+// 			email: store.getState().email,
+// 			admin: store.getState().admin,
+// 			mobileMenu: false
+// 		};
+//
+// 		this.unsubscribe = store.subscribe(()=>{
+// 			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
+// 		});
+//
+// 	}
+//
+// 	componentWillUnmount() {
+// 		this.unsubscribe();
+// 	}
+//
+// 	Navbar = () => styled(withTheme(AppBar))(props =>({
+// 		backgroundColor: "black",
+// 		zIndex: props.theme.zIndex.drawer + 1,
+// 	}))
+//
+//
+// 	toggleMobileMenu(){
+// 		console.log(this.state.mobileMenu);
+// 		this.setState((prevState) => ({
+// 			mobileMenu: !prevState.mobileMenu
+// 		}));
+// 	}
+//
+//
+// 	render() {
+// 		const Navigation = this.Navbar();
+// 		const theme = createMuiTheme();
+// 		const classes = styles();
+// 		return (
+// 			<ThemeProvider theme={theme}>
+// 				<AppBar id="navbar" position="fixed" className={classes.appBar}>
+// 					<Toolbar style={{marginLeft: "1%"}}>
+// 						<Grid className={"leftNav"} alignItems={"center"}>
+// 							<a href={"/"} color={"inherit"} className={"navbarHome"}><h4>OneDataShare</h4></a>
+//
+// 							<Hidden xsDown>
+// 								{!(this.state.login) &&
+//
+// 								<Box display="flex" width={"50%"}>
+// 									<a href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</a>
+// 									<a href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</a>
+//
+// 									{!this.state.admin===true &&
+// 									<AdminDropdown/>
+// 									}
+//
+//
+// 								</Box>
+// 								}
+// 							</Hidden>
+// 						</Grid>
+// 						<Hidden xsDown>
+// 							<Box className={"rightNav"}>
+// 								{this.state.login &&
+// 								<a id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</a>
+// 								}
+// 								{!this.state.login &&
+// 								<a id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</a>
+// 								}
+// 								{!this.state.login &&
+// 								<a id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</a>
+// 								}
+// 								{this.state.login &&
+// 								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
+// 									<span>Log out</span>
+// 								</p>}
+// 								<a href="/support" className={"navbarButton"}>
+// 									Support
+// 								</a>
+// 								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
+// 							</Box>
+// 						</Hidden>
+// 						<Hidden smUp>
+// 							<IconButton onClick={() => this.toggleMobileMenu()} style={{color: "white", padding: "5px"}}>
+// 								<MenuIcon/>
+// 							</IconButton>
+// 						</Hidden>
+// 					</Toolbar>
+// 				</AppBar>
+// 				<Drawer variant={"persistent"} open={this.state.mobileMenu} onClose={() => this.toggleMobileMenu()}>
+// 					{this.state.login &&
+// 					<a id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</a>
+// 					}
+// 					{!this.state.login &&
+// 					<a id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</a>
+// 					}
+// 					{!this.state.login &&
+// 					<a id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</a>
+// 					}
+// 					{this.state.login &&
+// 					<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
+// 						<span>Log out</span>
+// 					</p>}
+// 					<a href="/support" className={"navbarButton"}>
+// 						Support
+// 					</a>
+// 				</Drawer>
+// 			</ThemeProvider>
+//
+//
+// 			// <Navbar inverse collapseOnSelect fixedTop className="navbar_navbar" id="navbar" >
+// 			// 	<Navbar.Header >
+// 			// 		<Navbar.Brand>
+// 			// 			<Link to="/">OneDataShare</Link>
+// 			// 		</Navbar.Brand>
+// 			// 		<Navbar.Toggle />
+// 			// 	</Navbar.Header>
+// 			// 	<Navbar.Collapse>
+// 			// 		{(this.state.login) &&
+// 			// 		<Nav>
+// 			// 			<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
+// 			// 			<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
+// 			//
+// 			// 			{this.state.admin===true &&
+// 			// 			<NavDropdown title="Admin" id="NavDropdown">
+// 			// 				<NavItem id="NavAdminClients" componentClass={Link} to={userListPageUrl} href={userListPageUrl}>
+// 			// 					User Information
+// 			// 				</NavItem>
+// 			// 				<NavItem id="NavAdminHistory" componentClass={Link} to={historyPageUrl} href={historyPageUrl}>Transfer History</NavItem>
+// 			// 				<NavItem id="NavAdminSendNotifications" componentClass={Link} to={newNotifications} href={newNotifications}>Send Notifications</NavItem>
+// 			// 			</NavDropdown>
+// 			// 			}
+// 			//
+// 			// 		</Nav>}
+// 			//
+// 			// 		<Nav pullRight>
+// 			// 			{this.state.login &&
+// 			// 			<NavItem id="NavEmail" componentClass={Link} to={userPageUrl} href={userPageUrl} >{this.state.email}</NavItem>
+// 			// 			}
+// 			// 			{!this.state.login &&
+// 			// 			<NavItem id="NavSignIn" componentClass={Link} to={signInUrl} href={signInUrl}>Sign in</NavItem>
+// 			// 			}
+// 			// 			{!this.state.login &&
+// 			// 			<NavItem id="NavRegister" componentClass={Link} to={registerPageUrl} href={registerPageUrl}>Register</NavItem>
+// 			// 			}
+// 			// 			{this.state.login &&
+// 			// 			<NavItem id="NavLogout" onClick={()=>{logout()}}>
+// 			// 				<span>Log out</span>
+// 			// 			</NavItem>}
+// 			// 			<NavItem href="/support">
+// 			// 				Support
+// 			// 			</NavItem>
+// 			// 			{/*<NavItem href={endpoint_db} to={endpoint_db} id="NavEndpoint">Authorization Database</NavItem>*/}
+// 			// 		</Nav>
+// 			// 	</Navbar.Collapse>
+// 			// </Navbar>
+// 		);
+// 	}
+// }
 
 
 
