@@ -99,6 +99,11 @@
   display: flex;
 }
 
+.drawerContainer {
+  background-color: #323840;
+  overflow: auto
+}
+
 /***************************/
 /*                         */
 /*    For the Entire App   */
