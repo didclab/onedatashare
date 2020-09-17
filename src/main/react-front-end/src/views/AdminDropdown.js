@@ -27,19 +27,19 @@ const AdminDropdown = (props) => {
                 <Collapse in={open}>
                     <List style={{backgroundColor: "#505c6b"}}>
                         <ListItem>
-                            <a id="NavAdminClients" href={userListPageUrl} className={"navbarButton"}>
+                            <Link to={userListPageUrl} id="NavAdminClients" href={userListPageUrl} className={"navbarButton"}>
                                 User Information
-                            </a>
+                            </Link>
                         </ListItem>
                         <ListItem>
-                            <a id="NavAdminHistory" href={historyPageUrl} className={"navbarButton"}>
+                            <Link to={historyPageUrl} id="NavAdminHistory" href={historyPageUrl} className={"navbarButton"}>
                                 Transfer History
-                            </a>
+                            </Link>
                         </ListItem>
                         <ListItem>
-                            <a id="NavAdminSendNotifications" href={newNotifications} className={"navbarButton"}>
+                            <Link to={newNotifications} id="NavAdminSendNotifications" href={newNotifications} className={"navbarButton"}>
                                 Send Notifications
-                            </a>
+                            </Link>
                         </ListItem>
                     </List>
                 </Collapse>
@@ -62,6 +62,7 @@ const AdminDropdown = (props) => {
                 getContentAnchorEl={null}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 transformOrigin={{ vertical: "top", horizontal: "center" }}
+                style={{zIndex: 1401}}
             >
                 <MenuItem id="NavAdminClients" component={Link} to={userListPageUrl} href={userListPageUrl}>User Information</MenuItem>
                 <MenuItem id="NavAdminHistory" component={Link} to={historyPageUrl} href={historyPageUrl}>Transfer History</MenuItem>
