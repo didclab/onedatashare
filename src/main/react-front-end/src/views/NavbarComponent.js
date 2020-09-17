@@ -23,7 +23,7 @@
 
 import React, { Component, useState, useEffect } from 'react';
 import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
-import {AppBar, Button, IconButton, Toolbar, Grid, Hidden, styled, Box, Drawer, List, ListItem} from "@material-ui/core";
+import {AppBar, Button, IconButton, Toolbar, Grid, Hidden, styled, Box, Drawer, List, ListItem, Divider} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
 
 
@@ -135,6 +135,12 @@ class NavbarComponent extends Component {
 							<List>
 								{this.state.login &&
 								<ListItem>
+									<Link to={userPageUrl} id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
+								</ListItem>
+								}
+								<Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>
+								{this.state.login &&
+								<ListItem>
 									<Link to={transferPageUrl} href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 								</ListItem>
 								}
@@ -146,11 +152,7 @@ class NavbarComponent extends Component {
 								{(this.state.login && this.state.admin) &&
 								<AdminDropdown mobile={true}/>
 								}
-								{this.state.login &&
-								<ListItem>
-									<Link to={userPageUrl} id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
-								</ListItem>
-								}
+								<Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>
 								{!this.state.login &&
 								<ListItem>
 									<Link to={signInUrl} id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</Link>
