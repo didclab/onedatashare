@@ -25,7 +25,6 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import Grid from "@material-ui/core/Grid";
 import { openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth } from "../../APICalls/EndpointAPICalls";
 import { savedCredList } from "../../APICalls/APICalls";
 import {store} from "../../App";
@@ -37,7 +36,7 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { loadCSS } from 'fg-loadcss';
 import Icon from '@material-ui/core/Icon';
-import {makeStyles, styled} from "@material-ui/core/styles";
+import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
