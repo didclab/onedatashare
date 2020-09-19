@@ -36,18 +36,15 @@ import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
 import Code from '@material-ui/icons/Code';
-import {Button, ButtonGroup, FormControl, FormGroup , Grid, Container, Box, Breadcrumbs, Link, Popper} from '@material-ui/core';
+import {Button, Grid, Container, Box, Breadcrumbs, Link} from '@material-ui/core';
 
-// import {InputGroup} from "react-bootstrap";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import styled from "@material-ui/core/styles/styled";
 import Typography from "@material-ui/core/Typography";
-// import Tooltip from '@material-ui/core/Tooltip';
 
 import UploaderWrapper from "./UploaderWrapper.js";
 

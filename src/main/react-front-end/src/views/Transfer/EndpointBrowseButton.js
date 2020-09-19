@@ -1,5 +1,5 @@
 import React from "react";
-import {Button, Popper, Grid, Typography, ButtonGroup} from '@material-ui/core';
+import {Button, Popper, Grid, ButtonGroup} from '@material-ui/core';
 import styled from "@material-ui/core/styles/styled";
 
 const BrowseButton = (props) => {
