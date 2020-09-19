@@ -21,8 +21,7 @@
  */
 
 
-import React, { Component, useState } from 'react';
-import { Panel, Col, Row, Glyphicon } from 'react-bootstrap';
+import React, { Component } from 'react';
 
 import { store } from '../../App';
 import BrowseModuleComponent from './BrowseModuleComponent';
@@ -55,7 +54,6 @@ import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeT
 
 import { eventEmitter } from "../../App.js";
 import { gridFullWidth, gridHalfWidth} from "../../constants";
-import Slider from '@material-ui/lab/Slider';
 
 import Switch from '@material-ui/core/Switch';
 
@@ -64,7 +62,7 @@ import  Terminal  from '../Terminal';
 
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
-import {useTheme, styled} from "@material-ui/core/styles";
+import {styled} from "@material-ui/core/styles";
 
 export default class TransferComponent extends Component {
 
