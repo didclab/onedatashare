@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Box, Menu, MenuItem, Accordion, AccordionDetails, AccordionSummary, Typography, List, ListItem, Collapse} from "@material-ui/core";
+import {Box, Menu, MenuItem, List, ListItem, Collapse} from "@material-ui/core";
 import { Link } from 'react-router-dom';
 import { userListPageUrl, historyPageUrl, newNotifications } from '../constants';
 
