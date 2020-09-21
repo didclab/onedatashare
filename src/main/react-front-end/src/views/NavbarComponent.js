@@ -130,43 +130,43 @@ class NavbarComponent extends Component {
 						<div className={"drawerContainer"}>
 							<List>
 								{this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={userPageUrl} id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
 								</ListItem>
 								}
-								<Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>
+								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
 								{this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={transferPageUrl} href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 								</ListItem>
 								}
 								{this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={queuePageUrl} href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 								</ListItem>
 								}
 								{(this.state.login && this.state.admin) &&
 								<AdminDropdown mobile={true}/>
 								}
-								<Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>
+								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
 								{!this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={signInUrl} id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</Link>
 								</ListItem>
 								}
 								{!this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={registerPageUrl} id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</Link>
 								</ListItem>
 								}
 								{this.state.login &&
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
 										<span>Log out</span>
 									</p>
 								</ListItem>
 								}
-								<ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={"/support"} href="/support" className={"navbarButton"}>
 										Support
 									</Link>
