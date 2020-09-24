@@ -343,14 +343,19 @@ export default class AccountControlComponent extends Component {
           )}
           {loading && <LinearProgress />}
 
-          {isSmall && this.getInnerCard()}
-          {!isSmall && (
             <Card elevation="3">
-              <CardContent style={{ padding: "3em" }}>
-                {this.getInnerCard()}
-              </CardContent>
+                <CardContent style={{ padding: "3em" }}>
+                    {this.getInnerCard()}
+                </CardContent>
             </Card>
-          )}
+          {/*{isSmall && this.getInnerCard()}*/}
+          {/*{!isSmall && (*/}
+          {/*  <Card elevation="3">*/}
+          {/*    <CardContent style={{ padding: "3em" }}>*/}
+          {/*      {this.getInnerCard()}*/}
+          {/*    </CardContent>*/}
+          {/*  </Card>*/}
+          {/*)}*/}
         </div>
       </div>
     );
