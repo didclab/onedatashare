@@ -21,7 +21,7 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType } from '../constants';
+import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType, version } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
@@ -168,19 +168,19 @@ export async function getDownload(uri, credential) {
 
 
 export async function openDropboxOAuth() {
-	openOAuth("/api/oauth?type=dropbox");
+	openOAuth(ENDPOINT_OP_URL + "/oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/oauth?type=gdrive");
+	openOAuth(ENDPOINT_OP_URL + "/oauth?type=gdrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/oauth?type=gftp");
+	openOAuth(ENDPOINT_OP_URL + "/oauth?type=gftp");
 }
 
 export async function openBoxOAuth(){
-    openOAuth("api/oauth?type=box");
+    openOAuth(ENDPOINT_OP_URL + "/oauth?type=box");
 }
 
 export async function openOAuth(url){

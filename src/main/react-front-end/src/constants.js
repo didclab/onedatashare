@@ -25,8 +25,11 @@ export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-betwe
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
+//version
+export const version = "/v1";
+
 // urls
-export const ENDPOINT_OP_URL = "/api"
+export const ENDPOINT_OP_URL = "/api" + version
 export const LIST_OP_URL = "/ls"
 export const DEL_OP_URL = "/rm"
 export const MKDIR_OP_URL = "/mkdir"
@@ -37,8 +40,8 @@ export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
-export const url = "/api/stork/";
-export const apiBaseUrl = "/api/";
+export const url = "/api" + version + "/stork/";
+export const apiBaseUrl = "/api" + version + "/";
 export const apiCredUrl = apiBaseUrl + "cred";
 
 export const transferPageUrl = "/transfer";
@@ -64,7 +67,7 @@ export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";
 export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
 export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
-export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
+export const UPDATE_PASSWD_ENDPOINT = "/api" + version + "/stork/update-password";
 
 export const REGISTRATION_ENDPOINT = "/register";
 export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
