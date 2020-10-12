@@ -36,7 +36,7 @@ import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
 import Code from '@material-ui/icons/Code';
-import {Button, Grid, Container, Box, Breadcrumbs, Link} from '@material-ui/core';
+import {Button, Grid, Box, Breadcrumbs, Link} from '@material-ui/core';
 
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -63,7 +63,6 @@ import {
 } from "../../APICalls/EndpointAPICalls";
 
 
-import { Breadcrumb, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory, 
 		emptyFileNodesData, getEntities, setSelectedTasksForSide,  getSelectedTasksFromSide, 
 		unselectAll, makeFileNameFromPath, draggingTask, setFilesWithPathListAndId, } from "./initialize_dnd";
@@ -73,6 +72,8 @@ import {eventEmitter, store} from "../../App";
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
 import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
+import {showType, isOAuth} from "../../constants";
+import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import ProgressUpdateComponent from "./progressUpdateComponent"
 import {compactViewPreference} from "../../model/actions";
@@ -363,13 +364,18 @@ export default class EndpointBrowseComponent extends Component {
 				this.props.back();
 				
 				setTimeout(()=> {
-					if(getType(endpoint) === DROPBOX_TYPE)
-						openDropboxOAuth();
-					else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-						openGoogleDriveOAuth();
-					else if(getType(endpoint) === BOX_TYPE)
-						openBoxOAuth();				
-					}, 3000);
+					const type = getType(endpoint)
+					if(isOAuth[type] && type !== showType.gsiftp){
+						OAuthFunctions[type]();
+					}
+					// if(getType(endpoint) === DROPBOX_TYPE)
+					// 	openDropboxOAuth();
+					// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+					// 	openGoogleDriveOAuth();
+					// else if(getType(endpoint) === BOX_TYPE)
+					// 	openBoxOAuth();
+					},
+					3000);
 			}
 		});
 	};

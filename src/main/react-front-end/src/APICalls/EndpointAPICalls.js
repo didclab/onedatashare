@@ -25,7 +25,7 @@ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
-import { GOOGLEDRIVE, BOX, DROPBOX, GRIDFTP} from "../constants.js";
+import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -191,10 +191,10 @@ export async function openOAuth(url){
 }
 
 export const OAuthFunctions = {
-    [DROPBOX]: openDropboxOAuth,
-    [GOOGLEDRIVE]: openGoogleDriveOAuth,
-    [GRIDFTP]: openGridFtpOAuth,
-    [BOX]: openBoxOAuth,
+    [DROPBOX_TYPE]: openDropboxOAuth,
+    [GOOGLEDRIVE_TYPE]: openGoogleDriveOAuth,
+    [GRIDFTP_TYPE]: openGridFtpOAuth,
+    [BOX_TYPE]: openBoxOAuth,
     other: openOAuth
 };
 

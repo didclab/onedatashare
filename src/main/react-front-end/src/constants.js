@@ -157,6 +157,27 @@ export const showType = {
 	https: HTTP_TYPE
 }
 
+export const isOAuth = {
+	[DROPBOX_TYPE]: true,
+	[GOOGLEDRIVE_TYPE]: true,
+	[BOX_TYPE]: true,
+	[FTP_TYPE]: false,
+	[SFTP_TYPE]: false,
+	[HTTP_TYPE]: false,
+	[GRIDFTP_TYPE]: true,
+	[HTTPS_TYPE]: false
+}
+
+export const showDisplay = {
+	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
+	googledrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
+	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
+	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
+	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
+	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
+	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
+}
+
 export const SERVICES = {
 	OAuth: [
 		[DROPBOX_TYPE, DROPBOX_NAME, DROPBOX],

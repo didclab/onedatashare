@@ -40,7 +40,9 @@ import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME,  getType} from "../../constants";
+import {showText, showType, showDisplay} from "../../constants";
+import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 
 import {eventEmitter} from "../../App";
 
@@ -62,11 +64,11 @@ export default class BrowseModuleComponent extends Component {
 		super(props);
 
 		const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
-			return (getType(currentState.endpoint1) === GRIDFTP_TYPE || getType(currentState.endpoint2) === GRIDFTP_TYPE) && (currentState.endpoint1.login || currentState.endpoint1.login);
+			return (getType(currentState.endpoint1) === showType.gsiftp || getType(currentState.endpoint2) === showType.gsiftp) && (currentState.endpoint1.login || currentState.endpoint1.login);
 		}
 		const checkIfGridftpIsOpen = (currentState) => {
-			return (getType(currentState.endpoint1) === GRIDFTP_TYPE 
-				|| getType(currentState.endpoint2) === GRIDFTP_TYPE) 
+			return (getType(currentState.endpoint1) === showType.gsiftp
+				|| getType(currentState.endpoint2) === showType.gsiftp)
 				|| !(currentState.endpoint1.login || currentState.endpoint1.login);
 		}
 
@@ -185,10 +187,17 @@ export default class BrowseModuleComponent extends Component {
 			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
 		}
 
-		// const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
-		const buttonStyle1 = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
-		const buttonStyle = {label: "browseButton"};
+		const login = (service) => {
+			if(service[1].credTypeExists){
+				this.credentialTypeExistsThenDo(showText[service[0]], loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
+			}else{
+				loginPrep(showType[service[0]])();
+			}
+		}
+
+
 		const EndpointButton = this.endpointButton();
+		const displays = Object.entries(showDisplay);
 
 	  return (
 	    // saved credential
@@ -196,51 +205,67 @@ export default class BrowseModuleComponent extends Component {
 	    <div id={"browser"+endpoint.side} className={"transferGroup"} /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/>
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
-	      		<EndpointButton id={endpoint.side + "DropBox"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
-		      	}}>
-		      		<Icon className={'fab fa-dropbox browseIcon'}/>
-		      		DropBox
-		      	</EndpointButton>
-	      		<EndpointButton id={endpoint.side + "FTP"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		loginPrep(FTP_TYPE)()
-		      	}}>
-		      		<Icon className={'far fa-folder-open browseIcon'}/>
-		      		FTP
-	      		</EndpointButton>
-		      	<EndpointButton id={endpoint.side + "GoogleDrive"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+				{displays.map( (service) => {
+					// const login = () => {
+					// 	if(service[1].credTypeExists){
+					// 		this.credentialTypeExistsThenDo(showText[service[0]], loginPrep(showType[service[0]]), OAuthFunctions[service[0]]);
+					// 	}else{
+					// 		loginPrep(showType[service[0]])();
+					// 	}
+					// }
+					const disable = service[0] === 'gsiftp' ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp;
+					return(
+						<EndpointButton id={service.side + service[1].id} disabled={disable} onClick={() => {login(service)}}>
+							<Icon className={service[1].icon + ' browseIcon'}/>
+							{service[1].label}
+						</EndpointButton>
+					);
+				})}
+	      		{/*<EndpointButton id={endpoint.side + "DropBox"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() => {*/}
+		      	{/*	this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);*/}
+		      	{/*}}>*/}
+		      	{/*	<Icon className={'fab fa-dropbox browseIcon'}/>*/}
+		      	{/*	DropBox*/}
+		      	{/*</EndpointButton>*/}
+	      		{/*<EndpointButton id={endpoint.side + "FTP"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {*/}
+		      	{/*	loginPrep(FTP_TYPE)()*/}
+		      	{/*}}>*/}
+		      	{/*	<Icon className={'far fa-folder-open browseIcon'}/>*/}
+		      	{/*	FTP*/}
+	      		{/*</EndpointButton>*/}
+		      	{/*<EndpointButton id={endpoint.side + "GoogleDrive"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {*/}
 
-		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
-		      	}}>
-			      	<Icon className={'fab fa-google-drive browseIcon'}/>
-			      	Google Drive
-		      	</EndpointButton>
-                <EndpointButton id={endpoint.side + "Box"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
+		      	{/*	this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);*/}
+		      	{/*}}>*/}
+			    {/*  	<Icon className={'fab fa-google-drive browseIcon'}/>*/}
+			    {/*  	Google Drive*/}
+		      	{/*</EndpointButton>*/}
+                {/*<EndpointButton id={endpoint.side + "Box"} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {*/}
 
-                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
-                }}>
-					<Icon className={'fas fa-bold browseIcon'}/>
-                    Box
-                </EndpointButton>
-				<EndpointButton id={endpoint.side + "GridFTP"} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
-					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
-				}}>
-					<Icon className={'fas fa-server browseIcon'}/>
-				GridFTP
-				</EndpointButton>
-				<EndpointButton id={endpoint.side + "HTTP"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-	      			loginPrep(HTTP_TYPE)()
-	      		}}>
-		      		<Icon className={'fas fa-globe browseIcon'}/>
-		      		HTTP/HTTPS
-	      		</EndpointButton>
+                {/*    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);*/}
+                {/*}}>*/}
+				{/*	<Icon className={'fas fa-bold browseIcon'}/>*/}
+                {/*    Box*/}
+                {/*</EndpointButton>*/}
+				{/*<EndpointButton id={endpoint.side + "GridFTP"} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{*/}
+				{/*	this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);*/}
+				{/*}}>*/}
+				{/*	<Icon className={'fas fa-server browseIcon'}/>*/}
+				{/*GridFTP*/}
+				{/*</EndpointButton>*/}
+				{/*<EndpointButton id={endpoint.side + "HTTP"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{*/}
+	      		{/*	loginPrep(HTTP_TYPE)()*/}
+	      		{/*}}>*/}
+		      	{/*	<Icon className={'fas fa-globe browseIcon'}/>*/}
+		      	{/*	HTTP/HTTPS*/}
+	      		{/*</EndpointButton>*/}
 
-		      	<EndpointButton id={endpoint.side + "SFTP"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-		      		loginPrep(SFTP_TYPE)()
-		      	}}>
-		      		<Icon className={'fas fa-terminal browseIcon'}/>
-		      		SFTP
-		      	</EndpointButton>
+		      	{/*<EndpointButton id={endpoint.side + "SFTP"}  disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{*/}
+		      	{/*	loginPrep(SFTP_TYPE)()*/}
+		      	{/*}}>*/}
+		      	{/*	<Icon className={'fas fa-terminal browseIcon'}/>*/}
+		      	{/*	SFTP*/}
+		      	{/*</EndpointButton>*/}
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&

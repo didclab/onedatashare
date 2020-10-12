@@ -37,6 +37,8 @@ import {DROPBOX_TYPE,
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
 			} from "../../constants";
+import {showType, isOAuth} from "../../constants";
+import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import {store} from "../../App";
 
 import ListItem from '@material-ui/core/ListItem';
@@ -98,9 +100,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		};
 
 		let loginType = getType(props.endpoint);
-		if(loginType === GRIDFTP_TYPE){
+		if(loginType === showType.gsiftp /*loginType === GRIDFTP_TYPE*/){
 			this.endpointIdsListUpdateFromBackend();
-		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE){
+		}else if(!isOAuth[loginType]/*loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE*/){
 		    this.historyListUpdateFromBackend();
 		}
 		this.handleChange = this.handleChange.bind(this);
@@ -383,10 +385,10 @@ export default class EndpointAuthenticateComponent extends Component {
 	else{
 		// User is expected to enter password to login
 		const loginType = getType(this.state.endpoint);
-		/*if(username.length === 0 || password.length === 0 && loginType !== HTTP_TYPE) {
+		if(username.length === 0 || password.length === 0) {
 			this._handleError("Incorrect username or password");
 			return;
-		}*/
+		}
 
 		// Encrypting user password
 		let jsEncrypt = new JSEncrypt();
@@ -483,6 +485,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		const FieldLabel = this.fieldLabelStyle();
 		const NextButton = this.nextButton();
 
+
+
 		return(
 		<div >
 			{!settingAuth && <div className={"authenticationContainer"}>
@@ -500,27 +504,36 @@ export default class EndpointAuthenticateComponent extends Component {
 				<Divider/>
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
-		        	if(loginType === DROPBOX_TYPE){
-		        		openDropboxOAuth();
-		        	}else if(loginType === GOOGLEDRIVE_TYPE){
-		        		openGoogleDriveOAuth();
-		        	}else if(loginType === BOX_TYPE){
-		        	    openBoxOAuth();
-		        	}else if(loginType === FTP_TYPE){
-		        		let loginUri = "ftp://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === SFTP_TYPE){
-		        		let loginUri = "sftp://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === HTTP_TYPE){
-		        		let loginUri = "http://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === GRIDFTP_TYPE){
-		        		this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
-		        	}
+					if(isOAuth[loginType] && loginType !== showType.gsiftp){
+						OAuthFunctions[loginType]();
+					}else if(loginType === showType.gsiftp){
+						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+					}else{
+						let loginUri = loginType;
+						this.setState({settingAuth: true, authFunction : this.regularSignIn,
+							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+					}
+		        	// if(loginType === DROPBOX_TYPE){
+		        	// 	openDropboxOAuth();
+		        	// }else if(loginType === GOOGLEDRIVE_TYPE){
+		        	// 	openGoogleDriveOAuth();
+		        	// }else if(loginType === BOX_TYPE){
+		        	//     openBoxOAuth();
+		        	// }else if(loginType === FTP_TYPE){
+		        	// 	let loginUri = "ftp://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === SFTP_TYPE){
+		        	// 	let loginUri = "sftp://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === HTTP_TYPE){
+		        	// 	let loginUri = "http://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === GRIDFTP_TYPE){
+		        	// 	this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+		        	// }
 		        }}>
 		          <ListItemIcon>
 		          	<AddIcon/>
@@ -529,11 +542,15 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/*{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}*/}
+				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
-				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
+				{/*{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}*/}
+				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&
+				{/*{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&*/}
+				{/*this.getHistoryListComponentFromList(historyList)}*/}
+				{!isOAuth[loginType] &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </div>}
 	    	<Modal
@@ -601,7 +618,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						</ValidatorForm>
 					</div>
 					}
-		    	{loginType !== GRIDFTP_TYPE && 
+		    	{loginType !== /*GRIDFTP_TYPE */ showType.gsiftp &&
 		    		<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 							<ValidatorForm
 								ref="form"
