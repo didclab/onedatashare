@@ -23,19 +23,20 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.Credential;
-import org.onedatashare.server.model.core.Resource;
-import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.core.User;
+import com.google.api.services.drive.Drive;
+import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.module.googledrive.GDriveConfig;
+import org.onedatashare.server.module.googledrive.GDriveResource;
 import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -48,6 +49,9 @@ import static org.onedatashare.server.model.core.ODSConstants.GDRIVE_URI_SCHEME;
 public class GDriveService extends ResourceService {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private CredentialService credentialService;
 
     public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
@@ -111,28 +115,38 @@ public class GDriveService extends ResourceService {
                 .flatMap(Resource::download);
     }
 
+    private static final EndpointType ENDPOINT_TYPE = EndpointType.gdrive;
+
     @Override
     public Mono<Stat> list(ListOperation listOperation) {
-        return null;
+        return this.createResource(listOperation).flatMap(Resource::stat);
     }
 
     @Override
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return null;
+        return createResource(mkdirOperation)
+                .flatMap(Resource::mkdir)
+                .then();
     }
 
     @Override
     public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return null;
+        return this.createResource(deleteOperation)
+                .flatMap(Resource::delete)
+                .then();
     }
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
-        return null;
+        return this.createResource(downloadOperation)
+                .flatMap(Resource::download);
     }
 
-    @Override
     protected Mono<? extends Resource> createResource(OperationBase operationBase) {
-        return null;
+        GDriveConfig driveConfig = GDriveConfig.getInstance();
+        return credentialService.fetchOAuthCredential(this.ENDPOINT_TYPE, operationBase.getCredId())
+                .map(oAuthEndpointCredential -> driveConfig.getDriveService(oAuthEndpointCredential))
+                .map(drive -> new GDriveResource((Drive) drive, operationBase.getPath(), operationBase.getId()))
+                .subscribeOn(Schedulers.elastic());
     }
 }
