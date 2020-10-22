@@ -23,20 +23,19 @@
 
 package org.onedatashare.server.service;
 
-import com.google.api.services.drive.Drive;
-import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Credential;
+import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.module.googledrive.GDriveConfig;
-import org.onedatashare.server.module.googledrive.GDriveResource;
 import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -50,41 +49,90 @@ public class GDriveService extends ResourceService {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private CredentialService credentialService;
-
-    private static final EndpointType ENDPOINT_TYPE = EndpointType.gdrive;
-
-    @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return this.createResource(listOperation).flatMap(Resource::stat);
+    public Mono<? extends Resource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
+        final String path = pathFromUri(userAction.getUri());
+        String id = userAction.getId();
+        ArrayList<IdMap> idMap = userAction.getMap();
+        //Hack for updating credential as security context doesn't allow multiple reads of principal
+        AtomicReference<User> userAtomicReference = new AtomicReference<>();
+        if (userAction.getCredential().isTokenSaved()) {
+            return userService.getLoggedInUser(cookie)
+                    .handle((usr, sink) -> {
+                        userAtomicReference.set(usr);
+                        this.fetchCredentialsFromUserAction(usr, sink, userAction);
+                    })
+                    .map(credential -> new GDriveSession(URI.create(userAction.getUri()), (Credential) credential))
+                    .flatMap(GDriveSession::initialize)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    .onErrorResume(throwable -> throwable instanceof TokenExpiredException,
+                            throwable -> userService.updateCredential(userAtomicReference.get(),
+                                    ((TokenExpiredException) throwable).cred, userAction.getCredential().getUuid())
+                                    .map(cred -> new GDriveSession(URI.create(userAction.getUri()), cred))
+                                    .flatMap(GDriveSession::initialize)
+                                    .flatMap(driveSession -> driveSession.select(path, id, idMap))
+                    );
+        } else {
+            return Mono.just(new OAuthCredential(userAction.getCredential().getToken()))
+                    .map(oAuthCred -> new GDriveSession(URI.create(userAction.getUri()), oAuthCred))
+                    .flatMap(GDriveSession::initializeNotSaved)
+                    .flatMap(driveSession -> driveSession.select(path, id, idMap));
+        }
     }
 
-    @Override
-    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return createResource(mkdirOperation)
+    public String pathFromUri(String uri) {
+        String path = "";
+        path = uri.substring(GDRIVE_URI_SCHEME.length() - 1);
+        try {
+            path = java.net.URLDecoder.decode(path, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return path;
+    }
+
+    public Mono<Stat> list(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction).flatMap(Resource::stat);
+    }
+
+    public Mono<Void> mkdir(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::mkdir)
                 .then();
     }
 
-    @Override
-    public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return this.createResource(deleteOperation)
+    public Mono<Void> delete(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::delete)
                 .then();
     }
 
-    @Override
-    public Mono<String> download(DownloadOperation downloadOperation) {
-        return this.createResource(downloadOperation)
+    public Mono<String> download(String cookie, UserAction userAction) {
+        return getResourceWithUserActionUri(cookie, userAction)
                 .flatMap(Resource::download);
     }
 
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+
+    @Override
     protected Mono<? extends Resource> createResource(OperationBase operationBase) {
-        GDriveConfig driveConfig = GDriveConfig.getInstance();
-        return credentialService.fetchOAuthCredential(this.ENDPOINT_TYPE, operationBase.getCredId())
-                .map(oAuthEndpointCredential -> driveConfig.getDriveService(oAuthEndpointCredential))
-                .map(drive -> new GDriveResource((Drive) drive, operationBase.getPath(), operationBase.getId()))
-                .subscribeOn(Schedulers.elastic());
+        return null;
     }
 }

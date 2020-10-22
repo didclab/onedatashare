@@ -62,14 +62,6 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
     this.id = id;
   }
 
-  protected Resource(String path, String id) {
-    if (path == null)
-      path = "/";
-    this.path = path;
-    this.id = id;
-    this.session = null;
-  }
-
   protected Resource(S session) {
     this(session, null,null);
   }

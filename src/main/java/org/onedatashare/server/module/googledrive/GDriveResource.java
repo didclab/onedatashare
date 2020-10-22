@@ -50,12 +50,14 @@ import java.util.Locale;
 public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
 
     public static final String ROOT_DIR_ID = "root";
-    private Drive drive;
 
-    public GDriveResource(Drive drive, String path, String id) {
-        super(path, id);
-        this.drive = drive;
-      
+    protected GDriveResource(GDriveSession session, String path, String id) {
+        super(session, path, id);
+    }
+    protected GDriveResource(GDriveSession session, String path) {
+        super(session, path,null);
+    }
+
     public Mono<GDriveResource> mkdir() {
         return Mono.create(s -> {
             try {
@@ -68,7 +70,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
                     fileMetadata.setName(currpath[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
                     fileMetadata.setParents(Collections.singletonList(getId()));
-                    File file = drive.files().create(fileMetadata)
+                    File file = getSession().getService().files().create(fileMetadata)
                             .setFields("id")
                             .execute();
                     setId(file.getId());
@@ -92,7 +94,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
                     fileMetadata.setName(directoryTree[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
                     fileMetadata.setParents(Collections.singletonList(curId));
-                    File file = drive.files().create(fileMetadata)
+                    File file = getSession().getService().files().create(fileMetadata)
                             .setFields("id")
                             .execute();
                     curId = file.getId();
@@ -143,10 +145,10 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
     public Mono<GDriveResource> delete() {
        return Mono.create(s -> {
            try {
-               drive.files().delete(getId()).execute();
-               //setId( getSession().idMap.get(getSession().idMap.size() - 1).getId() );
-               //if(getId() == null && getSession().idMap.size() ==1)
-               //    setId(ROOT_DIR_ID);
+               getSession().getService().files().delete(getId()).execute();
+               setId( getSession().idMap.get(getSession().idMap.size() - 1).getId() );
+               if(getId() == null && getSession().idMap.size() ==1)
+                   setId(ROOT_DIR_ID);
            } catch (Exception e) {
                s.error(e);
            }
@@ -178,7 +180,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
         try {
             if (getPath().equals("/")) {
                 stat.setDir(true);
-                result = drive.files().list()
+                result = getSession().getService().files().list()
                     .setOrderBy("name")
                     .setQ("trashed=false and 'root' in parents")
                     .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
@@ -207,7 +209,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
                 while (result.getPageToken() != null);
             } else {
                 try {
-                    File googleDriveFile = drive.files().get(getId())
+                    File googleDriveFile = getSession().getService().files().get(getId())
                                                 .setFields("id, name, kind, mimeType, size, modifiedTime")
                                                 .execute();
                     if (googleDriveFile.getMimeType().equals("application/vnd.google-apps.folder")) {
@@ -215,7 +217,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
 
                         String query = new StringBuilder().append("trashed=false and ")
                                                 .append("'" + getId() + "'").append(" in parents").toString();
-                        result = drive.files().list()
+                        result = getSession().getService().files().list()
                                         .setOrderBy("name").setQ(query)
                                         .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
                         if (result == null)
