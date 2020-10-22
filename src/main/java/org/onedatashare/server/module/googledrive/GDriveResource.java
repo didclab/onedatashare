@@ -55,14 +55,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
     public GDriveResource(Drive drive, String path, String id) {
         super(path, id);
         this.drive = drive;
-    }
-    protected GDriveResource(GDriveSession session, String path, String id) {
-        super(session, path, id);
-    }
-    protected GDriveResource(GDriveSession session, String path) {
-        super(session, path,null);
-    }
-
+      
     public Mono<GDriveResource> mkdir() {
         return Mono.create(s -> {
             try {
