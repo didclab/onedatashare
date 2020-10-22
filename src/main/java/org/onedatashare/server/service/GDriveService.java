@@ -52,6 +52,7 @@ public class GDriveService extends ResourceService {
 
     @Autowired
     private CredentialService credentialService;
+
     private static final EndpointType ENDPOINT_TYPE = EndpointType.gdrive;
 
     @Override

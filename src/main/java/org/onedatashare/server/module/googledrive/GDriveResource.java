@@ -55,8 +55,7 @@ public class GDriveResource extends Resource<GDriveSession, GDriveResource> {
     public GDriveResource(Drive drive, String path, String id) {
         super(path, id);
         this.drive = drive;
-    }
-
+      
     public Mono<GDriveResource> mkdir() {
         return Mono.create(s -> {
             try {
