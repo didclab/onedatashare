@@ -24,6 +24,7 @@
 import React, { Component } from 'react';
 import FineUploaderTraditional from 'fine-uploader-wrappers';
 import {makeFileNameFromPath, getMapFromEndpoint} from "./initialize_dnd";
+import {url} from "../../constants";
 
 import FileInput from 'react-fine-uploader/file-input';
 import UploadButton from "@material-ui/icons/CloudUpload";
@@ -54,7 +55,7 @@ render(){
 					},
 				},
 				request: {
-					endpoint: '/api/stork/upload',
+					endpoint: url + 'upload',
 					params: {
 						directoryPath: encodeURI(makeFileNameFromPath(endpoint.uri, directoryPath,'')),
 						credential: JSON.stringify(endpoint.credential),
