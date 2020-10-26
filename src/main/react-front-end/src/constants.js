@@ -58,6 +58,31 @@ export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
 export const policyUrl = "/policy";
 
+export const siteURLS = {
+	rootUrl: "/",
+	transferPageUrl: "/transfer",
+	queuePageUrl: "/queue",
+	supportPageUrl: "/support",
+	getStartedPageUrl: "/get-started",
+	endpoint_dbUrl: "/endpoint_db",
+	accountPageUrl: "/account",
+	registerPageUrl: "/account/register",
+	signInPageUrl: "/account/signIn",
+	forgotPasswordUrl: "/account/forgotPassword",
+	lostValidationCodeUrl: "/account/lostValidationCode",
+	userPageUrl: "/user",
+	userListPageUrl: "/clientsInfo",
+	historyPageUrl: "/history",
+	notificationPageUrl: "/sendNotifications",
+	newNotificationsUrl: "/newNotifications",
+	addAccountUrl: "/account/add",
+	dataPageUrl: "/data",
+	managementPageUrl: "/management",
+	oauthPreUrl: "/oauth/",
+	termsUrl: "/terms",
+	policyUrl: "/policy",
+};
+
 export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";
 export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
@@ -134,6 +159,8 @@ export const ODS_PUBLIC_KEY = process.env.REACT_APP_ODS_RSA_PUBLIC_KEY;
 
 //Status
 export const completeStatus = "complete";
+
+
 
 export const showText = {
 	dropbox: DROPBOX_NAME,

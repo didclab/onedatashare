@@ -449,6 +449,7 @@ export default class EndpointBrowseComponent extends Component {
 		const {endpoint, back, setLoading, getLoading, /*displayStyle*/} = this.props;
 		const {directoryPath, searchText, compact} = this.state;
 		const displayStyle = compact ? "compact" : "comfort";
+		const type = getType(endpoint);
 
 		let updateCompactViewPreference = name => event => {
 			this.setState({ [name]: event.target.checked });
@@ -600,10 +601,10 @@ export default class EndpointBrowseComponent extends Component {
 								  click={() => {
 									  const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 									  const taskList = getSelectedTasksFromSide(endpoint);
-									  if(getType(endpoint) === SFTP_TYPE){
+									  if(type === /*SFTP_TYPE*/ showType.sftp){
 										  getDownload(downloadUrl, endpoint.credential, taskList);
 									  }
-									  else if(getType(endpoint) === HTTP_TYPE){
+									  else if(type === /*HTTP_TYPE*/ showType.http){
 										  window.open(downloadUrl);
 									  }
 									  else{
@@ -627,7 +628,7 @@ export default class EndpointBrowseComponent extends Component {
 
 					<BrowseButton
 						id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
-					|| !(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE)} style={buttonStyle} click={() => {
+					 || /*!(getType(endpoint) === GOOGLEDRIVE_TYPE || getType(endpoint) === DROPBOX_TYPE || getType(endpoint) === BOX_TYPE)*/!(isOAuth[type] && type !== showType.gsiftp)} style={buttonStyle} click={() => {
 						const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
 						const taskList = getSelectedTasksFromSide(endpoint);
 						getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)

@@ -44,11 +44,11 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Divider from "@material-ui/core/Divider";
 import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, ExpandMore} from "@material-ui/icons";
 
-import { submit, updateViewPreference } from "../../APICalls/APICalls";
-import { endpointUpdate, compactViewPreference } from "../../model/actions";
+import { submit } from "../../APICalls/APICalls";
+import { endpointUpdate} from "../../model/actions";
 
 import { DragDropContext } from 'react-beautiful-dnd';
-import { mutliDragAwareReorder, screenIsSmall } from "./utils.js";
+import { mutliDragAwareReorder} from "./utils.js";
 
 import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId } from "./initialize_dnd.js";
 
@@ -74,14 +74,8 @@ export default class TransferComponent extends Component {
       mode1: 0,
       mode2: 0,
       history: [],
-      width: window.innerWidth,
-      height: window.innerHeight,
       settings: {
         optimizer: localStorage.hasOwnProperty("optimizer") ? localStorage.getItem("optimizer") : "None",
-        // overwrite: "true",
-        // verify: "true",
-        // encrypt: "true",
-        // compress: "true",
         overwrite: localStorage.hasOwnProperty("overwrite") ? JSON.parse(localStorage.getItem("overwrite")) : true,
         verify: localStorage.hasOwnProperty("verify") ? JSON.parse(localStorage.getItem("verify")) : true,
         encrypt: localStorage.hasOwnProperty("encrypt") ? JSON.parse(localStorage.getItem("encrypt")) : true,
@@ -90,7 +84,6 @@ export default class TransferComponent extends Component {
       },
       compact: store.getState().compactViewEnabled,
       notif: false
-     // terminalFlag:false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -147,7 +140,7 @@ export default class TransferComponent extends Component {
   componentDidMount() {
     document.title = "OneDataShare - Transfer";
     window.addEventListener("resize", this.updateDimensions);
-    this.setState({ width: window.innerWidth, height: window.innerHeight });
+    // this.setState({ width: window.innerWidth, height: window.innerHeight });
     this.setState({ compact: store.getState().compactViewEnabled });
   }
 
@@ -203,12 +196,12 @@ export default class TransferComponent extends Component {
   };
 
   updateDimensions() {
-    const width = this.state.width;
+    // const width = this.state.width;
 
     // if screen size exceed certain treshhold
-    if ((width > 760 && screenIsSmall()) || (width <= 760 && !screenIsSmall())) {
-      this.setState({ width: window.innerWidth, height: window.innerHeight });
-    }
+    // if ((width > 760 && screenIsSmall()) || (width <= 760 && !screenIsSmall())) {
+    //   this.setState({ width: window.innerWidth, height: window.innerHeight });
+    // }
   }
 
 

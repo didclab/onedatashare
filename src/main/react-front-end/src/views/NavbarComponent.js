@@ -27,9 +27,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 
 import { Link } from 'react-router-dom';
-import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import AdminDropdown from "./AdminDropdown";
-import { transferPageUrl, queuePageUrl, userPageUrl, registerPageUrl, signInUrl, endpoint_db } from '../constants';
+// import { endpoint_db } from '../constants';
+import { siteURLS } from "../constants";
 import { store } from '../App';
 import { logout } from '../APICalls/APICalls';
 
@@ -84,8 +84,8 @@ class NavbarComponent extends Component {
 								{(this.state.login) &&
 
 								<Box display="flex" width={"50%"}>
-									<Link to={transferPageUrl} href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
-									<Link to={queuePageUrl} href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
+									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
+									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 
 									{this.state.admin===true &&
 									<AdminDropdown/>
@@ -99,19 +99,19 @@ class NavbarComponent extends Component {
 						<Hidden smDown>
 							<Box className={"rightNav"}>
 								{this.state.login &&
-								<Link to={userPageUrl} id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
+								<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
 								}
 								{!this.state.login &&
-								<Link to={signInUrl} id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</Link>
+								<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarButton"}>Sign in</Link>
 								}
 								{!this.state.login &&
-								<Link to={registerPageUrl} id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</Link>
+								<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 								}
 								{this.state.login &&
 								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
 									<span>Log out</span>
 								</p>}
-								<Link to={"/support"} href="/support" className={"navbarButton"}>
+								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
 									Support
 								</Link>
 								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
@@ -131,18 +131,18 @@ class NavbarComponent extends Component {
 							<List>
 								{this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={userPageUrl} id="NavEmail" href={userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
+									<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
 								</ListItem>
 								}
 								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
 								{this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={transferPageUrl} href={transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
+									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 								</ListItem>
 								}
 								{this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={queuePageUrl} href={queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
+									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 								</ListItem>
 								}
 								{(this.state.login && this.state.admin) &&
@@ -151,12 +151,12 @@ class NavbarComponent extends Component {
 								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
 								{!this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={signInUrl} id="NavSignIn" href={signInUrl} className={"navbarButton"}>Sign in</Link>
+									<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarButton"}>Sign in</Link>
 								</ListItem>
 								}
 								{!this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={registerPageUrl} id="NavRegister" href={registerPageUrl} className={"navbarButton"}>Register</Link>
+									<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 								</ListItem>
 								}
 								{this.state.login &&
@@ -167,7 +167,7 @@ class NavbarComponent extends Component {
 								</ListItem>
 								}
 								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={"/support"} href="/support" className={"navbarButton"}>
+									<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
 										Support
 									</Link>
 								</ListItem>
