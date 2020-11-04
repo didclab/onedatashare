@@ -83,7 +83,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			credList: props.credentials || {},
 			endpointIdsList: {},
 			settingAuth: false,
-			settingAuthType: "", 
+			settingAuthType: "",
 			url: "",
 			needPassword: false,
 			username: "",
@@ -265,16 +265,15 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
-			return Object.keys(credList).filter(id => {
-				return (credList[id].name.toLowerCase().indexOf(type.toLowerCase()) !== -1
-							&& !getCred().includes(id))})
+			return credList.filter(id => {
+				return (!getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v}
 					onClick={() => {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
-							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
+							credential: {uuid: v, name: v, tokenSaved: true},
 							side: endpoint.side
 						}
 						loginSuccess(endpointSet);
@@ -282,7 +281,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemIcon>
 						<DataIcon/>
 					</ListItemIcon>
-					<ListItemText primary={credList[v].name} />
+					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
 							deleteCredentialFromServer(v, (accept) => {

@@ -39,7 +39,7 @@ import Icon from '@material-ui/core/Icon';
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP, DROPBOX, GOOGLEDRIVE, BOX, getType} from "../../constants";
 
 import {eventEmitter} from "../../App";
 
@@ -126,7 +126,7 @@ export default class BrowseModuleComponent extends Component {
 			console.log("Checking backend for " + containsType + " credentials");
 
 			savedCredList(containsType, (data) => {
-				if(data !== undefined && data.length > 0){
+				if(data !== undefined && data.list.length > 0){
 					succeed(data);
 				}else{
 					failed();
@@ -146,7 +146,7 @@ export default class BrowseModuleComponent extends Component {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
 				endpoint: {...endpoint, uri: uri},
-				creds: data
+				creds: data ? data.list : {}
 			});
 			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 		}
@@ -166,7 +166,7 @@ export default class BrowseModuleComponent extends Component {
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
 	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		this.credentialTypeExistsThenDo(DROPBOX_NAME, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
+		      		this.credentialTypeExistsThenDo(DROPBOX, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
 		      	}}>
 		      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
 		      		DropBox
@@ -179,20 +179,20 @@ export default class BrowseModuleComponent extends Component {
 	      		</Button>
 		      	<Button id={endpoint.side + "GoogleDrive"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
-		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE_NAME, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
+		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
 		      	}}>
 			      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
 			      	Google Drive
 		      	</Button>
                 <Button id={endpoint.side + "Box"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
 
-                    this.credentialTypeExistsThenDo(BOX_NAME, loginPrep(BOX_TYPE), openBoxOAuth);
+                    this.credentialTypeExistsThenDo(BOX, loginPrep(BOX_TYPE), openBoxOAuth);
                 }}>
 					<Icon className={'fas fa-bold'} style={iconStyle}/>
                     Box
                 </Button>
 				<Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
-					this.credentialTypeExistsThenDo(GRIDFTP_NAME, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
+					this.credentialTypeExistsThenDo(GRIDFTP, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
 				}}>
 					<Icon className={'fas fa-server'} style={iconStyle}/>
 				GridFTP
