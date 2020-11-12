@@ -42,7 +42,7 @@ import static org.testng.Assert.assertTrue;
 public class DeleteJobControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
-    private static final String DELETE_JOB_CONTROLLER_URL = "/api/stork/deleteJob";
+    private static final String DELETE_JOB_CONTROLLER_URL = "/api/v1/stork/deleteJob";
 
     @Before
     public void setup() {

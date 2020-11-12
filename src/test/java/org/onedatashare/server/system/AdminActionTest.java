@@ -51,7 +51,7 @@ import static reactor.core.publisher.Mono.just;
 @AutoConfigureMockMvc
 public class AdminActionTest extends SystemTest {
 
-    private static final String ADMIN_BASE_URL = "/api/stork/admin/";
+    private static final String ADMIN_BASE_URL = "/api/v1/stork/admin/";
     private static final String GET_USERS_URL = ADMIN_BASE_URL + "get-users";
     private static final String GET_ADMINS_URL = ADMIN_BASE_URL + "get-admins";
     private static final String GET_ALL_USERS_URL = ADMIN_BASE_URL + "getAllUsers";

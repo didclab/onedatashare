@@ -57,7 +57,7 @@ public class ApplicationSecurityConfig {
                 .authorizeExchange()
                 //Permit all the HTTP methods
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
+                .pathMatchers("/api/v1/stork/admin/**").hasAuthority("ADMIN")
                 //Need authentication for APICalls
                 .pathMatchers("/api/**").authenticated()
                 //Need to be admin to access admin functionalities

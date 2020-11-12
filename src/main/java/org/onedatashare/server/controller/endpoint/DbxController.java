@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/dropbox")
+@RequestMapping("/api/v1/dropbox")
 public class DbxController extends EndpointBaseController{
     @Autowired
     private DbxService dbxService;

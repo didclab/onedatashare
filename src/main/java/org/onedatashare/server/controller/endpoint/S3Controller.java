@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/s3")
+@RequestMapping("/api/v1/s3")
 public class S3Controller extends EndpointBaseController{
     @Autowired
     private SftpService sftpService;

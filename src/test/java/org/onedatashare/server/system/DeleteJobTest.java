@@ -60,7 +60,7 @@ import static reactor.core.publisher.Mono.just;
 @AutoConfigureMockMvc
 public class DeleteJobTest extends SystemTest {
 
-    private static final String DELETE_JOB_URL = "/api/stork/deleteJob";
+    private static final String DELETE_JOB_URL = "/api/v1/stork/deleteJob";
 
     @MockBean
     private JobRepository jobRepository;

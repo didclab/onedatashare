@@ -57,7 +57,7 @@ public class ODSConstants {
     public static final String AUTH_ENDPOINT = "/authenticate";
     public static final String LOGOUT_ENDPOINT = "/deauthenticate";
     public static final String RESET_PASSWD_ENDPOINT = "/reset-password";
-    public static final String UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
+    public static final String UPDATE_PASSWD_ENDPOINT = "/api/v1/stork/update-password";
     public static final String IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
     public static final String SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
 

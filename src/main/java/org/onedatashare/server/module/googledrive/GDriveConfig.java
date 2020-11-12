@@ -112,7 +112,7 @@ public class GDriveConfig {
         this.authUri = getValueFromResourceString(resource.getString("gdrive.authUri"));
         this.tokenUri = getValueFromResourceString(resource.getString("gdrive.tokenUri"));
         this.authProviderX509CertUrl = getValueFromResourceString(resource.getString("gdrive.authUri"));
-        this.redirectUri = getValueFromResourceString(resource.getString("redirect.uri.string")) + "/api/oauth/gdrive";
+        this.redirectUri = getValueFromResourceString(resource.getString("redirect.uri.string")) + "/api/v1/oauth/gdrive";
         this.clientId = getValueFromResourceString(resource.getString("gdrive.clientId"));
         this.clientSecret = getValueFromResourceString(resource.getString("gdrive.clientSecret"));
         this.projectId = getValueFromResourceString(resource.getString("gdrive.projectId"));

@@ -44,7 +44,7 @@ import static org.testng.Assert.assertTrue;
 public class SupportTicketControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
-    private static final String CREATE_TICKET_CONTROLLER_URL = "/api/stork/ticket";
+    private static final String CREATE_TICKET_CONTROLLER_URL = "/api/v1/stork/ticket";
 
     @MockBean
     private SupportTicketService supportTicketService;

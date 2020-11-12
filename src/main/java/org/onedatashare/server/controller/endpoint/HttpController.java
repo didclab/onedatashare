@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/http")
+@RequestMapping("/api/v1/http")
 public class HttpController extends EndpointBaseController{
     @Autowired
     private SftpService sftpService;

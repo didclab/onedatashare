@@ -42,7 +42,7 @@ import static org.testng.Assert.assertTrue;
 public class SubmitControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
-    private static final String SUBMIT_CONTROLLER_URL = "/api/stork/submit";
+    private static final String SUBMIT_CONTROLLER_URL = "/api/v1/stork/submit";
 
     @Before
     public void setup() {

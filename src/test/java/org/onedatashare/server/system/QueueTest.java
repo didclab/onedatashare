@@ -42,7 +42,7 @@ import static reactor.core.publisher.Mono.just;
 @AutoConfigureMockMvc
 public class QueueTest extends SystemTest {
 
-    private static final String QUEUE_BASE_URL = "/api/stork/q";
+    private static final String QUEUE_BASE_URL = "/api/v1/stork/q";
     private static final String GET_USER_JOBS_URL = QUEUE_BASE_URL + "/user-jobs";
     private static final String GET_ALL_USER_JOBS_URL = QUEUE_BASE_URL + "/admin-jobs";
     private static final String GET_USER_JOB_UPDATES_URL = QUEUE_BASE_URL + "/update-user-jobs";

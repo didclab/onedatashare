@@ -37,7 +37,7 @@ import reactor.core.publisher.Mono;
  * Controller for handling Restart Job Requests
  */
 @RestController
-@RequestMapping("/api/stork/restart")
+@RequestMapping("/api/v1/stork/restart")
 public class RestartJobController {
 
     @Autowired

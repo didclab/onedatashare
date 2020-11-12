@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/box")
+@RequestMapping("/api/v1/box")
 public class BoxController extends EndpointBaseController{
     @Autowired
     private BoxService boxService;

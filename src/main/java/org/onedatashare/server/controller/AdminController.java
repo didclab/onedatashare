@@ -44,7 +44,7 @@ import reactor.core.publisher.Mono;
  */
 @RestController
 @io.swagger.v3.oas.annotations.Hidden
-@RequestMapping("/api/stork/admin")
+@RequestMapping("/api/v1/stork/admin")
 public class AdminController {
 
     @Autowired

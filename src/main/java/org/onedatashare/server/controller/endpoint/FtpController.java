@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/ftp")
+@RequestMapping("/api/v1/ftp")
 public class FtpController extends EndpointBaseController{
 
     @Autowired

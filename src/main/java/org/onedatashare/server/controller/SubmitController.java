@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.*;
  * Contoller for handling file/folder transfer requests
  */
 @RestController
-@RequestMapping("/api/stork/submit")
+@RequestMapping("/api/v1/stork/submit")
 public class SubmitController {
 
     @Autowired

@@ -46,7 +46,7 @@ import static org.testng.Assert.assertTrue;
 @WebMvcTest(value = CredController.class, secure = false)
 public class CredControllerTest extends ControllerTest {
 
-    private static final String GET_CREDS_URL = "/api/stork/cred";
+    private static final String GET_CREDS_URL = "/api/v1/stork/cred";
     private static final String SAVE_CREDS_URL = GET_CREDS_URL + "/saveCredentials";
     private boolean wasCalled = false;
 

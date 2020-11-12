@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/stork/globus")
+@RequestMapping("/api/v1/stork/globus")
 public class GlobusEndpointController {
     @Autowired
     private UserService userService;

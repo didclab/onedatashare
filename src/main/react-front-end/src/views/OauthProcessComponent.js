@@ -45,7 +45,7 @@ export default class OauthProcessComponent extends Component {
   }
 
   processOAuth(tag) {
-    if (tag === "ExistingCredGoogleDrive") {
+        if (tag === "ExistingCredGoogleDrive") {
       setTimeout(() => {
         eventEmitter.emit(
           "errorOccured",
@@ -85,7 +85,7 @@ export default class OauthProcessComponent extends Component {
       } else if (tag === "googledrive") {
         console.log("Google drive oAuth identifier received");
         this.updateLocalCredStore(GOOGLEDRIVE_NAME, qsObj);
-      } else if (tag === "gridftp") {
+      } else if (tag === "gftp") {
         console.log("GridFTP oAuth identifier received");
         this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
       } else if (tag === "box") {

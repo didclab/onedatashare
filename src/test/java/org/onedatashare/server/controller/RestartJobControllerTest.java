@@ -42,7 +42,7 @@ import static org.testng.Assert.assertTrue;
 public class RestartJobControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
-    private static final String RESTART_JOB_CONTROLLER_URL = "/api/stork/restart";
+    private static final String RESTART_JOB_CONTROLLER_URL = "/api/v1/stork/restart";
 
     @Before
     public void setup() {

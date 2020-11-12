@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.*;
  * Invoked when user clicks the cancel button on the queue page (or admin clicks on history page)
  */
 @RestController
-@RequestMapping("/api/stork/cancel")
+@RequestMapping("/api/v1/stork/cancel")
 public class CancelController {
 
     @Autowired

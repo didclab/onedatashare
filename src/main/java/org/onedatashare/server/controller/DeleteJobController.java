@@ -37,7 +37,7 @@ import reactor.core.publisher.Mono;
  * Controller that deletes a Job from the queue page
  */
 @RestController
-@RequestMapping("/api/stork/deleteJob")
+@RequestMapping("/api/v1/stork/deleteJob")
 public class DeleteJobController {
 
     @Autowired

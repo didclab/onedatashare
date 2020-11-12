@@ -42,7 +42,7 @@ import java.util.UUID;
  * linked to a user account.
  */
 @RestController
-@RequestMapping("/api/stork/cred")
+@RequestMapping("/api/v1/stork/cred")
 public class CredController {
 
   @Autowired

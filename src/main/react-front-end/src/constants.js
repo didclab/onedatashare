@@ -42,7 +42,7 @@ export const LOGOUT_ENDPOINT = "/deauthenticate";
 
 export const url = "/api" + version + "/stork/";
 export const apiBaseUrl = "/api" + version + "/";
-export const apiCredUrl = apiBaseUrl + "cred";
+export const apiCredUrl = apiBaseUrl + "cred" +"/";
 
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
@@ -90,7 +90,7 @@ export const GOOGLEDRIVE_TYPE = "googledrive:/";
 export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
-export const GRIDFTP_TYPE = "gsiftp://";
+export const GRIDFTP_TYPE = "gftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
 
@@ -103,12 +103,12 @@ export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
 
 export const DROPBOX = "dropbox";
-export const GOOGLEDRIVE = "googledrive";
+export const GOOGLEDRIVE = "gdrive";
 export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
-export const GRIDFTP = "gsiftp";
+export const GRIDFTP = "gftp";
 
 //side
 export const sideLeft = "left";
@@ -147,7 +147,7 @@ export const showText = {
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
-	gsiftp: GRIDFTP_NAME,
+	gftp: GRIDFTP_NAME,
 	https: HTTP_NAME
 }
 
@@ -158,7 +158,7 @@ export const showType = {
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
-	gsiftp: GRIDFTP_TYPE,
+	gftp: GRIDFTP_TYPE,
 	https: HTTP_TYPE
 }
 
@@ -168,7 +168,7 @@ export const defaultPort = {
 	ftp: 21,
 	sftp: 22,
 	http: 80,
-	gsiftp: -1,
+	gftp: -1,
 	https: 443
 }
 

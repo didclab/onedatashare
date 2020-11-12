@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/googledrive")
+@RequestMapping("/api/v1/googledrive")
 public class GDriveController extends EndpointBaseController{
     @Autowired
     private GDriveService gdriveService;

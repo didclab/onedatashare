@@ -50,7 +50,7 @@ import java.util.Map;
  * Controller for handling OAuth control requests
  */
 @Controller
-@RequestMapping("/api/oauth")
+@RequestMapping("/api/v1/oauth")
 public class EndpointOauthController {
     @Autowired
     private GDriveOauthService gDriveOauthService;
@@ -138,7 +138,7 @@ public class EndpointOauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping("/gridftp")
+    @GetMapping("/gftp")
     public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters, Mono<Principal> principalMono) {
         if (!queryParameters.containsKey("code")) {
             return Mono.just(Rendering.redirectTo("/transfer").build());

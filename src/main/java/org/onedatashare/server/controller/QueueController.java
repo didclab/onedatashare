@@ -41,7 +41,7 @@ import java.util.UUID;
  * Controller for handling GET requests from queue page
  */
 @RestController
-@RequestMapping("/api/stork/q")
+@RequestMapping("/api/v1/stork/q")
 public class QueueController {
 
     @Autowired

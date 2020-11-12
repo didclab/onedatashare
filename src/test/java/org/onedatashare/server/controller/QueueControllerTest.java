@@ -51,7 +51,7 @@ import static org.testng.Assert.assertTrue;
 @WebMvcTest(value = QueueController.class, secure = false)
 public class QueueControllerTest extends ControllerTest {
 
-    private static final String QUEUE_CONTROLLER_URL = "/api/stork/q";
+    private static final String QUEUE_CONTROLLER_URL = "/api/v1/stork/q";
     public static final String GET_JOBS_SUB_URL = "/user-jobs";
     public static final String UPDATE_SUB_URL = "/update-user-jobs";
 

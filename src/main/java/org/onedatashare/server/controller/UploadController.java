@@ -35,7 +35,7 @@ import reactor.core.scheduler.Schedulers;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/stork")
+@RequestMapping("/api/v1/stork")
 public class UploadController {
 
     @Autowired

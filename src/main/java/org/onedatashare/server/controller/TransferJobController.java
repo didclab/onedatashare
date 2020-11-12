@@ -13,7 +13,7 @@ import reactor.core.publisher.Mono;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/transfer-job")
+@RequestMapping("/api/v1/transfer-job")
 public class TransferJobController {
     @Autowired
     private TransferJobService transferJobService;

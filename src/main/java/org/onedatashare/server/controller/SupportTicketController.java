@@ -41,7 +41,7 @@ import reactor.core.scheduler.Schedulers;
  * @since 05-03-2019
  */
 @RestController
-@RequestMapping(value = "/api/stork/ticket")
+@RequestMapping(value = "/api/v1/stork/ticket")
 public class SupportTicketController {
 
     @Autowired

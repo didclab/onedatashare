@@ -44,7 +44,7 @@ import static org.testng.Assert.assertTrue;
 public class CancelControllerTest extends ControllerTest {
 
     private boolean wasCalled = false;
-    private static final String CANCEL_CONTROLLER_URL = "/api/stork/cancel";
+    private static final String CANCEL_CONTROLLER_URL = "/api/v1/stork/cancel";
 
     @Before
     public void setup() {

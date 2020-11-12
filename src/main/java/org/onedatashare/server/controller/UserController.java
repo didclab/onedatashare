@@ -42,7 +42,7 @@ import reactor.core.publisher.Mono;
  * Controller for handling GET requests to User DB
  */
 @RestController
-@RequestMapping("/api/stork/user")
+@RequestMapping("/api/v1/stork/user")
 public class UserController {
 
     @Autowired

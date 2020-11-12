@@ -60,7 +60,7 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         String token = null;
         String endpoint = request.getPath().pathWithinApplication().value().toString();
         //Check for token only when the request needs to be authenticated
-        if(endpoint.startsWith("/api/")) {
+        if(endpoint.startsWith("/api/v1/")) {
             try {
                 // Try fetching token from the headers
                 token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);

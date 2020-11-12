@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import java.security.Principal;
 
 @RestController
-@RequestMapping("/api/cred/")
+@RequestMapping("/api/v1/cred/")
 public class EndpointCredController {
     @Autowired
     private CredentialService credentialService;
