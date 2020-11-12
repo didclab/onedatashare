@@ -40,9 +40,9 @@ export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
-export const url = "/api/stork/";
-export const apiBaseUrl = "/api/";
-export const apiCredUrl = apiBaseUrl + "cred/";
+export const url = "/api" + version + "/stork/";
+export const apiBaseUrl = "/api" + version + "/";
+export const apiCredUrl = apiBaseUrl + "cred" +"/";
 
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
