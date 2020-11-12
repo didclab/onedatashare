@@ -126,7 +126,7 @@ export default class BrowseModuleComponent extends Component {
 			console.log("Checking backend for " + containsType + " credentials");
 
 			savedCredList(containsType, (data) => {
-				if(data !== undefined && data.length > 0){
+				if(data !== undefined && data.list.length > 0){
 					succeed(data);
 				}else{
 					failed();
@@ -146,7 +146,7 @@ export default class BrowseModuleComponent extends Component {
 			this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
 				endpoint: {...endpoint, uri: uri},
-				creds: data
+				creds: data ? data.list : {}
 			});
 			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 		}
