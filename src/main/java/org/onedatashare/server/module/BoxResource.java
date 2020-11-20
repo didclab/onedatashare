@@ -24,6 +24,17 @@ public class BoxResource extends Resource{
         this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
     }
 
+    public static Mono<? extends Resource> initialize(EndpointCredential credential){
+        return Mono.create(s -> {
+            try {
+                BoxResource boxResource= new BoxResource(credential);
+                s.success(boxResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
+
     public Stat onStat(String id) throws Exception{
 
         BoxFolder folder = null;
