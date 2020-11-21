@@ -222,7 +222,10 @@ export default class BrowseModuleComponent extends Component {
 			      		this.setState({endpoint: object});
 			      		update({endpoint: object})
 			      	}}
-			      	setLoading = {this.setLoading}
+					setLoading = {this.setLoading}
+					updateCredentials = {(data => {
+						this.setState({creds: data? data.list: {}})
+					})}
 			      	back={backHome}
 		      	/>
 		    </div>}
