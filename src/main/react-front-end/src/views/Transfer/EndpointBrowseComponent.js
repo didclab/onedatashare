@@ -445,24 +445,37 @@ export default class EndpointBrowseComponent extends Component {
 		}
 	}
 
+	updateCompactViewPreference = name => event => {
+		this.setState({ [name]: event.target.checked });
+		let compactViewEnabled = event.target.checked;
+		let email = store.getState().email;
+		updateViewPreference(email, compactViewEnabled,
+			(success) => {
+				console.log("Compact View Preference Switched Successfully", success);
+				store.dispatch(compactViewPreference(compactViewEnabled));
+			},
+			(error) => { console.log("ERROR in updation" + error) }
+		);
+	};
+
 	render(){
 		const {endpoint, back, setLoading, getLoading, /*displayStyle*/} = this.props;
 		const {directoryPath, searchText, compact} = this.state;
 		const displayStyle = compact ? "compact" : "comfort";
 		const type = getType(endpoint);
 
-		let updateCompactViewPreference = name => event => {
-			this.setState({ [name]: event.target.checked });
-			let compactViewEnabled = event.target.checked;
-			let email = store.getState().email;
-			updateViewPreference(email, compactViewEnabled,
-				(success) => {
-					console.log("Compact View Preference Switched Successfully", success);
-					store.dispatch(compactViewPreference(compactViewEnabled));
-				},
-				(error) => { console.log("ERROR in updation" + error) }
-			);
-		};
+		// let updateCompactViewPreference = name => event => {
+		// 	this.setState({ [name]: event.target.checked });
+		// 	let compactViewEnabled = event.target.checked;
+		// 	let email = store.getState().email;
+		// 	updateViewPreference(email, compactViewEnabled,
+		// 		(success) => {
+		// 			console.log("Compact View Preference Switched Successfully", success);
+		// 			store.dispatch(compactViewPreference(compactViewEnabled));
+		// 		},
+		// 		(error) => { console.log("ERROR in updation" + error) }
+		// 	);
+		// };
 
 		const list = getFilesFromMemory(endpoint) || [];
 		let displayList = Object.keys(list);
@@ -490,15 +503,9 @@ export default class EndpointBrowseComponent extends Component {
 		
 		const iconStyle = {fontSize: "15px"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
-		// const buttonGroupStyle = {display: "flex", flexDirection: "row", flexGrow: 2};
 
 		const selectedTasks = getSelectedTasksFromSide(endpoint);
 		const loading = getLoading();
-		// const tooltip = (name) => (
-		//   <Tooltip id="tooltip">
-		//   	{name}
-		//   </Tooltip>
-		// );
 
 
 		return (
@@ -572,7 +579,7 @@ export default class EndpointBrowseComponent extends Component {
 								color="default"
 								style={{colorPrimary: "white", colorSecondary: "white"}}
 								checked={this.state.compact}
-								onChange={updateCompactViewPreference('compact')}
+								onChange={this.updateCompactViewPreference('compact')}
 								value="compact"
 							/>
 						}

@@ -37,7 +37,8 @@ import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
 import { eventEmitter } from "../../App";
 import ReCAPTCHA from 'react-google-recaptcha';
-import Box from '@material-ui/core/Box';
+// import Box from '@material-ui/core/Box';
+import {Container, Box} from "@material-ui/core";
 
 import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
@@ -133,7 +134,7 @@ export default class SupportComponent extends Component{
 
     return(
         <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', textAlign: 'center'}} >
-          <Col xs={11} style={{ display: "flex",justifyContent: 'center', flexDirection: 'column'}}>
+          <Container maxWidth={"md"} style={{ display: "flex"}}>
             <Box boxShadow={3} style={{borderRadius: "8px", backgroundColor: "#fff"}}>
               {/* <Panel.Heading>
                 <h4 style={{ textAlign: 'center' }}>
@@ -157,7 +158,7 @@ export default class SupportComponent extends Component{
                     label = 'Name'
                     name = 'name'
                     onChange = {this.handleChange}
-                    style = {{ marginRight : '5%', width :'32.4%' }}
+                    style = {{ marginRight : '5%', width :'37.5%' }}
                     variant="outlined"
                   />
 
@@ -167,7 +168,7 @@ export default class SupportComponent extends Component{
                     name = 'email'
                     value = { this.state.email }
                     onChange = {this.handleChange}
-                    style = {{ width :'32.4%' }}
+                    style = {{ width :'37.5%' }}
                     variant="outlined"
                   />
                 </div>
@@ -178,7 +179,7 @@ export default class SupportComponent extends Component{
                     label = 'Subject&nbsp;'
                     name = 'subject'
                     onChange = {this.handleChange}
-                    style = {{ width :'70%' }}
+                    style = {{ width :'80%' }}
                     variant="outlined"
                   />
                 </div>
@@ -191,7 +192,7 @@ export default class SupportComponent extends Component{
                     label="Issue"
                     name="description"
                     onChange = {this.handleChange}
-                    style={{ width : '70%' }}
+                    style={{ width : '80%' }}
                     helperText="Enter Issue Description"
                     variant="outlined"
                   />
@@ -223,7 +224,7 @@ export default class SupportComponent extends Component{
               </ValidatorForm>
 
             </Box>
-          </Col>
+          </Container>
         </div>
     );
   }

@@ -128,22 +128,24 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	deleteCredentialFromLocal(cred, type){
-		this.props.setLoading(true);
+		// if(confirm("Are you sure you want to delete this account from the list?")){
+			this.props.setLoading(true);
 
-		let parsedCredsArr = JSON.parse(cookies.get(type));
-		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
-														return curObj.name !== cred.name;
-												});
-		if(filteredCredsArr.length === 0){
-			cookies.remove(type);
-		}
-		else{
-			cookies.set(type, JSON.stringify(filteredCredsArr));
-		}
+			let parsedCredsArr = JSON.parse(cookies.get(type));
+			let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+				return curObj.name !== cred.name;
+			});
+			if(filteredCredsArr.length === 0){
+				cookies.remove(type);
+			}
+			else{
+				cookies.set(type, JSON.stringify(filteredCredsArr));
+			}
 
-		this.setState({credList: filteredCredsArr});
+			this.setState({credList: filteredCredsArr});
 
-		this.props.setLoading(false);
+			this.props.setLoading(false);
+		// }
 	}
 
 	endpointIdsListUpdateFromBackend = () => {
@@ -473,6 +475,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 	})
 
+	// endpointModalClose = () => {this.setState({selectingEndpoint: false})}
+
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
@@ -482,7 +486,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		const loginType = getType(endpoint);
 
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
-		const FieldLabel = this.fieldLabelStyle();
 		const NextButton = this.nextButton();
 
 

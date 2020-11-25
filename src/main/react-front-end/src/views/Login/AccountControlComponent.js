@@ -45,6 +45,7 @@ import {
   forgotPasswordUrl,
   lostValidationCodeUrl,
   accountPageUrl,
+    siteURLS
 } from "../../constants";
 import { GREY } from "../../color";
 import { store } from "../../App.js";
@@ -299,7 +300,7 @@ export default class AccountControlComponent extends Component {
     const currentRoute = this.props.location.pathname;
     this.setState.signIn =
       Object.keys(rememberMeAccounts).length === 0 &&
-      currentRoute !== registerPageUrl;
+      currentRoute !== siteURLS.registerPageUrl;
     this.setState.creatingAccount = false;
     this.setState.lostValidationCodePressed = false;
     this.setStateforgotPasswordPressed = false;
@@ -326,20 +327,20 @@ export default class AccountControlComponent extends Component {
           {/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
 						{console.log(currentRoute)} */}
           {/* At any point of time only one among below should be true */}
-          {currentRoute !== lostValidationCodeUrl &&
+          {currentRoute !== siteURLS.lostValidationCodeUrl &&
             lostValidationCodePressed && (
-              <Redirect to={lostValidationCodeUrl} />
+              <Redirect to={siteURLS.lostValidationCodeUrl} />
             )}
-          {store.getState().login && <Redirect to={transferPageUrl} />}
-          {currentRoute !== registerPageUrl && creatingAccount && (
-            <Redirect to={registerPageUrl} />
+          {store.getState().login && <Redirect to={siteURLS.transferPageUrl} />}
+          {currentRoute !== siteURLS.registerPageUrl && creatingAccount && (
+            <Redirect to={siteURLS.registerPageUrl} />
           )}
-          {currentRoute !== forgotPasswordUrl && forgotPasswordPressed && (
-            <Redirect to={forgotPasswordUrl} />
+          {currentRoute !== siteURLS.forgotPasswordUrl && forgotPasswordPressed && (
+            <Redirect to={siteURLS.forgotPasswordUrl} />
           )}
-          {redirectToSignIn && <Redirect to={signInUrl} />}
-          {currentRoute === accountPageUrl && signIn && (
-            <Redirect from={accountPageUrl} to={signInUrl} />
+          {redirectToSignIn && <Redirect to={siteURLS.signInPageUrl} />}
+          {currentRoute === siteURLS.accountPageUrl && signIn && (
+            <Redirect from={siteURLS.accountPageUrl} to={siteURLS.signInPageUrl} />
           )}
           {loading && <LinearProgress />}
 
@@ -348,14 +349,6 @@ export default class AccountControlComponent extends Component {
                     {this.getInnerCard()}
                 </CardContent>
             </Card>
-          {/*{isSmall && this.getInnerCard()}*/}
-          {/*{!isSmall && (*/}
-          {/*  <Card elevation="3">*/}
-          {/*    <CardContent style={{ padding: "3em" }}>*/}
-          {/*      {this.getInnerCard()}*/}
-          {/*    </CardContent>*/}
-          {/*  </Card>*/}
-          {/*)}*/}
         </div>
       </div>
     );

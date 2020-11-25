@@ -87,6 +87,7 @@ export async function globusEndpointActivateWeb(id) {
  * @param {*} fail 
  */
 export async function deleteEndpointId(id, accept, fail) {
+    
     let callback = accept;
     axios.delete(globusBaseUrl + 'endpoint/' + id)
         .then((response) => {

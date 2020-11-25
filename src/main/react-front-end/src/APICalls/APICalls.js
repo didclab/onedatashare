@@ -296,6 +296,8 @@ export async function login(email, password, accept, fail) {
 	axios.post(AUTH_ENDPOINT, {
 	    email: email,
 	    password: password,
+	},  {
+		withCredentials: true
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;
@@ -305,7 +307,9 @@ export async function login(email, password, accept, fail) {
 			handleRequestFailure(error, fail);
 		});
 }
-
+// alert(JSON.stringify(response));
+/* {"data":{"email":"szheng39@buffalo.edu","saveOAuthTokens":true,"compactViewEnabled":false,"expiresIn":86400,"admin":false},"status":200,"statusText":"OK","headers":{"cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-length":"114","content-type":"application/json;charset=UTF-8","expires":"0","pragma":"no-cache","x-content-type-options":"nosniff","x-frame-options":"DENY","x-xss-protection":"1 ; mode=block"},"config":{"url":"/authenticate","method":"post","data":"{\"email\":\"szheng39@buffalo.edu\",\"password\":\"Iamawesome1!\"}","headers":{"Accept":"application/json","Content-Type":"application/json"},"transformRequest":[null],"transformResponse":[null],"timeout":10000,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN","maxContentLength":-1},"request":{}} */
+/* {"data":{"email":"szheng39@buffalo.edu","saveOAuthTokens":true,"compactViewEnabled":false,"expiresIn":86400,"admin":false},"status":200,"statusText":"OK","headers":{"cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-length":"114","content-type":"application/json;charset=UTF-8","expires":"0","pragma":"no-cache","x-content-type-options":"nosniff","x-frame-options":"DENY","x-xss-protection":"1 ; mode=block"},"config":{"url":"/authenticate","method":"post","data":"{\"email\":\"*\",\"password\":\"*\"}","headers":{"Accept":"application/json","Content-Type":"application/json"},"transformRequest":[null],"transformResponse":[null],"timeout":10000,"withCredentials":true,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN","maxContentLength":-1},"request":{}} */
 export async function logout(){
 	axios.post(LOGOUT_ENDPOINT, {})
 		.then((response) => {

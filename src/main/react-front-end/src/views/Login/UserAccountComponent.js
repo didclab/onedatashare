@@ -64,6 +64,8 @@ import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined'
 import InputAdornment from '@material-ui/core/InputAdornment';
 
 import {GREY} from './../../color.js';
+import {FileCopy} from "@material-ui/icons";
+import {Fade} from "@material-ui/core";
 
 export default class UserAccountComponent extends Component {
 	constructor() {
@@ -118,6 +120,19 @@ export default class UserAccountComponent extends Component {
 
 	}
 
+	// getToken() {
+	// 	let checkRequest = new XMLHttpRequest();
+	// 	checkRequest.onreadystatechange = function () {
+	// 		if (this.readyState === 4 && this.status === 200){
+	// 			alert(this.responseText);
+	// 		}
+	// 	};
+	// 	let loginURL = window.location.hostname;
+	// 	checkRequest.open("GET", "/", true);
+	// 	checkRequest.send();
+	//
+	// }
+
 	onPasswordUpdate = (oldPass, newPass, confPass) => {
 		if (newPass === "" || oldPass === "" || confPass === "") {
 			eventEmitter.emit("errorOccured", "Password fields cannot be empty");
@@ -137,6 +152,15 @@ export default class UserAccountComponent extends Component {
 				}
 			});
 		}
+	}
+
+	copyText = () => {
+		let token = document.getElementById("ATOKEN").value;
+		navigator.clipboard.writeText(token)
+			.catch((error) => {
+				document.getElementById("copyStatus").innerText = "Failed to copy " + error;
+			});
+		document.getElementById("copyStatus").style.display = "block";
 	}
 	
 
@@ -185,7 +209,35 @@ export default class UserAccountComponent extends Component {
 					/>
 				</ListItem>
 				<Divider variant="middle" />
+				<ListItem alignItems="center">
+					<ListItemText
+						primary="Token"
+						secondary={
+							<UserAccountField textDisplayed={
+								<React.Fragment>
+									<Input
+										id={"ATOKEN"}
+										disabled
+										value={"abceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeebbbbbbbbbbbbbbbbbbbbbbbbb"}
+										style={{width: "100%"}}
+										endAdornment={
+											<InputAdornment position={"end"}>
+												<Button onClick={
+													this.copyText
+												}>Copy</Button>
+											</InputAdornment>
+										}
+										/>
+									<Typography id={"copyStatus"} style={{display: "none"}}>Copied!</Typography>
+									{/*{this.getToken()}*/}
+								</React.Fragment>
+							} />
+						}
+					/>
+				</ListItem>
+				<Divider variant="middle" />
 			</List>
+
 		</React.Fragment>);
 	}
 
