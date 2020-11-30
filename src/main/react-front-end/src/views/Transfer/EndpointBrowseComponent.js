@@ -560,7 +560,7 @@ export default class EndpointBrowseComponent extends Component {
 							getSharableLink(downloadUrl, endpoint.credential, taskList[0].id)
 							.then(response => {
 								if(response !== ""){
-									this.handleClickOpen(response);
+									this.handleClickOpen(response.url);
 								}
 								else{
 									eventEmitter.emit("errorOccured", "Error encountered while generating link");

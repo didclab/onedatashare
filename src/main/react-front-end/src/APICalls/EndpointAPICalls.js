@@ -25,6 +25,7 @@ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
+import {DROPBOX_TYPE} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -36,10 +37,9 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 
 export async function listFiles(uri, endpoint, id, accept, fail) {
     let body = {
-        uri: encodeURI(uri),
-        id: id,
-        portNumber: endpoint.portNumber,
-        type: LIST_OP_URL,
+        "identifier": endpoint["credential"]["name"],
+        "credId": endpoint["credential"]["uuid"],
+        "path": encodeURI(uri)
     };
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)
@@ -61,9 +61,7 @@ export async function share(uri, endpoint, accept, fail) {
         credential: endpoint.credential,
         uri: encodeURI(uri),
         map: getMapFromEndpoint(endpoint),
-
-    })
-        .then((response) => {
+    }).then((response) => {
             if (!(response.status === 200))
                 callback = fail;
             statusHandle(response, callback);
@@ -75,14 +73,13 @@ export async function share(uri, endpoint, accept, fail) {
 
 export async function mkdir(uri, type, endpoint, accept, fail) {
     let callback = accept;
-
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
-        credential: endpoint.credential,
-        uri: encodeURI(uri),
-        id: id,
-        map: getMapFromEndpoint(endpoint),
+        "identifier": endpoint["credential"]["name"],
+        "credId": endpoint["credential"]["uuid"],
+        "path": uri,
+        "folderToCreate": ""
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -98,10 +95,10 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
     let callback = accept;
 
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DEL_OP_URL), {
-        credential: endpoint.credential,
-        uri: encodeURI(uri),
-        id: id,
-        map: getMapFromEndpoint(endpoint)
+        "identifier": endpoint["credential"]["name"],
+        "credId": endpoint["credential"]["uuid"],
+        "path": uri,
+        "toDelete": ""
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -117,9 +114,10 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
 // Returns the url for file. It is used to download the file and also to display in share url popup
 async function getDownloadLink(uri, credential, _id) {
     return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DOWNLOAD_OP_URL), {
-        credential: credential,
-        uri: encodeURI(uri),
-        id: _id,
+           "identifier": credential["name"],
+           "credId": credential["uuid"],
+           "path": uri,
+           "fileToDownload": ""
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -143,7 +141,7 @@ export async function getSharableLink(uri, credential, _id) {
 export async function download(uri, credential, _id) {
     return getDownloadLink(uri, credential, _id).then((response) => {
         if (response !== "") {
-            window.open(response)
+            window.open(response.url)
         }
         else {
             console.log("Error encountered while generating download link");

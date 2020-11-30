@@ -34,6 +34,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import org.springframework.beans.factory.annotation.Value;
+import org.onedatashare.server.module.DropboxResource;
+import org.onedatashare.server.module.Resource;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
@@ -47,6 +50,14 @@ public class DbxService extends ResourceService{
 
     @Autowired
     private JobService jobService;
+
+    @Autowired
+    private CredentialService credentialService;
+
+    @Value("${dropbox.identifier}")
+    private String DROPBOX_CLIENT_IDENTIFIER;
+
+    private static final EndpointType ENDPOINT_TYPE = EndpointType.dropbox;
 
     public Mono<DbxResource> getDbxResourceWithUserActionUri(String cookie, UserAction userAction) {
         if(userAction.getCredential().isTokenSaved()) {
@@ -151,28 +162,38 @@ public class DbxService extends ResourceService{
                 .flatMap(DbxResource::generateDownloadLink).subscribeOn(Schedulers.elastic());
     }
 
+    protected Mono<? extends Resource> getResource(String credId) {
+        return credentialService.fetchOAuthCredential(this.ENDPOINT_TYPE, credId)
+                .flatMap(credential -> DropboxResource.initialize(credential, DROPBOX_CLIENT_IDENTIFIER))
+                .subscribeOn(Schedulers.elastic());
+    }
+
     @Override
     public Mono<Stat> list(ListOperation listOperation) {
-        return null;
+        return this.getResource(listOperation.getCredId()).
+                flatMap(resource -> resource.list(listOperation));
     }
 
     @Override
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return null;
+        return this.getResource(mkdirOperation.getCredId()).
+                flatMap(resource -> resource.mkdir(mkdirOperation));
     }
 
     @Override
     public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return null;
+        return this.getResource(deleteOperation.getCredId()).
+                flatMap(resource -> resource.delete(deleteOperation));
     }
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
-        return null;
+        return this.getResource(downloadOperation.getCredId()).
+                flatMap(resource -> resource.download(downloadOperation));
     }
 
     @Override
-    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
+    protected Mono<? extends org.onedatashare.server.model.core.Resource> createResource(OperationBase operationBase) {
         return null;
     }
 }
