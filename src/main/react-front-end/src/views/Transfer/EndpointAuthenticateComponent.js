@@ -36,6 +36,8 @@ import {DROPBOX_TYPE,
 				HTTP_TYPE,
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
+				GOOGLEDRIVE,
+				GOOGLEDRIVE_NAME
 			} from "../../constants";
 import {store} from "../../App";
 
@@ -73,7 +75,8 @@ export default class EndpointAuthenticateComponent extends Component {
         credentials: PropTypes.object,
 		type: PropTypes.string,
 		back: PropTypes.func,
-		setLoading : PropTypes.func
+		setLoading : PropTypes.func,
+		updateCredentials: PropTypes.func,
 	}
 	constructor(props){
 		super(props);
@@ -106,15 +109,16 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 	}
 
-	credentialListUpdateFromBackend = () => {
+	credentialListUpdateFromBackend = (type) => {
 		this.props.setLoading(true);
 
-		savedCredList((data) =>{
-			this.setState({credList: data});
+		savedCredList(type, (data) =>{
+			this.setState({credList: data? data.list: {}})
+			this.props.updateCredentials(data);
 			this.props.setLoading(false);
-		}, (error) =>{
-			this._handleError(error);
-			this.props.setLoading(false);
+			}, (error) =>{
+				this._handleError(error);
+				this.props.setLoading(false);
 		});
 	}
 
@@ -260,7 +264,10 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-
+		
+		if(type === GOOGLEDRIVE_NAME) {
+			type = GOOGLEDRIVE
+		}
 
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
@@ -284,8 +291,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
-							deleteCredentialFromServer(v, (accept) => {
-								this.credentialListUpdateFromBackend();
+							deleteCredentialFromServer(v, type, (accept) => {
+								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
 								this._handleError("Delete Credential Failed");
 							});
@@ -500,7 +507,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && credList && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
 				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}

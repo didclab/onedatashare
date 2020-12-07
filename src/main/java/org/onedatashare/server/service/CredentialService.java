@@ -110,4 +110,11 @@ public class CredentialService {
                                 .bodyToMono(OAuthEndpointCredential.class)
                 );
     }
+
+    public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
+        return client.delete()
+                .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
+                .exchange()
+                .then();
+    }
 }

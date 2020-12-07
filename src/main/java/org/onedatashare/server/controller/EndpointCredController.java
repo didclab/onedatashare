@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/cred/")
@@ -29,5 +30,12 @@ public class EndpointCredController {
     public Mono<CredList> getCredential(@PathVariable EndpointType type, Mono<Principal> principalMono){
         return principalMono.map(Principal::getName)
                 .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
+    }
+
+    @PatchMapping("{type}")
+    public Mono<Void> deleteCredential(@RequestBody HashMap credential, @PathVariable EndpointType type,
+                                       Mono<Principal> principalMono) {
+        return principalMono.map(Principal::getName)
+                .flatMap(user->credentialService.deleteCredential(user, type, credential.get("credential").toString()));
     }
 }
