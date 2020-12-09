@@ -28,36 +28,73 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.request.OperationRequestData;
+import org.onedatashare.server.model.request.RequestData;
 import org.onedatashare.server.model.response.DownloadResponse;
-import org.onedatashare.server.service.SftpService;
+import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.service.GDriveService;
+import org.onedatashare.server.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.result.view.Rendering;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
+@RequestMapping("/api/amazons3")
 @RestController
-@RequestMapping("/api/s3")
 public class S3Controller extends EndpointBaseController{
     @Autowired
-    private SftpService sftpService;
+    private S3Service s3Service;
 
+    /*
     @Override
-    protected Mono<Stat> listOperation(ListOperation operation) {
-        return sftpService.list(operation);
+    protected Mono<Stat> listOperation(RequestData requestData) {
+        UserAction userAction = UserAction.convertToUserAction(requestData);
+        return s3Service.list(null, userAction).subscribeOn(Schedulers.elastic());
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        return sftpService.mkdir(operation);
+    protected Mono<ResponseEntity> mkdirOperation(OperationRequestData operationRequestData) {
+        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+        return s3Service.mkdir(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation operation) {
-        return sftpService.delete(operation);
+    protected Mono<ResponseEntity> deleteOperation(OperationRequestData operationRequestData) {
+        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
+        return s3Service.delete(null, userAction).map(this::returnOnSuccess).subscribeOn(Schedulers.elastic());
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return sftpService.download(operation).map(DownloadResponse::new);
+    protected Mono<Stat> uploadOperation() {
+        return null;
+    }
+
+    @Override
+    protected Mono<String> downloadOperation(RequestData requestData) {
+        UserAction userAction = UserAction.convertToUserAction(requestData);
+        return s3Service.download(null, userAction).subscribeOn(Schedulers.elastic());
+    }
+
+    @Override
+    protected Rendering oauthOperation() {
+        return null;
+    }
+     */
+
+    @Override
+    protected Mono<Stat> listOperation(ListOperation listOperation) { return s3Service.list(listOperation); }
+
+    @Override
+    protected Mono<Void> mkdirOperation(MkdirOperation operation) { return s3Service.mkdir(operation); }
+
+    @Override
+    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) { return s3Service.delete(deleteOperation); }
+
+    @Override
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation) {
+        return s3Service.download(downloadOperation).map(DownloadResponse::new);
     }
 }

@@ -6,5 +6,5 @@ import java.util.List;
 
 @Data
 public class CredList {
-    private List<String> credentialList;
+    private List<String> list;
 }

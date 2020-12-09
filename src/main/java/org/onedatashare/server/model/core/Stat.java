@@ -209,4 +209,37 @@ public class Stat {
 
     return this;
   }
+
+
+  public void setFile(boolean file) {
+    this.file = file;
+  }
+
+  public void setDir(boolean dir) {
+    this.dir = dir;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setTime(long time) {
+    this.time = time;
+  }
+
+  public void setPermissions(String permissions) {
+    this.permissions = permissions;
+  }
+
+  public Stat[] getFiles() {
+    return this.files;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public long getSize() {
+    return this.size;
+  }
 }
