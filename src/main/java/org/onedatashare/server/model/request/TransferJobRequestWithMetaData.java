@@ -27,6 +27,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
+import org.onedatashare.server.model.credential.EndpointCredential;
 
 @Data
 @Accessors(chain = true)
@@ -35,6 +36,8 @@ public class TransferJobRequestWithMetaData{
     private String ownerId;
 
     @NonNull protected TransferJobRequest.Source source;
+    private EndpointCredential sourceCredential;
+    private EndpointCredential destCredential;
     @NonNull protected TransferJobRequest.Destination destination;
     protected TransferOptions options;
 

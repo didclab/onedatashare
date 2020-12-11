@@ -24,6 +24,10 @@
 package org.onedatashare.server.service;
 
 import org.apache.http.entity.ContentType;
+import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
+import org.onedatashare.server.model.credential.CredentialConstants;
+import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.request.TransferJobRequestWithMetaData;
@@ -35,7 +39,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.time.Duration;
@@ -52,6 +55,9 @@ public class TransferJobService {
 
     @Autowired
     private SftpService sftpService;
+
+    @Autowired
+    private CredentialService credentialService;
 
     private WebClient client;
     private static final Duration timeoutDuration = Duration.ofSeconds(10);
@@ -99,5 +105,60 @@ public class TransferJobService {
                                 response -> Mono.error(new Exception("Internal server error")))
                         .bodyToMono(TransferJobSubmittedResponse.class)
                         .timeout(timeoutDuration));
+    }
+
+    public Mono<TransferJobSubmittedResponse> ensureJobReadyRequest(TransferJobRequestWithMetaData requestWithMetaData){
+        TransferJobSubmittedResponse responseObj = new TransferJobSubmittedResponse();
+        if(requestWithMetaData.getSourceCredential() == null){
+            responseObj.setStatus(2);
+            responseObj.setMessage("Encountered an error setting your source Endpoint Credential object please make sure it is added ");
+            return Mono.just(responseObj);
+        }else if(requestWithMetaData.getDestCredential() == null){
+            responseObj.setStatus(2);
+            responseObj.setMessage("There was an issue encountering your Destination credId specified");
+            return Mono.just(responseObj);
+        }else{
+            return client.post().uri(URI.create(this.transferQueueingServiceUri))
+                    .syncBody(requestWithMetaData)
+                    .retrieve()
+                    .onStatus(HttpStatus::is4xxClientError,
+                            response -> Mono.error(new CredentialNotFoundException()))
+                    .onStatus(HttpStatus::is5xxServerError,
+                            response -> Mono.error(new Exception("Internal server error")))
+                    .bodyToMono(TransferJobSubmittedResponse.class)
+                    .timeout(timeoutDuration);
+        }
+    }
+
+    public Mono<TransferJobSubmittedResponse> submitJob(String ownerId, TransferJobRequest request){
+        TransferJobRequestWithMetaData requestWithMetaData = TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, request);
+
+        if(CredentialConstants.ACCOUNT_CRED_TYPE.contains(request.getSource().getType())){
+            credentialService.fetchAccountCredential(request.getSource().getType(), request.getSource().getCredId())
+                    .map(accountEndpointCredential -> {
+                        requestWithMetaData.setSourceCredential(accountEndpointCredential);
+                        return requestWithMetaData;
+                    });
+        }else if(CredentialConstants.OAUTH_CRED_TYPE.contains(request.getSource().getType())){
+            credentialService.fetchOAuthCredential(request.getSource().getType(), request.getSource().getCredId())
+                    .map(oAuthEndpointCredential -> {
+                        requestWithMetaData.setSourceCredential(oAuthEndpointCredential);
+                        return requestWithMetaData;
+                    });
+        }
+        if(CredentialConstants.ACCOUNT_CRED_TYPE.contains(request.getDestination().getType())){
+            credentialService.fetchAccountCredential(request.getDestination().getType(), request.getDestination().getCredId())
+                    .map(accountEndpointCredential -> {
+                        requestWithMetaData.setDestCredential(accountEndpointCredential);
+                        return requestWithMetaData;
+                    });
+        }else if(CredentialConstants.OAUTH_CRED_TYPE.contains(request.getDestination().getType())){
+            credentialService.fetchOAuthCredential(request.getDestination().getType(), request.getDestination().getCredId())
+                    .map(oAuthEndpointCredential -> {
+                        requestWithMetaData.setDestCredential(oAuthEndpointCredential);
+                        return requestWithMetaData;
+                    });
+        }
+        return ensureJobReadyRequest(requestWithMetaData);
     }
 }

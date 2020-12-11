@@ -38,6 +38,19 @@ public class EndpointCredential{
     public EndpointCredential(String accountId){
         this.accountId = accountId;
     }
-
     public EndpointCredential(){}
+    public AccountEndpointCredential getAccountCredential(EndpointCredential endpointCredential){
+        if(endpointCredential instanceof  AccountEndpointCredential){
+            return (AccountEndpointCredential) endpointCredential;
+        }else{
+            return null;
+        }
+    }
+    public OAuthEndpointCredential getOAuthCredential(EndpointCredential endpointCredential){
+        if(endpointCredential instanceof OAuthEndpointCredential){
+            return (OAuthEndpointCredential) endpointCredential;
+        }else{
+            return null;
+        }
+    }
 }
