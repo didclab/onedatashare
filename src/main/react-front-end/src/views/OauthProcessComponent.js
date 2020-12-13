@@ -30,7 +30,9 @@ import {
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
   GRIDFTP_NAME,
-  BOX_NAME
+  BOX_NAME,
+    showText,
+    isOAuth
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
@@ -73,11 +75,21 @@ export default class OauthProcessComponent extends Component {
       let qs = this.props.location.search;
       let identifier = decodeURIComponent(qs.substring(qs.indexOf("=") + 1));
       endpointLogin(DROPBOX_TYPE, sideLeft, { uuid: identifier });
-    } else {
+    } /*else if(isOAuth.hasOwnProperty(tag) && isOAuth[tag]){
+      console.log(tag + " oAuth identifier received");
+      this.updateLocalCredStore(showText[tag], qsObj);
+    }*/
+    else {
       let qs = this.props.location.search;
       let qsObj = JSON.parse(
         decodeURIComponent(qs.substring(qs.indexOf("=") + 1))
       );
+
+      // if(isOAuth.hasOwnProperty(tag) && isOAuth[tag]){
+      //   console.log(tag + "oAuth identifier received");
+      //   this.updateLocalCredStore(showType[tag], qsObj);
+      // }
+
 
       if (tag === "dropbox") {
         console.log("Dropbox oAuth identifier received");

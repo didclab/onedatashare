@@ -1,16 +1,16 @@
 /**
  ##**************************************************************
  ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
+ ## Copyright (C) 2018-2020, OneDataShare Team,
  ## Department of Computer Science and Engineering,
  ## University at Buffalo, Buffalo, NY, 14260.
- ## 
+ ##
  ## Licensed under the Apache License, Version 2.0 (the "License"); you
  ## may not use this file except in compliance with the License.  You may
  ## obtain a copy of the License at
- ## 
+ ##
  ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
+ ##
  ## Unless required by applicable law or agreed to in writing, software
  ## distributed under the License is distributed on an "AS IS" BASIS,
  ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,6 +25,7 @@ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
+import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -187,4 +188,29 @@ export async function openOAuth(url){
 	window.location = url;
 }
 
+export const OAuthFunctions = {
+    [DROPBOX_TYPE]: openDropboxOAuth,
+    [GOOGLEDRIVE_TYPE]: openGoogleDriveOAuth,
+    [GRIDFTP_TYPE]: openGridFtpOAuth,
+    [BOX_TYPE]: openBoxOAuth,
+    other: openOAuth
+};
 
+//api call for terminal
+export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
+	let callback = accept;
+	return axios.post('/api/ssh/console',
+                                { "host": host,
+                                  "commandWithPath": inp_cmd,
+                                  "credential" : {"username" : uname,"password" : epw},
+                                  "port": port}).then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		    //console.log(response.data);
+		    return response.data;
+		})
+		.catch((error) => {
+			statusHandle(error, fail);
+		});
+}

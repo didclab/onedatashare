@@ -23,6 +23,7 @@
 
 import React, { Component } from 'react';
 import { eventEmitter} from "../App";
+import {Grid, Card} from "@material-ui/core";
 export default class ErrorMessagesConsole extends Component {
 
 	constructor(props){
@@ -68,15 +69,32 @@ export default class ErrorMessagesConsole extends Component {
 	render(){
 		const {errorMessages} = this.state;
 		return(
-			<div style={{textAlign: "left", borderWidth: 1, height: "150px", 
+			// <Grid container direction={"row"} alignItems={"flex-start"} spacing={2}>
+			// 	<Grid item md={5} xs={12} >
+			// 		<div className={"instructions"}>
+			// 			<p>
+			//
+			// 			</p>
+			// 		</div>
+			// 	</Grid>
+			// 	<Grid item md={7} xs={12}>
+					<div className={"errorConsole"} /*style={{textAlign: "left", borderWidth: 1, height: "100px",
 					overflow: "scroll", wordWrap: "break-word", borderStyle: "solid",
-					borderColor: "black", padding: "5px", borderRadius: "10px"
-				}}
-				
-			>
-				{errorMessages.map((msg, i) => <p key={i} style={{color: msg.color}}>{msg.msg}</p>)}
-				<p ref={(msgsList) => { this.messagesEnd = msgsList; }}> ></p>
-			</div>
+					borderColor: "black", padding: "5px", borderRadius: "10px", marginTop: "20px"
+				}}*/
+
+					>
+						{errorMessages.map((msg, i) => <p key={i} style={{color: msg.color}}>{msg.msg}</p>)}
+						<p ref={(msgsList) => { this.messagesEnd = msgsList; }}> ></p>
+
+					</div>
+			// 	</Grid>
+			// </Grid>
+
+
+
+
+
 			);
 		;
 	}
