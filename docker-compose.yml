@@ -13,10 +13,11 @@ services:
 #      - .ods.db.env
     volumes :
      - mongodb:/data/db
-    command: mongod
+    command: mongod --smallfiles --logpath=/dev/null --quiet
 
   # ODS service that runs the Maven container
   odsbackend:
+  #    image: onedatashare_odsbackend:latest #replace this with "build: ." if u want to build what you have locally. Make sure to update your env appropriately
     build: .
     env_file:
       - .ods.env

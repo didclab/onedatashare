@@ -34,7 +34,7 @@ export default class ProgressUpdateComponent extends Component {
     constructor(props){
 		super(props);
 		this.state={
-            progress: false,
+            progress: true,
 			uploadPercent: 0,
 			uplaodFileName: '',
             progressMinimize: false,

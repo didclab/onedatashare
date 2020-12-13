@@ -43,6 +43,7 @@ export const apiCredUrl = apiBaseUrl + "cred/";
 
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
+export const endpoint_db = "/endpoint_db"
 export const accountPageUrl = "/account";
 export const registerPageUrl = "/account/register";
 export const signInUrl = "/account/signIn";
@@ -59,6 +60,31 @@ export const managementPageUrl = "/management";
 export const oauthPreUrl = "/oauth/";
 export const termsUrl = "/terms";
 export const policyUrl = "/policy";
+
+export const siteURLS = {
+	rootUrl: "/",
+	transferPageUrl: "/transfer",
+	queuePageUrl: "/queue",
+	supportPageUrl: "/support",
+	getStartedPageUrl: "/get-started",
+	endpoint_dbUrl: "/endpoint_db",
+	accountPageUrl: "/account",
+	registerPageUrl: "/account/register",
+	signInPageUrl: "/account/signIn",
+	forgotPasswordUrl: "/account/forgotPassword",
+	lostValidationCodeUrl: "/account/lostValidationCode",
+	userPageUrl: "/user",
+	userListPageUrl: "/clientsInfo",
+	historyPageUrl: "/history",
+	notificationPageUrl: "/sendNotifications",
+	newNotificationsUrl: "/newNotifications",
+	addAccountUrl: "/account/add",
+	dataPageUrl: "/data",
+	managementPageUrl: "/management",
+	oauthPreUrl: "/oauth/",
+	termsUrl: "/terms",
+	policyUrl: "/policy",
+};
 
 export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";
@@ -113,7 +139,7 @@ export const sideRight = "right";
 
 export const validPasswordLength = 6;
 
-export const ODS_S3_BUCKET = "https://ods-static-assets.s3.us-east-2.amazonaws.com/";
+export const ODS_S3_BUCKET = "https://ods-image.s3.us-east-2.amazonaws.com/";
 
 //images
 // export const fastImage = ODS_S3_BUCKET + 'fast.png';
@@ -137,6 +163,8 @@ export const ODS_PUBLIC_KEY = process.env.REACT_APP_ODS_RSA_PUBLIC_KEY;
 //Status
 export const completeStatus = "complete";
 
+
+
 export const showText = {
 	dropbox: DROPBOX_NAME,
 	gdrive: GOOGLEDRIVE_NAME,
@@ -159,6 +187,41 @@ export const showType = {
 	https: HTTP_TYPE
 }
 
+export const isOAuth = {
+	[DROPBOX_TYPE]: true,
+	[GOOGLEDRIVE_TYPE]: true,
+	[BOX_TYPE]: true,
+	[FTP_TYPE]: false,
+	[SFTP_TYPE]: false,
+	[HTTP_TYPE]: false,
+	[GRIDFTP_TYPE]: true,
+	[HTTPS_TYPE]: false
+}
+
+export const showDisplay = {
+	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
+	googledrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
+	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
+	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
+	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
+	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
+	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
+}
+
+export const SERVICES = {
+	OAuth: [
+		[DROPBOX_TYPE, DROPBOX_NAME, DROPBOX],
+		[GOOGLEDRIVE_TYPE, GOOGLEDRIVE_NAME, GOOGLEDRIVE],
+		[BOX_TYPE, BOX_NAME, BOX],
+		[GRIDFTP_TYPE, GRIDFTP_NAME, GRIDFTP],
+	],
+	Login: [
+		[FTP_TYPE, FTP_NAME, FTP],
+		[HTTP_TYPE, HTTP_NAME, HTTP],
+		[SFTP_TYPE, SFTP_NAME, SFTP],
+	]
+};
+
 export const defaultPort = {
 	dropbox: -1,
 	googledrive: -1,
@@ -178,6 +241,29 @@ export const jobStatus = {
 	SCHEDULED: 'scheduled',
 	FAILED: 'failed'
 }
+
+
+//screen sizes for mobile/desktop switch
+
+//using grid column
+export const gridFullWidth = 12;
+export const gridHalfWidth = 6;
+export const gridThirdWidth = 4;
+export const gridQuarterWidth = 3;
+
+//grid column/row
+export const gridRow = "row";
+export const gridCol = "column";
+
+
+
+//using width sizing
+export const FullWidth = 1;
+export const HalfWidth = 1/2;
+export const ThirdWidth = 1/3;
+export const QuarterWidth = 1/4;
+
+
 
 export function getType(endpoint) {
 	return getTypeFromUri(endpoint.uri)
