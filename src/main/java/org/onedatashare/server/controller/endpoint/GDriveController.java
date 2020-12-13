@@ -24,47 +24,40 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.GDriveService;
-import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/googledrive")
-public class GdriveController extends EndpointBaseController{
+public class GDriveController extends EndpointBaseController{
     @Autowired
     private GDriveService gdriveService;
 
-    @Autowired
-    private GDriveOauthService gDriveOauthService;
-
     @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return gdriveService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(ListOperation listOperation) {
+        return gdriveService.list(listOperation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gdriveService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+        return gdriveService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return gdriveService.delete(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
+        return gdriveService.delete(deleteOperation);
     }
 
     @Override
-    protected Mono<String> downloadOperation(RequestData requestData){
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return gdriveService.download(null, userAction);
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation) {
+        return gdriveService.download(downloadOperation).map(DownloadResponse::new);
     }
 }

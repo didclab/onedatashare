@@ -32,13 +32,14 @@ import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.*;
-import org.onedatashare.server.model.core.ODSConstants;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.AccessDeniedException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.util.*;
 
 import static org.onedatashare.server.model.core.ODSConstants.BOX_URI_SCHEME;
@@ -254,7 +255,6 @@ public class BoxResource extends Resource<BoxSession, BoxResource> {
 
     @Override
     public Mono<Stat> getTransferStat() {
-
         return stat().map(s -> {
             List<Stat> sub = new LinkedList<>();
             long directorySize = 0L;

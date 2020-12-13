@@ -1,0 +1,147 @@
+@startuml
+
+title OneDataShare Client UML diagram
+
+'package "onedatashare" {
+'class OneDataShare
+'abstract class Endpoint
+'class GDrive
+'class Dropbox
+'class Box
+'class S3
+'class FTP
+'class SFTP
+'class HTTP
+'class GridFTP
+'
+'class ListOperation
+'class MkdirOperation
+'class DeleteOperation
+'class DownloadOperation
+
+'class Transfer
+'enum FileType
+'class AccountEndpointCredential
+'class Item
+'}
+
+class OneDataShare{
++ OneDataShare(String token)
+}
+
+OneDataShare <|-- Transfer
+OneDataShare <|-- Endpoint
+Endpoint <|-- Dropbox
+Endpoint <|-- Box
+Endpoint <|-- S3
+Endpoint <|-- GDrive
+Endpoint <|-- GridFTP
+Endpoint <|-- FTP
+Endpoint <|-- SFTP
+Endpoint <|-- HTTP
+
+class Item{
+- String id
+- String name
+- long size
+- FileType type
+- boolean String link
+- String permissions;
+- List<Item> filesList;
++ Item list()
++ bool delete()
++ void download()
++ bool mkdir(String folderName)
+}
+
+enum FileType{
+LINK
+FILE
+FOLDER
+}
+
+class Transfer{
++ {static} String transfer(TransferRequest request)
++ {static} TransferStatus getTransferStatus(String id)
+}
+
+abstract class Endpoint{
++ Endpoint()
++ Item resolve()
++ Item resolve(String path)
+}
+
+class Dropbox{
++ void add()
+}
+
+class Box{
++ Box()
++ void add()
+}
+
+class S3{
++ void add(AccountEndpointCredential cred)
+}
+
+class GDrive{
++ void add()
+}
+
+class GridFTP{
++ void add()
+}
+
+class FTP{
++ void add(AccountEndpointCredential cred)
+}
+
+class SFTP{
++ void add(AccountEndpointCredential cred)
+}
+
+class HTTP{
+}
+
+class AccountEndpointCredential{
+- String accountId
+- String uri
+- String username
+- String secret
+}
+
+class TransferRequest{
+- Source source
+- Destination destination
+- TransferOptions options
+- int priority
+}
+
+class Destination {
+- EndpointType type
+- String credId
+- ItemInfo info
++ Destination(EndpointType type, String credId, Item Item)
+}
+
+class Source {
+- EndpointType type
+- String credId
+- ItemInfo info
+- HashSet<ItemInfo> infoList
++ Source(EndpointType type, String credId, Item[] Item)
++ Source(EndpointType type, String credId, Item Item)
+}
+
+class ItemInfo {
+- String id
+- String path
+- long size
+}
+
+enum EndpointType {
+    dropbox, gdrive, sftp, ftp, box, s3, gftp, http
+}
+
+
+@enduml

@@ -24,16 +24,16 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserAction;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.BoxService;
-import org.onedatashare.server.service.oauth.BoxOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/box")
@@ -41,31 +41,24 @@ public class BoxController extends EndpointBaseController{
     @Autowired
     private BoxService boxService;
 
-    @Autowired
-    private BoxOauthService boxOauthService;
-
     @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return boxService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(ListOperation operation) {
+        return boxService.list(operation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return boxService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+        return boxService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return boxService.delete(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+        return boxService.delete(operation);
     }
 
     @Override
-    protected Mono<String> downloadOperation(RequestData requestData){
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return boxService.download(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+        return boxService.download(operation).map(DownloadResponse::new);
     }
 
 }

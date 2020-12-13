@@ -23,14 +23,20 @@
 
 package org.onedatashare.server.module.googledrive;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
+import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -40,6 +46,7 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 @Configuration
 @Data
@@ -162,4 +169,34 @@ public class GDriveConfig {
             e.printStackTrace();
         }
     }
+
+    public static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer) {
+        return new HttpRequestInitializer() {
+            @Override
+            public void initialize(HttpRequest httpRequest) {
+                try {
+                    requestInitializer.initialize(httpRequest);
+                    httpRequest.setConnectTimeout(3 * 60000);  // 3 minutes connect timeout
+                    httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } catch (NullPointerException npe) {
+                    npe.printStackTrace();
+                }
+            }
+        };
+    }
+
+    public Drive getDriveService(OAuthEndpointCredential credential) throws IOException {
+        TokenResponse tokenResponse = new TokenResponse();
+        tokenResponse.setAccessToken(credential.getToken());
+        tokenResponse.setRefreshToken(credential.getRefreshToken());
+        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        Credential cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+        return new Drive.Builder(
+                this.getHttpTransport(), this.getJsonFactory(), setHttpTimeout(cred))
+                .setApplicationName(this.getAppName())
+                .build();
+    }
+
 }

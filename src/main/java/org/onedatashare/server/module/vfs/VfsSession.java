@@ -31,6 +31,7 @@ import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Session;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.useraction.IdMap;
@@ -42,66 +43,60 @@ import java.util.ArrayList;
 
 public class VfsSession extends Session<VfsSession, VfsResource> {
 
-  FileSystemManager fileSystemManager;
-  FileSystemOptions fileSystemOptions;
+    FileSystemManager fileSystemManager;
+    FileSystemOptions fileSystemOptions;
 
-  public VfsSession(URI uri, Credential credential) {
-    super(uri, credential);
-  }
-
-  @Override
-  public Mono<VfsResource> select(String path) {
-    FileObject fo = null;
-    try {
-      fo = fileSystemManager.resolveFile(path, fileSystemOptions);
-    } catch (FileSystemException e) {
-      e.printStackTrace();
+    public VfsSession(URI uri, Credential credential) {
+        super(uri, credential);
     }
-    return initialize().then(Mono.just(new VfsResource(this, path, fo)));
-  }
 
-  public static URI getURIWithPortNumber(URI buildItem, String portNum){
-      if(StringUtils.isNumeric(portNum) && portNum.length() <= 5 && portNum.length() > 0){
-          try {
-              int portNumber = Integer.parseInt(portNum);
-              URI historyItem = new URI(buildItem.getScheme(),
-                  buildItem.getUserInfo(), buildItem.getHost(), portNumber,
-                  buildItem.getPath(), buildItem.getQuery(), buildItem.getFragment());
-              return historyItem;
-          }catch(URISyntaxException e){
-              e.printStackTrace();
-              return buildItem;
-          }
-      }
-      return buildItem;
-  }
-
-  @Override
-  public Mono<VfsResource> select(String path, String portNum) {
-      FileObject fo = null;
-      path = path.replace(" ", "%20");
-      String pathWithPort = getURIWithPortNumber(URI.create(path), portNum).toString();
-      try {
-          fo = fileSystemManager.resolveFile(pathWithPort, fileSystemOptions);
-      } catch (FileSystemException e) {
-          e.printStackTrace();
-      }
-      return initialize().then(Mono.just(new VfsResource(this, pathWithPort, fo)));
-  }
-
-  @Override
-  public Mono<VfsResource> select(String path, String id, ArrayList<IdMap> idMap) {
-    FileObject fo = null;
-    try {
-      fo = fileSystemManager.resolveFile(path, fileSystemOptions);
-    } catch (FileSystemException e) {
-      e.printStackTrace();
+    public VfsSession(URI uri, AccountEndpointCredential credential) {
+        super(uri, credential);
     }
-    return initialize().then(Mono.just(new VfsResource(this, path, fo)));
-  }
 
-  @Override
-  public Mono<VfsSession> initialize() {
+    @Override
+    public Mono<VfsResource> select(String path) {
+        FileObject fo = null;
+        try {
+            fo = fileSystemManager.resolveFile(path, fileSystemOptions);
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+        return initialize().then(Mono.just(new VfsResource(this, path, fo)));
+    }
+
+    public static URI getURIWithPortNumber(URI buildItem, String portNum){
+        if(portNum == null){
+            return buildItem;
+        }
+        if(StringUtils.isNumeric(portNum) && portNum.length() <= 5 && portNum.length() > 0){
+            try {
+                int portNumber = Integer.parseInt(portNum);
+                URI historyItem = new URI(buildItem.getScheme(),
+                        buildItem.getUserInfo(), buildItem.getHost(), portNumber,
+                        buildItem.getPath(), buildItem.getQuery(), buildItem.getFragment());
+                return historyItem;
+            }catch(URISyntaxException e){
+                e.printStackTrace();
+                return buildItem;
+            }
+        }
+        return buildItem;
+    }
+
+    @Override
+    public Mono<VfsResource> select(String path, String id, ArrayList<IdMap> idMap) {
+        FileObject fo = null;
+        try {
+            fo = fileSystemManager.resolveFile(path, fileSystemOptions);
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+        return initialize().then(Mono.just(new VfsResource(this, path, fo)));
+    }
+
+    @Override
+    public Mono<VfsSession> initialize() {
 
         return Mono.create(s -> {
             fileSystemOptions = new FileSystemOptions();

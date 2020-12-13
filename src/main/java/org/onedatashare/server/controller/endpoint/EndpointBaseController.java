@@ -24,67 +24,59 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.error.AuthenticationRequired;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.model.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.error.TokenExpiredException;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.service.ODSLoggerService;
+import org.onedatashare.server.model.filesystem.exceptions.ErrorMessage;
+import org.onedatashare.server.model.filesystem.exceptions.ErrorResponder;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.reactive.result.view.Rendering;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 public abstract class EndpointBaseController {
     
-    @PostMapping("/ls")
-    public Mono<Stat> list(@RequestBody RequestData requestData){
-        return listOperation(requestData);
+    @GetMapping("/ls")
+    public Mono<Stat> list(@RequestParam String credId, @RequestParam String path,
+                           @RequestParam String identifier) {
+        ListOperation operation = ListOperation.builder()
+                .credId(credId)
+                .path(path)
+                .id(identifier)
+                .build();
+        return listOperation(operation);
     }
 
     @PostMapping("/mkdir")
-    public Mono<Void> mkdir(@RequestBody OperationRequestData operationRequestData){
-        return mkdirOperation(operationRequestData);
+    public Mono<Void> mkdir(@RequestBody MkdirOperation operation){
+        return mkdirOperation(operation);
     }
 
     @PostMapping("/rm")
-    public Mono<Void> delete(@RequestBody OperationRequestData operationRequestData){
-        return deleteOperation(operationRequestData);
+    public Mono<Void> delete(@RequestBody DeleteOperation operation){
+        return deleteOperation(operation);
     }
 
     @PostMapping("/download")
-    public Mono download(@RequestBody RequestData requestData){
-        return downloadOperation(requestData);
+    public Mono download(@RequestBody DownloadOperation operation){
+        return downloadOperation(operation);
     }
 
-    protected abstract Mono<Stat> listOperation(RequestData requestData);
-    protected abstract Mono<Void> mkdirOperation(OperationRequestData operationRequestData);
-    protected abstract Mono<Void> deleteOperation(OperationRequestData operationRequestData);
-    protected abstract Mono<String> downloadOperation(RequestData requestData);
+    protected abstract Mono<Stat> listOperation(ListOperation listOperation);
+    protected abstract Mono<Void> mkdirOperation(MkdirOperation operation);
+    protected abstract Mono<Void> deleteOperation(DeleteOperation deleteOperation);
+    protected abstract Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation);
 
-    @ExceptionHandler(AuthenticationRequired.class)
-    public ResponseEntity<String> handle(AuthenticationRequired authenticationRequired) {
-        return new ResponseEntity<>(authenticationRequired.toString(), authenticationRequired.status);
+    @ExceptionHandler(ErrorResponder.class)
+    public ResponseEntity<ErrorMessage> handle(ErrorResponder errorResponder) {
+        return new ResponseEntity<>(errorResponder.getError(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(TokenExpiredException.class)
     public ResponseEntity<String> handle(TokenExpiredException tokenExpiredException) {
         return new ResponseEntity<>(tokenExpiredException.toString(), tokenExpiredException.status);
     }
-
-    @ExceptionHandler(ODSAccessDeniedException.class)
-    public ResponseEntity<String> handle(ODSAccessDeniedException ade) {
-        return new ResponseEntity<>("Access Denied Exception", HttpStatus.FORBIDDEN);
-    }
-
-    @ExceptionHandler(DuplicateCredentialException.class)
-    public Rendering handle(DuplicateCredentialException dce) {
-        ODSLoggerService.logError(dce.status.toString());
-        return Rendering.redirectTo("/transfer").build();
-    }
-
 }

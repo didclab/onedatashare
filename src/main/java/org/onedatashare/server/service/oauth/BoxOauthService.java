@@ -24,10 +24,9 @@
 package org.onedatashare.server.service.oauth;
 
 import com.box.sdk.BoxAPIConnection;
-import com.box.sdk.*;
-
+import com.box.sdk.BoxUser;
 import lombok.Getter;
-import org.onedatashare.server.model.credential.OAuthCredential;
+import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,7 +34,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.Date;
+import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -81,21 +80,22 @@ public class BoxOauthService{
      * @return OAuthCredential
      */
 
-    public Mono<OAuthCredential> finish(Map<String, String> queryParameters) {
-        return Mono.fromSupplier(() -> {
+    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
+        return Mono.create(s -> {
             String code = queryParameters.get("code");
             // Instantiate new Box API connection object
             BoxAPIConnection client = new BoxAPIConnection(boxConfig.getClientId(), boxConfig.getClientSecret(), code);
-            OAuthCredential oauth = new OAuthCredential(client.getAccessToken());
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
-            oauth.name = "Box: " + userInfo.getLogin();
-            oauth.token = client.getAccessToken();
-            oauth.refreshToken = client.getRefreshToken();
-            Date currentTime = new Date();
-            oauth.lastRefresh = new Date(currentTime.getTime());
-            oauth.expiredTime = new Date(currentTime.getTime() + client.getExpires());
-            return oauth;
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.SECOND, Math.toIntExact(client.getExpires()));
+
+            OAuthEndpointCredential credential = new OAuthEndpointCredential(userInfo.getLogin())
+                    .setToken(client.getAccessToken())
+                    .setRefreshToken(client.getRefreshToken())
+                    .setExpiresAt(calendar.getTime());
+            s.success(credential);
         });
     }
 }

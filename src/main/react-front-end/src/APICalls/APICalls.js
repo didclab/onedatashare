@@ -32,7 +32,8 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	GET_ADMIN_UPDATES_ENDPOINT,
 	UPDATE_PASSWD_ENDPOINT,
 	GET_SEARCH_JOBS_ENDPOINT,
-	LOGOUT_ENDPOINT} from '../constants';
+	LOGOUT_ENDPOINT,
+	apiCredUrl} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -391,9 +392,9 @@ export async function deleteHistory(uri, accept, fail) {
 /*
 	Desc: List credentials for dropbox and googledrive
 */
-export async function savedCredList(accept, fail) {
+export async function savedCredList(type, accept, fail) {
 	let callback = accept;
-	axios.get(url + 'cred?action=list')
+	axios.get(apiCredUrl + type.toLowerCase())
 		.then((response) => {
 			if (!(response.status === 200))
 				callback = fail;
@@ -715,12 +716,21 @@ export async function cancelJob(jobID, accept, fail) {
 		});
 }
 
-export async function deleteCredentialFromServer(uri, accept, fail) {
-		let callback = accept;
+// export async function deleteCredentialFromServer(uri, accept, fail) {
+// 		let callback = accept;
 
-		axios.post(url + 'user', {
-			action: "deleteCredential",
-			uuid: uri
+// 		axios.post(url + 'user', {
+// 			action: "deleteCredential",
+// 			uuid: uri
+export async function deleteCredentialFromServer(cred, type, accept, fail) {
+	let callback = accept;
+
+	axios.patch(apiCredUrl + type.toLowerCase(), {
+		credential: cred
+	}).then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
 		})
 			.then((response) => {
 				if (!(response.status === 200))

@@ -27,13 +27,11 @@ import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.GlobusWebClientCredential;
 import org.onedatashare.server.model.credential.OAuthCredential;
-import org.onedatashare.server.model.credential.UploadCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
 import org.onedatashare.server.model.useraction.IdMap;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.box.BoxSession;
-import org.onedatashare.server.module.clientupload.ClientUploadSession;
 import org.onedatashare.server.module.dropbox.DbxSession;
 import org.onedatashare.server.module.googledrive.GDriveSession;
 import org.onedatashare.server.module.gridftp.GridftpSession;
@@ -156,11 +154,9 @@ public class ResourceServiceImpl {
         if (uri.startsWith(DROPBOX_URI_SCHEME)) {
             return new DbxSession(URI.create(uri), credential);
         }
-        else if (uri.equals(UPLOAD_IDENTIFIER)) {
-            UploadCredential upc = (UploadCredential) credential;
-            return new ClientUploadSession(upc.getFux(), upc.getSize(), upc.getName());
-        } else if (uri.startsWith(GDRIVE_URI_SCHEME))
+        else if (uri.startsWith(GDRIVE_URI_SCHEME)) {
             return new GDriveSession(URI.create(uri), credential);
+        }
         else if(uri.startsWith(ODSConstants.BOX_URI_SCHEME)) {
             return new BoxSession(URI.create(uri), credential);
         }

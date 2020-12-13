@@ -24,43 +24,41 @@
 package org.onedatashare.server.controller.endpoint;
 
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.request.OperationRequestData;
-import org.onedatashare.server.model.request.RequestData;
-import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.service.VfsService;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
+import org.onedatashare.server.service.FtpService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @RestController
 @RequestMapping("/api/ftp")
 public class FtpController extends EndpointBaseController{
+
     @Autowired
-    private VfsService vfsService;
+    private FtpService ftpService;
 
     @Override
-    protected Mono<Stat> listOperation(RequestData requestData) {
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return vfsService.list(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Stat> listOperation(ListOperation operation) {
+        return ftpService.list(operation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return vfsService.mkdir(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+        return ftpService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-        return vfsService.delete(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+        return ftpService.delete(operation);
     }
 
     @Override
-    protected Mono<String> downloadOperation(RequestData requestData){
-        UserAction userAction = UserAction.convertToUserAction(requestData);
-        return vfsService.download(null, userAction).subscribeOn(Schedulers.elastic());
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+        return ftpService.download(operation).map(DownloadResponse::new);
     }
-
 }

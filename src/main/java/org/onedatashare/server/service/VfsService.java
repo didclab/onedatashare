@@ -23,8 +23,10 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.useraction.UserActionResource;
 import org.onedatashare.server.module.vfs.VfsResource;
@@ -44,11 +46,8 @@ public class VfsService extends ResourceService {
     private UserService userService;
 
     @Autowired
-    private JobService jobService;
-
-    @Autowired
     private DecryptionService decryptionService;
-
+    
     public Mono<VfsResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
         final String path = pathFromUri(userAction.getUri());
         return userService.getLoggedInUser(cookie)
@@ -76,7 +75,7 @@ public class VfsService extends ResourceService {
                     return new VfsSession(URI.create(encodedURI), credential);
                 })
                 .flatMap(vfsSession -> vfsSession.initialize())
-                .flatMap(vfsSession -> vfsSession.select(path, userAction.getPortNumber()));
+                .flatMap(vfsSession -> vfsSession.select(path));
     }
 
     public Mono<VfsResource> getResourceWithUserActionResource(String cookie, UserActionResource userActionResource) {
@@ -109,11 +108,7 @@ public class VfsService extends ResourceService {
     }
 
 
-    public String pathFromUri(String uri) {
-        String path = "";
-        if (uri.contains(ODSConstants.DROPBOX_URI_SCHEME)) {
-            path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
-        } else path = uri;
+    public String pathFromUri(String path) {
         try {
             path = java.net.URLDecoder.decode(path, "UTF-8");
         } catch (UnsupportedEncodingException e) {
@@ -122,8 +117,29 @@ public class VfsService extends ResourceService {
         return path;
     }
 
-    public Mono<Stat> list(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::stat);
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public Mono<String> download(DownloadOperation downloadOperation) {
+        return null;
+    }
+
+    @Override
+    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
+        return null;
     }
 
     public Mono<Void> mkdir(String cookie, UserAction userAction) {
@@ -138,16 +154,11 @@ public class VfsService extends ResourceService {
                 .then();
     }
 
-    @Override
     public Mono<String> download(String cookie, UserAction userAction) {
         return getResourceWithUserActionUri(cookie, userAction).flatMap(VfsResource::getDownloadURL);
     }
 
     public Mono<ResponseEntity> getSftpDownloadStream(String cookie, UserActionResource userActionResource) {
         return getResourceWithUserActionResource(cookie, userActionResource).flatMap(VfsResource::sftpObject);
-    }
-
-    public void upload(){
-        return;
     }
 }

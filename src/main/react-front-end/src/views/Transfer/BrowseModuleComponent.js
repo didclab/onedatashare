@@ -135,15 +135,12 @@ export default class BrowseModuleComponent extends Component {
 	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
 		this.setLoading(true);
 		
-		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
 			console.log("Checking backend for " + containsType + " credentials");
 
-			savedCredList((data) => {
-				if(Object.keys(data).some(id => {
-					return data[id].name.toLowerCase().indexOf(containsType.toLowerCase()) !== -1
-				})){
+			savedCredList(containsType, (data) => {
+				if(data !== undefined && data.list.length > 0){
 					succeed(data);
 				}else{
 					failed();
@@ -154,23 +151,6 @@ export default class BrowseModuleComponent extends Component {
 				failed();
 				this.setLoading(false);
 			});
-		}
-		else{
-			// If the user has opted not to store tokens on ODS server,
-			// query cookies for saved credentials
-			console.log("Checking cookies for " + containsType + " credentials");
-
-			let creds = cookies.get(containsType) || 0;
-			if(creds !== 0){
-				creds= JSON.parse(creds);
-				succeed(creds);
-				this.setLoading(false);
-			}
-			else{
-				failed();
-				this.setLoading(false);
-			}
-		}
 	}
 
 	backHome = () => {
@@ -199,20 +179,6 @@ export default class BrowseModuleComponent extends Component {
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		// const loginPrep = (uri) => (data) => {
-		// 	this.setState({mode: inModule, history: this.props.history.filter(
-		// 		(v) => { return v.indexOf(uri) === 0 }),
-		// 		endpoint: {...endpoint, uri: uri},
-		// 		creds: data
-		// 	});
-		// 	this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
-		// }
-		//
-		// const backHome = () => {
-		// 	this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
-		// 	this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
-		// }
-
 		const login = (service) => {
 			if(service[1].credTypeExists){
 				this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
@@ -240,7 +206,6 @@ export default class BrowseModuleComponent extends Component {
 						</EndpointButton>
 					);
 				})}
-
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&
@@ -253,7 +218,10 @@ export default class BrowseModuleComponent extends Component {
 			      		this.setState({endpoint: object});
 			      		update({endpoint: object})
 			      	}}
-			      	setLoading = {this.setLoading}
+					setLoading = {this.setLoading}
+					updateCredentials = {(data => {
+						this.setState({creds: data? data.list: {}})
+					})}
 			      	back={this.backHome}
 		      	/>
 		    </div>}

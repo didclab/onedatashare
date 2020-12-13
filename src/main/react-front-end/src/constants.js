@@ -38,6 +38,9 @@ export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
 export const url = "/api/stork/";
+export const apiBaseUrl = "/api/";
+export const apiCredUrl = apiBaseUrl + "cred/";
+
 export const transferPageUrl = "/transfer";
 export const queuePageUrl = "/queue";
 export const endpoint_db = "/endpoint_db"
@@ -106,7 +109,7 @@ export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
-export const GOOGLEDRIVE_TYPE = "googledrive:/";
+export const GOOGLEDRIVE_TYPE = "gdrive:/";
 export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
@@ -123,7 +126,7 @@ export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
 
 export const DROPBOX = "dropbox";
-export const GOOGLEDRIVE = "googledrive";
+export const GOOGLEDRIVE = "gdrive";
 export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
@@ -164,7 +167,7 @@ export const completeStatus = "complete";
 
 export const showText = {
 	dropbox: DROPBOX_NAME,
-	googledrive: GOOGLEDRIVE_NAME,
+	gdrive: GOOGLEDRIVE_NAME,
 	box: BOX_NAME,
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
@@ -175,7 +178,7 @@ export const showText = {
 
 export const showType = {
 	dropbox: DROPBOX_TYPE,
-	googledrive: GOOGLEDRIVE_TYPE,
+	gdrive: GOOGLEDRIVE_TYPE,
 	box: BOX_TYPE,
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,

@@ -23,11 +23,16 @@
 
 package org.onedatashare.server.module.vfs;
 
-import org.apache.commons.vfs2.FileContent;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.*;
+import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
+import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
+import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
+import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.core.*;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
+import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +44,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,13 +53,15 @@ import java.util.List;
  * Resource class that provides services for FTP, SFTP and SSH protocols
  */
 public class VfsResource extends Resource<VfsSession, VfsResource> {
+    private FileSystemManager fileSystemManager;
+    private FileSystemOptions fileSystemOptions;
 
-  private FileObject fileObject;
+    private FileObject fileObject;
 
-  protected VfsResource(VfsSession session, String path, FileObject fileObject) {
-    super(session, path);
-    this.fileObject = fileObject;
-  }
+    protected VfsResource(VfsSession session, String path, FileObject fileObject) {
+        super(session, path);
+        this.fileObject = fileObject;
+    }
 
     /**
      * This method creates a directory with the name of the folder to be created
@@ -130,7 +138,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
 
             stat.setName(file.getName().getBaseName());
             stat.setTime(fileContent.getLastModifiedTime() / 1000);
-       } catch (FileSystemException e) {
+        } catch (FileSystemException e) {
             e.printStackTrace();
         }
         return stat;
@@ -163,7 +171,7 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                         }
                         catch(FileSystemException fse){
                             ODSLoggerService.logError("Exception encountered while generating " +
-                                                        "file objects within a folder", fse);
+                                    "file objects within a folder", fse);
                         }
                     }
                     else{
@@ -346,5 +354,37 @@ public class VfsResource extends Resource<VfsSession, VfsResource> {
                 .headers(httpHeaders)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(inputStreamResource));
-     }
+    }
+
+    public Mono<VfsResource> initialize(EndpointCredential cred, String uri){
+        return Mono.create(s -> {
+            AccountEndpointCredential credential = (AccountEndpointCredential) cred;
+            fileSystemOptions = new FileSystemOptions();
+            FtpFileSystemConfigBuilder.getInstance().setPassiveMode(fileSystemOptions, true);
+            SftpFileSystemConfigBuilder sfscb = SftpFileSystemConfigBuilder.getInstance();
+            sfscb.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+            if(credential.getSecret() != null) {
+                StaticUserAuthenticator auth = new StaticUserAuthenticator(URI.create(uri).getHost(),
+                        credential.getUsername(), credential.getSecret());
+                try {
+                    DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(fileSystemOptions, auth);
+                    this.fileSystemManager = VFS.getManager();
+                    s.success(this);
+                } catch (FileSystemException e) {
+                    e.printStackTrace();
+                    s.error(new AuthenticationRequired("Invalid credential"));
+                }
+            }
+            else {
+                try {
+                    this.fileSystemManager = VFS.getManager();
+                    s.success(this);
+                } catch (FileSystemException e) {
+                    s.error(new AuthenticationRequired("userinfo"));
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }
