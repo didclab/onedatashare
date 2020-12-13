@@ -34,7 +34,7 @@ import ForgotPasswordComponent from "./ForgotPasswordComponent";
 
 import { Route, Switch, Redirect } from "react-router-dom";
 
-import { login } from "../../APICalls/APICalls.js";
+import { login, getToken } from "../../APICalls/APICalls.js";
 
 import "./AccountControlComponent.css";
 
@@ -180,11 +180,20 @@ export default class AccountControlComponent extends Component {
           success.admin,
           success.expiresIn
         );
+        // getToken(email,
+        //     (success) => {
+        //
+        //     },
+        //     (error) => {
+        //         fail(error);
+        //     }
+        // );
       },
       (error) => {
         fail(error);
       }
     );
+
   }
   // Switches to a route and renders a component based on the redirect set inside render method.
   getInnerCard() {

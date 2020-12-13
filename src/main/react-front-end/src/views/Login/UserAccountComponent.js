@@ -218,7 +218,7 @@ export default class UserAccountComponent extends Component {
 									<Input
 										id={"ATOKEN"}
 										disabled
-										value={"abceeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeebbbbbbbbbbbbbbbbbbbbbbbbb"}
+										value={JSON.stringify(store.getState())}
 										style={{width: "100%"}}
 										endAdornment={
 											<InputAdornment position={"end"}>

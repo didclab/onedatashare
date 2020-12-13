@@ -23,17 +23,17 @@
 
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
-import {DROPBOX_TYPE,
+import {/*DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
 				BOX_TYPE,
 				FTP_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
-				HTTP_TYPE,
+				HTTP_TYPE,*/
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
 			} from "../../constants";
@@ -55,6 +55,7 @@ import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Checkbox} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -70,6 +71,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
 import {styled} from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
+import {CheckBox} from "@material-ui/icons";
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -97,6 +99,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			selectingEndpoint: false,
 			portNum: -1,
 			portNumField: true,
+			openModal: false,
+			deleteFunc: () => {}
 		};
 
 		let loginType = getType(props.endpoint);
@@ -128,7 +132,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	deleteCredentialFromLocal(cred, type){
-		// if(confirm("Are you sure you want to delete this account from the list?")){
+		// if(window.confirm("Are you sure you want to delete this account from the list?")){
 			this.props.setLoading(true);
 
 			let parsedCredsArr = JSON.parse(cookies.get(type));
@@ -256,6 +260,16 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
+
+					// this.setState({
+						// 	deleteFunc: deleteEndpointId(endpointIdsList[v].id, (accept) => {
+						// 		this.endpointIdsListUpdateFromBackend();
+						// 	}, (error) => {
+						// 		this._handleError("Delete Credential Failed");
+						// 	})
+						//
+						// });
+
 	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
@@ -299,6 +313,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemText primary={credList[v].name} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
+
 							deleteCredentialFromServer(v, (accept) => {
 								this.credentialListUpdateFromBackend();
 							}, (error) => {
@@ -477,6 +492,52 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	// endpointModalClose = () => {this.setState({selectingEndpoint: false})}
 
+	deleteConfirmationModal = () => {
+		const handleClose = () => {
+			this.setState({openModal: false});
+		}
+		const confirm = () => {
+			// this.setState({deleteConfirm: true});
+
+			handleClose();
+		}
+		const deny = () => {
+			// this.setState({deleteConfirm: false});
+			handleClose();
+		}
+		const savePref = () => {
+			localStorage.setItem('hideConfirm', "true");
+		}
+
+		return(
+			<Dialog
+			open={this.state.openModal}
+			onClose={handleClose}
+			>
+				<DialogContent>
+					<DialogContentText>
+						Are you sure you want to delete this account from the list?
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<FormControlLabel
+						control={<CheckBox
+							onChange={savePref}
+							checked={Boolean(localStorage.getItem('hideConfirm'))}
+						/>}
+						label={"Don't show again"}
+					/>
+					<Button onClick={deny}>
+						Cancel
+					</Button>
+					<Button onClick={confirm}>
+						Delete
+					</Button>
+				</DialogActions>
+			</Dialog>
+		);
+	}
+
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
@@ -492,6 +553,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		return(
 		<div >
+			{/*{this.deleteConfirmationModal()}*/}
 			{!settingAuth && <div className={"authenticationContainer"}>
 		        {/*<ListItem button onClick={() =>{*/}
 		        {/*	back()*/}
