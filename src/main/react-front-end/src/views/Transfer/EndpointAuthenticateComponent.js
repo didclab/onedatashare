@@ -23,23 +23,26 @@
 
 import React, { Component } from 'react';
 import PropTypes from "prop-types";
-import {openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,
+import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
-import {DROPBOX_TYPE,
+import {/*DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
 				BOX_TYPE,
 				FTP_TYPE,
 				SFTP_TYPE,
 				GRIDFTP_TYPE,
-				HTTP_TYPE,
+				HTTP_TYPE,*/
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
+				GOOGLEDRIVE,
+				GOOGLEDRIVE_NAME
 			} from "../../constants";
+import {showType, isOAuth} from "../../constants";
+import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import {store} from "../../App";
 
-import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
@@ -54,6 +57,7 @@ import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Checkbox} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -64,7 +68,12 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 
+
+
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
+import {styled} from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import {CheckBox} from "@material-ui/icons";
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -73,7 +82,8 @@ export default class EndpointAuthenticateComponent extends Component {
         credentials: PropTypes.object,
 		type: PropTypes.string,
 		back: PropTypes.func,
-		setLoading : PropTypes.func
+		setLoading : PropTypes.func,
+		updateCredentials: PropTypes.func,
 	}
 	constructor(props){
 		super(props);
@@ -91,13 +101,15 @@ export default class EndpointAuthenticateComponent extends Component {
 			endpointSelected: {},
 			selectingEndpoint: false,
 			portNum: -1,
-			portNumField: true
+			portNumField: true,
+			openModal: false,
+			deleteFunc: () => {}
 		};
 
 		let loginType = getType(props.endpoint);
-		if(loginType === GRIDFTP_TYPE){
+		if(loginType === showType.gsiftp /*loginType === GRIDFTP_TYPE*/){
 			this.endpointIdsListUpdateFromBackend();
-		}else if(loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE){
+		}else if(!isOAuth[loginType]/*loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE*/){
 		    this.historyListUpdateFromBackend();
 		}
 		this.handleChange = this.handleChange.bind(this);
@@ -106,35 +118,42 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
 	}
 
-	credentialListUpdateFromBackend = () => {
+	fieldLabelStyle = () => styled(Typography)({
+		fontSize: "12px"
+	})
+
+	credentialListUpdateFromBackend = (type) => {
 		this.props.setLoading(true);
 
-		savedCredList((data) =>{
-			this.setState({credList: data});
+		savedCredList(type, (data) =>{
+			this.setState({credList: data? data.list: {}})
+			this.props.updateCredentials(data);
 			this.props.setLoading(false);
-		}, (error) =>{
-			this._handleError(error);
-			this.props.setLoading(false);
+			}, (error) =>{
+				this._handleError(error);
+				this.props.setLoading(false);
 		});
 	}
 
 	deleteCredentialFromLocal(cred, type){
-		this.props.setLoading(true);
+		// if(window.confirm("Are you sure you want to delete this account from the list?")){
+			this.props.setLoading(true);
 
-		let parsedCredsArr = JSON.parse(cookies.get(type));
-		let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
-														return curObj.name !== cred.name;
-												});
-		if(filteredCredsArr.length === 0){
-			cookies.remove(type);
-		}
-		else{
-			cookies.set(type, JSON.stringify(filteredCredsArr));
-		}
+			let parsedCredsArr = JSON.parse(cookies.get(type));
+			let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+				return curObj.name !== cred.name;
+			});
+			if(filteredCredsArr.length === 0){
+				cookies.remove(type);
+			}
+			else{
+				cookies.set(type, JSON.stringify(filteredCredsArr));
+			}
 
-		this.setState({credList: filteredCredsArr});
+			this.setState({credList: filteredCredsArr});
 
-		this.props.setLoading(false);
+			this.props.setLoading(false);
+		// }
 	}
 
 	endpointIdsListUpdateFromBackend = () => {
@@ -217,7 +236,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		listFiles(url, endpointSet, null, (response) => {
 			history(url, portNum, (suc) => {
-				// console.log(suc)
+				 //console.log(suc)
+
 			}, (error) => {
 				this._handleError(error);
 			})
@@ -244,6 +264,16 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={endpointIdsList[v].name} secondary={endpointIdsList[v].canonical_name}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
+
+					// this.setState({
+						// 	deleteFunc: deleteEndpointId(endpointIdsList[v].id, (accept) => {
+						// 		this.endpointIdsListUpdateFromBackend();
+						// 	}, (error) => {
+						// 		this._handleError("Delete Credential Failed");
+						// 	})
+						//
+						// });
+
 	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
 	            	}, (error) => {
@@ -260,7 +290,10 @@ export default class EndpointAuthenticateComponent extends Component {
 	getCredentialListComponentFromList(credList, type){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
-
+		
+		if(type === GOOGLEDRIVE_NAME) {
+			type = GOOGLEDRIVE
+		}
 
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
@@ -273,19 +306,25 @@ export default class EndpointAuthenticateComponent extends Component {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
+// 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
+// 							side: endpoint.side,
 							credential: {uuid: v, name: v, tokenSaved: true},
 							side: endpoint.side
 						}
 						loginSuccess(endpointSet);
-					}}>
+					}}
+						  ContainerComponent="div"
+				>
 					<ListItemIcon>
 						<DataIcon/>
 					</ListItemIcon>
 					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
-							deleteCredentialFromServer(v, (accept) => {
-								this.credentialListUpdateFromBackend();
+// 							deleteCredentialFromServer(v, (accept) => {
+// 								this.credentialListUpdateFromBackend();
+							deleteCredentialFromServer(v, type, (accept) => {
+								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
 								this._handleError("Delete Credential Failed");
 							});
@@ -305,7 +344,8 @@ export default class EndpointAuthenticateComponent extends Component {
 						uri: endpoint.uri,
 						login: true,
 						credential: {name: cred.name, tokenSaved: false, token: cred.token},
-						side: endpoint.side
+						side: endpoint.side,
+						oauth: true
 					}
 					loginSuccess(endpointSet);
 				}}>
@@ -370,6 +410,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 	else{
 		// User is expected to enter password to login
+		const loginType = getType(this.state.endpoint);
 		if(username.length === 0 || password.length === 0) {
 			this._handleError("Incorrect username or password");
 			return;
@@ -379,7 +420,8 @@ export default class EndpointAuthenticateComponent extends Component {
 		let jsEncrypt = new JSEncrypt();
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-		
+
+
 		this.endpointCheckin(this.state.url,
 			this.state.portNum,
 			{type: "userinfo", username: this.state.username, password: encryptedPwd},
@@ -449,6 +491,63 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.inputElement.click();
 	}
 
+	nextButton = () => styled(Button)({
+		width: "30%", textAlign: "center", marginLeft:"67%", marginBottom: "3%",
+		["@media only screen and (max-width: 600px)"]:{
+			width: "94%",
+			marginLeft:"3%",
+		}
+	})
+
+	// endpointModalClose = () => {this.setState({selectingEndpoint: false})}
+
+	deleteConfirmationModal = () => {
+		const handleClose = () => {
+			this.setState({openModal: false});
+		}
+		const confirm = () => {
+			// this.setState({deleteConfirm: true});
+
+			handleClose();
+		}
+		const deny = () => {
+			// this.setState({deleteConfirm: false});
+			handleClose();
+		}
+		const savePref = () => {
+			localStorage.setItem('hideConfirm', "true");
+		}
+
+		return(
+			<Dialog
+			open={this.state.openModal}
+			onClose={handleClose}
+			>
+				<DialogContent>
+					<DialogContentText>
+						Are you sure you want to delete this account from the list?
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<FormControlLabel
+						control={<CheckBox
+							onChange={savePref}
+							checked={Boolean(localStorage.getItem('hideConfirm'))}
+						/>}
+						label={"Don't show again"}
+					/>
+					<Button onClick={deny}>
+						Cancel
+					</Button>
+					<Button onClick={confirm}>
+						Delete
+					</Button>
+				</DialogActions>
+			</Dialog>
+		);
+	}
+
+
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
 		const { back } = this.props;
@@ -457,41 +556,58 @@ export default class EndpointAuthenticateComponent extends Component {
 		const loginType = getType(endpoint);
 
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
+		const NextButton = this.nextButton();
+
+
 
 		return(
 		<div >
-			{!settingAuth && <List component="nav" style={{overflow: 'auto'}}>
-		        <ListItem button onClick={() =>{
-		        	back()
-		        }}>
-		          <ListItemIcon>
-		          	<BackIcon/>
-		          </ListItemIcon>
-		          <ListItemText primary="Back" />
-		        </ListItem>
+			{/*{this.deleteConfirmationModal()}*/}
+			{!settingAuth && <div className={"authenticationContainer"}>
+		        {/*<ListItem button onClick={() =>{*/}
+		        {/*	back()*/}
+		        {/*}}>*/}
+		        {/*  <ListItemIcon>*/}
+		        {/*  	<BackIcon/>*/}
+		        {/*  </ListItemIcon>*/}
+		        {/*  <ListItemText primary="Back" />*/}
+		        {/*</ListItem>*/}
+				<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{
+					back()
+				}}> <BackIcon/>Back</Button>
+				<Divider/>
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
-		        	if(loginType === DROPBOX_TYPE){
-		        		openDropboxOAuth();
-		        	}else if(loginType === GOOGLEDRIVE_TYPE){
-		        		openGoogleDriveOAuth();
-		        	}else if(loginType === BOX_TYPE){
-		        	    openBoxOAuth();
-		        	}else if(loginType === FTP_TYPE){
-		        		let loginUri = "ftp://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === SFTP_TYPE){
-		        		let loginUri = "sftp://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === HTTP_TYPE){
-		        		let loginUri = "http://";
-		        		this.setState({settingAuth: true, authFunction : this.regularSignIn, 
-		        			needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	}else if(loginType === GRIDFTP_TYPE){
-		        		this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
-		        	}
+					if(isOAuth[loginType] && loginType !== showType.gsiftp){
+						OAuthFunctions[loginType]();
+					}else if(loginType === showType.gsiftp){
+						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+					}else{
+						let loginUri = loginType;
+						this.setState({settingAuth: true, authFunction : this.regularSignIn,
+							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+					}
+		        	// if(loginType === DROPBOX_TYPE){
+		        	// 	openDropboxOAuth();
+		        	// }else if(loginType === GOOGLEDRIVE_TYPE){
+		        	// 	openGoogleDriveOAuth();
+		        	// }else if(loginType === BOX_TYPE){
+		        	//     openBoxOAuth();
+		        	// }else if(loginType === FTP_TYPE){
+		        	// 	let loginUri = "ftp://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === SFTP_TYPE){
+		        	// 	let loginUri = "sftp://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === HTTP_TYPE){
+		        	// 	let loginUri = "http://";
+		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
+		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+		        	// }else if(loginType === GRIDFTP_TYPE){
+		        	// 	this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+		        	// }
 		        }}>
 		          <ListItemIcon>
 		          	<AddIcon/>
@@ -500,13 +616,17 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}
+				{/*{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}*/}
+				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
-				{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}
+				{/*{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}*/}
+				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&
+				{/*{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&*/}
+				{/*this.getHistoryListComponentFromList(historyList)}*/}
+				{!isOAuth[loginType] &&
 		        	this.getHistoryListComponentFromList(historyList)}
-		    </List>}
+		    </div>}
 	    	<Modal
 	    	  aria-labelledby="simple-modal-title"
 	          aria-describedby="To Select globus endpoints"
@@ -518,13 +638,62 @@ export default class EndpointAuthenticateComponent extends Component {
         	</Modal>
 		    {settingAuth &&
 
-		    	<div style={{flexGrow: 1, flexDirection: "column",}}>
+		    	<div className={"authenticationContainer"}>
 		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
-		    		this.setState({settingAuth: false})}
+		    		if(needPassword){
+		    			this.setState({needPassword: false})
+					}else{
+						this.setState({settingAuth: false})}
+					}
+
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
-		    	{loginType !== GRIDFTP_TYPE && 
-		    		<div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
+					{needPassword &&
+					<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
+
+						<ValidatorForm
+							ref="form"
+							onError={errors => console.log(errors)}>
+
+							<TextValidator
+								required
+								style={{width: "100%"}}
+								id={endpoint.side+"LoginUsername"}
+								label="Username"
+								value={this.state.username}
+								onChange={this.handleChange('username')}
+								margin="normal"
+								variant="outlined"
+								autoFocus={(this.state.url !== 'sftp://') }
+								onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+									}
+								}}
+							/>
+
+							<TextValidator
+								required
+								style={{width: "100%"}}
+								id={endpoint.side+"LoginPassword"}
+								label="Password"
+								type="password"
+								value={this.state.password}
+								onChange={this.handleChange('password')}
+								margin="normal"
+								variant="outlined"
+								onKeyPress={(e) => {
+									if (e.key === 'Enter') {
+										this.handleClick()
+									}
+								}}
+							/>
+
+						</ValidatorForm>
+					</div>
+					}
+		    	{loginType !== /*GRIDFTP_TYPE */ showType.gsiftp &&
+		    		<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
@@ -534,10 +703,14 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 					  		style={{width: "80%"}}
 			          id={endpoint.side+"LoginURI"}
-			          label="Url"
+					  disabled = {needPassword}
+			          label={"Url"}
 			          value={this.state.url}
 			          onChange={this.handleUrlChange}
 			          margin="normal"
+								InputProps={{
+									disableUnderline: true
+								}}
 					  		variant="outlined"
 					  		autoFocus={true}
 					  		onKeyPress={(e) => {
@@ -552,8 +725,8 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  		id={endpoint.side+"LoginPort"}
-					  		disabled = {!this.state.portNumField}
-			          label="Port Number"
+					  		disabled = {!this.state.portNumField || needPassword}
+			          label={ "Port Num."}
 			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handlePortNumChange}
 			          margin="normal"
@@ -568,60 +741,21 @@ export default class EndpointAuthenticateComponent extends Component {
 			        </div>
 		    	}	
 
-		      {needPassword &&
-		        <div style={{ paddingLeft: '1%', paddingRight: '1%' }}>
 
-							<ValidatorForm
-								ref="form"
-								onError={errors => console.log(errors)}>
-			        
-								<TextValidator
-					  			required
-			    	  		style={{width: "100%"}}
-									id={endpoint.side+"LoginUsername"}
-									label="Username"
-									value={this.state.username}
-									onChange={this.handleChange('username')}
-									margin="normal"
-									variant="outlined"
-									autoFocus={(this.state.url !== 'sftp://') }
-									onKeyPress={(e) => {
-									if (e.key === 'Enter') {
-										this.handleClick()
-										}
-									}}
-								/>
 
-			        	<TextValidator
-					  			required
-			    	  		style={{width: "100%"}}
-									id={endpoint.side+"LoginPassword"}
-									label="Password"
-									type="password"
-									value={this.state.password}
-									onChange={this.handleChange('password')}
-									margin="normal"
-									variant="outlined"
-									onKeyPress={(e) => {
-									if (e.key === 'Enter') {
-										this.handleClick()
-										}
-									}}
-			        	/>
-
-							</ValidatorForm>
-			      </div>
-					}
-					
-					<Button 
-						id={endpoint.side + "LoginAuth"}  
-						ref={input => this.inputElement = input} 
-						style={{width: "98%", textAlign: "center", marginLeft:"1%", marginBottom: "1%"}} 
+					<NextButton
+						id={endpoint.side + "LoginAuth"}
+						ref={input => this.inputElement = input}
+						// style={{width: "30%", textAlign: "center", marginLeft:"69%", marginBottom: "1%",
+						// 	["@media only screen and (max-width: 500px)"]:{
+						// 		width: "100%"
+						// 	}
+						// }}
 						onClick={authFunction}
 						color="primary"
 						variant="contained">
 						Next
-					</Button>
+					</NextButton>
 		    	</div>
 
 		    }

@@ -68,7 +68,8 @@ class App extends Component {
 
   componentDidMount(){
     this.setState({loaded: true});
-    eventEmitter.on("errorOccured", this.handleOpen); 
+    eventEmitter.on("errorOccured", this.handleOpen);
+    // console.log(process.env);
   }
 
   
@@ -80,7 +81,7 @@ class App extends Component {
 
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
-          style={{marginTop: "20px"}}
+          style={{marginTop: "20px", zIndex: 1500}}
           open={open}
           onClose={this.handleClose}
           ContentProps={{

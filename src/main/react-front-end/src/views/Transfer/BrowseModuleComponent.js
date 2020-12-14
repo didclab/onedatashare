@@ -36,10 +36,13 @@ import LinearProgress from '@material-ui/core/LinearProgress';
 
 import { loadCSS } from 'fg-loadcss';
 import Icon from '@material-ui/core/Icon';
+import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP, DROPBOX, GOOGLEDRIVE, BOX, getType} from "../../constants";
+import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, GRIDFTP,  getType} from "../../constants";
+import {showText, showType, showDisplay} from "../../constants";
+import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 
 import {eventEmitter} from "../../App";
 
@@ -61,11 +64,11 @@ export default class BrowseModuleComponent extends Component {
 		super(props);
 
 		const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
-			return (getType(currentState.endpoint1) === GRIDFTP_TYPE || getType(currentState.endpoint2) === GRIDFTP_TYPE) && (currentState.endpoint1.login || currentState.endpoint1.login);
+			return (getType(currentState.endpoint1) === showType.gsiftp || getType(currentState.endpoint2) === showType.gsiftp) && (currentState.endpoint1.login || currentState.endpoint1.login);
 		}
 		const checkIfGridftpIsOpen = (currentState) => {
-			return (getType(currentState.endpoint1) === GRIDFTP_TYPE 
-				|| getType(currentState.endpoint2) === GRIDFTP_TYPE) 
+			return (getType(currentState.endpoint1) === showType.gsiftp
+				|| getType(currentState.endpoint2) === showType.gsiftp)
 				|| !(currentState.endpoint1.login || currentState.endpoint1.login);
 		}
 
@@ -97,7 +100,18 @@ export default class BrowseModuleComponent extends Component {
 
 		this.credentialTypeExistsThenDo = this.credentialTypeExistsThenDo.bind(this);
 		this._handleError = this._handleError.bind(this);
+		this.backHome = this.backHome.bind(this);
+		this.loginPrep = this.loginPrep.bind(this);
+		this.login = this.login.bind(this);
 	}
+
+	endpointButton = () => styled(Button)({
+		flexGrow: 1,
+		justifyContent: "flex-start",
+		width: "100%",
+		fontSize: "16px",
+		paddingLeft: "35%"
+	});
 
 	setLoading(bool){
 		this.setState({loading: bool});
@@ -139,77 +153,59 @@ export default class BrowseModuleComponent extends Component {
 			});
 	}
 
+	backHome = () => {
+		this.setState(prevState => ({mode: pickModule, endpoint: {...prevState.endpoint, uri: "", login: false, credential: {}}}));
+		this.props.update(prevState => ({mode: pickModule, endpoint: {...prevState.endpoint, uri: "", login: false, credential: {}}}));
+	}
+
+	loginPrep = (uri) => (data) => {
+		const {endpoint} = this.state;
+		this.setState({mode: inModule, history: this.props.history.filter(
+				(v) => { return v.indexOf(uri) === 0 }),
+			endpoint: {...endpoint, uri: uri},
+			creds: data
+		});
+		this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
+	}
+
+	login = (service) => {
+		if(service[1].credTypeExists){
+			this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
+		}else{
+			this.loginPrep(showType[service[0]])();
+		}
+	}
+
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		const loginPrep = (uri) => (data) => {
-			this.setState({mode: inModule, history: this.props.history.filter(
-				(v) => { return v.indexOf(uri) === 0 }),
-				endpoint: {...endpoint, uri: uri},
-				creds: data ? data.list : {}
-			});
-			this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
+		const login = (service) => {
+			if(service[1].credTypeExists){
+				this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
+			}else{
+				this.loginPrep(showType[service[0]])();
+			}
 		}
 
-		const backHome = () => {
-			this.setState({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
-			this.props.update({mode: pickModule, endpoint: {...endpoint, uri: "", login: false, credential: {}}});
-		}
 
-		const iconStyle = {marginRight: "10px", fontSize: "16px", width: "20px"};
-		const buttonStyle = {flexGrow: 1, justifyContent: "flex-start", width: "100%", fontSize: "12px", paddingLeft: "30%"};
+		const EndpointButton = this.endpointButton();
+		const displays = Object.entries(showDisplay);
 
 	  return (
 	    // saved credential
 	    // login manually
-	    <div id={"browser"+endpoint.side} style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}>
+	    <div id={"browser"+endpoint.side} className={"transferGroup"} /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/>
 	      	{(!endpoint.login && mode === pickModule) &&
-	      	<div style={{height: "100%", display: "flex", flexDirection: "column", }}>
-	      		<Button id={endpoint.side + "DropBox"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		this.credentialTypeExistsThenDo(DROPBOX, loginPrep(DROPBOX_TYPE), openDropboxOAuth);
-		      	}}>
-		      		<Icon className={'fab fa-dropbox'} style={iconStyle}/>
-		      		DropBox
-		      	</Button>
-	      		<Button id={endpoint.side + "FTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-		      		loginPrep(FTP_TYPE)()
-		      	}}>
-		      		<Icon className={'far fa-folder-open'} style={iconStyle}/>
-		      		FTP
-	      		</Button>
-		      	<Button id={endpoint.side + "GoogleDrive"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-
-		      		this.credentialTypeExistsThenDo(GOOGLEDRIVE, loginPrep(GOOGLEDRIVE_TYPE), openGoogleDriveOAuth);
-		      	}}>
-			      	<Icon className={'fab fa-google-drive'} style={iconStyle}/>
-			      	Google Drive
-		      	</Button>
-                <Button id={endpoint.side + "Box"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() => {
-
-                    this.credentialTypeExistsThenDo(BOX, loginPrep(BOX_TYPE), openBoxOAuth);
-                }}>
-					<Icon className={'fas fa-bold'} style={iconStyle}/>
-                    Box
-                </Button>
-				<Button id={endpoint.side + "GridFTP"} style={buttonStyle} hidden="true	" disabled={!gridftpIsOpen} onClick={() =>{
-					this.credentialTypeExistsThenDo(GRIDFTP, loginPrep(GRIDFTP_TYPE), openGridFtpOAuth);
-				}}>
-					<Icon className={'fas fa-server'} style={iconStyle}/>
-				GridFTP
-				</Button> 
-				<Button id={endpoint.side + "HTTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-	      			loginPrep(HTTP_TYPE)()
-	      		}}>
-		      		<Icon className={'fas fa-globe'} style={iconStyle}/>
-		      		HTTP/HTTPS
-	      		</Button>
-
-		      	<Button id={endpoint.side + "SFTP"} style={buttonStyle} disabled={oneSideIsLoggedInAsGridftp} onClick={() =>{
-		      		loginPrep(SFTP_TYPE)()
-		      	}}>
-		      		<Icon className={'fas fa-terminal'} style={iconStyle}/>
-		      		SFTP
-		      	</Button>
+	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
+				{displays.map( (service) => {
+					const disable = service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp;
+					return(
+						<EndpointButton id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
+							<Icon className={service[1].icon + ' browseIcon'}/>
+							{service[1].label}
+						</EndpointButton>
+					);
+				})}
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&
@@ -222,8 +218,11 @@ export default class BrowseModuleComponent extends Component {
 			      		this.setState({endpoint: object});
 			      		update({endpoint: object})
 			      	}}
-			      	setLoading = {this.setLoading}
-			      	back={backHome}
+					setLoading = {this.setLoading}
+					updateCredentials = {(data => {
+						this.setState({creds: data? data.list: {}})
+					})}
+			      	back={this.backHome}
 		      	/>
 		    </div>}
 		    {endpoint.login &&
@@ -233,7 +232,7 @@ export default class BrowseModuleComponent extends Component {
 		      		endpoint={endpoint} 
 		      		setLoading = {this.setLoading}
 		      		getLoading = {this.getLoading} 
-		      		back={backHome}
+		      		back={this.backHome}
 		      		displayStyle={this.props.displayStyle}
 		      	/>
 		    </div>}

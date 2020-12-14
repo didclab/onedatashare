@@ -30,7 +30,9 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import { store } from './App.js';
 
 import AccountControlComponent from "./views/Login/AccountControlComponent.js";
+import {siteURLS} from "./constants";
 
+// import TransferComponentOld from './views/Transfer/TransferComponentOld';
 import TransferComponent from './views/Transfer/TransferComponent';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
@@ -38,7 +40,9 @@ import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
+// import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
+import Endpoint_DB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
@@ -81,42 +85,48 @@ export default class MainComponent extends Component {
         <div className="content" style={{ display: 'block'}}>
           <Switch>
 
-            <Route path='/account'
+            <Route path={ siteURLS.accountPageUrl /*'/account'*/}
               render={(props) => <AccountControlComponent {...props} />}
             />
 
-            <Route exact path='/'
+            <Route exact path={ siteURLS.rootUrl /*'/'*/}
               render={(props) =>
                 <HomePageComponent  {...props} store={store} />
               }
             />
 
-            <Route exact path='/terms'
+            <Route exact path={ siteURLS.termsUrl /*'/terms'*/}
               render={() =>
                 <TermsComponent />
               }
             />
 
-            <Route exact path='/policy'
+            <Route exact path={ siteURLS.policyUrl /*'/policy'*/}
               render={() =>
                 <PolicyComponent />
               }
             />
 
-            <Route exact path="/support"
+            <Route exact path={ siteURLS.supportPageUrl /*"/support"*/}
               render={() =>
                 <SupportComponent />
               }
             />
 
-            <Route excat path="/get-started"
+            <Route exact path={ siteURLS.endpoint_dbUrl /*"/endpoint_db"*/}
+              render={() =>
+                <Endpoint_DB />
+              }
+            />
+
+            <Route exact path={ siteURLS.getStartedPageUrl /*"/get-started"*/}
               render={() =>
                 <GetStartedComponent />
               }
             />
 
             {isLoggedIn &&
-              <Route exact path='/transfer'
+              <Route exact path={ siteURLS.transferPageUrl /*'/transfer'*/}
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />
                 }
@@ -124,7 +134,7 @@ export default class MainComponent extends Component {
             }
 
             {isLoggedIn &&
-              <Route exact path='/queue'
+              <Route exact path={ siteURLS.queuePageUrl /*'/queue'*/}
                 render={(props) =>
                   <QueueComponent {...props} />
                 }
@@ -132,49 +142,43 @@ export default class MainComponent extends Component {
             }
 
             {isLoggedIn && admin &&
-              <Route exact path='/history' render=
-                {(props) =>
+              <Route exact path={ siteURLS.historyPageUrl /*'/history' */}
+                render={(props) =>
                   <HistoryComponent  {...props} store={store} />
                 }
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/clientsInfo'
+              <Route exact path={ siteURLS.userListPageUrl /*'/clientsInfo'*/}
                 render={(props) =>
                   <ClientsInfoComponent {...props} store={store} />
                 }
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/sendNotifications' render=
+              <Route exact path={ siteURLS.notificationPageUrl /*'/sendNotifications'*/} render=
                 {(props) =>
                   <NotificationsComponent {...props} store={store} />
                 }
               />
             }
             {isLoggedIn && admin &&
-              <Route exact path='/newNotifications' render=
+              <Route exact path={ siteURLS.newNotificationsUrl /*'/newNotifications'*/} render=
                 {(props) =>
                   <NewNotificationsComponent {...props} store={store} />
                 }
               />
             }
             {isLoggedIn &&
-              <Route exact path='/user'
+              <Route exact path={ siteURLS.userPageUrl /*'/user'*/}
                 render={(props) =>
                   <UserAccountComponent {...props} />
                 }
               />
             }
 
-						{/*
-							(isLoggedIn) &&
-              	<h1 to='/transfer'>Page Not Found</h1>
-							
-						*/}
-
             {!isLoggedIn &&
-              <Route render={() => <Redirect to="/" />} />
+              <Route render={() => <Redirect to={ siteURLS.rootUrl /*'/'*/} />} />
             }
           </Switch>
         </div>

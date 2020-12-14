@@ -45,6 +45,7 @@ export default class HomeInfoSlice extends Component {
             <Grid container direction='row'>
                 <Grid className='leftHomeTxt' container xs={7}>
                     <h2>{this.props.title}</h2>
+                    {/*<h2>Hello</h2>*/}
                     <p>{this.props.text}</p>
                 </Grid>
                 <Grid container xs={5}>

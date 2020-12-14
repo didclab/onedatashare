@@ -87,16 +87,16 @@ export async function globusEndpointActivateWeb(id) {
  * @param {*} fail 
  */
 export async function deleteEndpointId(id, accept, fail) {
-    let callback = accept;
-    axios.delete(globusBaseUrl + 'endpoint/' + id)
-        .then((response) => {
-            if (!(response.status === 200))
-                callback = fail;
-            statusHandle(response, callback);
-        })
-        .catch((error) => {
-            handleRequestFailure(error, fail);
-        });
+        let callback = accept;
+        axios.delete(globusBaseUrl + 'endpoint/' + id)
+            .then((response) => {
+                if (!(response.status === 200))
+                    callback = fail;
+                statusHandle(response, callback);
+            })
+            .catch((error) => {
+                handleRequestFailure(error, fail);
+            });
 }
 
 /**
