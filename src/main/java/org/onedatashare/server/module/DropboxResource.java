@@ -35,7 +35,6 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
-import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
@@ -50,13 +49,11 @@ import static org.onedatashare.server.model.core.ODSConstants.DROPBOX_URI_SCHEME
  */
 public class DropboxResource extends Resource {
 
-    @Value("${dropbox.identifier}")
-    private String DROPBOX_CLIENT_IDENTIFIER;
     private DbxClientV2 client;
 
-    public DropboxResource(EndpointCredential credential) {
+    public DropboxResource(EndpointCredential credential, String clientIdentifier) {
         super(credential);
-        DbxRequestConfig config = DbxRequestConfig.newBuilder(DROPBOX_CLIENT_IDENTIFIER).build();
+        DbxRequestConfig config = DbxRequestConfig.newBuilder(clientIdentifier).build();
         this.client = new DbxClientV2(config, ((OAuthEndpointCredential) credential).getToken());
     }
 
@@ -64,7 +61,7 @@ public class DropboxResource extends Resource {
     public String pathFromUrl(String url) throws UnsupportedEncodingException {
         if(url.startsWith(DROPBOX_URI_SCHEME)){
             //Dropbox root starts with '/'
-            url = "/" + url.substring(DROPBOX_URI_SCHEME.length());
+            url = url.substring(DROPBOX_URI_SCHEME.length());  //TODO: check if needed to add "/" at the beginning
         }
         return super.pathFromUrl(url);
     }
@@ -85,9 +82,6 @@ public class DropboxResource extends Resource {
             stat = mDataToStat(mData);
         }
         else {
-            if (!data.getEntries().isEmpty()) {
-                stat = mDataToStat(data.getEntries().iterator().next());
-            }
             stat.setDir(true);
             stat.setFile(false);
         }
@@ -131,15 +125,11 @@ public class DropboxResource extends Resource {
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return null;
-    }
-
-    @Override
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                String url = pathFromUrl(operation.getId());
+                ListFolderResult listing = null;
+                String url = pathFromUrl(operation.getPath());
                 s.success(statHelper(url));
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
@@ -153,7 +143,19 @@ public class DropboxResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getId()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath()+ operation.getFolderToCreate()));
+                s.success();
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation operation) {
+        return Mono.create(s -> {
+            try {
+                this.client.files().deleteV2(this.pathFromUrl(operation.getPath() + operation.getToDelete()));
                 s.success();
             } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
@@ -166,7 +168,7 @@ public class DropboxResource extends Resource {
         return Mono.create(s -> {
             String downloadLink;
             try {
-                String url = this.pathFromUrl(operation.getId() + operation.getFileToDownload());
+                String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
                 //temporary link valid for 4 hours
                 downloadLink = this.client.files().getTemporaryLink(url).getLink();
             }
@@ -183,4 +185,14 @@ public class DropboxResource extends Resource {
         return null;
     }
 
+    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier){
+        return Mono.create(s -> {
+            try {
+                DropboxResource dropBoxResource= new DropboxResource(credential, clientIdentifier);
+                s.success(dropBoxResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
 }
