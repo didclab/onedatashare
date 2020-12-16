@@ -16,6 +16,7 @@ import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.UserInfoCredential;
+import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.module.ftp.FtpResource;
 import org.onedatashare.server.module.s3.S3Session;
 import org.onedatashare.server.service.ODSLoggerService;
@@ -180,6 +181,7 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
     }
 
 
+    /*
     public VfsTap tap() {
         return null;
     }
@@ -191,12 +193,12 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
     public VfsDrain sink(Stat stat) {
         return new VfsDrain().start(getPath() + stat.getName());
     }
-
+*/
     @Override
     public Mono<Stat> getTransferStat() {
         return null;
     }
-
+/*
     public class VfsTap implements Tap {
         FileContent fileContent;
         long size;
@@ -285,6 +287,7 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
         }
 
     }
+     */
 
     public Mono<String> generateDownloadLink() {
         String downloadLink = "";
@@ -316,16 +319,24 @@ public class S3Resource extends Resource<S3Session, S3Resource> {
         return Mono.just(downloadLink);
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential) {
+    public Mono<? extends Resource> initialize(EndpointCredential credential) {
         return Mono.create(s -> {
             AccountEndpointCredential cred = (AccountEndpointCredential) credential;
-            String accessKey =  cred.getUsername();
-            String secretKey = cred.getSecret();
+            try {
+                String accessKey = cred.getUsername();
+                String secretKey = cred.getSecret();
 
-            if(accessKey != null && secretKey != null) {
-                AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-                s3Client = new AmazonS3Client(credentials);
-                s.success();
+                if (accessKey != null && secretKey != null) {
+                    AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
+                    s3Client = new AmazonS3Client(credentials);
+                    s.success(this);
+                } else {
+                    ODSLoggerService.logError("S3 Authentication Exception");
+                }
+            } catch(Exception e){
+                ODSLoggerService.logError("S3 Other Exception");
+                e.printStackTrace();
+                s.error(e);
             }
         });
     }
