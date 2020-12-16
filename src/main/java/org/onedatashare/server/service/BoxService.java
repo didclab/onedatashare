@@ -61,17 +61,20 @@ public class BoxService extends ResourceServiceBase {
 
     @Override
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return null;
+        return this.getResource(mkdirOperation.getCredId())
+                .flatMap(resource -> resource.mkdir(mkdirOperation));
     }
 
     @Override
     public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return null;
+        return this.getResource(deleteOperation.getCredId())
+                .flatMap(resource -> resource.delete(deleteOperation));
     }
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
-        return null;
+        return this.getResource(downloadOperation.getCredId())
+                .flatMap(resource -> resource.download(downloadOperation));
     }
 
     protected Mono<? extends Resource> getResource(String credId){

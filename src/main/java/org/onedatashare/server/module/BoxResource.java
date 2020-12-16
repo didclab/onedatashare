@@ -11,6 +11,7 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
+import org.onedatashare.server.model.credential.OAuthCredential;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -152,6 +153,7 @@ public class BoxResource extends Resource{
                 contents.add(statChild);
             }
         }
+        stat.setFiles(new Stat[contents.size()]);
         stat.setFiles(contents.toArray(stat.getFiles()));
         return stat;
     }
@@ -161,12 +163,12 @@ public class BoxResource extends Resource{
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s ->{
             try {
-                if(onStat(operation.getId()).isFile()) {
-                    BoxFile file = new BoxFile(this.client, operation.getId());
+                if(onStat(operation.getToDelete()).isFile()) {
+                    BoxFile file = new BoxFile(this.client, operation.getToDelete());
                     file.delete();
-                } else if(onStat(operation.getId()).isDir()){
+                } else if(onStat(operation.getToDelete()).isDir()){
                     boolean recursive = true;
-                    BoxFolder folder = new BoxFolder(this.client, operation.getId());
+                    BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
                     folder.delete(recursive);
                 }
                 s.success();

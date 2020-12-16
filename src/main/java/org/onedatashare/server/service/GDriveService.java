@@ -49,8 +49,6 @@ import static org.onedatashare.server.model.core.ODSConstants.GDRIVE_URI_SCHEME;
 
 @Service
 public class GDriveService extends ResourceServiceBase {
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private CredentialService credentialService;
