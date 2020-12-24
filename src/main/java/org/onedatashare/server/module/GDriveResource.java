@@ -15,6 +15,7 @@ import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.module.googledrive.GDriveConfig;
 import org.onedatashare.server.service.ODSLoggerService;
 import reactor.core.publisher.Mono;
+import org.onedatashare.server.module.Resource;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -31,9 +32,20 @@ public class GDriveResource extends Resource {
 
     private Drive service;
 
-    public GDriveResource(EndpointCredential credential) throws IOException {
-        this.credential = credential;
-        this.service = gDriveConfig.getDriveService((OAuthEndpointCredential) credential);
+    public GDriveResource(EndpointCredential credential){
+            this.credential = credential;
+            this.service = gDriveConfig.getDriveService((OAuthEndpointCredential) credential);
+    }
+
+    public static Mono<? extends Resource> initialize(EndpointCredential credential){
+        return Mono.create(s -> {
+            try {
+                GDriveResource gDriveResource= new GDriveResource(credential);
+                s.success(gDriveResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
     }
 
     public String folderExistsCheck(String curId, String directoryName){

@@ -41,7 +41,7 @@ public abstract class EndpointBaseController {
     
     @GetMapping("/ls")
     public Mono<Stat> list(@RequestParam String credId, @RequestParam String path,
-                           @RequestParam String identifier) {
+                           @RequestParam(required = false) String identifier) {
         ListOperation operation = ListOperation.builder()
                 .credId(credId)
                 .path(path)

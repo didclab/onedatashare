@@ -11,6 +11,7 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
+import org.onedatashare.server.model.credential.OAuthCredential;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -24,6 +25,31 @@ public class BoxResource extends Resource{
         this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
     }
 
+    public static Mono<? extends Resource> initialize(EndpointCredential credential){
+        return Mono.create(s -> {
+            try {
+                BoxResource boxResource= new BoxResource(credential);
+                s.success(boxResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
+
+    public Stat buildStat(BoxFolder folder, String name){
+        Iterable<BoxItem.Info> children = folder.getChildren();
+        Stat rStat = buildDirStat(children);
+        rStat.setDir(true);
+        rStat.setFile(false);
+        rStat.setName(name);
+        EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
+        if (permissions != null) {
+            rStat.setPermissions(permissions.toString());
+        }
+        return rStat;
+
+    }
+
     public Stat onStat(String id) throws Exception{
 
         BoxFolder folder = null;
@@ -32,15 +58,7 @@ public class BoxResource extends Resource{
 
         if (id == null){
             folder = BoxFolder.getRootFolder(this.client);
-            Iterable<BoxItem.Info> children = folder.getChildren();
-            Stat rStat = buildDirStat(children);
-            rStat.setDir(true);
-            rStat.setFile(false);
-            rStat.setName("root");
-            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
-            if (permissions != null) {
-                rStat.setPermissions(permissions.toString());
-            }
+            Stat rStat = buildStat(folder,this.ROOT);
             return rStat;
         }
         String type = "";
@@ -54,16 +72,8 @@ public class BoxResource extends Resource{
 
         }
 
-        if(type.equals("folder")) {
-            Iterable<BoxItem.Info> children = folder.getChildren();
-            Stat stat = buildDirStat(children);
-            stat.setDir(true);
-            stat.setFile(false);
-            stat.setName(folder.getInfo().getName());
-            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
-            if (permissions != null) {
-                stat.setPermissions(permissions.toString());
-            }
+        if(type.equals(this.FOLDER)) {
+            Stat stat = buildStat(folder, folder.getInfo().getName());
             return stat;
         }
         else{
@@ -141,6 +151,7 @@ public class BoxResource extends Resource{
                 contents.add(statChild);
             }
         }
+        stat.setFiles(new Stat[contents.size()]);
         stat.setFiles(contents.toArray(stat.getFiles()));
         return stat;
     }
@@ -150,13 +161,12 @@ public class BoxResource extends Resource{
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s ->{
             try {
-                if(onStat(operation.getId()).isFile()) {
-                    BoxFile file = new BoxFile(this.client, operation.getId());
+                if(onStat(operation.getToDelete()).isFile()) {
+                    BoxFile file = new BoxFile(this.client, operation.getToDelete());
                     file.delete();
-                } else if(onStat(operation.getId()).isDir()){
-                    boolean recursive = true;
-                    BoxFolder folder = new BoxFolder(this.client, operation.getId());
-                    folder.delete(recursive);
+                } else if(onStat(operation.getToDelete()).isDir()){
+                    BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
+                    folder.delete(true);
                 }
                 s.success();
             } catch(BoxAPIResponseException be){

@@ -62,9 +62,6 @@ abstract class ControllerTest {
     GridFtpService gridService;
 
     @MockBean
-    GDriveService gDriveService;
-
-    @MockBean
     ResourceServiceImpl resourceService;
 
     @MockBean
@@ -80,7 +77,7 @@ abstract class ControllerTest {
      * Classes of the services that require user authentication in order to process the request
      */
     private static final Set<Class<? extends ResourceService>> authenticatingServices = unmodifiableSet(
-            of(DbxService.class, GDriveService.class).collect(toSet()));
+            of(DbxService.class).collect(toSet()));
 
     /**
      * Maps each {@link ResourceService} to the uri that it handles
@@ -88,10 +85,8 @@ abstract class ControllerTest {
     private static Map<Class<? extends ResourceService>, String> serviceUri = unmodifiableMap(
             new HashMap<Class<? extends ResourceService>, String>(){{
                 put(DbxService.class, DROPBOX_URI_SCHEME);
-                put(GDriveService.class, GDRIVE_URI_SCHEME);
                 put(HttpFileService.class, HTTP_URI_SCHEME);
                 put(VfsService.class, FTP_URI_SCHEME);
-                put(BoxService.class, BOX_URI_SCHEME);
             }});
 
     /**

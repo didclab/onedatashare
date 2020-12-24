@@ -39,6 +39,7 @@ import lombok.Data;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -187,16 +188,20 @@ public class GDriveConfig {
         };
     }
 
-    public Drive getDriveService(OAuthEndpointCredential credential) throws IOException {
+    public Drive getDriveService(OAuthEndpointCredential credential) {
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
-        Credential cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+        Credential cred = null;
+        try {
+            cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new Drive.Builder(
                 this.getHttpTransport(), this.getJsonFactory(), setHttpTimeout(cred))
                 .setApplicationName(this.getAppName())
                 .build();
     }
-
 }

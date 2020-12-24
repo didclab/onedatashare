@@ -16,6 +16,8 @@ import java.util.List;
 @NoArgsConstructor
 public abstract class Resource {
     protected EndpointCredential credential;
+    public static final String ROOT = "root";
+    public static final String FOLDER = "folder";
 
     public Resource(EndpointCredential credential){
         this.credential = credential;
