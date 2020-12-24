@@ -58,7 +58,7 @@ public class BoxResource extends Resource{
 
         if (id == null){
             folder = BoxFolder.getRootFolder(this.client);
-            Stat rStat = buildStat(folder,"root");
+            Stat rStat = buildStat(folder,this.ROOT);
             return rStat;
         }
         String type = "";
@@ -72,7 +72,7 @@ public class BoxResource extends Resource{
 
         }
 
-        if(type.equals("folder")) {
+        if(type.equals(this.FOLDER)) {
             Stat stat = buildStat(folder, folder.getInfo().getName());
             return stat;
         }
