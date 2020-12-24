@@ -36,6 +36,20 @@ public class BoxResource extends Resource{
         });
     }
 
+    public Stat buildStat(BoxFolder folder, String name){
+        Iterable<BoxItem.Info> children = folder.getChildren();
+        Stat rStat = buildDirStat(children);
+        rStat.setDir(true);
+        rStat.setFile(false);
+        rStat.setName(name);
+        EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
+        if (permissions != null) {
+            rStat.setPermissions(permissions.toString());
+        }
+        return rStat;
+
+    }
+
     public Stat onStat(String id) throws Exception{
 
         BoxFolder folder = null;
@@ -44,15 +58,7 @@ public class BoxResource extends Resource{
 
         if (id == null){
             folder = BoxFolder.getRootFolder(this.client);
-            Iterable<BoxItem.Info> children = folder.getChildren();
-            Stat rStat = buildDirStat(children);
-            rStat.setDir(true);
-            rStat.setFile(false);
-            rStat.setName("root");
-            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
-            if (permissions != null) {
-                rStat.setPermissions(permissions.toString());
-            }
+            Stat rStat = buildStat(folder,"root");
             return rStat;
         }
         String type = "";
@@ -67,15 +73,7 @@ public class BoxResource extends Resource{
         }
 
         if(type.equals("folder")) {
-            Iterable<BoxItem.Info> children = folder.getChildren();
-            Stat stat = buildDirStat(children);
-            stat.setDir(true);
-            stat.setFile(false);
-            stat.setName(folder.getInfo().getName());
-            EnumSet<BoxFolder.Permission> permissions = folder.getInfo().getPermissions();
-            if (permissions != null) {
-                stat.setPermissions(permissions.toString());
-            }
+            Stat stat = buildStat(folder, folder.getInfo().getName());
             return stat;
         }
         else{
@@ -167,9 +165,8 @@ public class BoxResource extends Resource{
                     BoxFile file = new BoxFile(this.client, operation.getToDelete());
                     file.delete();
                 } else if(onStat(operation.getToDelete()).isDir()){
-                    boolean recursive = true;
                     BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
-                    folder.delete(recursive);
+                    folder.delete(true);
                 }
                 s.success();
             } catch(BoxAPIResponseException be){
