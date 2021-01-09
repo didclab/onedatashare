@@ -536,7 +536,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	deleteConfirmationModal = () => {
 		const handleClose = () => {
-			this.setState({openModal: false});
+			this.setState({openModal: false, deleteFunc: ()=>{}});
 		}
 		const confirm = () => {
 			// this.setState({deleteConfirm: true});

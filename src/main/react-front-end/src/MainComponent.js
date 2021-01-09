@@ -125,7 +125,7 @@ export default class MainComponent extends Component {
               }
             />
 
-            {!isLoggedIn &&
+            {isLoggedIn &&
               <Route exact path={ siteURLS.transferPageUrl /*'/transfer'*/}
                 render={(props) =>
                   <TransferComponent  {...props} store={store} />
