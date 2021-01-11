@@ -389,6 +389,19 @@ export async function deleteHistory(uri, accept, fail) {
 			});
 }
 
+export async function saveEndpointCred(type, body, accept, fail) {
+	let callback = accept;
+	axios.post(apiCredUrl + type.toLowerCase(), body
+		).then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch ((error) => {
+			handleRequestFailure(error, fail);
+		})
+}
+
 /*
 	Desc: List credentials for dropbox and googledrive
 */

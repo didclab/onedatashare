@@ -26,7 +26,7 @@ import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
-import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
+import { deleteHistory, deleteCredentialFromServer, history, savedCredList, saveEndpointCred } from "../../APICalls/APICalls";
 import {/*DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
 				BOX_TYPE,
@@ -36,8 +36,7 @@ import {/*DROPBOX_TYPE,
 				HTTP_TYPE,*/
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
-				GOOGLEDRIVE,
-				GOOGLEDRIVE_NAME
+				showDisplay
 			} from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
@@ -109,11 +108,12 @@ export default class EndpointAuthenticateComponent extends Component {
 			deleteFunc: () => {}
 		};
 
-		let loginType = getType(props.endpoint);
+		let loginType = getType(props.endpoint)
+		let endpointName = getName(props.endpoint)
 		if(loginType === showType.gsiftp /*loginType === GRIDFTP_TYPE*/){
 			this.endpointIdsListUpdateFromBackend();
 		}else if(!isOAuth[loginType]/*loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE*/){
-		    this.historyListUpdateFromBackend();
+		    this.historyListUpdateFromBackend(endpointName);
 		}
 		this.handleChange = this.handleChange.bind(this);
 		this._handleError = this._handleError.bind(this);
@@ -170,15 +170,21 @@ export default class EndpointAuthenticateComponent extends Component {
 		});
 	}
 
-	historyListUpdateFromBackend = () => {
-		this.props.setLoading(true);
-		history("",-1, (data) =>{
+	historyListUpdateFromBackend = (endpointType) => {
+		savedCredList(endpointType, (data) =>{
 			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })});
 			this.props.setLoading(false);
 		}, (error) => {
 			this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
 			this.props.setLoading(false);
 		});
+	}
+
+
+
+	endpointListUpdateFromBackend = () => {
+		this.props.setLoading(true);
+
 	}
 
 	_handleError = (msg) => {
@@ -220,6 +226,8 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	endpointCheckin=(url, portNum, credential, callback) => {
+		const {endpoint} = this.state;
+		const type = showDisplay[getName(endpoint)].label;
 		this.props.setLoading(true);
 
 		console.log(`Url is ${url}`);
@@ -237,18 +245,46 @@ export default class EndpointAuthenticateComponent extends Component {
 			this._handleError("Protocol is not understood");
 		}
 
-		listFiles(url, endpointSet, null, (response) => {
-			history(url, portNum, (suc) => {
-				 //console.log(suc)
+		// listFiles(url, endpointSet, null, (response) => {
+		// 	saveEndpointCred(type,
+		// 		{
+		// 			uri: credential.url,
+		// 			username: credential.name,
+		// 			secret: credential.password,
+		// 			accountId: credential.credId
+		// 		},
+		// 		 (suc) => {
+		// 		 //console.log(suc)
 
-			}, (error) => {
+		// 	}, (error) => {
+		// 		this._handleError(error);
+		// 	})
+		// 	this.props.loginSuccess(endpointSet);
+		// }, (error) => {
+		// 	this.props.setLoading(false);
+		// 	callback(error);
+		// })
+		saveEndpointCred(type,
+			{
+				uri: credential.url,
+				username: credential.name,
+				secret: credential.password,
+				accountId: credential.credId
+			},
+			(response) => {
+				listFiles(url, endpointSet, null, (succ) =>
+					{
+						this.props.loginSuccess(endpointSet);
+					},
+					(error) => {
+						this.props.setLoading(false);
+						callback(error);
+					}
+				)
+			},
+			(error) => {
 				this._handleError(error);
-			})
-			this.props.loginSuccess(endpointSet);
-		}, (error) => {
-			this.props.setLoading(false);
-			callback(error);
-		})
+			});
 	}
 
 	getEndpointListComponentFromList(endpointIdsList){
@@ -294,10 +330,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
 		
-		if(type === GOOGLEDRIVE_NAME) {
-			type = GOOGLEDRIVE
-		}
-
 		if(store.getState().saveOAuthTokens){
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
@@ -406,12 +438,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		this._handleError("Please enter a valid URL")
 		return
 	}
-	if(!needPassword){
-		this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-			this.setState({needPassword: true});
-		});
-	}
-	else{
+	// if(!needPassword){
+	// 	this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
+	// 		this.setState({needPassword: true});
+	// 	});
+	// }
+	// else{
 		// User is expected to enter password to login
 		const loginType = getType(this.state.endpoint);
 		if((username.length === 0 || password.length === 0)
@@ -442,17 +474,17 @@ export default class EndpointAuthenticateComponent extends Component {
 		let jsEncrypt = new JSEncrypt();
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+		const credId = username+"@"+ url.toString();
 
-
-
-		this.endpointCheckin(this.state.url,
+		this.endpointCheckin(url,
 			this.state.portNum,
-			{type: "userinfo", username: this.state.username, password: encryptedPwd},
+			{type: "userinfo", credId: credId, name: username, password: password},
 			() => {
 			this._handleError("Authentication Failed");
 			}
 		);
-	}
+		
+	// }
 	}
 
 	globusSignIn = () => {
@@ -585,16 +617,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		return(
 		<div >
-			{/*{this.deleteConfirmationModal()}*/}
 			{!settingAuth && <div className={"authenticationContainer"}>
-		        {/*<ListItem button onClick={() =>{*/}
-		        {/*	back()*/}
-		        {/*}}>*/}
-		        {/*  <ListItemIcon>*/}
-		        {/*  	<BackIcon/>*/}
-		        {/*  </ListItemIcon>*/}
-		        {/*  <ListItemText primary="Back" />*/}
-		        {/*</ListItem>*/}
 				<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{
 					back()
 				}}> <BackIcon/>Back</Button>
@@ -615,7 +638,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemIcon>
 		          	<AddIcon/>
 		          </ListItemIcon>
-		          <ListItemText primary={"Add New " + type} />
+		          <ListItemText primary={"Add New " + showDisplay[type].label} />
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
@@ -623,7 +646,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				{/* GridFTP OAuth handler */}
 				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-
 				{!isOAuth[loginType] &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </div>}
@@ -648,7 +670,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		    	}> <BackIcon/>Back</Button>
 		    	<Divider />
-					{needPassword &&
+					{
 					<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 
 						<ValidatorForm

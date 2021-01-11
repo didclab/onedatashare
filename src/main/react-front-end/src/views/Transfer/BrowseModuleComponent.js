@@ -163,7 +163,7 @@ export default class BrowseModuleComponent extends Component {
 		this.setState({mode: inModule, history: this.props.history.filter(
 				(v) => { return v.indexOf(uri) === 0 }),
 			endpoint: {...endpoint, uri: uri},
-			creds: data
+			creds: data? data.list : {}
 		});
 		this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
 	}
