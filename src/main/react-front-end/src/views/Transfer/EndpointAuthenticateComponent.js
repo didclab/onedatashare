@@ -461,13 +461,24 @@ export default class EndpointAuthenticateComponent extends Component {
 				let jsEncrypt = new JSEncrypt();
 				jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 				let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+				const credId = username+"@"+ url.toString();
 			}
 			else if( rsa.length !== 0){
-
+				let jsEncrypt = new JSEncrypt();
+				jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+				let encryptedPwd = jsEncrypt.encrypt(this.state.rsa);
 			}
 			else if(pemFileName.length !== 0){
 
 			}
+			// this.endpointCheckin(url,
+			// 	this.state.portNum,
+			// 	{type: "userinfo", credId: credId, name: username, password: password},
+			// 	() => {
+			// 		this._handleError("Authentication Failed");
+			// 	}
+			// );
+			return;
 		}
 
 		// Encrypting user password
@@ -718,7 +729,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					}
 
 					{
-						loginType === showType.sftp && needPassword &&
+						loginType === showType.sftp &&
 							<React.Fragment>
 								<Divider/>
 								<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
