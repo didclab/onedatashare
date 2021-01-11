@@ -131,6 +131,7 @@ export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
+export const HTTPS = "https";
 export const GRIDFTP = "gsiftp";
 
 //side
@@ -166,14 +167,14 @@ export const completeStatus = "complete";
 
 
 export const showText = {
-	dropbox: DROPBOX_NAME,
-	gdrive: GOOGLEDRIVE_NAME,
-	box: BOX_NAME,
-	ftp: FTP_NAME,
-	sftp: SFTP_NAME,
-	http: HTTP_NAME,
-	gsiftp: GRIDFTP_NAME,
-	https: HTTP_NAME
+	dropbox: DROPBOX,
+	gdrive: GOOGLEDRIVE,
+	box: BOX,
+	ftp: FTP,
+	sftp: SFTP,
+	http: HTTP,
+	https: HTTPS,
+	gsiftp: GRIDFTP
 }
 
 export const showType = {
@@ -200,7 +201,7 @@ export const isOAuth = {
 
 export const showDisplay = {
 	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
-	googledrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
+	gdrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
 	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
 	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
@@ -368,7 +369,7 @@ export function generateURLFromPortNumber(url, portNum) {
 	}
 
 
-	// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
+	// If the Url already doesn't contain the portnumber and portNumber isn't standard, change it else no change
 	if(!standardPort){
 		try{
 			let temp = new URL(url);

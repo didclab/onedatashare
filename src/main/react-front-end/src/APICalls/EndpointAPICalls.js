@@ -38,8 +38,9 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 export async function listFiles(uri, endpoint, id, accept, fail) {
     let body = {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
-        "path": encodeURI(uri)
+        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+        "path": encodeURI(uri),
+        "secret": endpoint["credential"]["password"]
     };
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)

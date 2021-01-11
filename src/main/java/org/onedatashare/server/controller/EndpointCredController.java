@@ -1,5 +1,6 @@
 package org.onedatashare.server.controller;
 
+import org.apache.http.HttpStatus;
 import org.onedatashare.server.model.core.AuthType;
 import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
@@ -19,8 +20,8 @@ public class EndpointCredController {
     private CredentialService credentialService;
 
     @PostMapping("{type}")
-    public Mono<Void> saveCredential(@RequestBody AccountEndpointCredential credential, @PathVariable AuthType type,
-                                     Mono<Principal> principalMono){
+    public Mono<Object> saveCredential(@RequestBody AccountEndpointCredential credential, @PathVariable AuthType type,
+                                           Mono<Principal> principalMono){
         return principalMono.map(Principal::getName)
                 .flatMap(user -> credentialService.createCredential(credential, user,
                         EndpointType.valueOf(type.toString())));
