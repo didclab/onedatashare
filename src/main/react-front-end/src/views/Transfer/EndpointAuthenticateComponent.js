@@ -102,6 +102,9 @@ export default class EndpointAuthenticateComponent extends Component {
 			selectingEndpoint: false,
 			portNum: -1,
 			portNumField: true,
+			rsa: "",
+			pemFileName: "",
+			pemFile: null,
 			openModal: false,
 			deleteFunc: () => {}
 		};
@@ -398,7 +401,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	regularSignIn = () => {
-	const {url, username, password, needPassword} = this.state;
+	const {url, username, password, needPassword, rsa, pemFileName} = this.state;
 	if(url.substr(url.length - 3) === '://') {
 		this._handleError("Please enter a valid URL")
 		return
@@ -411,15 +414,35 @@ export default class EndpointAuthenticateComponent extends Component {
 	else{
 		// User is expected to enter password to login
 		const loginType = getType(this.state.endpoint);
-		if(username.length === 0 || password.length === 0) {
+		if((username.length === 0 || password.length === 0)
+			&& loginType !== showType.sftp) {
 			this._handleError("Incorrect username or password");
 			return;
+		}
+
+		if(loginType === showType.sftp){
+			if((username.length === 0 || password.length === 0) && rsa.length === 0 && pemFileName.length === 0){
+				this._handleError("Incorrect username or password");
+				return;
+			}
+			else if((username.length !== 0 || password.length !== 0)){
+				let jsEncrypt = new JSEncrypt();
+				jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+				let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+			}
+			else if( rsa.length !== 0){
+
+			}
+			else if(pemFileName.length !== 0){
+
+			}
 		}
 
 		// Encrypting user password
 		let jsEncrypt = new JSEncrypt();
 		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+
 
 
 		this.endpointCheckin(this.state.url,
@@ -578,36 +601,16 @@ export default class EndpointAuthenticateComponent extends Component {
 				<Divider/>
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
-					if(isOAuth[loginType] && loginType !== showType.gsiftp){
+					if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
 						OAuthFunctions[loginType]();
-					}else if(loginType === showType.gsiftp){
+					}else if(loginType === showType.gsiftp){ //check if globus protocol
 						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
 					}else{
 						let loginUri = loginType;
 						this.setState({settingAuth: true, authFunction : this.regularSignIn,
 							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 					}
-		        	// if(loginType === DROPBOX_TYPE){
-		        	// 	openDropboxOAuth();
-		        	// }else if(loginType === GOOGLEDRIVE_TYPE){
-		        	// 	openGoogleDriveOAuth();
-		        	// }else if(loginType === BOX_TYPE){
-		        	//     openBoxOAuth();
-		        	// }else if(loginType === FTP_TYPE){
-		        	// 	let loginUri = "ftp://";
-		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
-		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	// }else if(loginType === SFTP_TYPE){
-		        	// 	let loginUri = "sftp://";
-		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
-		        	// 		needPassword: true, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	// }else if(loginType === HTTP_TYPE){
-		        	// 	let loginUri = "http://";
-		        	// 	this.setState({settingAuth: true, authFunction : this.regularSignIn,
-		        	// 		needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-		        	// }else if(loginType === GRIDFTP_TYPE){
-		        	// 	this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
-		        	// }
+
 		        }}>
 		          <ListItemIcon>
 		          	<AddIcon/>
@@ -616,14 +619,11 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{/*{(loginType === DROPBOX_TYPE || loginType === GOOGLEDRIVE_TYPE || loginType === BOX_TYPE) && this.getCredentialListComponentFromList(credList, type)}*/}
 				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type)}
 				{/* GridFTP OAuth handler */}
-				{/*{loginType === GRIDFTP_TYPE && this.getEndpointListComponentFromList(endpointIdsList)}*/}
 				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{/*{loginType !== DROPBOX_TYPE && loginType !== GOOGLEDRIVE_TYPE && loginType !== BOX_TYPE && loginType !== GRIDFTP_TYPE &&*/}
-				{/*this.getHistoryListComponentFromList(historyList)}*/}
+
 				{!isOAuth[loginType] &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		    </div>}
@@ -661,6 +661,7 @@ export default class EndpointAuthenticateComponent extends Component {
 								id={endpoint.side+"LoginUsername"}
 								label="Username"
 								value={this.state.username}
+								disabled={this.state.rsa}
 								onChange={this.handleChange('username')}
 								margin="normal"
 								variant="outlined"
@@ -678,6 +679,7 @@ export default class EndpointAuthenticateComponent extends Component {
 								id={endpoint.side+"LoginPassword"}
 								label="Password"
 								type="password"
+								disabled={this.state.rsa}
 								value={this.state.password}
 								onChange={this.handleChange('password')}
 								margin="normal"
@@ -692,7 +694,62 @@ export default class EndpointAuthenticateComponent extends Component {
 						</ValidatorForm>
 					</div>
 					}
-		    	{loginType !== /*GRIDFTP_TYPE */ showType.gsiftp &&
+
+					{
+						loginType === showType.sftp && needPassword &&
+							<React.Fragment>
+								<Divider/>
+								<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
+									<ValidatorForm
+										ref="form"
+										onError={errors => console.log(errors)}>
+										<TextValidator
+											required
+											style={{width: "100%"}}
+											id={endpoint.side+"SFTP_RSA"}
+											label="RSA Secret"
+											value={this.state.rsa}
+											disabled={this.state.username || this.state.password}
+											onChange={this.handleChange('rsa')}
+											margin="normal"
+											variant="outlined"
+											onKeyPress={(e) => {
+												if (e.key === 'Enter') {
+													this.handleClick()
+												}
+											}}
+										/>
+									</ValidatorForm>
+								</div>
+								<Divider/>
+								<div style={{ paddingLeft: '3%', paddingRight: '3%', paddingTop: '3%', paddingBottom: '3%' }}>
+									<Button
+										variant={"contained"}
+										component={"label"}
+										disabled={this.state.username || this.state.password || this.state.rsa}
+									>
+										Upload PEM File
+										<input
+											type={"file"}
+											accept={".pem"}
+											style={{display: "none"}}
+											onChange={(e)=>{
+												const file = e.target.files[0];
+												if(file.name.length > 0){
+													this.setState({
+														pemFile: file,
+														pemFileName: file.name
+													})
+												}
+											}}
+										/>
+									</Button>
+								</div>
+							</React.Fragment>
+
+					}
+
+		    	{loginType !== showType.gsiftp &&
 		    		<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 							<ValidatorForm
 								ref="form"
