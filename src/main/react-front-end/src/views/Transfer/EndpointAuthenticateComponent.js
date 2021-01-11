@@ -45,6 +45,7 @@ import {store} from "../../App";
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+
 import Button from "@material-ui/core/Button";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
@@ -56,7 +57,7 @@ import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
-import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Checkbox} from "@material-ui/core";
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -204,8 +205,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
 		let colonCount = 0;
 		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
-		
-		url = generateURLFromPortNumber(url, portNum);
+
+		//ignore if S3 type
+		if(getType(this.state.endpoint) !== showType.s3){
+			url = generateURLFromPortNumber(url, portNum);
+		}
+
 
 		this.setState({
 			"portNumField": colonCount>=2 ? false : true,
@@ -216,8 +221,11 @@ export default class EndpointAuthenticateComponent extends Component {
 	handlePortNumChange = event => {
 		let portNum = event.target.value;
 		let url = this.state.url;
-		
-		url = generateURLFromPortNumber(url, portNum);
+
+		//ignore if S3 type
+		if(getType(this.state.endpoint) !== showType.s3) {
+			url = generateURLFromPortNumber(url, portNum);
+		}
 
 		this.setState({
 			"portNum" : portNum,
@@ -305,13 +313,14 @@ export default class EndpointAuthenticateComponent extends Component {
 	            <IconButton aria-label="Delete" onClick={() => {
 
 					// this.setState({
-						// 	deleteFunc: deleteEndpointId(endpointIdsList[v].id, (accept) => {
-						// 		this.endpointIdsListUpdateFromBackend();
-						// 	}, (error) => {
-						// 		this._handleError("Delete Credential Failed");
-						// 	})
-						//
-						// });
+					// 		deleteFunc: deleteEndpointId(endpointIdsList[v].id, (accept) => {
+					// 			this.endpointIdsListUpdateFromBackend();
+					// 		}, (error) => {
+					// 			this._handleError("Delete Credential Failed");
+					// 		}),
+					// 		openModal: true
+					//
+					// 	});
 
 	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
@@ -358,6 +367,16 @@ export default class EndpointAuthenticateComponent extends Component {
 						<IconButton aria-label="Delete" onClick={() => {
 // 							deleteCredentialFromServer(v, (accept) => {
 // 								this.credentialListUpdateFromBackend();
+// 							this.setState({
+// 								deleteFunc: () => {
+// 									deleteCredentialFromServer(v, type, (accept) => {
+// 										this.credentialListUpdateFromBackend(type);
+// 									}, (error) => {
+// 										this._handleError("Delete Credential Failed");
+// 									})
+// 								},
+// 								openModal: true
+// 							})
 							deleteCredentialFromServer(v, type, (accept) => {
 								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
@@ -389,8 +408,15 @@ export default class EndpointAuthenticateComponent extends Component {
 				</ListItemIcon>
 				<ListItemText primary={cred.name} />
 				<ListItemSecondaryAction>
-					<IconButton aria-label="Delete" onClick={() =>
-						this.deleteCredentialFromLocal(cred, type)}>
+					<IconButton aria-label="Delete" onClick={() => {
+						// this.setState({
+						// 	deleteFunc: () => this.deleteCredentialFromLocal(cred, type),
+						// 	openModal: true
+						// })
+						this.deleteCredentialFromLocal(cred, type)
+						}
+					}
+					>
 						<DeleteIcon />
 					</IconButton>
 				</ListItemSecondaryAction>
@@ -419,6 +445,15 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={uri}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
+	            	// this.setState({
+					// 	deleteFunc: () =>
+					// 		deleteHistory(uri, (accept) => {
+					// 			this.historyListUpdateFromBackend();
+					// 		}, (error) => {
+					// 			this._handleError("Delete History Failed");
+					// 		})
+					//
+					// })
 	            	deleteHistory(uri, (accept) => {
 	            		this.historyListUpdateFromBackend();
 	            	}, (error) => {
@@ -557,23 +592,21 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.inputElement.click();
 	}
 
-	nextButton = () => styled(Button)({
-		width: "30%", textAlign: "center", marginLeft:"67%", marginBottom: "3%",
-		["@media only screen and (max-width: 600px)"]:{
-			width: "94%",
-			marginLeft:"3%",
-		}
+	stepButton = () => styled(Button)({
+		width: "100%",
 	})
+
+
 
 	// endpointModalClose = () => {this.setState({selectingEndpoint: false})}
 
 	deleteConfirmationModal = () => {
 		const handleClose = () => {
-			this.setState({openModal: false});
+			this.setState({openModal: false, deleteFunc: ()=>{}});
 		}
 		const confirm = () => {
 			// this.setState({deleteConfirm: true});
-
+			this.state.deleteFunc();
 			handleClose();
 		}
 		const deny = () => {
@@ -622,17 +655,28 @@ export default class EndpointAuthenticateComponent extends Component {
 		const loginType = getType(endpoint);
 
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
-		const NextButton = this.nextButton();
+		const StepButton = this.stepButton();
+		// const BackButton = this.backButton();
+		console.log(type);
 
 
 
 		return(
 		<div >
+			{/*{this.deleteConfirmationModal()}*/}
 			{!settingAuth && <div className={"authenticationContainer"}>
-				<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{
-					back()
-				}}> <BackIcon/>Back</Button>
-				<Divider/>
+		        {/*<ListItem button onClick={() =>{*/}
+		        {/*	back()*/}
+		        {/*}}>*/}
+		        {/*  <ListItemIcon>*/}
+		        {/*  	<BackIcon/>*/}
+		        {/*  </ListItemIcon>*/}
+		        {/*  <ListItemText primary="Back" />*/}
+		        {/*</ListItem>*/}
+				{/*<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{*/}
+				{/*	back()*/}
+				{/*}}> <BackIcon/>Back</Button>*/}
+				{/*<Divider/>*/}
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
 					if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
@@ -649,7 +693,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		          <ListItemIcon>
 		          	<AddIcon/>
 		          </ListItemIcon>
-		          <ListItemText primary={"Add New " + showDisplay[type].label} />
+		          <ListItemText primary={"Add New " + showDisplay[type.toLowerCase()].label} />
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
@@ -659,7 +703,24 @@ export default class EndpointAuthenticateComponent extends Component {
 				{/* Other login handlers*/}
 				{!isOAuth[loginType] &&
 		        	this.getHistoryListComponentFromList(historyList)}
-		    </div>}
+		        	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+						<Grid item md={6} xs={12}>
+							<StepButton
+								id={endpoint.side + "LoginAuth"}
+								ref={input => this.inputElement = input}
+								// style={{marginTop: "1.5%"}}
+								onClick={back}
+								color="primary"
+								variant="contained">
+								Back
+							</StepButton>
+						</Grid>
+
+					</Grid>
+
+		    </div>
+
+			}
 	    	<Modal
 	    	  aria-labelledby="simple-modal-title"
 	          aria-describedby="To Select globus endpoints"
@@ -672,16 +733,16 @@ export default class EndpointAuthenticateComponent extends Component {
 		    {settingAuth &&
 
 		    	<div className={"authenticationContainer"}>
-		    	<Button style={{width: "100%", textAlign: "left"}} onClick={() => {
-		    		if(needPassword){
-		    			this.setState({needPassword: false})
-					}else{
-						this.setState({settingAuth: false})}
-					}
 
-		    	}> <BackIcon/>Back</Button>
-		    	<Divider />
-					{
+		    	{/*<Button style={{width: "100%", textAlign: "left"}} onClick={() => {*/}
+		    	{/*	if(needPassword){*/}
+		    	{/*		this.setState({needPassword: false})*/}
+				{/*	}else{*/}
+				{/*		this.setState({settingAuth: false})}*/}
+				{/*	}*/}
+
+		    	{/*}> <BackIcon/>Back</Button>*/}
+		    	{/*<Divider />*/}
 					<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 
 						<ValidatorForm
@@ -692,7 +753,7 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginUsername"}
-								label="Username"
+								label={loginType === showType.s3 ? "AWS ACCESS KEY" : "Username"}
 								value={this.state.username}
 								disabled={this.state.rsa}
 								onChange={this.handleChange('username')}
@@ -710,7 +771,7 @@ export default class EndpointAuthenticateComponent extends Component {
 								required
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginPassword"}
-								label="Password"
+								label={loginType === showType.s3 ? "AWS SECRET KEY" : "Password"}
 								type="password"
 								disabled={this.state.rsa}
 								value={this.state.password}
@@ -726,7 +787,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 						</ValidatorForm>
 					</div>
-					}
+
 
 					{
 						loginType === showType.sftp &&
@@ -794,7 +855,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					  		style={{width: "80%"}}
 			          id={endpoint.side+"LoginURI"}
 					  disabled = {needPassword}
-			          label={"Url"}
+			          label={ loginType === showType.s3 ? "Bucketname" : "Url"}
 			          value={this.state.url}
 			          onChange={this.handleUrlChange}
 			          margin="normal"
@@ -816,7 +877,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField || needPassword}
-			          label={ "Port Num."}
+			          label={ loginType === showType.s3 ? "Region" : "Port Num."}
 			          value={this.state.portNumField? this.state.portNum : "-"}
 			          onChange={this.handlePortNumChange}
 			          margin="normal"
@@ -829,23 +890,37 @@ export default class EndpointAuthenticateComponent extends Component {
 			        />
 							</ValidatorForm>
 			        </div>
-		    	}	
-
-
-
-					<NextButton
+		    	}
+		    	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+					<Grid item md={6} xs={12}>
+					<StepButton
 						id={endpoint.side + "LoginAuth"}
 						ref={input => this.inputElement = input}
-						// style={{width: "30%", textAlign: "center", marginLeft:"69%", marginBottom: "1%",
-						// 	["@media only screen and (max-width: 500px)"]:{
-						// 		width: "100%"
-						// 	}
-						// }}
+						onClick={() => {
+							if(needPassword){
+								this.setState({needPassword: false})
+							}else{
+								this.setState({settingAuth: false})}
+						}
+
+						}
+						color="primary"
+						variant="contained">
+						Back
+					</StepButton>
+					</Grid>
+
+					<Grid item md={6} xs={12}>
+					<StepButton
+						id={endpoint.side + "LoginAuth"}
+						ref={input => this.inputElement = input}
 						onClick={authFunction}
 						color="primary"
 						variant="contained">
 						Next
-					</NextButton>
+					</StepButton>
+					</Grid>
+				</Grid>
 		    	</div>
 
 		    }

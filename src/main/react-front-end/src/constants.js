@@ -116,6 +116,7 @@ export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
+export const S3_TYPE = "s3://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
@@ -124,6 +125,7 @@ export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
+export const S3_NAME = "S3";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "gdrive";
@@ -133,6 +135,7 @@ export const SFTP = "sftp";
 export const HTTP = "http";
 export const HTTPS = "https";
 export const GRIDFTP = "gsiftp";
+export const S3 = "s3";
 
 //side
 export const sideLeft = "left";
@@ -167,14 +170,16 @@ export const completeStatus = "complete";
 
 
 export const showText = {
-	dropbox: DROPBOX,
-	gdrive: GOOGLEDRIVE,
-	box: BOX,
-	ftp: FTP,
-	sftp: SFTP,
-	http: HTTP,
-	https: HTTPS,
-	gsiftp: GRIDFTP
+
+	dropbox: DROPBOX_NAME,
+	gdrive: GOOGLEDRIVE_NAME,
+	box: BOX_NAME,
+	ftp: FTP_NAME,
+	sftp: SFTP_NAME,
+	http: HTTP_NAME,
+	gsiftp: GRIDFTP_NAME,
+	https: HTTP_NAME,
+	s3: S3_NAME
 }
 
 export const showType = {
@@ -185,7 +190,8 @@ export const showType = {
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
 	gsiftp: GRIDFTP_TYPE,
-	https: HTTP_TYPE
+	https: HTTP_TYPE,
+	s3: S3_TYPE
 }
 
 export const isOAuth = {
@@ -196,7 +202,8 @@ export const isOAuth = {
 	[SFTP_TYPE]: false,
 	[HTTP_TYPE]: false,
 	[GRIDFTP_TYPE]: true,
-	[HTTPS_TYPE]: false
+	[HTTPS_TYPE]: false,
+	[S3_TYPE]: false
 }
 
 export const showDisplay = {
@@ -207,6 +214,7 @@ export const showDisplay = {
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
 	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
 	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
+	s3: {icon: 'fas fa-globe', credTypeExists: false, label: "S3", id: "S3" }
 }
 
 export const SERVICES = {
@@ -220,6 +228,7 @@ export const SERVICES = {
 		[FTP_TYPE, FTP_NAME, FTP],
 		[HTTP_TYPE, HTTP_NAME, HTTP],
 		[SFTP_TYPE, SFTP_NAME, SFTP],
+		[S3_TYPE, S3_NAME, S3]
 	]
 };
 
