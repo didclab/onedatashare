@@ -116,7 +116,7 @@ export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
-export const S3_TYPE = "s3://";
+export const S3_TYPE = "";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
