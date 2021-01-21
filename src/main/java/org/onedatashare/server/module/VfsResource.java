@@ -15,10 +15,7 @@ import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.response.DownloadResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 import static org.onedatashare.server.model.core.ODSConstants.MAX_FILES_TRANSFERRABLE;
 

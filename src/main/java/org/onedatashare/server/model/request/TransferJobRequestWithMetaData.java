@@ -32,8 +32,10 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @NoArgsConstructor
 public class TransferJobRequestWithMetaData{
+    private String id;
     private String ownerId;
-
+    private String userId;
+    private long chunkSize;
     @NonNull protected TransferJobRequest.Source source;
     @NonNull protected TransferJobRequest.Destination destination;
     protected TransferOptions options;
@@ -41,7 +43,7 @@ public class TransferJobRequestWithMetaData{
     public static TransferJobRequestWithMetaData getTransferRequestWithMetaData(String owner,
                                                                                 TransferJobRequest request){
         TransferJobRequestWithMetaData requestWithMetaData = new TransferJobRequestWithMetaData();
-        requestWithMetaData.ownerId = owner;
+        requestWithMetaData.userId = owner;
         requestWithMetaData.source = request.getSource();
         requestWithMetaData.destination = request.getDestination();
         requestWithMetaData.options = request.getOptions();
