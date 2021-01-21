@@ -27,9 +27,9 @@ import java.util.List;
 
 public class S3Resource extends Resource{
 
-    private AccountEndpointCredential accountEndpointCredential;
-    private String bucketName;
-    private String currentBucketRegion;
+    private final AccountEndpointCredential accountEndpointCredential;
+    private final String bucketName;
+    private final String currentBucketRegion;
 
     public S3Resource(EndpointCredential endpointCredential){
         this.accountEndpointCredential = (AccountEndpointCredential) endpointCredential;
