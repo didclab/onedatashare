@@ -23,9 +23,7 @@
 
 package org.onedatashare.server.controller.endpoint;
 
-import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
@@ -34,7 +32,6 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.CredentialService;
 import org.onedatashare.server.service.S3Service;
-import org.onedatashare.server.service.SftpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -67,7 +64,7 @@ public class S3Controller extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return s3Service.download(operation).map(DownloadResponse::new);
+       return null;
     }
 
 }

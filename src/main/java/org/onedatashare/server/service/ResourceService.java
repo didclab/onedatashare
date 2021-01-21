@@ -25,7 +25,6 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Credential;
 import org.onedatashare.server.model.core.Resource;
-import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.model.error.AuthenticationRequired;
 import org.onedatashare.server.model.error.NotFoundException;
@@ -38,7 +37,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class ResourceService {
-    public abstract Mono<Stat> list(ListOperation listOperation);
+    public abstract Object list(ListOperation listOperation);
     public abstract Mono<Void> mkdir(MkdirOperation mkdirOperation);
     public abstract Mono<Void> delete(DeleteOperation deleteOperation);
     public abstract Mono<String> download(DownloadOperation downloadOperation);

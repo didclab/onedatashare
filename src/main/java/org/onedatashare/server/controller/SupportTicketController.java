@@ -55,7 +55,7 @@ public class SupportTicketController {
      * since a user can create a ticket even without logging in.
      *
      * @param supportTicketRequest - Object containing request values
-     * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
+     *      * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
      */
     @PostMapping
     public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest){

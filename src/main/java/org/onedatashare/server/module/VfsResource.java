@@ -58,6 +58,8 @@ public class VfsResource extends Resource {
         return this.fileSystemManager.resolveFile(path, this.fileSystemOptions);
     }
 
+
+
     private Stat fileToStat(FileObject file) throws FileSystemException{
         Stat stat = new Stat();
         FileContent fileContent = file.getContent();
