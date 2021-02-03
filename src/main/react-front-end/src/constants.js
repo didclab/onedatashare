@@ -25,7 +25,10 @@ export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-betwe
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
+export const version = "v1";
+
 // urls
+// export const ENDPOINT_OP_URL = "/api" + version + "/"
 export const ENDPOINT_OP_URL = "/api"
 export const LIST_OP_URL = "/ls"
 export const DEL_OP_URL = "/rm"
@@ -37,6 +40,9 @@ export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
+// export const url = "/api/"+ version + "/stork/";
+// export const apiBaseUrl = "/api/" + version + "/";
+// export const apiCredUrl = apiBaseUrl + "cred/";
 export const url = "/api/stork/";
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
@@ -116,7 +122,7 @@ export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
-export const S3_TYPE = "";
+export const S3_TYPE = "s3:";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
@@ -214,7 +220,7 @@ export const showDisplay = {
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
 	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
 	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
-	s3: {icon: 'fas fa-globe', credTypeExists: false, label: "S3", id: "S3" }
+	s3: {icon: 'fab fa-amazon', credTypeExists: false, label: "S3", id: "S3" }
 }
 
 export const SERVICES = {
@@ -285,6 +291,10 @@ export function getDefaultPortFromUri(uri) {
 
 export function getTypeFromUri(uri) {
 	return showType[uri.split(":")[0].toLowerCase()]
+}
+
+export function checkPortNumInUri(uri){
+	return uri.split(":")[2];
 }
 
 export function getName(endpoint) {
@@ -365,9 +375,26 @@ export function validatePassword(password, confirmPassword) {
 	return validations;
 }
 
-export function generateURLFromPortNumber(url, portNum) {
+export function generateURLForS3(bucketname, region){
+	return region + ":::" + bucketname;
+}
+
+export function generateURLFromPortNumber(url, portNum, changedPortNum) {
 	// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
 	let finalUrl = url;
+
+	let checkPortNum = checkPortNumInUri(url);
+	if((checkPortNum || checkPortNum === '') && !changedPortNum){
+		return finalUrl;
+		// if(checkPortNum.charAt(checkPortNum.length - 1) === '/'){
+		// 	checkPortNum = checkPortNum.slice(-1);
+		// }
+		// if(!isNaN(checkPortNum) && !isNaN(parseFloat(checkPortNum))){
+		//
+		// }
+	}
+
+	// console.log(checkPortNumInUri(url));
 
 	// Find if the port is a standard port
 	let standardPort = portNum === getDefaultPortFromUri(url);

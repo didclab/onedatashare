@@ -25,7 +25,7 @@ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
-import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE} from "../constants.js";
+import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE, apiBaseUrl} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -43,8 +43,17 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         "secret": endpoint["credential"]["password"]
     };
     let callback = accept;
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)
-    axios.get(url, {params: body})
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
+    // axios.get(url, {params: body})
+    //     .then((response) => {
+    //         if (!(response.status === 200))
+    //             callback = fail;
+    //         statusHandle(response, callback);
+    //     })
+    //     .catch((error) => {
+    //         handleRequestFailure(error, fail);
+    //     });
+    axios.post(url, body)
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -167,19 +176,19 @@ export async function getDownload(uri, credential) {
 
 
 export async function openDropboxOAuth() {
-	openOAuth("/api/oauth?type=dropbox");
+	openOAuth(apiBaseUrl + "oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/oauth?type=gdrive");
+	openOAuth(apiBaseUrl + "oauth?type=gdrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/oauth?type=gftp");
+	openOAuth(apiBaseUrl + "oauth?type=gftp");
 }
 
 export async function openBoxOAuth(){
-    openOAuth("api/oauth?type=box");
+    openOAuth(apiBaseUrl + "oauth?type=box");
 }
 
 export async function openOAuth(url){

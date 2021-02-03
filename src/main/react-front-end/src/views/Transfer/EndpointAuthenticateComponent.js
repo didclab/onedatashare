@@ -36,6 +36,7 @@ import {/*DROPBOX_TYPE,
 				HTTP_TYPE,*/
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
+				generateURLForS3,
 				showDisplay
 			} from "../../constants";
 import {showType, isOAuth} from "../../constants";
@@ -57,7 +58,7 @@ import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
-import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox} from "@material-ui/core";
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox, Accordion, AccordionSummary, AccordionDetails} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -73,7 +74,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../constants.js';
 import {styled} from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
-import {CheckBox} from "@material-ui/icons";
+import {CheckBox, ExpandMore} from "@material-ui/icons";
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -104,7 +105,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			portNumField: true,
 			rsa: "",
 			pemFileName: "",
-			pemFile: null,
+			pemFile: "",
 			openModal: false,
 			deleteFunc: () => {}
 		};
@@ -120,6 +121,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		this._handleError = this._handleError.bind(this);
 		this.handleUrlChange = this.handleUrlChange.bind(this);
 		this.getEndpointListComponentFromList = this.getEndpointListComponentFromList.bind(this);
+		this.sftpFileUpload = this.sftpFileUpload.bind(this);
 	}
 
 	fieldLabelStyle = () => styled(Typography)({
@@ -199,23 +201,26 @@ export default class EndpointAuthenticateComponent extends Component {
 	};
 
 	handleUrlChange = event => {
+
 		let url = event.target.value;
+		console.log(url);
 		let portNum = this.state.portNum;
 
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
-		let colonCount = 0;
-		for(let i=0; i < url.length; colonCount+=+(':'===url[i++]));
-
+		let colonCount = (url.match(/:/g) || []).length;
 		//ignore if S3 type
 		if(getType(this.state.endpoint) !== showType.s3){
-			url = generateURLFromPortNumber(url, portNum);
+			url = generateURLFromPortNumber(url, portNum, false);
 		}
 
 
 		this.setState({
-			"portNumField": colonCount>=2 ? false : true,
-			"url" : url
+			"portNumField": colonCount<2 || (getType(this.state.endpoint) === showType.s3 /*&& colonCount<3*/),
+			"url" : url,
+			/*"portNum": colonCount<2 && getType(this.state.endpoint) !== showType.s3 ?
+							portNum : url.split(':')[2]*/
 		});
+
 	}
 
 	handlePortNumChange = event => {
@@ -224,7 +229,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		//ignore if S3 type
 		if(getType(this.state.endpoint) !== showType.s3) {
-			url = generateURLFromPortNumber(url, portNum);
+			url = generateURLFromPortNumber(url, portNum, true);
 		}
 
 		this.setState({
@@ -235,7 +240,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		const {endpoint} = this.state;
-		const type = showDisplay[getName(endpoint)].label;
+		const type = showDisplay[getName(endpoint).toLowerCase()].label;
 		this.props.setLoading(true);
 
 		console.log(`Url is ${url}`);
@@ -249,9 +254,11 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 
 		//Check for a valid endpoint
-		if(! getTypeFromUri(endpointSet.uri)){
+		if(! getTypeFromUri(endpointSet.uri) && getType(this.state.endpoint) !== showType.s3){
 			this._handleError("Protocol is not understood");
 		}
+
+
 
 		// listFiles(url, endpointSet, null, (response) => {
 		// 	saveEndpointCred(type,
@@ -272,12 +279,21 @@ export default class EndpointAuthenticateComponent extends Component {
 		// 	this.props.setLoading(false);
 		// 	callback(error);
 		// })
+
+		let encryptedSecret = "";
+		if(type === showDisplay.s3.label){
+			encryptedSecret = credential.encryptedSecret;
+		}
+
 		saveEndpointCred(type,
 			{
 				uri: credential.url,
 				username: credential.name,
 				secret: credential.password,
-				accountId: credential.credId
+				accountId: credential.credId,
+				encryptedSecret: encryptedSecret,
+				rsa: credential.rsa,
+				pemFile: credential.pemFile
 			},
 			(response) => {
 				listFiles(url, endpointSet, null, (succ) =>
@@ -451,7 +467,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					// 			this.historyListUpdateFromBackend();
 					// 		}, (error) => {
 					// 			this._handleError("Delete History Failed");
-					// 		})
+					// 		}),
+					// 	openModal: true
 					//
 					// })
 	            	deleteHistory(uri, (accept) => {
@@ -468,11 +485,12 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	regularSignIn = () => {
-	const {url, username, password, needPassword, rsa, pemFileName} = this.state;
-	if(url.substr(url.length - 3) === '://') {
-		this._handleError("Please enter a valid URL")
-		return
-	}
+		const {url, username, password, needPassword, rsa, pemFileName} = this.state;
+		const loginType = getType(this.state.endpoint);
+		if((url.substr(url.length - 3) === '://' && loginType !== showType.s3) || (url.length < 1 && this.state.portNum < 1)) {
+			loginType !== showType.s3 ? this._handleError("Please enter a valid URL") : this._handleError("Please enter a valid bucketname and region")
+			return;
+		}
 	// if(!needPassword){
 	// 	this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
 	// 		this.setState({needPassword: true});
@@ -480,53 +498,79 @@ export default class EndpointAuthenticateComponent extends Component {
 	// }
 	// else{
 		// User is expected to enter password to login
-		const loginType = getType(this.state.endpoint);
-		if((username.length === 0 || password.length === 0)
-			&& loginType !== showType.sftp) {
-			this._handleError("Incorrect username or password");
+
+		if(username.length === 0 || password.length === 0) {
+			this._handleError(loginType !== showType.s3 ? "Enter a username or password" : "Enter an access key or secret key");
 			return;
 		}
 
-		if(loginType === showType.sftp){
-			if((username.length === 0 || password.length === 0) && rsa.length === 0 && pemFileName.length === 0){
-				this._handleError("Incorrect username or password");
-				return;
-			}
-			else if((username.length !== 0 || password.length !== 0)){
-				let jsEncrypt = new JSEncrypt();
-				jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-				let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-				const credId = username+"@"+ url.toString();
-			}
-			else if( rsa.length !== 0){
-				let jsEncrypt = new JSEncrypt();
-				jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-				let encryptedPwd = jsEncrypt.encrypt(this.state.rsa);
-			}
-			else if(pemFileName.length !== 0){
+		if(loginType === showType.s3){
+			let combinedUrl = generateURLForS3(url, this.state.portNum);
+			const credId = username+"@"+ url.toString();
+			console.log(combinedUrl);
+			this.endpointCheckin(combinedUrl,
+				this.state.portNum,
+				{type: "userinfo", credId: credId, name: username, password: password, encryptedSecret: ""},
+				() => {
+					this._handleError("Authentication Failed");
+				}
+			);
 
-			}
-			// this.endpointCheckin(url,
-			// 	this.state.portNum,
-			// 	{type: "userinfo", credId: credId, name: username, password: password},
-			// 	() => {
-			// 		this._handleError("Authentication Failed");
-			// 	}
-			// );
+
 			return;
 		}
 
 		// Encrypting user password
-		let jsEncrypt = new JSEncrypt();
-		jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-		let encryptedPwd = jsEncrypt.encrypt(this.state.password);
+		// let jsEncrypt = new JSEncrypt();
+		// jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+		// let encryptedPwd = jsEncrypt.encrypt(this.state.password);
 		const credId = username+"@"+ url.toString();
+
+		// if(loginType === showType.sftp){
+		// 	// let credId = "";
+		// 	// let encryptedPwd = this.state.password;
+		// 	// if((username.length === 0 || password.length === 0) && rsa.length === 0 && pemFileName.length === 0){
+		// 	// 	this._handleError("Enter a username, password, or RSA Secret");
+		// 	// 	return;
+		// 	// }
+		// 	// else if((username.length !== 0 || password.length !== 0)){
+		// 	// 	let jsEncrypt = new JSEncrypt();
+		// 	// 	jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
+		// 	// 	encryptedPwd = jsEncrypt.encrypt(this.state.password);
+		// 	// 	credId = username+"@"+ url.toString();
+		// 	// }
+		// 	// if( rsa.length !== 0){
+		// 	// 	// encryptedPwd = this.state.rsa;
+		// 	// 	// credId = username+"@"+ url.toString();
+		// 	// }
+		// 	// else if(pemFileName.length !== 0){
+		// 	//
+		// 	// }
+		// 	this.endpointCheckin(url,
+		// 		this.state.portNum,
+		// 		{type: "userinfo", credId: credId, name: username, password: encryptedPwd,
+		// 			rsa: this.state.rsa, pemFile: this.state.pemFile},
+		// 		() => {
+		// 			this._handleError("Authentication Failed");
+		// 		}
+		// 	);
+		// 	// return;
+		// }else{
+		// 	this.endpointCheckin(url,
+		// 	this.state.portNum,
+		// 	{type: "userinfo", credId: credId, name: username, password: encryptedPwd},
+		// 	() => {
+		// 		this._handleError("Authentication Failed");
+		// 		}
+		// 	);
+		// }
 
 		this.endpointCheckin(url,
 			this.state.portNum,
-			{type: "userinfo", credId: credId, name: username, password: password},
+			{type: "userinfo", credId: credId, name: username, password: password,
+				rsa: this.state.rsa, pemFile: this.state.pemFile},
 			() => {
-			this._handleError("Authentication Failed");
+				this._handleError("Authentication Failed");
 			}
 		);
 		
@@ -545,6 +589,23 @@ export default class EndpointAuthenticateComponent extends Component {
     			this._handleError("Authentication Failed");
     		});
     	}
+	}
+
+	sftpFileUpload = (event) => {
+		const file = event.target.files[0];
+		const reader = new FileReader();
+		let fileContents = "";
+		reader.onload = (event) => {
+			fileContents = event.target.result;
+			this.setState({
+					pemFile: fileContents,
+					pemFileName: file.name
+				});
+		}
+		if(file.name.length > 0){
+			reader.readAsText(file);
+
+		}
 	}
 
 	// Globus has deprecated singing in with username and password and instead recommends using globus url
@@ -657,7 +718,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 		const StepButton = this.stepButton();
 		// const BackButton = this.backButton();
-		console.log(type);
+		// console.log(type);
 
 
 
@@ -684,7 +745,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					}else if(loginType === showType.gsiftp){ //check if globus protocol
 						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
 					}else{
-						let loginUri = loginType;
+						let loginUri = getType(endpoint) === showType.s3 ? "" : loginType;
 						this.setState({settingAuth: true, authFunction : this.regularSignIn,
 							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
 					}
@@ -755,7 +816,6 @@ export default class EndpointAuthenticateComponent extends Component {
 								id={endpoint.side+"LoginUsername"}
 								label={loginType === showType.s3 ? "AWS ACCESS KEY" : "Username"}
 								value={this.state.username}
-								disabled={this.state.rsa}
 								onChange={this.handleChange('username')}
 								margin="normal"
 								variant="outlined"
@@ -773,7 +833,6 @@ export default class EndpointAuthenticateComponent extends Component {
 								id={endpoint.side+"LoginPassword"}
 								label={loginType === showType.s3 ? "AWS SECRET KEY" : "Password"}
 								type="password"
-								disabled={this.state.rsa}
 								value={this.state.password}
 								onChange={this.handleChange('password')}
 								margin="normal"
@@ -791,19 +850,24 @@ export default class EndpointAuthenticateComponent extends Component {
 
 					{
 						loginType === showType.sftp &&
-							<React.Fragment>
-								<Divider/>
-								<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
+							<Accordion>
+								<AccordionSummary
+									expandIcon={<ExpandMore />}
+									aria-controls="panel1a-content"
+									id="panel1a-header"
+								>
+									Enter RSA or DSA Key (Optional)
+								</AccordionSummary>
+								<AccordionDetails>
+								<div style={{ paddingLeft: '3%', paddingRight: '3%', width: "100%" }}>
 									<ValidatorForm
 										ref="form"
 										onError={errors => console.log(errors)}>
 										<TextValidator
-											required
 											style={{width: "100%"}}
 											id={endpoint.side+"SFTP_RSA"}
-											label="RSA Secret"
+											label="RSA or DSA Secret"
 											value={this.state.rsa}
-											disabled={this.state.username || this.state.password}
 											onChange={this.handleChange('rsa')}
 											margin="normal"
 											variant="outlined"
@@ -814,32 +878,29 @@ export default class EndpointAuthenticateComponent extends Component {
 											}}
 										/>
 									</ValidatorForm>
-								</div>
-								<Divider/>
-								<div style={{ paddingLeft: '3%', paddingRight: '3%', paddingTop: '3%', paddingBottom: '3%' }}>
-									<Button
-										variant={"contained"}
-										component={"label"}
-										disabled={this.state.username || this.state.password || this.state.rsa}
-									>
+
+									<span>
+										<Button
+											variant={"contained"}
+											component={"label"}
+											style={{marginBottom: "1%"}}
+										>
 										Upload PEM File
 										<input
 											type={"file"}
 											accept={".pem"}
 											style={{display: "none"}}
-											onChange={(e)=>{
-												const file = e.target.files[0];
-												if(file.name.length > 0){
-													this.setState({
-														pemFile: file,
-														pemFileName: file.name
-													})
-												}
-											}}
+											onChange={(e)=>this.sftpFileUpload(e)}
 										/>
-									</Button>
+										</Button>
+										<span style={{marginLeft: "1%"}}>
+											{this.state.pemFileName}
+										</span>
+									</span>
+
 								</div>
-							</React.Fragment>
+								</AccordionDetails>
+							</Accordion>
 
 					}
 

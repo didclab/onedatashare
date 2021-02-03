@@ -38,6 +38,7 @@ import { loadCSS } from 'fg-loadcss';
 import Icon from '@material-ui/core/Icon';
 import {styled} from "@material-ui/core/styles";
 
+
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
 import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, GRIDFTP,  getType} from "../../constants";
