@@ -39,12 +39,12 @@ public class SftpResource extends VfsResource {
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
+        return Mono.create(sink -> {
             try {
                 SftpResource sftpResource= new SftpResource(credential);
-                s.success(sftpResource);
+                sink.success(sftpResource);
             } catch (Exception e) {
-                s.error(e);
+                sink.error(e);
             }
         });
     }

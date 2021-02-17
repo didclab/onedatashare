@@ -35,17 +35,17 @@ public class S3Service extends ResourceServiceBase {
 
     @Override
     public Mono<Void> delete(DeleteOperation operation) {
-        return getResource(operation.getCredId()).flatMap(resource -> resource.delete(operation));
+        return this.getResource(operation.getCredId()).flatMap(resource -> resource.delete(operation));
     }
 
     @Override
     public Mono<Stat> list(ListOperation operation) {
-        return getResource(operation.getCredId()).flatMap(resource -> resource.list(operation));
+        return this.getResource(operation.getCredId()).flatMap(resource -> resource.list(operation));
     }
 
     @Override
     public Mono<Void> mkdir(MkdirOperation operation) {
-        return getResource(operation.getCredId()).flatMap(resource -> resource.mkdir(operation));
+        return this.getResource(operation.getCredId()).flatMap(resource -> resource.mkdir(operation));
     }
 
     @Override
