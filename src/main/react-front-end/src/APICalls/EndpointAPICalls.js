@@ -21,7 +21,7 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType } from '../constants';
+import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType, S3 } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
@@ -35,7 +35,7 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
     return baseURL + "/" + endpointType + operation;
 }
 
-export async function listFiles(uri, endpoint, id, accept, fail) {
+export async function listFiles(uri, endpoint, id, accept, fail, isS3) {
     let body = {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
@@ -43,17 +43,8 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         "secret": endpoint["credential"]["password"]
     };
     let callback = accept;
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
-    // axios.get(url, {params: body})
-    //     .then((response) => {
-    //         if (!(response.status === 200))
-    //             callback = fail;
-    //         statusHandle(response, callback);
-    //     })
-    //     .catch((error) => {
-    //         handleRequestFailure(error, fail);
-    //     });
-    axios.post(url, body)
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
+    axios.get(url, {params: body})
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
@@ -62,7 +53,36 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         .catch((error) => {
             handleRequestFailure(error, fail);
         });
+    // axios.post(url, body)
+    //     .then((response) => {
+    //         if (!(response.status === 200))
+    //             callback = fail;
+    //         statusHandle(response, callback);
+    //     })
+    //     .catch((error) => {
+    //         handleRequestFailure(error, fail);
+    //     });
 }
+
+// export async function getS3Bucket(uri, endpoint, id, accept, fail) {
+//     let body = {
+//         "identifier": endpoint["credential"]["name"],
+//         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+//         "path": encodeURI(uri),
+//         "secret": endpoint["credential"]["password"]
+//     };
+//     let callback = accept;
+//     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, S3, LIST_OP_URL) //example url = api/ftp/ls
+//     axios.get(url, {params: body})
+//         .then((response) => {
+//             if (!(response.status === 200))
+//                 callback = fail;
+//             statusHandle(response, callback);
+//         })
+//         .catch((error) => {
+//             handleRequestFailure(error, fail);
+//         });
+// }
 
 export async function share(uri, endpoint, accept, fail) {
     let callback = accept;

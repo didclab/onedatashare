@@ -37,7 +37,8 @@ import {/*DROPBOX_TYPE,
 				ODS_PUBLIC_KEY,
 				generateURLFromPortNumber,
 				generateURLForS3,
-				showDisplay
+				showDisplay,
+				s3Regions
 			} from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
@@ -58,7 +59,7 @@ import DataIcon from '@material-ui/icons/Laptop';
 import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
-import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox, Accordion, AccordionSummary, AccordionDetails} from "@material-ui/core";
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox, Accordion, AccordionSummary, AccordionDetails, MenuItem} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -284,7 +285,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
 		}
-
 		saveEndpointCred(type,
 			{
 				uri: credential.url,
@@ -296,6 +296,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				pemFile: credential.pemFile
 			},
 			(response) => {
+				console.log("saved endpoint cred")
 				listFiles(url, endpointSet, null, (succ) =>
 					{
 						this.props.loginSuccess(endpointSet);
@@ -303,7 +304,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					(error) => {
 						this.props.setLoading(false);
 						callback(error);
-					}
+					},
+					type === showDisplay.s3.label
 				)
 			},
 			(error) => {
@@ -506,7 +508,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		if(loginType === showType.s3){
 			let combinedUrl = generateURLForS3(url, this.state.portNum);
-			const credId = username+"@"+ url.toString();
+			const credId = username+"@"+ combinedUrl.toString();
 			console.log(combinedUrl);
 			this.endpointCheckin(combinedUrl,
 				this.state.portNum,
@@ -600,11 +602,10 @@ export default class EndpointAuthenticateComponent extends Component {
 			this.setState({
 					pemFile: fileContents,
 					pemFileName: file.name
-				});
+				}, function() {console.log(this.state.pemFile)});
 		}
 		if(file.name.length > 0){
 			reader.readAsText(file);
-
 		}
 	}
 
@@ -936,6 +937,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			        <TextValidator
 								required
 			    	  	style={{width: "20%", background: this.state.portNumField? "white" : "#D3D3D3"}}
+								select={loginType === showType.s3}
 					  		id={endpoint.side+"LoginPort"}
 					  		disabled = {!this.state.portNumField || needPassword}
 			          label={ loginType === showType.s3 ? "Region" : "Port Num."}
@@ -948,7 +950,11 @@ export default class EndpointAuthenticateComponent extends Component {
 									this.handleClick()
 									}
 								}}
-			        />
+					>{loginType === showType.s3 &&
+					s3Regions.map((region) => {
+						return(<MenuItem value={region}>{region}</MenuItem>)
+						})
+					}</TextValidator>
 							</ValidatorForm>
 			        </div>
 		    	}
