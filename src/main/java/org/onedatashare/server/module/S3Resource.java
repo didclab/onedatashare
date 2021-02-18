@@ -22,9 +22,7 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 public class S3Resource extends Resource{
 
@@ -40,8 +38,6 @@ public class S3Resource extends Resource{
     }
 
     private S3AsyncClient constructClient(String region, AccountEndpointCredential credential){
-        logger.info("Creating client with these creds " + credential.getUsername() + " " + credential.getSecret());
-        logger.info(Region.of(region));
         return S3AsyncClient.builder()
                 .serviceConfiguration(S3Configuration.builder().checksumValidationEnabled(false).build())
                 .asyncConfiguration(b -> b.advancedOption(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR, Executors.newFixedThreadPool(50)))
@@ -66,7 +62,7 @@ public class S3Resource extends Resource{
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(monoSink -> {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .key(operation.getId())
+                    .key(operation.getToDelete())
                     .bucket(this.regionAndBucket[1])
                     .build();
             this.s3AsyncClient.deleteObject(deleteObjectRequest);
@@ -88,12 +84,7 @@ public class S3Resource extends Resource{
     private List<Stat> s3ObjectListToStatList(List<S3Object> s3ObjectList){
         ArrayList<Stat> files = new ArrayList<>();
         for(S3Object s3Object : s3ObjectList){
-            Stat file = new Stat();
-            file.setId(s3Object.key());
-            file.setFile(true);
-            file.setSize(s3Object.size());
-            file.setName(s3Object.key());
-            files.add(file);
+            files.add(s3ObjectToStat(s3Object));
         }
         return files;
     }
@@ -103,7 +94,8 @@ public class S3Resource extends Resource{
         stat.setName(s3Object.key());
         stat.setFile(true);
         stat.setSize(s3Object.size());
-        stat.setId(s3Object.eTag());
+        stat.setId(s3Object.key());
+        stat.setTime(s3Object.lastModified().getNano());
         return stat;
     }
 
