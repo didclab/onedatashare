@@ -391,6 +391,7 @@ export async function deleteHistory(uri, accept, fail) {
 
 export async function saveEndpointCred(type, body, accept, fail) {
 	let callback = accept;
+	console.log(type + "being saved to endpoint cred");
 	axios.post(apiCredUrl + type.toLowerCase(), body
 		).then((response) => {
 			if(!(response.status === 200))

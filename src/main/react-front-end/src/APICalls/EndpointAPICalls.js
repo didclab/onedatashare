@@ -35,13 +35,15 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
     return baseURL + "/" + endpointType + operation;
 }
 
-export async function listFiles(uri, endpoint, id, accept, fail, isS3) {
+export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     let body = {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": encodeURI(uri),
-        "secret": endpoint["credential"]["password"]
+        // "secret": endpoint["credential"]["password"]
     };
+
+    //params: credId, path, identifier
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
     axios.get(url, {params: body})
@@ -53,15 +55,7 @@ export async function listFiles(uri, endpoint, id, accept, fail, isS3) {
         .catch((error) => {
             handleRequestFailure(error, fail);
         });
-    // axios.post(url, body)
-    //     .then((response) => {
-    //         if (!(response.status === 200))
-    //             callback = fail;
-    //         statusHandle(response, callback);
-    //     })
-    //     .catch((error) => {
-    //         handleRequestFailure(error, fail);
-    //     });
+
 }
 
 // export async function getS3Bucket(uri, endpoint, id, accept, fail) {
