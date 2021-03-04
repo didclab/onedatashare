@@ -175,8 +175,11 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	historyListUpdateFromBackend = (endpointType) => {
+		console.log(endpointType);
 		savedCredList(endpointType, (data) =>{
-			this.setState({historyList: data.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })});
+			console.log(data);
+			/*data.list.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })}*/
+			this.setState({historyList: data.list});
 			this.props.setLoading(false);
 		}, (error) => {
 			this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
@@ -285,27 +288,29 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
 		}
+		console.log(credential.uri);
 		saveEndpointCred(type,
 			{
-				uri: credential.url,
+				uri: credential.uri,
 				username: credential.name,
 				secret: credential.password,
 				accountId: credential.credId,
-				encryptedSecret: encryptedSecret,
-				rsa: credential.rsa,
-				pemFile: credential.pemFile
+				// encryptedSecret: encryptedSecret,
+				// rsa: credential.rsa,
+				// pemFile: credential.pemFile
 			},
 			(response) => {
 				console.log("saved endpoint cred")
-				listFiles(url, endpointSet, null, (succ) =>
+				console.log("the type is " + type);
+				listFiles(url, endpointSet,
+					type === showDisplay.s3.label, null, (succ) =>
 					{
 						this.props.loginSuccess(endpointSet);
 					},
 					(error) => {
 						this.props.setLoading(false);
 						callback(error);
-					},
-					type === showDisplay.s3.label
+					}
 				)
 			},
 			(error) => {
@@ -447,15 +452,37 @@ export default class EndpointAuthenticateComponent extends Component {
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {
-				const url = new URL(uri);
-				let portValue = url.port;
-				if(url.port.length === 0){
-					portValue = getDefaultPortFromUri(uri);
+				if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
+					// let combinedUrl = generateURLForS3(url, this.state.portNum);
+					// const credId = username+"@"+ combinedUrl.toString();
+					// console.log(combinedUrl);
+					// this.endpointCheckin(combinedUrl,
+					// 	this.state.portNum,
+					// 	{type: loginType, credId: credId, name: username, password: password, encryptedSecret: "", uri: combinedUrl},
+					// 	() => {
+					// 		this._handleError("Authentication Failed");
+					// 	}
+					// );
+					const nameAndUrl = uri.split("@");
+					const region = uri.split(":::")[1];
+
+
+					this.endpointCheckin(nameAndUrl[1], region, {credId: uri, uri: nameAndUrl[1], name: nameAndUrl[0]}, (error) => {
+						this._handleError("Please enter your credential.");
+						this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
+					})
+				}else{
+					const url = new URL(uri);
+					let portValue = url.port;
+					if(url.port.length === 0){
+						portValue = getDefaultPortFromUri(uri);
+					}
+					this.endpointCheckin(uri, portValue, {}, (error) => {
+						this._handleError("Please enter your credential.");
+						this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
+					})
 				}
-				this.endpointCheckin(uri, portValue, {}, (error) => {
-					this._handleError("Please enter your credential.");
-					this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
-				})
+
 			}}>
 			  <ListItemIcon>
 		        <DataIcon/>
@@ -474,7 +501,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					//
 					// })
 	            	deleteHistory(uri, (accept) => {
-	            		this.historyListUpdateFromBackend();
+	            		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
 	            	}, (error) => {
 	            		this._handleError("Delete History Failed");
 	            	});
@@ -512,7 +539,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			console.log(combinedUrl);
 			this.endpointCheckin(combinedUrl,
 				this.state.portNum,
-				{type: "userinfo", credId: credId, name: username, password: password, encryptedSecret: ""},
+				{type: loginType, credId: credId, name: username, password: password, encryptedSecret: "", uri: combinedUrl},
 				() => {
 					this._handleError("Authentication Failed");
 				}
@@ -569,7 +596,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		this.endpointCheckin(url,
 			this.state.portNum,
-			{type: "userinfo", credId: credId, name: username, password: password,
+			{type: loginType, credId: credId, name: username, password: password,
 				rsa: this.state.rsa, pemFile: this.state.pemFile},
 			() => {
 				this._handleError("Authentication Failed");

@@ -330,8 +330,11 @@ export default class EndpointBrowseComponent extends Component {
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
+		const isS3 = endpoint.credential.type === showType.s3;
+		console.log(isS3);
+		console.log(endpoint.credential.type);
 
-		listFiles(uri, endpoint, id[id.length-1], (data) =>{
+		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
@@ -341,7 +344,7 @@ export default class EndpointBrowseComponent extends Component {
 				this._handleError("Login Failed. Re-directing to OAuth page");
 				setLoading(false);
 				emptyFileNodesData(endpoint);
-				
+
 				let type = getName(endpoint);
 				let cred = endpoint.credential;
 				let savedCreds = cookies.get(type);
@@ -357,12 +360,12 @@ export default class EndpointBrowseComponent extends Component {
 					}
 					else{
 						cookies.set(type, JSON.stringify(filteredCredsArr));
-					}	
+					}
 				}
 
 				unselectAll();
 				this.props.back();
-				
+
 				setTimeout(()=> {
 					const type = getType(endpoint)
 					if(isOAuth[type] && type !== showType.gsiftp){
