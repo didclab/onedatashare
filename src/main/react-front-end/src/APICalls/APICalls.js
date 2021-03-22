@@ -387,6 +387,13 @@ export async function deleteHistory(uri, accept, fail) {
 			.catch((error) => {
 				handleRequestFailure(error, fail);
 			});
+		//return principalMono.map(Principal::getName)
+	//                 .flatMap(user->credentialService.deleteCredential(user, type, credential.get("credential").toString()));
+
+	//key values:
+	//credential: credID
+
+	//api/cred/s3
 }
 
 export async function saveEndpointCred(type, body, accept, fail) {

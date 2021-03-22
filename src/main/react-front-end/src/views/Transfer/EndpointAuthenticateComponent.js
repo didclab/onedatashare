@@ -258,7 +258,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 
 		//Check for a valid endpoint
-		if(! getTypeFromUri(endpointSet.uri) && getType(this.state.endpoint) !== showType.s3){
+		if(getType(this.state.endpoint) !== showType.s3 && !getTypeFromUri(endpointSet.uri)){
 			this._handleError("Protocol is not understood");
 		}
 
@@ -453,24 +453,36 @@ export default class EndpointAuthenticateComponent extends Component {
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {
 				if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
-					// let combinedUrl = generateURLForS3(url, this.state.portNum);
-					// const credId = username+"@"+ combinedUrl.toString();
-					// console.log(combinedUrl);
-					// this.endpointCheckin(combinedUrl,
-					// 	this.state.portNum,
-					// 	{type: loginType, credId: credId, name: username, password: password, encryptedSecret: "", uri: combinedUrl},
-					// 	() => {
-					// 		this._handleError("Authentication Failed");
-					// 	}
-					// );
-					const nameAndUrl = uri.split("@");
+
 					const region = uri.split(":::")[1];
 
+					let endpointSet = {
+						uri: uri,
+						login: true,
+						side: this.props.endpoint.side,
+						credential: {name: "\"\"", credId: uri, type: showType.s3},
+						portNumber: region
+					}
 
-					this.endpointCheckin(nameAndUrl[1], region, {credId: uri, uri: nameAndUrl[1], name: nameAndUrl[0]}, (error) => {
-						this._handleError("Please enter your credential.");
-						this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
-					})
+					listFiles(uri, endpointSet,
+						true, null, (succ) =>
+						{
+							this.props.loginSuccess(endpointSet);
+						},
+						(error) => {
+							this.props.setLoading(false);
+							this._handleError("Please enter your credential.");
+							this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
+						}
+					)
+
+					// listFiles()
+
+
+					// this.endpointCheckin(uri, region, {credId: uri, name: "\"\""}, (error) => {
+					// 	this._handleError("Please enter your credential.");
+					// 	this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
+					// })
 				}else{
 					const url = new URL(uri);
 					let portValue = url.port;
@@ -535,7 +547,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		if(loginType === showType.s3){
 			let combinedUrl = generateURLForS3(url, this.state.portNum);
-			const credId = username+"@"+ combinedUrl.toString();
+			const credId = combinedUrl.toString();
 			console.log(combinedUrl);
 			this.endpointCheckin(combinedUrl,
 				this.state.portNum,

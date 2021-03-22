@@ -607,33 +607,33 @@ export default class EndpointBrowseComponent extends Component {
 
 					{/*}*/}
 
-					<BrowseButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}
-								  click={() => {
-									  const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-									  const taskList = getSelectedTasksFromSide(endpoint);
-									  if(type === /*SFTP_TYPE*/ showType.sftp){
-										  getDownload(downloadUrl, endpoint.credential, taskList);
-									  }
-									  else if(type === /*HTTP_TYPE*/ showType.http){
-										  window.open(downloadUrl);
-									  }
-									  else{
-										  download(downloadUrl, endpoint.credential, taskList[0].id)
-									  }
-								  }}
-								  style={buttonStyle}
-								  label={"Download"}
-								  buttonIcon={<DownloadButton style={iconStyle}/>}
-					/>
+					{/*<BrowseButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}*/}
+					{/*			  click={() => {*/}
+					{/*				  const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);*/}
+					{/*				  const taskList = getSelectedTasksFromSide(endpoint);*/}
+					{/*				  if(type === showType.sftp){*/}
+					{/*					  getDownload(downloadUrl, endpoint.credential, taskList);*/}
+					{/*				  }*/}
+					{/*				  else if(type === showType.http){*/}
+					{/*					  window.open(downloadUrl);*/}
+					{/*				  }*/}
+					{/*				  else{*/}
+					{/*					  download(downloadUrl, endpoint.credential, taskList[0].id)*/}
+					{/*				  }*/}
+					{/*			  }}*/}
+					{/*			  style={buttonStyle}*/}
+					{/*			  label={"Download"}*/}
+					{/*			  buttonIcon={<DownloadButton style={iconStyle}/>}*/}
+					{/*/>*/}
 
 
 
-					<BrowseButton id={endpoint.side + "UploadButton"} disabled={false}
-								  click={() => {}}
-								  style={buttonStyle}
-								  label={"Upload"}
-								  buttonIcon={<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>}
-					/>
+					{/*<BrowseButton id={endpoint.side + "UploadButton"} disabled={false}*/}
+					{/*			  click={() => {}}*/}
+					{/*			  style={buttonStyle}*/}
+					{/*			  label={"Upload"}*/}
+					{/*			  buttonIcon={<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>}*/}
+					{/*/>*/}
 
 
 					<BrowseButton
