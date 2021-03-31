@@ -484,7 +484,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					// 	this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
 					// })
 				}else{
-					const url = new URL(uri);
+					const url = new URL(this.state.endpoint.uri + uri.split("@")[1]);
 					let portValue = url.port;
 					if(url.port.length === 0){
 						portValue = getDefaultPortFromUri(uri);
@@ -512,11 +512,24 @@ export default class EndpointAuthenticateComponent extends Component {
 					// 	openModal: true
 					//
 					// })
-	            	deleteHistory(uri, (accept) => {
-	            		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-	            	}, (error) => {
-	            		this._handleError("Delete History Failed");
-	            	});
+					if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
+						deleteHistory(uri, true, (accept) => {
+							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						}, (error) => {
+							this._handleError("Delete History Failed");
+						});
+					}else{
+						deleteHistory(uri, false, (accept) => {
+							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						}, (error) => {
+							this._handleError("Delete History Failed");
+						});
+					}
+	            	// deleteHistory(uri, (accept) => {
+	            	// 	this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+	            	// }, (error) => {
+	            	// 	this._handleError("Delete History Failed");
+	            	// });
 	            }}>
 	              <DeleteIcon />
 	            </IconButton>
@@ -565,7 +578,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		// let jsEncrypt = new JSEncrypt();
 		// jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
 		// let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-		const credId = username+"@"+ url.toString();
+		const credId = username+"@"+ url.toString().split("://")[1];
 
 		// if(loginType === showType.sftp){
 		// 	// let credId = "";
@@ -750,6 +763,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
+		console.log(historyList)
 		const { back } = this.props;
 		
 		const type = getName(endpoint);

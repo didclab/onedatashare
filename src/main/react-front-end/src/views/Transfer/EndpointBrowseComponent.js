@@ -397,12 +397,13 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
+		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
 		//make api call
-		mkdir(dirName,dirType, endpoint, (response) => {
+		mkdir(dirName,dirType, endpoint, isS3, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
 		}, (error) => {
@@ -426,6 +427,9 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFileDeleted = (files) => {
 		const {endpoint, setLoading} = this.props;
+		// console.log(endpoint);
+		// return;
+		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, ids} = this.state;
 		const len = files.length;
 		var i = 0;
@@ -433,7 +437,7 @@ export default class EndpointBrowseComponent extends Component {
 			setLoading(true);
 			files.map((file) => {
 				const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-				deleteCall( fileName, endpoint,  file.id, (response) => {
+				deleteCall( fileName, endpoint, isS3,  file.id, (response) => {
 					i++;
 					if(i === len){
 						this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);

@@ -78,7 +78,7 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
 //         });
 // }
 
-export async function share(uri, endpoint, accept, fail) {
+export async function share(uri, endpoint, isS3, accept, fail) {
     let callback = accept;
 
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SHARE_OP_URL), {
@@ -95,13 +95,13 @@ export async function share(uri, endpoint, accept, fail) {
         });
 }
 
-export async function mkdir(uri, type, endpoint, accept, fail) {
+export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
     let callback = accept;
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), MKDIR_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
         "folderToCreate": ""
     })
@@ -115,12 +115,12 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
         });
 }
 
-export async function deleteCall(uri, endpoint, id, accept, fail) {
+export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
 
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DEL_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
         "toDelete": ""
     })
