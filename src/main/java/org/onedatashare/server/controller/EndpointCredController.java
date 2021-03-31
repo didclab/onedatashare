@@ -1,9 +1,11 @@
 package org.onedatashare.server.controller;
 
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.onedatashare.server.model.core.AuthType;
 import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
+import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.service.CredentialService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,10 +34,10 @@ public class EndpointCredController {
                 .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
     }
 
-    @PatchMapping("{type}")
-    public Mono<Void> deleteCredential(@RequestBody HashMap credential, @PathVariable EndpointType type,
+    @DeleteMapping("{type}/{credId}")
+    public Mono<Void> deleteCredential(@PathVariable String credId, @PathVariable EndpointType type,
                                        Mono<Principal> principalMono) {
         return principalMono.map(Principal::getName)
-                .flatMap(user->credentialService.deleteCredential(user, type, credential.get("credential").toString()));
+                .flatMap(user->credentialService.deleteCredential(user, type, credId));
     }
 }
