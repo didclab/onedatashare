@@ -36,10 +36,16 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 }
 
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
+
+    console.log(endpoint)
+    console.log(encodeURI(uri))
+
+
+
     let body = {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": encodeURI(uri),
+        "path": /*encodeURI(uri) + */"/",
         // "secret": endpoint["credential"]["password"]
     };
 
@@ -58,27 +64,7 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
 
 }
 
-// export async function getS3Bucket(uri, endpoint, id, accept, fail) {
-//     let body = {
-//         "identifier": endpoint["credential"]["name"],
-//         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-//         "path": encodeURI(uri),
-//         "secret": endpoint["credential"]["password"]
-//     };
-//     let callback = accept;
-//     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, S3, LIST_OP_URL) //example url = api/ftp/ls
-//     axios.get(url, {params: body})
-//         .then((response) => {
-//             if (!(response.status === 200))
-//                 callback = fail;
-//             statusHandle(response, callback);
-//         })
-//         .catch((error) => {
-//             handleRequestFailure(error, fail);
-//         });
-// }
-
-export async function share(uri, endpoint, accept, fail) {
+export async function share(uri, endpoint, isS3, accept, fail) {
     let callback = accept;
 
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SHARE_OP_URL), {
@@ -95,15 +81,15 @@ export async function share(uri, endpoint, accept, fail) {
         });
 }
 
-export async function mkdir(uri, type, endpoint, accept, fail) {
+export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
     let callback = accept;
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), MKDIR_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
-        "folderToCreate": ""
+        "folderToCreate": uri
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -115,14 +101,14 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
         });
 }
 
-export async function deleteCall(uri, endpoint, id, accept, fail) {
+export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
 
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DEL_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
-        "toDelete": ""
+        "toDelete": uri.split("/")[1]
     })
         .then((response) => {
             if (!(response.status === 200))

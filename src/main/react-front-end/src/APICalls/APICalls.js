@@ -372,12 +372,13 @@ export async function history(uri, portNum, accept, fail) {
 		});
 }
 
-export async function deleteHistory(uri, accept, fail) {
+export async function deleteHistory(uri, type, accept, fail) {
 		let callback = accept;
+		// console.log(uri + " " + type);
 
-		axios.post(url + 'user', {
-			action: "deleteHistory",
-			uri: encodeURI(uri)
+		axios.delete(apiCredUrl + type, {
+			headers: {},
+			data: uri
 		})
 			.then((response) => {
 				if (!(response.status === 200))
@@ -387,18 +388,45 @@ export async function deleteHistory(uri, accept, fail) {
 			.catch((error) => {
 				handleRequestFailure(error, fail);
 			});
+
+		// axios.post(apiCredUrl + 'user', {
+		// 	action: "deleteHistory",
+		// 	uri: isS3 ? uri : encodeURI(uri)
+		// })
+		// 	.then((response) => {
+		// 		if (!(response.status === 200))
+		// 			callback = fail;
+		// 		statusHandle(response, callback);
+		// 	})
+		// 	.catch((error) => {
+		// 		handleRequestFailure(error, fail);
+		// 	});
+
+		// axios.post(url + 'user', {
+		// 	action: "deleteHistory",
+		// 	uri: encodeURI(uri)
+		// })
+		// 	.then((response) => {
+		// 		if (!(response.status === 200))
+		// 			callback = fail;
+		// 		statusHandle(response, callback);
+		// 	})
+		// 	.catch((error) => {
+		// 		handleRequestFailure(error, fail);
+		// 	});
 		//return principalMono.map(Principal::getName)
 	//                 .flatMap(user->credentialService.deleteCredential(user, type, credential.get("credential").toString()));
 
 	//key values:
 	//credential: credID
 
-	//api/cred/s3
+	//api/cred/s3/rm
 }
 
 export async function saveEndpointCred(type, body, accept, fail) {
 	let callback = accept;
 	console.log(type + "being saved to endpoint cred");
+	console.log(body);
 	axios.post(apiCredUrl + type.toLowerCase(), body
 		).then((response) => {
 			if(!(response.status === 200))
@@ -417,6 +445,7 @@ export async function savedCredList(type, accept, fail) {
 	let callback = accept;
 	axios.get(apiCredUrl + type.toLowerCase())
 		.then((response) => {
+			console.log(response);
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);

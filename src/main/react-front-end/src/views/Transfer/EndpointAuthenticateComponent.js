@@ -264,25 +264,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 
-		// listFiles(url, endpointSet, null, (response) => {
-		// 	saveEndpointCred(type,
-		// 		{
-		// 			uri: credential.url,
-		// 			username: credential.name,
-		// 			secret: credential.password,
-		// 			accountId: credential.credId
-		// 		},
-		// 		 (suc) => {
-		// 		 //console.log(suc)
-
-		// 	}, (error) => {
-		// 		this._handleError(error);
-		// 	})
-		// 	this.props.loginSuccess(endpointSet);
-		// }, (error) => {
-		// 	this.props.setLoading(false);
-		// 	callback(error);
-		// })
 
 		let encryptedSecret = "";
 		if(type === showDisplay.s3.label){
@@ -295,9 +276,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				username: credential.name,
 				secret: credential.password,
 				accountId: credential.credId,
-				// encryptedSecret: encryptedSecret,
-				// rsa: credential.rsa,
-				// pemFile: credential.pemFile
 			},
 			(response) => {
 				console.log("saved endpoint cred")
@@ -476,15 +454,13 @@ export default class EndpointAuthenticateComponent extends Component {
 						}
 					)
 
-					// listFiles()
-
 
 					// this.endpointCheckin(uri, region, {credId: uri, name: "\"\""}, (error) => {
 					// 	this._handleError("Please enter your credential.");
 					// 	this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
 					// })
 				}else{
-					const url = new URL(uri);
+					const url = new URL(this.state.endpoint.uri + uri.split("@")[1]);
 					let portValue = url.port;
 					if(url.port.length === 0){
 						portValue = getDefaultPortFromUri(uri);
@@ -512,11 +488,29 @@ export default class EndpointAuthenticateComponent extends Component {
 					// 	openModal: true
 					//
 					// })
-	            	deleteHistory(uri, (accept) => {
-	            		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-	            	}, (error) => {
-	            		this._handleError("Delete History Failed");
-	            	});
+					deleteHistory(uri, this.state.endpoint.uri.split(":")[0], (accept) => {
+						this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+					}, (error) => {
+						this._handleError("Delete History Failed");
+					});
+					// if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
+					// 	deleteHistory(uri, true, (accept) => {
+					// 		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+					// 	}, (error) => {
+					// 		this._handleError("Delete History Failed");
+					// 	});
+					// }else{
+					// 	deleteHistory(uri, false, (accept) => {
+					// 		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+					// 	}, (error) => {
+					// 		this._handleError("Delete History Failed");
+					// 	});
+					// }
+	            	// deleteHistory(uri, (accept) => {
+	            	// 	this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+	            	// }, (error) => {
+	            	// 	this._handleError("Delete History Failed");
+	            	// });
 	            }}>
 	              <DeleteIcon />
 	            </IconButton>
@@ -532,12 +526,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			loginType !== showType.s3 ? this._handleError("Please enter a valid URL") : this._handleError("Please enter a valid bucketname and region")
 			return;
 		}
-	// if(!needPassword){
-	// 	this.endpointCheckin(this.state.url, this.state.portNum, {}, () => {
-	// 		this.setState({needPassword: true});
-	// 	});
-	// }
-	// else{
 		// User is expected to enter password to login
 
 		if(username.length === 0 || password.length === 0) {
@@ -562,54 +550,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 
 		// Encrypting user password
-		// let jsEncrypt = new JSEncrypt();
-		// jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-		// let encryptedPwd = jsEncrypt.encrypt(this.state.password);
-		const credId = username+"@"+ url.toString();
-
-		// if(loginType === showType.sftp){
-		// 	// let credId = "";
-		// 	// let encryptedPwd = this.state.password;
-		// 	// if((username.length === 0 || password.length === 0) && rsa.length === 0 && pemFileName.length === 0){
-		// 	// 	this._handleError("Enter a username, password, or RSA Secret");
-		// 	// 	return;
-		// 	// }
-		// 	// else if((username.length !== 0 || password.length !== 0)){
-		// 	// 	let jsEncrypt = new JSEncrypt();
-		// 	// 	jsEncrypt.setPublicKey(ODS_PUBLIC_KEY);
-		// 	// 	encryptedPwd = jsEncrypt.encrypt(this.state.password);
-		// 	// 	credId = username+"@"+ url.toString();
-		// 	// }
-		// 	// if( rsa.length !== 0){
-		// 	// 	// encryptedPwd = this.state.rsa;
-		// 	// 	// credId = username+"@"+ url.toString();
-		// 	// }
-		// 	// else if(pemFileName.length !== 0){
-		// 	//
-		// 	// }
-		// 	this.endpointCheckin(url,
-		// 		this.state.portNum,
-		// 		{type: "userinfo", credId: credId, name: username, password: encryptedPwd,
-		// 			rsa: this.state.rsa, pemFile: this.state.pemFile},
-		// 		() => {
-		// 			this._handleError("Authentication Failed");
-		// 		}
-		// 	);
-		// 	// return;
-		// }else{
-		// 	this.endpointCheckin(url,
-		// 	this.state.portNum,
-		// 	{type: "userinfo", credId: credId, name: username, password: encryptedPwd},
-		// 	() => {
-		// 		this._handleError("Authentication Failed");
-		// 		}
-		// 	);
-		// }
+		const credId = username+"@"+ url.toString().split("://")[1];
 
 		this.endpointCheckin(url,
 			this.state.portNum,
 			{type: loginType, credId: credId, name: username, password: password,
-				rsa: this.state.rsa, pemFile: this.state.pemFile},
+				rsa: this.state.rsa, pemFile: this.state.pemFile, uri: url.toString()},
 			() => {
 				this._handleError("Authentication Failed");
 			}
@@ -648,19 +594,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 	}
 
-	// Globus has deprecated singing in with username and password and instead recommends using globus url
-    // globusActivateSignin = () => {
-    // 	const {endpointSelected} = this.state;
-	// 	this.props.setLoading(true);
-	// 	globusEndpointActivate(endpointSelected, this.state.username,  this.state.password, (msg) => {
-	// 		this.props.setLoading(false);
-	// 		endpointSelected.activated = true;
-	// 		this.endpointModalLogin(endpointSelected);
-	// 	}, (error) => {
-	// 		this.props.setLoading(false);
-	// 		this._handleError("Authentication Failed");
-	// 	});
-	// }
 
 	endpointModalAdd = (endpoint) => {
 		this.props.setLoading(true);
@@ -750,6 +683,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
+		console.log(historyList)
 		const { back } = this.props;
 		
 		const type = getName(endpoint);
@@ -766,18 +700,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		<div >
 			{/*{this.deleteConfirmationModal()}*/}
 			{!settingAuth && <div className={"authenticationContainer"}>
-		        {/*<ListItem button onClick={() =>{*/}
-		        {/*	back()*/}
-		        {/*}}>*/}
-		        {/*  <ListItemIcon>*/}
-		        {/*  	<BackIcon/>*/}
-		        {/*  </ListItemIcon>*/}
-		        {/*  <ListItemText primary="Back" />*/}
-		        {/*</ListItem>*/}
-				{/*<Button style={{width: "100%", textAlign: "left"}} onClick={() =>{*/}
-				{/*	back()*/}
-				{/*}}> <BackIcon/>Back</Button>*/}
-				{/*<Divider/>*/}
+
 
 		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
 					if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
@@ -835,15 +758,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		    	<div className={"authenticationContainer"}>
 
-		    	{/*<Button style={{width: "100%", textAlign: "left"}} onClick={() => {*/}
-		    	{/*	if(needPassword){*/}
-		    	{/*		this.setState({needPassword: false})*/}
-				{/*	}else{*/}
-				{/*		this.setState({settingAuth: false})}*/}
-				{/*	}*/}
 
-		    	{/*}> <BackIcon/>Back</Button>*/}
-		    	{/*<Divider />*/}
 					<div style={{ paddingLeft: '3%', paddingRight: '3%' }}>
 
 						<ValidatorForm
