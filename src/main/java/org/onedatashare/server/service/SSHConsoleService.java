@@ -1,6 +1,9 @@
 package org.onedatashare.server.service;
 
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import org.onedatashare.server.model.response.ShellCommandResponse;
 import org.onedatashare.server.model.useraction.UserAction;
 import org.onedatashare.server.model.SSHUserInfo;

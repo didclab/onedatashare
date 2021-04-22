@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.controller.endpoint;
 
+import org.onedatashare.server.controller.EndpointCredController;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.error.TokenExpiredException;
 import org.onedatashare.server.model.filesystem.exceptions.ErrorMessage;
@@ -37,7 +38,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class EndpointBaseController {
+    Logger logger = LoggerFactory.getLogger(EndpointCredController.class);
     
     @GetMapping("/ls")
     public Mono<Stat> list(@RequestParam String credId, @RequestParam String path,
@@ -52,6 +57,7 @@ public abstract class EndpointBaseController {
 
     @PostMapping("/mkdir")
     public Mono<Void> mkdir(@RequestBody MkdirOperation operation){
+        logger.info(operation.toString());
         return mkdirOperation(operation);
     }
 

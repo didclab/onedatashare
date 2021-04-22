@@ -59,7 +59,7 @@ public class ApplicationSecurityConfig {
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
                 .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                 //Need authentication for APICalls
-                .pathMatchers("/api/**").permitAll()
+                .pathMatchers("/api/**").authenticated()
                 //Need to be admin to access admin functionalities
                 //TODO: Check if this setting is secure
                 .pathMatchers("/**").permitAll()

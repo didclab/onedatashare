@@ -112,6 +112,7 @@ public class CredentialService {
     }
 
     public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
+        System.out.println("deleting credential");
         return client.delete()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .exchange()
