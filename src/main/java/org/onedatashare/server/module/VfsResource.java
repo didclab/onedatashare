@@ -76,40 +76,6 @@ public class VfsResource extends Resource {
         return stat;
     }
 
-    private FileContent getContent(FileObject file){
-        try {
-            return file.getContent();
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    private FileType getType(FileObject file){
-        try {
-            return file.getType();
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private long size(FileContent fileContent){
-        try{
-            return fileContent.getSize();
-        }catch (FileSystemException e){
-            return 0l;
-        }
-    }
-
-    private long lastModified(FileContent fileContent){
-        try {
-            return fileContent.getLastModifiedTime()/1000;
-        } catch (FileSystemException e) {
-            e.printStackTrace();
-        }
-        return 0l;
-    }
-
     @Override
     public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
         return Mono.create(s -> {
@@ -219,5 +185,39 @@ public class VfsResource extends Resource {
                 s.error(e);
             }
         });
+    }
+
+    private FileContent getContent(FileObject file){
+        try {
+            return file.getContent();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private FileType getType(FileObject file){
+        try {
+            return file.getType();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private long size(FileContent fileContent){
+        try{
+            return fileContent.getSize();
+        }catch (FileSystemException e){
+            return 0l;
+        }
+    }
+
+    private long lastModified(FileContent fileContent){
+        try {
+            return fileContent.getLastModifiedTime()/1000;
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+        return 0l;
     }
 }
