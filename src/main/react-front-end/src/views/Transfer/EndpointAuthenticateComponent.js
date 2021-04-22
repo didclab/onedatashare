@@ -488,24 +488,19 @@ export default class EndpointAuthenticateComponent extends Component {
 					// 	openModal: true
 					//
 					// })
-					deleteHistory(uri, this.state.endpoint.uri.split(":")[0], (accept) => {
-						this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-					}, (error) => {
-						this._handleError("Delete History Failed");
-					});
-					// if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
-					// 	deleteHistory(uri, true, (accept) => {
-					// 		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-					// 	}, (error) => {
-					// 		this._handleError("Delete History Failed");
-					// 	});
-					// }else{
-					// 	deleteHistory(uri, false, (accept) => {
-					// 		this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-					// 	}, (error) => {
-					// 		this._handleError("Delete History Failed");
-					// 	});
-					// }
+					if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
+						deleteHistory(uri, true, (accept) => {
+							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						}, (error) => {
+							this._handleError("Delete History Failed");
+						});
+					}else{
+						deleteHistory(uri, false, (accept) => {
+							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						}, (error) => {
+							this._handleError("Delete History Failed");
+						});
+					}
 	            	// deleteHistory(uri, (accept) => {
 	            	// 	this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
 	            	// }, (error) => {
@@ -551,6 +546,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		// Encrypting user password
 		const credId = username+"@"+ url.toString().split("://")[1];
+
 
 		this.endpointCheckin(url,
 			this.state.portNum,
