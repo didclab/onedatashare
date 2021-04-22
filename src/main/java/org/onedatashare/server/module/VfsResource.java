@@ -13,6 +13,8 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.response.DownloadResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -121,7 +123,12 @@ public class VfsResource extends Resource {
         return Mono.create(s -> {
             try {
                 Stat stat;
-                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());
+                FileObject fileObject;
+                if(listOperation.getPath().isEmpty()){
+                    fileObject = this.resolveFile(this.baseUri);
+                }else{
+                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
+                }
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;

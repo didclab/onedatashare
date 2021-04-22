@@ -22,7 +22,7 @@ public class FtpResource extends VfsResource {
 
         //Handling authentication
         if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getAccountId(), accountCredential.getUsername(), accountCredential.getSecret());
+            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
         }
 
@@ -32,7 +32,7 @@ public class FtpResource extends VfsResource {
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
         return Mono.create(s -> {
             try {
-                FtpResource ftpResource= new FtpResource(credential);
+                FtpResource ftpResource = new FtpResource(credential);
                 s.success(ftpResource);
             } catch (Exception e) {
                 s.error(e);

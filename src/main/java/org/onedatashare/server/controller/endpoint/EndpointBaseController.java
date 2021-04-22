@@ -41,16 +41,18 @@ import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
+
 public abstract class EndpointBaseController {
     Logger logger = LoggerFactory.getLogger(EndpointCredController.class);
     
     @GetMapping("/ls")
-    public Mono<Stat> list(@RequestParam String credId, @RequestParam String path,
-                           @RequestParam String identifier) {
+    public Mono<Stat> list(@RequestParam String credId, @RequestParam Optional<String> path,
+                           @RequestParam Optional<String> identifier) {
         ListOperation operation = ListOperation.builder()
                 .credId(credId)
-                .path(path)
-                .id(identifier)
+                .path(path.orElse(""))
+                .id(path.orElse(""))
                 .build();
         return listOperation(operation);
     }
