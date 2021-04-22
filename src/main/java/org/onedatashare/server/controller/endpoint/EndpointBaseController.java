@@ -52,7 +52,7 @@ public abstract class EndpointBaseController {
         ListOperation operation = ListOperation.builder()
                 .credId(credId)
                 .path(path.orElse(""))
-                .id(path.orElse(""))
+                .id(identifier.orElse(""))
                 .build();
         return listOperation(operation);
     }
