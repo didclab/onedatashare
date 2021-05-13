@@ -121,7 +121,7 @@ public class VfsResource extends Resource {
         return Mono.create(s -> {
             try {
                 Stat stat;
-                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());
+                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;

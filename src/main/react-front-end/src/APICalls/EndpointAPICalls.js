@@ -41,11 +41,11 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     console.log(encodeURI(uri))
 
 
-
     let body = {
-        "identifier": endpoint["credential"]["name"],
+        // "identifier": endpoint["credential"]["name"],
+        "identifier": "",
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": /*encodeURI(uri) + */"/",
+        "path": "upload/",
         // "secret": endpoint["credential"]["password"]
     };
 

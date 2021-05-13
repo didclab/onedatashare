@@ -21,8 +21,9 @@ public class FtpResource extends VfsResource {
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
 
         //Handling authentication
+        //
         if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getAccountId(), accountCredential.getUsername(), accountCredential.getSecret());
+            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
         }
 
