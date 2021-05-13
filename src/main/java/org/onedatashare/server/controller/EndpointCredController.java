@@ -37,19 +37,19 @@ public class EndpointCredController {
 
     @GetMapping("{type}")
     public Mono<CredList> getCredential(@PathVariable EndpointType type, Mono<Principal> principalMono){
-//        return principalMono.map(Principal::getName)
-//                .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
         return principalMono.map(Principal::getName)
-                .flatMap(user -> {
-                    Mono<CredList> monoList = credentialService.getStoredCredentialNames(user, type);
-                    monoList.map(credList -> {
-                        for(String cred : credList.getList()){
-                            logger.info(cred);
-                        }
-                        return credList;
-                    });
-                    return monoList;
-                });
+                .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
+//        return principalMono.map(Principal::getName)
+//                .flatMap(user -> {
+//                    Mono<CredList> monoList = credentialService.getStoredCredentialNames(user, type);
+//                    monoList.map(credList -> {
+//                        for(String cred : credList.getList()){
+//                            logger.info(cred);
+//                        }
+//                        return credList;
+//                    });
+//                    return monoList;
+//                });
     }
 
     @DeleteMapping("{type}/{credId}")

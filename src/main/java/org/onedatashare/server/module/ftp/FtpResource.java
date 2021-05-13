@@ -33,7 +33,7 @@ public class FtpResource extends VfsResource {
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
         return Mono.create(s -> {
             try {
-                FtpResource ftpResource= new FtpResource(credential);
+                FtpResource ftpResource = new FtpResource(credential);
                 s.success(ftpResource);
             } catch (Exception e) {
                 s.error(e);

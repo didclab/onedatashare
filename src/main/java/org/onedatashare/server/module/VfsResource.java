@@ -13,6 +13,8 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.response.DownloadResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -36,7 +38,7 @@ public class VfsResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s ->{
             try {
-                FileObject fileObject = this.resolveFile(this.baseUri + operation.getId() + operation.getToDelete());
+                FileObject fileObject = this.resolveFile(this.baseUri + operation.getPath() + operation.getToDelete());
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;
@@ -58,20 +60,19 @@ public class VfsResource extends Resource {
         return this.fileSystemManager.resolveFile(path, this.fileSystemOptions);
     }
 
-    private Stat fileToStat(FileObject file) throws FileSystemException{
+    private Stat fileToStat(FileObject file){
         Stat stat = new Stat();
-        FileContent fileContent = file.getContent();
-        if(file.getType() == FileType.FOLDER) {
+        FileContent fileContent = getContent(file);
+        FileType type = getType(file);
+        if(type == FileType.FOLDER) {
             stat.setDir(true)
                     .setFile(false);
+        }else if(type == FileType.FILE) {
+            stat.setSize(size(fileContent));
+            stat.setFile(true).setDir(false);
         }
-        else if(file.getType() == FileType.FILE) {
-            stat.setFile(true)
-                    .setDir(false)
-                    .setSize(fileContent.getSize());
-        }
-        stat.setName(file.getName().getBaseName())
-                .setTime(fileContent.getLastModifiedTime() / 1000);
+        stat.setName(file.getName().getBaseName());
+        stat.setTime(lastModified(fileContent));
         return stat;
     }
 
@@ -83,7 +84,7 @@ public class VfsResource extends Resource {
             Stack<FileObject> traversalStack = new Stack<>();
             try {
                 for(TransferJobRequest.EntityInfo e : source.getInfoList()){
-                    FileObject fObject = this.fileSystemManager.resolveFile(this.baseUri + basePath + e.getId(),
+                    FileObject fObject = this.fileSystemManager.resolveFile(this.baseUri + "/" + basePath + e.getId(),
                             this.fileSystemOptions);
                     traversalStack.push(fObject);
                 }
@@ -122,6 +123,14 @@ public class VfsResource extends Resource {
             try {
                 Stat stat;
                 FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
+//=======
+//                FileObject fileObject;
+//                if(listOperation.getPath().isEmpty()){
+//                    fileObject = this.resolveFile(this.baseUri);
+//                }else{
+//                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
+//                }
+//>>>>>>> 2072465d5922311978f5726f24c0dd98c325ca27
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;
@@ -146,8 +155,8 @@ public class VfsResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
         return Mono.create(s -> {
             try {
-                FileObject fileObject = this.resolveFile(this.baseUri
-                        + mkdirOperation.getId() + mkdirOperation.getFolderToCreate());
+                FileObject fileObject = this.resolveFile(this.baseUri + "/"
+                        + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
                 if(fileObject.exists()){
                     s.error(new FileAlreadyExistsException());
                     return;
@@ -179,5 +188,39 @@ public class VfsResource extends Resource {
                 s.error(e);
             }
         });
+    }
+
+    private FileContent getContent(FileObject file){
+        try {
+            return file.getContent();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private FileType getType(FileObject file){
+        try {
+            return file.getType();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private long size(FileContent fileContent){
+        try{
+            return fileContent.getSize();
+        }catch (FileSystemException e){
+            return 0l;
+        }
+    }
+
+    private long lastModified(FileContent fileContent){
+        try {
+            return fileContent.getLastModifiedTime()/1000;
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+        }
+        return 0l;
     }
 }
