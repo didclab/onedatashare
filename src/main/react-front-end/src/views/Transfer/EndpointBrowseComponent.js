@@ -80,6 +80,14 @@ import {compactViewPreference} from "../../model/actions";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
+
+
+//PROGRESS: S3 browse functions are all finished (listing, deleting, going into other directories, refresh, logout)
+// FTP can only list root directory (check listfiles() comments on EndpointAPICalls.js for more details on FTP problems)
+// SFTP (check listfiles() comments on EndpointAPICalls.js for more details on FTP problems) and HTTP currently not functional
+
+//for notes on listing: line 336
+
 export default class EndpointBrowseComponent extends Component {
 
 	constructor(props){

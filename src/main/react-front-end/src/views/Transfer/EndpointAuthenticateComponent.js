@@ -76,6 +76,16 @@ import {getType, getName, getDefaultPortFromUri, getTypeFromUri} from '../../con
 import {styled} from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import {CheckBox, ExpandMore} from "@material-ui/icons";
+
+
+
+//PROGRESS: S3 can be accessed through both manual log in and clicking on the credential list. Deleting credentials of S3 also works
+// FTP can only be accessed through manual log in, clicking on credential list does not work yet. Deleting credentials also does not work
+// SFTP and HTTP currently cannot be accessed
+// for notes on authenticating: line 490
+// for notes on deleting credentials: line 465
+// for notes on the credential list: line 415
+
 export default class EndpointAuthenticateComponent extends Component {
 	static propTypes = {
 		loginSuccess : PropTypes.func,
@@ -402,7 +412,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 
-   //for credential list for ftp,sftp,http, and S3
+   //for credential list for ftp,sftp,http, and S3. Currently only S3 is fully functional. Combination of conditionals may be possible in the future.
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {
@@ -451,6 +461,9 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
 
+
+	            	//Currently there is separate conditionals for S3 and non-S3 services, but it is possible that they can be combined in the future.
+					// Work has not yet started on testing credential deletion on non-S3 services
 					if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
 						deleteHistory(uri, true, (accept) => {
 							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));

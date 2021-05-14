@@ -35,17 +35,20 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
     return baseURL + "/" + endpointType + operation;
 }
 
+
+//Issue with listing files in FTP when going into another directory besides the root directory.
+// I've tested with inputting different file paths in the "path" value,
+// but it seems that no matter what I input,
+// it always shows the root directory instead of the directory with the name I inputted
+// summarized info can be found in EndpointAuthenicateComponent.js and EndpointBrowseComponent.js
+// SFTP Problem: When attempting listing, server gives a "cannot be found" error on the uri. URI is formatted as username@url
+
 //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
 
     console.log(endpoint)
     console.log(encodeURI(uri))
 
-
-    //Issue with listing files in FTP when going into another directory besides the root directory.
-    // I've tested with inputting different file paths in the "path" value,
-    // but it seems that no matter what I input,
-    // it always shows the root directory instead of the directory with the name I inputted
 
     let body = {
         "identifier": "",
