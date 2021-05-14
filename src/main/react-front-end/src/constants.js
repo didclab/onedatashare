@@ -404,6 +404,7 @@ export function validatePassword(password, confirmPassword) {
 	return validations;
 }
 
+//exclusive uri generator for s3
 export function generateURLForS3(bucketname, region){
 	return region + ":::" + bucketname;
 }

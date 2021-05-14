@@ -335,8 +335,6 @@ export default class EndpointBrowseComponent extends Component {
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
 		const isS3 = endpoint.credential.type === showType.s3;
-		console.log(isS3);
-		console.log(endpoint.credential.type);
 
 		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
@@ -616,33 +614,6 @@ export default class EndpointBrowseComponent extends Component {
 
 					{/*}*/}
 
-					{/*<BrowseButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}*/}
-					{/*			  click={() => {*/}
-					{/*				  const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);*/}
-					{/*				  const taskList = getSelectedTasksFromSide(endpoint);*/}
-					{/*				  if(type === showType.sftp){*/}
-					{/*					  getDownload(downloadUrl, endpoint.credential, taskList);*/}
-					{/*				  }*/}
-					{/*				  else if(type === showType.http){*/}
-					{/*					  window.open(downloadUrl);*/}
-					{/*				  }*/}
-					{/*				  else{*/}
-					{/*					  download(downloadUrl, endpoint.credential, taskList[0].id)*/}
-					{/*				  }*/}
-					{/*			  }}*/}
-					{/*			  style={buttonStyle}*/}
-					{/*			  label={"Download"}*/}
-					{/*			  buttonIcon={<DownloadButton style={iconStyle}/>}*/}
-					{/*/>*/}
-
-
-
-					{/*<BrowseButton id={endpoint.side + "UploadButton"} disabled={false}*/}
-					{/*			  click={() => {}}*/}
-					{/*			  style={buttonStyle}*/}
-					{/*			  label={"Upload"}*/}
-					{/*			  buttonIcon={<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>}*/}
-					{/*/>*/}
 
 
 					<BrowseButton
@@ -665,6 +636,7 @@ export default class EndpointBrowseComponent extends Component {
 					/>
 
 
+					{/*s3 does not have functionality for mkdir, so button is removed when browsing s3 files*/}
 					{this.props.endpoint.credential.type !== showType.s3 && <BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
 						this.handleClickOpenAddFolder()
 					}}

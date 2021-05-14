@@ -35,6 +35,7 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
     return baseURL + "/" + endpointType + operation;
 }
 
+//added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
 
     console.log(endpoint)
