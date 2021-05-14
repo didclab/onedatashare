@@ -41,15 +41,17 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     console.log(encodeURI(uri))
 
 
+    //Issue with listing files in FTP when going into another directory besides the root directory.
+    // I've tested with inputting different file paths in the "path" value,
+    // but it seems that no matter what I input,
+    // it always shows the root directory instead of the directory with the name I inputted
+
     let body = {
-        // "identifier": endpoint["credential"]["name"],
         "identifier": "",
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": "upload/",
-        // "secret": endpoint["credential"]["password"]
+        "path": "/",
     };
 
-    //params: credId, path, identifier
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
     axios.get(url, {params: body})

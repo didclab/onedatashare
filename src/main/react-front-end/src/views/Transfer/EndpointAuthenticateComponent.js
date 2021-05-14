@@ -104,9 +104,12 @@ export default class EndpointAuthenticateComponent extends Component {
 			selectingEndpoint: false,
 			portNum: -1,
 			portNumField: true,
+			//for SFTP
 			rsa: "",
 			pemFileName: "",
 			pemFile: "",
+			//
+			//for deleting credential modal - NOT YET DEPLOYED
 			openModal: false,
 			deleteFunc: () => {}
 		};
@@ -143,7 +146,6 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	deleteCredentialFromLocal(cred, type){
-		// if(window.confirm("Are you sure you want to delete this account from the list?")){
 			this.props.setLoading(true);
 
 			let parsedCredsArr = JSON.parse(cookies.get(type));
@@ -160,7 +162,6 @@ export default class EndpointAuthenticateComponent extends Component {
 			this.setState({credList: filteredCredsArr});
 
 			this.props.setLoading(false);
-		// }
 	}
 
 	endpointIdsListUpdateFromBackend = () => {
@@ -221,8 +222,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.setState({
 			"portNumField": colonCount<2 || (getType(this.state.endpoint) === showType.s3 /*&& colonCount<3*/),
 			"url" : url,
-			/*"portNum": colonCount<2 && getType(this.state.endpoint) !== showType.s3 ?
-							portNum : url.split(':')[2]*/
 		});
 
 	}
@@ -313,15 +312,6 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
 
-					// this.setState({
-					// 		deleteFunc: deleteEndpointId(endpointIdsList[v].id, (accept) => {
-					// 			this.endpointIdsListUpdateFromBackend();
-					// 		}, (error) => {
-					// 			this._handleError("Delete Credential Failed");
-					// 		}),
-					// 		openModal: true
-					//
-					// 	});
 
 	            	deleteEndpointId(endpointIdsList[v].id, (accept) => {
 	            		this.endpointIdsListUpdateFromBackend();
@@ -351,8 +341,6 @@ export default class EndpointAuthenticateComponent extends Component {
 						const endpointSet = {
 							uri: endpoint.uri,
 							login: true,
-// 							credential: {uuid: v, name: credList[v].name, tokenSaved: true},
-// 							side: endpoint.side,
 							credential: {uuid: v, name: v, tokenSaved: true},
 							side: endpoint.side
 						}
@@ -366,18 +354,7 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
-// 							deleteCredentialFromServer(v, (accept) => {
-// 								this.credentialListUpdateFromBackend();
-// 							this.setState({
-// 								deleteFunc: () => {
-// 									deleteCredentialFromServer(v, type, (accept) => {
-// 										this.credentialListUpdateFromBackend(type);
-// 									}, (error) => {
-// 										this._handleError("Delete Credential Failed");
-// 									})
-// 								},
-// 								openModal: true
-// 							})
+
 							deleteCredentialFromServer(v, type, (accept) => {
 								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
@@ -410,10 +387,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				<ListItemText primary={cred.name} />
 				<ListItemSecondaryAction>
 					<IconButton aria-label="Delete" onClick={() => {
-						// this.setState({
-						// 	deleteFunc: () => this.deleteCredentialFromLocal(cred, type),
-						// 	openModal: true
-						// })
+
 						this.deleteCredentialFromLocal(cred, type)
 						}
 					}
@@ -427,6 +401,8 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	}
 
+
+   //for credential list for ftp,sftp,http, and S3
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
 			<ListItem button key={uri} onClick={() => {
@@ -455,10 +431,6 @@ export default class EndpointAuthenticateComponent extends Component {
 					)
 
 
-					// this.endpointCheckin(uri, region, {credId: uri, name: "\"\""}, (error) => {
-					// 	this._handleError("Please enter your credential.");
-					// 	this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: region});
-					// })
 				}else{
 					const url = new URL(this.state.endpoint.uri + uri.split("@")[1]);
 					let portValue = url.port;
@@ -478,16 +450,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	          <ListItemText primary={uri}/>
 	          <ListItemSecondaryAction>
 	            <IconButton aria-label="Delete" onClick={() => {
-	            	// this.setState({
-					// 	deleteFunc: () =>
-					// 		deleteHistory(uri, (accept) => {
-					// 			this.historyListUpdateFromBackend();
-					// 		}, (error) => {
-					// 			this._handleError("Delete History Failed");
-					// 		}),
-					// 	openModal: true
-					//
-					// })
+
 					if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
 						deleteHistory(uri, true, (accept) => {
 							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
@@ -501,11 +464,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							this._handleError("Delete History Failed");
 						});
 					}
-	            	// deleteHistory(uri, (accept) => {
-	            	// 	this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
-	            	// }, (error) => {
-	            	// 	this._handleError("Delete History Failed");
-	            	// });
+
 	            }}>
 	              <DeleteIcon />
 	            </IconButton>
@@ -514,6 +473,11 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
+
+	//For signing in for FTP, SFTP, HTTP, and S3
+	//NOTE: S3 is fully functional with signing in using manual login and signing in through history credential list
+	// FTP only functional through signing in using the manual login.
+	// SFTP and HTTP not functional yet
 	regularSignIn = () => {
 		const {url, username, password, needPassword, rsa, pemFileName} = this.state;
 		const loginType = getType(this.state.endpoint);
@@ -528,6 +492,8 @@ export default class EndpointAuthenticateComponent extends Component {
 			return;
 		}
 
+
+		//S3 has different URL combination. It will be <region>:::<bucketname>
 		if(loginType === showType.s3){
 			let combinedUrl = generateURLForS3(url, this.state.portNum);
 			const credId = combinedUrl.toString();
@@ -628,19 +594,18 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 
-	// endpointModalClose = () => {this.setState({selectingEndpoint: false})}
+
+	//delete confirmation modal for deleting a credential - NOT YET DEPLOYED
 
 	deleteConfirmationModal = () => {
 		const handleClose = () => {
 			this.setState({openModal: false, deleteFunc: ()=>{}});
 		}
 		const confirm = () => {
-			// this.setState({deleteConfirm: true});
 			this.state.deleteFunc();
 			handleClose();
 		}
 		const deny = () => {
-			// this.setState({deleteConfirm: false});
 			handleClose();
 		}
 		const savePref = () => {
@@ -687,14 +652,11 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		const endpointModalClose = () => {this.setState({selectingEndpoint: false})};
 		const StepButton = this.stepButton();
-		// const BackButton = this.backButton();
-		// console.log(type);
 
 
 
 		return(
 		<div >
-			{/*{this.deleteConfirmationModal()}*/}
 			{!settingAuth && <div className={"authenticationContainer"}>
 
 

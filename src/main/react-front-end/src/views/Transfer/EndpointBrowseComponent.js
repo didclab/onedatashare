@@ -324,6 +324,10 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({directoryPath: directoryPath, ids: ids});
 	}
 
+
+	// Fully functional with S3
+	// FTP: Can browse files from the root directory, but unable to go into other directories
+	// Listingi does not yet work for SFTP and HTTP
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
 		// console.log(endpoint);

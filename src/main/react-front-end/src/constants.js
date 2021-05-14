@@ -415,15 +415,9 @@ export function generateURLFromPortNumber(url, portNum, changedPortNum) {
 	let checkPortNum = checkPortNumInUri(url);
 	if((checkPortNum || checkPortNum === '') && !changedPortNum){
 		return finalUrl;
-		// if(checkPortNum.charAt(checkPortNum.length - 1) === '/'){
-		// 	checkPortNum = checkPortNum.slice(-1);
-		// }
-		// if(!isNaN(checkPortNum) && !isNaN(parseFloat(checkPortNum))){
-		//
-		// }
+
 	}
 
-	// console.log(checkPortNumInUri(url));
 
 	// Find if the port is a standard port
 	let standardPort = portNum === getDefaultPortFromUri(url);
