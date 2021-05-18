@@ -91,12 +91,6 @@ public class UploadService {
         } else if(uri.startsWith(FTP_URI_SCHEME) || uri.startsWith(SFTP_URI_SCHEME)){
             return vfsService.getResourceWithUserActionUri(null, userAction)
                     .map(Resource::sink);
-        } else if(uri.startsWith(BOX_URI_SCHEME)){
-            return boxService.getBoxResourceUserActionUri(null, userAction)
-                    .map(boxResource -> {
-                        Stat stat = new Stat().setSize(size);
-                        return boxResource.sink(stat, false);
-                    });
         } else if(uri.startsWith(GDRIVE_URI_SCHEME)){
             return gDriveService.getResourceWithUserActionUri(null, userAction)
                     .map(Resource::sink);

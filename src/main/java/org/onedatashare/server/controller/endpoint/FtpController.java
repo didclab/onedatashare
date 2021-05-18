@@ -59,6 +59,6 @@ public class FtpController extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return ftpService.download(operation).map(DownloadResponse::new);
+        return null;
     }
 }

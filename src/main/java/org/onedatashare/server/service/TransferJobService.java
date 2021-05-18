@@ -73,10 +73,6 @@ public class TransferJobService {
                 break;
             case http:
                 break;
-            case sftp:
-                return sftpService.listAllRecursively(source);
-            case ftp:
-                return ftpService.listAllRecursively(source);
         }
         return null;
     }

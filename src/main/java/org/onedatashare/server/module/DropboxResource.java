@@ -34,7 +34,6 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
@@ -163,25 +162,20 @@ public class DropboxResource extends Resource {
         });
     }
 
-    @Override
     public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            String downloadLink;
-            try {
-                String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
-                //temporary link valid for 4 hours
-                downloadLink = this.client.files().getTemporaryLink(url).getLink();
-            }
-            catch(DbxException | UnsupportedEncodingException e){
-                s.error(e);
-                return;
-            }
-            s.success(downloadLink);
-        });
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
+//        return Mono.create(s -> {
+//            String downloadLink;
+//            try {
+//                String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
+//                //temporary link valid for 4 hours
+//                downloadLink = this.client.files().getTemporaryLink(url).getLink();
+//            }
+//            catch(DbxException | UnsupportedEncodingException e){
+//                s.error(e);
+//                return;
+//            }
+//            s.success(downloadLink);
+//        });
         return null;
     }
 

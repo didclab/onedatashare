@@ -58,6 +58,6 @@ public class SftpController extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return sftpService.download(operation).map(DownloadResponse::new);
+        return null;
     }
 }

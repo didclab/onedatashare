@@ -51,7 +51,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ServerApplication {
 
   public static void main(String[] args) {
-    BasicConfigurator.configure();
-    SpringApplication.run(ServerApplication.class, args);
+      BasicConfigurator.configure();
+      SpringApplication.run(ServerApplication.class, args);
   }
 }

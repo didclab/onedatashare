@@ -19,6 +19,7 @@ import java.util.List;
 
 @Service
 public class SftpService extends ResourceServiceBase {
+
     @Autowired
     private CredentialService credentialService;
 
@@ -47,17 +48,5 @@ public class SftpService extends ResourceServiceBase {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return getResource(operation.getCredId())
                 .flatMap(resource -> resource.mkdir(operation));
-    }
-
-    @Override
-    public Mono<String> download(DownloadOperation operation) {
-        return getResource(operation.getCredId())
-                .flatMap(resource -> resource.download(operation));
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return getResource(source.getCredId())
-                .flatMap(resource -> resource.listAllRecursively(source));
     }
 }

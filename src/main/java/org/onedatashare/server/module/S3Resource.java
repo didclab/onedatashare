@@ -72,7 +72,7 @@ public class S3Resource extends Resource{
 
     @Override
     public Mono<Stat> list(ListOperation operation) {
-        return Mono.fromFuture(this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).build()))
+        return Mono.fromFuture(this.s3AsyncClient.listObjectsV2(buildListOp(operation.getPath())))
                 .map(listObjectsV2Response -> {
                     Stat parent = new Stat();
                     parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.contents()));
@@ -88,6 +88,15 @@ public class S3Resource extends Resource{
         }
         return files;
     }
+
+    public ListObjectsV2Request buildListOp(String path){
+        if(path.isEmpty()){
+            return ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).build();
+        }else{
+            return ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).prefix(path).build();
+        }
+    }
+
 
     private Stat s3ObjectToStat(S3Object s3Object){
         Stat stat = new Stat();
@@ -111,26 +120,4 @@ public class S3Resource extends Resource{
     public Mono<Void> mkdir(MkdirOperation operation) {
         return null;
     }
-
-    /**
-     * THIS IS NOT NEEDED
-     * Download functionality will be deleted soon
-     * @param operation
-     * @return
-     */
-    @Override
-    public Mono download(DownloadOperation operation) {
-        return null;
-    }
-
-    /**
-     * Listing is now done on the Scheduler and this is a FlatFile system so probably even less of a reason this is needed.
-     * @param source
-     * @return
-     */
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
-    }
-
 }

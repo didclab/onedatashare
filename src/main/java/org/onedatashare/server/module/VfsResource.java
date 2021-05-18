@@ -77,63 +77,18 @@ public class VfsResource extends Resource {
     }
 
     @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return Mono.create(s -> {
-            String basePath = source.getInfo().getId();
-            List<TransferJobRequest.EntityInfo> filesToTransferList = new LinkedList<>();
-            Stack<FileObject> traversalStack = new Stack<>();
-            try {
-                for(TransferJobRequest.EntityInfo e : source.getInfoList()){
-                    FileObject fObject = this.fileSystemManager.resolveFile(this.baseUri + "/" + basePath + e.getId(),
-                            this.fileSystemOptions);
-                    traversalStack.push(fObject);
-                }
-                for(int files = MAX_FILES_TRANSFERRABLE ; files > 0 && ! traversalStack.isEmpty(); --files){
-                    FileObject curr = traversalStack.pop();
-                    if(curr.getType() == FileType.FOLDER){
-                        for(FileObject f : curr.getChildren()) {
-                            traversalStack.add(f);
-                        }
-                        //Add empty folders as well
-                        if(curr.getChildren().length == 0){
-                            String filePath = curr.getPublicURIString().substring(basePath.length());
-                            TransferJobRequest.EntityInfo fileInfo = new TransferJobRequest.EntityInfo()
-                                    .setPath(filePath);
-                            filesToTransferList.add(fileInfo);
-                        }
-                    }else if(curr.getType() == FileType.FILE) {
-                        String filePath = curr.getPublicURIString().substring(basePath.length());
-                        TransferJobRequest.EntityInfo fileInfo = new TransferJobRequest.EntityInfo()
-                                .setPath(filePath)
-                                .setSize(curr.getContent().getSize());
-                        filesToTransferList.add(fileInfo);
-                    }
-                }
-            }catch (Exception e){
-                s.error(e);
-            }
-            s.success(filesToTransferList);
-            return;
-        });
-    }
-
-    @Override
     public Mono<Stat> list(ListOperation listOperation) {
         return Mono.create(s -> {
             try {
                 Stat stat;
-                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
-//=======
-//                FileObject fileObject;
-//                if(listOperation.getPath().isEmpty()){
-//                    fileObject = this.resolveFile(this.baseUri);
-//                }else{
-//                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
-//                }
-//>>>>>>> 2072465d5922311978f5726f24c0dd98c325ca27
+                FileObject fileObject;
+                if(listOperation.getPath().isEmpty()){
+                    fileObject = this.resolveFile(this.baseUri);
+                }else{
+                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
+                }
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
-                    return;
                 }
                 stat = fileToStat(fileObject);
                 if(fileObject.getType() == FileType.FOLDER) {
@@ -167,23 +122,6 @@ public class VfsResource extends Resource {
                 }
                 fileObject.createFolder();
                 s.success();
-            } catch (FileSystemException e) {
-                s.error(e);
-            }
-        });
-    }
-
-    @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            try {
-                String url = this.baseUri + operation.getId() + operation.fileToDownload;
-                FileObject fileObject = this.resolveFile(url);
-                if(!fileObject.exists()){
-                    s.error(new FileNotFoundException());
-                    return;
-                }
-                s.success(new DownloadResponse(url));
             } catch (FileSystemException e) {
                 s.error(e);
             }

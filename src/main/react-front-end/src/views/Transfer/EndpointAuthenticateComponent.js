@@ -186,9 +186,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	historyListUpdateFromBackend = (endpointType) => {
-		console.log(endpointType);
 		savedCredList(endpointType, (data) =>{
-			console.log(data);
 			/*data.list.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })}*/
 			this.setState({historyList: data.list});
 			this.props.setLoading(false);
@@ -218,7 +216,6 @@ export default class EndpointAuthenticateComponent extends Component {
 	handleUrlChange = event => {
 
 		let url = event.target.value;
-		console.log(url);
 		let portNum = this.state.portNum;
 
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
@@ -255,9 +252,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		const {endpoint} = this.state;
 		const type = showDisplay[getName(endpoint).toLowerCase()].label;
 		this.props.setLoading(true);
-
-		console.log(`Url is ${url}`);
-
 		let endpointSet = {
 			uri: url,
 			login: true,
@@ -278,7 +272,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
 		}
-		console.log(credential.uri);
 		saveEndpointCred(type,
 			{
 				uri: credential.uri,
@@ -287,8 +280,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				accountId: credential.credId,
 			},
 			(response) => {
-				console.log("saved endpoint cred")
-				console.log("the type is " + type);
 				listFiles(url, endpointSet,
 					type === showDisplay.s3.label, null, (succ) =>
 					{
@@ -510,7 +501,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(loginType === showType.s3){
 			let combinedUrl = generateURLForS3(url, this.state.portNum);
 			const credId = combinedUrl.toString();
-			console.log(combinedUrl);
 			this.endpointCheckin(combinedUrl,
 				this.state.portNum,
 				{type: loginType, credId: credId, name: username, password: password, encryptedSecret: "", uri: combinedUrl},
@@ -657,7 +647,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
-		console.log(historyList)
 		const { back } = this.props;
 		
 		const type = getName(endpoint);

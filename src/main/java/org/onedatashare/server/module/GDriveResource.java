@@ -216,14 +216,4 @@ public class GDriveResource extends Resource {
             s.success();
         });
     }
-
-    @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.just(String.format(DOWNLOAD_URL, operation.getId()));
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
-    }
 }

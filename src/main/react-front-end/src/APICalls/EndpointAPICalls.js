@@ -45,17 +45,16 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 
 //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
-
-    console.log(endpoint)
-    console.log(encodeURI(uri))
-
-
+    let newBod = {
+        "credId" : ""
+    }
     let body = {
         "identifier": "",
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": "/",
     };
-
+    console.log(typeof(endpoint))
+    console.log(uri)
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
     axios.get(url, {params: body})
@@ -160,9 +159,6 @@ export async function download(uri, credential, _id) {
         if (response !== "") {
             window.open(response.url)
         }
-        else {
-            console.log("Error encountered while generating download link");
-        }
     })
 }
 
@@ -221,7 +217,6 @@ export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
-		    //console.log(response.data);
 		    return response.data;
 		})
 		.catch((error) => {

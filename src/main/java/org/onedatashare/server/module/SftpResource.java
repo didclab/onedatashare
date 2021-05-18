@@ -49,7 +49,6 @@ public class SftpResource extends VfsResource {
         });
     }
 
-    @Override
     public Mono download(DownloadOperation operation){
         return Mono.create(s -> {
             try {

@@ -188,8 +188,7 @@ public class DbxService extends ResourceService{
 
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
-        return this.getResource(downloadOperation.getCredId()).
-                flatMap(resource -> resource.download(downloadOperation));
+        return null;
     }
 
     @Override

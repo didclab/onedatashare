@@ -48,15 +48,4 @@ public class FtpService extends ResourceServiceBase {
         return this.getResource(operation.getCredId())
                 .flatMap(resource -> resource.mkdir(operation));
     }
-
-    @Override
-    public Mono<String> download(DownloadOperation operation) {
-        return null;
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return this.getResource(source.getCredId())
-                .flatMap(resource -> resource.listAllRecursively(source));
-    }
 }

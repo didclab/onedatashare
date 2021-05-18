@@ -2,6 +2,7 @@ package org.onedatashare.server.module;
 
 import com.box.sdk.*;
 import org.onedatashare.server.model.core.Stat;
+import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.error.ODSAccessDeniedException;
@@ -17,6 +18,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class BoxResource extends Resource{
+
     private BoxAPIConnection client;
 
     public BoxResource(EndpointCredential credential){
@@ -24,12 +26,21 @@ public class BoxResource extends Resource{
         this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
     }
 
-    public Stat onStat(String id) throws Exception{
+    public static Mono<? extends Resource> initialize(EndpointCredential credential){
+        return Mono.create(s -> {
+            try {
+                OAuthEndpointCredential accountEndpointCredential = (OAuthEndpointCredential) credential;
+                BoxResource boxResource = new BoxResource(accountEndpointCredential);
+                s.success(boxResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
 
+    public Stat onStat(String id){
         BoxFolder folder = null;
-
         BoxItem item;
-
         if (id == null){
             folder = BoxFolder.getRootFolder(this.client);
             Iterable<BoxItem.Info> children = folder.getChildren();
@@ -51,9 +62,7 @@ public class BoxResource extends Resource{
         } catch(BoxAPIResponseException e){
             item = new BoxFile(this.client, id);
             type = item.getInfo().getType();
-
         }
-
         if(type.equals("folder")) {
             Iterable<BoxItem.Info> children = folder.getChildren();
             Stat stat = buildDirStat(children);
@@ -65,8 +74,7 @@ public class BoxResource extends Resource{
                 stat.setPermissions(permissions.toString());
             }
             return stat;
-        }
-        else{
+        } else{
             BoxFile file = new BoxFile(this.client, id);
             Stat stat = new Stat();
             stat.setDir(false);
@@ -86,7 +94,6 @@ public class BoxResource extends Resource{
                 stat.setPermissions(permissions.toString());
             }
             return stat;
-
         }
     }
 
@@ -101,7 +108,6 @@ public class BoxResource extends Resource{
         Stat stat = new Stat();
         ArrayList<Stat> contents = new ArrayList<>();
         for (BoxItem.Info child : children) {
-
             Stat statChild = new Stat();
             statChild.setFile(child instanceof BoxFile.Info);
             statChild.setDir(child instanceof BoxFolder.Info);
@@ -124,7 +130,6 @@ public class BoxResource extends Resource{
                 }
                 contents.add(statChild);
             }
-
             if (statChild.isFile()) {
                 BoxFile childFile = new BoxFile(this.client, statChild.getId());
                 BoxFile.Info childFileInfo = childFile.getInfo();
@@ -149,23 +154,21 @@ public class BoxResource extends Resource{
     @Override
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s ->{
-            try {
-                if(onStat(operation.getId()).isFile()) {
-                    BoxFile file = new BoxFile(this.client, operation.getId());
-                    file.delete();
-                } else if(onStat(operation.getId()).isDir()){
-                    boolean recursive = true;
-                    BoxFolder folder = new BoxFolder(this.client, operation.getId());
-                    folder.delete(recursive);
-                }
+            try{
+                BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
+                folder.delete(true);
                 s.success();
-            } catch(BoxAPIResponseException be){
-                if(be.getResponseCode() == 403){
-                    s.error(new ODSAccessDeniedException(403));
-                }
-            } catch(Exception e){
-                s.error(e);
+            }catch (Exception e){
+                e.printStackTrace();
             }
+            try{
+                BoxFile file = new BoxFile(this.client, operation.getToDelete());
+                file.delete();
+                s.success();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            s.error(new ODSAccessDeniedException(403));
         });
     }
 
@@ -173,8 +176,18 @@ public class BoxResource extends Resource{
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                Stat stat = onStat(operation.getId());
-                s.success(stat);
+                Stat parent = new Stat();
+                BoxFolder folder;
+                if(operation.getId().isEmpty()){
+                    folder = BoxFolder.getRootFolder(this.client);
+                    parent.setName("root");
+                }else{
+                    folder = new BoxFolder(this.client, operation.getId());//the id is the id of the directory you are trying to access
+                    parent.setName(operation.getId());
+                }
+                List<Stat> children = boxIterableToStat(folder.getChildren());
+                parent.setFiles(children);
+                s.success(parent);
             } catch (Exception e) {
                 s.error(e);
             }
@@ -186,14 +199,15 @@ public class BoxResource extends Resource{
         return Mono.create(s -> {
             try {
                 String[] currpath = operation.getFolderToCreate().split("/");
-                String folderId = operation.getId();
-                if (folderId == null) {
-                    folderId = "0";
+                String parentId = operation.getId();
+                if (parentId == null || parentId.isEmpty()) {
+                    parentId = "0";
                 }
                 for(String f : currpath) {
-                    BoxFolder parentFolder = new BoxFolder(this.client, folderId);
+                    BoxFolder parentFolder = new BoxFolder(this.client, parentId);
+                    parentFolder.createFolder(f);
                     BoxFolder.Info folder = parentFolder.createFolder(currpath[currpath.length - 1]);
-                    folderId = folder.getID();
+                    parentId = folder.getID();
                 }
                 s.success();
             } catch (Exception e) {
@@ -202,26 +216,20 @@ public class BoxResource extends Resource{
         });
     }
 
-    @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            String url = "";
-            try {
-                BoxFile file = new BoxFile(this.client, operation.getId());
-                url = file.getDownloadURL().toString();
-                s.success(url);
-            } catch(BoxAPIResponseException be){
-                if(be.getResponseCode() == 403){
-                    s.error(new ODSAccessDeniedException(403));
-                }
-            } catch (Exception e){
-                s.error(e);
+    public List<Stat> boxIterableToStat(Iterable<BoxItem.Info> items){
+        ArrayList<Stat> statList = new ArrayList<>();
+        for(BoxItem.Info info : items){
+            Stat stat = new Stat();
+            stat.setName(info.getName()).setId(info.getID());
+            if(info instanceof BoxFile.Info){
+                stat.setFile(true).setDir(false);
+            }else if(info instanceof BoxFolder.Info){
+                stat.setFile(false).setDir(true);
             }
-        });
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
+            stat.setSize(info.getSize());
+            stat.setTime(info.getContentModifiedAt().getTime() / 1000);
+            statList.add(stat);
+        }
+        return statList;
     }
 }
