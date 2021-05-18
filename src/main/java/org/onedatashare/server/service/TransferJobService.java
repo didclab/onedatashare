@@ -47,13 +47,8 @@ public class TransferJobService {
     @Value("${transfer.job.service.uri}")
     private String transferQueueingServiceUri;
 
-    @Autowired
-    private FtpService ftpService;
-
-    @Autowired
-    private SftpService sftpService;
-
     private WebClient client;
+
     private static final Duration timeoutDuration = Duration.ofSeconds(10);
 
     @PostConstruct
@@ -63,33 +58,9 @@ public class TransferJobService {
                 .build();
     }
 
-    private Mono<List<TransferJobRequest.EntityInfo>> updateSource(TransferJobRequest.Source source){
-        switch (source.getType()){
-            case s3: throw new RuntimeException("Not yet implemented");
-            case gftp: throw new RuntimeException("Not yet supported");
-            case dropbox:
-            case gdrive:
-            case box:
-                break;
-            case http:
-                break;
-            case sftp:
-                return sftpService.listAllRecursively(source);
-            case ftp:
-                return ftpService.listAllRecursively(source);
-        }
-        return null;
-    }
-
-    public Mono<TransferJobSubmittedResponse> submitRequest(String ownerId, TransferJobRequest request){
-        TransferJobRequest.Source source = request.getSource();
-        return updateSource(source)
-                .map(updatedInfoList -> {
-                    TransferJobRequestWithMetaData requestWithMetaData =
-                            TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, request);
-                    requestWithMetaData.getSource().setInfoList(new HashSet<>(updatedInfoList));
-                    return requestWithMetaData;
-                }).flatMap(requestWithMetaData -> client.post()
+    public Mono<TransferJobSubmittedResponse> submitTransferJobRequest(String ownerId, TransferJobRequest jobRequest){
+        return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
+                .flatMap(requestWithMetaData -> client.post()
                         .uri(URI.create(transferQueueingServiceUri))
                         .syncBody(requestWithMetaData)
                         .retrieve()
