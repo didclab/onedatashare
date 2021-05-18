@@ -80,6 +80,14 @@ import {compactViewPreference} from "../../model/actions";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
+
+
+//PROGRESS: S3 browse functions are all finished (listing, deleting, going into other directories, refresh, logout)
+// FTP can only list root directory (check listfiles() comments on EndpointAPICalls.js for more details on FTP problems)
+// SFTP (check listfiles() comments on EndpointAPICalls.js for more details on FTP problems) and HTTP currently not functional
+
+//for notes on listing: line 336
+
 export default class EndpointBrowseComponent extends Component {
 
 	constructor(props){
@@ -324,14 +332,19 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({directoryPath: directoryPath, ids: ids});
 	}
 
+
+	// Fully functional with S3
+	// FTP: Can browse files from the root directory, but unable to go into other directories
+	// Listingi does not yet work for SFTP and HTTP
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
 		// console.log(endpoint);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
+		const isS3 = endpoint.credential.type === showType.s3;
 
-		listFiles(uri, endpoint, id[id.length-1], (data) =>{
+		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
@@ -341,7 +354,7 @@ export default class EndpointBrowseComponent extends Component {
 				this._handleError("Login Failed. Re-directing to OAuth page");
 				setLoading(false);
 				emptyFileNodesData(endpoint);
-				
+
 				let type = getName(endpoint);
 				let cred = endpoint.credential;
 				let savedCreds = cookies.get(type);
@@ -357,12 +370,12 @@ export default class EndpointBrowseComponent extends Component {
 					}
 					else{
 						cookies.set(type, JSON.stringify(filteredCredsArr));
-					}	
+					}
 				}
 
 				unselectAll();
 				this.props.back();
-				
+
 				setTimeout(()=> {
 					const type = getType(endpoint)
 					if(isOAuth[type] && type !== showType.gsiftp){
@@ -394,12 +407,14 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
+		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
 		const dirType = getType(endpoint);
+		console.log(dirName);
 		//make api call
-		mkdir(dirName,dirType, endpoint, (response) => {
+		mkdir(dirName,dirType, endpoint, isS3, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
 		}, (error) => {
@@ -423,6 +438,9 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFileDeleted = (files) => {
 		const {endpoint, setLoading} = this.props;
+		// console.log(endpoint);
+		// return;
+		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, ids} = this.state;
 		const len = files.length;
 		var i = 0;
@@ -430,7 +448,7 @@ export default class EndpointBrowseComponent extends Component {
 			setLoading(true);
 			files.map((file) => {
 				const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-				deleteCall( fileName, endpoint,  file.id, (response) => {
+				deleteCall( fileName, endpoint, isS3,  file.id, (response) => {
 					i++;
 					if(i === len){
 						this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
@@ -604,33 +622,6 @@ export default class EndpointBrowseComponent extends Component {
 
 					{/*}*/}
 
-					<BrowseButton id={endpoint.side + "DownloadButton"} disabled={getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir}
-								  click={() => {
-									  const downloadUrl = makeFileNameFromPath(endpoint.uri,directoryPath, getSelectedTasksFromSide(endpoint)[0].name);
-									  const taskList = getSelectedTasksFromSide(endpoint);
-									  if(type === /*SFTP_TYPE*/ showType.sftp){
-										  getDownload(downloadUrl, endpoint.credential, taskList);
-									  }
-									  else if(type === /*HTTP_TYPE*/ showType.http){
-										  window.open(downloadUrl);
-									  }
-									  else{
-										  download(downloadUrl, endpoint.credential, taskList[0].id)
-									  }
-								  }}
-								  style={buttonStyle}
-								  label={"Download"}
-								  buttonIcon={<DownloadButton style={iconStyle}/>}
-					/>
-
-
-
-					<BrowseButton id={endpoint.side + "UploadButton"} disabled={false}
-								  click={() => {}}
-								  style={buttonStyle}
-								  label={"Upload"}
-								  buttonIcon={<UploaderWrapper endpoint={endpoint} directoryPath={directoryPath} lastestId={this.state.ids[this.state.ids.length-1]}/>}
-					/>
 
 
 					<BrowseButton
@@ -653,12 +644,13 @@ export default class EndpointBrowseComponent extends Component {
 					/>
 
 
-					<BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
+					{/*s3 does not have functionality for mkdir, so button is removed when browsing s3 files*/}
+					{this.props.endpoint.credential.type !== showType.s3 && <BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
 						this.handleClickOpenAddFolder()
 					}}
-								  label={"New Folder"}
-								  buttonIcon={<NewFolderIcon style={iconStyle}/>}
-					/>
+								   label={"New Folder"}
+								   buttonIcon={<NewFolderIcon style={iconStyle}/>}
+					/>}
 
 					<BrowseButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} click={() => {
 						this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));

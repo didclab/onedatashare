@@ -21,11 +21,11 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType } from '../constants';
+import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType, S3 } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
-import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE} from "../constants.js";
+import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE, apiBaseUrl} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();
@@ -35,14 +35,29 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
     return baseURL + "/" + endpointType + operation;
 }
 
-export async function listFiles(uri, endpoint, id, accept, fail) {
+
+//Issue with listing files in FTP when going into another directory besides the root directory.
+// I've tested with inputting different file paths in the "path" value,
+// but it seems that no matter what I input,
+// it always shows the root directory instead of the directory with the name I inputted
+// summarized info can be found in EndpointAuthenicateComponent.js and EndpointBrowseComponent.js
+// SFTP Problem: When attempting listing, server gives a "cannot be found" error on the uri. URI is formatted as username@url
+
+//added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
+export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
+
+    console.log(endpoint)
+    console.log(encodeURI(uri))
+
+
     let body = {
-        "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
-        "path": encodeURI(uri)
+        "identifier": "",
+        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+        "path": "/",
     };
+
     let callback = accept;
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), LIST_OP_URL)
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
     axios.get(url, {params: body})
         .then((response) => {
             if (!(response.status === 200))
@@ -52,9 +67,11 @@ export async function listFiles(uri, endpoint, id, accept, fail) {
         .catch((error) => {
             handleRequestFailure(error, fail);
         });
+
 }
 
-export async function share(uri, endpoint, accept, fail) {
+
+export async function share(uri, endpoint, isS3, accept, fail) {
     let callback = accept;
 
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SHARE_OP_URL), {
@@ -71,15 +88,15 @@ export async function share(uri, endpoint, accept, fail) {
         });
 }
 
-export async function mkdir(uri, type, endpoint, accept, fail) {
+export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
     let callback = accept;
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), MKDIR_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), MKDIR_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
-        "folderToCreate": ""
+        "folderToCreate": uri
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -91,14 +108,14 @@ export async function mkdir(uri, type, endpoint, accept, fail) {
         });
 }
 
-export async function deleteCall(uri, endpoint, id, accept, fail) {
+export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
 
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DEL_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["uuid"],
+        "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
-        "toDelete": ""
+        "toDelete": uri.split("/")[1]
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -166,19 +183,19 @@ export async function getDownload(uri, credential) {
 
 
 export async function openDropboxOAuth() {
-	openOAuth("/api/oauth?type=dropbox");
+	openOAuth(apiBaseUrl + "oauth?type=dropbox");
 }
 
 export async function openGoogleDriveOAuth() {
-	openOAuth("/api/oauth?type=gdrive");
+	openOAuth(apiBaseUrl + "oauth?type=gdrive");
 }
 
 export async function openGridFtpOAuth() {
-	openOAuth("/api/oauth?type=gftp");
+	openOAuth(apiBaseUrl + "oauth?type=gftp");
 }
 
 export async function openBoxOAuth(){
-    openOAuth("api/oauth?type=box");
+    openOAuth(apiBaseUrl + "oauth?type=box");
 }
 
 export async function openOAuth(url){

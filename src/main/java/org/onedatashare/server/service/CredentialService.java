@@ -87,12 +87,12 @@ public class CredentialService {
                 );
     }
 
-    public Mono<Void> createCredential(AccountEndpointCredential credential, String userId, EndpointType type){
+    public Mono<HttpStatus> createCredential(AccountEndpointCredential credential, String userId, EndpointType type){
         return client.post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "account-cred", type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
                 .exchange()
-                .then();
+                .map(response -> response.statusCode());
     }
 
     public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type){
@@ -112,6 +112,7 @@ public class CredentialService {
     }
 
     public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
+        System.out.println("deleting credential");
         return client.delete()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .exchange()

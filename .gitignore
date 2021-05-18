@@ -115,3 +115,5 @@ src/main/react-front-end/package-lock.json
 
 #.DS_Store for maxs
 .DS_Store
+
+ods.env

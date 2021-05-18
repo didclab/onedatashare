@@ -25,7 +25,10 @@ export const spaceBetweenStyle = { display: 'flex', justifyContent: "space-betwe
 
 export const isLocal = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
+export const version = "v1";
+
 // urls
+// export const ENDPOINT_OP_URL = "/api" + version + "/"
 export const ENDPOINT_OP_URL = "/api"
 export const LIST_OP_URL = "/ls"
 export const DEL_OP_URL = "/rm"
@@ -37,6 +40,9 @@ export const SFTP_DOWNLOAD_URL = "download/file"
 export const OAUTH_URL = "download/file"
 export const LOGOUT_ENDPOINT = "/deauthenticate";
 
+// export const url = "/api/"+ version + "/stork/";
+// export const apiBaseUrl = "/api/" + version + "/";
+// export const apiCredUrl = apiBaseUrl + "cred/";
 export const url = "/api/stork/";
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
@@ -86,6 +92,35 @@ export const siteURLS = {
 	policyUrl: "/policy",
 };
 
+export const s3Regions =
+	[
+		"us-east-1",
+		"us-east-2",
+		"us-west-1",
+		"us-west-2",
+		"us-gov-east-1",
+		"us-gov-west-1",
+		"ca-central-1",
+		"eu-central-1",
+		"eu-west-1",
+		"eu-west-2",
+		"eu-west-3",
+		"eu-south-1",
+		"eu-north-1",
+		// "af-south-1",
+		// "ap-east-1",
+		// "ap-south-1",
+		// "ap-northeast-1",
+		// "ap-northeast-2",
+		// "ap-northeast-3",
+		// "ap-southeast-1",
+		// "ap-southeast-2",
+		// "cn-north-1",
+		// "cn-northwest-1",
+		// "sa-east-1",
+		// "me-south-1",
+	];
+
 export const AUTH_ENDPOINT = "/authenticate";
 export const RESET_PASSWD_ENDPOINT = "/reset-password";
 export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
@@ -116,6 +151,7 @@ export const SFTP_TYPE = "sftp://";
 export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
+export const S3_TYPE = "s3:";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GoogleDrive";
@@ -124,6 +160,7 @@ export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
+export const S3_NAME = "S3";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "gdrive";
@@ -131,7 +168,9 @@ export const BOX = "box";
 export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
+export const HTTPS = "https";
 export const GRIDFTP = "gsiftp";
+export const S3 = "s3";
 
 //side
 export const sideLeft = "left";
@@ -166,6 +205,7 @@ export const completeStatus = "complete";
 
 
 export const showText = {
+
 	dropbox: DROPBOX_NAME,
 	gdrive: GOOGLEDRIVE_NAME,
 	box: BOX_NAME,
@@ -173,7 +213,8 @@ export const showText = {
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
 	gsiftp: GRIDFTP_NAME,
-	https: HTTP_NAME
+	https: HTTP_NAME,
+	s3: S3_NAME
 }
 
 export const showType = {
@@ -184,7 +225,8 @@ export const showType = {
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
 	gsiftp: GRIDFTP_TYPE,
-	https: HTTP_TYPE
+	https: HTTP_TYPE,
+	s3: S3_TYPE
 }
 
 export const isOAuth = {
@@ -195,17 +237,19 @@ export const isOAuth = {
 	[SFTP_TYPE]: false,
 	[HTTP_TYPE]: false,
 	[GRIDFTP_TYPE]: true,
-	[HTTPS_TYPE]: false
+	[HTTPS_TYPE]: false,
+	[S3_TYPE]: false
 }
 
 export const showDisplay = {
 	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
-	googledrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
+	gdrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
 	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
 	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
 	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
 	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
+	s3: {icon: 'fab fa-amazon', credTypeExists: false, label: "S3", id: "S3" }
 }
 
 export const SERVICES = {
@@ -219,6 +263,7 @@ export const SERVICES = {
 		[FTP_TYPE, FTP_NAME, FTP],
 		[HTTP_TYPE, HTTP_NAME, HTTP],
 		[SFTP_TYPE, SFTP_NAME, SFTP],
+		[S3_TYPE, S3_NAME, S3]
 	]
 };
 
@@ -275,6 +320,10 @@ export function getDefaultPortFromUri(uri) {
 
 export function getTypeFromUri(uri) {
 	return showType[uri.split(":")[0].toLowerCase()]
+}
+
+export function checkPortNumInUri(uri){
+	return uri.split(":")[2];
 }
 
 export function getName(endpoint) {
@@ -355,9 +404,21 @@ export function validatePassword(password, confirmPassword) {
 	return validations;
 }
 
-export function generateURLFromPortNumber(url, portNum) {
+//exclusive uri generator for s3
+export function generateURLForS3(bucketname, region){
+	return region + ":::" + bucketname;
+}
+
+export function generateURLFromPortNumber(url, portNum, changedPortNum) {
 	// Adding Port number to the URL to ensure that the backend remembers the endpoint URL
 	let finalUrl = url;
+
+	let checkPortNum = checkPortNumInUri(url);
+	if((checkPortNum || checkPortNum === '') && !changedPortNum){
+		return finalUrl;
+
+	}
+
 
 	// Find if the port is a standard port
 	let standardPort = portNum === getDefaultPortFromUri(url);
@@ -368,7 +429,7 @@ export function generateURLFromPortNumber(url, portNum) {
 	}
 
 
-	// If the Url already doesn't contain the portnumber and portNumber isn't standard it else no change
+	// If the Url already doesn't contain the portnumber and portNumber isn't standard, change it else no change
 	if(!standardPort){
 		try{
 			let temp = new URL(url);

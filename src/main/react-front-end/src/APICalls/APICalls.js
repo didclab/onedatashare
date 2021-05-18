@@ -309,26 +309,7 @@ export async function login(email, password, accept, fail) {
 		});
 }
 
-// export async function getToken(email, accept, fail) {
-// 	let callback = accept;
-//
-// 	axios.post(AUTH_ENDPOINT, {
-// 		email: email,
-// 	},  {
-// 		withCredentials: true
-// 	}).then((response) => {
-// 		if (!(response.status === 200))
-// 			callback = fail;
-// 		statusHandle(response, callback);
-// 	})
-// 		.catch((error) => {
-// 			handleRequestFailure(error, fail);
-// 		});
-// }
-// alert(JSON.stringify(response));
-//{"login":true,"admin":false,"email":"szheng39@buffalo.edu","compactViewEnabled":true,"saveOAuthTokens":true,"endpoint1":{"login":true,"credential":{"uuid":"9de7aca4-0ee1-4914-8af8-2d268c4b1ebe","name":"GoogleDrive: szheng39@buffalo.edu","tokenSaved":true},"uri":"googledrive:/","side":"left"},"endpoint2":{"login":false,"credential":{},"uri":"","side":"right"},"queue":[],"transferOptions":{"useTransferOptimization":"NONE","overwriteExistingFiles":true,"verifyFileInterity":false,"encryptDataChannel":false,"compressDataChannel":false}}
-/* {"data":{"email":"szheng39@buffalo.edu","saveOAuthTokens":true,"compactViewEnabled":false,"expiresIn":86400,"admin":false},"status":200,"statusText":"OK","headers":{"cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-length":"114","content-type":"application/json;charset=UTF-8","expires":"0","pragma":"no-cache","x-content-type-options":"nosniff","x-frame-options":"DENY","x-xss-protection":"1 ; mode=block"},"config":{"url":"/authenticate","method":"post","data":"{\"email\":\"szheng39@buffalo.edu\",\"password\":\"Iamawesome1!\"}","headers":{"Accept":"application/json","Content-Type":"application/json"},"transformRequest":[null],"transformResponse":[null],"timeout":10000,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN","maxContentLength":-1},"request":{}} */
-/* {"data":{"email":"szheng39@buffalo.edu","saveOAuthTokens":true,"compactViewEnabled":false,"expiresIn":86400,"admin":false},"status":200,"statusText":"OK","headers":{"cache-control":"no-cache, no-store, max-age=0, must-revalidate","content-length":"114","content-type":"application/json;charset=UTF-8","expires":"0","pragma":"no-cache","x-content-type-options":"nosniff","x-frame-options":"DENY","x-xss-protection":"1 ; mode=block"},"config":{"url":"/authenticate","method":"post","data":"{\"email\":\"*\",\"password\":\"*\"}","headers":{"Accept":"application/json","Content-Type":"application/json"},"transformRequest":[null],"transformResponse":[null],"timeout":10000,"withCredentials":true,"xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN","maxContentLength":-1},"request":{}} */
+
 export async function logout(){
 	axios.post(LOGOUT_ENDPOINT, {})
 		.then((response) => {
@@ -372,12 +353,14 @@ export async function history(uri, portNum, accept, fail) {
 		});
 }
 
-export async function deleteHistory(uri, accept, fail) {
-		let callback = accept;
 
-		axios.post(url + 'user', {
+export async function deleteHistory(uri, isS3, accept, fail) {
+		let callback = accept;
+		// console.log(uri + " " + type);
+
+		axios.post(apiCredUrl + 'user', {
 			action: "deleteHistory",
-			uri: encodeURI(uri)
+			uri: isS3 ? uri : encodeURI(uri)
 		})
 			.then((response) => {
 				if (!(response.status === 200))
@@ -387,6 +370,22 @@ export async function deleteHistory(uri, accept, fail) {
 			.catch((error) => {
 				handleRequestFailure(error, fail);
 			});
+
+}
+
+export async function saveEndpointCred(type, body, accept, fail) {
+	let callback = accept;
+	console.log(type + "being saved to endpoint cred");
+	console.log(body);
+	axios.post(apiCredUrl + type.toLowerCase(), body
+		).then((response) => {
+			if(!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch ((error) => {
+			handleRequestFailure(error, fail);
+		})
 }
 
 /*
@@ -396,6 +395,7 @@ export async function savedCredList(type, accept, fail) {
 	let callback = accept;
 	axios.get(apiCredUrl + type.toLowerCase())
 		.then((response) => {
+			console.log(response);
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);

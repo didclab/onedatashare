@@ -29,7 +29,7 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
-import org.onedatashare.server.service.SftpService;
+import org.onedatashare.server.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,26 +38,27 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/s3")
 public class S3Controller extends EndpointBaseController{
+
     @Autowired
-    private SftpService sftpService;
+    private S3Service s3Service;
 
     @Override
     protected Mono<Stat> listOperation(ListOperation operation) {
-        return sftpService.list(operation);
+        return s3Service.list(operation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        return sftpService.mkdir(operation);
+        return s3Service.mkdir(operation);
     }
 
     @Override
     protected Mono<Void> deleteOperation(DeleteOperation operation) {
-        return sftpService.delete(operation);
+        return s3Service.delete(operation);
     }
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return sftpService.download(operation).map(DownloadResponse::new);
+        return s3Service.download(operation).map(DownloadResponse::new);
     }
 }

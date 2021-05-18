@@ -32,19 +32,19 @@ public class SftpResource extends VfsResource {
                 .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
         //Handling authentication
         if(accountCredential.getUsername() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getAccountId(), accountCredential.getUsername(), accountCredential.getSecret());
+            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
         }
         this.fileSystemManager = VFS.getManager();
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
+        return Mono.create(sink -> {
             try {
                 SftpResource sftpResource= new SftpResource(credential);
-                s.success(sftpResource);
+                sink.success(sftpResource);
             } catch (Exception e) {
-                s.error(e);
+                sink.error(e);
             }
         });
     }
