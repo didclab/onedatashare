@@ -14,13 +14,13 @@ import reactor.core.publisher.Flux;
 @RequestMapping(value = "/api/ssh/console")
 public class SSHConsoleController {
 
-    @Autowired
-    private SSHConsoleService consoleService;
-
-    @PostMapping
-    public Flux runCommand(@RequestBody SSHCommandData commandData){
-
-        UserAction ua = UserAction.convertToUserAction(commandData);
-        return consoleService.runCommand(ua, commandData.getCommandWithPath());
-    }
+//    @Autowired
+//    private SSHConsoleService consoleService;
+//
+//    @PostMapping
+//    public Flux runCommand(@RequestBody SSHCommandData commandData){
+//
+//        UserAction ua = UserAction.convertToUserAction(commandData);
+//        return consoleService.runCommand(ua, commandData.getCommandWithPath());
+//    }
 }
