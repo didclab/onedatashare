@@ -27,6 +27,7 @@ import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -49,6 +50,9 @@ public class CredentialService {
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
+    @Autowired
+    private WebClient endpointCredentialClient;//need to use this client
+
     @PostConstruct
     private void initialize(){
         this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
@@ -65,7 +69,7 @@ public class CredentialService {
     }
 
     private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
-        return client.get()
+        return endpointCredentialClient.get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
                 .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
@@ -73,7 +77,7 @@ public class CredentialService {
     }
 
     public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type){
-        return client.get()
+        return endpointCredentialClient.get()
                 .uri(URI.create(String.format(this.credListUrl, userId, type)))
                 .retrieve()
                 .bodyToMono(CredList.class);
@@ -88,7 +92,7 @@ public class CredentialService {
     }
 
     public Mono<HttpStatus> createCredential(AccountEndpointCredential credential, String userId, EndpointType type){
-        return client.post()
+        return endpointCredentialClient.post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "account-cred", type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
                 .exchange()
@@ -96,7 +100,7 @@ public class CredentialService {
     }
 
     public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type){
-        return client.post()
+        return endpointCredentialClient.post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "oauth-cred" ,type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), OAuthEndpointCredential.class))
                 .exchange()
@@ -112,8 +116,7 @@ public class CredentialService {
     }
 
     public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
-        System.out.println("deleting credential");
-        return client.delete()
+        return endpointCredentialClient.delete()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .exchange()
                 .then();
