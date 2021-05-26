@@ -10,16 +10,16 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MongoConfig {
 
-    @Value("spring.data.mongodb.username")
+    @Value("${spring.data.mongodb.username}")
     String username;
 
-    @Value("spring.data.mongodb.password")
+    @Value("${spring.data.mongodb.password}")
     String password;
 
-    @Value("spring.data.mongodb.host")
+    @Value("${spring.data.mongodb.host}")
     String clusterEndpoint;
 
-    @Value("spring.data.mongodb.database")
+    @Value("${spring.data.mongodb.database}")
     String database;
 
     @Bean
