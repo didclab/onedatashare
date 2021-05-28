@@ -11,6 +11,7 @@ public class MongoConfig {
     @Bean
     public MongoClientOptions mongoOptions(){
         return MongoClientOptions.builder()
+                .sslEnabled(true)
                 .socketTimeout(120)
                 .build();
     }
