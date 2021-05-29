@@ -128,7 +128,6 @@ public class DropboxResource extends Resource {
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                ListFolderResult listing = null;
                 String url = pathFromUrl(operation.getPath());
                 s.success(statHelper(url));
             } catch (UnsupportedEncodingException e) {
