@@ -77,21 +77,13 @@ abstract class ControllerTest {
     BoxService boxService;
 
     /**
-     * Classes of the services that require user authentication in order to process the request
-     */
-    private static final Set<Class<? extends ResourceService>> authenticatingServices = unmodifiableSet(
-            of(DbxService.class, GDriveService.class).collect(toSet()));
-
-    /**
      * Maps each {@link ResourceService} to the uri that it handles
      */
     private static Map<Class<? extends ResourceService>, String> serviceUri = unmodifiableMap(
             new HashMap<Class<? extends ResourceService>, String>(){{
-                put(DbxService.class, DROPBOX_URI_SCHEME);
                 put(GDriveService.class, GDRIVE_URI_SCHEME);
                 put(HttpFileService.class, HTTP_URI_SCHEME);
                 put(VfsService.class, FTP_URI_SCHEME);
-//                put(BoxService.class, BOX_URI_SCHEME);
             }});
 
     /**
@@ -154,17 +146,5 @@ abstract class ControllerTest {
         return request
                 .content(toJson(requestData))
                 .contentType(MediaType.APPLICATION_JSON);
-    }
-
-    Set<? extends ResourceService> authenticatingServices(Stream<? extends ResourceService> services) {
-        return services
-                .filter(service -> authenticatingServices.contains(getServiceClass(service)))
-                .collect(toSet());
-    }
-
-    Set<? extends ResourceService> nonAuthenticatingServices(Stream<? extends ResourceService> services) {
-        return services
-                .filter(service -> !authenticatingServices.contains(getServiceClass(service)))
-                .collect(toSet());
     }
 }
