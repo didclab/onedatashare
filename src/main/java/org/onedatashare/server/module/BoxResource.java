@@ -16,21 +16,30 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-public class BoxResource extends Resource{
+public class BoxResource extends Resource {
     private BoxAPIConnection client;
 
-    public BoxResource(EndpointCredential credential){
+    public BoxResource(EndpointCredential credential) {
         super(credential);
         this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
     }
 
-    public Stat onStat(String id) throws Exception{
+    public static Mono<? extends Resource> initialize(EndpointCredential credential) {
+        return Mono.create(s -> {
+            try {
+                OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
+                BoxResource boxResource = new BoxResource(oAuthEndpointCredential);
+                s.success(boxResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
+    }
 
+    public Stat onStat(String id) throws Exception {
         BoxFolder folder = null;
-
         BoxItem item;
-
-        if (id == null){
+        if (id == null) {
             folder = BoxFolder.getRootFolder(this.client);
             Iterable<BoxItem.Info> children = folder.getChildren();
             Stat rStat = buildDirStat(children);
@@ -44,17 +53,16 @@ public class BoxResource extends Resource{
             return rStat;
         }
         String type = "";
-        try{
+        try {
             folder = new BoxFolder(this.client, id);
             item = folder;
             type = item.getInfo().getType();
-        } catch(BoxAPIResponseException e){
+        } catch (BoxAPIResponseException e) {
             item = new BoxFile(this.client, id);
             type = item.getInfo().getType();
-
         }
 
-        if(type.equals("folder")) {
+        if (type.equals("folder")) {
             Iterable<BoxItem.Info> children = folder.getChildren();
             Stat stat = buildDirStat(children);
             stat.setDir(true);
@@ -65,8 +73,7 @@ public class BoxResource extends Resource{
                 stat.setPermissions(permissions.toString());
             }
             return stat;
-        }
-        else{
+        } else {
             BoxFile file = new BoxFile(this.client, id);
             Stat stat = new Stat();
             stat.setDir(false);
@@ -86,22 +93,21 @@ public class BoxResource extends Resource{
                 stat.setPermissions(permissions.toString());
             }
             return stat;
-
         }
     }
 
     /**
      * Builds a new stat object containing information about a parent's children in
      * a case of a directory transfer
-     * @author Javier Falca
+     *
      * @param children Takes in an Iterable Object of type BoxItem.Info from the parent Box Folder
      * @return Stat object with a directory built
+     * @author Javier Falca
      */
-    public Stat buildDirStat(Iterable<BoxItem.Info> children){
+    public Stat buildDirStat(Iterable<BoxItem.Info> children) {
         Stat stat = new Stat();
         ArrayList<Stat> contents = new ArrayList<>();
         for (BoxItem.Info child : children) {
-
             Stat statChild = new Stat();
             statChild.setFile(child instanceof BoxFile.Info);
             statChild.setDir(child instanceof BoxFolder.Info);
@@ -148,22 +154,21 @@ public class BoxResource extends Resource{
 
     @Override
     public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(s ->{
+        return Mono.create(s -> {
             try {
-                if(onStat(operation.getId()).isFile()) {
+                if (onStat(operation.getId()).isFile()) {
                     BoxFile file = new BoxFile(this.client, operation.getId());
                     file.delete();
-                } else if(onStat(operation.getId()).isDir()){
-                    boolean recursive = true;
+                } else if (onStat(operation.getId()).isDir()) {
                     BoxFolder folder = new BoxFolder(this.client, operation.getId());
-                    folder.delete(recursive);
+                    folder.delete(true);
                 }
                 s.success();
-            } catch(BoxAPIResponseException be){
-                if(be.getResponseCode() == 403){
+            } catch (BoxAPIResponseException be) {
+                if (be.getResponseCode() == 403) {
                     s.error(new ODSAccessDeniedException(403));
                 }
-            } catch(Exception e){
+            } catch (Exception e) {
                 s.error(e);
             }
         });
@@ -190,7 +195,7 @@ public class BoxResource extends Resource{
                 if (folderId == null) {
                     folderId = "0";
                 }
-                for(String f : currpath) {
+                for (String f : currpath) {
                     BoxFolder parentFolder = new BoxFolder(this.client, folderId);
                     BoxFolder.Info folder = parentFolder.createFolder(currpath[currpath.length - 1]);
                     folderId = folder.getID();
@@ -202,6 +207,13 @@ public class BoxResource extends Resource{
         });
     }
 
+    /**
+     * this is not needed as we do not offer downloading over browser anymore.
+     * The reason is there is no optimization applied to the download then.
+     * Leaving this incase we decide to change this
+     * @param operation
+     * @return
+     */
     @Override
     public Mono download(DownloadOperation operation) {
         return Mono.create(s -> {
@@ -210,16 +222,21 @@ public class BoxResource extends Resource{
                 BoxFile file = new BoxFile(this.client, operation.getId());
                 url = file.getDownloadURL().toString();
                 s.success(url);
-            } catch(BoxAPIResponseException be){
-                if(be.getResponseCode() == 403){
+            } catch (BoxAPIResponseException be) {
+                if (be.getResponseCode() == 403) {
                     s.error(new ODSAccessDeniedException(403));
                 }
-            } catch (Exception e){
+            } catch (Exception e) {
                 s.error(e);
             }
         });
     }
 
+    /**
+     * This is now done on the transfer-scheduler service.
+     * @param source
+     * @return
+     */
     @Override
     public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
         return null;
