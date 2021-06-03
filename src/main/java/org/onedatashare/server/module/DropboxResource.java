@@ -128,7 +128,6 @@ public class DropboxResource extends Resource {
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                ListFolderResult listing = null;
                 String url = pathFromUrl(operation.getPath());
                 s.success(statHelper(url));
             } catch (UnsupportedEncodingException e) {
@@ -178,11 +177,6 @@ public class DropboxResource extends Resource {
             }
             s.success(downloadLink);
         });
-    }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier){

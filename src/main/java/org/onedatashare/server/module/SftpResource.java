@@ -7,6 +7,7 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
+import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
@@ -19,10 +20,15 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
+import java.nio.file.Files;
 
 public class SftpResource extends VfsResource {
     private static final String CONTENT_DISPOSITION_HEADER = "attachment; filename=\"%s\"";
 
+    /**
+     * This needs to use a pem file and or basic auth like in FTP(username, password)
+     * @param credential
+     */
     @SneakyThrows
     public SftpResource(EndpointCredential credential) {
         super(credential);
@@ -30,8 +36,7 @@ public class SftpResource extends VfsResource {
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
         SftpFileSystemConfigBuilder.getInstance()
                 .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
-        //Handling authentication
-        if(accountCredential.getUsername() != null) {
+        if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
             StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
         }

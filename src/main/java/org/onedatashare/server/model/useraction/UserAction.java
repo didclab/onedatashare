@@ -75,7 +75,7 @@ public class UserAction {
     // For handling transfers
     private UserActionResource src;
     private UserActionResource dest;
-    private TransferOptions options;
+    private UserTransferOptions options;
 
     // For queue page
     private Integer job_id;

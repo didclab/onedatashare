@@ -24,10 +24,13 @@
 package org.onedatashare.server.service;
 
 import org.apache.http.entity.ContentType;
+import org.onedatashare.server.controller.TransferJobController;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.request.TransferJobRequestWithMetaData;
 import org.onedatashare.server.model.response.TransferJobSubmittedResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -47,56 +50,28 @@ public class TransferJobService {
     @Value("${transfer.job.service.uri}")
     private String transferQueueingServiceUri;
 
-    @Autowired
-    private FtpService ftpService;
-
-    @Autowired
-    private SftpService sftpService;
-
     private WebClient client;
+
     private static final Duration timeoutDuration = Duration.ofSeconds(10);
 
     @PostConstruct
     private void initialize(){
         this.client = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
+                .baseUrl(transferQueueingServiceUri)
                 .build();
     }
 
-    private Mono<List<TransferJobRequest.EntityInfo>> updateSource(TransferJobRequest.Source source){
-        switch (source.getType()){
-            case s3: throw new RuntimeException("Not yet implemented");
-            case gftp: throw new RuntimeException("Not yet supported");
-            case dropbox:
-            case gdrive:
-            case box:
-                break;
-            case http:
-                break;
-            case sftp:
-                return sftpService.listAllRecursively(source);
-            case ftp:
-                return ftpService.listAllRecursively(source);
-        }
-        return null;
-    }
-
-    public Mono<TransferJobSubmittedResponse> submitRequest(String ownerId, TransferJobRequest request){
-        TransferJobRequest.Source source = request.getSource();
-        return updateSource(source)
-                .map(updatedInfoList -> {
-                    TransferJobRequestWithMetaData requestWithMetaData =
-                            TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, request);
-                    requestWithMetaData.getSource().setInfoList(new HashSet<>(updatedInfoList));
-                    return requestWithMetaData;
-                }).flatMap(requestWithMetaData -> client.post()
-                        .uri(URI.create(transferQueueingServiceUri))
+    public Mono<TransferJobSubmittedResponse> submitTransferJobRequest(String ownerId, TransferJobRequest jobRequest){
+        return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
+                .flatMap(requestWithMetaData -> client.post()
+                        .uri("/receiveRequest")
                         .syncBody(requestWithMetaData)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,
                                 response -> Mono.error(new CredentialNotFoundException()))
-                        .onStatus(HttpStatus::is5xxServerError,
-                                response -> Mono.error(new Exception("Internal server error")))
+//                        .onStatus(HttpStatus::is5xxServerError,
+//                                response -> Mono.error(new Exception("Internal server error")))
                         .bodyToMono(TransferJobSubmittedResponse.class)
                         .timeout(timeoutDuration));
     }

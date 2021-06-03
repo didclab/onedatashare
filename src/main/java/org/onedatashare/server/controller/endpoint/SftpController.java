@@ -38,6 +38,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/sftp")
 public class SftpController extends EndpointBaseController{
+
     @Autowired
     private SftpService sftpService;
 
@@ -58,6 +59,6 @@ public class SftpController extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return sftpService.download(operation).map(DownloadResponse::new);
+        return null;
     }
 }

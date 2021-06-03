@@ -57,8 +57,6 @@ public class BoxController extends EndpointBaseController{
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return boxService.download(operation).map(DownloadResponse::new);
-    }
+    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {return null;}
 
 }

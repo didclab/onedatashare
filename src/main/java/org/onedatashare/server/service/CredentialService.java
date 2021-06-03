@@ -27,6 +27,7 @@ import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -48,6 +49,9 @@ public class CredentialService {
     private String urlFormatted, credListUrl;
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
+
+    @Autowired
+    private WebClient endpointCredentialClient;//need to use this client
 
     @PostConstruct
     private void initialize(){
@@ -112,7 +116,6 @@ public class CredentialService {
     }
 
     public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
-        System.out.println("deleting credential");
         return client.delete()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .exchange()

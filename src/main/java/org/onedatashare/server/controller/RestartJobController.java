@@ -24,11 +24,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.request.JobRequestData;
-import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.service.ResourceServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -40,19 +36,15 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/stork/restart")
 public class RestartJobController {
 
-    @Autowired
-    private ResourceServiceImpl resourceService;
-
     /**
-     * Handler for requests of restart Job
+     * I dont think we need this anymore as the concept of restarting should never occur I don't believe.
+     * The reason being that each Transfer-Node should 100% ensure the data got moved. Thus removing the idea of a restart.
      * @param headers - Incoming request headers
      * @param jobRequestData - Request data with Job details
      * @return Mono\<Job\>
      */
     @PostMapping
     public Mono<Job> restartJob(@RequestHeader HttpHeaders headers, @RequestBody JobRequestData jobRequestData){
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        UserAction userAction = UserAction.convertToUserAction(jobRequestData);
-        return resourceService.restartJob(cookie, userAction);
+        return null;
     }
 }

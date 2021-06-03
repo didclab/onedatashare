@@ -59,6 +59,6 @@ public class S3Controller extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return s3Service.download(operation).map(DownloadResponse::new);
+        return null;
     }
 }

@@ -26,8 +26,6 @@ public abstract class Resource {
     public abstract Mono<Void> mkdir(MkdirOperation operation);
     public abstract Mono download(DownloadOperation operation);
 
-    public abstract Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source);
-
     public String pathFromUrl(String url) throws UnsupportedEncodingException {
         return java.net.URLDecoder.decode(url, "UTF-8");
     }

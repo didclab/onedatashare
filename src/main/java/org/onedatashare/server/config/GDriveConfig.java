@@ -21,7 +21,7 @@
  */
 
 
-package org.onedatashare.server.module.googledrive;
+package org.onedatashare.server.config;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
@@ -37,6 +37,8 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -68,6 +70,7 @@ public class GDriveConfig {
     private String clientSecret;
     @Value("${gdrive.projectId}")
     private String projectId;
+    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
 
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
@@ -187,12 +190,17 @@ public class GDriveConfig {
         };
     }
 
-    public Drive getDriveService(OAuthEndpointCredential credential) throws IOException {
+    public Drive getDriveService(OAuthEndpointCredential credential) {
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
-        Credential cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+        Credential cred = null;
+        try {
+            cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return new Drive.Builder(
                 this.getHttpTransport(), this.getJsonFactory(), setHttpTimeout(cred))
                 .setApplicationName(this.getAppName())

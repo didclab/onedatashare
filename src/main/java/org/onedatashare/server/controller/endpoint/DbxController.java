@@ -58,6 +58,6 @@ public class DbxController extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return dbxService.download(operation).map(DownloadResponse::new);
+        return null;
     }
 }

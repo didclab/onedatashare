@@ -1,4 +1,4 @@
-package org.onedatashare.server.service.oauth;
+package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
@@ -20,5 +20,4 @@ public abstract class ResourceServiceBase {
     public abstract Mono<Void> mkdir(MkdirOperation operation);
     public abstract Mono<String> download(DownloadOperation operation);
 
-    public abstract Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source);
 }

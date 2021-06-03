@@ -30,5 +30,5 @@ import org.onedatashare.server.model.useraction.UserActionResource;
 public class TransferRequest {
     UserActionResource src;
     UserActionResource dest;
-    TransferOptions options;
+    UserTransferOptions options;
 }
