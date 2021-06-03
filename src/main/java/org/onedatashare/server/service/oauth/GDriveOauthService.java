@@ -38,7 +38,7 @@ import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import lombok.SneakyThrows;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.module.googledrive.GDriveConfig;
+import org.onedatashare.server.config.GDriveConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;

@@ -26,16 +26,12 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.module.BoxResource;
 import org.onedatashare.server.module.Resource;
-import org.onedatashare.server.service.oauth.ResourceServiceBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
 
 @Service
 public class BoxService extends ResourceServiceBase {
@@ -45,7 +41,7 @@ public class BoxService extends ResourceServiceBase {
 
     @Override
     protected Mono<? extends Resource> getResource(String credId) {
-        return credentialService.fetchAccountCredential(EndpointType.box, credId)
+        return credentialService.fetchOAuthCredential(EndpointType.box, credId)
                 .flatMap(BoxResource::initialize)
                 .subscribeOn(Schedulers.elastic());
     }
@@ -68,7 +64,5 @@ public class BoxService extends ResourceServiceBase {
     @Override
     public Mono<String> download(DownloadOperation operation) {return null;}
 
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {return null;}
 }
 

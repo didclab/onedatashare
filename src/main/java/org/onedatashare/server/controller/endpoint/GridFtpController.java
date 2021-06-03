@@ -38,22 +38,4 @@ public class GridFtpController extends EndpointBaseController{
         return null;
     }
 
-//    protected Mono<Void> mkdirOperation(OperationRequestData operationRequestData) {
-//        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-//        return gridftpService.mkdir(null, userAction);
-//    }
-//
-//    protected Mono<Void> deleteOperation(OperationRequestData operationRequestData) {
-//        UserAction userAction = UserAction.convertToUserAction(operationRequestData);
-//        return gridftpService.delete(null, userAction);
-//    }
-//
-//    protected Mono<String> downloadOperation(RequestData requestData) {
-//        return null;
-//    }
-//
-//    protected Mono<Stat> listOperation(RequestData requestData) {
-//        UserAction userAction = UserAction.convertToUserAction(requestData);
-//        return gridftpService.list(null, userAction);
-//    }
 }

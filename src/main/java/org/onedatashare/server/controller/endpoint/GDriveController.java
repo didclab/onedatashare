@@ -58,6 +58,6 @@ public class GDriveController extends EndpointBaseController{
 
     @Override
     protected Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation) {
-        return gdriveService.download(downloadOperation).map(DownloadResponse::new);
+       return null;
     }
 }

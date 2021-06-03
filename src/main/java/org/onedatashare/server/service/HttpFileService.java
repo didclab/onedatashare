@@ -23,87 +23,54 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.ODSConstants;
-import org.onedatashare.server.model.core.Resource;
+import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.error.UnsupportedOperationException;
 import org.onedatashare.server.model.filesystem.operations.*;
-import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.module.http.HttpResource;
-import org.onedatashare.server.module.http.HttpSession;
+import org.onedatashare.server.module.HttpResource;
+import org.onedatashare.server.module.VfsResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import reactor.core.scheduler.Schedulers;
 
 @Service
-public class HttpFileService extends ResourceService {
+public class HttpFileService extends ResourceServiceBase {
+
     @Autowired
-    private UserService userService;
+    CredentialService credentialService;
 
-    public Mono<HttpResource> getResourceWithUserActionUri(String cookie, UserAction userAction) {
-        String path = pathFromUri(userAction.getUri());
-        return userService.getLoggedInUser(cookie)
-                .map(user -> new HttpSession(URI.create(userAction.getUri())))
-                .flatMap(HttpSession::initialize)
-                .flatMap(httpSession -> httpSession.select(path));
-    }
-
-    private String pathFromUri(String uri) {
-        String path = "";
-        if(uri.startsWith(ODSConstants.HTTPS_URI_SCHEME) || uri.startsWith(ODSConstants.HTTP_URI_SCHEME))
-            path = uri;
-
-        try {
-            path = java.net.URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return path;
-    }
-
-    public Mono<Stat> list(String cookie, UserAction userAction) {
-        return getResourceWithUserActionUri(cookie, userAction).flatMap(HttpResource::stat);
-    }
-
-    /* Not allowed */
-    public Mono<Void> mkdir(String cookie, UserAction userAction) {
-        throw new UnsupportedOperationException();
-    }
-
-    /* Not allowed */
-    public Mono<Void> delete(String cookie, UserAction userAction) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Mono<String> download(String cookie, UserAction userAction) {
-        return null;
+    @Override
+    protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {
+        return  credentialService.fetchAccountCredential(EndpointType.http, credId)
+                .flatMap(HttpResource::initialize)
+                .subscribeOn(Schedulers.elastic());
     }
 
     @Override
     public Mono<Stat> list(ListOperation listOperation) {
-        return null;
+        return getResource(listOperation.getCredId())
+                .flatMap(resource -> resource.list(listOperation));
     }
 
     @Override
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return null;
+        return getResource(mkdirOperation.getCredId())
+                .flatMap(resource -> resource.mkdir(mkdirOperation));
     }
 
     @Override
     public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return null;
+        return getResource(deleteOperation.getCredId())
+                .flatMap(resource -> resource.delete(deleteOperation));
     }
 
+    /**
+     * Not needed unless we wanna support downloading linearly thorugh a browser. Could probably use C^2
+     * @param downloadOperation
+     * @return
+     */
     @Override
     public Mono<String> download(DownloadOperation downloadOperation) {
-        return null;
-    }
-
-    @Override
-    protected Mono<? extends Resource> createResource(OperationBase operationBase) {
         return null;
     }
 }

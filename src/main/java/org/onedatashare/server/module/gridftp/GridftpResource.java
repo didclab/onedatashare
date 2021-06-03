@@ -125,55 +125,10 @@ public class GridftpResource extends Resource<GridftpSession, GridftpResource> {
         return stat;
     }
 
-    public GridftpTap tap() {
-        return new GridftpTap();
-    }
-
-    public GridftpDrain sink() {
-        return new GridftpDrain().start();
-//    return slices.doOnNext(dbxDrain::drain).doFinally(s -> dbxDrain.finish());
-    }
 
     @Override
     public Mono<Stat> getTransferStat() {
         return null;
-    }
-
-    class GridftpTap implements Tap {
-        final long size = stat().block().getSize();
-
-        public Flux<Slice> tap(long sliceSize) {
-            return Flux.empty();
-        }
-
-        @Override
-        public Flux<Slice> tap(Stat stat, long sliceSize) {
-            return null;
-        }
-    }
-
-    class GridftpDrain implements Drain {
-        final long CHUNKED_UPLOAD_CHUNK_SIZE = 1L << 20; // 1MiB
-        long uploaded = 0L;
-        InputStream in = new ByteArrayInputStream(new byte[]{});
-        String sessionId;
-        UploadSessionCursor cursor;
-
-        public GridftpDrain start() {
-              return this;
-        }
-
-    @Override
-    public Drain start(String drainPath) {
-        return null;
-    }
-
-
-        public void drain(Slice slice) {
-        }
-
-        public void finish() {
-        }
     }
 }
 

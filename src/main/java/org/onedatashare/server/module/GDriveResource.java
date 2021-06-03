@@ -12,8 +12,7 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
-import org.onedatashare.server.module.googledrive.GDriveConfig;
-import org.onedatashare.server.service.ODSLoggerService;
+import org.onedatashare.server.config.GDriveConfig;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -28,43 +27,13 @@ public class GDriveResource extends Resource {
     public static GDriveConfig gDriveConfig = new GDriveConfig();
     public static final String ROOT_DIR_ID = "root";
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
+    private OAuthEndpointCredential credential;
 
     private Drive service;
 
     public GDriveResource(EndpointCredential credential) throws IOException {
-        this.credential = credential;
-        this.service = gDriveConfig.getDriveService((OAuthEndpointCredential) credential);
-    }
-
-    public String folderExistsCheck(String curId, String directoryName){
-        try {
-            String query = new StringBuilder().append("trashed=false and ").append("'" + curId + "'")
-                    .append(" in parents").toString();
-
-            Drive.Files.List request = this.service.files().list()
-                    .setOrderBy("name").setQ(query)
-                    .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
-            FileList fileSet = null;
-            List<File> fileList = null;
-
-            do{
-                fileSet = request.execute();
-                fileList = fileSet.getFiles();
-
-                for(File file : fileList){
-                    if (file.getMimeType().equals("application/vnd.google-apps.folder")
-                            && file.getName().equals(directoryName)) {
-                        return file.getId();
-                    }
-                }
-                request.setPageToken(fileSet.getNextPageToken());
-            }while(request.getPageToken() != null);
-        }
-        catch (IOException ioe){
-            ODSLoggerService.logError("Exception encountered while checking if folder " + directoryName +
-                    " exists in " + curId, ioe);
-        }
-        return null;
+        this.credential = (OAuthEndpointCredential) credential;
+        this.service = gDriveConfig.getDriveService(this.credential);
     }
 
     public Stat statHelper(String path, String id) throws IOException {
@@ -219,11 +188,18 @@ public class GDriveResource extends Resource {
 
     @Override
     public Mono download(DownloadOperation operation) {
-        return Mono.just(String.format(DOWNLOAD_URL, operation.getId()));
+        return null;
     }
 
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
+
+    public static Mono<? extends Resource> initialize(EndpointCredential credential){
+        return Mono.create(s -> {
+            try {
+                GDriveResource gDriveResource= new GDriveResource(credential);
+                s.success(gDriveResource);
+            } catch (Exception e) {
+                s.error(e);
+            }
+        });
     }
 }

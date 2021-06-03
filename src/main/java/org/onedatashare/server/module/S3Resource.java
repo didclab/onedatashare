@@ -122,15 +122,4 @@ public class S3Resource extends Resource{
     public Mono download(DownloadOperation operation) {
         return null;
     }
-
-    /**
-     * Listing is now done on the Scheduler and this is a FlatFile system so probably even less of a reason this is needed.
-     * @param source
-     * @return
-     */
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
-    }
-
 }

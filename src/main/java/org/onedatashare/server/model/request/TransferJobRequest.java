@@ -37,7 +37,7 @@ import java.util.HashSet;
 public class TransferJobRequest {
     @NonNull protected Source source;
     @NonNull protected Destination destination;
-    protected TransferOptions options;
+    protected UserTransferOptions options;
 
 
     @Data
@@ -45,7 +45,7 @@ public class TransferJobRequest {
     public static class Destination {
         @NonNull protected EndpointType type;
         @NonNull protected String credId;
-        @NonNull protected EntityInfo info;
+        @NonNull protected EntityInfo parentInfo;
     }
 
     @Data
@@ -53,7 +53,7 @@ public class TransferJobRequest {
     public static class Source {
         @NonNull protected EndpointType type;
         @NonNull protected String credId;
-        @NonNull protected EntityInfo info;
+        @NonNull protected EntityInfo parentInfo;
         @NonNull protected HashSet<EntityInfo> infoList;
     }
 

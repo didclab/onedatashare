@@ -12,8 +12,13 @@ import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 
+/**
+ * This class is meant to take a valid TransferJobRequest and then forward that message to the transfer-scheduler which will aggregate credentials
+ * for the request and expand the file system of all the user requested resources.
+ *
+ */
 @RestController
-@RequestMapping("/api/transfer-job")
+@RequestMapping("/api/transferjob")
 public class TransferJobController {
     @Autowired
     private TransferJobService transferJobService;

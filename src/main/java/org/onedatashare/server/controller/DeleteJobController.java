@@ -24,11 +24,7 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.core.Job;
-import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.request.JobRequestData;
-import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.service.ResourceServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -40,11 +36,10 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/stork/deleteJob")
 public class DeleteJobController {
 
-    @Autowired
-    private ResourceServiceImpl resourceService;
-
     /**
-     * Handler for the request for deleting a Job on the queue page.
+     *This will delete the user available history of their transfers that have happened.
+     * We will probably have to expose a Monitoring service that would delete the data from CockroachDB or we could just offload that data to S3
+     * Hiding it from the user and removing it from our DB.
      *
      * @param headers - Request header
      * @param jobRequestData - Data to perform an operation on the Job
@@ -52,8 +47,6 @@ public class DeleteJobController {
      */
     @PostMapping
     public Mono<Job> restartJob(@RequestHeader HttpHeaders headers, @RequestBody JobRequestData jobRequestData){
-        String cookie = headers.getFirst(ODSConstants.COOKIE);
-        UserAction userAction = UserAction.convertToUserAction(jobRequestData);
-        return resourceService.deleteJob(cookie, userAction);
+        return null;
     }
 }

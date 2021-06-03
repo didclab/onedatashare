@@ -1,6 +1,7 @@
 package org.onedatashare.server.module;
 
 import com.box.sdk.*;
+import org.onedatashare.server.controller.EndpointCredController;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
@@ -10,6 +11,8 @@ import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -147,7 +150,7 @@ public class BoxResource extends Resource {
                 contents.add(statChild);
             }
         }
-        stat.setFiles(contents.toArray(stat.getFiles()));
+        stat.setFiles(stat.getFiles());
         return stat;
     }
 
@@ -178,8 +181,24 @@ public class BoxResource extends Resource {
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                Stat stat = onStat(operation.getId());
-                s.success(stat);
+                Stat betterStat = new Stat();
+                betterStat.setFilesList(new ArrayList<>());
+                BoxFolder folder = new BoxFolder(this.client, operation.getId());
+                betterStat.setId(folder.getID());
+                betterStat.setName(folder.getID());
+                betterStat.setPermissions(folder.getInfo().getPermissions().toString());
+                betterStat.setSize(folder.getInfo().getSize());
+                for (BoxItem.Info itemInfo : folder) {
+                    if (itemInfo instanceof BoxFile.Info) {
+                        BoxFile.Info fileInfo = (BoxFile.Info) itemInfo;
+                        betterStat.getFilesList().add(boxFileToStat(fileInfo));
+                        // Do something with the file.
+                    } else if (itemInfo instanceof BoxFolder.Info) {
+                        BoxFolder.Info folderInfo = (BoxFolder.Info) itemInfo;
+                        betterStat.getFilesList().add(boxFolderToStat(folderInfo));
+                    }
+                }
+                s.success(betterStat);
             } catch (Exception e) {
                 s.error(e);
             }
@@ -232,13 +251,23 @@ public class BoxResource extends Resource {
         });
     }
 
-    /**
-     * This is now done on the transfer-scheduler service.
-     * @param source
-     * @return
-     */
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
+    public Stat boxFileToStat(BoxItem.Info fileInfo){
+        Stat stat = new Stat();
+        stat.setName(fileInfo.getName());
+        stat.setSize(fileInfo.getSize());
+        stat.setFile(true);
+        stat.setDir(false);
+        stat.setTime(fileInfo.getCreatedAt().getTime());
+        return stat;
+    }
+
+    public Stat boxFolderToStat(BoxFolder.Info folderInfo){
+        Stat stat = new Stat();
+        stat.setFiles(new ArrayList<>());
+        stat.setName(folderInfo.getName());
+        stat.setDir(true);
+        stat.setFile(false);
+        stat.setTime(folderInfo.getCreatedAt().getTime());
+        return stat;
     }
 }

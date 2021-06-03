@@ -21,15 +21,20 @@
  */
 
 
-package org.onedatashare.server.model.core;
+package org.onedatashare.server.model.request;
 
-public interface Drain {
-  Drain start();
+import lombok.Data;
 
-  Drain start(String drainPath);    // added for folder transfers
-
-  void drain(Slice slice);
-
-  void finish();
-
+@Data
+public class UserTransferOptions {
+    private Boolean compress;
+    private Boolean encrypt;
+    private String optimizer;
+    private Boolean overwrite;
+    private Integer retry;
+    private Boolean verify;
+    private Integer concurrencyThreadCount;
+    private Integer parallelThreadCount;
+    private Integer pipeSize;
+    private Integer chunkSize;
 }

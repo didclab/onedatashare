@@ -6,16 +6,12 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.module.Resource;
 import org.onedatashare.server.module.S3Resource;
-import org.onedatashare.server.service.oauth.ResourceServiceBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-
-import java.util.List;
 
 @Service
 public class S3Service extends ResourceServiceBase {
@@ -52,8 +48,5 @@ public class S3Service extends ResourceServiceBase {
     public Mono<String> download(DownloadOperation operation) {
         return null;
     }
-
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) { return null; }
 
 }

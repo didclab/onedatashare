@@ -179,11 +179,6 @@ public class DropboxResource extends Resource {
         });
     }
 
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
-    }
-
     public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier){
         return Mono.create(s -> {
             try {

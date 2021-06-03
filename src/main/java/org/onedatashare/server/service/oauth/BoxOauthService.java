@@ -24,26 +24,22 @@
 package org.onedatashare.server.service.oauth;
 
 import com.box.sdk.BoxAPIConnection;
+import com.box.sdk.BoxConfig;
 import com.box.sdk.BoxUser;
-import lombok.Getter;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Calendar;
 import java.util.Map;
 
-/**
- *author: Javier Falca
- */
+@Service
+public class BoxOauthService{
 
-@Getter
-@Configuration
-class BoxConfig {
+
     @Value("${box.clientId}")
     private String clientId;
     @Value("${box.clientSecret}")
@@ -54,23 +50,16 @@ class BoxConfig {
     private String scope;
     @Value("${box.authUri}")
     private String authUri;
-}
-
-@Service
-public class BoxOauthService{
 
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private BoxConfig boxConfig;
-
     public String start() {
-        String box_redirect = boxConfig.getAuthUri()
+        String box_redirect = authUri
                 + "?response_type=code"
-                + "&client_id=" + boxConfig.getClientId()
-                + "&redirect_uri=" + boxConfig.getRedirectUri()
-                + "&scope=" + boxConfig.getScope();
+                + "&client_id=" + clientId
+                + "&redirect_uri=" + redirectUri
+                + "&scope=" + scope;
 
         return box_redirect;
     }
@@ -84,7 +73,7 @@ public class BoxOauthService{
         return Mono.create(s -> {
             String code = queryParameters.get("code");
             // Instantiate new Box API connection object
-            BoxAPIConnection client = new BoxAPIConnection(boxConfig.getClientId(), boxConfig.getClientSecret(), code);
+            BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
 

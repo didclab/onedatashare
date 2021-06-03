@@ -36,7 +36,7 @@ public class TransferJobRequestWithMetaData{
 
     @NonNull protected TransferJobRequest.Source source;
     @NonNull protected TransferJobRequest.Destination destination;
-    protected TransferOptions options;
+    protected UserTransferOptions options;
 
     public static TransferJobRequestWithMetaData getTransferRequestWithMetaData(String owner,
                                                                                 TransferJobRequest request){

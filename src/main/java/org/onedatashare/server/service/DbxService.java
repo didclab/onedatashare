@@ -24,14 +24,7 @@
 package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
-import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.filesystem.operations.*;
-import org.onedatashare.server.model.request.TransferJobRequest;
-import org.onedatashare.server.model.useraction.UserActionResource;
-import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.module.dropbox.DbxResource;
-import org.onedatashare.server.module.dropbox.DbxSession;
-import org.onedatashare.server.service.oauth.ResourceServiceBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -39,11 +32,6 @@ import reactor.core.scheduler.Schedulers;
 import org.springframework.beans.factory.annotation.Value;
 import org.onedatashare.server.module.DropboxResource;
 import org.onedatashare.server.module.Resource;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class DbxService extends ResourceServiceBase {
@@ -53,19 +41,6 @@ public class DbxService extends ResourceServiceBase {
 
     @Value("${dropbox.identifier}")
     private String DROPBOX_CLIENT_IDENTIFIER;
-
-    public String pathFromDbxUri(String uri) {
-        String path = "";
-        if(uri.contains(ODSConstants.DROPBOX_URI_SCHEME)){
-            path = uri.substring(ODSConstants.DROPBOX_URI_SCHEME.length() - 1);
-        }
-        try {
-            path = java.net.URLDecoder.decode(path, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return path;
-    }
 
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchOAuthCredential(EndpointType.dropbox, credId)
@@ -96,8 +71,4 @@ public class DbxService extends ResourceServiceBase {
         return null;
     }
 
-    @Override
-    public Mono<List<TransferJobRequest.EntityInfo>> listAllRecursively(TransferJobRequest.Source source) {
-        return null;
-    }
 }

@@ -24,10 +24,13 @@
 package org.onedatashare.server.service;
 
 import org.apache.http.entity.ContentType;
+import org.onedatashare.server.controller.TransferJobController;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.request.TransferJobRequestWithMetaData;
 import org.onedatashare.server.model.response.TransferJobSubmittedResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -55,19 +58,20 @@ public class TransferJobService {
     private void initialize(){
         this.client = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
+                .baseUrl(transferQueueingServiceUri)
                 .build();
     }
 
     public Mono<TransferJobSubmittedResponse> submitTransferJobRequest(String ownerId, TransferJobRequest jobRequest){
         return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
                 .flatMap(requestWithMetaData -> client.post()
-                        .uri(URI.create(transferQueueingServiceUri))
+                        .uri("/receiveRequest")
                         .syncBody(requestWithMetaData)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,
                                 response -> Mono.error(new CredentialNotFoundException()))
-                        .onStatus(HttpStatus::is5xxServerError,
-                                response -> Mono.error(new Exception("Internal server error")))
+//                        .onStatus(HttpStatus::is5xxServerError,
+//                                response -> Mono.error(new Exception("Internal server error")))
                         .bodyToMono(TransferJobSubmittedResponse.class)
                         .timeout(timeoutDuration));
     }

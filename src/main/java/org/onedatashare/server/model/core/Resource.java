@@ -96,18 +96,6 @@ public abstract class Resource<S extends Session<S, R>, R extends Resource<S, R>
     throw unsupported("delete");
   }
 
-  public Tap tap() {
-    throw unsupported("tap");
-  }
-
-  public Drain sink() {
-    throw unsupported("sink");
-  }
-
-  public Drain sink(Stat stat) {
-    throw unsupported("sink(stat)");
-  }
-
   public abstract  Mono<Stat> getTransferStat();
 
   private UnsupportedOperationException unsupported(String op) {
