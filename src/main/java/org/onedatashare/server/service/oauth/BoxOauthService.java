@@ -24,7 +24,6 @@
 package org.onedatashare.server.service.oauth;
 
 import com.box.sdk.BoxAPIConnection;
-import com.box.sdk.BoxConfig;
 import com.box.sdk.BoxUser;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.service.UserService;

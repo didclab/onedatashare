@@ -1,7 +1,6 @@
 package org.onedatashare.server.module;
 
 import com.box.sdk.*;
-import org.onedatashare.server.controller.EndpointCredController;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
@@ -10,15 +9,11 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import javax.validation.constraints.Null;
 import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
 
 public class BoxResource extends Resource {
     private BoxAPIConnection client;
