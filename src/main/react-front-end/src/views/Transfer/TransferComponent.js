@@ -57,7 +57,6 @@ import { gridFullWidth, gridHalfWidth} from "../../constants";
 
 import Switch from '@material-ui/core/Switch';
 
-import ErrorMessagesConsole from '../ErrorMessagesConsole';
 import  Terminal  from '../Terminal';
 
 import queryString from 'query-string';
@@ -603,7 +602,7 @@ export default class TransferComponent extends Component {
               </Box>
 
             </Box>
-            <ErrorMessagesConsole/>
+
 
 
 
