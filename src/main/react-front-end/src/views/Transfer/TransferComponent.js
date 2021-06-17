@@ -55,7 +55,7 @@ import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeT
 import { eventEmitter } from "../../App.js";
 import { gridFullWidth, gridHalfWidth} from "../../constants";
 
-import Switch from '@material-ui/core/Switch';
+
 
 import  Terminal  from '../Terminal';
 
