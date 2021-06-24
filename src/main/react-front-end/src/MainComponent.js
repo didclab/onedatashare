@@ -36,6 +36,7 @@ import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
+import EndPointCredentialsPage from './views/Admin/EndPointCredentialsPage';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 import SupportComponent from './views/Support/SupportComponent';
@@ -163,6 +164,14 @@ export default class MainComponent extends Component {
               <Route exact path='/user'
                 render={(props) =>
                   <UserAccountComponent {...props} />
+                }
+              />
+            }
+
+            {isLoggedIn &&
+              <Route exact path='/credentials'
+                render={(props) =>
+                  <EndPointCredentialsPage {...props} store={store} />
                 }
               />
             }

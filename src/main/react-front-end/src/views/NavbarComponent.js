@@ -26,7 +26,7 @@ import { Navbar, Nav, NavItem, NavDropdown } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import ContactSupportOutlined from '@material-ui/icons/ContactSupportOutlined';
 import Tooltip from '@material-ui/core/Tooltip';
-import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl } from '../constants';
+import { transferPageUrl, queuePageUrl, userPageUrl, userListPageUrl, historyPageUrl, registerPageUrl, newNotifications, signInUrl ,credentialsPageUrl} from '../constants';
 import { store } from '../App';
 import { logout } from '../APICalls/APICalls';
 
@@ -62,6 +62,7 @@ class NavbarComponent extends Component {
 						<Nav>
 							<NavItem componentClass={Link} href={transferPageUrl} to={transferPageUrl} id="NavTransfer">Transfer</NavItem>
 							<NavItem componentClass={Link} href={queuePageUrl} to={queuePageUrl} id="NavQueue">Queue</NavItem>
+							<NavItem componentClass={Link} href={credentialsPageUrl} to={credentialsPageUrl} id="NavQueue">Credentials</NavItem>
 
 		      	{this.state.admin===true &&
 			    	<NavDropdown title="Admin" id="NavDropdown">
