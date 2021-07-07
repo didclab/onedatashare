@@ -26,7 +26,7 @@ import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
-import { deleteHistory, deleteCredentialFromServer, history, savedCredList, saveEndpointCred } from "../../APICalls/APICalls";
+import { deleteHistory, deleteCredentialFromServer, history, savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
 import {/*DROPBOX_TYPE,
 				GOOGLEDRIVE_TYPE,
 				BOX_TYPE,
@@ -464,15 +464,16 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	            	//Currently there is separate conditionals for S3 and non-S3 services, but it is possible that they can be combined in the future.
 					// Work has not yet started on testing credential deletion on non-S3 services
+					let endPointType = Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri)
 					if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
-						deleteHistory(uri, true, (accept) => {
-							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						deleteCredential(endPointType, uri, true, (accept) => {
+							this.historyListUpdateFromBackend(endPointType);
 						}, (error) => {
 							this._handleError("Delete History Failed");
 						});
 					}else{
-						deleteHistory(uri, false, (accept) => {
-							this.historyListUpdateFromBackend(Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri));
+						deleteCredential(endPointType, uri, false, (accept) => {
+							this.historyListUpdateFromBackend(endPointType);
 						}, (error) => {
 							this._handleError("Delete History Failed");
 						});
@@ -696,7 +697,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				{/* GridFTP OAuth handler */}
 				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
-				{!isOAuth[loginType] &&
+				{!isOAuth[loginType] && historyList &&
 		        	this.getHistoryListComponentFromList(historyList)}
 		        	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
 						<Grid item md={6} xs={12}>

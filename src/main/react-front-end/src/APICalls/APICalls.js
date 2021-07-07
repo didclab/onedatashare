@@ -372,6 +372,20 @@ export async function deleteHistory(uri, isS3, accept, fail) {
 			});
 
 }
+export async function deleteCredential(credentialType,credential,accept, fail) {
+	let callback = accept;
+	axios.delete(`${apiCredUrl}${credentialType}/${credential}`)
+		.then((response) => {
+			if (!(response.status === 200))
+				callback = fail;
+			statusHandle(response, callback);
+		})
+		.catch((error) => {
+			console.log(error)
+			handleRequestFailure(error, fail);
+		});
+
+}
 
 export async function saveEndpointCred(type, body, accept, fail) {
 	let callback = accept;
