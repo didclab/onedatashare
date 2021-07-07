@@ -58,17 +58,52 @@ export default class EndPointCredentialsPage extends Component{
 			//console.log(typeof(element))
 			a.push(<div>{element}</div>)
 		})
-		return a[0];
+
+        // Return entire list of credentials
+		return a;
 	}
      render(){
         const { historyList } = this.state;
-		
+
+        // Store list of credentials in const a (for now)
+        const a = (historyList) && this.createListOfCreds(historyList);
 		//console.log("finally",historyList)
+
+         // Create new consts to use different font sizes
+         const smallFont = {
+             fontSize: 16,
+         }
+
+         const mediumFont = {
+             fontSize: 24,
+         }
+
          return(
+
+
+             // Currently using indexes in a to show multiple credentials. Need to dynamically code.
              <div>
-				 {(historyList) &&
-				this.createListOfCreds(historyList)
-		          }
+                 <mediumFont style={mediumFont}> Dropbox Credentials</mediumFont><br></br>
+
+                 <mediumFont style={mediumFont}> FTP Credentials </mediumFont><br></br>
+
+
+				 <smallFont style={smallFont}>
+                     {a[0]}
+                     {a[1]}
+                 </smallFont>
+
+                 <mediumFont style={mediumFont}> Google Drive Credentials</mediumFont><br></br>
+
+                 <mediumFont style={mediumFont}> Box Credentials</mediumFont><br></br>
+
+                 <mediumFont style={mediumFont}> GridFTP Credentials</mediumFont><br></br>
+
+                 <mediumFont style={mediumFont}> HTTP/HTTPS Credentials</mediumFont><br></br>
+
+                 <mediumFont style={mediumFont}> SFTP Credentials</mediumFont><br></br>
+
+
             </div>
          );
      }
