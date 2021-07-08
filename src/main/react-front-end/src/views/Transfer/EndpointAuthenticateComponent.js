@@ -561,7 +561,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		reader.onload = (event) => {
 			fileContents = event.target.result;
 			this.setState({
-					pemFile: fileContents,
+					pemFile: fileContents.replace(/\n|\r/g,"").trim(),
 					pemFileName: file.name
 				}, function() {console.log(this.state.pemFile)});
 		}
