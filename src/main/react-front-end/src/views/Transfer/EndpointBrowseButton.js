@@ -9,7 +9,6 @@ const BrowseButton = (props) => {
         fontSize: "12px",
         color: "white",
         backgroundColor: "rgba(0,0,0,0.7)",
-        borderRadius: "5px",
         padding: "5px"
     });
 

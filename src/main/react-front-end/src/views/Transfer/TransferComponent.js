@@ -516,13 +516,6 @@ export default class TransferComponent extends Component {
     return (
         <div className={"outeractionContainer"}>
         <Grid container direction="column" justify={"center"}>
-          <Box className={"boxHeader"}>
-
-            <p>
-              Browse and Transfer Files
-            </p>
-
-          </Box>
           <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
@@ -541,7 +534,7 @@ export default class TransferComponent extends Component {
               {/*    label={<ToggleLabel>Compact</ToggleLabel>}*/}
               {/*/>*/}
 
-              <Box className="innerBox">
+              <Box>
                 <Grid container direction="row" justify="center" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
@@ -553,13 +546,13 @@ export default class TransferComponent extends Component {
                     <Hidden mdUp>
                       <Grid container item direction="row" align-items="center" justify="center">
                         <Grid item>
-                          <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}>
+                          <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}>
                             <KeyboardArrowUpRounded />
                             Send
                           </Button>
                         </Grid>
                         <Grid item>
-                          <Button id="sendFromLeftToRight" onClick={this.onSendToRight}>
+                          <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}>
                             Send<KeyboardArrowDownRounded/>
                           </Button>
                         </Grid>
@@ -578,10 +571,10 @@ export default class TransferComponent extends Component {
                 <Hidden smDown>
                   <Grid container direction="row" align-items="center" justify="center">
                     <Grid item>
-                      <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
+                      <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                     </Grid>
                     <Grid item>
-                      <Button id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
+                      <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
                     </Grid>
 
                   </Grid>
