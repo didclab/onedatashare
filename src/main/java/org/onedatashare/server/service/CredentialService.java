@@ -55,9 +55,9 @@ public class CredentialService {
 
     @PostConstruct
     private void initialize(){
-//        this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
-//        this.credListUrl = this.credentialServiceUrl + "/%s/%s";
-//        this.client = WebClient.builder().baseUrl(credentialServiceUrl).build();
+        this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
+        this.credListUrl = this.credentialServiceUrl + "/%s/%s";
+        this.client = WebClient.builder().baseUrl(credentialServiceUrl).build();
     }
 
     private Mono<String> getUserId(){
