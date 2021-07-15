@@ -49,23 +49,26 @@ import java.util.List;
 public class TransferJobService {
     @Value("${transfer.job.service.uri}")
     private String transferQueueingServiceUri;
+    private static Logger logger = LoggerFactory.getLogger(TransferJobService.class);
 
-    private WebClient client;
+    @Autowired
+    private WebClient.Builder webClientBuilder;
 
     private static final Duration timeoutDuration = Duration.ofSeconds(10);
 
-    @PostConstruct
-    private void initialize(){
-        this.client = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
-                .baseUrl(transferQueueingServiceUri)
-                .build();
-    }
+//    @PostConstruct
+//    private void initialize(){
+//        this.client = WebClient.builder()
+//                .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
+//                .baseUrl(transferQueueingServiceUri)
+//                .build();
+//    }
 
     public Mono<TransferJobSubmittedResponse> submitTransferJobRequest(String ownerId, TransferJobRequest jobRequest){
+        logger.info(transferQueueingServiceUri + "/receiveRequest");
         return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
-                .flatMap(requestWithMetaData -> client.post()
-                        .uri("/receiveRequest")
+                .flatMap(requestWithMetaData -> webClientBuilder.build().post()
+                        .uri(transferQueueingServiceUri + "/receiveRequest")
                         .syncBody(requestWithMetaData)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,
