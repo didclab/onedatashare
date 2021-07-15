@@ -55,12 +55,11 @@ public class CredentialService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-//    @PostConstruct
-//    private void initialize(){
-//        this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
-//        this.credListUrl = this.credentialServiceUrl + "/%s/%s";
-//        this.client = webClientBuilder.baseUrl(credentialServiceUrl).build();
-//    }
+    @PostConstruct
+    private void initialize(){
+        this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
+        this.credListUrl = this.credentialServiceUrl + "/%s/%s";
+    }
 
     private Mono<String> getUserId(){
         return ReactiveSecurityContextHolder.getContext()
