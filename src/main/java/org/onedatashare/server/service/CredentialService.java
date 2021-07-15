@@ -51,16 +51,15 @@ public class CredentialService {
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
     @Autowired
-    private WebClient endpointCredentialClient;//need to use this client
+    private WebClient endpointCredentialClient;
 
     @PostConstruct
     private void initialize(){
         this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
         this.credListUrl = this.credentialServiceUrl + "/%s/%s";
 
-        this.client = WebClient.builder()
-                .baseUrl(credentialServiceUrl)
-                .build();
+        //this.client = WebClient.builder().baseUrl(credentialServiceUrl).build();
+        this.client = endpointCredentialClient;
     }
 
     private Mono<String> getUserId(){
