@@ -69,6 +69,7 @@ public class TransferJobService {
         return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
                 .flatMap(requestWithMetaData -> webClientBuilder.build().post()
                         .uri(transferQueueingServiceUri + "/receiveRequest")
+                        .header("Content-Type","application/json")
                         .syncBody(requestWithMetaData)
                         .retrieve()
                         .onStatus(HttpStatus::is4xxClientError,
