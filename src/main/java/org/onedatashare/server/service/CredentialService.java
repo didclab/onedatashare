@@ -27,6 +27,8 @@ import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -47,6 +49,7 @@ public class CredentialService {
     @Value("${cred.service.uri}")
     private String credentialServiceUrl;
     private String urlFormatted, credListUrl;
+    private static Logger logger = LoggerFactory.getLogger(CredentialService.class);
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
@@ -57,7 +60,9 @@ public class CredentialService {
     private void initialize(){
         this.urlFormatted = this.credentialServiceUrl + "/%s/%s/%s";
         this.credListUrl = this.credentialServiceUrl + "/%s/%s";
-//        this.endpointCredentialClient = WebClient.builder().baseUrl(credentialServiceUrl).build();
+        this.endpointCredentialClient = WebClient.builder().baseUrl(credentialServiceUrl).build();
+        logger.info(this.credListUrl);
+        logger.info(urlFormatted);
     }
 
     private Mono<String> getUserId(){
@@ -66,6 +71,7 @@ public class CredentialService {
     }
 
     private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
+        logger.info(String.format(this.urlFormatted, userId, type, credId));
         return endpointCredentialClient.get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
