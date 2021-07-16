@@ -68,7 +68,6 @@ export default class EndPointCredentialsPage extends Component{
 			// this.props.setLoading(false);
 		});
 	}
-<<<<<<< HEAD
 
      labelcreds = (number, url) =>{
         return { number, url};
@@ -87,18 +86,6 @@ export default class EndPointCredentialsPage extends Component{
        
         // Return entire list of credentials
 		return creds;
-=======
-	createListOfCreds = (historyList)=>{
-		const values = Object.values(historyList);
-		const a = [];
-		values.forEach(element=>{
-			//console.log(typeof(element))
-			a.push(<div>{element}</div>)
-		})
-
-        // Return entire list of credentials
-		return a;
->>>>>>> 10e5c199bbbd1e267069c63f6640b6b1c5948f0b
 	}
     changeFunction = (event) =>{
         this.setState({mycar:event.target.value});
@@ -115,24 +102,14 @@ export default class EndPointCredentialsPage extends Component{
         this.setState({creds:newCreds});
     }
      render(){
-<<<<<<< HEAD
         //const { historyList } = this.state;
         // Store list of credentials in const creds (for now)
         //const creds = (historyList) && this.createListOfCreds(historyList);
 		//console.log("finally",historyList)
-=======
-        const { historyList } = this.state;
-
-        // Store list of credentials in const a (for now)
-        const a = (historyList) && this.createListOfCreds(historyList);
-		//console.log("finally",historyList)
-
->>>>>>> 10e5c199bbbd1e267069c63f6640b6b1c5948f0b
          // Create new consts to use different font sizes
          const smallFont = {
              fontSize: 16,
          }
-<<<<<<< HEAD
          const mediumFont = {
              fontSize: 24,
          }
@@ -182,39 +159,6 @@ export default class EndPointCredentialsPage extends Component{
                  <mediumFont style={mediumFont}> GridFTP Credentials</mediumFont><br></br>
                  <mediumFont style={mediumFont}> HTTP/HTTPS Credentials</mediumFont><br></br>
                  <mediumFont style={mediumFont}> SFTP Credentials</mediumFont><br></br> */}
-=======
-
-         const mediumFont = {
-             fontSize: 24,
-         }
-
-         return(
-
-
-             // Currently using indexes in a to show multiple credentials. Need to dynamically code.
-             <div>
-                 <mediumFont style={mediumFont}> Dropbox Credentials</mediumFont><br></br>
-
-                 <mediumFont style={mediumFont}> FTP Credentials </mediumFont><br></br>
-
-
-				 <smallFont style={smallFont}>
-                     {a[0]}
-                     {a[1]}
-                 </smallFont>
-
-                 <mediumFont style={mediumFont}> Google Drive Credentials</mediumFont><br></br>
-
-                 <mediumFont style={mediumFont}> Box Credentials</mediumFont><br></br>
-
-                 <mediumFont style={mediumFont}> GridFTP Credentials</mediumFont><br></br>
-
-                 <mediumFont style={mediumFont}> HTTP/HTTPS Credentials</mediumFont><br></br>
-
-                 <mediumFont style={mediumFont}> SFTP Credentials</mediumFont><br></br>
-
-
->>>>>>> 10e5c199bbbd1e267069c63f6640b6b1c5948f0b
             </div>
          );
      }
