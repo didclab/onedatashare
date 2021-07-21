@@ -34,6 +34,10 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import Button from '@material-ui/core/Button';
+import Modal from '@material-ui/core/Modal';
+import { store } from '../../App';
+import TextField from '@material-ui/core/TextField';
 
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 export default class EndPointCredentialsPage extends Component{
@@ -51,8 +55,10 @@ export default class EndPointCredentialsPage extends Component{
             historyListSftp:"",
             historyListGridftp:"",
             historyListHttp:"",
-            mycar: 'Volvo',
-            creds : []
+            mycar: "Select Credentials",
+            creds : [],
+            open : false,
+            email: store.getState().email,
          };
 		    this.historyListUpdateFromBackend();
      }
@@ -87,6 +93,17 @@ export default class EndPointCredentialsPage extends Component{
         // Return entire list of credentials
 		return creds;
 	}
+
+  
+ handleOpen = () => {
+    this.setState({open:true});
+  };
+
+   handleClose = () => {
+    this.setState({open:false});
+
+  };
+
     changeFunction = (event) =>{
         this.setState({mycar:event.target.value});
         let newCreds = "";
@@ -102,10 +119,7 @@ export default class EndPointCredentialsPage extends Component{
         this.setState({creds:newCreds});
     }
      render(){
-        //const { historyList } = this.state;
-        // Store list of credentials in const creds (for now)
-        //const creds = (historyList) && this.createListOfCreds(historyList);
-		//console.log("finally",historyList)
+        
          // Create new consts to use different font sizes
          const smallFont = {
              fontSize: 16,
@@ -113,30 +127,64 @@ export default class EndPointCredentialsPage extends Component{
          const mediumFont = {
              fontSize: 24,
          }
+
+         const body = (
+          <div style={styles.modalStyle}>
+            <h2 style={styles.textField} id="simple-modal-title">Request Connector</h2>
+            <TextField style={styles.textField} disabled id="outlined-search" label="Email" type="Email" value={this.state.email} variant="outlined" />
+            <TextField style={styles.textField} id="outlined-search" label="Reason" type="Reason" variant="outlined" />
+            <TextField style={styles.textField} id="outlined-search" label="Assoc" type="Assoc" variant="outlined" />
+            <br></br>
+            <Button style={styles.formBtn} onClick={this.handleClose} variant="contained" color="primary">
+            Send Request
+            </Button>
+          </div>
+        );
+
          return(
              // Currently using indexes in a to show multiple credentials. Need to dynamically code.
              <div style={styles.screen}>
-                 <Select style={styles.selectBar} onChange={this.changeFunction} value={this.state.mycar}>
+                 <Select style={styles.selectBar} onChange={this.changeFunction} defaultValue="Select Credentials" >
              <MenuItem style={styles.selectBarItems} value="Dropbox">Dropbox Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value={FTP_TYPE}>FTP Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value="Google">Google Drive Credentials</MenuItem>
+             <MenuItem style={styles.selectBarItems} value={GOOGLEDRIVE_NAME}>Google Drive Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="Box">Box Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="GridFTP">GridFTP Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="HTTP">HTTP/HTTPS Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value="SFTP">SFTP Credentials</MenuItem>
+             <MenuItem style={styles.selectBarItems} value={SFTP_TYPE}>SFTP Credentials</MenuItem>
 
            </Select>
-           
+
+{/* modal form to accept the requests */}
+           <Button style={styles.modalBtn} onClick={this.handleOpen} variant="contained" color="primary">
+        Request
+      </Button>
+      <Modal
+  open={this.state.open}
+  onClose={this.handleClose}
+  aria-labelledby="simple-modal-title"
+  aria-describedby="simple-modal-description"
+>
+  {body}
+</Modal>
+
            <TableContainer component={Paper}>
       <Table style={styles.table} aria-label="simple table">
         <TableHead>
+        {this.state.creds.length>0 &&
           <TableRow>
             <TableCell style={styles.head}>No:</TableCell>
             <TableCell style={styles.head} align="right">Link:</TableCell>
           </TableRow>
+     }
+     {this.state.creds.length==0 &&
+          <TableRow>
+            <TableCell style={styles.error}>No Credentials </TableCell>
+          </TableRow>
+     }
         </TableHead>
         <TableBody>
-          {this.state.creds.map((row) => (
+          {this.state.creds.length>0 && this.state.creds.map((row) => (
             <TableRow key={row.number}>
               <TableCell style={styles.cell} component="th" scope="row">
                 {row.number}
@@ -183,5 +231,31 @@ export default class EndPointCredentialsPage extends Component{
     head:{
       fontSize:'17px',
       fontWeight: "bold"
+    },
+    error:{
+      fontSize:'17px',
+      fontWeight: "bold", 
+      color:"red",
+      margin:10
+    },
+    modalStyle:{
+      backgroundColor:"white",
+      margin:"20%",
+      padding:"3%",
+    },
+    modalBtn:{
+      marginLeft:"4vh",
+    },
+    textField:{
+      width:"93%",
+      height:"5%",
+      margin:"2%",
+      textAlign:"center"
+    },
+    formBtn:{
+      height:"5%",
+      margin:"2%",
+      marginLeft:"35%",
+      alignSelf:"center"
     }
 };
