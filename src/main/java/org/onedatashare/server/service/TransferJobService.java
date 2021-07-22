@@ -73,8 +73,10 @@ public class TransferJobService {
                         .contentType(MediaType.APPLICATION_JSON)
                         .syncBody(requestWithMetaData)
                         .retrieve()
-//                        .onStatus(HttpStatus::is4xxClientError,
-//                                response -> Mono.error(new CredentialNotFoundException()))
+                        .onStatus(HttpStatus::isError,
+                                clientResponse -> Mono.error(new Exception(clientResponse.toString())))
+                        .onStatus(HttpStatus::is4xxClientError,
+                                response -> Mono.error(new CredentialNotFoundException()))
                         .onStatus(HttpStatus::is5xxServerError,
                                 response -> Mono.error(new Exception("Internal server error")))
                         .bodyToMono(TransferJobSubmittedResponse.class));
