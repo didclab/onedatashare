@@ -39,6 +39,7 @@ import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
 import NotificationsComponent from './views/Admin/NotificationsComponent';
+import EndPointCredentialsPage from './views/Admin/EndPointCredentialsPage';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 // import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
@@ -137,6 +138,14 @@ export default class MainComponent extends Component {
               <Route exact path={ siteURLS.queuePageUrl /*'/queue'*/}
                 render={(props) =>
                   <QueueComponent {...props} />
+                }
+              />
+            }
+
+{isLoggedIn &&
+              <Route exact path={ siteURLS.credentialsPageUrl /*'/credentials'*/}
+                render={(props) =>
+                  <EndPointCredentialsPage {...props} store={store} />
                 }
               />
             }
