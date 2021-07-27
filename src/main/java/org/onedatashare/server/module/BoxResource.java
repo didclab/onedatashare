@@ -78,6 +78,7 @@ public class BoxResource extends Resource {
                 betterStat.setSize(folder.getInfo().getSize());
                 ArrayList<Stat> childList = new ArrayList<>();
                 for (BoxItem.Info itemInfo : folder) {
+                    logger.info(itemInfo.toString());
                     if (itemInfo instanceof BoxFile.Info) {
                         BoxFile.Info fileInfo = (BoxFile.Info) itemInfo;
                         childList.add(boxFileToStat(fileInfo));
@@ -146,7 +147,6 @@ public class BoxResource extends Resource {
         stat.setId(fileInfo.getID());
         stat.setName(fileInfo.getName());
         stat.setSize(fileInfo.getSize());
-        logger.info(fileInfo.getCreatedBy().toString());
         stat.setFile(true);
         stat.setDir(false);
         try {
