@@ -21,7 +21,9 @@ public class BoxResource extends Resource {
 
     public BoxResource(EndpointCredential credential) {
         super(credential);
-        this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
+        OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
+        logger.info(oAuthEndpointCredential.toString());
+        this.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential) {
