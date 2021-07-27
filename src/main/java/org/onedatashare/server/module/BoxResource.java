@@ -78,13 +78,14 @@ public class BoxResource extends Resource {
                 betterStat.setSize(folder.getInfo().getSize());
                 ArrayList<Stat> childList = new ArrayList<>();
                 for (BoxItem.Info itemInfo : folder) {
-                    logger.info(itemInfo.toString());
                     if (itemInfo instanceof BoxFile.Info) {
                         BoxFile.Info fileInfo = (BoxFile.Info) itemInfo;
+                        logger.info(fileInfo.getName());
                         childList.add(boxFileToStat(fileInfo));
                         // Do something with the file.
                     } else if (itemInfo instanceof BoxFolder.Info) {
                         BoxFolder.Info folderInfo = (BoxFolder.Info) itemInfo;
+                        logger.info(folderInfo.getName());
                         childList.add(boxFolderToStat(folderInfo));
                     }
                 }
