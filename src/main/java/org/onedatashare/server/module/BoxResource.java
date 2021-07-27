@@ -67,6 +67,7 @@ public class BoxResource extends Resource {
                 BoxFolder folder = new BoxFolder(this.client, operation.getId()); //generally speaking u would only ever list a directory
                 betterStat.setDir(true).setFile(false);
                 betterStat.setId(folder.getID());
+                logger.info(folder.getInfo().toString());
                 betterStat.setName(folder.getInfo().getName());
                 betterStat.setSize(folder.getInfo().getSize());
                 ArrayList<Stat> childList = new ArrayList<>();
