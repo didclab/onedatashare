@@ -74,15 +74,11 @@ public class BoxOauthService{
 
     public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
         return Mono.create(s -> {
-            logger.info(queryParameters.keySet().toString());
-            logger.info(queryParameters.values().toString());
             String code = queryParameters.get("code");
             // Instantiate new Box API connection object
             BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
-            logger.info(user.toString());
-            logger.info(client.toString());
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, Math.toIntExact(client.getExpires()));
 
@@ -92,6 +88,7 @@ public class BoxOauthService{
                     .setRefreshToken(client.getRefreshToken())
                     .setRefreshTokenExpires(true)
                     .setExpiresAt(calendar.getTime());
+            logger.info(credential.toString());
             s.success(credential);
         });
     }
