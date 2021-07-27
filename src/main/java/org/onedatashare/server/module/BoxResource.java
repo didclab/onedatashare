@@ -80,17 +80,14 @@ public class BoxResource extends Resource {
                 for (BoxItem.Info itemInfo : folder) {
                     if (itemInfo instanceof BoxFile.Info) {
                         BoxFile.Info fileInfo = (BoxFile.Info) itemInfo;
-                        logger.info(fileInfo.getName());
                         childList.add(boxFileToStat(fileInfo));
                         // Do something with the file.
                     } else if (itemInfo instanceof BoxFolder.Info) {
                         BoxFolder.Info folderInfo = (BoxFolder.Info) itemInfo;
-                        logger.info(folderInfo.getName());
                         childList.add(boxFolderToStat(folderInfo));
                     }
                 }
                 betterStat.setFilesList(childList);
-                logger.info(betterStat.toString());
                 s.success(betterStat);
             } catch (Exception e) {
                 s.error(e);
