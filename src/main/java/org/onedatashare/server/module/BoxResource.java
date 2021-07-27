@@ -90,6 +90,7 @@ public class BoxResource extends Resource {
                     }
                 }
                 betterStat.setFilesList(childList);
+                logger.info(betterStat.toString());
                 s.success(betterStat);
             } catch (Exception e) {
                 s.error(e);
