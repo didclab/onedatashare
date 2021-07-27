@@ -21,17 +21,16 @@ public class BoxResource extends Resource {
 
     public BoxResource(EndpointCredential credential) {
         super(credential);
-        OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
-        logger.info(oAuthEndpointCredential.toString());
-        this.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential) {
         return Mono.create(s -> {
             try {
                 BoxResource boxResource = new BoxResource(credential);
+                OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
+                boxResource.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
                 s.success(boxResource);
-            } catch (Exception e) {
+            } catch (BoxAPIResponseException e) {
                 s.error(e);
             }
         });
