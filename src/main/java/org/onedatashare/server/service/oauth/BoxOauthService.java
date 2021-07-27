@@ -88,7 +88,6 @@ public class BoxOauthService{
                     .setRefreshToken(client.getRefreshToken())
                     .setRefreshTokenExpires(true)
                     .setExpiresAt(calendar.getTime());
-            logger.info(credential.toString());
             s.success(credential);
         });
     }
