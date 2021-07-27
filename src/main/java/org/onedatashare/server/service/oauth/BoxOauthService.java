@@ -81,7 +81,8 @@ public class BoxOauthService{
             BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
-            logger.info(user.getID());
+            logger.info(user.toString());
+            logger.info(client.toString());
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, Math.toIntExact(client.getExpires()));
 
