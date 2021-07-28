@@ -104,7 +104,9 @@ export default class EndPointCredentialsPage extends Component{
     this.setState({open:false});
 
   };
-
+  generateCert=(id)=>{
+    alert(id);
+  }
     changeFunction = (event) =>{
       
         this.setState({mycar:event.target.value});
@@ -217,6 +219,7 @@ export default class EndPointCredentialsPage extends Component{
           <TableRow>
             <TableCell style={styles.head}>No:</TableCell>
             <TableCell style={styles.head} align="right">Link:</TableCell>
+            <TableCell style={styles.head} align="right"></TableCell>
           </TableRow>
      }
      {this.state.creds.length==0 &&
@@ -232,6 +235,11 @@ export default class EndPointCredentialsPage extends Component{
                 {row.number}
               </TableCell>
               <TableCell style={styles.cell} align="right">{row.url}</TableCell>
+              <TableCell style={styles.cell} align="right">
+              <Button style={styles.certGen} onClick={()=>this.generateCert(row.url)} variant="contained" color="primary">
+     Generate Certificate
+      </Button>
+              </TableCell>
               
             </TableRow>
           ))}
@@ -240,7 +248,7 @@ export default class EndPointCredentialsPage extends Component{
     </TableContainer>
      </Grid>
      <Button style={styles.modalBtn} onClick={this.handleOpen} variant="contained" color="primary">
-        Request
+     Request Connector
       </Button>
 </Grid>
            
@@ -264,8 +272,6 @@ export default class EndPointCredentialsPage extends Component{
     },
     table:{
       padding:"5%",
-      
-      //marginLeft:"10%",
     },
     wholeContainer:{
       marginLeft:"10%",
@@ -292,6 +298,15 @@ export default class EndPointCredentialsPage extends Component{
       padding:"3%",
     },
     modalBtn:{
+      border: '2px solid white',
+      fontWeight:"bold",
+      fontSize:"14px"
+    },
+    certGen:{
+      border: '1px solid white',
+      backgroundColor:"green",
+      fontWeight:"bold",
+      fontSize:"10px"
     },
     textField:{
       width:"93%",
@@ -308,7 +323,6 @@ export default class EndPointCredentialsPage extends Component{
     secondDiv:{
       backgroundColor:'white',
       border: '1px solid black'
-
     },
     secondDivHeading:{
       textAlign:"center",
