@@ -172,13 +172,14 @@ export default class EndPointCredentialsPage extends Component{
      }
         </TableHead>
         <TableBody>
-          {this.state.creds.length>0 && this.state.creds.map((row) => (
+            {this.state.creds.length>0 && this.state.creds.map((row) => (
             <TableRow key={row.number}>
               <TableCell style={styles.cell} component="th" scope="row">
                 {row.number}
               </TableCell>
               <TableCell style={styles.cell} align="right">{row.url}</TableCell>
-              
+                {/* This button currently does nothing. Need to set onClick = code */}
+                <Button style={styles.deleteBtn} variant="contained" color="primary">delete</Button>
             </TableRow>
           ))}
         </TableBody>
@@ -186,7 +187,7 @@ export default class EndPointCredentialsPage extends Component{
     </TableContainer>
      </Grid>
      <Grid style={styles.secondDiv} item xs={6}>
-         <div style={styles.secondDivHeading}>Certifactes Generated</div>
+         <div style={styles.secondDivHeading}>Certificates Generated</div>
          <TableContainer style={styles.table} component={Paper}>
       <Table  aria-label="simple table">
         <TableHead>
@@ -304,5 +305,10 @@ export default class EndPointCredentialsPage extends Component{
       fontSize:'21px',
       fontWeight:"bold",
       marginTop:"1%"
+    },
+    deleteBtn:{
+        marginTop:"12%",
+        marginLeft:"40%",
+        alignSelf:"center"
     }
 };
