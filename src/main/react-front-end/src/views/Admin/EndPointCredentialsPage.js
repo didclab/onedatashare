@@ -179,7 +179,7 @@ export default class EndPointCredentialsPage extends Component{
               </TableCell>
               <TableCell style={styles.cell} align="right">{row.url}</TableCell>
                 {/* This button currently does nothing. Need to set onClick = code */}
-                <Button style={styles.deleteBtn} variant="contained" color="primary">delete</Button>
+                <Button style={styles.deleteBtn}>{<DeleteIcon></DeleteIcon>}</Button>
             </TableRow>
           ))}
         </TableBody>
@@ -309,6 +309,7 @@ export default class EndPointCredentialsPage extends Component{
     deleteBtn:{
         marginTop:"12%",
         marginLeft:"40%",
-        alignSelf:"center"
+        alignSelf:"center",
+        padding:"5px"
     }
 };
