@@ -38,6 +38,8 @@ import Modal from '@material-ui/core/Modal';
 import { store } from '../../App';
 import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid'
+import {eventEmitter} from "../../App";
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import { deleteHistory, deleteCredentialFromServer, history, savedCredList } from "../../APICalls/APICalls";
 export default class EndPointCredentialsPage extends Component{
@@ -48,49 +50,29 @@ export default class EndPointCredentialsPage extends Component{
      constructor(props){
          super(props);
          this.state = {
-            historyListFtp:"",
-            historyListDropBox:"",
-            historyListBox:"",
-            historyListGoogle:"",
-            historyListS3:"",
-            historyListSftp:"",
-            historyListGridftp:"",
-            historyListHttp:"",
-            mycar: "default",
+            historyList:"",
+            selectType: "default",
             creds : [],
             open : false,
             email: store.getState().email,
          };
-		    this.historyListUpdateFromBackend();
      }
-     historyListUpdateFromBackend = () => {
-		// this.props.setLoading(true);
-		history("",-1, (data) =>{
-			this.setState({historyListFtp: data.filter((v) => {  return v.indexOf(/*this.props.endpoint.uri*/FTP_TYPE) === 0 })});
-			this.setState({historyListSftp: data.filter((v) => { return v.indexOf(/*this.props.endpoint.uri*/SFTP_TYPE) === 0 })});
-			this.setState({historyListGoogle: data.filter((v) => { return v.indexOf(/*this.props.endpoint.uri*/GOOGLEDRIVE_TYPE) === 0 })});
-			this.setState({historyListS3: data.filter((v) => { return v.indexOf(/*this.props.endpoint.uri*/S3_TYPE) === 0 })});
-			//this.props.setLoading(false);
-		}, (error) => {
-			this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
-			// this.props.setLoading(false);
-		});
-	}
 
      labelcreds = (number, url) =>{
         return { number, url};
       }
-	createListOfCreds = (historyList,inputType)=>{
+
+      _handleError = (msg) => {
+        eventEmitter.emit("errorOccured", msg);
+    }
+	createListOfCreds = (historyList)=>{
 		let values = Object.values(historyList);
 		let creds = [];
         let num = 1;
-		values.forEach(ele=>{
-            if(typeof(ele)=="string" && ele.indexOf(inputType)==0){
+		values[0].forEach(ele=>{
                 creds.push(this.labelcreds(num,ele));
                 num += 1;
-            }
         })
-       
         // Return entire list of credentials
 		return creds;
 	}
@@ -105,27 +87,21 @@ export default class EndPointCredentialsPage extends Component{
 
   };
   generateCert=(id)=>{
+    
     alert(id);
   }
     changeFunction = (event) =>{
       
-        this.setState({mycar:event.target.value});
-        let newCreds = "";
-        if(event.target.value==FTP_TYPE){
-           newCreds = this.createListOfCreds(this.state.historyListFtp,event.target.value)
-        }
-        else if(event.target.value==SFTP_TYPE){
-           newCreds = this.createListOfCreds(this.state.historyListSftp,event.target.value)
-        }
-        else if(event.target.value==GOOGLEDRIVE_TYPE){
-           newCreds = this.createListOfCreds(this.state.historyListGoogle,event.target.value)
-        }
-        else if(event.target.value==S3_TYPE){
-            newCreds = this.createListOfCreds(this.state.historyListS3,event.target.value)
-         }
-        this.setState({creds:newCreds});
-     
+        this.setState({selectType:event.target.value});
+
+        savedCredList(event.target.value, (data) =>{
+        let newCreds = this.createListOfCreds(data);
         
+        this.setState({creds:newCreds});
+          // this.setState({historyList: data});
+        },(error)=>{
+          this._handleError("Unable to retrieve data from backend. Try log out or wait for few minutes.");
+        });
     }
      render(){
         
@@ -167,17 +143,16 @@ export default class EndPointCredentialsPage extends Component{
 <Grid style={styles.wholeContainer} container>
      <Grid style={styles.wholeContainer1} item xs={6}> 
      <TableContainer style={styles.table} component={Paper}>
-           <Select style={styles.selectBar} onChange={this.changeFunction} value={this.state.mycar} >
+           <Select style={styles.selectBar} onChange={this.changeFunction} value={this.state.selectType} >
              <MenuItem style={styles.selectBarItems} disabled value="default">Select Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="Dropbox">Dropbox Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value={FTP_TYPE}>FTP Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value={GOOGLEDRIVE_TYPE}>Google Drive Credentials</MenuItem>
+             <MenuItem style={styles.selectBarItems} value="FTP">FTP Credentials</MenuItem>
+             <MenuItem style={styles.selectBarItems} value="DRIVE">Google Drive Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="Box">Box Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="GridFTP">GridFTP Credentials</MenuItem>
              <MenuItem style={styles.selectBarItems} value="HTTP">HTTP/HTTPS Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value={SFTP_TYPE}>SFTP Credentials</MenuItem>
-             <MenuItem style={styles.selectBarItems} value={S3_TYPE}>S3 Credentials</MenuItem>
-
+             <MenuItem style={styles.selectBarItems} value="SFTP">SFTP Credentials</MenuItem>
+             <MenuItem style={styles.selectBarItems} value="S3">S3 Credentials</MenuItem>
            </Select>
 
 {/* modal form to accept the requests */}
@@ -224,7 +199,7 @@ export default class EndPointCredentialsPage extends Component{
      }
      {this.state.creds.length==0 &&
           <TableRow>
-            <TableCell style={styles.error}>No Credentials </TableCell>
+            <TableCell style={styles.error}>No Credentials</TableCell>
           </TableRow>
      }
         </TableHead>
@@ -237,7 +212,7 @@ export default class EndPointCredentialsPage extends Component{
               <TableCell style={styles.cell} align="right">{row.url}</TableCell>
               <TableCell style={styles.cell} align="right">
               <Button style={styles.certGen} onClick={()=>this.generateCert(row.url)} variant="contained" color="primary">
-     Generate Certificate
+     Generate
       </Button>
               </TableCell>
               
