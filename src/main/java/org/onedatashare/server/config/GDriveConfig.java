@@ -79,7 +79,8 @@ public class GDriveConfig {
     private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     private HttpTransport httpTransport;
 
-    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
+//    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
+public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
     public final static String ACCESS_TYPE = "offline";
     public final static String APPROVAL_PROMPT = "force";
 

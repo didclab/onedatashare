@@ -24,10 +24,7 @@
 package org.onedatashare.server.service.oauth;
 
 
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.StoredCredential;
-import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -94,6 +91,7 @@ public class GDriveOauthService {
         return Mono.create(s -> {
             String code = queryParameters.get(CODE);
             try {
+                logger.info("Before we create the TokenResponse");
                 TokenResponse response = this.flow.newTokenRequest(code)
                         .setRedirectUri(driveConfig.getRedirectUri())
                         .execute();
