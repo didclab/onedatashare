@@ -183,26 +183,24 @@ public class GDriveConfig {
                     httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                } catch (NullPointerException npe) {
-                    npe.printStackTrace();
                 }
             }
         };
     }
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
-        logger.info(credential.toString());
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
-        logger.info(tokenResponse.toString());
         Credential cred = null;
-        logger.info(flow.toString());
+        flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, jsonFactory, clientSecrets, SCOPES)
+                .setApprovalPrompt(APPROVAL_PROMPT)
+                .setAccessType(ACCESS_TYPE)
+                .build();
         try {
-            Credential c = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
-            cred = c;
-            logger.info("The Credential Type is the following :\n" +c.toString());
+            cred = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
         } catch (IOException e) {
             e.printStackTrace();
         }
