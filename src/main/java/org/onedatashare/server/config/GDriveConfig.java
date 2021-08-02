@@ -202,7 +202,7 @@ public class GDriveConfig {
         try {
             Credential c = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
             cred = c;
-            logger.info(c.toString());
+            logger.info("The Credential Type is the following :\n" +c.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
