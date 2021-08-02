@@ -37,8 +37,11 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import lombok.SneakyThrows;
+import org.onedatashare.server.controller.EndpointOauthController;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.config.GDriveConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -61,7 +64,9 @@ public class GDriveOauthService {
 
     private static final String CODE = "code";
 
-    private DataStore<StoredCredential> storedCredentialDataStore ;
+    private DataStore<StoredCredential> storedCredentialDataStore;
+
+    Logger logger = LoggerFactory.getLogger(GDriveOauthService.class);
 
     @PostConstruct
     @SneakyThrows
@@ -92,7 +97,7 @@ public class GDriveOauthService {
                 TokenResponse response = this.flow.newTokenRequest(code)
                         .setRedirectUri(driveConfig.getRedirectUri())
                         .execute();
-
+                logger.info(response.toString());
                 Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
 
                 HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -110,6 +115,7 @@ public class GDriveOauthService {
                         .setToken(response.getAccessToken())
                         .setRefreshToken(response.getRefreshToken())
                         .setExpiresAt(calendar.getTime());
+                logger.info(credential.toString());
                 s.success(credential);
             } catch (IOException | GeneralSecurityException e) {
                 s.error(e);
