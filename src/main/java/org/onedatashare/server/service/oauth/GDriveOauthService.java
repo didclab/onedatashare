@@ -91,13 +91,9 @@ public class GDriveOauthService {
         return Mono.create(s -> {
             String code = queryParameters.get(CODE);
             try {
-                logger.info("Before we create the TokenResponse");
-                logger.info(queryParameters.toString());
-                logger.info(code);
                 TokenResponse response = this.flow.newTokenRequest(code)
                         .setRedirectUri(driveConfig.getRedirectUri())
                         .execute();
-                logger.info(response.toString());
                 Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
 
                 HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -115,7 +111,6 @@ public class GDriveOauthService {
                         .setToken(response.getAccessToken())
                         .setRefreshToken(response.getRefreshToken())
                         .setExpiresAt(calendar.getTime());
-                logger.info(credential.toString());
                 s.success(credential);
             } catch (IOException | GeneralSecurityException e) {
                 s.error(e);
