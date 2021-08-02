@@ -33,6 +33,7 @@ public class GDriveResource extends Resource {
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
+        gDriveConfig.initialize();
         service = gDriveConfig.getDriveService(this.credential);
     }
 
