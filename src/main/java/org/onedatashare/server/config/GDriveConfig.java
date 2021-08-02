@@ -192,6 +192,7 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
     }
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
+        logger.info(credential.toString());
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
