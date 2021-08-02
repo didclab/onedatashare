@@ -80,7 +80,6 @@ public class EndpointOauthController {
     @GetMapping("/gdrive")
     public Mono googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters,
                                        Mono<Principal> principalMono) {
-        logger.info(queryParameters.toString());
         if (!queryParameters.containsKey("code")) {
             logger.info("No code");
             StringBuilder errorStringBuilder = new StringBuilder();

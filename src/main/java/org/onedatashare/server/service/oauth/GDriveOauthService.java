@@ -92,9 +92,10 @@ public class GDriveOauthService {
             String code = queryParameters.get(CODE);
             try {
                 logger.info("Before we create the TokenResponse");
+                logger.info(queryParameters.toString());
                 logger.info(code);
                 TokenResponse response = this.flow.newTokenRequest(code)
-//                        .setRedirectUri(driveConfig.getRedirectUri())
+                        .setRedirectUri(driveConfig.getRedirectUri())
                         .execute();
                 logger.info(response.toString());
                 Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
