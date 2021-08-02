@@ -63,8 +63,6 @@ public class GDriveOauthService {
 
     private DataStore<StoredCredential> storedCredentialDataStore;
 
-    Logger logger = LoggerFactory.getLogger(GDriveOauthService.class);
-
     @PostConstruct
     @SneakyThrows
     public void initialize() {

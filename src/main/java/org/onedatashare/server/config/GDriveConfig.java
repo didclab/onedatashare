@@ -37,6 +37,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,6 +74,8 @@ public class GDriveConfig {
 
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
+
+    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
 
 
     private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -193,13 +196,17 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        tokenResponse.setExpiresInSeconds(credential.getExpiresAt().getTime());
         Credential cred = null;
+        logger.info(tokenResponse.toString());
         flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, SCOPES)
                 .setApprovalPrompt(APPROVAL_PROMPT)
                 .setAccessType(ACCESS_TYPE)
                 .build();
+        logger.info(flow.toString());
         try {
+            logger.info(tokenResponse.toString());
             cred = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
         } catch (IOException e) {
             e.printStackTrace();
