@@ -480,25 +480,23 @@ queueHeaderCell button {
   /*display: flex;*/
   /*flex-direction: row;*/
   justify-content: center;
-  /*height: auto;*/
-  margin-top: -10vh;
+  margin-top: -15vh;
   /*width: 100vw;*/
 }
 
 .actionContainer{
-  margin-top: -200px;
-  margin-bottom: 10px;
+  max-width: 100vw !important;
+  margin-top: 15px;
 }
 
 .wrapperBox{
   background-color: white;
   margin-bottom: 20px;
-  border-radius: 5px;
   height: auto;
-  /*min-height: 100% !important;*/
+  min-height: 85% !important;
   position: relative;
   box-shadow: 0 2px 2px gray;
-  border: solid 1px #172753;
+  border: solid 1px lightgray;
 }
 
 .compactSwitch{
@@ -506,6 +504,8 @@ queueHeaderCell button {
   /*right: 1%;*/
   /*position: absolute;*/
   margin-left: 50px;
+  padding-top: 14px;
+  padding-right: 10px;
 }
 
 .wrapperBoxLabel{
@@ -518,6 +518,18 @@ queueHeaderCell button {
   padding: 20px;
 }
 
+.sendButton{
+  background-color: #337ab7aa !important;
+  font-size: 11px !important;
+  margin-top: 5px !important;
+  width: 50px !important;
+  height: 35px !important;
+  border-radius: 0 !important;
+}
+.sendButton:hover {
+  background-color: #172753 !important;
+  color:white !important
+}
 #sendFromRightToLeft{
   padding: 15px;
   margin-right: 10px;
@@ -538,8 +550,7 @@ queueHeaderCell button {
 }
 
 .transferGroup{
-  border: solid 1px #172753;
-  border-radius: 10px;
+  border: solid 1px lightgray;
   width: auto;
   height: auto;
   overflow: hidden;
@@ -582,9 +593,25 @@ queueHeaderCell button {
 
 .searchTextfield{
   background-color: white;
+  border-radius: 0 !important;
 }
 
 
+.fileIcon{
+  margin-top:11px;
+  margin-left:10px
+}
+.fileName{
+ margin-left: 10px;
+  flex-grow: 1;
+  text-align: left;
+  font-size:16px;
+  margin-top:8px
+}
+.fileAttribute{
+ font-size: 12px;
+  color: #444
+}
 @media only screen and (min-width: 800px){
   .boxHeader{
     text-align: center;

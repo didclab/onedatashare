@@ -519,7 +519,7 @@ export default class EndpointBrowseComponent extends Component {
 			}
 		} 
 		
-		const iconStyle = {fontSize: "15px"};
+		const iconStyle = {fontSize: "20px"};
 		const buttonStyle = {flexGrow: 1, padding: "5px"};
 
 		const selectedTasks = getSelectedTasksFromSide(endpoint);
@@ -527,7 +527,7 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		return (
-		<Box style={{/*display: "flex", flexDirection: "column",*/  minHeight: "100%", maxHeight: "400px", }}>
+		<Box>
 
 
 	        <Dialog
@@ -583,11 +583,11 @@ export default class EndpointBrowseComponent extends Component {
 	        </Dialog>
 			<div style={{display: "flex",alignSelf: "stretch", height: "60px", backgroundColor: "#d9edf7", width: "100%", overflowX: "scroll", overflowY: "hidden"}}>
 				<Breadcrumbs style={{whiteSpace:"nowrap", padding: "3%", flexGrow: "1"}}>
-					<Link key={endpoint.uri} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(0)}>
+					<Link key={endpoint.uri} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "16px"}} onClick={() => this.breadcrumbClicked(0)}>
 						{/*{endpoint.oauth ? endpoint.uri + endpoint.credential.name.split(" ")[1]: endpoint.uri}*/}
 						{endpoint.uri}
 					</Link>
-					{directoryPath.map((item, index) => <Link key={item+index} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "8px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Link>)}
+					{directoryPath.map((item, index) => <Link key={item+index} style={{display: "inline-block", fontWeight: "bold", color: "black", fontSize: "11px"}} onClick={() => this.breadcrumbClicked(index+1)}>{item}</Link>)}
 				</Breadcrumbs>
 				<div>
 					<FormControlLabel
@@ -608,7 +608,7 @@ export default class EndpointBrowseComponent extends Component {
 			{/*alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px",*/}
 			<div style={{  backgroundColor: "#d9edf7"}}>
 
-				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "94%", padding: "0"}}>
+				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "99%", padding: "0"}}>
 
 					{/*{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&*/}
 					{/*	<BrowseButton*/}
@@ -710,9 +710,14 @@ export default class EndpointBrowseComponent extends Component {
 							id={[endpoint.side + "IgnoreCase", endpoint.side + "Regex"]}
 							style={[
 								{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
-									border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px"},
+									border: "1px solid #ccc", textTransform: "capitalize", fontFamily : "monospace", fontSize : "10px",marginLeft: "8px",borderRadius: "0px",
+									marginTop: "6px",
+									height: "32px",},
 								{color: this.state.regex ? "white" : "black", backgroundColor: this.state.regex ? "#337AB6" : "white" ,
-									border: "1px solid #ccc", fontSize : "10px"}
+									border: "1px solid #ccc", fontSize : "10px",borderRadius: "0px",
+									marginTop: "6px",
+									height: "32px",
+									}
 							]}
 							click={[
 								() => {
@@ -747,7 +752,7 @@ export default class EndpointBrowseComponent extends Component {
 					<div
 						ref={provided.innerRef}
 						{...provided.droppableProps}
-						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "250px"}}
+						style={{  overflowY: 'scroll', width: "100%", marginTop: "0px", height: "440px",paddingLeft:"10px",paddingRight:"10px"}}
 					>
 						{!loading && Object.keys(list).length === 0 &&
 							<h2 style={{ textAlign: 'center' }}>
