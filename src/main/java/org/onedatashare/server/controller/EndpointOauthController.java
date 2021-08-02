@@ -70,8 +70,6 @@ public class EndpointOauthController {
     @Autowired
     private CredentialService credentialService;
 
-    Logger logger = LoggerFactory.getLogger(EndpointOauthController.class);
-
     /**
      * Handler for google drive oauth requests
      * @param queryParameters - Query parameters
@@ -81,10 +79,8 @@ public class EndpointOauthController {
     public Mono googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters,
                                        Mono<Principal> principalMono) {
         if (!queryParameters.containsKey("code")) {
-            logger.info("No code");
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
-                logger.info("error in the query parameters");
                 try {
                     errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error"), "UTF-8"));
                     errorStringBuilder.insert(0, "?error=");
@@ -93,10 +89,8 @@ public class EndpointOauthController {
                             "oauth after cancellation" + queryParameters.get("error_description"));
                 }
             }
-            logger.info("/transfer" + errorStringBuilder.toString());
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
-        logger.info("Before we try adding the credential to the db");
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gDriveOauthService.finish(queryParameters)
                         .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)

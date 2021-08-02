@@ -70,7 +70,6 @@ public class GDriveConfig {
     private String clientSecret;
     @Value("${gdrive.projectId}")
     private String projectId;
-    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
 
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
