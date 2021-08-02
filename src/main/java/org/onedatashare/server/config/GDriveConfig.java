@@ -191,13 +191,16 @@ public class GDriveConfig {
     }
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
+        logger.info(credential.toString());
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        logger.info(tokenResponse.toString());
         Credential cred = null;
+        logger.info(flow.toString());
         try {
-            cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+            cred = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
         } catch (IOException e) {
             e.printStackTrace();
         }
