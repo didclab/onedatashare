@@ -82,8 +82,10 @@ public class EndpointOauthController {
                                        Mono<Principal> principalMono) {
         logger.info(queryParameters.toString());
         if (!queryParameters.containsKey("code")) {
+            logger.info("No code");
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
+                logger.info("error in the query parameters");
                 try {
                     errorStringBuilder.append(URLEncoder.encode(queryParameters.get("error"), "UTF-8"));
                     errorStringBuilder.insert(0, "?error=");
@@ -95,6 +97,7 @@ public class EndpointOauthController {
             logger.info("/transfer" + errorStringBuilder.toString());
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
+        logger.info("Before we try adding the credential to the db");
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gDriveOauthService.finish(queryParameters)
                         .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)
