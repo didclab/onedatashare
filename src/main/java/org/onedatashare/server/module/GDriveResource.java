@@ -24,7 +24,7 @@ import java.util.List;
  * Resource class that provides services for Google Drive endpoint.
  */
 public class GDriveResource extends Resource {
-    public static GDriveConfig gDriveConfig = new GDriveConfig();
+    public static GDriveConfig gDriveConfig;
     public static final String ROOT_DIR_ID = "root";
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
     private OAuthEndpointCredential credential;
@@ -33,6 +33,8 @@ public class GDriveResource extends Resource {
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
+        gDriveConfig = new GDriveConfig();
+        gDriveConfig.initialize();
         this.service = gDriveConfig.getDriveService(this.credential);
     }
 
