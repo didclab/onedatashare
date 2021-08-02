@@ -80,7 +80,7 @@ public class GDriveConfig {
     private HttpTransport httpTransport;
 
 //    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
-public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
+public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_FILE);
     public final static String ACCESS_TYPE = "offline";
     public final static String APPROVAL_PROMPT = "force";
 
