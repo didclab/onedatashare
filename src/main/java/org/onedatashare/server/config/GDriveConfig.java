@@ -76,7 +76,7 @@ public class GDriveConfig {
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
 
-    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
+
 
 
     private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
@@ -193,7 +193,6 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
     }
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
-        logger.info(credential.toString());
 //        TokenResponse tokenResponse = new TokenResponse();
 //        tokenResponse.setAccessToken(credential.getToken());
 //        tokenResponse.setRefreshToken(credential.getRefreshToken());
@@ -201,7 +200,6 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
         GoogleTokenResponse googleTokenResponse = new GoogleTokenResponse()
                 .setAccessToken(credential.getToken())
                 .setRefreshToken(credential.getRefreshToken());
-        logger.info(googleTokenResponse.toString());
         Credential cred = null;
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, SCOPES)
