@@ -201,7 +201,7 @@ export default class BrowseModuleComponent extends Component {
 				{displays.map( (service) => {
 					const disable = service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp;
 					return(
-						<EndpointButton id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
+						<EndpointButton key={service.side + service[1].id} id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
 							<Icon className={service[1].icon + ' browseIcon'}/>
 							{service[1].label}
 						</EndpointButton>
