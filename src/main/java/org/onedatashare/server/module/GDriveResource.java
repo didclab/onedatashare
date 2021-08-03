@@ -13,6 +13,8 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.config.GDriveConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -29,10 +31,12 @@ public class GDriveResource extends Resource {
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
     private OAuthEndpointCredential credential;
 
+    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
     private Drive service;
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
+        logger.info(this.credential.toString());
         service = gDriveConfig.getDriveService(this.credential);
     }
 
