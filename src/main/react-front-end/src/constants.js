@@ -90,7 +90,6 @@ export const siteURLS = {
 	oauthPreUrl: "/oauth/",
 	termsUrl: "/terms",
 	policyUrl: "/policy",
-	credentialsPageUrl : "/credentials"
 };
 
 export const s3Regions =
