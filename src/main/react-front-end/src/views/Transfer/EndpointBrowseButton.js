@@ -55,6 +55,7 @@ const BrowseButton = (props) => {
                 {id.map(function (value,index){
                     return(
                         <Button
+                            key={props.id[index]}
                             id={props.id[index]}
                             style={props.style[index]}
                             onClick={props.click[index]}

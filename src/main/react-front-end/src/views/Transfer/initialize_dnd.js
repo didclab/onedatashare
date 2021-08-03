@@ -98,7 +98,26 @@ export function makeFileNameFromPath(initial, path, name){
 	pathstr = (pathstr + ((name.length === 0 || pathstr[pathstr.length-1] === '/') ? name : "/"+name));
 	return pathstr;
 }
-
+export function longestCommonPrefix(files){
+	if(files.length == 0){
+		return "/"
+	}
+	if(files.length == 1){
+		return files[0]
+	}
+	let length = files[0].Length;
+    for (var i = 1; i < files.Length; i++)
+    {
+        length = Math.Min(length, files[i].Length);
+        for (var j = 0; j < length; j++)
+            if (files[i][j] != files[0][j])
+            {
+                files = j;
+                break;
+            }
+    }
+    return files[0].substring(0, length);
+}
 export function getEntities(){ 
 	return {left: column1, right: column2}
 };
