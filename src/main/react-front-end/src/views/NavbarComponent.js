@@ -86,7 +86,6 @@ class NavbarComponent extends Component {
 								<Box display="flex" width={"50%"}>
 									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
-									<Link to={siteURLS.credentialsPageUrl} href={siteURLS.credentialsPageUrl} id="NavQueue" className={"navbarButton"}>Credentials</Link>
 
 
 									{this.state.admin===true &&
