@@ -33,7 +33,7 @@ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT
 	UPDATE_PASSWD_ENDPOINT,
 	GET_SEARCH_JOBS_ENDPOINT,
 	LOGOUT_ENDPOINT,
-	apiCredUrl} from '../constants';
+	apiCredUrl,transferJobUrl} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
@@ -526,7 +526,20 @@ export async function submitIssue(reqBody, success, fail) {
 			handleRequestFailure(error, fail);
 		});
 }
-
+export async function submitTransferRequest(source,dest,options,accept,fail){
+	let callback = accept;
+	axios.post(transferJobUrl, {
+		source: source,
+		destination: dest,
+		options: options
+	}).then((response) => {
+		if (!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	}).catch((error) => {
+		handleRequestFailure(error, fail);
+	});
+}
 export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
 	let callback = accept;
 	// console.log(src)
@@ -539,7 +552,7 @@ export async function submit(src, srcEndpoint, dest, destEndpoint, options, acce
 		delete dest0["credential"];
 	}
 
-	axios.post(url + 'submit', {
+	axios.post(transferJobUrl, {
 		src: { ...src0, type: getType(src0), map: getMapFromEndpoint(srcEndpoint) },
 		dest: { ...dest0, type: getType(dest0), map: getMapFromEndpoint(destEndpoint) },
 		options: options
