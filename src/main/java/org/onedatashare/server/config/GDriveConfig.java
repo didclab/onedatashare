@@ -27,6 +27,7 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -193,21 +194,22 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
         logger.info(credential.toString());
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccessToken(credential.getToken());
-        tokenResponse.setRefreshToken(credential.getRefreshToken());
-        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
-        logger.info(tokenResponse.toString());
+//        TokenResponse tokenResponse = new TokenResponse();
+//        tokenResponse.setAccessToken(credential.getToken());
+//        tokenResponse.setRefreshToken(credential.getRefreshToken());
+//        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        GoogleTokenResponse googleTokenResponse = new GoogleTokenResponse()
+                .setAccessToken(credential.getToken())
+                .setRefreshToken(credential.getRefreshToken());
+        logger.info(googleTokenResponse.toString());
         Credential cred = null;
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, SCOPES)
                 .setApprovalPrompt(APPROVAL_PROMPT)
                 .setAccessType(ACCESS_TYPE)
                 .build();
-        logger.info(flow.toString());
         try {
-            logger.info(tokenResponse.toString());
-            cred = this.flow.createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+            cred = this.flow.createAndStoreCredential(googleTokenResponse, String.valueOf(UUID.randomUUID()));
         } catch (IOException e) {
             e.printStackTrace();
         }
