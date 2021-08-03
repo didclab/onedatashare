@@ -30,13 +30,10 @@ public class GDriveResource extends Resource {
     public static final String ROOT_DIR_ID = "root";
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
     private OAuthEndpointCredential credential;
-
-    Logger logger = LoggerFactory.getLogger(GDriveResource.class);
     private Drive service;
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
-        logger.info(this.credential.toString());
         gDriveConfig = GDriveConfig.getInstance();
         service = gDriveConfig.getDriveService(this.credential);
     }
