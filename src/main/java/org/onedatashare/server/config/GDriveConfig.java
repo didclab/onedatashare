@@ -197,9 +197,8 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
         tokenResponse.setAccessToken(credential.getToken());
         tokenResponse.setRefreshToken(credential.getRefreshToken());
         tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
-        tokenResponse.setExpiresInSeconds(credential.getExpiresAt().getTime());
-        Credential cred = null;
         logger.info(tokenResponse.toString());
+        Credential cred = null;
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, SCOPES)
                 .setApprovalPrompt(APPROVAL_PROMPT)
