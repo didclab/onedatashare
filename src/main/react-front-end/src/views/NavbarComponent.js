@@ -87,6 +87,7 @@ class NavbarComponent extends Component {
 									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 
+
 									{this.state.admin===true &&
 									<AdminDropdown/>
 									}
@@ -183,7 +184,6 @@ class NavbarComponent extends Component {
 		);
 	}
 }
-
 
 
 export default NavbarComponent;
