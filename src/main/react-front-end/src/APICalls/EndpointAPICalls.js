@@ -57,7 +57,10 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     };
 
     let callback = accept;
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
+    // let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), LIST_OP_URL) //example url = api/ftp/ls
+    let urlType = getUriType(endpoint.uri)
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
+
     axios.get(url, {params: body})
         .then((response) => {
             if (!(response.status === 200))
