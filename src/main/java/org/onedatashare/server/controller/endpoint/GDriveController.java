@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.controller.endpoint;
 
+import org.onedatashare.server.config.GDriveConfig;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
@@ -30,29 +31,36 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.GDriveService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/googledrive")
+@RequestMapping("/api/gdrive")
 public class GDriveController extends EndpointBaseController{
     @Autowired
     private GDriveService gdriveService;
 
+    Logger logger = LoggerFactory.getLogger(GDriveController.class);
+
     @Override
     protected Mono<Stat> listOperation(ListOperation listOperation) {
+        logger.info(listOperation.toString());
         return gdriveService.list(listOperation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+        logger.info(operation.toString());
         return gdriveService.mkdir(operation);
     }
 
     @Override
     protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
+        logger.info(deleteOperation.toString());
         return gdriveService.delete(deleteOperation);
     }
 

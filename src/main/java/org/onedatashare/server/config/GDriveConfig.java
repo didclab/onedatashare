@@ -27,6 +27,7 @@ import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -37,6 +38,7 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -70,16 +72,18 @@ public class GDriveConfig {
     private String clientSecret;
     @Value("${gdrive.projectId}")
     private String projectId;
-    Logger logger = LoggerFactory.getLogger(GDriveConfig.class);
 
     private GoogleClientSecrets clientSecrets;
     private GoogleAuthorizationCodeFlow flow;
 
 
+
+
     private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     private HttpTransport httpTransport;
 
-    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
+//    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
+public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
     public final static String ACCESS_TYPE = "offline";
     public final static String APPROVAL_PROMPT = "force";
 
@@ -183,21 +187,27 @@ public class GDriveConfig {
                     httpRequest.setReadTimeout(3 * 60000);  // 3 minutes read timeout
                 } catch (IOException ioe) {
                     ioe.printStackTrace();
-                } catch (NullPointerException npe) {
-                    npe.printStackTrace();
                 }
             }
         };
     }
 
     public Drive getDriveService(OAuthEndpointCredential credential) {
-        TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setAccessToken(credential.getToken());
-        tokenResponse.setRefreshToken(credential.getRefreshToken());
-        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+//        TokenResponse tokenResponse = new TokenResponse();
+//        tokenResponse.setAccessToken(credential.getToken());
+//        tokenResponse.setRefreshToken(credential.getRefreshToken());
+//        tokenResponse.setFactory(JacksonFactory.getDefaultInstance());
+        GoogleTokenResponse googleTokenResponse = new GoogleTokenResponse()
+                .setAccessToken(credential.getToken())
+                .setRefreshToken(credential.getRefreshToken());
         Credential cred = null;
+        this.flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, jsonFactory, clientSecrets, SCOPES)
+                .setApprovalPrompt(APPROVAL_PROMPT)
+                .setAccessType(ACCESS_TYPE)
+                .build();
         try {
-            cred = this.getFlow().createAndStoreCredential(tokenResponse, String.valueOf(UUID.randomUUID()));
+            cred = this.flow.createAndStoreCredential(googleTokenResponse, String.valueOf(UUID.randomUUID()));
         } catch (IOException e) {
             e.printStackTrace();
         }

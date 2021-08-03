@@ -155,7 +155,7 @@ export const HTTPS_TYPE = "https://";
 export const S3_TYPE = "s3:";
 
 export const DROPBOX_NAME = "DropBox";
-export const GOOGLEDRIVE_NAME = "GoogleDrive";
+export const GOOGLEDRIVE_NAME = "GDrive";
 export const BOX_NAME = "Box";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";

@@ -752,7 +752,7 @@ export async function cancelJob(jobID, accept, fail) {
 export async function deleteCredentialFromServer(cred, type, accept, fail) {
 	let callback = accept;
 
-	axios.patch(apiCredUrl + type.toLowerCase(), {
+	axios.delete(apiCredUrl + type.toLowerCase(), {
 		credential: cred
 	}).then((response) => {
 			if (!(response.status === 200))

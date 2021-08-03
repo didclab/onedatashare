@@ -46,8 +46,6 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
 
-    console.log(endpoint)
-    console.log(encodeURI(uri))
 
 
     let body = {
@@ -95,7 +93,7 @@ export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
     let callback = accept;
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), MKDIR_OP_URL), {
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), MKDIR_OP_URL), {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
@@ -113,11 +111,11 @@ export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
 
 export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
-
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(uri), DEL_OP_URL), {
+console.log(uri.split("/"));
+    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": uri,
+        "path": uri+"/",
         "toDelete": uri.split("/")[1]
     })
         .then((response) => {
