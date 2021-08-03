@@ -200,7 +200,7 @@ public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE);
         tokenResponse.setExpiresInSeconds(credential.getExpiresAt().getTime());
         Credential cred = null;
         logger.info(tokenResponse.toString());
-        flow = new GoogleAuthorizationCodeFlow.Builder(
+        this.flow = new GoogleAuthorizationCodeFlow.Builder(
                 httpTransport, jsonFactory, clientSecrets, SCOPES)
                 .setApprovalPrompt(APPROVAL_PROMPT)
                 .setAccessType(ACCESS_TYPE)
