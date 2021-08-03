@@ -122,6 +122,7 @@ public class GDriveResource extends Resource {
         try {
             stat.setFile(true);
             stat.setId(file.getId());
+            stat.setName(file.getName());
             stat.setTime(file.getModifiedTime().getValue()/1000);
             if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
                 stat.setDir(true);
