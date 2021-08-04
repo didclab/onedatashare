@@ -442,15 +442,30 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 				}else{
-					const url = new URL(this.state.endpoint.uri + uri.split("@")[1]);
-					let portValue = url.port;
-					if(url.port.length === 0){
-						portValue = getDefaultPortFromUri(uri);
+					
+					let portValue = getDefaultPortFromUri(uri);
+					let myPoint = this.state.endpoint
+
+					let endpointSet = {
+						uri: myPoint.uri,
+						login: true,
+						side: this.props.endpoint.side,
+						credential: {name: "\"\"", credId: uri, type: getName(this.state.endpoint).toLowerCase()},
+						portNumber: portValue
 					}
-					this.endpointCheckin(uri, portValue, {}, (error) => {
-						this._handleError("Please enter your credential.");
-						this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
-					})
+
+					listFiles(uri, endpointSet,
+						false, null, (succ) =>
+						{
+							this.props.loginSuccess(endpointSet);
+						},
+						(error) => {
+							this.props.setLoading(false);
+							this._handleError("Please enter your credential.");
+							this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
+						}
+					)
+
 				}
 
 			}}>
