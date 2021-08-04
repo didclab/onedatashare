@@ -369,8 +369,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
-
-							deleteCredentialFromServer(v, type, (accept) => {
+							let endPointType = Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri)
+							deleteCredential(endPointType, v,(accept) => {
 								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
 								this._handleError("Delete Credential Failed");
