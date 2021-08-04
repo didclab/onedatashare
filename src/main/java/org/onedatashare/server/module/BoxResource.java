@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
 public class BoxResource extends Resource {
@@ -46,16 +47,18 @@ public class BoxResource extends Resource {
     @Override
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
-            BoxTrash boxTrash = new BoxTrash(this.client);
             try{
-                boxTrash.deleteFile(operation.getToDelete());
-                s.success();
-            }catch (BoxAPIException boxAPIException){}
+                BoxFile file = new BoxFile(this.client, operation.getToDelete());
+                file.delete();
+            }catch (BoxAPIException boxAPIException){
+                logger.error("Failed to delete this id" + operation.getToDelete() + "as a file but failed");
+                boxAPIException.printStackTrace();
+            }
             try{
-                boxTrash.deleteFolder(operation.getToDelete());
-                s.success();
+                BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
+                folder.delete(true);
             }catch (BoxAPIException boxAPIResponseException){
-                logger.error("Failed to delete the box id specified in the toDelete field");
+                logger.error("Filed to delete this id " + operation.getToDelete() + "as a folder recursively but failed");
                 boxAPIResponseException.printStackTrace();
             }
         });
