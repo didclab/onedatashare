@@ -44,6 +44,7 @@ export const LOGOUT_ENDPOINT = "/deauthenticate";
 // export const apiBaseUrl = "/api/" + version + "/";
 // export const apiCredUrl = apiBaseUrl + "cred/";
 export const url = "/api/stork/";
+export const transferJobUrl = "/api/transferjob"
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
 
@@ -316,6 +317,9 @@ export function getType(endpoint) {
 
 export function getDefaultPortFromUri(uri) {
 	return defaultPort[uri.split(":")[0].toLowerCase()]
+}
+export function formatType(type){
+	return type.split(":")[0].toLowerCase()
 }
 
 export function getTypeFromUri(uri) {
