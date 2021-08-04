@@ -140,7 +140,7 @@ public class EndpointOauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping("/gridftp")
+    @GetMapping("/gftp")
     public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters, Mono<Principal> principalMono) {
         if (!queryParameters.containsKey("code")) {
             return Mono.just(Rendering.redirectTo("/transfer").build());
