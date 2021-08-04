@@ -47,23 +47,21 @@ public class BoxResource extends Resource {
     @Override
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
-            boolean deleted = false;
-            try{
+            try {
                 BoxFile file = new BoxFile(this.client, operation.getToDelete());
                 file.delete();
-                deleted = true;
-            }catch (BoxAPIException boxAPIException){
+                s.success();
+            } catch (BoxAPIException boxAPIException) {
                 logger.error("Failed to delete this id" + operation.getToDelete() + "as a file but failedEndpointAuthenticateComponent.js");
                 boxAPIException.printStackTrace();
             }
-            if(!deleted){
-                try{
-                    BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
-                    folder.delete(true);
-                }catch (BoxAPIException boxAPIResponseException){
-                    logger.error("Failed to delete this id " + operation.getToDelete() + "as a folder recursively but failed");
-                    boxAPIResponseException.printStackTrace();
-                }
+            try {
+                BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
+                folder.delete(true);
+                s.success();
+            } catch (BoxAPIException boxAPIResponseException) {
+                logger.error("Failed to delete this id " + operation.getToDelete() + "as a folder recursively but failed");
+                boxAPIResponseException.printStackTrace();
             }
         });
     }
