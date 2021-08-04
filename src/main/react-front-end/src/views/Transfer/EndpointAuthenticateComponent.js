@@ -257,12 +257,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.props.setLoading(true);
 
 		console.log(`Url is ${url}`);
-		if((type == showDisplay.ftp.label || type == showDisplay.sftp.label) && (url.match(/:/g) || []).length < 2)
-		{
-			url+=`:${portNum}`
-			credential.uri+=`:${portNum}`
-			credential.credId+=`:${portNum}`
-		}
+		// if((type == showDisplay.ftp.label || type == showDisplay.sftp.label) && (url.match(/:/g) || []).length < 2)
+		// {
+		// 	url+=`:${portNum}`
+		// 	credential.uri+=`:${portNum}`
+		// 	credential.credId+=`:${portNum}`
+		// }
 		let endpointSet = {
 			uri: url,
 			login: true,

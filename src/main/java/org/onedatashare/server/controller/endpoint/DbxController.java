@@ -43,23 +43,18 @@ public class DbxController extends EndpointBaseController{
     @Autowired
     private DbxService dbxService;
 
-    Logger logger = LoggerFactory.getLogger(DbxController.class);
-
     @Override
     protected Mono<Stat> listOperation(ListOperation operation) {
-        logger.info(operation.toString());
         return dbxService.list(operation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        logger.info(operation.toString());
         return dbxService.mkdir(operation);
     }
 
     @Override
     protected Mono<Void> deleteOperation(DeleteOperation operation) {
-        logger.info(operation.toString());
         return dbxService.delete(operation);
     }
 

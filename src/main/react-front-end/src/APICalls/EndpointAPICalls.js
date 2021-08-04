@@ -45,9 +45,6 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 
 //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
-
-
-
     let body = {
         "identifier": "",
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
@@ -55,7 +52,7 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     };
 
     let callback = accept;
-    let urlType = getUriType(endpoint.uri)
+    let urlType = getUriType(endpoint["uri"]);
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
     axios.get(url, {params: body})
         .then((response) => {
@@ -109,7 +106,7 @@ export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
 
 export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
-console.log(uri.split("/"));
+    console.log(uri.split("/"));
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],

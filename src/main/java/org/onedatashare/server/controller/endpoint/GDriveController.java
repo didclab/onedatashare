@@ -44,23 +44,18 @@ public class GDriveController extends EndpointBaseController{
     @Autowired
     private GDriveService gdriveService;
 
-    Logger logger = LoggerFactory.getLogger(GDriveController.class);
-
     @Override
     protected Mono<Stat> listOperation(ListOperation listOperation) {
-        logger.info(listOperation.toString());
         return gdriveService.list(listOperation);
     }
 
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
-        logger.info(operation.toString());
         return gdriveService.mkdir(operation);
     }
 
     @Override
     protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
-        logger.info(deleteOperation.toString());
         return gdriveService.delete(deleteOperation);
     }
 
