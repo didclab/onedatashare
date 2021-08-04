@@ -44,16 +44,16 @@ import AccordionDetails from "@material-ui/core/AccordionDetails";
 import Divider from "@material-ui/core/Divider";
 import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, ExpandMore} from "@material-ui/icons";
 
-import { submit } from "../../APICalls/APICalls";
+import { submitTransferRequest } from "../../APICalls/APICalls";
 import { endpointUpdate} from "../../model/actions";
 
 import { DragDropContext } from 'react-beautiful-dnd';
 import { mutliDragAwareReorder} from "./utils.js";
 
-import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId } from "./initialize_dnd.js";
+import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
-import { gridFullWidth, gridHalfWidth} from "../../constants";
+import { formatType, gridFullWidth, gridHalfWidth} from "../../constants";
 
 import Switch from '@material-ui/core/Switch';
 
@@ -80,10 +80,16 @@ export default class TransferComponent extends Component {
         verify: localStorage.hasOwnProperty("verify") ? JSON.parse(localStorage.getItem("verify")) : true,
         encrypt: localStorage.hasOwnProperty("encrypt") ? JSON.parse(localStorage.getItem("encrypt")) : true,
         compress: localStorage.hasOwnProperty("compress") ? JSON.parse(localStorage.getItem("compress")) : true,
-        retry: localStorage.hasOwnProperty("retry") ? Number(localStorage.getItem("retry")) : 5
+        retry: localStorage.hasOwnProperty("retry") ? Number(localStorage.getItem("retry")) : 5,
+        concurrencyThreadCount:localStorage.hasOwnProperty("concurrencyThreadCount")?Number(localStorage.getItem("concurrencyThreadCount")):1,
+        pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
+        chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
+        parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
+
       },
       compact: store.getState().compactViewEnabled,
-      notif: false
+      notif: false,
+      isMessageVisible:false
     }
 
     this.unsubcribe = store.subscribe(() => {
@@ -152,15 +158,34 @@ export default class TransferComponent extends Component {
     const endpointSrc = getEndpointFromColumn(processed.fromTo[0])
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
-    const srcUrls = []
-    const fileIds = []
-    const destUrls = []
-    processed.selectedTasks.forEach((task) => {
-      srcUrls.push(makeFileNameFromPath(endpointSrc.uri, processed.fromTo[0].path, task.name))
-      fileIds.push(task.id);
-      destUrls.push(makeFileNameFromPath(endpointDest.uri, processed.fromTo[1].path, task.name))
-    });
-
+    
+    let sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
+    if(sourceParent.includes("."))
+    sourceParent = sourceParent.substr(0,sourceParent.lastIndexOf("/"))+"/"
+    let destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
+    if(destParent.includes("."))
+    destParent = destParent.substr(0,destParent.lastIndexOf("/"))+"/"
+    let infoList=[]
+    processed.fromTo[0].selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
+    let source = {
+      credId:endpointSrc.credential.credId,
+      type:formatType( endpointSrc.credential.type),
+      parentInfo:{
+        id:sourceParent,
+        size:"",
+        path:sourceParent
+      },
+      infoList:infoList
+    }
+    let destination={
+      credId:endpointDest.credential.credId,
+      type:formatType( endpointDest.credential.type),
+      parentInfo:{
+        id:destParent,
+        size:"",
+        path:destParent
+      }
+    }
     var optionParsed = {}
     Object.keys(options).forEach((v)=>{
       var value = options[v];
@@ -169,29 +194,15 @@ export default class TransferComponent extends Component {
       }
       optionParsed[v] = value
     })
+    submitTransferRequest(source,destination, optionParsed, (response) => {
+      eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
+      setBeforeTransferReorder(processed);
+      this.setState({isMessageVisible:true,message:"Job submitted"})
+      unselectAll()
+    }, (error) => {
+      eventEmitter.emit("errorOccured", error);
+    })
 
-
-    const src = {
-      credential: endpointSrc.credential,
-    }
-
-    const dest = {
-      credential: endpointDest.credential,
-      id: getCurrentFolderId(endpointDest),
-    }
-
-    for (let i = 0; i < srcUrls.length; i++) {
-      src["id"] = fileIds[i];
-      src["uri"] = encodeURI(srcUrls[i]);
-      dest["uri"] = encodeURI(destUrls[i]);
-
-      submit(src, endpointSrc, dest, endpointDest, optionParsed, (response) => {
-        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
-        setBeforeTransferReorder(processed);
-      }, (error) => {
-        eventEmitter.emit("errorOccured", error);
-      })
-    }
 
   };
 
@@ -343,7 +354,7 @@ export default class TransferComponent extends Component {
         value = 0;
         event.target.value = 0;
       }
-      this.setState({ settings: { ...this.state.settings, retry: value } });
+      this.setState({ settings: { ...this.state.settings, retry: value } });    
     }
 
     const setDefault = () => {
@@ -472,6 +483,70 @@ export default class TransferComponent extends Component {
           </FormControl>
         </Grid>
 
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend"><ToggleHeader>Concurrency Thread Count</ToggleHeader></FormLabel>
+            <TextField
+                id="outlined-number"
+                label={<FieldLabel>Concurrency Thread Count</FieldLabel>}
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant="outlined"
+                onChange={handleChange("concurrencyThreadCount")}
+                value={this.state.settings.concurrencyThreadCount}
+            />
+          </FormControl>
+        </Grid>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend"><ToggleHeader>Parallel Thread Count</ToggleHeader></FormLabel>
+            <TextField
+                id="outlined-number"
+                label={<FieldLabel>Parallel Thread Count</FieldLabel>}
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant="outlined"
+                onChange={handleChange("parallelThreadCount")}
+                value={this.state.settings.parallelThreadCount}
+            />
+          </FormControl>
+        </Grid>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend"><ToggleHeader>Pipe Size</ToggleHeader></FormLabel>
+            <TextField
+                id="outlined-number"
+                label={<FieldLabel>Pipe Size</FieldLabel>}
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant="outlined"
+                onChange={handleChange("pipeSize")}
+                value={this.state.settings.pipeSize}
+            />
+          </FormControl>
+        </Grid>
+        <Grid item md={desktopWidth} sm={tabletWidth}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend"><ToggleHeader>Chunk Size</ToggleHeader></FormLabel>
+            <TextField
+                id="outlined-number"
+                label={<FieldLabel>Chunk Size</FieldLabel>}
+                type="number"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                variant="outlined"
+                onChange={handleChange("chunkSize")}
+                value={this.state.settings.chunkSize}
+            />
+          </FormControl>
+        </Grid>
       </Grid>
           <Divider/>
     <Grid container justify={'center'}>
@@ -499,7 +574,9 @@ export default class TransferComponent extends Component {
     );
   };
 
-
+  handleMessageClose=()=>{
+    this.setState({isMessageVisible:false})
+  }
   render() {
     // const isSmall = screenIsSmall();
     // const isSmall = false;
@@ -516,13 +593,6 @@ export default class TransferComponent extends Component {
     return (
         <div className={"outeractionContainer"}>
         <Grid container direction="column" justify={"center"}>
-          <Box className={"boxHeader"}>
-
-            <p>
-              Browse and Transfer Files
-            </p>
-
-          </Box>
           <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
@@ -541,7 +611,7 @@ export default class TransferComponent extends Component {
               {/*    label={<ToggleLabel>Compact</ToggleLabel>}*/}
               {/*/>*/}
 
-              <Box className="innerBox">
+              <Box>
                 <Grid container direction="row" justify="center" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
@@ -553,13 +623,13 @@ export default class TransferComponent extends Component {
                     <Hidden mdUp>
                       <Grid container item direction="row" align-items="center" justify="center">
                         <Grid item>
-                          <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}>
+                          <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}>
                             <KeyboardArrowUpRounded />
                             Send
                           </Button>
                         </Grid>
                         <Grid item>
-                          <Button id="sendFromLeftToRight" onClick={this.onSendToRight}>
+                          <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}>
                             Send<KeyboardArrowDownRounded/>
                           </Button>
                         </Grid>
@@ -578,14 +648,23 @@ export default class TransferComponent extends Component {
                 <Hidden smDown>
                   <Grid container direction="row" align-items="center" justify="center">
                     <Grid item>
-                      <Button id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
+                      <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                     </Grid>
                     <Grid item>
-                      <Button id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
+                      <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
                     </Grid>
 
                   </Grid>
                 </Hidden>
+                <Snackbar open={this.state.isMessageVisible}
+                 message={this.state.message}
+                 key={"message"}
+                 anchorOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}                 
+                autoHideDuration={2000}
+                onClose={this.handleMessageClose}/>
                 <Accordion style={{marginTop: "10px"}}>
                   <AccordionSummary
                       expandIcon={<ExpandMore />}

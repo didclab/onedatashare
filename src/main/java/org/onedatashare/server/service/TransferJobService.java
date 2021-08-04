@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -49,30 +50,35 @@ import java.util.List;
 public class TransferJobService {
     @Value("${transfer.job.service.uri}")
     private String transferQueueingServiceUri;
+    private static Logger logger = LoggerFactory.getLogger(TransferJobService.class);
 
-    private WebClient client;
+    @Autowired
+    private WebClient.Builder webClientBuilder;
 
     private static final Duration timeoutDuration = Duration.ofSeconds(10);
 
-    @PostConstruct
-    private void initialize(){
-        this.client = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
-                .baseUrl(transferQueueingServiceUri)
-                .build();
-    }
+//    @PostConstruct
+//    private void initialize(){
+//        this.client = WebClient.builder()
+//                .defaultHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
+//                .baseUrl(transferQueueingServiceUri)
+//                .build();
+//    }
 
     public Mono<TransferJobSubmittedResponse> submitTransferJobRequest(String ownerId, TransferJobRequest jobRequest){
+        logger.info(transferQueueingServiceUri + "/receiveRequest");
         return Mono.just(TransferJobRequestWithMetaData.getTransferRequestWithMetaData(ownerId, jobRequest))
-                .flatMap(requestWithMetaData -> client.post()
-                        .uri("/receiveRequest")
+                .flatMap(requestWithMetaData -> webClientBuilder.build().post()
+                        .uri(transferQueueingServiceUri + "/receiveRequest")
+                        .contentType(MediaType.APPLICATION_JSON)
                         .syncBody(requestWithMetaData)
                         .retrieve()
+                        .onStatus(HttpStatus::isError,
+                                clientResponse -> Mono.error(new Exception(clientResponse.toString())))
                         .onStatus(HttpStatus::is4xxClientError,
                                 response -> Mono.error(new CredentialNotFoundException()))
-//                        .onStatus(HttpStatus::is5xxServerError,
-//                                response -> Mono.error(new Exception("Internal server error")))
-                        .bodyToMono(TransferJobSubmittedResponse.class)
-                        .timeout(timeoutDuration));
+                        .onStatus(HttpStatus::is5xxServerError,
+                                response -> Mono.error(new Exception("Internal server error")))
+                        .bodyToMono(TransferJobSubmittedResponse.class));
     }
 }
