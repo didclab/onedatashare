@@ -77,6 +77,7 @@ public class BoxOauthService{
             String code = queryParameters.get("code");
             // Instantiate new Box API connection object
             BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
+            client.refresh();
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
             Calendar calendar = Calendar.getInstance();
