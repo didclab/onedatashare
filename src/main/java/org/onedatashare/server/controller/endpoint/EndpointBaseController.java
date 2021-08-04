@@ -54,6 +54,7 @@ public abstract class EndpointBaseController {
                 .path(path.orElse(""))
                 .id(identifier.orElse(""))
                 .build();
+        logger.info("CredId: " + credId + " path: " + path + " id: " + identifier);
         return listOperation(operation);
     }
 
@@ -65,6 +66,7 @@ public abstract class EndpointBaseController {
 
     @PostMapping("/rm")
     public Mono<Void> delete(@RequestBody DeleteOperation operation){
+        logger.info(operation.toString());
         return deleteOperation(operation);
     }
 
