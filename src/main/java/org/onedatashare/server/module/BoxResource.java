@@ -11,6 +11,7 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -19,9 +20,16 @@ public class BoxResource extends Resource {
     private BoxAPIConnection client;
     Logger logger = LoggerFactory.getLogger(BoxResource.class);
 
+    @Value("${box.clientId}")
+    private String clientId;
+    @Value("${box.clientSecret}")
+    private String clientSecret;
+
+
     public BoxResource(EndpointCredential credential) {
         super(credential);
-        this.client = new BoxAPIConnection(((OAuthEndpointCredential) credential).getToken());
+        OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
+        this.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential) {
