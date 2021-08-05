@@ -100,7 +100,7 @@ export function makeFileNameFromPath(initial, path, name){
 }
 export function longestCommonPrefix(files){
 	if(files.length == 0){
-		return "/"
+		return ""
 	}
 	if(files.length == 1){
 		return files[0]
