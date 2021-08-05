@@ -53,7 +53,7 @@ import { mutliDragAwareReorder} from "./utils.js";
 import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
-import { formatType, gridFullWidth, gridHalfWidth} from "../../constants";
+import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
 
 import Switch from '@material-ui/core/Switch';
 
@@ -158,18 +158,39 @@ export default class TransferComponent extends Component {
     const endpointSrc = getEndpointFromColumn(processed.fromTo[0])
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
-    
-    let sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
-    if(sourceParent.includes("."))
-    sourceParent = sourceParent.substr(0,sourceParent.lastIndexOf("/"))+"/"
-    let destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
-    if(destParent.includes("."))
-    destParent = destParent.substr(0,destParent.lastIndexOf("/"))+"/"
+
+    let sType = formatType(getType(endpointSrc))
+    let dType = formatType(getType(endpointDest))
+
+    let sourceParent = ""
+    let destParent = ""
     let infoList=[]
+    let sourceCredId =""
+    let destCredId = ""
+
+    if(isOAuth[showType[sType]]){
+      sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.name))
+      sourceCredId = endpointSrc.credential.uuid
+    }
+    else{
+      sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
+      sourceCredId = endpointSrc.credential.credId
+    }
+    if(isOAuth[showType[dType]]){
+      destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.name))
+      destCredId=endpointDest.credential.uuid
+    }
+    else{
+      destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
+      destCredId=endpointDest.credential.credId
+    }
+    sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+"/" : sourceParent+"/"
+    destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent+"/"
     processed.fromTo[0].selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
+
     let source = {
-      credId:endpointSrc.credential.credId,
-      type:formatType( endpointSrc.credential.type),
+      credId:sourceCredId,
+      type:sType,
       parentInfo:{
         id:sourceParent,
         size:"",
@@ -178,8 +199,8 @@ export default class TransferComponent extends Component {
       infoList:infoList
     }
     let destination={
-      credId:endpointDest.credential.credId,
-      type:formatType( endpointDest.credential.type),
+      credId:destCredId,
+      type:dType,
       parentInfo:{
         id:destParent,
         size:"",
