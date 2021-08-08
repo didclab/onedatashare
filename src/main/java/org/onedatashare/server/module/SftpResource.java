@@ -39,7 +39,7 @@ public class SftpResource extends VfsResource {
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
         if(accountCredential.getSecret().contains("-----BEGIN RSA PRIVATE KEY-----")){
             builder.setStrictHostKeyChecking(this.fileSystemOptions, "no");
-            builder.setUserDirIsRoot(this.fileSystemOptions, false);
+            //builder.setUserDirIsRoot(this.fileSystemOptions, false);
             builder.setIdentityInfo(this.fileSystemOptions,pubPriKey(accountCredential));
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, justUserName(accountCredential));
         }else{
