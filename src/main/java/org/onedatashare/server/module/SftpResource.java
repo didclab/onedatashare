@@ -9,7 +9,6 @@ import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
-import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
@@ -20,9 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 public class SftpResource extends VfsResource {
     private static final String CONTENT_DISPOSITION_HEADER = "attachment; filename=\"%s\"";
@@ -55,8 +55,13 @@ public class SftpResource extends VfsResource {
         return new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
     }
 
+    @SneakyThrows
     public IdentityInfo pubPriKey(AccountEndpointCredential credential){
-        return new IdentityInfo(new File(credential.getSecret()));
+        File tempFile = File.createTempFile(this.credential.getAccountId(), ".pem");
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))){
+            writer.write(credential.getSecret());
+        }
+        return new IdentityInfo(tempFile);
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
