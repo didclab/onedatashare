@@ -34,19 +34,17 @@ public class SftpResource extends VfsResource {
     @SneakyThrows
     public SftpResource(EndpointCredential credential) {
         super(credential);
+        SftpFileSystemConfigBuilder builder = SftpFileSystemConfigBuilder.getInstance();
         this.fileSystemOptions = new FileSystemOptions();
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
         if(accountCredential.getSecret().contains("-----BEGIN RSA PRIVATE KEY-----")){
-            SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(this.fileSystemOptions, "no");
-            SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(this.fileSystemOptions, false);
-            SftpFileSystemConfigBuilder.getInstance()
-                    .setIdentityInfo(this.fileSystemOptions,pubPriKey(accountCredential));
+            builder.setStrictHostKeyChecking(this.fileSystemOptions, "no");
+            builder.setUserDirIsRoot(this.fileSystemOptions, false);
+            builder.setIdentityInfo(this.fileSystemOptions,pubPriKey(accountCredential));
+            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, justUserName(accountCredential));
         }else{
-            SftpFileSystemConfigBuilder.getInstance()
-                    .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
-            if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-                DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, basicAuth(accountCredential));
-            }
+            builder.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, basicAuth(accountCredential));
         }
         this.fileSystemManager = VFS.getManager();
     }
@@ -62,6 +60,10 @@ public class SftpResource extends VfsResource {
             writer.write(credential.getSecret());
         }
         return new IdentityInfo(tempFile);
+    }
+
+    public StaticUserAuthenticator justUserName(AccountEndpointCredential accountEndpointCredential){
+        return new StaticUserAuthenticator(accountEndpointCredential.getUri(), accountEndpointCredential.getUsername(), null);
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
