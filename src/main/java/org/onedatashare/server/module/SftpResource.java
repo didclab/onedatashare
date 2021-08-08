@@ -9,6 +9,7 @@ import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 
@@ -34,13 +36,27 @@ public class SftpResource extends VfsResource {
         super(credential);
         this.fileSystemOptions = new FileSystemOptions();
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
-        SftpFileSystemConfigBuilder.getInstance()
-                .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
-        if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
-            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
+        if(accountCredential.getSecret().contains("-----BEGIN RSA PRIVATE KEY-----")){
+            SftpFileSystemConfigBuilder.getInstance().setStrictHostKeyChecking(this.fileSystemOptions, "no");
+            SftpFileSystemConfigBuilder.getInstance().setUserDirIsRoot(this.fileSystemOptions, false);
+            SftpFileSystemConfigBuilder.getInstance()
+                    .setIdentityInfo(this.fileSystemOptions,pubPriKey(accountCredential));
+        }else{
+            SftpFileSystemConfigBuilder.getInstance()
+                    .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+            if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
+                DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, basicAuth(accountCredential));
+            }
         }
         this.fileSystemManager = VFS.getManager();
+    }
+
+    public StaticUserAuthenticator basicAuth(AccountEndpointCredential accountCredential){
+        return new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
+    }
+
+    public IdentityInfo pubPriKey(AccountEndpointCredential credential){
+        return new IdentityInfo(new File(credential.getSecret()));
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
