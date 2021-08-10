@@ -116,10 +116,13 @@ public class DropboxResource extends Resource {
             FileMetadata file = (FileMetadata) data;
             stat.setFile(true);
             stat.setSize(file.getSize());
+            stat.setId(((FileMetadata) data).getId());
             stat.setTime(file.getClientModified().getTime() / 1000);
         }
         if (data instanceof FolderMetadata) {
             stat.setDir(true);
+            stat.setId(((FolderMetadata) data).getId());
+            stat.setName(data.getName());
         }
         return stat;
     }
