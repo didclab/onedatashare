@@ -1,23 +1,23 @@
 /**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
  */
 
 
@@ -59,7 +59,7 @@ public class DropboxResource extends Resource {
 
     @Override
     public String pathFromUrl(String url) throws UnsupportedEncodingException {
-        if(url.startsWith(DROPBOX_URI_SCHEME)){
+        if (url.startsWith(DROPBOX_URI_SCHEME)) {
             //Dropbox root starts with '/'
             url = url.substring(DROPBOX_URI_SCHEME.length());  //TODO: check if needed to add "/" at the beginning
         }
@@ -71,17 +71,15 @@ public class DropboxResource extends Resource {
         ListFolderResult data = null;
         Metadata mData = null;
         try {
-            data = this.client.files().listFolder((url.equals("/")? "" : url));
+            data = this.client.files().listFolder((url.equals("/") ? "" : url));
         } catch (ListFolderErrorException e) {
             mData = this.client.files().getMetadata(url);
         }
-        if (data == null && mData == null){
+        if (data == null && mData == null) {
             throw new FileNotFoundException();
-        }
-        else if (data == null) {
+        } else if (data == null) {
             stat = mDataToStat(mData);
-        }
-        else {
+        } else {
             stat.setDir(true);
             stat.setFile(false);
         }
@@ -118,6 +116,8 @@ public class DropboxResource extends Resource {
             stat.setSize(file.getSize());
             stat.setId(((FileMetadata) data).getId());
             stat.setTime(file.getClientModified().getTime() / 1000);
+            stat.setId(((FileMetadata) data).getId());
+            stat.setName(data.getName());
         }
         if (data instanceof FolderMetadata) {
             stat.setDir(true);
@@ -145,7 +145,7 @@ public class DropboxResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath()+ operation.getFolderToCreate()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
                 s.success();
             } catch (Exception e) {
                 s.error(e);
@@ -173,8 +173,7 @@ public class DropboxResource extends Resource {
                 String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
                 //temporary link valid for 4 hours
                 downloadLink = this.client.files().getTemporaryLink(url).getLink();
-            }
-            catch(DbxException | UnsupportedEncodingException e){
+            } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
                 return;
             }
@@ -182,10 +181,10 @@ public class DropboxResource extends Resource {
         });
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier){
+    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier) {
         return Mono.create(s -> {
             try {
-                DropboxResource dropBoxResource= new DropboxResource(credential, clientIdentifier);
+                DropboxResource dropBoxResource = new DropboxResource(credential, clientIdentifier);
                 s.success(dropBoxResource);
             } catch (Exception e) {
                 s.error(e);
