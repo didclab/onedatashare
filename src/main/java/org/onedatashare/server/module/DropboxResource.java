@@ -39,6 +39,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -130,11 +131,21 @@ public class DropboxResource extends Resource {
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                String url = pathFromUrl(operation.getPath());
-                s.success(statHelper(url));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException | DbxException e) {
+                Stat parent = new Stat();
+                parent.setFilesList(new ArrayList<>());
+                ListFolderResult result;
+                if(operation.getId().isEmpty() || operation.getId() == null){
+                    //this is just listing the root
+                    result = this.client.files().listFolder("");
+                }else{
+                    //list some directory only
+                    result = this.client.files().listFolder(operation.getId());
+                }
+                for(Metadata metadata: result.getEntries()){
+                    parent.getFilesList().add(mDataToStat(metadata));
+                }
+                s.success(parent);
+            } catch (DbxException e) {
                 s.error(e);
             }
         });
@@ -144,7 +155,7 @@ public class DropboxResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getId() + operation.getFolderToCreate()));
                 s.success();
             } catch (Exception e) {
                 s.error(e);
@@ -156,7 +167,7 @@ public class DropboxResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().deleteV2(this.pathFromUrl(operation.getPath() + operation.getToDelete()));
+                this.client.files().deleteV2(this.pathFromUrl(operation.getId() + operation.getToDelete()));
                 s.success();
             } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
