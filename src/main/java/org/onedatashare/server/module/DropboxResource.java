@@ -34,7 +34,6 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
@@ -116,13 +115,14 @@ public class DropboxResource extends Resource {
             stat.setFile(true);
             stat.setSize(file.getSize());
             stat.setTime(file.getClientModified().getTime() / 1000);
-            stat.setId(((FileMetadata) data).getId());
-            stat.setName(data.getName());
+            stat.setId(file.getId());
+            stat.setName(file.getName());
         }
         if (data instanceof FolderMetadata) {
-            stat.setDir(true);
-            stat.setId(((FolderMetadata) data).getId());
-            stat.setName(data.getName());
+            FolderMetadata folderMetadata = (FolderMetadata)data;
+            stat.setDir(true).setFile(false);
+            stat.setId(folderMetadata.getId());
+            stat.setName(folderMetadata.getName());
         }
         return stat;
     }
@@ -134,14 +134,12 @@ public class DropboxResource extends Resource {
                 Stat parent = new Stat();
                 parent.setFilesList(new ArrayList<>());
                 ListFolderResult result;
-                if(operation.getId().isEmpty() || operation.getId() == null){
-                    //this is just listing the root
-                    result = this.client.files().listFolder("");
-                }else{
-                    //list some directory only
-                    result = this.client.files().listFolder(operation.getId());
+                if (operation.getId().equals("") || operation.getId().equals("/") || operation.getId().equals("0")) {
+                    operation.setId("");
                 }
-                for(Metadata metadata: result.getEntries()){
+                parent.setId(operation.getId());
+                result = this.client.files().listFolder(operation.getId());
+                for (Metadata metadata : result.getEntries()) {
                     parent.getFilesList().add(mDataToStat(metadata));
                 }
                 s.success(parent);
@@ -154,6 +152,9 @@ public class DropboxResource extends Resource {
     @Override
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
+            if(operation.getId().isEmpty()){
+                operation.setId("/");
+            }
             try {
                 this.client.files().createFolderV2(this.pathFromUrl(operation.getId() + operation.getFolderToCreate()));
                 s.success();

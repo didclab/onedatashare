@@ -48,6 +48,11 @@ public class DbxController extends EndpointBaseController{
         return dbxService.list(operation);
     }
 
+    /**
+     *
+     * @param operation: the id or path in this operation must be the path starting from the root="/" all the way down to the location of folderToCreate property
+     * @return
+     */
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
         return dbxService.mkdir(operation);
