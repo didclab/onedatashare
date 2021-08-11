@@ -33,6 +33,7 @@ import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
@@ -75,7 +76,7 @@ public class GDriveConfig {
 
 
 
-    private final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+    private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
     private HttpTransport httpTransport;
 
 //    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);
