@@ -33,6 +33,15 @@ class DropboxResourceTest {
     void deleteFolder(){
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
+        deleteOperation.setToDelete("/hello/omg");
+        testObj.delete(deleteOperation).block();
+        Assert.assertTrue("",true);
+    }
+
+    @Test
+    void deleteFolderUsingAnId(){
+        testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
+        DeleteOperation deleteOperation = new DeleteOperation("","","");
         deleteOperation.setToDelete("/nested/helloBQZ/ha");
         testObj.delete(deleteOperation).block();
         Assert.assertTrue("",true);
@@ -42,7 +51,7 @@ class DropboxResourceTest {
     void deleteFile(){
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
-        deleteOperation.setToDelete("Test.txt");
+        deleteOperation.setToDelete("id:SQhR5zO0sjAAAAAAAAAAXw");
         testObj.delete(deleteOperation).block();
         Assert.assertTrue("",true);
     }
@@ -79,9 +88,9 @@ class DropboxResourceTest {
     }
 
     @Test
-    void list142929312630UsingZero() {
+    void listidSQhR5zO0sjAAAAAAAAAAQAUsingZero() {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
-        ListOperation listOperation = new ListOperation("", "", "142929312630");
+        ListOperation listOperation = new ListOperation("", "", "id:SQhR5zO0sjAAAAAAAAAAXg");
         Stat stat = testObj.list(listOperation).block();
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {

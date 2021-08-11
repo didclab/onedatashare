@@ -24,7 +24,6 @@
 package org.onedatashare.server.config;
 
 import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.TokenResponse;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -33,14 +32,11 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import lombok.Data;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.service.oauth.GDriveOauthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -79,7 +75,7 @@ public class GDriveConfig {
 
 
 
-    private final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+    private final JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
     private HttpTransport httpTransport;
 
 //    public final static List<String> SCOPES = Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY, DriveScopes.DRIVE);

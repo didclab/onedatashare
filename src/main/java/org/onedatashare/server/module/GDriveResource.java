@@ -11,10 +11,7 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.config.GDriveConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -36,6 +33,7 @@ public class GDriveResource extends Resource {
         this.credential = (OAuthEndpointCredential) credential;
         gDriveConfig = GDriveConfig.getInstance();
         service = gDriveConfig.getDriveService(this.credential);
+
     }
 
     public Stat statHelper(String path, String id) throws IOException {
@@ -44,13 +42,12 @@ public class GDriveResource extends Resource {
                 .setName(path)
                 .setId(id);
 
-        if (path.equals("/") || id.equals("/")) {
+        if (path.equals("/") || id.equals("/") || path.isEmpty() || id.isEmpty()) {
             stat.setDir(true);
             result = this.service.files().list()
                     .setOrderBy("name")
                     .setQ("trashed=false and 'root' in parents")
                     .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
-
             if (result == null) {
                 throw new NotFoundException();
             }
@@ -125,11 +122,10 @@ public class GDriveResource extends Resource {
             stat.setName(file.getName());
             stat.setTime(file.getModifiedTime().getValue()/1000);
             if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
-                stat.setDir(true);
-                stat.setFile(false);
+                stat.setDir(true).setFile(false);
+            } else if(file.containsKey("size")){
+                stat.setSize(file.getSize()).setDir(false);
             }
-            else if(file.containsKey("size"))
-                stat.setSize(file.getSize());
         }
         catch (NullPointerException  e) {
 
