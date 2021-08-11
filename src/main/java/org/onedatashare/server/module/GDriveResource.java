@@ -44,7 +44,7 @@ public class GDriveResource extends Resource {
                 .setName(path)
                 .setId(id);
 
-        if (path.equals("/")) {
+        if (path.equals("/") || id.equals("/")) {
             stat.setDir(true);
             result = this.service.files().list()
                     .setOrderBy("name")
