@@ -345,10 +345,10 @@ export default class EndpointBrowseComponent extends Component {
 		const isS3 = endpoint.credential.type === showType.s3;
 
 		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
+			setLoading(false);
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
 			this.setState({directoryPath: path, ids: id});
-			setLoading(false);
 		}, (error) =>{
 			if(error === "500"){
 				this._handleError("Login Failed. Re-directing to OAuth page");
