@@ -21,221 +21,207 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType, S3 } from '../constants';
-import { axios, statusHandle, handleRequestFailure } from "./APICalls";
-import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
-import { cookies } from "../model/reducers";
-import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE, apiBaseUrl} from "../constants.js";
-
-function getUriType(uri) {
-    return uri.split(":")[0].toLowerCase();
-}
-
-function buildEndpointOperationURL(baseURL, endpointType, operation) {
-    return baseURL + "/" + endpointType + operation;
-}
-
-
-//Issue with listing files in FTP when going into another directory besides the root directory.
-// I've tested with inputting different file paths in the "path" value,
-// but it seems that no matter what I input,
-// it always shows the root directory instead of the directory with the name I inputted
-// summarized info can be found in EndpointAuthenicateComponent.js and EndpointBrowseComponent.js
-// SFTP Problem: When attempting listing, server gives a "cannot be found" error on the uri. URI is formatted as username@url
-
-//added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
-export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> origin/integration
-    let body = {
-        "identifier": "",
-        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": "/",
-    };
-
-    let callback = accept;
-<<<<<<< HEAD
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), LIST_OP_URL) //example url = api/ftp/ls
-    console.log(url);
-=======
-    let urlType = getUriType(endpoint["uri"]);
-    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
->>>>>>> origin/integration
-    axios.get(url, {params: body})
-        .then((response) => {
-            if (!(response.status === 200))
-                callback = fail;
-            statusHandle(response, callback);
-        })
-        .catch((error) => {
-            handleRequestFailure(error, fail);
-        });
-
-}
-
-
-export async function share(uri, endpoint, isS3, accept, fail) {
-    let callback = accept;
-
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SHARE_OP_URL), {
-        credential: endpoint.credential,
-        uri: encodeURI(uri),
-        map: getMapFromEndpoint(endpoint),
-    }).then((response) => {
-            if (!(response.status === 200))
-                callback = fail;
-            statusHandle(response, callback);
-        })
-        .catch((error) => {
-            handleRequestFailure(error, fail);
-        });
-}
-
-export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
-    let callback = accept;
-    const ids = getIdsFromEndpoint(endpoint);
-    const id = ids[ids.length - 1];
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), MKDIR_OP_URL), {
-        "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": uri,
-        "folderToCreate": uri
-    })
-        .then((response) => {
-            if (!(response.status === 200))
-                callback = fail;
-            statusHandle(response, callback);
-        })
-        .catch((error) => {
-            handleRequestFailure(error, fail);
-        });
-}
-
-export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
-    let callback = accept;
-<<<<<<< HEAD
-console.log(uri.split("/"));
-=======
-    console.log(uri.split("/"));
->>>>>>> origin/integration
-    axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
-        "identifier": endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": uri+"/",
-        "toDelete": uri.split("/")[1]
-    })
-        .then((response) => {
-            if (!(response.status === 200))
-                callback = fail;
-            statusHandle(response, callback);
-        })
-        .catch((error) => {
-
-            handleRequestFailure(error, fail);
-        });
-}
-
-// Returns the url for file. It is used to download the file and also to display in share url popup
-async function getDownloadLink(uri, credential, _id) {
-    return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DOWNLOAD_OP_URL), {
-           "identifier": credential["name"],
-           "credId": credential["uuid"],
-           "path": uri,
-           "fileToDownload": ""
-    })
-        .then((response) => {
-            if (!(response.status === 200))
-                console.log("Error in download API call");
-            else {
-                return response.data
-            }
-        })
-        .catch((error) => {
-            handleRequestFailure(error);
-            console.log("Error encountered while generating download link");
-        });
-}
-
-export async function getSharableLink(uri, credential, _id) {
-    return getDownloadLink(uri, credential, _id).then((response) => {
-        return response
-    })
-}
-
-export async function download(uri, credential, _id) {
-    return getDownloadLink(uri, credential, _id).then((response) => {
-        if (response !== "") {
-            window.open(response.url)
-        }
-        else {
-            console.log("Error encountered while generating download link");
-        }
-    })
-}
-
-export async function getDownload(uri, credential) {
-    let json_to_send = {
-        credential: credential,
-        uri: uri,
-    }
-
-    const jsonStr = JSON.stringify(json_to_send);
-    cookies.set("CX", jsonStr, { expires: 1 });
-
-    window.location = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SFTP_DOWNLOAD_URL);
-    setTimeout(() => {
-        cookies.remove("CX");
-    }, 5000);
-}
-
-
-export async function openDropboxOAuth() {
-	openOAuth(apiBaseUrl + "oauth?type=dropbox");
-}
-
-export async function openGoogleDriveOAuth() {
-	openOAuth(apiBaseUrl + "oauth?type=gdrive");
-}
-
-export async function openGridFtpOAuth() {
-	openOAuth(apiBaseUrl + "oauth?type=gftp");
-}
-
-export async function openBoxOAuth(){
-    openOAuth(apiBaseUrl + "oauth?type=box");
-}
-
-export async function openOAuth(url){
-	window.location = url;
-}
-
-export const OAuthFunctions = {
-    [DROPBOX_TYPE]: openDropboxOAuth,
-    [GOOGLEDRIVE_TYPE]: openGoogleDriveOAuth,
-    [GRIDFTP_TYPE]: openGridFtpOAuth,
-    [BOX_TYPE]: openBoxOAuth,
-    other: openOAuth
-};
-
-//api call for terminal
-export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
-	let callback = accept;
-	return axios.post('/api/ssh/console',
-                                { "host": host,
-                                  "commandWithPath": inp_cmd,
-                                  "credential" : {"username" : uname,"password" : epw},
-                                  "port": port}).then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		    //console.log(response.data);
-		    return response.data;
-		})
-		.catch((error) => {
-			statusHandle(error, fail);
-		});
-}
+ import { ENDPOINT_OP_URL, LIST_OP_URL, SHARE_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, getType, S3 } from '../constants';
+ import { axios, statusHandle, handleRequestFailure } from "./APICalls";
+ import { getMapFromEndpoint, getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
+ import { cookies } from "../model/reducers";
+ import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, GRIDFTP_TYPE, apiBaseUrl} from "../constants.js";
+ 
+ function getUriType(uri) {
+     return uri.split(":")[0].toLowerCase();
+ }
+ 
+ function buildEndpointOperationURL(baseURL, endpointType, operation) {
+     return baseURL + "/" + endpointType + operation;
+ }
+ 
+ 
+ //Issue with listing files in FTP when going into another directory besides the root directory.
+ // I've tested with inputting different file paths in the "path" value,
+ // but it seems that no matter what I input,
+ // it always shows the root directory instead of the directory with the name I inputted
+ // summarized info can be found in EndpointAuthenicateComponent.js and EndpointBrowseComponent.js
+ // SFTP Problem: When attempting listing, server gives a "cannot be found" error on the uri. URI is formatted as username@url
+ 
+ //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
+ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
+     let body = {
+         "identifier": "",
+         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+         "path": "/",
+     };
+ 
+     let callback = accept;
+     let urlType = getUriType(endpoint["uri"]);
+     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
+     axios.get(url, {params: body})
+         .then((response) => {
+             if (!(response.status === 200))
+                 callback = fail;
+             statusHandle(response, callback);
+         })
+         .catch((error) => {
+             handleRequestFailure(error, fail);
+         });
+ 
+ }
+ 
+ 
+ export async function share(uri, endpoint, isS3, accept, fail) {
+     let callback = accept;
+ 
+     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SHARE_OP_URL), {
+         credential: endpoint.credential,
+         uri: encodeURI(uri),
+         map: getMapFromEndpoint(endpoint),
+     }).then((response) => {
+             if (!(response.status === 200))
+                 callback = fail;
+             statusHandle(response, callback);
+         })
+         .catch((error) => {
+             handleRequestFailure(error, fail);
+         });
+ }
+ 
+ export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
+     let callback = accept;
+     const ids = getIdsFromEndpoint(endpoint);
+     const id = ids[ids.length - 1];
+     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), MKDIR_OP_URL), {
+         "identifier": endpoint["credential"]["name"],
+         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+         "path": uri,
+         "folderToCreate": uri
+     })
+         .then((response) => {
+             if (!(response.status === 200))
+                 callback = fail;
+             statusHandle(response, callback);
+         })
+         .catch((error) => {
+             handleRequestFailure(error, fail);
+         });
+ }
+ 
+ export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
+     let callback = accept;
+     console.log(uri.split("/"));
+     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
+         "identifier": endpoint["credential"]["name"],
+         "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+         "path": uri+"/",
+         "toDelete": uri.split("/")[1]
+     })
+         .then((response) => {
+             if (!(response.status === 200))
+                 callback = fail;
+             statusHandle(response, callback);
+         })
+         .catch((error) => {
+ 
+             handleRequestFailure(error, fail);
+         });
+ }
+ 
+ // Returns the url for file. It is used to download the file and also to display in share url popup
+ async function getDownloadLink(uri, credential, _id) {
+     return axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), DOWNLOAD_OP_URL), {
+            "identifier": credential["name"],
+            "credId": credential["uuid"],
+            "path": uri,
+            "fileToDownload": ""
+     })
+         .then((response) => {
+             if (!(response.status === 200))
+                 console.log("Error in download API call");
+             else {
+                 return response.data
+             }
+         })
+         .catch((error) => {
+             handleRequestFailure(error);
+             console.log("Error encountered while generating download link");
+         });
+ }
+ 
+ export async function getSharableLink(uri, credential, _id) {
+     return getDownloadLink(uri, credential, _id).then((response) => {
+         return response
+     })
+ }
+ 
+ export async function download(uri, credential, _id) {
+     return getDownloadLink(uri, credential, _id).then((response) => {
+         if (response !== "") {
+             window.open(response.url)
+         }
+         else {
+             console.log("Error encountered while generating download link");
+         }
+     })
+ }
+ 
+ export async function getDownload(uri, credential) {
+     let json_to_send = {
+         credential: credential,
+         uri: uri,
+     }
+ 
+     const jsonStr = JSON.stringify(json_to_send);
+     cookies.set("CX", jsonStr, { expires: 1 });
+ 
+     window.location = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriType(uri), SFTP_DOWNLOAD_URL);
+     setTimeout(() => {
+         cookies.remove("CX");
+     }, 5000);
+ }
+ 
+ 
+ export async function openDropboxOAuth() {
+     openOAuth(apiBaseUrl + "oauth?type=dropbox");
+ }
+ 
+ export async function openGoogleDriveOAuth() {
+     openOAuth(apiBaseUrl + "oauth?type=gdrive");
+ }
+ 
+ export async function openGridFtpOAuth() {
+     openOAuth(apiBaseUrl + "oauth?type=gftp");
+ }
+ 
+ export async function openBoxOAuth(){
+     openOAuth(apiBaseUrl + "oauth?type=box");
+ }
+ 
+ export async function openOAuth(url){
+     window.location = url;
+ }
+ 
+ export const OAuthFunctions = {
+     [DROPBOX_TYPE]: openDropboxOAuth,
+     [GOOGLEDRIVE_TYPE]: openGoogleDriveOAuth,
+     [GRIDFTP_TYPE]: openGridFtpOAuth,
+     [BOX_TYPE]: openBoxOAuth,
+     other: openOAuth
+ };
+ 
+ //api call for terminal
+ export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
+     let callback = accept;
+     return axios.post('/api/ssh/console',
+                                 { "host": host,
+                                   "commandWithPath": inp_cmd,
+                                   "credential" : {"username" : uname,"password" : epw},
+                                   "port": port}).then((response) => {
+             if (!(response.status === 200))
+                 callback = fail;
+             statusHandle(response, callback);
+             //console.log(response.data);
+             return response.data;
+         })
+         .catch((error) => {
+             statusHandle(error, fail);
+         });
+ }
+ 
