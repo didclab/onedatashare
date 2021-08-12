@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.controller;
 
+import org.onedatashare.server.config.GDriveConfig;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.error.DuplicateCredentialException;
 import org.onedatashare.server.model.error.NotFoundException;
@@ -32,6 +33,8 @@ import org.onedatashare.server.service.oauth.BoxOauthService;
 import org.onedatashare.server.service.oauth.DbxOauthService;
 import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.onedatashare.server.service.oauth.GridFtpAuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -88,7 +91,6 @@ public class EndpointOauthController {
             }
             return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
         }
-
         return principalMono.map(Principal::getName)
                 .flatMap(user -> gDriveOauthService.finish(queryParameters)
                         .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)
@@ -138,7 +140,7 @@ public class EndpointOauthController {
      * @param queryParameters - Query parameters
      * @return Mono\<String\>
      */
-    @GetMapping("/gridftp")
+    @GetMapping("/gftp")
     public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters, Mono<Principal> principalMono) {
         if (!queryParameters.containsKey("code")) {
             return Mono.just(Rendering.redirectTo("/transfer").build());

@@ -40,7 +40,7 @@ public class S3Resource extends Resource{
     private S3AsyncClient constructClient(String region, AccountEndpointCredential credential){
         return S3AsyncClient.builder()
                 .serviceConfiguration(S3Configuration.builder().checksumValidationEnabled(false).build())
-                .asyncConfiguration(b -> b.advancedOption(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR, Executors.newFixedThreadPool(50)))
+                .asyncConfiguration(b -> b.advancedOption(SdkAdvancedAsyncClientOption.FUTURE_COMPLETION_EXECUTOR, Executors.newCachedThreadPool()))
                 .credentialsProvider(() -> AwsBasicCredentials.create(credential.getUsername(), credential.getSecret()))
                 .region(Region.of(region))
                 .build();
@@ -72,7 +72,8 @@ public class S3Resource extends Resource{
 
     @Override
     public Mono<Stat> list(ListOperation operation) {
-        return Mono.fromFuture(this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).build()))
+        return Mono.fromFuture(
+                this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).prefix(operation.getId().isEmpty()?"": operation.getId()).build()))
                 .map(listObjectsV2Response -> {
                     Stat parent = new Stat();
                     parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.contents()));

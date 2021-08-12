@@ -30,6 +30,7 @@ import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
 import { Draggable } from 'react-beautiful-dnd';
 import styled from "styled-components";
 import {getSelectionCount} from "./initialize_dnd";
+import Checkbox from '@material-ui/core/Checkbox';
 
 /**
 	Component for file and directory
@@ -267,9 +268,14 @@ export default class FileNode extends Component {
 						
 
 							<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-								{ dir && <FolderIcon/>}
-								{!dir && <FileIcon />  }
-								<p style={{marginLeft: "10px", flexGrow: 1, textAlign: "left"}} > {name} </p>
+							<Checkbox
+								color="primary"
+								inputProps={{ 'aria-label': 'secondary checkbox' }}
+								checked={isSelected}
+							/>
+								{ dir && <FolderIcon className={"fileIcon"} />}
+								{!dir && <FileIcon className={"fileIcon"} />  }
+								<p  className={"fileName"}  > {name} </p>
 								{dir && 
 									<Button style={{width: "40px", float: "right"}} 
 										onTouchStart={() => {
@@ -283,11 +289,11 @@ export default class FileNode extends Component {
 								<SelectionCount>{selectionCount}</SelectionCount>
 							}
 							{hasAttr && 
-								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between"}}>
+								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between",marginLeft:"42px"}}>
 							
-									{time !== 0 && <p style={{fontSize: "10px", color: "#444"}}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
+									{time !== 0 && <p  className={"fileAttribute"}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
 									{perm && <p > {perm} </p>}
-									{size !== 0 && <p style={{fontSize: "10px", color: "#444"}}> {this.humanFileSize(size)} </p>}
+									{size !== 0 && <p className={"fileAttribute"} > {this.humanFileSize(size)} </p>}
 								</div>
 							}
 					 </FileDiv>

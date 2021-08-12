@@ -13,6 +13,8 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.config.GDriveConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -24,16 +26,16 @@ import java.util.List;
  * Resource class that provides services for Google Drive endpoint.
  */
 public class GDriveResource extends Resource {
-    public static GDriveConfig gDriveConfig = new GDriveConfig();
+    public static GDriveConfig gDriveConfig;
     public static final String ROOT_DIR_ID = "root";
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
     private OAuthEndpointCredential credential;
-
     private Drive service;
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
-        this.service = gDriveConfig.getDriveService(this.credential);
+        gDriveConfig = GDriveConfig.getInstance();
+        service = gDriveConfig.getDriveService(this.credential);
     }
 
     public Stat statHelper(String path, String id) throws IOException {
@@ -42,7 +44,7 @@ public class GDriveResource extends Resource {
                 .setName(path)
                 .setId(id);
 
-        if (path.equals("/")) {
+        if (path.equals("/") || id.equals("/")) {
             stat.setDir(true);
             result = this.service.files().list()
                     .setOrderBy("name")
@@ -120,6 +122,7 @@ public class GDriveResource extends Resource {
         try {
             stat.setFile(true);
             stat.setId(file.getId());
+            stat.setName(file.getName());
             stat.setTime(file.getModifiedTime().getValue()/1000);
             if (file.getMimeType().equals("application/vnd.google-apps.folder")) {
                 stat.setDir(true);

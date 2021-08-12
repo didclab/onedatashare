@@ -257,7 +257,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		this.props.setLoading(true);
 
 		console.log(`Url is ${url}`);
-
+		// if((type == showDisplay.ftp.label || type == showDisplay.sftp.label) && (url.match(/:/g) || []).length < 2)
+		// {
+		// 	url+=`:${portNum}`
+		// 	credential.uri+=`:${portNum}`
+		// 	credential.credId+=`:${portNum}`
+		// }
 		let endpointSet = {
 			uri: url,
 			login: true,
@@ -277,7 +282,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		let encryptedSecret = "";
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
-		}
+		}	
 		console.log(credential.uri);
 		saveEndpointCred(type,
 			{
@@ -364,8 +369,8 @@ export default class EndpointAuthenticateComponent extends Component {
 					<ListItemText primary={v} />
 					<ListItemSecondaryAction>
 						<IconButton aria-label="Delete" onClick={() => {
-
-							deleteCredentialFromServer(v, type, (accept) => {
+							let endPointType = Object.keys(showType).find(key => showType[key] === this.state.endpoint.uri)
+							deleteCredential(endPointType, v,(accept) => {
 								this.credentialListUpdateFromBackend(type);
 							}, (error) => {
 								this._handleError("Delete Credential Failed");
@@ -442,15 +447,30 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 				}else{
-					const url = new URL(this.state.endpoint.uri + uri.split("@")[1]);
-					let portValue = url.port;
-					if(url.port.length === 0){
-						portValue = getDefaultPortFromUri(uri);
+					
+					let portValue = getDefaultPortFromUri(uri);
+					let myPoint = this.state.endpoint
+
+					let endpointSet = {
+						uri: myPoint.uri,
+						login: true,
+						side: this.props.endpoint.side,
+						credential: {name: "\"\"", credId: uri, type: getName(this.state.endpoint).toLowerCase()},
+						portNumber: portValue
 					}
-					this.endpointCheckin(uri, portValue, {}, (error) => {
-						this._handleError("Please enter your credential.");
-						this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
-					})
+
+					listFiles(uri, endpointSet,
+						false, null, (succ) =>
+						{
+							this.props.loginSuccess(endpointSet);
+						},
+						(error) => {
+							this.props.setLoading(false);
+							this._handleError("Please enter your credential.");
+							this.setState({url: uri, authFunction : this.regularSignIn, settingAuth: true, needPassword: true, portNum: portValue});
+						}
+					)
+
 				}
 
 			}}>

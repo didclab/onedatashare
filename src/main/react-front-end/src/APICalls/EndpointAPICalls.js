@@ -45,9 +45,12 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 
 //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
 export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
+<<<<<<< HEAD
 
 
 
+=======
+>>>>>>> origin/integration
     let body = {
         "identifier": "",
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
@@ -55,8 +58,13 @@ export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
     };
 
     let callback = accept;
+<<<<<<< HEAD
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), LIST_OP_URL) //example url = api/ftp/ls
     console.log(url);
+=======
+    let urlType = getUriType(endpoint["uri"]);
+    let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
+>>>>>>> origin/integration
     axios.get(url, {params: body})
         .then((response) => {
             if (!(response.status === 200))
@@ -109,7 +117,11 @@ export async function mkdir(uri, type, endpoint, isS3, accept, fail) {
 
 export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
     let callback = accept;
+<<<<<<< HEAD
 console.log(uri.split("/"));
+=======
+    console.log(uri.split("/"));
+>>>>>>> origin/integration
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
         "identifier": endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],

@@ -19,8 +19,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.InputStream;
-import java.nio.file.Files;
 
 public class SftpResource extends VfsResource {
     private static final String CONTENT_DISPOSITION_HEADER = "attachment; filename=\"%s\"";
@@ -32,15 +34,36 @@ public class SftpResource extends VfsResource {
     @SneakyThrows
     public SftpResource(EndpointCredential credential) {
         super(credential);
+        SftpFileSystemConfigBuilder builder = SftpFileSystemConfigBuilder.getInstance();
         this.fileSystemOptions = new FileSystemOptions();
         AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
-        SftpFileSystemConfigBuilder.getInstance()
-                .setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
-        if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
-            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
+        if(accountCredential.getSecret().contains("-----BEGIN RSA PRIVATE KEY-----")){
+            builder.setStrictHostKeyChecking(this.fileSystemOptions, "no");
+            //builder.setUserDirIsRoot(this.fileSystemOptions, false);
+            builder.setIdentityInfo(this.fileSystemOptions,pubPriKey(accountCredential));
+            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, justUserName(accountCredential));
+        }else{
+            builder.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, basicAuth(accountCredential));
         }
         this.fileSystemManager = VFS.getManager();
+    }
+
+    public StaticUserAuthenticator basicAuth(AccountEndpointCredential accountCredential){
+        return new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
+    }
+
+    @SneakyThrows
+    public IdentityInfo pubPriKey(AccountEndpointCredential credential){
+        File tempFile = File.createTempFile(this.credential.getAccountId(), ".pem");
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))){
+            writer.write(credential.getSecret());
+        }
+        return new IdentityInfo(tempFile);
+    }
+
+    public StaticUserAuthenticator justUserName(AccountEndpointCredential accountEndpointCredential){
+        return new StaticUserAuthenticator(accountEndpointCredential.getUri(), accountEndpointCredential.getUsername(), null);
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){

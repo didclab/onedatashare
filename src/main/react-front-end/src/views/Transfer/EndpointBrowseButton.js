@@ -9,7 +9,6 @@ const BrowseButton = (props) => {
         fontSize: "12px",
         color: "white",
         backgroundColor: "rgba(0,0,0,0.7)",
-        borderRadius: "5px",
         padding: "5px"
     });
 
@@ -56,6 +55,7 @@ const BrowseButton = (props) => {
                 {id.map(function (value,index){
                     return(
                         <Button
+                            key={props.id[index]}
                             id={props.id[index]}
                             style={props.style[index]}
                             onClick={props.click[index]}

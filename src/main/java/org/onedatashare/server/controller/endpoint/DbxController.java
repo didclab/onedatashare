@@ -30,6 +30,8 @@ import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.DbxService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +48,11 @@ public class DbxController extends EndpointBaseController{
         return dbxService.list(operation);
     }
 
+    /**
+     *
+     * @param operation: the id or path in this operation must be the path starting from the root="/" all the way down to the location of folderToCreate property
+     * @return
+     */
     @Override
     protected Mono<Void> mkdirOperation(MkdirOperation operation) {
         return dbxService.mkdir(operation);

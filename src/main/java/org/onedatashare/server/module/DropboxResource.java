@@ -1,23 +1,23 @@
 /**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
  */
 
 
@@ -34,11 +34,11 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,7 +59,7 @@ public class DropboxResource extends Resource {
 
     @Override
     public String pathFromUrl(String url) throws UnsupportedEncodingException {
-        if(url.startsWith(DROPBOX_URI_SCHEME)){
+        if (url.startsWith(DROPBOX_URI_SCHEME)) {
             //Dropbox root starts with '/'
             url = url.substring(DROPBOX_URI_SCHEME.length());  //TODO: check if needed to add "/" at the beginning
         }
@@ -71,17 +71,15 @@ public class DropboxResource extends Resource {
         ListFolderResult data = null;
         Metadata mData = null;
         try {
-            data = this.client.files().listFolder((url.equals("/")? "" : url));
+            data = this.client.files().listFolder((url.equals("/") ? "" : url));
         } catch (ListFolderErrorException e) {
             mData = this.client.files().getMetadata(url);
         }
-        if (data == null && mData == null){
+        if (data == null && mData == null) {
             throw new FileNotFoundException();
-        }
-        else if (data == null) {
+        } else if (data == null) {
             stat = mDataToStat(mData);
-        }
-        else {
+        } else {
             stat.setDir(true);
             stat.setFile(false);
         }
@@ -117,9 +115,14 @@ public class DropboxResource extends Resource {
             stat.setFile(true);
             stat.setSize(file.getSize());
             stat.setTime(file.getClientModified().getTime() / 1000);
+            stat.setId(file.getId());
+            stat.setName(file.getName());
         }
         if (data instanceof FolderMetadata) {
-            stat.setDir(true);
+            FolderMetadata folderMetadata = (FolderMetadata)data;
+            stat.setDir(true).setFile(false);
+            stat.setId(folderMetadata.getId());
+            stat.setName(folderMetadata.getName());
         }
         return stat;
     }
@@ -128,11 +131,19 @@ public class DropboxResource extends Resource {
     public Mono<Stat> list(ListOperation operation) {
         return Mono.create(s -> {
             try {
-                String url = pathFromUrl(operation.getPath());
-                s.success(statHelper(url));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            } catch (FileNotFoundException | DbxException e) {
+                Stat parent = new Stat();
+                parent.setFilesList(new ArrayList<>());
+                ListFolderResult result;
+                if (operation.getId().equals("") || operation.getId().equals("/") || operation.getId().equals("0")) {
+                    operation.setId("");
+                }
+                parent.setId(operation.getId());
+                result = this.client.files().listFolder(operation.getId());
+                for (Metadata metadata : result.getEntries()) {
+                    parent.getFilesList().add(mDataToStat(metadata));
+                }
+                s.success(parent);
+            } catch (DbxException e) {
                 s.error(e);
             }
         });
@@ -141,8 +152,11 @@ public class DropboxResource extends Resource {
     @Override
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
+            if(operation.getId().isEmpty()){
+                operation.setId("/");
+            }
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath()+ operation.getFolderToCreate()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getId() + operation.getFolderToCreate()));
                 s.success();
             } catch (Exception e) {
                 s.error(e);
@@ -154,7 +168,7 @@ public class DropboxResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().deleteV2(this.pathFromUrl(operation.getPath() + operation.getToDelete()));
+                this.client.files().deleteV2(this.pathFromUrl(operation.getId() + operation.getToDelete()));
                 s.success();
             } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
@@ -170,8 +184,7 @@ public class DropboxResource extends Resource {
                 String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
                 //temporary link valid for 4 hours
                 downloadLink = this.client.files().getTemporaryLink(url).getLink();
-            }
-            catch(DbxException | UnsupportedEncodingException e){
+            } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
                 return;
             }
@@ -179,10 +192,10 @@ public class DropboxResource extends Resource {
         });
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier){
+    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier) {
         return Mono.create(s -> {
             try {
-                DropboxResource dropBoxResource= new DropboxResource(credential, clientIdentifier);
+                DropboxResource dropBoxResource = new DropboxResource(credential, clientIdentifier);
                 s.success(dropBoxResource);
             } catch (Exception e) {
                 s.error(e);

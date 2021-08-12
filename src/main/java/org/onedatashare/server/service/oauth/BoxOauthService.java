@@ -27,11 +27,14 @@ import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxUser;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.service.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.swing.*;
 import java.util.Calendar;
 import java.util.Map;
 
@@ -49,6 +52,7 @@ public class BoxOauthService{
     private String scope;
     @Value("${box.authUri}")
     private String authUri;
+    Logger logger = LoggerFactory.getLogger(BoxOauthService.class);
 
     @Autowired
     private UserService userService;
@@ -73,9 +77,9 @@ public class BoxOauthService{
             String code = queryParameters.get("code");
             // Instantiate new Box API connection object
             BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
+            client.refresh();
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
-
             Calendar calendar = Calendar.getInstance();
             calendar.add(Calendar.SECOND, Math.toIntExact(client.getExpires()));
 

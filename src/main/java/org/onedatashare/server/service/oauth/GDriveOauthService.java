@@ -24,10 +24,7 @@
 package org.onedatashare.server.service.oauth;
 
 
-import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.auth.oauth2.StoredCredential;
-import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -37,8 +34,11 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import lombok.SneakyThrows;
+import org.onedatashare.server.controller.EndpointOauthController;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.config.GDriveConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -61,7 +61,7 @@ public class GDriveOauthService {
 
     private static final String CODE = "code";
 
-    private DataStore<StoredCredential> storedCredentialDataStore ;
+    private DataStore<StoredCredential> storedCredentialDataStore;
 
     @PostConstruct
     @SneakyThrows
@@ -92,7 +92,6 @@ public class GDriveOauthService {
                 TokenResponse response = this.flow.newTokenRequest(code)
                         .setRedirectUri(driveConfig.getRedirectUri())
                         .execute();
-
                 Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
 
                 HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
