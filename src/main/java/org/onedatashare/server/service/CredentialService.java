@@ -67,7 +67,6 @@ public class CredentialService {
     }
 
     private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId){
-        logger.info(String.format(this.urlFormatted, userId, type, credId));
         return this.webClientBuilder.build().get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
