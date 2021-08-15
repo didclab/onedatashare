@@ -139,7 +139,7 @@ public class GDriveResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
             try {
-                this.service.files().delete(operation.getId()).execute();
+                this.service.files().delete(operation.getToDelete()).execute();
                 s.success();
             } catch (IOException e) {
                 s.error(e);
