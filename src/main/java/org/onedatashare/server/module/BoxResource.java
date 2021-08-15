@@ -91,7 +91,7 @@ public class BoxResource extends Resource {
                         childList.add(boxFolderToStat(folderInfo));
                     }
                 }
-                betterStat.setFilesList(childList);
+                betterStat.setFiles(childList);
                 s.success(betterStat);
 
         });
