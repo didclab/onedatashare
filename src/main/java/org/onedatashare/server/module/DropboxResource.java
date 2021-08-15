@@ -132,7 +132,7 @@ public class DropboxResource extends Resource {
         return Mono.create(s -> {
             try {
                 Stat parent = new Stat();
-                parent.setFilesList(new ArrayList<>());
+                ArrayList<Stat> children = new ArrayList<>();
                 ListFolderResult result;
                 if (operation.getId().equals("") || operation.getId().equals("/") || operation.getId().equals("0")) {
                     operation.setId("");
@@ -140,8 +140,9 @@ public class DropboxResource extends Resource {
                 parent.setId(operation.getId());
                 result = this.client.files().listFolder(operation.getId());
                 for (Metadata metadata : result.getEntries()) {
-                    parent.getFilesList().add(mDataToStat(metadata));
+                    children.add(mDataToStat(metadata));
                 }
+                parent.setFiles(children);
                 s.success(parent);
             } catch (DbxException e) {
                 s.error(e);
