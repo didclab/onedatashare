@@ -159,8 +159,8 @@ export default class TransferComponent extends Component {
     const endpointDest = getEndpointFromColumn(processed.fromTo[1])
     const options = this.state.settings;
 
-    let sType = formatType(getType(endpointSrc))
-    let dType = formatType(getType(endpointDest))
+    let sType = formatType(endpointSrc.credential.type!=null?endpointSrc.credential.type:getType(endpointSrc))
+    let dType = formatType(endpointDest.credential.type!=null?endpointDest.credential.type:getType(endpointDest))
 
     let sourceParent = ""
     let destParent = ""
@@ -169,24 +169,28 @@ export default class TransferComponent extends Component {
     let destCredId = ""
 
     if(isOAuth[showType[sType]]){
-      sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.name))
+      sourceParent = sType!="box" ?"":"0"
       sourceCredId = endpointSrc.credential.uuid
+      processed.selectedTasks.forEach(x=>{
+        infoList.push({path:x.id,id:x.id,size:x.size})
+      }
+      )
     }
     else{
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
+      sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!="")?"":"/" : sourceParent
       sourceCredId = endpointSrc.credential.credId
+      processed.selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
     }
     if(isOAuth[showType[dType]]){
-      destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.name))
+      destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")
       destCredId=endpointDest.credential.uuid
     }
     else{
       destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
+      destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
       destCredId=endpointDest.credential.credId
     }
-    sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+"/" : sourceParent+"/"
-    destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent+"/"
-    processed.fromTo[0].selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
 
     let source = {
       credId:sourceCredId,
