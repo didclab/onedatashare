@@ -46,11 +46,10 @@
  //added argument to check if service is S3, this is because S3's uri does not have "s3" in it, so getUriType() would fail
  export async function listFiles(uri, endpoint, isS3, id, accept, fail) {
      let body = {
-         "identifier": "",
+         "identifier": id,
          "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-         "path": "/",
+         "path": uri,
      };
- 
      let callback = accept;
      let urlType = getUriType(endpoint["uri"]);
      let url = buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : urlType, LIST_OP_URL)
@@ -88,11 +87,12 @@
      let callback = accept;
      const ids = getIdsFromEndpoint(endpoint);
      const id = ids[ids.length - 1];
+     console.log("krishna id",uri,id);
      axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), MKDIR_OP_URL), {
-         "identifier": endpoint["credential"]["name"],
+         "identifier": id,
          "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
          "path": uri,
-         "folderToCreate": uri
+         "folderToCreate": uri.split("/")[uri.split("/").length - 1]
      })
          .then((response) => {
              if (!(response.status === 200))
@@ -106,22 +106,42 @@
  
  export async function deleteCall(uri, endpoint, isS3, id, accept, fail) {
      let callback = accept;
-     console.log(uri.split("/"));
-     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
-         "identifier": endpoint["credential"]["name"],
-         "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-         "path": uri+"/",
-         "toDelete": uri.split("/")[1]
-     })
-         .then((response) => {
-             if (!(response.status === 200))
-                 callback = fail;
-             statusHandle(response, callback);
-         })
-         .catch((error) => {
- 
-             handleRequestFailure(error, fail);
-         });
+     //using id to delete gdrive files
+     if(uri.split("/")[0]=="gdrive:"){
+        axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
+            "identifier": endpoint["credential"]["name"],
+            "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+            "path": uri+"/",
+            "toDelete": id
+        })
+            .then((response) => {
+                if (!(response.status === 200))
+                    callback = fail;
+                statusHandle(response, callback);
+            })
+            .catch((error) => {
+    
+                handleRequestFailure(error, fail);
+            });
+     }else{
+         //using name to delete box,dropbox files
+        axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, isS3 ? S3 : getUriType(endpoint["uri"]), DEL_OP_URL), {
+            "identifier": endpoint["credential"]["name"],
+            "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+            "path": uri+"/",
+            "toDelete": uri.split("/")[1]
+        })
+            .then((response) => {
+                if (!(response.status === 200))
+                    callback = fail;
+                statusHandle(response, callback);
+            })
+            .catch((error) => {
+    
+                handleRequestFailure(error, fail);
+            });
+     }
+     
  }
  
  // Returns the url for file. It is used to download the file and also to display in share url popup
