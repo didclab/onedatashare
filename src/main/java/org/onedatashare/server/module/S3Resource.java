@@ -77,6 +77,7 @@ public class S3Resource extends Resource{
                 .map(listObjectsV2Response -> {
                     Stat parent = new Stat();
                     parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.contents()));
+                    logger.info(parent.getFilesList());
                     return parent;
                 });
     }
