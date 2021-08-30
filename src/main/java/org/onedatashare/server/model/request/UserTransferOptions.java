@@ -36,5 +36,5 @@ public class UserTransferOptions {
     private Integer concurrencyThreadCount;
     private Integer parallelThreadCount;
     private Integer pipeSize;
-    private Integer chunkSize;
+    private Long chunkSize;
 }

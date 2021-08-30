@@ -103,7 +103,7 @@ public class BoxResource extends Resource {
             String[] pathToMake = operation.getFolderToCreate().split("/");
             BoxFolder parentFolder = null;
             String operationId = operation.getId();
-            if (operation.getId().isEmpty() || operation.getId().equals("0")) {
+            if (operation.getId() == null || operation.getId().isEmpty() || operation.getId().equals("0")) {
                 parentFolder = new BoxFolder(this.client,"0");
             } else {
                 parentFolder = new BoxFolder(this.client, operationId);
