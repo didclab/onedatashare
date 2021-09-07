@@ -127,12 +127,13 @@ public class VfsResource extends Resource {
                 Stat stat;
 //                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
                 FileObject fileObject;
+                logger.info(listOperation.toString());
                 if(listOperation.getPath().isEmpty() || listOperation.getPath() == null){
                     fileObject = this.resolveFile(this.baseUri);
                 }else{
                     fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
                 }
-
+                logger.info(this.baseUri + "/" +listOperation.getPath());
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;
