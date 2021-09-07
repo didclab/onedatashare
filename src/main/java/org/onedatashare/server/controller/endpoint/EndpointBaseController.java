@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 public abstract class EndpointBaseController {
-    Logger logger = LoggerFactory.getLogger(EndpointCredController.class);
+    Logger logger = LoggerFactory.getLogger(EndpointBaseController.class);
     
     @GetMapping("/ls")
     public Mono<Stat> list(@RequestParam String credId, @RequestParam Optional<String> path,

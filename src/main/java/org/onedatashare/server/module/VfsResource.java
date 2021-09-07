@@ -28,6 +28,7 @@ public class VfsResource extends Resource {
     protected FileSystemManager fileSystemManager;
     protected FileSystemOptions fileSystemOptions;
     protected String baseUri;
+    Logger logger = LoggerFactory.getLogger(VfsResource.class);
 
     public VfsResource(EndpointCredential credential){
         this.credential = credential;
@@ -142,9 +143,11 @@ public class VfsResource extends Resource {
                     ArrayList<Stat> files = new ArrayList<>();
                     for(FileObject file : children) {
                         files.add(fileToStat(file));
+                        logger.info(file.toString());
                     }
                     stat.setFiles(files);
                 }
+                logger.info(stat.toString());
                 s.success(stat);
             } catch (FileSystemException e) {
                 s.error(e);
