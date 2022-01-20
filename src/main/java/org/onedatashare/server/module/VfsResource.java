@@ -160,6 +160,7 @@ public class VfsResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
         return Mono.create(s -> {
             try {
+                logger.info(this.baseUri+"/"+mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
                 FileObject fileObject = this.resolveFile(this.baseUri + "/"
                         + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
                 if(fileObject.exists()){
