@@ -175,7 +175,9 @@ public class GDriveResource extends Resource {
                     File fileMetadata = new File();
                     fileMetadata.setName(foldersToCreate[i]);
                     fileMetadata.setMimeType("application/vnd.google-apps.folder");
-                    fileMetadata.setParents(Collections.singletonList(currId));
+                    if(operation.getId() != null && !operation.getId().isEmpty()){
+                        fileMetadata.setParents(Collections.singletonList(currId));
+                    }
                     File file = this.service.files().create(fileMetadata)
                             .setFields("id")
                             .execute();
