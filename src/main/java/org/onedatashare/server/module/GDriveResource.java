@@ -163,9 +163,9 @@ public class GDriveResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
             try {
-                if(operation.getId() == null || operation.getId().equals("/") || operation.getId().equals("0")){
-                    operation.setId("drive");
-                }
+//                if(operation.getId() == null || operation.getId().equals("/") || operation.getId().equals("0")){
+//                    operation.setId("drive");
+//                }
                 String[] foldersToCreate = operation.getFolderToCreate().split("/");
                 String currId = operation.getId();
                 for(int i =0; i < foldersToCreate.length; i++){
