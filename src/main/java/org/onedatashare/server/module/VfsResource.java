@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -127,13 +128,11 @@ public class VfsResource extends Resource {
                 Stat stat;
 //                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
                 FileObject fileObject;
-                logger.info(listOperation.toString());
                 if(listOperation.getPath().isEmpty() || listOperation.getPath() == null){
                     fileObject = this.resolveFile(this.baseUri);
                 }else{
                     fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
                 }
-                logger.info(this.baseUri + "/" +listOperation.getPath());
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                     return;
@@ -144,11 +143,9 @@ public class VfsResource extends Resource {
                     ArrayList<Stat> files = new ArrayList<>();
                     for(FileObject file : children) {
                         files.add(fileToStat(file));
-                        logger.info(file.toString());
                     }
                     stat.setFiles(files);
                 }
-                logger.info(stat.toString());
                 s.success(stat);
             } catch (FileSystemException e) {
                 s.error(e);
@@ -160,7 +157,7 @@ public class VfsResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
         return Mono.create(s -> {
             try {
-                logger.info(this.baseUri+"/"+mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
+                logger.info(Paths.get(this.baseUri, mkdirOperation.getPath(), mkdirOperation.getFolderToCreate()).toString());
                 FileObject fileObject = this.resolveFile(this.baseUri + "/"
                         + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
                 if(fileObject.exists()){

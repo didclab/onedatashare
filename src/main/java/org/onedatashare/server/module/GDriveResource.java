@@ -42,7 +42,7 @@ public class GDriveResource extends Resource {
                 .setName(path)
                 .setId(id);
 
-        if (path.equals("/") || id.equals("/") || path.isEmpty() || id.isEmpty()) {
+        if (path.equals("/") || id.equals("/") || path.isEmpty() || id.isEmpty() || id.equals("0") ||path.equals("0")) {
             stat.setDir(true);
             result = this.service.files().list()
                     .setOrderBy("name")
@@ -163,6 +163,9 @@ public class GDriveResource extends Resource {
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
             try {
+                if(operation.getId() == null || operation.getId().equals("/") || operation.getId().equals("0")){
+                    operation.setId("My Drive");
+                }
                 String[] foldersToCreate = operation.getFolderToCreate().split("/");
                 String currId = operation.getId();
                 for(int i =0; i < foldersToCreate.length; i++){
