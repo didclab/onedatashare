@@ -32,6 +32,11 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,9 +83,16 @@ public class DbxOauthService  {
             map.put(CODE, new String[] {queryParameters.get(CODE)});
             try {
                 DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
+
+                Timestamp timestamp = new Timestamp(Long.valueOf(finish.getExpiresAt()));
+
                 FullAccount account = new DbxClientV2(config, finish.getAccessToken()).users().getCurrentAccount();
                 OAuthEndpointCredential credential = new OAuthEndpointCredential(account.getEmail())
-                        .setToken(finish.getAccessToken());
+                        .setToken(finish.getAccessToken())
+                        .setTokenExpires(true)
+                        .setRefreshToken(finish.getRefreshToken())
+                        .setRefreshTokenExpires(true)
+                        .setExpiresAt(new Date(timestamp.getTime()));
                 s.success(credential);
             } catch (Exception e) {
                 s.error(e);

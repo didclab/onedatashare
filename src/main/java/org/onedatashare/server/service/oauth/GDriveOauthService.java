@@ -108,7 +108,8 @@ public class GDriveOauthService {
                 OAuthEndpointCredential credential  = new OAuthEndpointCredential(userId)
                         .setToken(response.getAccessToken())
                         .setRefreshToken(response.getRefreshToken())
-                        .setExpiresAt(calendar.getTime());
+                        .setExpiresAt(calendar.getTime())
+                        .setTokenExpires(true);
                 s.success(credential);
             } catch (IOException | GeneralSecurityException e) {
                 s.error(e);
