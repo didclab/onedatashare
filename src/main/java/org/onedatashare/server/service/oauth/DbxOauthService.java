@@ -27,6 +27,8 @@ import com.dropbox.core.*;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -52,6 +54,7 @@ public class DbxOauthService  {
     private DbxWebAuth auth;
     private String token = null;
 
+    private static final Logger LOG = LoggerFactory.getLogger(DbxOauthService.class);
     private static final String STATE = "state", CODE = "code";
 
     @PostConstruct
@@ -62,16 +65,18 @@ public class DbxOauthService  {
             public void clear() { set(null); }
             public String get() { return token; }
             public void set(String s) {
-                token = s;
+                if(s!=null)
+                    token = s;
             }
         };
         auth = new DbxWebAuth(config, secrets);
     }
 
     public String start(){
-        return auth.authorize(DbxWebAuth
+    	return auth.authorize(DbxWebAuth
                 .Request
                 .newBuilder()
+                .withTokenAccessType(TokenAccessType.OFFLINE)
                 .withRedirectUri(dbxConfig.getRedirectUri(), sessionStore)
                 .build());
     }
