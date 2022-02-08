@@ -25,11 +25,9 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import { openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth } from "../../APICalls/EndpointAPICalls";
 import { savedCredList } from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
-import {cookies} from "../../model/reducers.js";
 
 
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -41,7 +39,7 @@ import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, GRIDFTP,  getType} from "../../constants";
+import { GRIDFTP,  getType} from "../../constants";
 import {showText, showType, showDisplay} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 

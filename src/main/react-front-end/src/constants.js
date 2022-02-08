@@ -246,7 +246,6 @@ export const showDisplay = {
 	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
 	gdrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
 	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
-	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
 	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
 	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
