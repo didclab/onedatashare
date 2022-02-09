@@ -100,10 +100,8 @@ public class CredentialService {
      */
     private Mono<CredList> getVfsNodesOfUserName(String userId, EndpointType type){
         CredList credList = new CredList();
-        logger.info(userId, type.toString());
         if(type.equals(EndpointType.vfs)){
             for(Application application : this.discoveryClient.getApplications().getRegisteredApplications()){
-                logger.info(application.toString());
                 String applicationName = application.getName();
                 if(applicationName.toLowerCase().contains(userId.toLowerCase())){
                     credList.getList().add(application.getName());
