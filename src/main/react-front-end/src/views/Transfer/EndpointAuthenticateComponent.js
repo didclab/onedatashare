@@ -280,8 +280,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			(response) => {
 				console.log("saved endpoint cred")
 				console.log("the type is " + type);
-				listFiles(url, endpointSet,
-					type === showDisplay.s3.label, null, (succ) =>
+				listFiles(url, endpointSet, null, (succ) =>
 					{
 						this.props.loginSuccess(endpointSet);
 					},
@@ -419,8 +418,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						portNumber: region
 					}
 
-					listFiles(uri, endpointSet,
-						true, null, (succ) =>
+					listFiles(uri, endpointSet, null, (succ) =>
 						{
 							this.props.loginSuccess(endpointSet);
 						},
@@ -445,8 +443,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						portNumber: portValue
 					}
 
-					listFiles(uri, endpointSet,
-						false, null, (succ) =>
+					listFiles(uri, endpointSet, null, (succ) =>
 						{
 							this.props.loginSuccess(endpointSet);
 						},
@@ -704,7 +701,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				{/* Other login handlers*/}
 				{!isOAuth[loginType] && historyList &&
 		        	this.getHistoryListComponentFromList(historyList)}
-		        	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+		        	<Grid container justifyContent={"space-between"} spacing={2} style={{padding: "3%"}}>
 						<Grid item md={6} xs={12}>
 							<StepButton
 								id={endpoint.side + "LoginAuth"}
@@ -889,7 +886,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							</ValidatorForm>
 			        </div>
 		    	}
-		    	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+		    	<Grid container justifyContent={"space-between"} spacing={2} style={{padding: "3%"}}>
 					<Grid item md={6} xs={12}>
 					<StepButton
 						id={endpoint.side + "LoginAuth"}

@@ -331,9 +331,8 @@ export default class EndpointBrowseComponent extends Component {
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
-		const isS3 = endpoint.credential.type === showType.s3;
 
-		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
+		listFiles(uri, endpoint, id[id.length-1], (data) =>{
 			setLoading(false);
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
@@ -396,14 +395,11 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
-		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
-		const dirType = getType(endpoint);
-		console.log(dirName);
 		//make api call
-		mkdir(dirName,dirType, endpoint, isS3, (response) => {
+		mkdir(dirName, endpoint, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
 		}, (error) => {
@@ -427,9 +423,6 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFileDeleted = (files) => {
 		const {endpoint, setLoading} = this.props;
-		// console.log(endpoint);
-		// return;
-		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, ids} = this.state;
 		const len = files.length;
 		var i = 0;
@@ -437,7 +430,7 @@ export default class EndpointBrowseComponent extends Component {
 			setLoading(true);
 			files.map((file) => {
 				const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-				deleteCall( fileName, endpoint, isS3,  file.id, (response) => {
+				deleteCall( fileName, endpoint, file.id, (response) => {
 					i++;
 					if(i === len){
 						this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
@@ -597,7 +590,7 @@ export default class EndpointBrowseComponent extends Component {
 			{/*alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px",*/}
 			<div style={{  backgroundColor: "#d9edf7"}}>
 
-				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "99%", padding: "0"}}>
+				<Grid container direction={"row"} spacing={2} justifyContent={"space-between"} alignItems={"center"} style={{width: "99%", padding: "0"}}>
 
 					{/*{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&*/}
 					{/*	<BrowseButton*/}

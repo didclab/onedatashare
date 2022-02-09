@@ -413,10 +413,10 @@ export default class TransferComponent extends Component {
     //     <h5>Transfer Setting</h5>
     //   </div>
         <Container>
-      <Grid container className="innerBox" direction="row" align-items="flex-start" justify="center" spacing={2} style={{paddingLeft: "20px"}}>
+      <Grid container className="innerBox" direction="row" align-items="flex-start" justifyContent="center" spacing={2} style={{paddingLeft: "20px"}}>
         <Grid item md={desktopWidth} sm={tabletWidth}>
           <FormControl component="fieldset" >
-            <FormLabel component="legend" classes={{root: radioStyles.formLabel}} ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
+            <FormLabel component="legend" ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
             <RadioGroup
                 aria-label="Optimization"
                 value={this.state.settings.optimizer}
@@ -431,8 +431,8 @@ export default class TransferComponent extends Component {
 
 
         {/* checkbox version */}
-        {/*direction={"column"} justify={"center"}*/}
-        <Grid item container direction={"row"} justify={"space-evenly"} md={desktopWidth} sm={tabletWidth} spacing={(theme) => theme.breakpoints.up('sm') ? 2 : 8}>
+        {/*direction={"column"} justifyContent={"center"}*/}
+        <Grid item container direction={"row"} justifyContent={"space-evenly"} md={desktopWidth} sm={tabletWidth} >
             <Grid item sm={gridFullWidth} xs={5}>
               <FormControlLabel
                   control=
@@ -565,7 +565,7 @@ export default class TransferComponent extends Component {
         </Grid>
       </Grid>
           <Divider/>
-    <Grid container justify={'center'}>
+    <Grid container justifyContent={'center'}>
       <Grid item>
         <FormControlLabel
             control=
@@ -605,7 +605,7 @@ export default class TransferComponent extends Component {
 
     return (
         <div className={"outeractionContainer"}>
-        <Grid container direction="column" justify={"center"}>
+        <Grid container direction="column" justifyContent={"center"}>
           <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
@@ -625,7 +625,7 @@ export default class TransferComponent extends Component {
               {/*/>*/}
 
               <Box>
-                <Grid container direction="row" justify="center" spacing={2}>
+                <Grid container direction="row" justifyContent="center" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
                       onDragEnd={this.onDragEnd}>
@@ -634,7 +634,7 @@ export default class TransferComponent extends Component {
                       {/*<h6>Source</h6>*/}
                     </Grid>
                     <Hidden mdUp>
-                      <Grid container item direction="row" align-items="center" justify="center">
+                      <Grid container item direction="row" align-items="center" justifyContent="center">
                         <Grid item>
                           <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}>
                             <KeyboardArrowUpRounded />
@@ -659,7 +659,7 @@ export default class TransferComponent extends Component {
                 </Grid>
 
                 <Hidden smDown>
-                  <Grid container direction="row" align-items="center" justify="center">
+                  <Grid container direction="row" align-items="center" justifyContent="center">
                     <Grid item>
                       <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                     </Grid>
