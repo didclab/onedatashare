@@ -23,6 +23,8 @@
 
 package org.onedatashare.server.service;
 
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
 import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
@@ -41,6 +43,7 @@ import reactor.core.publisher.Mono;
 import javax.annotation.PostConstruct;
 import javax.security.auth.login.CredentialNotFoundException;
 import java.net.URI;
+import java.util.ArrayList;
 
 @Service
 public class CredentialService {
@@ -54,6 +57,9 @@ public class CredentialService {
 
     @Autowired
     private WebClient.Builder webClientBuilder;
+
+    @Autowired
+    private EurekaClient discoveryClient;
 
     @PostConstruct
     private void initialize(){
@@ -75,11 +81,38 @@ public class CredentialService {
     }
 
     public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type){
-        return this.webClientBuilder.build().get()
-                .uri(URI.create(String.format(this.credListUrl, userId, type)))
-                .retrieve()
-                .bodyToMono(CredList.class);
+        switch (type){
+            case vfs: return this.getVfsNodesOfUserName(userId, type);
+            default:
+                return this.webClientBuilder.build().get()
+                        .uri(URI.create(String.format(this.credListUrl, userId, type)))
+                        .retrieve()
+                        .bodyToMono(CredList.class);
+        }
     }
+
+    /**
+     * This Queries Eureka for all services that contain the current users username.
+     * VFS nodes will require having the username set as an ENV property.
+     * @param userId
+     * @param type
+     * @return
+     */
+    private Mono<CredList> getVfsNodesOfUserName(String userId, EndpointType type){
+        CredList credList = new CredList();
+        logger.info(userId, type.toString());
+        if(type.equals(EndpointType.vfs)){
+            for(Application application : this.discoveryClient.getApplications().getRegisteredApplications()){
+                logger.info(application.toString());
+                String applicationName = application.getName();
+                if(applicationName.toLowerCase().contains(userId.toLowerCase())){
+                    credList.getList().add(application.getName());
+                }
+            }
+        }
+        return Mono.just(credList);
+    }
+
 
     public Mono<AccountEndpointCredential> fetchAccountCredential(EndpointType type, String credId){
         return getUserId()
