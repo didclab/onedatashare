@@ -104,7 +104,7 @@ public class CredentialService {
             for(Application application : this.discoveryClient.getApplications().getRegisteredApplications()){
                 String applicationName = application.getName();
                 if(applicationName.toLowerCase().contains(userId.toLowerCase())){
-                    credList.getList().add(application.getName());
+                    credList.getList().add(application.getName().toLowerCase());
                 }
             }
         }
