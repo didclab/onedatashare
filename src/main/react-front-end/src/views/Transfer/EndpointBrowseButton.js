@@ -16,11 +16,9 @@ const BrowseButton = (props) => {
     const [label, setLabel] = React.useState("");
     const hoverOpen = (event, label) => {
         setMouse(event.currentTarget);
-        // console.log(mouseOn);
         setLabel(label);
     };
     const hoverClose = () => {
-        console.log(mouseOn);
         setMouse(null);
 
     }

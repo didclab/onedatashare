@@ -356,7 +356,6 @@ export async function history(uri, portNum, accept, fail) {
 
 export async function deleteHistory(uri, isS3, accept, fail) {
 		let callback = accept;
-		// console.log(uri + " " + type);
 
 		axios.post(apiCredUrl + 'user', {
 			action: "deleteHistory",

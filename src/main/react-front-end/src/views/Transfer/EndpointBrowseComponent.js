@@ -31,11 +31,9 @@ import { Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
-import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import Code from '@material-ui/icons/Code';
 import {Button, Grid, Box, Breadcrumbs, Link} from '@material-ui/core';
 
 import TextField from '@material-ui/core/TextField';
@@ -46,7 +44,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from "@material-ui/core/Typography";
 
-import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
@@ -54,12 +51,7 @@ import {
 	listFiles,
 	mkdir,
 	deleteCall,
-	download,
-	getDownload,
 	getSharableLink,
-	openBoxOAuth,
-	openDropboxOAuth,
-	openGoogleDriveOAuth
 } from "../../APICalls/EndpointAPICalls";
 
 
@@ -71,11 +63,9 @@ import {eventEmitter, store} from "../../App";
 
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import ProgressUpdateComponent from "./progressUpdateComponent"
 import {compactViewPreference} from "../../model/actions";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -338,7 +328,6 @@ export default class EndpointBrowseComponent extends Component {
 	// Listingi does not yet work for SFTP and HTTP
 	getFilesFromBackendWithPath(endpoint, path, id){
 		var uri = endpoint.uri;
-		// console.log(endpoint);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");

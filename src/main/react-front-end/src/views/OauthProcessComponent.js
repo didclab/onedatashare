@@ -31,8 +31,6 @@ import {
   GOOGLEDRIVE_NAME,
   GRIDFTP_NAME,
   BOX_NAME,
-    showText,
-    isOAuth
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";

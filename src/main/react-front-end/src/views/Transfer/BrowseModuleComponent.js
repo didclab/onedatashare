@@ -178,13 +178,6 @@ export default class BrowseModuleComponent extends Component {
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		const login = (service) => {
-			if(service[1].credTypeExists){
-				this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
-			}else{
-				this.loginPrep(showType[service[0]])();
-			}
-		}
 
 
 		const EndpointButton = this.endpointButton();

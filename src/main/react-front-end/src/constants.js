@@ -333,10 +333,6 @@ export function getName(endpoint) {
 	return showText[endpoint.uri.split(":")[0].toLowerCase()]
 }
 
-export function getNameFromUri(uri) {
-	return showText[uri.split(":")[0].toLowerCase()]
-}
-
 export function validateField(regex, valueToEvaluate, messageToDisplay, validationArray) {
 	if (!(regex.test(valueToEvaluate))) {
 		validationArray.push({ containsError: true, msg: messageToDisplay });

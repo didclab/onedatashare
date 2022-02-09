@@ -34,17 +34,15 @@ import ForgotPasswordComponent from "./ForgotPasswordComponent";
 
 import { Route, Switch, Redirect } from "react-router-dom";
 
-import { login, getToken } from "../../APICalls/APICalls.js";
+import { login } from "../../APICalls/APICalls.js";
 
 import "./AccountControlComponent.css";
 
 import {
-  transferPageUrl,
   signInUrl,
   registerPageUrl,
   forgotPasswordUrl,
   lostValidationCodeUrl,
-  accountPageUrl,
     siteURLS
 } from "../../constants";
 import { GREY } from "../../color";

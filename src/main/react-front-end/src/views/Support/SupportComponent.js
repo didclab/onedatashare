@@ -30,8 +30,6 @@ import React, { Component } from 'react';
 import { submitIssue } from '../../APICalls/APICalls';
 import {store} from '../../App';
 
-import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/CardHeader';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -42,10 +40,7 @@ import {Container, Box} from "@material-ui/core";
 
 import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import Typography from "@material-ui/core/Typography";
-import {Col, Panel} from "react-bootstrap";
 import Logo from "./logo-blue.png";
 import './support_style.css';
 
@@ -128,7 +123,6 @@ export default class SupportComponent extends Component{
 
   render(){
 
-    const cardStyle = { margin: '5% 7.2% 10%', border: 'solid 2px #d9edf7' };
     const divStyle = { margin : '2% 5%', alignItems: "center" };
     const captchaStyle = { ...divStyle, textAlign : 'center', display: 'inline-block' };
 
@@ -142,7 +136,7 @@ export default class SupportComponent extends Component{
                 </h4>
               </Panel.Heading> */}
               <div style={divStyle}>
-                <img src={Logo} style={{width: "20%"}}/>
+                <img src={Logo} style={{width: "20%"}} alt="Logo"/>
               </div>
               <Typography component="h1" variant="h4" align="center">
               <div style={divStyle}>

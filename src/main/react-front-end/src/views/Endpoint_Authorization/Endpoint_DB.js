@@ -1,6 +1,5 @@
 import React from "react";
 import {TableContainer} from "@material-ui/core";
-import ReactDOM from "react-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -82,7 +81,7 @@ const CustomTableCell = ({ row, name, onChange }) => {
           style={{fontSize: "small"}}
         />
       ) : (
-        <div className={name == 'token' ? classes.hidetext : null}>{row[name]}</div>
+        <div className={name === 'token' ? classes.hidetext : null}>{row[name]}</div>
       )}
     </TableCell>
   );
@@ -231,7 +230,7 @@ export default function Endpoint_DB() {
 
   return (
     <TableContainer component={Paper} className={classes.root}>
-      <center><img src={Logo} style={{width: 100, margin:5}}/> <h4 style={{fontWeight:"bold", color: "#172753"}}>Endpoint Credentials</h4></center>
+      <center><img src={Logo} style={{width: 100, margin:5}} alt="Logo" /> <h4 style={{fontWeight:"bold", color: "#172753"}}>Endpoint Credentials</h4></center>
       <TableCell style={{borderBottom: "0px"}}>
       <IconButton
         aria-label="add_row"

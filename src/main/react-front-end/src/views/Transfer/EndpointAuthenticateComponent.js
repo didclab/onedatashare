@@ -26,20 +26,8 @@ import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
-import { deleteHistory, deleteCredentialFromServer, history, savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
-import {/*DROPBOX_TYPE,
-				GOOGLEDRIVE_TYPE,
-				BOX_TYPE,
-				FTP_TYPE,
-				SFTP_TYPE,
-				GRIDFTP_TYPE,
-				HTTP_TYPE,*/
-				ODS_PUBLIC_KEY,
-				generateURLFromPortNumber,
-				generateURLForS3,
-				showDisplay,
-				s3Regions
-			} from "../../constants";
+import {savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
+import { generateURLFromPortNumber, generateURLForS3, showDisplay, s3Regions } from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import {store} from "../../App";
@@ -52,14 +40,12 @@ import Button from "@material-ui/core/Button";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
 
-import JSEncrypt from 'jsencrypt';
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
-import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
-import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox, Accordion, AccordionSummary, AccordionDetails, MenuItem} from "@material-ui/core";
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Accordion, AccordionSummary, AccordionDetails, MenuItem} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -513,7 +499,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	// FTP only functional through signing in using the manual login.
 	// SFTP and HTTP not functional yet
 	regularSignIn = () => {
-		const {url, username, password, needPassword, rsa, pemFileName} = this.state;
+		const {url, username, password} = this.state;
 		const loginType = getType(this.state.endpoint);
 		if((url.substr(url.length - 3) === '://' && loginType !== showType.s3) || (url.length < 1 && this.state.portNum < 1)) {
 			loginType !== showType.s3 ? this._handleError("Please enter a valid URL") : this._handleError("Please enter a valid bucketname and region")
@@ -678,7 +664,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
-		console.log(historyList)
 		const { back } = this.props;
 		
 		const type = getName(endpoint);

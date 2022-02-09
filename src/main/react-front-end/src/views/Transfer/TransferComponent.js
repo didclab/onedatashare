@@ -35,8 +35,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from '@material-ui/core/FormLabel';
-// import Grid from "@material-ui/core/Grid";
-import {Hidden, Container, Box, TextField, Grid, useMediaQuery, Snackbar, Fade /*Accordion, AccordionSummary, AccordionDetails*/} from "@material-ui/core";
+import {Hidden, Container, Box, TextField, Grid, Snackbar, Fade } from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -50,12 +49,10 @@ import { endpointUpdate} from "../../model/actions";
 import { DragDropContext } from 'react-beautiful-dnd';
 import { mutliDragAwareReorder} from "./utils.js";
 
-import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId, longestCommonPrefix } from "./initialize_dnd.js";
+import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, getEndpointFromColumn, getSelectedTasksFromSide, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
 import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
-
-import Switch from '@material-ui/core/Switch';
 
 
 import  Terminal  from '../Terminal';
@@ -392,13 +389,7 @@ export default class TransferComponent extends Component {
         this.setState({notif: false})
       },1000);
     }
-    const closeNotif = () => {
-      this.setState({notif: false});
-    }
 
-    const formlabelstyle = { fontSize: "15px" }
-    // const formStyle = { marginLeft: "5%", marginRight: "5%" }
-    const formStyle = { marginLeft: "35%", marginRight: "35%"}
     const desktopWidth = 4;
 
     const tabletWidth = 4;
@@ -607,9 +598,6 @@ export default class TransferComponent extends Component {
     // const isSmall = false;
     // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
     // const headerStyle = { textAlign: "center" }
-    let handleChange = name => event => {
-      this.setState({ [name]: event.target.checked });
-    };
 
     // Tooltip
 
