@@ -23,7 +23,6 @@
 
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import './HomePageComponent.css';
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import RecognitionSlice from "./HomePage/RecognitionSlice";

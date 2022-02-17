@@ -54,6 +54,7 @@ const BrowseButton = (props) => {
                     return(
                         <Button
                             key={props.id[index]}
+                            disabled={props.disabled}
                             id={props.id[index]}
                             style={props.style[index]}
                             onClick={props.click[index]}

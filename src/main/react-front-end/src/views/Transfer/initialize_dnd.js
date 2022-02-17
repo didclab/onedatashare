@@ -133,14 +133,12 @@ export function getCred(){
 };
 
 
-export function setFilesWithPathList(files, path, endpoint){
+export function setFilesWithPathListAndTasks(files, path, endpoint){
 	if(endpoint.side === "left"){
-		column1.tasks = files;
-		column1.title = endpoint.uri;
+		column1.selectedTasks = files;
 		column1.path = path;
 	}else{
-		column2.tasks = files;
-		column2.title = endpoint.uri;
+		column2.selectedTasks = files;
 		column2.path = path;
 	}
 }
@@ -291,5 +289,4 @@ export function getSelectionCount(endpoint){
 
 export function unselectAll (){
 	setSelectedTasks([], []);
-    return [];
 };

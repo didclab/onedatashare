@@ -52,7 +52,7 @@ import { mutliDragAwareReorder} from "./utils.js";
 import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, getEndpointFromColumn, getSelectedTasksFromSide, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
-import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
+import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType, showDisplay} from "../../constants";
 
 
 import  Terminal  from '../Terminal';
@@ -164,7 +164,6 @@ export default class TransferComponent extends Component {
     let infoList=[]
     let sourceCredId =""
     let destCredId = ""
-
     if(isOAuth[showType[sType]]){
       sourceParent = sType!="box" ?"":"0"
       sourceCredId = endpointSrc.credential.uuid
@@ -172,6 +171,12 @@ export default class TransferComponent extends Component {
         infoList.push({path:x.id,id:x.id,size:x.size})
       }
       )
+    } else if (endpointSrc?.uri === showType.vfs) {
+      sourceCredId = endpointSrc?.credential?.credId
+      sourceParent = processed.fromTo[0].path || ""
+      processed.selectedTasks.forEach(x=>{
+        infoList.push({path:x.value,id:x.value})
+      })
     }
     else{
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
@@ -182,6 +187,9 @@ export default class TransferComponent extends Component {
     if(isOAuth[showType[dType]]){
       destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")
       destCredId=endpointDest.credential.uuid
+    } else if (endpointDest?.uri === showType.vfs) {
+      destParent = processed.fromTo[1].path || "" 
+      destCredId = endpointDest?.credential?.credId
     }
     else{
       destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
@@ -219,7 +227,7 @@ export default class TransferComponent extends Component {
     submitTransferRequest(source,destination, optionParsed, (response) => {
       eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
       setBeforeTransferReorder(processed);
-      this.setState({isMessageVisible:true,message:"Job submitted"})
+      this.setState({isMessageVisible:true,message:"Job submitted"});
       unselectAll()
     }, (error) => {
       eventEmitter.emit("errorOccured", error);
@@ -267,10 +275,10 @@ export default class TransferComponent extends Component {
     if (object.mode === undefined) {
       object.mode = 0
     }
-    this.setState({ endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode });
+    this.setState({ endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode })
     if (object.endpoint)
-      store.dispatch(endpointUpdate(object.endpoint.side, { ...this.state.endpoint1, ...object.endpoint }));
-  }
+      store.dispatch(endpointUpdate("left", { ...this.state.endpoint1, ...object.endpoint }));
+    }
 
   updateBrowseTwo(object) {
     if (object.mode === undefined) {
@@ -278,7 +286,7 @@ export default class TransferComponent extends Component {
     }
     this.setState({ endpoint2: object.endpoint || this.state.endpoint2, mode2: object.mode });
     if (object.endpoint)
-      store.dispatch(endpointUpdate(object.endpoint.side, { ...this.state.endpoint2, ...object.endpoint }));
+      store.dispatch(endpointUpdate("right", { ...this.state.endpoint2, ...object.endpoint }));
   }
 
   onDragStart = (start) => {

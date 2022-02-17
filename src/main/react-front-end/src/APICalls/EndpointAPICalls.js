@@ -73,8 +73,9 @@ export async function mkdir(uri, endpoint, accept, fail) {
     let callback = accept;
     const ids = getIdsFromEndpoint(endpoint);
     const id = ids[ids.length - 1];
+    let type = getType(endpoint)
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), MKDIR_OP_URL), {
-        "identifier": id || endpoint["credential"]["name"],
+        "identifier": isOAuth[type] ?  id : endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
         "path": uri,
         "folderToCreate": uri.split("/").reverse()[0]

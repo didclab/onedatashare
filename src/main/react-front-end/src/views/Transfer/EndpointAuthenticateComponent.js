@@ -172,9 +172,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	historyListUpdateFromBackend = (endpointType) => {
-		console.log(endpointType);
 		savedCredList(endpointType, (data) =>{
-			console.log(data);
 			/*data.list.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })}*/
 			this.setState({historyList: data.list});
 			this.props.setLoading(false);
@@ -337,6 +335,7 @@ export default class EndpointAuthenticateComponent extends Component {
 				return (!getCred().includes(id))})
 				.map((v) =>
 				<ListItem button key={v}
+					ContainerComponent="div"
 					onClick={() => {
 						const endpointSet = {
 							uri: endpoint.uri,
@@ -346,7 +345,6 @@ export default class EndpointAuthenticateComponent extends Component {
 						}
 						loginSuccess(endpointSet);
 					}}
-						  ContainerComponent="div"
 				>
 					<ListItemIcon>
 						<DataIcon/>
@@ -371,7 +369,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted not to store tokens on ODS server
 			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-			<ListItem button onClick={() => {
+			<ListItem button ContainerComponent="div" onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
@@ -405,7 +403,7 @@ export default class EndpointAuthenticateComponent extends Component {
    //for credential list for ftp,sftp,http, and S3. Currently only S3 is fully functional. Combination of conditionals may be possible in the future.
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
-			<ListItem button key={uri} onClick={() => {
+			<ListItem button key={uri} ContainerComponent="div" onClick={() => {
 				if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
 
 					const region = uri.split(":::")[1];
@@ -430,7 +428,9 @@ export default class EndpointAuthenticateComponent extends Component {
 					)
 
 
-				}else{
+				} else if (showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.vfs.label) {
+					this.vfsTypeHandler({ uri })
+				} else{
 					
 					let portValue = getDefaultPortFromUri(uri);
 					let myPoint = this.state.endpoint
@@ -608,6 +608,19 @@ export default class EndpointAuthenticateComponent extends Component {
 	stepButton = () => styled(Button)({
 		width: "100%",
 	})
+
+	vfsTypeHandler = ({ uri }) => {
+		let portValue = getDefaultPortFromUri(uri);
+		let myPoint = this.state.endpoint
+		let endpointSet = {
+			uri: myPoint.uri,
+			login: true,
+			side: this.props.endpoint.side,
+			credential: {name: "\"\"", credId: uri, type: getName(this.state.endpoint).toLowerCase()},
+			portNumber: portValue
+		}
+		this.props.loginSuccess(endpointSet);
+	}
 
 
 
