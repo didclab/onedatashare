@@ -10,9 +10,8 @@ function VFSBrowseComponent(props) {
     const [filesList, setFilesList] = useState([{idx: 0, value: ''}]);
 
     const handleMultipleChanges = (event, index) => {
-        let newArray = [...filesList]
-        
-        setFilesList(newArray.map(val => val.idx === index ? {idx: index, value: event.target.value} : val))
+        let newArray = [...filesList].map(val => val.idx === index ? {idx: index, value: event.target.value} : val)
+        setFilesList(newArray)
         setFilesWithPathListAndTasks(newArray, parentPath, props.endpoint)
     }
     const addFileHolder = () => {
