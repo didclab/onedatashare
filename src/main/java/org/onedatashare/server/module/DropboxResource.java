@@ -153,11 +153,11 @@ public class DropboxResource extends Resource {
     @Override
     public Mono<Void> mkdir(MkdirOperation operation) {
         return Mono.create(s -> {
-            if(operation.getId().isEmpty()){
-                operation.setId("/");
+            if(operation.getPath().isEmpty()){
+                operation.setPath("/");
             }
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getId() + operation.getFolderToCreate()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
                 s.success();
             } catch (Exception e) {
                 s.error(e);
