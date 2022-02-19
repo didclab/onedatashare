@@ -52,7 +52,7 @@ import { mutliDragAwareReorder} from "./utils.js";
 import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, getEndpointFromColumn, getSelectedTasksFromSide, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
-import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType, showDisplay} from "../../constants";
+import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
 
 
 import  Terminal  from '../Terminal';
@@ -175,14 +175,14 @@ export default class TransferComponent extends Component {
       sourceCredId = endpointSrc?.credential?.credId
       sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
       processed.selectedTasks.forEach(x=>{
-        infoList.push({path:x.value,id:x.value})
+        infoList.push({path:x.value,id:x.value, size: x.size})
       })
     }
     else{
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
       sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!="")?"":"/" : sourceParent
       sourceCredId = endpointSrc.credential.credId
-      processed.selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
+      processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
     }
     if(isOAuth[showType[dType]]){
       destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")

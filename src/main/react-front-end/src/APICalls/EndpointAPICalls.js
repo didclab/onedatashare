@@ -52,7 +52,6 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 export async function listFiles(uri, endpoint, id, accept, fail) {
 
     let { params } = constructParamsForList({uri, endpoint, id})
-
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), LIST_OP_URL)
     axios.get(url, { params })
@@ -76,9 +75,10 @@ export async function mkdir(uri, endpoint, accept, fail) {
     let type = getType(endpoint)
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), MKDIR_OP_URL), {
         "identifier": isOAuth[type] ?  id : endpoint["credential"]["name"],
-        "credId": endpoint["credential"]["credId"]? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
-        "path": uri,
-        "folderToCreate": uri.split("/").reverse()[0]
+        "id": isOAuth[type] ?  id : endpoint["credential"]["name"],
+        "credId": endpoint["credential"]["credId"] ? endpoint["credential"]["credId"] : endpoint["credential"]["uuid"],
+        "path": uri.substr(0, uri.lastIndexOf("/") + 1),
+        "folderToCreate": uri.substr(uri.lastIndexOf("/") + 1)
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -96,7 +96,7 @@ export async function deleteCall(uri, endpoint, id, accept, fail) {
         "identifier": id || endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"] || endpoint["credential"]["uuid"],
         "path": encodeURI(`${uri}/`),
-        "toDelete": id || encodeURI(uri.substr(uri.indexOf("/") + 1))
+        "toDelete": id || encodeURI(uri.substr(uri.lastIndexOf("/") + 1))
     })
         .then((response) => {
             if (!(response.status === 200))
@@ -217,14 +217,14 @@ function constructParamsForList({uri, endpoint, id}) {
     let params = {}
     let type = getType(endpoint)
     if (type === showType.ftp) {
-        params = { credId: endpoint["credential"]["credId"], path: "/"}
+        params = { credId: endpoint["credential"]["credId"], path: id || "/"}
     } else if (isOAuth[type]) {
     params = { "identifier": id,
             "credId": endpoint["credential"]["credId"] || endpoint["credential"]["uuid"],
             "path": encodeURI(uri),
         }
     } else {
-        params = {"credId": endpoint["credential"]["credId"] || endpoint["credential"]["uuid"], "path": "/"}
+        params = {"credId": endpoint["credential"]["credId"] || endpoint["credential"]["uuid"], "path": id || "/"}
     }
     return { params }
 }

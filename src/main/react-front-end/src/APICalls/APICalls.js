@@ -408,7 +408,6 @@ export async function savedCredList(type, accept, fail) {
 	let callback = accept;
 	axios.get(apiCredUrl + type.toLowerCase())
 		.then((response) => {
-			console.log(response);
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);

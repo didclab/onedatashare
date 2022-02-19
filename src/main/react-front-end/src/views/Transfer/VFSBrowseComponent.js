@@ -7,10 +7,15 @@ import { setFilesWithPathListAndTasks } from './initialize_dnd';
 
 function VFSBrowseComponent(props) {
     const [parentPath, setParentPath] = useState('');
-    const [filesList, setFilesList] = useState([{idx: 0, value: ''}]);
+    const [filesList, setFilesList] = useState([{idx: 0, value: '', size: null}]);
 
     const handleMultipleChanges = (event, index) => {
-        let newArray = [...filesList].map(val => val.idx === index ? {idx: index, value: event.target.value} : val)
+        let newArray = [...filesList].map(val => val.idx === index ? {idx: index, value: event.target.value, size: val.size} : val)
+        setFilesList(newArray)
+        setFilesWithPathListAndTasks(newArray, parentPath, props.endpoint)
+    }
+    const handleMultipleChangesSize = (event, index) => {
+        let newArray = [...filesList].map(val => val.idx === index ? {idx: index, size: event.target.value, value: val.value} : val)
         setFilesList(newArray)
         setFilesWithPathListAndTasks(newArray, parentPath, props.endpoint)
     }
@@ -62,6 +67,22 @@ function VFSBrowseComponent(props) {
 									className: "searchTextfield"
 								}}
                                 key={`child-${file.idx}`}
+                                style={{marginRight: '10px'}}
+							/>
+                                <TextField
+								fullWidth
+								variant={"outlined"}
+								margin={"dense"}
+								placeholder={"Size"}
+                                name={file.idx}
+                                value={file.size}
+                                type="number"
+								onChange={event => {handleMultipleChangesSize(event, file.idx)}}
+								InputProps={{
+									className: "searchTextfield"
+								}}
+                                style={{width: '150px'}}
+                                key={`child-size-${file.idx}`}
 							/>
                             <IconButton onClick={() => addFileHolder()} aria-label="add">
                                 <Add />

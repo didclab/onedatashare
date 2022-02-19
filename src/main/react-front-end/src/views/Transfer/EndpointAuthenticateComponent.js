@@ -266,13 +266,12 @@ export default class EndpointAuthenticateComponent extends Component {
 		let encryptedSecret = "";
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
-		}	
-		console.log(credential.uri);
+		}
 		saveEndpointCred(type,
 			{
 				uri: credential.uri,
 				username: credential.name,
-				secret: credential.password,
+				secret: credential.rsa || credential.pemFile || credential.password,
 				accountId: credential.credId,
 			},
 			(response) => {
@@ -503,8 +502,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			return;
 		}
 		// User is expected to enter password to login
-
-		if(username.length === 0 || password.length === 0) {
+		if(username.length === 0 || (loginType !== showType.sftp && password.length === 0)) {
 			this._handleError(loginType !== showType.s3 ? "Enter a username or password" : "Enter an access key or secret key");
 			return;
 		}
@@ -564,9 +562,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		reader.onload = (event) => {
 			fileContents = event.target.result;
 			this.setState({
-					pemFile: fileContents.replace(/\n|\r/g,"").trim(),
+					pemFile: fileContents,
 					pemFileName: file.name
-				}, function() {console.log(this.state.pemFile)});
+				});
 		}
 		if(file.name.length > 0){
 			reader.readAsText(file);
@@ -770,7 +768,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							/>
 
 							<TextValidator
-								required
+								required={loginType !== showType.sftp}
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginPassword"}
 								label={loginType === showType.s3 ? "AWS SECRET KEY" : "Password"}
