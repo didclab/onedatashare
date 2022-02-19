@@ -67,8 +67,8 @@ public class VfsResource extends Resource {
         FileContent fileContent = getContent(file);
         FileType type = getType(file);
         if(type == FileType.FOLDER) {
-            stat.setDir(false);
-            stat.setFile(true);
+            stat.setDir(true);
+            stat.setFile(false);
         }else if(type == FileType.FILE) {
             stat.setSize(size(fileContent));
             stat.setFile(true);
