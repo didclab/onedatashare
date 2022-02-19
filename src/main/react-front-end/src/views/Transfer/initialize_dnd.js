@@ -128,8 +128,14 @@ export function getColumn(id){
 
 export function getCred(){ 
 	const state = store.getState();
-	const credentials = {...state.endpoint1.credential, ...state.endpoint2.credential}
-	return Object.keys(credentials).map((v)=>credentials[v]);
+	let loggedInAccounts = []
+	if (state?.endpoint1?.login) {
+		loggedInAccounts.push(`${state?.endpoint1?.uri}${state?.endpoint1?.credential?.name}`)
+	}
+	if (state?.endpoint2?.login) {
+		loggedInAccounts.push(`${state?.endpoint2?.uri}${state?.endpoint2?.credential?.name}`)
+	}
+	return loggedInAccounts
 };
 
 

@@ -324,7 +324,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
-	getCredentialListComponentFromList(credList, type){
+	getCredentialListComponentFromList(credList, type, loginType){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
 		
@@ -332,7 +332,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return credList.filter(id => {
-				return (!getCred().includes(id))})
+				return (!getCred().includes(`${loginType}${id}`))})
 				.map((v) =>
 				<ListItem button key={v}
 					ContainerComponent="div"
@@ -708,7 +708,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type)}
+				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type, loginType)}
 				{/* GridFTP OAuth handler */}
 				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}

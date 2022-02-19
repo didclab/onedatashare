@@ -173,7 +173,7 @@ export default class TransferComponent extends Component {
       )
     } else if (endpointSrc?.uri === showType.vfs) {
       sourceCredId = endpointSrc?.credential?.credId
-      sourceParent = processed.fromTo[0].path || ""
+      sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
       processed.selectedTasks.forEach(x=>{
         infoList.push({path:x.value,id:x.value})
       })
@@ -188,7 +188,7 @@ export default class TransferComponent extends Component {
       destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")
       destCredId=endpointDest.credential.uuid
     } else if (endpointDest?.uri === showType.vfs) {
-      destParent = processed.fromTo[1].path || "" 
+      destParent = Array.isArray(processed.fromTo[1].path) ? "" : processed.fromTo[1].path
       destCredId = endpointDest?.credential?.credId
     }
     else{
