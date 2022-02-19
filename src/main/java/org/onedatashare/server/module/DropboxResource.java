@@ -169,7 +169,7 @@ public class DropboxResource extends Resource {
     public Mono<Void> delete(DeleteOperation operation) {
         return Mono.create(s -> {
             try {
-                this.client.files().deleteV2(this.pathFromUrl(operation.getId() + operation.getToDelete()));
+                this.client.files().deleteV2(this.pathFromUrl(operation.getToDelete()));
                 s.success();
             } catch (DbxException | UnsupportedEncodingException e) {
                 s.error(e);
