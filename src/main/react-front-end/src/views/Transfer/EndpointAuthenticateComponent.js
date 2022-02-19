@@ -77,7 +77,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		loginSuccess : PropTypes.func,
 		endpoint : PropTypes.object,
 		history: PropTypes.array,
-        credentials: PropTypes.object,
+        credentials: PropTypes.array,
 		type: PropTypes.string,
 		back: PropTypes.func,
 		setLoading : PropTypes.func,

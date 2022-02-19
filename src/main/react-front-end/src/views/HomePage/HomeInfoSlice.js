@@ -31,10 +31,10 @@ export default class HomeInfoSlice extends Component {
         if (this.props.imgOnLeft) {
             return (
                 <Grid container direction='row'>
-                    <Grid container xs={5}>
+                    <Grid item container xs={5}>
                         <img className='homeImg homeImgLeft' src={this.props.img} alt={this.props.imgAltTxt} />
                     </Grid>
-                    <Grid className='rightHomeTxt' container xs={7}>
+                    <Grid className='rightHomeTxt' item container xs={7}>
                         <h2>{this.props.title}</h2>
                         <p>{this.props.text}</p>
                     </Grid>
@@ -43,12 +43,12 @@ export default class HomeInfoSlice extends Component {
         }
         return (
             <Grid container direction='row'>
-                <Grid className='leftHomeTxt' container xs={7}>
+                <Grid className='leftHomeTxt' item container xs={7}>
                     <h2>{this.props.title}</h2>
                     {/*<h2>Hello</h2>*/}
                     <p>{this.props.text}</p>
                 </Grid>
-                <Grid container xs={5}>
+                <Grid container item xs={5}>
                     <img className='homeImg homeImgRight' src={this.props.img} alt={this.props.altImgTxt}/>
                 </Grid>
             </Grid>
@@ -68,10 +68,10 @@ export default class HomeInfoSlice extends Component {
                 {/* This renders mobile view */}
                 <Hidden mdUp>
                     <Grid container direction='column'>
-                        <Grid container xs={12}>
+                        <Grid item container xs={12}>
                             <img className='homeImg' width={'500px'} src={this.props.img} alt={this.props.altImgTxt} />
                         </Grid>
-                        <Grid container xs={12}>
+                        <Grid item container xs={12}>
                             <h2>{this.props.title}</h2>
                             <p>{this.props.text}</p>
                         </Grid>

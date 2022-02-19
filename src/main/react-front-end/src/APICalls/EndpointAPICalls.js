@@ -92,11 +92,12 @@ export async function mkdir(uri, endpoint, accept, fail) {
 
 export async function deleteCall(uri, endpoint, id, accept, fail) {
     let callback = accept;
+    let type = getType(endpoint)
     axios.post(buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), DEL_OP_URL), {
         "identifier": id || endpoint["credential"]["name"],
         "credId": endpoint["credential"]["credId"] || endpoint["credential"]["uuid"],
-        "path": encodeURI(`${uri}/`),
-        "toDelete": id || encodeURI(uri.substr(uri.lastIndexOf("/") + 1))
+        "path": encodeURI(`${uri.substr(0, uri.lastIndexOf("/"))}`),
+        "toDelete": isOAuth[type] ? id : encodeURI(uri.substr(uri.lastIndexOf("/") + 1))
     })
         .then((response) => {
             if (!(response.status === 200))
