@@ -157,7 +157,7 @@ public class DropboxResource extends Resource {
                 operation.setPath("/");
             }
             try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getId() + operation.getFolderToCreate()));
+                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
                 s.success();
             } catch (Exception e) {
                 s.error(e);
