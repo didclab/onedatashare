@@ -35,8 +35,7 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from "@material-ui/core/Checkbox";
 import FormLabel from '@material-ui/core/FormLabel';
-// import Grid from "@material-ui/core/Grid";
-import {Hidden, Container, Box, TextField, Grid, useMediaQuery, Snackbar, Fade /*Accordion, AccordionSummary, AccordionDetails*/} from "@material-ui/core";
+import {Hidden, Container, Box, TextField, Grid, Snackbar, Fade } from "@material-ui/core";
 import Accordion from "@material-ui/core/Accordion";
 import AccordionSummary from "@material-ui/core/AccordionSummary";
 import AccordionDetails from "@material-ui/core/AccordionDetails";
@@ -50,12 +49,10 @@ import { endpointUpdate} from "../../model/actions";
 import { DragDropContext } from 'react-beautiful-dnd';
 import { mutliDragAwareReorder} from "./utils.js";
 
-import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, makeFileNameFromPath, getEndpointFromColumn, getSelectedTasksFromSide, getCurrentFolderId, longestCommonPrefix } from "./initialize_dnd.js";
+import { getSelectedTasks, unselectAll, setDraggingTask, getEntities, setBeforeTransferReorder, getEndpointFromColumn, getSelectedTasksFromSide, longestCommonPrefix } from "./initialize_dnd.js";
 
 import { eventEmitter } from "../../App.js";
 import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
-
-import Switch from '@material-ui/core/Switch';
 
 
 import  Terminal  from '../Terminal';
@@ -167,7 +164,6 @@ export default class TransferComponent extends Component {
     let infoList=[]
     let sourceCredId =""
     let destCredId = ""
-
     if(isOAuth[showType[sType]]){
       sourceParent = sType!="box" ?"":"0"
       sourceCredId = endpointSrc.credential.uuid
@@ -175,16 +171,25 @@ export default class TransferComponent extends Component {
         infoList.push({path:x.id,id:x.id,size:x.size})
       }
       )
+    } else if (endpointSrc?.uri === showType.vfs) {
+      sourceCredId = endpointSrc?.credential?.credId
+      sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
+      processed.selectedTasks.forEach(x=>{
+        infoList.push({path:x.value,id:x.value, size: x.size})
+      })
     }
     else{
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
       sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!="")?"":"/" : sourceParent
       sourceCredId = endpointSrc.credential.credId
-      processed.selectedTasks.forEach(x=>infoList.push({path:x.name,id:x.name,size:x.size}))
+      processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
     }
     if(isOAuth[showType[dType]]){
       destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")
       destCredId=endpointDest.credential.uuid
+    } else if (endpointDest?.uri === showType.vfs) {
+      destParent = Array.isArray(processed.fromTo[1].path) ? "" : processed.fromTo[1].path
+      destCredId = endpointDest?.credential?.credId
     }
     else{
       destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
@@ -222,7 +227,7 @@ export default class TransferComponent extends Component {
     submitTransferRequest(source,destination, optionParsed, (response) => {
       eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
       setBeforeTransferReorder(processed);
-      this.setState({isMessageVisible:true,message:"Job submitted"})
+      this.setState({isMessageVisible:true,message:"Job submitted"});
       unselectAll()
     }, (error) => {
       eventEmitter.emit("errorOccured", error);
@@ -270,10 +275,10 @@ export default class TransferComponent extends Component {
     if (object.mode === undefined) {
       object.mode = 0
     }
-    this.setState({ endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode });
+    this.setState({ endpoint1: object.endpoint || this.state.endpoint1, mode1: object.mode })
     if (object.endpoint)
-      store.dispatch(endpointUpdate(object.endpoint.side, { ...this.state.endpoint1, ...object.endpoint }));
-  }
+      store.dispatch(endpointUpdate("left", { ...this.state.endpoint1, ...object.endpoint }));
+    }
 
   updateBrowseTwo(object) {
     if (object.mode === undefined) {
@@ -281,7 +286,7 @@ export default class TransferComponent extends Component {
     }
     this.setState({ endpoint2: object.endpoint || this.state.endpoint2, mode2: object.mode });
     if (object.endpoint)
-      store.dispatch(endpointUpdate(object.endpoint.side, { ...this.state.endpoint2, ...object.endpoint }));
+      store.dispatch(endpointUpdate("right", { ...this.state.endpoint2, ...object.endpoint }));
   }
 
   onDragStart = (start) => {
@@ -392,13 +397,7 @@ export default class TransferComponent extends Component {
         this.setState({notif: false})
       },1000);
     }
-    const closeNotif = () => {
-      this.setState({notif: false});
-    }
 
-    const formlabelstyle = { fontSize: "15px" }
-    // const formStyle = { marginLeft: "5%", marginRight: "5%" }
-    const formStyle = { marginLeft: "35%", marginRight: "35%"}
     const desktopWidth = 4;
 
     const tabletWidth = 4;
@@ -422,10 +421,10 @@ export default class TransferComponent extends Component {
     //     <h5>Transfer Setting</h5>
     //   </div>
         <Container>
-      <Grid container className="innerBox" direction="row" align-items="flex-start" justify="center" spacing={2} style={{paddingLeft: "20px"}}>
+      <Grid container className="innerBox" direction="row" align-items="flex-start" justifyContent="center" spacing={2} style={{paddingLeft: "20px"}}>
         <Grid item md={desktopWidth} sm={tabletWidth}>
           <FormControl component="fieldset" >
-            <FormLabel component="legend" classes={{root: radioStyles.formLabel}} ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
+            <FormLabel component="legend" ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
             <RadioGroup
                 aria-label="Optimization"
                 value={this.state.settings.optimizer}
@@ -440,8 +439,8 @@ export default class TransferComponent extends Component {
 
 
         {/* checkbox version */}
-        {/*direction={"column"} justify={"center"}*/}
-        <Grid item container direction={"row"} justify={"space-evenly"} md={desktopWidth} sm={tabletWidth} spacing={(theme) => theme.breakpoints.up('sm') ? 2 : 8}>
+        {/*direction={"column"} justifyContent={"center"}*/}
+        <Grid item container direction={"row"} justifyContent={"space-evenly"} md={desktopWidth} sm={tabletWidth} >
             <Grid item sm={gridFullWidth} xs={5}>
               <FormControlLabel
                   control=
@@ -574,7 +573,7 @@ export default class TransferComponent extends Component {
         </Grid>
       </Grid>
           <Divider/>
-    <Grid container justify={'center'}>
+    <Grid container justifyContent={'center'}>
       <Grid item>
         <FormControlLabel
             control=
@@ -607,9 +606,6 @@ export default class TransferComponent extends Component {
     // const isSmall = false;
     // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
     // const headerStyle = { textAlign: "center" }
-    let handleChange = name => event => {
-      this.setState({ [name]: event.target.checked });
-    };
 
     // Tooltip
 
@@ -617,7 +613,7 @@ export default class TransferComponent extends Component {
 
     return (
         <div className={"outeractionContainer"}>
-        <Grid container direction="column" justify={"center"}>
+        <Grid container direction="column" justifyContent={"center"}>
           <Container className={"actionContainer"}>
 
             {/*{!isSmall &&*/}
@@ -637,7 +633,7 @@ export default class TransferComponent extends Component {
               {/*/>*/}
 
               <Box>
-                <Grid container direction="row" justify="center" spacing={2}>
+                <Grid container direction="row" justifyContent="center" spacing={2}>
                   <DragDropContext
                       onDragStart={this.onDragStart}
                       onDragEnd={this.onDragEnd}>
@@ -646,7 +642,7 @@ export default class TransferComponent extends Component {
                       {/*<h6>Source</h6>*/}
                     </Grid>
                     <Hidden mdUp>
-                      <Grid container item direction="row" align-items="center" justify="center">
+                      <Grid container item direction="row" align-items="center" justifyContent="center">
                         <Grid item>
                           <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}>
                             <KeyboardArrowUpRounded />
@@ -671,7 +667,7 @@ export default class TransferComponent extends Component {
                 </Grid>
 
                 <Hidden smDown>
-                  <Grid container direction="row" align-items="center" justify="center">
+                  <Grid container direction="row" align-items="center" justifyContent="center">
                     <Grid item>
                       <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                     </Grid>

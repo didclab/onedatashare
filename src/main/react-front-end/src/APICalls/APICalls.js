@@ -356,7 +356,6 @@ export async function history(uri, portNum, accept, fail) {
 
 export async function deleteHistory(uri, isS3, accept, fail) {
 		let callback = accept;
-		// console.log(uri + " " + type);
 
 		axios.post(apiCredUrl + 'user', {
 			action: "deleteHistory",
@@ -409,7 +408,6 @@ export async function savedCredList(type, accept, fail) {
 	let callback = accept;
 	axios.get(apiCredUrl + type.toLowerCase())
 		.then((response) => {
-			console.log(response);
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);

@@ -16,11 +16,9 @@ const BrowseButton = (props) => {
     const [label, setLabel] = React.useState("");
     const hoverOpen = (event, label) => {
         setMouse(event.currentTarget);
-        // console.log(mouseOn);
         setLabel(label);
     };
     const hoverClose = () => {
-        console.log(mouseOn);
         setMouse(null);
 
     }
@@ -56,6 +54,7 @@ const BrowseButton = (props) => {
                     return(
                         <Button
                             key={props.id[index]}
+                            disabled={props.disabled}
                             id={props.id[index]}
                             style={props.style[index]}
                             onClick={props.click[index]}

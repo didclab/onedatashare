@@ -1,7 +1,6 @@
 import LinearProgress from "@material-ui/core/LinearProgress";
 import React from "react";
 import Grid from "@material-ui/core/Grid";
-import {Hidden} from "@material-ui/core";
 
 const QueueProgressBar = ({
                               status,

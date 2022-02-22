@@ -7,7 +7,6 @@ import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import {CliInterface} from '../APICalls/EndpointAPICalls';
 import {eventEmitter} from "../App";
-import Button from '@material-ui/core/Button';
 export default class Terminal extends Component{
   constructor(props)
   {

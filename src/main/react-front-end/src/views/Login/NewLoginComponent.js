@@ -131,7 +131,7 @@ export default class NewLoginComponent extends Component {
   };
 
   render() {
-    const { lostValidationCodePressed, forgotPasswordPressed } = this.props;
+    const { forgotPasswordPressed } = this.props;
     const {
       emailChecked,
       email,

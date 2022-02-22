@@ -63,9 +63,6 @@ import VisibilityOutlinedIcon from '@material-ui/icons/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@material-ui/icons/VisibilityOffOutlined';
 import InputAdornment from '@material-ui/core/InputAdornment';
 
-import {GREY} from './../../color.js';
-import {FileCopy} from "@material-ui/icons";
-import {Fade} from "@material-ui/core";
 
 export default class UserAccountComponent extends Component {
 	constructor() {

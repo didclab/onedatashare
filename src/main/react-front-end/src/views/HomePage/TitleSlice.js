@@ -34,11 +34,11 @@ export default class TitleClass extends Component {
         return(
             <Grid container className="TitleSlice">
                 <Hidden mdUp>
-                    <Grid container xs={12}>
+                    <Grid item container xs={12}>
                         <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
                     </Grid>
                 </Hidden>
-                <Grid container direction="column" md={7} xs={12}>
+                <Grid item container direction="column" md={7} xs={12}>
                     <Hidden smDown>
                         <h1>OneDataShare</h1>
                     </Hidden>
@@ -52,7 +52,7 @@ export default class TitleClass extends Component {
                     </a>
                 </Grid>
                 <Hidden smDown>
-                    <Grid container md={5}>
+                    <Grid item container md={5}>
                         <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
                     </Grid>
                 </Hidden>

@@ -25,11 +25,9 @@
 
 import React, { Component } from 'react';
 import Button from '@material-ui/core/Button';
-import { openDropboxOAuth, openGoogleDriveOAuth, openGridFtpOAuth, openBoxOAuth } from "../../APICalls/EndpointAPICalls";
 import { savedCredList } from "../../APICalls/APICalls";
 import {store} from "../../App";
 import PropTypes from "prop-types";
-import {cookies} from "../../model/reducers.js";
 
 
 import LinearProgress from '@material-ui/core/LinearProgress';
@@ -41,7 +39,7 @@ import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import {DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, FTP_TYPE, SFTP_TYPE, GRIDFTP_TYPE, HTTP_TYPE, GRIDFTP_NAME, DROPBOX_NAME, GOOGLEDRIVE_NAME, BOX_NAME, GRIDFTP,  getType} from "../../constants";
+import { GRIDFTP, VFS, getType} from "../../constants";
 import {showText, showType, showDisplay} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 
@@ -85,6 +83,7 @@ export default class BrowseModuleComponent extends Component {
 			oneSideIsLoggedInAsGridftp: checkIfOneSideIsLoggedInAsGrid(constructState),
 			gridftpIsOpen: checkIfGridftpIsOpen(constructState)
 		};
+
 
 		this.unsubcribe = store.subscribe(() => {
 			let currentState = store.getState();
@@ -155,8 +154,8 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	backHome = () => {
-		this.setState(prevState => ({mode: pickModule, endpoint: {...prevState.endpoint, uri: "", login: false, credential: {}}}));
-		this.props.update(prevState => ({mode: pickModule, endpoint: {...prevState.endpoint, uri: "", login: false, credential: {}}}));
+		this.setState((prevState) => ({mode: pickModule, endpoint: { uri: "", login: false, credential: {}, side: prevState?.endpoint?.side }}));
+		this.props.update({mode: pickModule, endpoint: {  uri: "", login: false, credential: {}}});
 	}
 
 	loginPrep = (uri) => (data) => {
@@ -177,16 +176,14 @@ export default class BrowseModuleComponent extends Component {
 		}
 	}
 
+	checkIfOneSideIsLoggedInAsVFS = () => {
+		let storeContext = store.getState()
+		return (getType(storeContext.endpoint1) === showType.vfs || getType(storeContext.endpoint2) === showType.vfs) && (storeContext.endpoint1.login || storeContext.endpoint2.login);
+	}
+
 	render() {
 		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
 		const {update} = this.props;
-		const login = (service) => {
-			if(service[1].credTypeExists){
-				this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
-			}else{
-				this.loginPrep(showType[service[0]])();
-			}
-		}
 
 
 		const EndpointButton = this.endpointButton();
@@ -199,7 +196,7 @@ export default class BrowseModuleComponent extends Component {
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
 				{displays.map( (service) => {
-					const disable = service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp;
+					const disable = (service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp) || (service[0] === VFS &&  this.checkIfOneSideIsLoggedInAsVFS());
 					return(
 						<EndpointButton key={service.side + service[1].id} id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
 							<Icon className={service[1].icon + ' browseIcon'}/>

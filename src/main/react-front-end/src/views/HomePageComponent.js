@@ -23,7 +23,6 @@
 
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import './HomePageComponent.css';
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import RecognitionSlice from "./HomePage/RecognitionSlice";
@@ -56,6 +55,7 @@ export default class HomePageComponent extends Component {
 										imgOnLeft={left}
 										title={data.title}
 										text ={data.text}
+										key={`home-icon-${i}`}
 										img={require('./HomePage' + data.img)}
 										imgAltTxt={data.imgAltTxt} /> );
 		}
@@ -68,6 +68,7 @@ export default class HomePageComponent extends Component {
 			let data = TripleIconInfo[i];
 			retVal.push( <TripleIconSlice img={require('./HomePage' + data.img)}
 										  title={data.title}
+										  key={`triple-icon-${i}`}
 										  imgAltTxt={data.imgAlt}/> );
 		}
 		return retVal;

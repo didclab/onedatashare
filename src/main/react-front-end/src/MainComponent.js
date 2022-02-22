@@ -42,7 +42,7 @@ import NotificationsComponent from './views/Admin/NotificationsComponent';
 import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
 // import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
-import Endpoint_DB from './views/Endpoint_Authorization/Endpoint_DB'
+import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
@@ -115,7 +115,7 @@ export default class MainComponent extends Component {
 
             <Route exact path={ siteURLS.endpoint_dbUrl /*"/endpoint_db"*/}
               render={() =>
-                <Endpoint_DB />
+                <EndpointDB />
               }
             />
 

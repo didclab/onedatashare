@@ -182,7 +182,7 @@ class NotificationsComponent extends Component {
                     <Grid
                         container
                         direction="row"
-                        justify="space-between"
+                        justifyContent="space-between"
                         alignItems="center"
                     >
                         <div>
@@ -224,7 +224,7 @@ class NotificationsComponent extends Component {
                             <Grid
                                 container
                                 direction="row"
-                                justify="flex-start"
+                                justifyContent="flex-start"
                                 alignItems="center"
                             >
                                 <div>
@@ -260,7 +260,7 @@ class NotificationsComponent extends Component {
                             <Grid
                                 container
                                 direction="row"
-                                justify="space-between"
+                                justifyContent="space-between"
                                 alignItems="center"
                             >
                                 <div style={{ marginLeft: 8 }}>
@@ -323,7 +323,7 @@ class NotificationsComponent extends Component {
                             <Grid
                                 container
                                 direction="row"
-                                justify="flex-end"
+                                justifyContent="flex-end"
                                 align="flex-start">
                                 <Button variant="outlined" color="default" onClick={this.onClear} >
                                     Clear

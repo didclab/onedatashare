@@ -77,7 +77,7 @@ class NavbarComponent extends Component {
 			<React.Fragment>
 				<Navigation>
 					<Toolbar style={{marginLeft: "1%"}}>
-						<Grid className={"leftNav"} alignItems={"center"}>
+						<Grid container className={"leftNav"} alignItems={"center"}>
 							<Link to={"/"} href={"/"} color={"inherit"} className={"navbarHome"}><h4>OneDataShare</h4></Link>
 
 							<Hidden smDown>

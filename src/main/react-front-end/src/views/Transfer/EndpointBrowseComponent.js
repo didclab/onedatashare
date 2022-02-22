@@ -31,11 +31,9 @@ import { Droppable } from 'react-beautiful-dnd';
 
 import NewFolderIcon from "@material-ui/icons/CreateNewFolder";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
-import DownloadButton from "@material-ui/icons/CloudDownload";
 import LinkButton from "@material-ui/icons/Link";
 import LogoutButton from "@material-ui/icons/ExitToApp";
 import RefreshButton from "@material-ui/icons/Refresh";
-import Code from '@material-ui/icons/Code';
 import {Button, Grid, Box, Breadcrumbs, Link} from '@material-ui/core';
 
 import TextField from '@material-ui/core/TextField';
@@ -46,7 +44,6 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Typography from "@material-ui/core/Typography";
 
-import UploaderWrapper from "./UploaderWrapper.js";
 
 import React, { Component } from 'react';
 
@@ -54,12 +51,7 @@ import {
 	listFiles,
 	mkdir,
 	deleteCall,
-	download,
-	getDownload,
 	getSharableLink,
-	openBoxOAuth,
-	openDropboxOAuth,
-	openGoogleDriveOAuth
 } from "../../APICalls/EndpointAPICalls";
 
 
@@ -71,15 +63,13 @@ import {eventEmitter, store} from "../../App";
 
 import { cookies } from "../../model/reducers";
 import { getName, getType } from '../../constants.js';
-import { DROPBOX_TYPE, GOOGLEDRIVE_TYPE, BOX_TYPE, SFTP_TYPE, HTTP_TYPE, FTP_TYPE } from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import ProgressUpdateComponent from "./progressUpdateComponent"
 import {compactViewPreference} from "../../model/actions";
 import Switch from "@material-ui/core/Switch";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
-
+import VFSBrowseComponent from './VFSBrowseComponent'
 
 
 //PROGRESS: S3 browse functions are all finished (listing, deleting, going into other directories, refresh, logout)
@@ -337,14 +327,15 @@ export default class EndpointBrowseComponent extends Component {
 	// FTP: Can browse files from the root directory, but unable to go into other directories
 	// Listingi does not yet work for SFTP and HTTP
 	getFilesFromBackendWithPath(endpoint, path, id){
+		if (endpoint?.uri === showType.vfs) {
+			this.props.setLoading(false);
+			return
+		}
 		var uri = endpoint.uri;
-		// console.log(endpoint);
 		const {setLoading} = this.props;
 		setLoading(true);
 		uri = makeFileNameFromPath(uri, path, "");
-		const isS3 = endpoint.credential.type === showType.s3;
-
-		listFiles(uri, endpoint, isS3, id[id.length-1], (data) =>{
+		listFiles(uri, endpoint, id[id.length-1], (data) =>{
 			setLoading(false);
 			let sortedfiles = this.filenameAscendingOrderSort(data.files);
 			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
@@ -407,14 +398,11 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFolderAdded = () =>{
 		const {endpoint, setLoading} = this.props;
-		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, addFolderName, ids} = this.state;
 		this.setState({ openShare: false, openAFolder: false });
 		let dirName = makeFileNameFromPath(endpoint.uri,directoryPath, addFolderName);
-		const dirType = getType(endpoint);
-		console.log(dirName);
 		//make api call
-		mkdir(dirName,dirType, endpoint, isS3, (response) => {
+		mkdir(dirName, endpoint, (response) => {
 			setLoading(true);
 			this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
 		}, (error) => {
@@ -438,9 +426,6 @@ export default class EndpointBrowseComponent extends Component {
 
 	handleCloseWithFileDeleted = (files) => {
 		const {endpoint, setLoading} = this.props;
-		// console.log(endpoint);
-		// return;
-		const isS3 = endpoint.credential.type === showType.s3;
 		const {directoryPath, ids} = this.state;
 		const len = files.length;
 		var i = 0;
@@ -448,7 +433,7 @@ export default class EndpointBrowseComponent extends Component {
 			setLoading(true);
 			files.map((file) => {
 				const fileName = makeFileNameFromPath(endpoint.uri, directoryPath, file.name);
-				deleteCall( fileName, endpoint, isS3,  file.id, (response) => {
+				deleteCall( fileName, endpoint, file.id, (response) => {
 					i++;
 					if(i === len){
 						this.getFilesFromBackendWithPath(endpoint, directoryPath, ids);
@@ -527,9 +512,9 @@ export default class EndpointBrowseComponent extends Component {
 
 
 		return (
+		<div>
+		{
 		<Box>
-
-
 	        <Dialog
 	          open={this.state.openShare}
 	          onClose={this.handleClose}
@@ -608,21 +593,7 @@ export default class EndpointBrowseComponent extends Component {
 			{/*alignSelf: "stretch", display: "flex", flexDirection: "row", alignItems: "center", height: "40px",*/}
 			<div style={{  backgroundColor: "#d9edf7"}}>
 
-				<Grid container direction={"row"} spacing={2} justify={"space-between"} alignItems={"center"} style={{width: "99%", padding: "0"}}>
-
-					{/*{ new Set([SFTP_TYPE, FTP_TYPE]).has(getType(endpoint)) &&*/}
-					{/*	<BrowseButton*/}
-					{/*	id={endpoint.side + "Console"}*/}
-					{/*	disabled={false}*/}
-					{/*	click={() => {}}*/}
-					{/*	style={buttonStyle}*/}
-					{/*	label={"Console"}*/}
-					{/*	buttonIcon={<Code style={iconStyle} />}*/}
-					{/*	/>*/}
-
-					{/*}*/}
-
-
+				<Grid container direction={"row"} spacing={2} justifyContent={"space-between"} alignItems={"center"} style={{width: "99%", padding: "0"}}>
 
 					<BrowseButton
 						id={endpoint.size + "ShareButton"} disabled = {getSelectedTasksFromSide(endpoint).length !== 1 || getSelectedTasksFromSide(endpoint)[0].dir
@@ -645,14 +616,14 @@ export default class EndpointBrowseComponent extends Component {
 
 
 					{/*s3 does not have functionality for mkdir, so button is removed when browsing s3 files*/}
-					{this.props.endpoint.credential.type !== showType.s3 && <BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
+					{endpoint.credential.type !== showType.s3 && showType.vfs !== type && <BrowseButton id={endpoint.side + "MkdirButton"} style={buttonStyle} click={() => {
 						this.handleClickOpenAddFolder()
 					}}
 								   label={"New Folder"}
 								   buttonIcon={<NewFolderIcon style={iconStyle}/>}
 					/>}
 
-					<BrowseButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1} click={() => {
+					<BrowseButton id={endpoint.side + "DeleteButton"} disabled={getSelectedTasksFromSide(endpoint).length < 1 || type === showType.vfs} click={() => {
 						this.handleCloseWithFileDeleted(getSelectedTasksFromSide(endpoint));
 					}}
 								  style={buttonStyle}
@@ -660,7 +631,8 @@ export default class EndpointBrowseComponent extends Component {
 								  buttonIcon={<DeleteIcon style={iconStyle}/>}
 					/>
 
-					<BrowseButton d={endpoint.side + "RefreshButton"} style={buttonStyle}  click={() => {
+					<BrowseButton d={endpoint.side + "RefreshButton"} disabled={type === showType.vfs} style={buttonStyle}
+					click={() => {
 						setLoading(true);
 						this.getFilesFromBackendWithPath(endpoint, directoryPath, this.state.ids);
 					}}
@@ -689,6 +661,7 @@ export default class EndpointBrowseComponent extends Component {
 					<Grid item md={10} xs={12}>
 						<TextField
 							fullWidth
+							disabled={type === showType.vfs}
 							variant={"outlined"}
 							id={endpoint.side + "Search"}
 							margin={"dense"}
@@ -703,10 +676,11 @@ export default class EndpointBrowseComponent extends Component {
 					</Grid>
 
 					{/*Remember to put popover hover after*/}
-					<Grid item md={2} xs={12}>
+					<Grid item md={2} xs={12} >
 
 						<BrowseButton
 							buttongroup={true}
+							disabled={type === showType.vfs}
 							id={[endpoint.side + "IgnoreCase", endpoint.side + "Regex"]}
 							style={[
 								{color: this.state.ignoreCase ? "white" : "black", backgroundColor: this.state.ignoreCase ? "#337AB6" : "white" ,
@@ -743,9 +717,12 @@ export default class EndpointBrowseComponent extends Component {
 				</Grid>
 			</div>
 
+			{
+				type === showType.vfs && 
+				<VFSBrowseComponent endpoint={endpoint}/>
+			}
 
-
-
+			{type !== showType.vfs &&
 			<Droppable droppableId={endpoint.side} >
 
 				{(provided, snapshot) => (
@@ -826,8 +803,10 @@ export default class EndpointBrowseComponent extends Component {
 					</div>
 				)}
 			</Droppable>
-			{/*<ProgressUpdateComponent />*/}
-		</Box>);
+			}
+		</Box>}
+		</div>
+		);
 	}
 }
 

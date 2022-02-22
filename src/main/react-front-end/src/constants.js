@@ -153,6 +153,7 @@ export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
 export const S3_TYPE = "s3:";
+export const VFS_TYPE = "vfs://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GDrive";
@@ -162,6 +163,7 @@ export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
 export const GRIDFTP_NAME = "GridFTP";
 export const S3_NAME = "S3";
+export const VFS_NAME = "VFS";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "gdrive";
@@ -171,6 +173,7 @@ export const SFTP = "sftp";
 export const HTTP = "http";
 export const HTTPS = "https";
 export const GRIDFTP = "gsiftp";
+export const VFS = "vfs";
 export const S3 = "s3";
 
 //side
@@ -215,7 +218,8 @@ export const showText = {
 	http: HTTP_NAME,
 	gsiftp: GRIDFTP_NAME,
 	https: HTTP_NAME,
-	s3: S3_NAME
+	s3: S3_NAME,
+	vfs: VFS_NAME
 }
 
 export const showType = {
@@ -227,7 +231,8 @@ export const showType = {
 	http: HTTP_TYPE,
 	gsiftp: GRIDFTP_TYPE,
 	https: HTTP_TYPE,
-	s3: S3_TYPE
+	s3: S3_TYPE,
+	vfs: VFS_TYPE,
 }
 
 export const isOAuth = {
@@ -239,18 +244,19 @@ export const isOAuth = {
 	[HTTP_TYPE]: false,
 	[GRIDFTP_TYPE]: true,
 	[HTTPS_TYPE]: false,
-	[S3_TYPE]: false
+	[S3_TYPE]: false,
+	[VFS_TYPE]: false,
 }
 
 export const showDisplay = {
 	dropbox: {icon: 'fab fa-dropbox', credTypeExists: true, label: "DropBox", id:"DropBox"},
 	gdrive: {icon: 'fab fa-google-drive', credTypeExists: true, label: "Google Drive", id: "GoogleDrive"},
 	box: {icon: 'fas fa-bold', credTypeExists: true, label: "Box", id: "Box"},
-	gsiftp: {icon: 'fas fa-server', credTypeExists: true, label: "GridFTP", id: "SFTP"},
 	ftp: {icon: 'far fa-folder-open', credTypeExists: false, label: "FTP", id: "FTP"},
 	sftp: {icon: 'fas fa-terminal', credTypeExists: false, label: "SFTP", id: "SFTP"},
 	http: {icon: 'fas fa-globe', credTypeExists: false, label: "HTTP/HTTPS", id: "HTTP"},
-	s3: {icon: 'fab fa-amazon', credTypeExists: false, label: "S3", id: "S3" }
+	s3: {icon: 'fab fa-amazon', credTypeExists: false, label: "S3", id: "S3" },
+	vfs: {icon: 'fas fa-box', credTypeExists: false, label: "VFS", id: "VFS" }
 }
 
 export const SERVICES = {
@@ -332,10 +338,6 @@ export function checkPortNumInUri(uri){
 
 export function getName(endpoint) {
 	return showText[endpoint.uri.split(":")[0].toLowerCase()]
-}
-
-export function getNameFromUri(uri) {
-	return showText[uri.split(":")[0].toLowerCase()]
 }
 
 export function validateField(regex, valueToEvaluate, messageToDisplay, validationArray) {

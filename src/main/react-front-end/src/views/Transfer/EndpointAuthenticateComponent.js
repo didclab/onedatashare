@@ -26,20 +26,8 @@ import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
-import { deleteHistory, deleteCredentialFromServer, history, savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
-import {/*DROPBOX_TYPE,
-				GOOGLEDRIVE_TYPE,
-				BOX_TYPE,
-				FTP_TYPE,
-				SFTP_TYPE,
-				GRIDFTP_TYPE,
-				HTTP_TYPE,*/
-				ODS_PUBLIC_KEY,
-				generateURLFromPortNumber,
-				generateURLForS3,
-				showDisplay,
-				s3Regions
-			} from "../../constants";
+import {savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
+import { generateURLFromPortNumber, generateURLForS3, showDisplay, s3Regions } from "../../constants";
 import {showType, isOAuth} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import {store} from "../../App";
@@ -52,14 +40,12 @@ import Button from "@material-ui/core/Button";
 import { ValidatorForm, TextValidator } from 'react-material-ui-form-validator';
 import {cookies} from "../../model/reducers.js";
 
-import JSEncrypt from 'jsencrypt';
 
 import Divider from '@material-ui/core/Divider';
 import DataIcon from '@material-ui/icons/Laptop';
-import BackIcon from '@material-ui/icons/KeyboardArrowLeft'
 import AddIcon from '@material-ui/icons/AddToQueue';
 import Modal from '@material-ui/core/Modal';
-import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Checkbox, Accordion, AccordionSummary, AccordionDetails, MenuItem} from "@material-ui/core";
+import {Dialog, DialogContent, DialogActions, DialogContentText, FormControlLabel, Grid, Accordion, AccordionSummary, AccordionDetails, MenuItem} from "@material-ui/core";
 
 import {getCred} from "./initialize_dnd.js";
 
@@ -91,7 +77,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		loginSuccess : PropTypes.func,
 		endpoint : PropTypes.object,
 		history: PropTypes.array,
-        credentials: PropTypes.object,
+        credentials: PropTypes.array,
 		type: PropTypes.string,
 		back: PropTypes.func,
 		setLoading : PropTypes.func,
@@ -186,9 +172,7 @@ export default class EndpointAuthenticateComponent extends Component {
 	}
 
 	historyListUpdateFromBackend = (endpointType) => {
-		console.log(endpointType);
 		savedCredList(endpointType, (data) =>{
-			console.log(data);
 			/*data.list.filter((v) => { return v.indexOf(this.props.endpoint.uri) === 0 })}*/
 			this.setState({historyList: data.list});
 			this.props.setLoading(false);
@@ -282,20 +266,18 @@ export default class EndpointAuthenticateComponent extends Component {
 		let encryptedSecret = "";
 		if(type === showDisplay.s3.label){
 			encryptedSecret = credential.encryptedSecret;
-		}	
-		console.log(credential.uri);
+		}
 		saveEndpointCred(type,
 			{
 				uri: credential.uri,
 				username: credential.name,
-				secret: credential.password,
+				secret: credential.rsa || credential.pemFile || credential.password,
 				accountId: credential.credId,
 			},
 			(response) => {
 				console.log("saved endpoint cred")
 				console.log("the type is " + type);
-				listFiles(url, endpointSet,
-					type === showDisplay.s3.label, null, (succ) =>
+				listFiles(url, endpointSet, null, (succ) =>
 					{
 						this.props.loginSuccess(endpointSet);
 					},
@@ -341,7 +323,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
-	getCredentialListComponentFromList(credList, type){
+	getCredentialListComponentFromList(credList, type, loginType){
 		const {endpoint} = this.state;
 		const {loginSuccess} = this.props;
 		
@@ -349,9 +331,10 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted to store tokens on ODS server
 			// Note - Backend returns stored credentials as a nested JSON object
 			return credList.filter(id => {
-				return (!getCred().includes(id))})
+				return (!getCred().includes(`${loginType}${id}`))})
 				.map((v) =>
 				<ListItem button key={v}
+					ContainerComponent="div"
 					onClick={() => {
 						const endpointSet = {
 							uri: endpoint.uri,
@@ -361,7 +344,6 @@ export default class EndpointAuthenticateComponent extends Component {
 						}
 						loginSuccess(endpointSet);
 					}}
-						  ContainerComponent="div"
 				>
 					<ListItemIcon>
 						<DataIcon/>
@@ -386,7 +368,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			// If the user has opted not to store tokens on ODS server
 			// Note - Local storage returns credentials as array of objects
 			return credList.map((cred) =>
-			<ListItem button onClick={() => {
+			<ListItem button ContainerComponent="div" onClick={() => {
 					const endpointSet = {
 						uri: endpoint.uri,
 						login: true,
@@ -420,7 +402,7 @@ export default class EndpointAuthenticateComponent extends Component {
    //for credential list for ftp,sftp,http, and S3. Currently only S3 is fully functional. Combination of conditionals may be possible in the future.
 	getHistoryListComponentFromList(historyList){
 		return historyList.map((uri) =>
-			<ListItem button key={uri} onClick={() => {
+			<ListItem button key={uri} ContainerComponent="div" onClick={() => {
 				if(showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.s3.label){
 
 					const region = uri.split(":::")[1];
@@ -433,8 +415,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						portNumber: region
 					}
 
-					listFiles(uri, endpointSet,
-						true, null, (succ) =>
+					listFiles(uri, endpointSet, null, (succ) =>
 						{
 							this.props.loginSuccess(endpointSet);
 						},
@@ -446,7 +427,9 @@ export default class EndpointAuthenticateComponent extends Component {
 					)
 
 
-				}else{
+				} else if (showDisplay[getName(this.state.endpoint).toLowerCase()].label === showDisplay.vfs.label) {
+					this.vfsTypeHandler({ uri })
+				} else{
 					
 					let portValue = getDefaultPortFromUri(uri);
 					let myPoint = this.state.endpoint
@@ -459,8 +442,7 @@ export default class EndpointAuthenticateComponent extends Component {
 						portNumber: portValue
 					}
 
-					listFiles(uri, endpointSet,
-						false, null, (succ) =>
+					listFiles(uri, endpointSet, null, (succ) =>
 						{
 							this.props.loginSuccess(endpointSet);
 						},
@@ -513,15 +495,14 @@ export default class EndpointAuthenticateComponent extends Component {
 	// FTP only functional through signing in using the manual login.
 	// SFTP and HTTP not functional yet
 	regularSignIn = () => {
-		const {url, username, password, needPassword, rsa, pemFileName} = this.state;
+		const {url, username, password} = this.state;
 		const loginType = getType(this.state.endpoint);
 		if((url.substr(url.length - 3) === '://' && loginType !== showType.s3) || (url.length < 1 && this.state.portNum < 1)) {
 			loginType !== showType.s3 ? this._handleError("Please enter a valid URL") : this._handleError("Please enter a valid bucketname and region")
 			return;
 		}
 		// User is expected to enter password to login
-
-		if(username.length === 0 || password.length === 0) {
+		if(username.length === 0 || (loginType !== showType.sftp && password.length === 0)) {
 			this._handleError(loginType !== showType.s3 ? "Enter a username or password" : "Enter an access key or secret key");
 			return;
 		}
@@ -581,9 +562,9 @@ export default class EndpointAuthenticateComponent extends Component {
 		reader.onload = (event) => {
 			fileContents = event.target.result;
 			this.setState({
-					pemFile: fileContents.replace(/\n|\r/g,"").trim(),
+					pemFile: fileContents,
 					pemFileName: file.name
-				}, function() {console.log(this.state.pemFile)});
+				});
 		}
 		if(file.name.length > 0){
 			reader.readAsText(file);
@@ -625,6 +606,19 @@ export default class EndpointAuthenticateComponent extends Component {
 	stepButton = () => styled(Button)({
 		width: "100%",
 	})
+
+	vfsTypeHandler = ({ uri }) => {
+		let portValue = getDefaultPortFromUri(uri);
+		let myPoint = this.state.endpoint
+		let endpointSet = {
+			uri: myPoint.uri,
+			login: true,
+			side: this.props.endpoint.side,
+			credential: {name: "\"\"", credId: uri, type: getName(this.state.endpoint).toLowerCase()},
+			portNumber: portValue
+		}
+		this.props.loginSuccess(endpointSet);
+	}
 
 
 
@@ -678,7 +672,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	render(){
 		const { historyList, endpoint, credList, settingAuth, authFunction, needPassword, endpointIdsList, selectingEndpoint } = this.state;
-		console.log(historyList)
 		const { back } = this.props;
 		
 		const type = getName(endpoint);
@@ -713,13 +706,13 @@ export default class EndpointAuthenticateComponent extends Component {
 		        </ListItem>
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
-				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type)}
+				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type, loginType)}
 				{/* GridFTP OAuth handler */}
 				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
 				{!isOAuth[loginType] && historyList &&
 		        	this.getHistoryListComponentFromList(historyList)}
-		        	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+		        	<Grid container justifyContent={"space-between"} spacing={2} style={{padding: "3%"}}>
 						<Grid item md={6} xs={12}>
 							<StepButton
 								id={endpoint.side + "LoginAuth"}
@@ -775,7 +768,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							/>
 
 							<TextValidator
-								required
+								required={loginType !== showType.sftp}
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginPassword"}
 								label={loginType === showType.s3 ? "AWS SECRET KEY" : "Password"}
@@ -904,7 +897,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							</ValidatorForm>
 			        </div>
 		    	}
-		    	<Grid container justify={"space-between"} spacing={2} style={{padding: "3%"}}>
+		    	<Grid container justifyContent={"space-between"} spacing={2} style={{padding: "3%"}}>
 					<Grid item md={6} xs={12}>
 					<StepButton
 						id={endpoint.side + "LoginAuth"}
