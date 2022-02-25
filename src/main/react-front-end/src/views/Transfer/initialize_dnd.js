@@ -99,10 +99,10 @@ export function makeFileNameFromPath(initial, path, name){
 	return pathstr;
 }
 export function longestCommonPrefix(files){
-	if(files.length == 0){
+	if(files.length === 0){
 		return ""
 	}
-	if(files.length == 1){
+	if(files.length === 1){
 		return files[0]
 	}
 	let length = files[0].Length;
@@ -110,7 +110,7 @@ export function longestCommonPrefix(files){
     {
         length = Math.Min(length, files[i].Length);
         for (var j = 0; j < length; j++)
-            if (files[i][j] != files[0][j])
+            if (files[i][j] !== files[0][j])
             {
                 files = j;
                 break;

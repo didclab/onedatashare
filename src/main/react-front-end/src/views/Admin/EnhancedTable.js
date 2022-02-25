@@ -300,14 +300,6 @@ class EnhancedTable extends Component {
         this.setState({ rows });
     }
 
-    componentWillReceiveProps(props) {
-        if (props.users && props.users.length > 0) {
-            const { users } = props;
-            const rows = getFormattedObject(users);
-            this.setState({ rows });
-        }
-    }
-
     render() {
         //const classes = useStyles();
         const { classes } = this.props;

@@ -263,10 +263,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 
-		let encryptedSecret = "";
-		if(type === showDisplay.s3.label){
-			encryptedSecret = credential.encryptedSecret;
-		}
 		saveEndpointCred(type,
 			{
 				uri: credential.uri,
