@@ -185,8 +185,14 @@ export default class TransferComponent extends Component {
       processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
     }
     if(isOAuth[showType[dType]]){
-      destParent = processed.fromTo[1].selectedTasks.length!=0?processed.fromTo[1].selectedTasks[0].id:(dType!="box" ?"":"0")
-      destCredId=endpointDest.credential.uuid
+      let ids = processed.fromTo[1].ids
+      let lastId = ids[ids.length - 1]
+      if (processed.fromTo[1].selectedTasks.length !== 0) {
+        destParent = processed.fromTo[1].selectedTasks[0].id
+      } else {
+        destParent = lastId || (dType !== "box" ? "" : "0")
+      }
+      destCredId = endpointDest.credential.uuid
     } else if (endpointDest?.uri === showType.vfs) {
       destParent = Array.isArray(processed.fromTo[1].path) ? "" : processed.fromTo[1].path
       destCredId = endpointDest?.credential?.credId
@@ -194,7 +200,7 @@ export default class TransferComponent extends Component {
     else{
       destParent = longestCommonPrefix(processed.fromTo[1].selectedTasks.map(x=>x.id))
       destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
-      destCredId=endpointDest.credential.credId
+      destCredId = endpointDest.credential.credId
     }
 
     let source = {
