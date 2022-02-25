@@ -29,6 +29,7 @@ public class MetaDataService {
     private WebClient.Builder webClientBuilder;
 
     public Mono<JobStatistic> getJobStat(Long id){
+        logger.info("The jobId we are querying for is {}", id);
         return this.webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.host(this.metaServiceUrl).path("/stat").queryParam("jobId", id).build())
@@ -40,6 +41,7 @@ public class MetaDataService {
     }
 
     public Mono<List<JobStatistic>> getAllStats(String userId){
+        logger.info("the userId we are querying for is {}", userId);
         return this.webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.host(this.metaServiceUrl).path("/all_stats").queryParam("userId", userId).build())
@@ -51,6 +53,7 @@ public class MetaDataService {
     }
 
     public Mono<List<Long>> getAllJobIds(String userId){
+        logger.info("Querying all user jobs {}", userId);
         return this.webClientBuilder.build()
                 .get()
                 .uri(uriBuilder -> uriBuilder.host(this.metaServiceUrl).path("/user_jobs").queryParam("userId", userId).build())
