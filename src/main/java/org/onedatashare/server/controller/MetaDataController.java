@@ -20,18 +20,18 @@ public class MetaDataController {
     MetaDataService metaDataService;
 
     @GetMapping("/job")
-    public Mono<JobStatistic> getJobStatistic(Mono<Principal> principalMono, @RequestParam Long jobId){
+    public Mono<JobStatistic> getJobStatistic(Mono<Principal> principalMono, @RequestParam Long jobId) {
         return metaDataService.getJobStat(jobId);
     }
 
     @GetMapping("/all/jobids")
-    public Mono<List<Long>> getAllJobIds(Mono<Principal> principalMono){
+    public Mono<List<Long>> getAllJobIds(Mono<Principal> principalMono) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllJobIds(user));
     }
 
     @GetMapping("/all/jobs")
-    public Mono<List<JobStatistic>> getAllJobStats(Mono<Principal> principalMono){
+    public Mono<List<JobStatistic>> getAllJobStats(Mono<Principal> principalMono) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllStats(user));
     }
