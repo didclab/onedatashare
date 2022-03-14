@@ -81,7 +81,7 @@ public class BoxOauthService{
             BoxUser user = BoxUser.getCurrentUser(client);
             BoxUser.Info userInfo = user.getInfo();
             Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.SECOND, Math.toIntExact(client.getExpires()));
+            calendar.add(Calendar.MILLISECOND, Math.toIntExact(client.getExpires()));
 
             OAuthEndpointCredential credential = new OAuthEndpointCredential(userInfo.getLogin())
                     .setToken(client.getAccessToken())
