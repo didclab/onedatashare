@@ -682,24 +682,24 @@ export default class EndpointAuthenticateComponent extends Component {
 		<div >
 			{!settingAuth && <div className={"authenticationContainer"}>
 
+					{!(loginType === showType.vfs) && <ListItem id={endpoint.side+"Add"} button onClick={() => {
+						if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
+							OAuthFunctions[loginType]();
+						}else if(loginType === showType.gsiftp){ //check if globus protocol
+							this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+						}else{
+							let loginUri = getType(endpoint) === showType.s3 ? "" : loginType;
+							this.setState({settingAuth: true, authFunction : this.regularSignIn,
+								needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+						}
 
-		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
-					if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
-						OAuthFunctions[loginType]();
-					}else if(loginType === showType.gsiftp){ //check if globus protocol
-						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
-					}else{
-						let loginUri = getType(endpoint) === showType.s3 ? "" : loginType;
-						this.setState({settingAuth: true, authFunction : this.regularSignIn,
-							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-					}
-
-		        }}>
+					}}>
 		          <ListItemIcon>
 		          	<AddIcon/>
 		          </ListItemIcon>
 		          <ListItemText primary={"Add New " + showDisplay[type.toLowerCase()].label} />
-		        </ListItem>
+		        </ListItem>}
+	
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
 				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type, loginType)}

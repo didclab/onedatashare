@@ -64,7 +64,6 @@ class NavbarComponent extends Component {
 
 
 	toggleMobileMenu(){
-		console.log(this.state.mobileMenu);
 		this.setState((prevState) => ({
 			mobileMenu: !prevState.mobileMenu
 		}));
