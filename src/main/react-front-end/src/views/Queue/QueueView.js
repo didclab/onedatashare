@@ -7,6 +7,7 @@ import QueueTableBodyView from "./QueueTableRow/QueueTableBodyView";
 import {TableContainer} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import QueuePagination from "./QueueTableFooter/QueuePagination";
+import TableLoader from './TableLoader';
 
 const QueueView = ({
                        // A boolean to determine if this is for the admin page
@@ -33,8 +34,17 @@ const QueueView = ({
                        refreshSuccess,
                        refreshFailure,
                    }) => {
+    const [timeout,setTime] = React.useState(false);
+    setTimeout(() => {
+        setTime(true)
+    }, 15000);
     return (
         <div className="QueueView">
+            {
+            <>
+            {loading ? timeout ? '' : <TableLoader/>
+            :
+            <>
             <TableContainer component={Paper}>
                 <Table >
                     <QueueTableHeaderView
@@ -55,7 +65,6 @@ const QueueView = ({
                         refreshSuccess={refreshSuccess}
                     />
                     <QueueTableBodyView
-                        loading={loading}
                         populateRows={populateRows}
                     />
                     <TableFooter>
@@ -72,6 +81,10 @@ const QueueView = ({
                     </TableFooter>
                 </Table>
             </TableContainer>
+            </>
+            }
+            </>
+            }
         </div>
     );
 };

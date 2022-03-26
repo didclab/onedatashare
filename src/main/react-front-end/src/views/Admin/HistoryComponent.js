@@ -40,7 +40,7 @@ class HistoryComponent extends Component {
 			rowsPerPage: 10,
 			searchValue: '',
 			order : 'desc',
-			orderBy : 'job_id',
+			orderBy : 'jobId',
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
@@ -199,8 +199,8 @@ class HistoryComponent extends Component {
 
 	populateRows = () => {
 		const {selectedRowId} = this.state;
-		return this.state.responsesToDisplay.map(row => {
-			let identifier = `${row.owner}-${row.job_id}`
+		return this.state.responsesToDisplay.map((row, index) => {
+			let identifier = `${index}-${row.jobId}`
 			return (
 				<RowElement
 					adminPg={true}
@@ -219,7 +219,7 @@ class HistoryComponent extends Component {
 	render() {
 		const sortableColumns = {
 			userName: "owner",
-			jobId: 'job_id',
+			jobId: 'jobId',
 			status: 'status',
 			avgSpeed : "bytes.avg",
 			source : "src.uri",

@@ -24,8 +24,8 @@ const QueuePagination = ({
                 SelectProps={{
                     native: true,
                 }}
-                onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
                 ActionsComponent={TablePaginationActions}
                 classes={{
                     caption: classes.tablePaginationCaption,

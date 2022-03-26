@@ -9,7 +9,7 @@ const QueueProgressBar = ({
                           }) => {
     var bar = null;
     var progress = null;
-    if (status === 'complete') {
+    if (status === 'completed') {
         bar = (
             <LinearProgress className={"queueBar"} variant="determinate" value={100} />
         );
@@ -35,11 +35,11 @@ const QueueProgressBar = ({
         progress = progress.toString().concat("%");
     }
     return (
-        <Grid className={QueueProgressBar} container direction='row'>
-            <Grid container xs={2} md={4}>
+        <Grid className={'QueueProgressBar'} container direction='row'>
+            <Grid container item xs={2} md={4}>
                 <p>{progress}</p>
             </Grid>
-            <Grid xs={10} md={8}>
+            <Grid item xs={10} md={8}>
                 {bar}
             </Grid>
         </Grid>

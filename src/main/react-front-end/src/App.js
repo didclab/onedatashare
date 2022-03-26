@@ -23,6 +23,7 @@
 
 import React, { Component } from 'react';
 import './App.css';
+import './sass/common-styles.scss';
 import MainComponent from "./MainComponent";
 import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';

@@ -41,7 +41,7 @@ class QueueComponent extends Component {
 			rowsPerPage: 10,
 			searchValue: '',
 			order: 'desc',
-			orderBy: 'job_id',
+			orderBy: 'jobId',
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
@@ -126,10 +126,11 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
+		console.log("Response received", resp)
 		this.setState({
-			response: resp.jobs,
-			responsesToDisplay: resp.jobs,
-			totalCount: resp.totalCount,
+			response: resp,
+			responsesToDisplay: resp,
+			totalCount: resp.length,
 			loading: false
 		});
 	}
@@ -226,8 +227,8 @@ class QueueComponent extends Component {
 
 	populateRows = () => {
 		const {selectedRowId} = this.state;
-		return this.state.responsesToDisplay.map(row => {
-			let identifier = `${row.owner}-${row.job_id}`
+		return this.state.responsesToDisplay.map((row, index) => {
+			let identifier = `${index}-${row.jobId}`
 			return (
 				<RowElement
 					adminPg={false}
@@ -246,7 +247,7 @@ class QueueComponent extends Component {
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = {
-			jobId: 'job_id',
+			jobId: 'jobId',
 			status: 'status',
 			avgSpeed : "bytes.avg",
 			source : "src.uri",

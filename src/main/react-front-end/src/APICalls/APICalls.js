@@ -421,22 +421,34 @@ export async function savedCredList(type, accept, fail) {
 	Desc: Extract all transfers for the user
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
-	let callback = accept;
-	axios.post(url + GET_USER_JOBS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
-	})
-		.then((response) => {
-			console.log(`Get jobs response ${response}`)
-			if(!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			handleRequestFailure(error, fail);
-		});
+	let callback = accept
+	console.log("Called ****")
+	// callback(records)
+	try {
+		let response =  await axios.get(`/api/metadata/all/jobs`)
+		console.log("User jobs ", response)
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback);
+	} catch (e) {
+		handleRequestFailure(e, fail);
+	}
+	
+	// axios.post(url + GET_USER_JOBS_ENDPOINT, {
+	// 	pageNo: pageNo,
+	// 	pageSize: pageSize,
+	// 	sortBy: sortBy,
+	// 	sortOrder: order
+	// })
+	// 	.then((response) => {
+	// 		console.log(`Get jobs response ${response}`)
+	// 		if(!(response.status === 200))
+	// 			callback = fail;
+	// 		statusHandle(response, callback);
+	// 	})
+	// 	.catch((error) => {
+	// 		handleRequestFailure(error, fail);
+	// 	});
 }
 
 /*

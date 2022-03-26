@@ -41,7 +41,7 @@ function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableCol
     }
     for (let i = 0; i < titles.length; i += 1) {
         headers.push(
-            <Tooltip title={"Sort by" + titles[i]} placement='bottom-end'>
+            <Tooltip title={"Sort by" + titles[i]} key={`sort-${i}`} placement='bottom-end'>
                 <TableCell className={classes[i] + " queueHeaderCell"}>
                     {labels[i]}
                 </TableCell>
