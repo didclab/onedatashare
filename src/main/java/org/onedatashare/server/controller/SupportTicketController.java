@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.controller;
 
+import org.gitlab4j.api.GitLabApiException;
 import org.onedatashare.server.model.ticket.SupportTicketRequest;
 import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,8 @@ public class SupportTicketController {
      * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
      */
     @PostMapping
-    public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createSupportTicket(supportTicketRequest).subscribeOn(Schedulers.elastic());
+    public Mono<Integer> handle(@RequestBody SupportTicketRequest supportTicketRequest) throws GitLabApiException {
+//        System.out.println();
+        return supportTicketService.createGitlabIssue(supportTicketRequest).subscribeOn(Schedulers.elastic());
     }
 }

@@ -769,7 +769,7 @@ export async function deleteCredentialFromServer(cred, type, accept, fail) {
 			});
 }
 
-
+ 
 export async function restartJob(jobID, accept, fail) {
 	let callback = accept;
 	axios.post(url + 'restart', {

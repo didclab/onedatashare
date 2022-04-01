@@ -237,6 +237,7 @@ export default class EndpointBrowseComponent extends Component {
 	};
 	
 	fileNodeDoubleClicked(filename, id){
+		
 		this.props.setLoading(true);
 		this.getFilesFromBackendWithPath(this.props.endpoint, [...this.state.directoryPath, filename], [...this.state.ids, id]);
 		unselectAll();
@@ -337,6 +338,7 @@ export default class EndpointBrowseComponent extends Component {
 	// FTP: Can browse files from the root directory, but unable to go into other directories
 	// Listingi does not yet work for SFTP and HTTP
 	getFilesFromBackendWithPath(endpoint, path, id){
+		
 		var uri = endpoint.uri;
 		// console.log(endpoint);
 		const {setLoading} = this.props;

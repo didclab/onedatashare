@@ -25,6 +25,9 @@ package org.onedatashare.server.service;
 
 import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.gitlab4j.api.GitLabApi;
+import org.gitlab4j.api.GitLabApiException;
+import org.gitlab4j.api.models.Issue;
 import org.onedatashare.server.model.ticket.FreshdeskResponse;
 import org.onedatashare.server.model.ticket.SupportTicketRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -40,6 +44,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 
 /**
  * SupportTicketService is a service class that accepts the captured request from SupportTicketController
@@ -50,6 +56,7 @@ import java.net.URL;
  * @version 1.0
  * @since 05-03-2019
  */
+
 @Service
 public class SupportTicketService {
 
@@ -61,6 +68,13 @@ public class SupportTicketService {
 
     @Value("${freshdesk.api.url}")
     private String FRESHDESK_API_URL;
+
+    @Value("${gitlab.token}")
+    private String GITLAB_API_TOKEN;
+
+    @Value("${gitlab.projectid}")
+    private String GITLAB_PROJECT_ID;
+
 
     // Freshdesk account auth key through which tickets will be created
     private String FRESHDESK_API_KEY = System.getenv("FRESHDESK_API_KEY");
@@ -77,6 +91,14 @@ public class SupportTicketService {
     private final String credential = (FRESHDESK_API_KEY + ":X");
     private final byte[] credentialEncBytes = Base64.encodeBase64(credential.getBytes()) ;
     private final String credentialB64Enc = new String(credentialEncBytes);
+    private GitLabApi gitLabApi;
+
+    @PostConstruct
+    private void postConstruct() {
+        // Create a GitLabApi instance to communicate with your GitLab server using GitLab API V3
+        this.gitLabApi = new GitLabApi(GitLabApi.ApiVersion.V4, "http://gitlab.com", GITLAB_API_TOKEN);
+
+    }
 
     /**
      * This method performs CAPTCHA validation with Google, creates an http connection with Freshdesk to create a ticket
@@ -153,6 +175,7 @@ public class SupportTicketService {
      * The email is sent to ODS team members (common mailbox). Email contains details about the ticket.
      *
      * @param responseObj - Freshdesk server response on ticket creation
+     * @return
      */
     public void sendEmail(FreshdeskResponse responseObj){
         String subject = "Support ticket " + responseObj.getId() + " created";
@@ -164,6 +187,20 @@ public class SupportTicketService {
         catch (Exception ex){
             ODSLoggerService.logError("There was an error in sending ticket creation email", ex);
         }
+    }
+
+    public Mono<Integer> createGitlabIssue(SupportTicketRequest supportTicketRequest) throws GitLabApiException {
+//        this.gitLabApi.getIssuesApi().getGroupIssues();
+//        Issue issue = gitLabApi.getIssuesApi().createIssue(GITLAB_PROJECT_ID,supportTicketRequest.getSubject(), supportTicketRequest.getDescription());
+//        gitLabApi.getIssuesApi().updateIssue(GITLAB_PROJECT_ID,issue.getId(), );
+//        return Mono.just(issue.getId());
+//        System.out.println(SupportTicketRequest.class);
+//        System.out.println(Mono.just(issue.getId()));
+//        Issue issue = gitLabApi.getIssuesApi().;
+//        System.out.println(issue);
+        System.out.println(supportTicketRequest.getSubject());
+        System.out.println(supportTicketRequest.getDescription());
+        return Mono.just(this.gitLabApi.getIssuesApi().hashCode());
     }
 
 }    //class
