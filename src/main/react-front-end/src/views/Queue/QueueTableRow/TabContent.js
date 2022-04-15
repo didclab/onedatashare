@@ -32,7 +32,7 @@ export default class TabContent extends React.Component {
                     return(
                         <Grid item container direction={"row"}>
                             <Grid item sm={6} xs={12}><b>{value[0]}</b></Grid>
-                            <Grid item sm={6} xs={12}>{value[1]}}</Grid>
+                            <Grid item sm={6} xs={12}>{value[1]}</Grid>
                         </Grid>
                     );
                 })}

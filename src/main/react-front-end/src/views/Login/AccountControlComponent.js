@@ -351,7 +351,7 @@ export default class AccountControlComponent extends Component {
           )}
           {loading && <LinearProgress />}
 
-            <Card elevation="3">
+            <Card elevation={3}>
                 <CardContent style={{ padding: "3em" }}>
                     {this.getInnerCard()}
                 </CardContent>
