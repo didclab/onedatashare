@@ -45,16 +45,15 @@ import java.util.Map;
 
 @Service
 public class DbxOauthService  {
+
     @Autowired
     private DbxConfig dbxConfig;
-
     private DbxAppInfo secrets;
     private DbxRequestConfig config;
     private DbxSessionStore sessionStore;
     private DbxWebAuth auth;
     private String token = null;
 
-    private static final Logger LOG = LoggerFactory.getLogger(DbxOauthService.class);
     private static final String STATE = "state", CODE = "code";
 
     @PostConstruct
@@ -86,6 +85,7 @@ public class DbxOauthService  {
             Map<String,String[]> map = new HashMap();
             map.put(STATE, new String[] {queryParameters.get(STATE)});
             map.put(CODE, new String[] {queryParameters.get(CODE)});
+            sessionStore.set(queryParameters.get(STATE));
             try {
                 DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
 
