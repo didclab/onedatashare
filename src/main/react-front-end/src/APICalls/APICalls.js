@@ -62,7 +62,7 @@ export function handleRequestFailure(error, failureCallback){
 		}
 	}
 	if(failureCallback !== undefined){
-		failureCallback(error);
+		failureCallback(error?.response?.data?.error || error);
 	}
 	else{
 		console.error("Undefined callback APICalls:handleRequestFailure");

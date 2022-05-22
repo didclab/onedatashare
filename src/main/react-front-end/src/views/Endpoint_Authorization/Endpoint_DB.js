@@ -150,7 +150,7 @@ export default function Endpoint_DB() {
     var newRow = []
     setPrevious(state => {
       for (let e of rows){
-        if (e.id == id){
+        if (e.id === id){
           newRow = rows.filter(item => item !== e)
         }
       }
@@ -178,7 +178,7 @@ export default function Endpoint_DB() {
   // Function called when row is added.
   function add_row(){
     var new_id = 0;
-    if(rows.length != 0){
+    if(rows.length !== 0){
       for (let e of rows){
         if(e.id > new_id){
           new_id = e.id

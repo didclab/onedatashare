@@ -55,7 +55,6 @@ import { eventEmitter } from "../../App.js";
 import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
 
 
-import  Terminal  from '../Terminal';
 
 import queryString from 'query-string';
 import { updateGAPageView } from '../../analytics/ga';
@@ -115,7 +114,7 @@ export default class TransferComponent extends Component {
   labelStyle = () => styled(Typography)({
     fontSize: "12px",
     color: "black",
-    ["@media only screen and (max-width: 600px)"]:{
+    "@media only screen and (max-width: 600px)":{
       fontSize: "16px"
     }
   })
@@ -123,7 +122,7 @@ export default class TransferComponent extends Component {
 
   headerStyle = () => styled(Typography)({
     fontSize: "15px",
-    ["@media only screen and (max-width: 600px)"]:{
+    "@media only screen and (max-width: 600px)":{
       fontSize: "20px"
     }
   })
@@ -165,7 +164,7 @@ export default class TransferComponent extends Component {
     let sourceCredId =""
     let destCredId = ""
     if(isOAuth[showType[sType]]){
-      sourceParent = sType!="box" ?"":"0"
+      sourceParent = sType!== "box" ?"":"0"
       sourceCredId = endpointSrc.credential.uuid
       processed.selectedTasks.forEach(x=>{
         infoList.push({path:x.id,id:x.id,size:x.size})
@@ -180,7 +179,7 @@ export default class TransferComponent extends Component {
     }
     else{
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
-      sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!="")?"":"/" : sourceParent
+      sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")?"":"/" : sourceParent
       sourceCredId = endpointSrc.credential.credId
       processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
     }
@@ -410,22 +409,7 @@ export default class TransferComponent extends Component {
     const ToggleLabel = this.labelStyle();
     const ToggleHeader = this.headerStyle();
     const FieldLabel = this.fieldLabelStyle();
-    const radioStyles = {
-      formLabel: {
-        color: "black",
-        '&.Mui-focused': {
-          color: "black",
-        }
-      }
-    };
-    // style={formlabelstyle}
-    // style={formStyle}
-    // md={desktopWidth} sm={tabletWidth} xs={gridFullWidth}
     return (
-    // <Box className="transferSettings">
-    //   <div style={{ textAlign: "center" }}>
-    //     <h5>Transfer Setting</h5>
-    //   </div>
         <Container>
       <Grid container className="innerBox" direction="row" align-items="flex-start" justifyContent="center" spacing={2} style={{paddingLeft: "20px"}}>
         <Grid item md={desktopWidth} sm={tabletWidth}>
@@ -715,14 +699,6 @@ export default class TransferComponent extends Component {
 
         </Container>
       </Grid>
-          {/*{this.getSettingComponent()}*/}
-          <Container className={"terminalContainer"}>
-            <div>
-              <Terminal endpoint={this.state.endpoint1} /> <br/>
-              <Terminal endpoint={this.state.endpoint2} />
-
-            </div>
-          </Container>
         </div>
     );
   }

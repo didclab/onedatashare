@@ -42,7 +42,7 @@ import { ValidatorForm } from 'react-material-ui-form-validator';
 import { updateGAPageView } from "../../analytics/ga";
 import Typography from "@material-ui/core/Typography";
 import Logo from "./logo-blue.png";
-import './support_style.css';
+import './support_style.scss';
 
 export default class SupportComponent extends Component{
 
@@ -130,11 +130,6 @@ export default class SupportComponent extends Component{
         <div style={{display: "flex", flexDirection: 'row', justifyContent: 'center', textAlign: 'center'}} >
           <Container maxWidth={"md"} style={{ display: "flex"}}>
             <Box boxShadow={3} style={{borderRadius: "8px", backgroundColor: "#fff"}}>
-              {/* <Panel.Heading>
-                <h4 style={{ textAlign: 'center' }}>
-                  Report an Issue
-                </h4>
-              </Panel.Heading> */}
               <div style={divStyle}>
                 <img src={Logo} style={{width: "20%"}} alt="Logo"/>
               </div>
@@ -144,7 +139,7 @@ export default class SupportComponent extends Component{
                 </div>
               </Typography>
 
-              <ValidatorForm ref="support-form" onSubmit={this.handleSubmit}>
+              <ValidatorForm ref="support-form" className="support-form-wrapper" onSubmit={this.handleSubmit}>
                 <div style={divStyle}>
                   <TextField
                     required
@@ -192,7 +187,7 @@ export default class SupportComponent extends Component{
                   />
                 </div>
 
-                {<div style={ captchaStyle }>
+                {process.env.REACT_APP_GC_CLIENT_KEY && <div style={ captchaStyle }>
                     <ReCAPTCHA
                       sitekey= { process.env.REACT_APP_GC_CLIENT_KEY }
                       onChange={this.handleCaptchaEvent}

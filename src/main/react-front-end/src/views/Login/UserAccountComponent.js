@@ -89,10 +89,6 @@ export default class UserAccountComponent extends Component {
 			modalIsOpen: false
 
 		};
-		this.displayText = "When enabled, all your endpoint authentication tokens will be saved by OneDataShare. \
-		OneDataShare does not store any passwords. On disabling this feature, your endpoint authentication tokens \
-		will be saved in your browser session for a limited time and you may have to authenticate your accounts at \
-		regular intervals."
 		getUser(this.state.userEmail, (resp) => {
 			//success
 			this.setState({
@@ -412,7 +408,7 @@ export default class UserAccountComponent extends Component {
 				>
 					{loading && <LinearProgress />}
 
-					<Card className="userAccCardStyle" elevation="3">
+					<Card className="userAccCardStyle" elevation={3}>
 						<CardContent>
 							{this.accountDetails()}
 							<div style={{width:"100%", display:"flex", justifyContent:"center"}}>

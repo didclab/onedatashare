@@ -64,6 +64,8 @@ import Typography from "@material-ui/core/Typography";
 import {CheckBox, ExpandMore} from "@material-ui/icons";
 
 
+const typesWithOptionalUserName = [showType.http]
+const typesWithOptionalPassword = [showType.http, showType.sftp]
 
 //PROGRESS: S3 can be accessed through both manual log in and clicking on the credential list. Deleting credentials of S3 also works
 // FTP can only be accessed through manual log in, clicking on credential list does not work yet. Deleting credentials also does not work
@@ -263,10 +265,6 @@ export default class EndpointAuthenticateComponent extends Component {
 
 
 
-		let encryptedSecret = "";
-		if(type === showDisplay.s3.label){
-			encryptedSecret = credential.encryptedSecret;
-		}
 		saveEndpointCred(type,
 			{
 				uri: credential.uri,
@@ -489,7 +487,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		);
 	}
 
-
 	//For signing in for FTP, SFTP, HTTP, and S3
 	//NOTE: S3 is fully functional with signing in using manual login and signing in through history credential list
 	// FTP only functional through signing in using the manual login.
@@ -502,7 +499,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			return;
 		}
 		// User is expected to enter password to login
-		if(username.length === 0 || (loginType !== showType.sftp && password.length === 0)) {
+		if((!typesWithOptionalUserName.includes(loginType) && username.length === 0) || (!typesWithOptionalPassword.includes(loginType) && password.length === 0)) {
 			this._handleError(loginType !== showType.s3 ? "Enter a username or password" : "Enter an access key or secret key");
 			return;
 		}
@@ -686,24 +683,24 @@ export default class EndpointAuthenticateComponent extends Component {
 		<div >
 			{!settingAuth && <div className={"authenticationContainer"}>
 
+					{!(loginType === showType.vfs) && <ListItem id={endpoint.side+"Add"} button onClick={() => {
+						if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
+							OAuthFunctions[loginType]();
+						}else if(loginType === showType.gsiftp){ //check if globus protocol
+							this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
+						}else{
+							let loginUri = getType(endpoint) === showType.s3 ? "" : loginType;
+							this.setState({settingAuth: true, authFunction : this.regularSignIn,
+								needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
+						}
 
-		        <ListItem id={endpoint.side+"Add"} button onClick={() => {
-					if(isOAuth[loginType] && loginType !== showType.gsiftp){ //check if OAuth protocol
-						OAuthFunctions[loginType]();
-					}else if(loginType === showType.gsiftp){ //check if globus protocol
-						this.setState({selectingEndpoint: true, authFunction : this.globusSignIn});
-					}else{
-						let loginUri = getType(endpoint) === showType.s3 ? "" : loginType;
-						this.setState({settingAuth: true, authFunction : this.regularSignIn,
-							needPassword: false, url: loginUri, portNum: getDefaultPortFromUri(loginUri)});
-					}
-
-		        }}>
+					}}>
 		          <ListItemIcon>
 		          	<AddIcon/>
 		          </ListItemIcon>
 		          <ListItemText primary={"Add New " + showDisplay[type.toLowerCase()].label} />
-		        </ListItem>
+		        </ListItem>}
+	
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
 				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type, loginType)}
@@ -751,7 +748,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							onError={errors => console.log(errors)}>
 
 							<TextValidator
-								required
+								required={!typesWithOptionalUserName.includes(loginType)}
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginUsername"}
 								label={loginType === showType.s3 ? "AWS ACCESS KEY" : "Username"}
@@ -768,7 +765,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							/>
 
 							<TextValidator
-								required={loginType !== showType.sftp}
+								required={!typesWithOptionalPassword.includes(loginType)}
 								style={{width: "100%"}}
 								id={endpoint.side+"LoginPassword"}
 								label={loginType === showType.s3 ? "AWS SECRET KEY" : "Password"}
