@@ -185,10 +185,17 @@
             <version>v3-rev160-1.25.0</version>
         </dependency>
 
+
         <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>github-api</artifactId>
+            <version>1.306</version>
         </dependency>
 
         <dependency>
