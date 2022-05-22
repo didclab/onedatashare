@@ -73,13 +73,12 @@ public class SupportTicketService {
         this.repository = github.getRepository(repositoryString);
     }
 
-
     public Mono<Long> createGitHubSuppTicket(SupportTicketRequest supportTicketRequest) {
         return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
                 .flatMap(captchaVerified -> {
                     if (captchaVerified) {
                         try {
-                            GHIssue issue = repository.createIssue(supportTicketRequest.getSubject())
+                            GHIssue issue = repository.createIssue(supportTicketRequest.getSubject()+"User email submitted under " + supportTicketRequest.getEmail())
                                     .body(supportTicketRequest.getDescription())
                                     .label("BUG Report")
                                     .create();
