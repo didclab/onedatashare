@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.service;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.module.globusapi.GlobusClient;
@@ -33,12 +34,15 @@ import org.onedatashare.server.model.credential.OAuthCredential;
 import org.onedatashare.server.model.useraction.UserActionCredential;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
+import org.onedatashare.server.service.management.CockroachDBManager;
+import org.onedatashare.server.service.management.InfluxDBManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.util.*;
@@ -63,13 +67,32 @@ public class UserService {
     @Autowired
     private JWTUtil jwtUtil;
 
+    @Autowired
+    private InfluxDBManager influxDBManager;
+
+    @Autowired
+    private CockroachDBManager cockroachDBManager;
+
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     public Mono<User> createUser(User user) {
         user.setRegisterMoment(System.currentTimeMillis());
-        return userRepository.insert(user);
+        Mono<User> influxUser = influxDBManager.createUser(user);
+        Mono<User> cockroachDBUser = cockroachDBManager.createUser(user);
+        Mono<User> mongoUser = userRepository.insert(user);
+        return Mono.zip(influxUser,cockroachDBUser, mongoUser).map(tuple -> {
+            if(tuple.getT1().equals(tuple.getT2())&& tuple.getT1().equals(tuple.getT3())){
+                return user;
+            }else{
+                influxDBManager.deleteUser(user).blockOptional();
+                cockroachDBManager.deleteUser(user).blockOptional();
+                userRepository.delete(user).blockOptional();
+                return new User();
+            }
+        }).subscribeOn(Schedulers.elastic());
+        //Mono.just(user).flatMap(influxUser -> influxDBManager.createUser(user).doOnSuccess(cockroachUser -> cockroachDBManager.createUser(user).doOnSuccess(mongoUser -> userRepository.insert(user))));
     }
 
     public Mono<LoginResponse> login(String email, String password){
@@ -100,6 +123,7 @@ public class UserService {
                                     return Mono.just(new Response("Account already exists",302));
                                 }
                             }
+                            System.out.println(password);
                             return createUser(new User(email, firstName, lastName, organization, password))
                                     .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TOKEN_TIMEOUT_IN_MINUTES));
                         });
