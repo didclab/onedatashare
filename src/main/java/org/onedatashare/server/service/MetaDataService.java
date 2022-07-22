@@ -2,6 +2,7 @@ package org.onedatashare.server.service;
 
 import lombok.SneakyThrows;
 import org.onedatashare.server.model.core.JobStatistic;
+import org.onedatashare.server.model.requestdata.InfluxData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,23 +22,27 @@ public class MetaDataService {
 
     @Value("${meta.service.uri}")
     private String metaHostName;
+
     private Logger logger = LoggerFactory.getLogger(MetaDataService.class);
     private String USER_ID = "userId";
-    private String BASE_PATH="/api/v1/meta";
-    private String USER_JOBS="/user_jobs";
-    private String STAT="/stat";
+    private String USER_EMAIL = "userEmail";
+    private String BASE_PATH = "/api/v1/meta";
+    private String USER_JOBS = "/user_jobs";
+    private String STAT = "/stat";
     private String JOB_ID_QUERY = "jobId";
-    private String ALL_STATS="/all_stats";
+    private String ALL_STATS = "/all_stats";
+    private String INFLUX_RANGE_MEASUREMENTS = "/stats/influx/job/range";
+    private String INFLUX_JOB_MEASUREMENTS = "/stats/influx/job";
+    private String INFLUX_USER_MEASUREMENTS = "/stats/influx/user";
 
     @Autowired
     private WebClient.Builder webClientBuilder;
 
     @SneakyThrows
-    public Mono<JobStatistic> getJobStat(Long id){
+    public Mono<List<JobStatistic>> getJobStat(Long id) {
         logger.info("The jobId we are querying for is {}", id);
-        URI uri = new URI(this.metaHostName);
-        uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH+ STAT)
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + STAT)
                 .queryParam(JOB_ID_QUERY, id)
                 .build().toUri();
         logger.info(uri.toString());
@@ -44,15 +50,15 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(JobStatistic.class);
+                .bodyToMono(new ParameterizedTypeReference<List<JobStatistic>>() {
+                });
     }
 
     @SneakyThrows
-    public Mono<List<JobStatistic>> getAllStats(String userId){
+    public Mono<List<JobStatistic>> getAllStats(String userId) {
         logger.info("the userId we are querying for is {}", userId);
-        URI uri = new URI(this.metaHostName);
-        uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH+ ALL_STATS)
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + ALL_STATS)
                 .queryParam(USER_ID, userId)
                 .build().toUri();
         logger.info(uri.toString());
@@ -60,22 +66,78 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<JobStatistic>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<JobStatistic>>() {
+                });
     }
 
     @SneakyThrows
-    public Mono<List<Long>> getAllJobIds(String userId){
+    public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
-        URI uri = new URI(this.metaHostName);
-        uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH+ USER_JOBS)
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + USER_JOBS)
                 .queryParam(USER_ID, userId)
                 .build().toUri();
         logger.info(uri.toString());
-         return this.webClientBuilder.build()
+        return this.webClientBuilder.build()
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<Long>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<Long>>() {
+                });
+    }
+
+    public Mono<List<Integer>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/stats/date/range")
+                .queryParam(USER_ID, user)
+                .queryParam("from", from.toString())
+                .queryParam("to", to.toString())
+                .build().toUri();
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<Integer>>() {
+                });
+    }
+
+
+    public Mono<List<InfluxData>> measurementsByRange(LocalDateTime start, LocalDateTime end, String userEmail) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + INFLUX_RANGE_MEASUREMENTS)
+                .queryParam(USER_EMAIL, userEmail)
+                .queryParam("start", start)
+                .queryParam("end", end)
+                .build().toUri();
+        return influxDataCall(uri);
+    }
+
+    public Mono<List<InfluxData>> measurementsUserJob(String userEmail, Long jobId) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + INFLUX_JOB_MEASUREMENTS)
+                .queryParam(USER_EMAIL, userEmail)
+                .queryParam("jobId", jobId)
+                .build().toUri();
+        return influxDataCall(uri);
+    }
+
+    public Mono<List<InfluxData>> userMeasurements(String userEmail) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + INFLUX_USER_MEASUREMENTS)
+                .queryParam(USER_EMAIL, userEmail)
+                .build().toUri();
+        return influxDataCall(uri);
+    }
+
+    //Influx data calls
+
+    private Mono<List<InfluxData>> influxDataCall(URI uri) {
+        logger.info(uri.toString());
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {
+                });
     }
 }
