@@ -1,7 +1,8 @@
 package org.onedatashare.server.service;
 
 import lombok.SneakyThrows;
-import org.onedatashare.server.model.core.JobStatistic;
+import org.onedatashare.server.model.requestdata.BatchJobData;
+import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ public class MetaDataService {
     private String metaHostName;
 
     private Logger logger = LoggerFactory.getLogger(MetaDataService.class);
-    private String USER_ID = "userId";
+    private String MONITOR = "/monitor";
     private String USER_EMAIL = "userEmail";
     private String BASE_PATH = "/api/v1/meta";
     private String USER_JOBS = "/user_jobs";
@@ -34,48 +35,19 @@ public class MetaDataService {
     private String INFLUX_RANGE_MEASUREMENTS = "/stats/influx/job/range";
     private String INFLUX_JOB_MEASUREMENTS = "/stats/influx/job";
     private String INFLUX_USER_MEASUREMENTS = "/stats/influx/user";
+    private String DATE = "/date";
 
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    @SneakyThrows
-    public Mono<List<JobStatistic>> getJobStat(Long id) {
-        logger.info("The jobId we are querying for is {}", id);
-        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH + STAT)
-                .queryParam(JOB_ID_QUERY, id)
-                .build().toUri();
-        logger.info(uri.toString());
-        return this.webClientBuilder.build()
-                .get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<JobStatistic>>() {
-                });
-    }
-
-    @SneakyThrows
-    public Mono<List<JobStatistic>> getAllStats(String userId) {
-        logger.info("the userId we are querying for is {}", userId);
-        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH + ALL_STATS)
-                .queryParam(USER_ID, userId)
-                .build().toUri();
-        logger.info(uri.toString());
-        return this.webClientBuilder.build()
-                .get()
-                .uri(uri)
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<JobStatistic>>() {
-                });
-    }
+    //CockroachDB data calls below
 
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + USER_JOBS)
-                .queryParam(USER_ID, userId)
+                .queryParam(USER_EMAIL, userId)
                 .build().toUri();
         logger.info(uri.toString());
         return this.webClientBuilder.build()
@@ -86,10 +58,53 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<List<Integer>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to) {
+    @SneakyThrows
+    public Mono<List<BatchJobData>> getAllStats(String userId) {
+        logger.info("the userId we are querying for is {}", userId);
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + ALL_STATS)
+                .queryParam(USER_EMAIL, userId)
+                .build().toUri();
+        logger.info(uri.toString());
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
+                });
+    }
+
+    @SneakyThrows
+    public Mono<BatchJobData> getJobStat(Long id) {
+        logger.info("The jobId we are querying for is {}", id);
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + STAT)
+                .queryParam(JOB_ID_QUERY, id)
+                .build().toUri();
+        logger.info(uri.toString());
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(BatchJobData.class);
+    }
+
+    public Mono<BatchJobData> getStatByDate(String user, LocalDateTime date){
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH+STAT + DATE)
+                .queryParam(USER_EMAIL, user)
+                .queryParam("date", date).build().toUri();
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(BatchJobData.class);
+    }
+
+    public Mono<List<BatchJobData>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stats/date/range")
-                .queryParam(USER_ID, user)
+                .queryParam(USER_EMAIL, user)
                 .queryParam("from", from.toString())
                 .queryParam("to", to.toString())
                 .build().toUri();
@@ -97,10 +112,20 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<Integer>>() {
+                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
                 });
     }
 
+    //All Influx based calls below
+
+    public Mono<List<InfluxData>> measurementsUserJob(String userEmail, Long jobId) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + INFLUX_JOB_MEASUREMENTS)
+                .queryParam(USER_EMAIL, userEmail)
+                .queryParam("jobId", jobId)
+                .build().toUri();
+        return influxDataCall(uri);
+    }
 
     public Mono<List<InfluxData>> measurementsByRange(LocalDateTime start, LocalDateTime end, String userEmail) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
@@ -108,15 +133,6 @@ public class MetaDataService {
                 .queryParam(USER_EMAIL, userEmail)
                 .queryParam("start", start)
                 .queryParam("end", end)
-                .build().toUri();
-        return influxDataCall(uri);
-    }
-
-    public Mono<List<InfluxData>> measurementsUserJob(String userEmail, Long jobId) {
-        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH + INFLUX_JOB_MEASUREMENTS)
-                .queryParam(USER_EMAIL, userEmail)
-                .queryParam("jobId", jobId)
                 .build().toUri();
         return influxDataCall(uri);
     }
@@ -129,7 +145,21 @@ public class MetaDataService {
         return influxDataCall(uri);
     }
 
-    //Influx data calls
+    //checked
+    public Mono<MonitorData> monitor(String user, List<Long> jobIds) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + MONITOR)
+                .queryParam(USER_EMAIL, user)
+                .queryParam("jobIds", jobIds)
+                .build()
+                .toUri();
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(MonitorData.class);
+    }
+
 
     private Mono<List<InfluxData>> influxDataCall(URI uri) {
         logger.info(uri.toString());

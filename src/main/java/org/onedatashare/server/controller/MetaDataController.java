@@ -1,6 +1,7 @@
 package org.onedatashare.server.controller;
 
-import org.onedatashare.server.model.core.JobStatistic;
+import org.onedatashare.server.model.requestdata.BatchJobData;
+import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
 import org.onedatashare.server.service.MetaDataService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -25,7 +25,7 @@ public class MetaDataController {
 
     //CDB calls
     @GetMapping("/job")
-    public Mono<List<JobStatistic>> getJobStatistic(Mono<Principal> principalMono, @RequestParam Long jobId) {
+    public Mono<BatchJobData> getJobStatistic(Mono<Principal> principalMono, @RequestParam Long jobId) {
         return metaDataService.getJobStat(jobId);
     }
 
@@ -36,17 +36,23 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/jobs")
-    public Mono<List<JobStatistic>> getAllJobStats(Mono<Principal> principalMono) {
+    public Mono<List<BatchJobData>> getAllJobStats(Mono<Principal> principalMono) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllStats(user));
     }
 
+    @GetMapping("/job/date")
+    public Mono<BatchJobData> getJobByStartDate(Mono<Principal> principalMono, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
+        return principalMono.map(Principal::getName)
+                .flatMap(user -> metaDataService.getStatByDate(user, date));
+    }
+
     @GetMapping("/all/jobs/range")
-    public Mono<List<Integer>> getJobsByDateRange(Mono<Principal> principalMono,
+    public Mono<List<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                        @RequestParam
-                                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+                                                       @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getStatsByDateRange(user, start, end));
     }
@@ -70,6 +76,12 @@ public class MetaDataController {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.measurementsByRange(start, end, user));
 
+    }
+
+    @GetMapping("/measurements/monitor")
+    public Mono<MonitorData> monitorListOfJobs(Mono<Principal> principalMono, List<Long> jobIds) {
+        return principalMono.map(Principal::getName)
+                .flatMap(user -> metaDataService.monitor(user, jobIds));
     }
 
 }
