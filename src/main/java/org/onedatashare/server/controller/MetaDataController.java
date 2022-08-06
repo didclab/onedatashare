@@ -79,7 +79,7 @@ public class MetaDataController {
     }
 
     @GetMapping("/measurements/monitor")
-    public Mono<MonitorData> monitorListOfJobs(Mono<Principal> principalMono, List<Long> jobIds) {
+    public Mono<MonitorData> monitorListOfJobs(Mono<Principal> principalMono, Long[] jobIds) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.monitor(user, jobIds));
     }
