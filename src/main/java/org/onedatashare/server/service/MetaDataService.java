@@ -146,11 +146,11 @@ public class MetaDataService {
     }
 
     //checked
-    public Mono<MonitorData> monitor(String user, Long jobId) {
+    public Mono<MonitorData> monitor(String user, Long jobIds) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + MONITOR)
                 .queryParam(USER_EMAIL, user)
-                .queryParam("jobId", jobId)
+                .queryParam("jobId", jobIds)
                 .build()
                 .toUri();
         return this.webClientBuilder.build()
