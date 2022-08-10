@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -74,6 +75,23 @@ public class MetaDataService {
                 });
     }
 
+    public Mono<? extends List<BatchJobData>> getAllStats(String userId, Pageable pageable) {
+        logger.info("the userId we are querying for is {}", userId);
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/stat/page")
+                .queryParam(USER_EMAIL, userId)
+                .queryParam("pageable",pageable)
+                .build().toUri();
+        logger.info(uri.toString());
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
+                });
+    }
+
+
     @SneakyThrows
     public Mono<BatchJobData> getJobStat(Long id) {
         logger.info("The jobId we are querying for is {}", id);
@@ -107,6 +125,22 @@ public class MetaDataService {
                 .queryParam(USER_EMAIL, user)
                 .queryParam("from", from.toString())
                 .queryParam("to", to.toString())
+                .build().toUri();
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
+                });
+    }
+
+    public Mono<? extends List<BatchJobData>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/stats/page/date/range")
+                .queryParam(USER_EMAIL, user)
+                .queryParam("from", from.toString())
+                .queryParam("to", to.toString())
+                .queryParam("pageable", pageable)
                 .build().toUri();
         return this.webClientBuilder.build()
                 .get()
