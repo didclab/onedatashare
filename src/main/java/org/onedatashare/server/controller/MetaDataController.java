@@ -5,6 +5,7 @@ import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
 import org.onedatashare.server.service.MetaDataService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +44,7 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs")
-    public Mono<List<BatchJobData>> getAllJobStats(Mono<Principal> principalMono, Pageable pageable){
+    public Mono<Page<BatchJobData>> getAllJobStats(Mono<Principal> principalMono, Pageable pageable){
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllStats(user, pageable));
     }
@@ -66,7 +67,7 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs/range")
-    public Mono<List<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
+    public Mono<Page<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end, Pageable pageable){

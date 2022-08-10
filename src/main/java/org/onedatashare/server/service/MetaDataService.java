@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -75,7 +76,7 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<? extends List<BatchJobData>> getAllStats(String userId, Pageable pageable) {
+    public Mono<Page<BatchJobData>> getAllStats(String userId, Pageable pageable) {
         logger.info("the userId we are querying for is {}", userId);
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
@@ -87,7 +88,7 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
+                .bodyToMono(new ParameterizedTypeReference<Page<BatchJobData>>() {
                 });
     }
 
@@ -134,7 +135,7 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<? extends List<BatchJobData>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to, Pageable pageable) {
+    public Mono<Page<BatchJobData>> getStatsByDateRange(String user, LocalDateTime from, LocalDateTime to, Pageable pageable) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stats/page/date/range")
                 .queryParam(USER_EMAIL, user)
@@ -146,7 +147,7 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<BatchJobData>>() {
+                .bodyToMono(new ParameterizedTypeReference<Page<BatchJobData>>() {
                 });
     }
 
