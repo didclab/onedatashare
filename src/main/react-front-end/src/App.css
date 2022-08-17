@@ -265,6 +265,7 @@ div.homePage {
   margin-left: 10%;
   margin-right: 10%;
   padding-bottom: 15vh;
+  font-size: 1.25rem;
 }
 
 .QueueView p {
@@ -286,8 +287,8 @@ div.homePage {
 }
 
 .queueBodyCell * {
-  text-align: center;
-  align-content: center;
+  //text-align: center;
+  //align-content: center;
   font-size: 1.2rem;
   vertical-align: middle;
 }
@@ -299,6 +300,10 @@ div.homePage {
 
 .idCell{
   width: 8%;
+}
+
+.columnDataCell {
+  font-size: 1.25rem;
 }
 
 .progressCell {

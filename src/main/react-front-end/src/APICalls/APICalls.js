@@ -420,14 +420,20 @@ export async function savedCredList(type, accept, fail) {
 /*
 	Desc: Extract all transfers for the user
 */
-export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
+export async function getJobsForUser(accept, fail) {
+	console.log('In getJobsForUser',accept, fail)
 	let callback = accept;
-	axios.post(url + GET_USER_JOBS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
-	})
+	/*const pageableOb = {
+		pageNumber: 1,
+		pageSize: 10
+	};
+	{
+		params : {
+			page: 1,
+				size: 10
+		}
+	}*/
+	axios.get(GET_USER_JOBS_ENDPOINT+'?jobId=1')
 		.then((response) => {
 			console.log(`Get jobs response ${response}`)
 			if(!(response.status === 200))

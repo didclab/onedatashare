@@ -46,8 +46,9 @@ import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
-
+import QueueGridComponent from "./views/QueueNew/QueueGridComponent";
 import "./MainComponent.css"
+
 
 // XNOTE: split the components into logged in, not logged in, and admin using HOCs
 
@@ -136,7 +137,7 @@ export default class MainComponent extends Component {
             {isLoggedIn &&
               <Route exact path={ siteURLS.queuePageUrl /*'/queue'*/}
                 render={(props) =>
-                  <QueueComponent {...props} />
+                  <QueueGridComponent {...props} />
                 }
               />
             }
