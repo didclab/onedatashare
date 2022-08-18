@@ -55,6 +55,9 @@ public class SftpResource extends VfsResource {
 
     @SneakyThrows
     public IdentityInfo pubPriKey(AccountEndpointCredential credential){
+        if(this.credential.getAccountId().length() < 3){
+            this.credential.setAccountId(this.credential.getAccountId() + "o");
+        }
         File tempFile = File.createTempFile(this.credential.getAccountId(), ".pem");
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))){
             writer.write(credential.getSecret());
