@@ -79,7 +79,7 @@ public class MetaDataService {
     }
 
     public Mono<Page<BatchJobData>> getAllStats(String userId, Integer page, Integer size, String sort, String direction) {
-        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8084")
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
                 .queryParam(USER_EMAIL, userId)
                 .queryParam("page", page)
@@ -88,7 +88,7 @@ public class MetaDataService {
                 .queryParam("sort", sort)
                 .build().toUri();
         logger.info(uri.toString());
-        return WebClient.builder().build()
+        return this.webClientBuilder.build()
                 .get()
                 .uri(uri)
                 .retrieve()
