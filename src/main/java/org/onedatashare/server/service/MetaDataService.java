@@ -160,7 +160,7 @@ public class MetaDataService {
             uri.queryParam("jobIds", jobId);
         }
 
-        return WebClient.builder().build()
+        return this.webClientBuilder.build()
                 .get()
                 .uri(uri.build().toUri())
                 .retrieve()
