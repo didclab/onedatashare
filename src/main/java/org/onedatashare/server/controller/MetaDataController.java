@@ -1,9 +1,8 @@
 package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.requestdata.BatchJobData;
-import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
-import org.onedatashare.server.model.response.BatchJobDataPageResponse;
+import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.service.MetaDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -45,9 +45,13 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs")
-    public Mono<BatchJobDataPageResponse> getAllJobStats(Mono<Principal> principalMono, Pageable pageable){
+    public Mono<Page<BatchJobData>> getAllJobStats(Mono<Principal> principalMono,
+                                                   @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                                   @RequestParam(value = "size", defaultValue = "30", required = false) Integer size,
+                                                   @RequestParam(value = "sort", defaultValue = "id", required = false) String sort,
+                                                   @RequestParam(value = "direction", defaultValue = "DESC", required = false) String direction) {
         return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getAllStats(user, pageable));
+                .flatMap(user -> metaDataService.getAllStats(user, page, size, sort, direction));
     }
 
 
@@ -68,7 +72,7 @@ public class MetaDataController {
     }
 
     @GetMapping("/jobs/id/list")
-    public Mono<List<BatchJobData>> getJobsByListOfIds(Mono<Principal> principalMono, @RequestParam(value="jobId", required=false) List<Long> jobIds){
+    public Mono<List<BatchJobData>> getJobsByListOfIds(Mono<Principal> principalMono, @RequestParam(value = "jobId", required = false) List<Long> jobIds) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getManyJobStats(user, jobIds).collectList());
     }
@@ -77,7 +81,7 @@ public class MetaDataController {
     public Mono<Page<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end, Pageable pageable){
+                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end, Pageable pageable) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getStatsByDateRange(user, start, end, pageable));
     }

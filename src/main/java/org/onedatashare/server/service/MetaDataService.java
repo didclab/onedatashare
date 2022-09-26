@@ -1,10 +1,10 @@
 package org.onedatashare.server.service;
 
+import com.sun.research.ws.wadl.Param;
 import lombok.SneakyThrows;
 import org.onedatashare.server.model.requestdata.BatchJobData;
-import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
-import org.onedatashare.server.model.response.BatchJobDataPageResponse;
+import org.onedatashare.server.model.requestdata.MonitorData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,19 +78,21 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<BatchJobDataPageResponse> getAllStats(String userId, Pageable pageable) {
-        logger.info("the userId we are querying for is {}", userId);
-        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+    public Mono<Page<BatchJobData>> getAllStats(String userId, Integer page, Integer size, String sort, String direction) {
+        URI uri = UriComponentsBuilder.fromUriString("http://localhost:8084")
                 .path(BASE_PATH + "/stat/page")
                 .queryParam(USER_EMAIL, userId)
-                .queryParam("pageable",pageable)
+                .queryParam("page", page)
+                .queryParam("size", size)
+                .queryParam("direction", direction)
+                .queryParam("sort", sort)
                 .build().toUri();
         logger.info(uri.toString());
-        return this.webClientBuilder.build()
+        return WebClient.builder().build()
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(BatchJobDataPageResponse.class);
+                .bodyToMono(new ParameterizedTypeReference<Page<BatchJobData>>() {});
     }
 
 
@@ -109,9 +111,9 @@ public class MetaDataService {
                 .bodyToMono(BatchJobData.class);
     }
 
-    public Mono<BatchJobData> getStatByDate(String user, LocalDateTime date){
+    public Mono<BatchJobData> getStatByDate(String user, LocalDateTime date) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH+STAT + DATE)
+                .path(BASE_PATH + STAT + DATE)
                 .queryParam(USER_EMAIL, user)
                 .queryParam("date", date).build().toUri();
         return this.webClientBuilder.build()
@@ -154,9 +156,9 @@ public class MetaDataService {
 
     public Flux<BatchJobData> getManyJobStats(String user, List<Long> jobIds) {
         UriComponentsBuilder uri = UriComponentsBuilder.fromUriString(this.metaHostName)
-                .path(BASE_PATH+"/stats/jobIds")
+                .path(BASE_PATH + "/stats/jobIds")
                 .queryParam(USER_EMAIL, user);
-        for(Long jobId : jobIds){
+        for (Long jobId : jobIds) {
             uri.queryParam("jobIds", jobId);
         }
 
@@ -195,6 +197,7 @@ public class MetaDataService {
                 .build().toUri();
         return influxDataCall(uri);
     }
+
     //checked
     public Mono<MonitorData> monitor(String user, Long jobIds) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
