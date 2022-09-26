@@ -47,6 +47,7 @@ public class GDriveResource extends Resource {
             result = this.service.files().list()
                     .setOrderBy("name")
                     .setQ("trashed=false and 'root' in parents")
+                    .setPageSize(1000)
                     .setFields("nextPageToken, files(id, name, kind, mimeType, size, modifiedTime)");
             if (result == null) {
                 throw new NotFoundException();
