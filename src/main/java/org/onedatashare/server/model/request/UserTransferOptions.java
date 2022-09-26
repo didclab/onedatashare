@@ -27,14 +27,14 @@ import lombok.Data;
 
 @Data
 public class UserTransferOptions {
-    private Boolean compress;
-    private Boolean encrypt;
-    private String optimizer;
-    private Boolean overwrite;
-    private Integer retry;
-    private Boolean verify;
-    private Integer concurrencyThreadCount;
-    private Integer parallelThreadCount;
-    private Integer pipeSize;
-    private Integer chunkSize;
+    private Boolean compress; //implemented
+    private Boolean encrypt; //we currently need to add FTPS, HTTPS support I believe
+    private String optimizer; //not yet supported, might use B.O maybe?
+    private Boolean overwrite;  //adding this next
+    private Integer retry; //supported
+    private Boolean verify; //not supported
+    private Integer concurrencyThreadCount; //supported
+    private Integer parallelThreadCount; //supported
+    private Integer pipeSize; //supported
+    private Integer chunkSize; //supported
 }

@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.onedatashare.server.model.requestdata.BatchJobData;
 import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
+import org.onedatashare.server.model.response.BatchJobDataPageResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -76,7 +78,7 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<Page<BatchJobData>> getAllStats(String userId, Pageable pageable) {
+    public Mono<BatchJobDataPageResponse> getAllStats(String userId, Pageable pageable) {
         logger.info("the userId we are querying for is {}", userId);
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
@@ -88,8 +90,7 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Page<BatchJobData>>() {
-                });
+                .bodyToMono(BatchJobDataPageResponse.class);
     }
 
 
@@ -151,6 +152,21 @@ public class MetaDataService {
                 });
     }
 
+    public Flux<BatchJobData> getManyJobStats(String user, List<Long> jobIds) {
+        UriComponentsBuilder uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH+"/stats/jobIds")
+                .queryParam(USER_EMAIL, user);
+        for(Long jobId : jobIds){
+            uri.queryParam("jobIds", jobId);
+        }
+
+        return WebClient.builder().build()
+                .get()
+                .uri(uri.build().toUri())
+                .retrieve()
+                .bodyToFlux(BatchJobData.class);
+    }
+
     //All Influx based calls below
 
     public Mono<List<InfluxData>> measurementsUserJob(String userEmail, Long jobId) {
@@ -179,7 +195,6 @@ public class MetaDataService {
                 .build().toUri();
         return influxDataCall(uri);
     }
-
     //checked
     public Mono<MonitorData> monitor(String user, Long jobIds) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)

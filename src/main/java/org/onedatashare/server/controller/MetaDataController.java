@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.requestdata.BatchJobData;
 import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.requestdata.InfluxData;
+import org.onedatashare.server.model.response.BatchJobDataPageResponse;
 import org.onedatashare.server.service.MetaDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,7 +45,7 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs")
-    public Mono<Page<BatchJobData>> getAllJobStats(Mono<Principal> principalMono, Pageable pageable){
+    public Mono<BatchJobDataPageResponse> getAllJobStats(Mono<Principal> principalMono, Pageable pageable){
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllStats(user, pageable));
     }
@@ -64,6 +65,12 @@ public class MetaDataController {
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getStatsByDateRange(user, start, end));
+    }
+
+    @GetMapping("/jobs/id/list")
+    public Mono<List<BatchJobData>> getJobsByListOfIds(Mono<Principal> principalMono, @RequestParam(value="jobId", required=false) List<Long> jobIds){
+        return principalMono.map(Principal::getName)
+                .flatMap(user -> metaDataService.getManyJobStats(user, jobIds).collectList());
     }
 
     @GetMapping("/all/page/jobs/range")
@@ -94,7 +101,6 @@ public class MetaDataController {
                                                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.measurementsByRange(start, end, user));
-
     }
 
     @GetMapping("/measurements/monitor")

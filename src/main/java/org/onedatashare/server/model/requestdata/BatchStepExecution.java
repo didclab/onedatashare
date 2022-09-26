@@ -1,6 +1,5 @@
 package org.onedatashare.server.model.requestdata;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import java.sql.Timestamp;
