@@ -3,6 +3,7 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.requestdata.BatchJobData;
 import org.onedatashare.server.model.requestdata.InfluxData;
 import org.onedatashare.server.model.requestdata.MonitorData;
+import org.onedatashare.server.model.response.PageImplResponse;
 import org.onedatashare.server.service.MetaDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,11 +46,11 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs")
-    public Mono<Page<BatchJobData>> getAllJobStats(Mono<Principal> principalMono,
-                                                   @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
-                                                   @RequestParam(value = "size", defaultValue = "30", required = false) Integer size,
-                                                   @RequestParam(value = "sort", defaultValue = "id", required = false) String sort,
-                                                   @RequestParam(value = "direction", defaultValue = "DESC", required = false) String direction) {
+    public Mono<PageImplResponse<BatchJobData>> getAllJobStats(Mono<Principal> principalMono,
+                                                               @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+                                                               @RequestParam(value = "size", defaultValue = "30", required = false) Integer size,
+                                                               @RequestParam(value = "sort", defaultValue = "id", required = false) String sort,
+                                                               @RequestParam(value = "direction", defaultValue = "DESC", required = false) String direction) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.getAllStats(user, page, size, sort, direction));
     }

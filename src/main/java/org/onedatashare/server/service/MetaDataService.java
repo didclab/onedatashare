@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import org.onedatashare.server.model.requestdata.BatchJobData;
 import org.onedatashare.server.model.requestdata.InfluxData;
 import org.onedatashare.server.model.requestdata.MonitorData;
+import org.onedatashare.server.model.response.PageImplResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,7 +79,7 @@ public class MetaDataService {
                 });
     }
 
-    public Mono<Page<BatchJobData>> getAllStats(String userId, Integer page, Integer size, String sort, String direction) {
+    public Mono<PageImplResponse<BatchJobData>> getAllStats(String userId, Integer page, Integer size, String sort, String direction) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
                 .queryParam(USER_EMAIL, userId)
@@ -92,7 +93,7 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Page<BatchJobData>>() {});
+                .bodyToMono(new ParameterizedTypeReference<PageImplResponse<BatchJobData>>() {});
     }
 
 
