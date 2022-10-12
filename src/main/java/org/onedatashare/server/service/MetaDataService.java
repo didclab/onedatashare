@@ -1,6 +1,5 @@
 package org.onedatashare.server.service;
 
-import com.sun.research.ws.wadl.Param;
 import lombok.SneakyThrows;
 import org.onedatashare.server.model.requestdata.BatchJobData;
 import org.onedatashare.server.model.requestdata.InfluxData;
@@ -47,6 +46,7 @@ public class MetaDataService {
 
     //CockroachDB data calls below
 
+
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
@@ -85,15 +85,15 @@ public class MetaDataService {
                 .queryParam(USER_EMAIL, userId)
                 .queryParam("page", page)
                 .queryParam("size", size)
-                .queryParam("direction", direction)
-                .queryParam("sort", sort)
+                .queryParam("sort", sort + "," + direction)
                 .build().toUri();
         logger.info(uri.toString());
         return this.webClientBuilder.build()
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<PageImplResponse<BatchJobData>>() {});
+                .bodyToMono(new ParameterizedTypeReference<PageImplResponse<BatchJobData>>() {
+                });
     }
 
 
