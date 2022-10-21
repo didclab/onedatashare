@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -218,7 +219,7 @@ public class VfsResource extends Resource {
     private long size(FileContent fileContent){
         try{
             return fileContent.getSize();
-        }catch (FileSystemException e){
+        }catch (IOException e){
             return 0l;
         }
     }
@@ -226,7 +227,7 @@ public class VfsResource extends Resource {
     private long lastModified(FileContent fileContent){
         try {
             return fileContent.getLastModifiedTime()/1000;
-        } catch (FileSystemException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return 0l;
