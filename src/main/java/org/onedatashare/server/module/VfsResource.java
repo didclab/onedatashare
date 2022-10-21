@@ -137,8 +137,8 @@ public class VfsResource extends Resource {
                     logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
                     fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
                     logger.info(fileObject.toString());
-
                 }
+                logger.info(fileObject.toString());
                 if(!fileObject.exists()){
                     s.error(new FileNotFoundException());
                 }
