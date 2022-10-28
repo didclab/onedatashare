@@ -74,7 +74,11 @@ const QueueTableHeaderView = ({
                                   sortableColumns,
                               }) => {
             const [data, setData] = useState([]);
-            const [influxData, setInfluxData] = useState([[]]);
+            const [influxData, setInfluxData] = useState([
+                [{"jobId": 7475,"throughput": 3.959031485985995E8},
+                {"jobId": 7475,"throughput": 3.2620711321701264E8}],
+                [{"jobId": 7476,"throughput": 4},
+                 {"jobId": 7476,"throughput": 5}]]);
 
             useEffect(() => {
                 axios
@@ -112,9 +116,13 @@ const QueueTableHeaderView = ({
                     console.log(error);
                   });
               }, [rowsPerPage]);
-            console.log("Influx data",influxData);
             var difference;
-
+            var dict = {};
+            for (let i=0;i<influxData.length;i++)
+            {
+                dict[influxData[i][0].jobId] = influxData[i];
+            }
+            console.log("dictionary of influx data",dict);
             for(let i=0;i<data.length;i++)
             {
                 if (data[i].status=="COMPLETED")
@@ -124,8 +132,9 @@ const QueueTableHeaderView = ({
                 }
                 else if (data[i].status=="STARTING" || data[i].status=="STARTED")
                 {
-                    //To be computed
-                    data[i]["speed"] = 5;
+                    const job_Id = data[i].id;
+                    const indx =dict[job_Id].length-1;
+                    data[i]["speed"] = dict[job_Id][indx].throughput;
                 }
                 else{
                     data[i]["speed"]=0;
