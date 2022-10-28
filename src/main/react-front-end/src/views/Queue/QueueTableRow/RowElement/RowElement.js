@@ -94,6 +94,7 @@ export default class RowElement extends React.Component {
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
                             <p><b>Job ID:</b> {resp.job_id}</p>
+                            {/* <p><b>Job ID:</b> 1</p> */}
                             <p><b>Progress: </b>{bar}</p>
                             <p><b>Average Speed:</b> {humanReadableSpeed(resp.bytes.avg)}</p>
                             <p><b>Source:</b> {decodeURIComponent(resp.src.uri)}</p>

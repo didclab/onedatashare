@@ -29,6 +29,9 @@ import { jobStatus } from '../../constants';
 import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement/RowElement";
 
+
+
+
 class QueueComponent extends Component {
 
 	constructor(props) {
@@ -126,6 +129,7 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
+
 		this.setState({
 			response: resp.jobs,
 			responsesToDisplay: resp.jobs,

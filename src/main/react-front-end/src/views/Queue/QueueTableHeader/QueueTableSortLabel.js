@@ -1,6 +1,6 @@
 import TableSortLabel from "@material-ui/core/TableSortLabel";
 import React from "react";
-
+    
 const QueueTableSortLabel = ({
                              handleRequestSort,
                              order,

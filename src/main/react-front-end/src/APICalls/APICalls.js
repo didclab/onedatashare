@@ -21,7 +21,7 @@
  */
 
 
-import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
+ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
 	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
 	UPDATE_ADMIN_RIGHTS,
 	GET_USER_JOBS_ENDPOINT,
@@ -40,7 +40,7 @@ import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-const FETCH_TIMEOUT = 10000;
+const FETCH_TIMEOUT = 10000*20;
 
 export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
@@ -541,6 +541,7 @@ export async function submitTransferRequest(source,dest,options,accept,fail){
 export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
 	let callback = accept;
 	// console.log(src)
+	console.log("srcEndpoint,destEndpoint",srcEndpoint,destEndpoint);
 	let src0 = Object.assign({}, src);
 	let dest0 = Object.assign({}, dest);
 	if (Object.keys(src0.credential).length === 0) {
@@ -843,7 +844,6 @@ export async function registerUser(requestBody, errorCallback) {
 				);
 }
 
-
 export async function verifyRegistraionCode(emailId, code) {
     return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
     	    email : emailId,
@@ -857,4 +857,40 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
+}
+
+export async function getMetaJobData() {
+
+
+    return axios.get("/api/metadata/all/page/jobs",{
+		params :
+	{	
+		page:1,
+		size:10,
+		sort:"id,DESC"
+	}
+	})
+		.then((res) => {
+			console.log("res data in API calls",res.data)
+			return res.data;
+		})
+		.catch((error) => {
+			console.log(error);
+		});
+}
+
+export async function getInfluxJobData(id) {
+	console.log("Inside get influx job data",id);
+	// /api/metadata/all/page/jobs
+	// api/metadata/measurements/job?jobId=7475
+    return axios.get("/api/metadata/measurements/job",{
+		params :{jobId:7475}
+	})
+		.then((res) => {
+			console.log("res data in API calls",res.data)
+			return res.data;
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 }
