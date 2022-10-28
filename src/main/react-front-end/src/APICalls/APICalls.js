@@ -858,39 +858,3 @@ export async function verifyRegistraionCode(emailId, code) {
           return {status : 500}
         });
 }
-
-export async function getMetaJobData() {
-
-
-    return axios.get("/api/metadata/all/page/jobs",{
-		params :
-	{	
-		page:1,
-		size:10,
-		sort:"id,DESC"
-	}
-	})
-		.then((res) => {
-			console.log("res data in API calls",res.data)
-			return res.data;
-		})
-		.catch((error) => {
-			console.log(error);
-		});
-}
-
-export async function getInfluxJobData(id) {
-	console.log("Inside get influx job data",id);
-	// /api/metadata/all/page/jobs
-	// api/metadata/measurements/job?jobId=7475
-    return axios.get("/api/metadata/measurements/job",{
-		params :{jobId:7475}
-	})
-		.then((res) => {
-			console.log("res data in API calls",res.data)
-			return res.data;
-		})
-		.catch((error) => {
-			console.log(error);
-		});
-}
