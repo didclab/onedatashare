@@ -1,30 +1,30 @@
 /**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team,
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ##
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ##
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ##
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
  */
 
 package org.onedatashare.server.system;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.controller.DeleteJobController;
 import org.onedatashare.server.model.core.Job;
@@ -38,13 +38,13 @@ import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -56,7 +56,7 @@ import static reactor.core.publisher.Mono.just;
  * Entry point for requests: {@link DeleteJobController}
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 public class DeleteJobTest extends SystemTest {
 
@@ -67,9 +67,9 @@ public class DeleteJobTest extends SystemTest {
 
     private Map<UUID, Job> jobs = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
-        when(jobRepository.insert((Job)any())).thenAnswer(addToJobs());
+        when(jobRepository.insert((Job) any())).thenAnswer(addToJobs());
         when(jobRepository.save(any())).thenAnswer(updateJob());
         when(jobRepository.findById((UUID) any())).thenAnswer(findJobById());
 
@@ -136,7 +136,7 @@ public class DeleteJobTest extends SystemTest {
 
     private List<UUID> getJobIds(Job... jobs) {
         List<UUID> ids = new ArrayList<>();
-        for(Job job : jobs)
+        for (Job job : jobs)
             ids.add(job.getUuid());
         return ids;
     }

@@ -1,10 +1,9 @@
 package org.onedatashare.server.system;
 
 import com.amazonaws.services.simpleemail.model.GetSendQuotaResult;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.controller.AdminController;
 import org.onedatashare.server.model.core.Mail;
@@ -22,10 +21,11 @@ import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.constraints.NotNull;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ import static java.lang.Long.valueOf;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.Comparator.comparing;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
@@ -47,7 +47,7 @@ import static reactor.core.publisher.Mono.just;
  * Entry point for requests: {@link AdminController}
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 public class AdminActionTest extends SystemTest {
 
@@ -71,7 +71,7 @@ public class AdminActionTest extends SystemTest {
     @MockBean
     MailRepository mailRepo;
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(userRepository.insert((User) any())).thenAnswer(addToUsers());
         when(userRepository.save(any())).thenAnswer(addToUsers());

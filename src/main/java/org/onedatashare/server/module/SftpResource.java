@@ -44,9 +44,11 @@ public class SftpResource extends VfsResource {
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, justUserName(accountCredential));
         }else{
             builder.setPreferredAuthentications(fileSystemOptions,"password,keyboard-interactive");
+//            builder.setUserDirIsRoot(this.fileSystemOptions, false);
             DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, basicAuth(accountCredential));
         }
         this.fileSystemManager = VFS.getManager();
+
     }
 
     public StaticUserAuthenticator basicAuth(AccountEndpointCredential accountCredential){

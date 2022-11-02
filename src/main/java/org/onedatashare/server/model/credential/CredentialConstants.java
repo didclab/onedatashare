@@ -23,9 +23,9 @@
 
 package org.onedatashare.server.model.credential;
 
-import edu.emory.mathcs.backport.java.util.Arrays;
 import org.onedatashare.server.model.core.EndpointType;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 public class CredentialConstants {

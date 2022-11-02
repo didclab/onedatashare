@@ -29,16 +29,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import lombok.SneakyThrows;
-import org.onedatashare.server.controller.EndpointOauthController;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.config.GDriveConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -67,7 +64,7 @@ public class GDriveOauthService {
     @SneakyThrows
     public void initialize() {
         this.flow = new GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(), JacksonFactory.getDefaultInstance(),
+                GoogleNetHttpTransport.newTrustedTransport(), GsonFactory.getDefaultInstance(),
                 driveConfig.getClientSecrets(), driveConfig.SCOPES)
                 .setAccessType(driveConfig.ACCESS_TYPE)
                 .setDataStoreFactory(MemoryDataStoreFactory.getDefaultInstance())
@@ -95,7 +92,7 @@ public class GDriveOauthService {
                 Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
 
                 HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-                JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+                JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
                 Drive service = new Drive.Builder(httpTransport, jsonFactory, driveCredential)
                         .setApplicationName(driveConfig.getAppName())
                         .build();
@@ -105,7 +102,7 @@ public class GDriveOauthService {
                 Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
                 calendar.add(Calendar.SECOND, Math.toIntExact(response.getExpiresInSeconds()));
 
-                OAuthEndpointCredential credential  = new OAuthEndpointCredential(userId)
+                OAuthEndpointCredential credential = new OAuthEndpointCredential(userId)
                         .setToken(response.getAccessToken())
                         .setRefreshToken(response.getRefreshToken())
                         .setExpiresAt(calendar.getTime())

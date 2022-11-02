@@ -23,7 +23,9 @@
 
 package org.onedatashare.server.model.ticket;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
@@ -37,28 +39,21 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
+@AllArgsConstructor
+@NoArgsConstructor
 public class SupportTicketRequest {
 
-    @NonNull
     private String name;
-
-    @NonNull
     private String email;
-
-    private String phone = "";
-
-    @NonNull
+    private String phone;
     private String subject;
-
-    @NonNull
     private String description;
 
     private String captchaVerificationValue;
-
     // mandatory settings required by Freshdesk
-    private Integer source = 2;    // 2 -> Portal, indicating it was created using our webapp
-    private Integer priority = 2;    // 2 -> Medium priority
-    private Integer status = 2;    // 2 -> Open status
+    private final Integer source = 2;    // 2 -> Portal, indicating it was created using our webapp
+    private final Integer priority = 2;    // 2 -> Medium priority
+    private final Integer status = 2;    // 2 -> Open status
 
     /**
      * This method converts the data sent in a support ticket request into a string representation.

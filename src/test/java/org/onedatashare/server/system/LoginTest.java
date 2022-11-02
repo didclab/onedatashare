@@ -22,18 +22,17 @@
 
 package org.onedatashare.server.system;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.onedatashare.server.controller.LoginController;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.system.base.UserActionTest;
 import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * A system test suite that tests actions on user verified accounts like logging in, changing passwords.
@@ -41,7 +40,7 @@ import static org.junit.Assert.assertTrue;
  * Entry point for requests: {@link LoginController}
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 public class LoginTest extends UserActionTest {
 

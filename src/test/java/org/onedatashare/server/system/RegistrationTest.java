@@ -22,17 +22,16 @@
 
 package org.onedatashare.server.system;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.onedatashare.server.controller.RegistrationController;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.system.base.UserActionTest;
 import org.onedatashare.server.system.mockuser.WithMockCustomUser;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-
-import static org.junit.Assert.*;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * A system test suite that tests actions related to user registration and verification.
@@ -40,7 +39,7 @@ import static org.junit.Assert.*;
  * Entry point for requests: {@link RegistrationController}
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 public class RegistrationTest extends UserActionTest {
 

@@ -1,16 +1,16 @@
 package org.onedatashare.server.service;
 
 
-import junit.framework.TestCase;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.module.BoxResource;
 import reactor.core.publisher.Mono;
-import org.junit.Assert;
 
-public class BoxResourceTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+public class BoxResourceTest {
 
     BoxResource testObj;
     String accountId;
@@ -27,12 +27,12 @@ public class BoxResourceTest extends TestCase {
         ListOperation listOperation = new ListOperation(accountId, "","");// zero is the root dir in Box
         Mono<Stat> monoStat = testObj.list(listOperation);
         Stat parent = monoStat.block();
-        Assert.assertTrue(parent.getId() != null && !parent.getId().isEmpty());
-        Assert.assertTrue(parent.isDir() || parent.isFile());
+        assertTrue(parent.getId() != null && !parent.getId().isEmpty());
+        assertTrue(parent.isDir() || parent.isFile());
         for(Stat stat : parent.getFilesList()){
             System.out.println(stat.toString());
-            Assert.assertTrue(stat.getId() != null && !stat.getId().isEmpty());
-            Assert.assertTrue(stat.isDir() || stat.isFile());
+            assertTrue(stat.getId() != null && !stat.getId().isEmpty());
+            assertTrue(stat.isDir() || stat.isFile());
         }
     }
 
@@ -41,12 +41,12 @@ public class BoxResourceTest extends TestCase {
         ListOperation listOperation = new ListOperation(accountId, "","138759045640");// zero is the root dir in Box
         Mono<Stat> monoStat = testObj.list(listOperation);
         Stat parent = monoStat.block();
-        Assert.assertTrue(parent.getId() != null && !parent.getId().isEmpty());
-        Assert.assertTrue(parent.isDir() || parent.isFile());
+        assertTrue(parent.getId() != null && !parent.getId().isEmpty());
+        assertTrue(parent.isDir() || parent.isFile());
         for(Stat stat : parent.getFilesList()){
             System.out.println(stat.toString());
-            Assert.assertTrue(stat.getId() != null && !stat.getId().isEmpty());
-            Assert.assertTrue(stat.isDir() || stat.isFile());
+            assertTrue(stat.getId() != null && !stat.getId().isEmpty());
+            assertTrue(stat.isDir() || stat.isFile());
         }
     }
 

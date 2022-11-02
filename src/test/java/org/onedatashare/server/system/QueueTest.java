@@ -1,8 +1,8 @@
 package org.onedatashare.server.system;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.controller.QueueController;
 import org.onedatashare.server.model.core.Job;
@@ -17,7 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,8 +25,8 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static reactor.core.publisher.Flux.fromIterable;
@@ -38,7 +38,7 @@ import static reactor.core.publisher.Mono.just;
  * Entry point for requests: {@link QueueController}
  */
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @AutoConfigureMockMvc
 public class QueueTest extends SystemTest {
 
@@ -53,7 +53,7 @@ public class QueueTest extends SystemTest {
 
     private Map<UUID, Job> jobs = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
         when(jobRepository.insert((Job)any())).thenAnswer(addToJobs());
         when(jobRepository.findJobsForUser(any(), any())).thenAnswer(getJobsByEmail());

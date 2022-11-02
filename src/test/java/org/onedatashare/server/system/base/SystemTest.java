@@ -1,7 +1,7 @@
 package org.onedatashare.server.system.base;
 
 import com.google.gson.Gson;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.stubbing.Answer;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.repository.UserRepository;
@@ -56,7 +56,7 @@ public abstract class SystemTest {
     protected Map<String, User> users = new HashMap<>();
     protected Map<String, String> userInbox = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         // User repo mocked methods
