@@ -78,7 +78,7 @@ public class SupportTicketService {
                 .flatMap(captchaVerified -> {
                     if (captchaVerified) {
                         try {
-                            GHIssue issue = repository.createIssue(supportTicketRequest.getSubject()+"User email submitted under " + supportTicketRequest.getEmail())
+                            GHIssue issue = repository.createIssue("User: " + supportTicketRequest.getEmail() + " " + supportTicketRequest.getSubject())
                                     .body(supportTicketRequest.getDescription())
                                     .label("BUG Report")
                                     .create();
