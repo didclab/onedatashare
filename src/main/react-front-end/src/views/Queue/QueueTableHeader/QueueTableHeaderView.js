@@ -11,7 +11,10 @@ import AdminHistoryTools from "./AdminHistoryTools";
 import { useEffect, useState } from "react";
 import TableBody from "@material-ui/core/TableBody";
 import { axios } from "../../../APICalls/APICalls";
-
+import MyModalComponent from "./MyModalComponent";
+// import ProgressBar from 'react-bootstrap';
+import * as ReactBootstrap from 'react-bootstrap';
+import Modal from 'react-modal';
 
 function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns) {
     let labels = [];
@@ -74,11 +77,31 @@ const QueueTableHeaderView = ({
                                   sortableColumns,
                               }) => {
             const [data, setData] = useState([]);
+            // const [modalIsOpen, setModalIsOpen] = useState(false);
+            const [selectedRow, setSelectedRow] = React.useState({});
+            const [modalIsOpen, setIsOpen] = React.useState(false);
+            const modalData = {
+                title: 'My Title From Parent',
+                body: ['Apple', 'Ipple', 'Opple', 'Upple', 'Epple']
+              };
             const [influxData, setInfluxData] = useState([
                 [{"jobId": 7475,"throughput": 3.959031485985995E8},
                 {"jobId": 7475,"throughput": 3.2620711321701264E8}],
                 [{"jobId": 7476,"throughput": 4},
                  {"jobId": 7476,"throughput": 5}]]);
+
+                function openFromParent() {
+                setIsOpen(true);
+                }
+            
+                function handleCloseModal(event, data) {
+                console.log(event, data);
+                setIsOpen(false);
+                }
+            
+                function handleAfterOpen(event, data) {
+                console.log(event, data);
+                }
 
             useEffect(() => {
                 axios
@@ -109,6 +132,7 @@ const QueueTableHeaderView = ({
                                 });
                         }  
                     }
+                    console.log("res data content",res.data.content);
                     setData(res.data.content);
 
                   })
@@ -127,7 +151,8 @@ const QueueTableHeaderView = ({
             {
                 if (data[i].status=="COMPLETED")
                 {
-                    difference = Date.parse(data[i].endTime)/1000 - Date.parse(data[i].startTime)/1000
+                    difference = Date.parse(data[i].endTime)/1000 - Date.parse(data[i].startTime)/1000;
+                    data[i]["total_time"] = difference;
                     data[i]["speed"]=parseFloat((data[i].jobParameters.jobSize/1000000)*8)/(difference);
                 }
                 else if (data[i].status=="STARTING" || data[i].status=="STARTED")
@@ -140,9 +165,28 @@ const QueueTableHeaderView = ({
                     data[i]["speed"]=0;
                 }
             }
+
+            // const rowEvents = {
+            //     onClick: (row) => {
+            //     console.log(row);
+            //     },
+            // };
+    console.log("selected row",selectedRow);
     let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
     return (
         <>
+        {/* <Modal isOpen={modalIsOpen} onRequestClose={()=> setModalIsOpen(false)}>
+            <button onClick={setModalIsOpenToFalse}>x</button> */}
+            {/* <AnimeList/> */}
+        {/* </Modal> */}
+        {/* <button onClick={openFromParent}>Open Modal</button> */}
+        <MyModalComponent
+        dynData={selectedRow}
+        IsModalOpened={modalIsOpen}
+        onCloseModal={handleCloseModal}
+        onAfterOpen={handleAfterOpen}
+        />
+
         <TableHead >
             { adminPg && <AdminHistoryTools
                 customToolbar={customToolbar}
@@ -155,10 +199,10 @@ const QueueTableHeaderView = ({
                 queueFunc={queueFunc}
             />
             }
-            <TableRow >
+            <TableRow>
                 <Hidden mdDown>
                     {headerCells}
-                    <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell>
+                    {/* <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell> */}
                 </Hidden>
                 <Hidden lgUp>
                     <QueueMobileHeader
@@ -170,13 +214,18 @@ const QueueTableHeaderView = ({
         </TableHead>
         <TableBody>
         {data.map((row) => (
-           <TableRow key={row.id}>
+            <TableRow key = {row.id} onClick={function(event) { setSelectedRow(row); openFromParent();}}>
+            {/* <TableRow key={row.id}   onClick={() => { setSelectedRow(row)}}> */}
+           {/* <TableRow key={row.id}   onClick={() => { setSelectedRow(row)}}> */}
              <TableCell component="th" scope="row" align="center">{row.id}</TableCell>
-             <TableCell align="center">{row.status}</TableCell>
+             <TableCell align="center">
+             {/* {row.status} */}
+             <ReactBootstrap.ProgressBar variant="info" now={100} label={`${100}%`}/>
+             </TableCell>
              <TableCell align="center">{row.speed}</TableCell>
              <TableCell align="center">{row.jobParameters.sourceBasePath}</TableCell>
              <TableCell align="center">{row.jobParameters.destBasePath}</TableCell>
-             <TableCell align="center">3</TableCell>
+             {/* <TableCell align="center">3</TableCell> */}
            </TableRow>
          ))}
         </TableBody>
