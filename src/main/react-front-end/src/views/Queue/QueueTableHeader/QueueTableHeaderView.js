@@ -14,12 +14,14 @@ import { axios } from "../../../APICalls/APICalls";
 import MyModalComponent from "./MyModalComponent";
 // import ProgressBar from 'react-bootstrap';
 import * as ReactBootstrap from 'react-bootstrap';
-import Modal from 'react-modal';
+// import Modal from 'react-modal';
+import myData from './response.json';
 
 function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns) {
     let labels = [];
     let headers = [];
     let menuOpts = [];
+    console.log("mydata from file",myData[0]["dataBytesSent"]);
     let titles = ["Job ID", "Progress", "Speed", "Source", "Destination"];
     let classes = ["idCell", "progressCell", "speedCell", "sourceCell", "destinationCell"];
     let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
@@ -80,10 +82,10 @@ const QueueTableHeaderView = ({
             // const [modalIsOpen, setModalIsOpen] = useState(false);
             const [selectedRow, setSelectedRow] = React.useState({});
             const [modalIsOpen, setIsOpen] = React.useState(false);
-            const modalData = {
-                title: 'My Title From Parent',
-                body: ['Apple', 'Ipple', 'Opple', 'Upple', 'Epple']
-              };
+            // const modalData = {
+            //     title: 'My Title From Parent',
+            //     body: ['Apple', 'Ipple', 'Opple', 'Upple', 'Epple']
+            //   };
             const [influxData, setInfluxData] = useState([
                 [{"jobId": 7475,"throughput": 3.959031485985995E8},
                 {"jobId": 7475,"throughput": 3.2620711321701264E8}],
@@ -141,6 +143,7 @@ const QueueTableHeaderView = ({
                   });
               }, [rowsPerPage]);
             var difference;
+            var data_transfer;
             var dict = {};
             for (let i=0;i<influxData.length;i++)
             {
@@ -154,15 +157,24 @@ const QueueTableHeaderView = ({
                     difference = Date.parse(data[i].endTime)/1000 - Date.parse(data[i].startTime)/1000;
                     data[i]["total_time"] = difference;
                     data[i]["speed"]=parseFloat((data[i].jobParameters.jobSize/1000000)*8)/(difference);
+                    data[i]["progress"] = 100;
                 }
                 else if (data[i].status=="STARTING" || data[i].status=="STARTED")
                 {
                     const job_Id = data[i].id;
                     const indx =dict[job_Id].length-1;
                     data[i]["speed"] = dict[job_Id][indx].throughput;
+     
+                    data_transfer = 0;
+                    for (var j = 0;j<data[i].length;j++)
+                    {
+                        data_transfer=data_transfer + data[i][j]["dataBytesSent"];
+                    }
+                    data[i]["progress"] = (data_transfer/data[i].jobParameters.jobSize)*100
                 }
                 else{
                     data[i]["speed"]=0;
+                    data[i]["progress"] = 0;
                 }
             }
 
@@ -220,7 +232,7 @@ const QueueTableHeaderView = ({
              <TableCell component="th" scope="row" align="center">{row.id}</TableCell>
              <TableCell align="center">
              {/* {row.status} */}
-             <ReactBootstrap.ProgressBar variant="info" now={100} label={`${100}%`}/>
+             <ReactBootstrap.ProgressBar variant="info" now={row.progress} label={`${row.progress}%`}/>
              </TableCell>
              <TableCell align="center">{row.speed}</TableCell>
              <TableCell align="center">{row.jobParameters.sourceBasePath}</TableCell>
