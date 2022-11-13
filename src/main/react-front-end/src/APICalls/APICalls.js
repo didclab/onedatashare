@@ -72,6 +72,7 @@ export function handleRequestFailure(error, failureCallback){
 export function statusHandle(response, callback) {
 	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
+	console.log("status handle", response.data);
 	if (statusFirstDigit < 3) {
 		// 100-200 success code=
 		callback(response.data);
@@ -420,16 +421,36 @@ export async function savedCredList(type, accept, fail) {
 /*
 	Desc: Extract all transfers for the user
 */
+
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
+	//Post request for getting the jobs
+	// let callback = accept;
+	// axios.post(url + GET_USER_JOBS_ENDPOINT, {
+	// 	pageNo: pageNo,
+	// 	pageSize: pageSize,
+	// 	sortBy: sortBy,
+	// 	sortOrder: order
+	// })
+	// 	.then((response) => {
+	// 		console.log(`Get jobs response ${response}`)
+	// 		if(!(response.status === 200))
+	// 			callback = fail;
+	// 		statusHandle(response, callback);
+	// 	})
+	// 	.catch((error) => {
+	// 		handleRequestFailure(error, fail);
+	// 	});
+
+//New get request
 	let callback = accept;
-	axios.post(url + GET_USER_JOBS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
+	axios.get("/api/metadata/all/page/jobs", {
+		page:pageNo,
+		direction:order,
+		size:pageSize,
+		sort:sortBy
 	})
 		.then((response) => {
-			console.log(`Get jobs response ${response}`)
+			console.log(`Get jobs response`,response.data.content);
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
