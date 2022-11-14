@@ -56,9 +56,15 @@ export default class RowElement extends React.Component {
 
     render() {
         const {resp, infoVisible} = this.props
-        console.log("resp in row element",resp);
-        // let bar = (<QueueProgressBar status={resp.status} total={resp.bytes.total} done={resp.bytes.done}/>);
+        // console.log("resp in row element",resp);
+        let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
+        let difference = Date.parse(resp.endTime)/1000 - Date.parse(resp.startTime)/1000;
+        let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
+        if (isNaN(speed))
+        {
+            speed = 0;
+        }
         // let time = moment(resp.times.started).fromNow();
         let time = moment(resp.startTime).fromNow();
         let admin = this.props.adminPg;
@@ -75,12 +81,12 @@ export default class RowElement extends React.Component {
                             <p>{resp.id}</p>
                         </TableCell>
                         <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {/* {bar} */}
-                            <p>progress</p>
+                            {bar}
+                            {/* <p>progress</p> */}
                         </TableCell>
                         <TableCell className={"speedCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             {/* <p>{humanReadableSpeed(resp.bytes.avg)}</p> */}
-                            <p>5</p>
+                            <p>{humanReadableSpeed(speed)}</p>
                         </TableCell>
                         <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             {/* <p>{decodeURIComponent(resp.src.uri)}</p> */}

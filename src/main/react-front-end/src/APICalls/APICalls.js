@@ -72,7 +72,7 @@ export function handleRequestFailure(error, failureCallback){
 export function statusHandle(response, callback) {
 	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
-	console.log("status handle", response.data);
+	// console.log("status handle", response.data);
 	if (statusFirstDigit < 3) {
 		// 100-200 success code=
 		callback(response.data);
@@ -507,15 +507,43 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 
 export async function getJobUpdatesForUser(jobIds, accept, fail){
 	let callback = accept;
-	axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
+
+	// axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
+	// .then((response) => {
+	// 	if(!(response.status === 200))
+	// 		callback = fail;
+	// 	statusHandle(response, callback);
+	// })
+	// .catch((error) => {
+	// 	handleRequestFailure(error, fail);
+    // });
+
+	var influx_data = [];
+	var flag = 0;
+	console.log("job ids",jobIds);
+	for(let jobId in jobIds)
+	{
+	axios.get("/api/metadata/measurements/job",{
+		params :
+		{
+			jobId:jobIds[jobId]
+		}
+	})
 	.then((response) => {
 		if(!(response.status === 200))
 			callback = fail;
-		statusHandle(response, callback);
+		flag=1;
+		influx_data.push(response);
 	})
 	.catch((error) => {
 		handleRequestFailure(error, fail);
     });
+	}
+	if (flag==1)
+	{
+		console.log("Influx data",influx_data);
+		statusHandle(influx_data, callback);
+	}
 }
 
 

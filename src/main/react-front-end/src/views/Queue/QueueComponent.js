@@ -97,7 +97,7 @@ class QueueComponent extends Component {
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
 			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
-				jobIds.push(job.uuid)
+				jobIds.push(job.id)
 			}
 		})
 		if (jobIds.length > 0) {
@@ -106,7 +106,7 @@ class QueueComponent extends Component {
 				//TODO: use hash keys and values instead of finding on each update
 				let existingData = [...responsesToDisplay]
 				jobs.forEach(job => {
-					let existingJob = existingData.find(item => item.uuid === job.uuid)
+					let existingJob = existingData.find(item => item.id === job.id)
 					existingJob.status = job.status
 					existingJob.bytes.total = job.bytes.total
 					existingJob.bytes.done = job.bytes.done
@@ -129,7 +129,7 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		console.log("resp in queue component on success",resp);
+		// console.log("resp in queue component on success",resp);
 		
 		//Old code to get jobs
 		// this.setState({
@@ -244,7 +244,7 @@ class QueueComponent extends Component {
 		return this.state.responsesToDisplay.map(row => {
 			// let identifier = `${row.owner}-${row.job_id}`
 			let identifier = row.id;
-			console.log("row in queue component",row);
+			// console.log("row in queue component",row);
 			return (
 				<RowElement
 					adminPg={false}
