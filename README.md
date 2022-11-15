@@ -1,37 +1,6 @@
-# OneDataShare #
+# Link to starter repository #
 
-OneDataShare (abbreviated as ODS) is a cloud-based managed file transfer system that performs inter-protocol data transfers in a reliable and efficient manner.
-
-ODS provides the end-user with an interface which can be used to initiate file transfers and monitor them simultanously. ODS guarantees efficiency in data transfer by performing software level optimizations (for example - chunking of data into a byte stream of fixed size).
-
-OneDataShare beta version is a publicly available for use and can be accessed using https://www.onedatashare.org/.
-
-ODS currently supports transfers between 7 endpoint protocol types viz.
-1. Dropbox
-2. Google Drive
-3. Grid FTP (Globus)
-4. FTP
-5. SFTP
-6. SSH
-7. HTTP
-
-_Note: Box and Amazon S3 endpoints support will be provided in future releases_
-
-Link to research paper - https://arxiv.org/pdf/1712.02944.pdf
-
-## Technology Stack ##
-
-OneDataShare application is built using following technologies/frameworks:
-1. Node.js (v8.9.4) – needed for node package manager (NPM)
-2. Apache Maven (version 3.5.2)
-3. MongoDB (version 4.0.4)
-4. Java (JDK 1.8)
-5. Git (version 2.16 or above)
-6. ReactJS
-7. Spring Boot coupled with Reactive Web (commonly known as WebFlux) dependency.
-8. Docker
-
-Feature updates, project tasks and bug fixes are tracked using https://trello.com/b/H8Jmb1oY/onedatashare
+[OneDataShare Starter](https://github.com/didclab/ODS-Starter)
 
 Recommended IDEs (used by ODS team for development):
 1. IntelliJ Idea Community Edition (for backend code)
@@ -75,42 +44,8 @@ Product Owner
 https://cse.buffalo.edu/faculty/tkosar/  
 Associate Professor, University at Buffalo   
 
-Asif Imran  
-Stakeholder/Researcher  
-Ph.D. Student, University at Buffalo   
+Jacob Goldverg (jacobgol@buffalo.edu)
+Lead Developer
+https://engineering.buffalo.edu/computer-science-engineering/people/phd-candidates.html
+PhD candidate, University at Buffalo
 
-Yifu Yin  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Linus Castelino  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Praveenkumar Rajendran  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Aashish Jain  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Atul Singh  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Kiran Prabhakar  
-Application Developer  
-Graduate Student, University at Buffalo  
-
-Ramandeep Singh  
-Application Developer  
-Graduate Student, University at Buffalo
-
-Javier Falca  
-Application Developer  
-Undergraduate Student, University at Buffalo  
-
-Dhayanidhi Gunasekaran  
-Application Developer  
-Graduate Student, University at Buffalo
