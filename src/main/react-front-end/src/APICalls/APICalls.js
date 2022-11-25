@@ -40,7 +40,7 @@ import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-const FETCH_TIMEOUT = 10000*20;
+const FETCH_TIMEOUT = 10000*200;
 
 export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
@@ -443,6 +443,7 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 
 //New get request
 	let callback = accept;
+	console.log(pageNo,order,pageSize,sortBy);
 	axios.get("/api/metadata/all/page/jobs", {
 		page:pageNo,
 		direction:order,

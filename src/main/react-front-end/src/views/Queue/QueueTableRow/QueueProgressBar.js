@@ -15,15 +15,15 @@ const QueueProgressBar = ({
         );
         progress = "Done"
     }
-    else if (status === 'failed') {
+    else if (status === 'failed' || status==='FAILED') {
         bar = (
-            <LinearProgress className={"queueBar queueBarFailed"} variant="determinate" value={100} />
+            <LinearProgress className={"queueBar queueBarFailed"} variant="determinate" value={0} />
         );
         progress = "Failed"
     }
     else if (status === 'removed' || status === "cancelled") {
         bar = (
-            <LinearProgress className={"queueBar queueBarFailed"} variant="determinate" value={100} />
+            <LinearProgress className={"queueBar queueBarFailed"} variant="determinate" value={0} />
         );
         progress = "Cancelled"
     }

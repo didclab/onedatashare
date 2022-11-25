@@ -9,7 +9,7 @@ export default class TabContent extends React.Component {
     render() {
         const resp = this.props.resp;
         const selectedTab = this.props.selectedTab;
-        console.log("resp in Tab",resp);
+        // console.log("resp in Tab",resp);
         const info = [
             ["User", resp.owner],
             ["Job ID", resp.job_id],

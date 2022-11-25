@@ -44,7 +44,7 @@ class QueueComponent extends Component {
 			rowsPerPage: 10,
 			searchValue: '',
 			order: 'desc',
-			orderBy: 'job_id',
+			orderBy: 'id',
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
