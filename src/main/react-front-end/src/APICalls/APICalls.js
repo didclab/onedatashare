@@ -445,10 +445,13 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 	let callback = accept;
 	console.log(pageNo,order,pageSize,sortBy);
 	axios.get("/api/metadata/all/page/jobs", {
+		params : 
+		{
 		page:pageNo,
 		direction:order,
 		size:pageSize,
 		sort:sortBy
+		}
 	})
 		.then((response) => {
 			console.log(`Get jobs response`,response.data.content);
