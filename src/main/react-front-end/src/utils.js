@@ -23,7 +23,7 @@
 
 export function humanReadableSpeed(size) {
 	if (size < 1024) 
-		return parseFloat(size.toFixed(4)) + ' B';
+		return parseFloat(size.toFixed(4)) + ' B/s';
     let i = Math.floor(Math.log(size) / Math.log(1024));
 	let num = (size / Math.pow(1024, i));
     let round = Math.round(num);
@@ -32,5 +32,5 @@ export function humanReadableSpeed(size) {
     num = num*(1);
     num = parseFloat(num.toFixed(4));
     console.log("num",num);
-    return `${num} ${'KMGTPEZY'[i]}bps`
+    return `${num} ${'KMGTPEZY'[i]}b/s`
 }
