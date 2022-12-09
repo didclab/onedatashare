@@ -40,7 +40,7 @@ import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-const FETCH_TIMEOUT = 10000*200;
+const FETCH_TIMEOUT = 10000*2;
 
 export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
@@ -72,7 +72,6 @@ export function handleRequestFailure(error, failureCallback){
 export function statusHandle(response, callback) {
 	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
-	// console.log("status handle", response.data);
 	if (statusFirstDigit < 3) {
 		// 100-200 success code=
 		callback(response.data);
@@ -421,29 +420,8 @@ export async function savedCredList(type, accept, fail) {
 /*
 	Desc: Extract all transfers for the user
 */
-
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
-	//Post request for getting the jobs
-	// let callback = accept;
-	// axios.post(url + GET_USER_JOBS_ENDPOINT, {
-	// 	pageNo: pageNo,
-	// 	pageSize: pageSize,
-	// 	sortBy: sortBy,
-	// 	sortOrder: order
-	// })
-	// 	.then((response) => {
-	// 		console.log(`Get jobs response ${response}`)
-	// 		if(!(response.status === 200))
-	// 			callback = fail;
-	// 		statusHandle(response, callback);
-	// 	})
-	// 	.catch((error) => {
-	// 		handleRequestFailure(error, fail);
-	// 	});
-
-//New get request
 	let callback = accept;
-	console.log(pageNo,order,pageSize,sortBy);
 	axios.get("/api/metadata/all/page/jobs", {
 		params : 
 		{
@@ -454,7 +432,6 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 		}
 	})
 		.then((response) => {
-			console.log(`Get jobs response`,response.data.content);
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
@@ -511,17 +488,6 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 
 export async function getJobUpdatesForUser(jobIds, accept, fail){
 	let callback = accept;
-
-	// axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
-	// .then((response) => {
-	// 	if(!(response.status === 200))
-	// 		callback = fail;
-	// 	statusHandle(response, callback);
-	// })
-	// .catch((error) => {
-	// 	handleRequestFailure(error, fail);
-    // });
-
 	var influx_data = [];
 	var flag = 0;
 	console.log("job ids",jobIds);
@@ -594,7 +560,6 @@ export async function submitTransferRequest(source,dest,options,accept,fail){
 export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
 	let callback = accept;
 	// console.log(src)
-	console.log("srcEndpoint,destEndpoint",srcEndpoint,destEndpoint);
 	let src0 = Object.assign({}, src);
 	let dest0 = Object.assign({}, dest);
 	if (Object.keys(src0.credential).length === 0) {
@@ -896,7 +861,6 @@ export async function registerUser(requestBody, errorCallback) {
 					}
 				);
 }
-
 export async function verifyRegistraionCode(emailId, code) {
     return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
     	    email : emailId,

@@ -29,9 +29,6 @@ import { jobStatus } from '../../constants';
 import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement/RowElement";
 
-
-
-
 class QueueComponent extends Component {
 
 	constructor(props) {
@@ -129,24 +126,13 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		// console.log("resp in queue component on success",resp);
-		
-		//Old code to get jobs
-		// this.setState({
-		// 	response: resp.jobs,
-		// 	responsesToDisplay: resp.jobs,
-		// 	totalCount: resp.totalCount,
-		// 	loading: false
-		// });
 
-		//New way to get jobs
 		this.setState({
 			response: resp.content,
 			responsesToDisplay: resp.content,
 			totalCount: resp.numberOfElements,
 			loading: false
 		});
-
 	}
 
 	queueFuncFail(resp) {
@@ -242,9 +228,7 @@ class QueueComponent extends Component {
 	populateRows = () => {
 		const {selectedRowId} = this.state;
 		return this.state.responsesToDisplay.map(row => {
-			// let identifier = `${row.owner}-${row.job_id}`
 			let identifier = row.id;
-			// console.log("row in queue component",row);
 			return (
 				<RowElement
 					adminPg={false}

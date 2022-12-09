@@ -56,7 +56,6 @@ export default class RowElement extends React.Component {
 
     render() {
         const {resp, infoVisible} = this.props
-        // console.log("resp in row element",resp);
         let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let difference = Date.parse(resp.endTime)/1000 - Date.parse(resp.startTime)/1000;
@@ -65,7 +64,7 @@ export default class RowElement extends React.Component {
         {
             speed = 0;
         }
-        // let time = moment(resp.times.started).fromNow();
+
         let time = moment(resp.startTime).fromNow();
         let admin = this.props.adminPg;
         return (
@@ -77,23 +76,18 @@ export default class RowElement extends React.Component {
                             <p>{resp.owner}</p>
                         </TableCell> }
                         <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {/* <p>{resp.job_id}</p> */}
                             <p>{resp.id}</p>
                         </TableCell>
                         <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
                             {bar}
-                            {/* <p>progress</p> */}
                         </TableCell>
                         <TableCell className={"speedCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {/* <p>{humanReadableSpeed(resp.bytes.avg)}</p> */}
                             <p>{humanReadableSpeed(speed)}</p>
                         </TableCell>
                         <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {/* <p>{decodeURIComponent(resp.src.uri)}</p> */}
                             <p>{resp.jobParameters.sourceBasePath}</p>
                         </TableCell>
                         <TableCell className={"destinationCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {/* <p>{decodeURIComponent(resp.dest.uri)}</p> */}
                             <p>{resp.jobParameters.destBasePath}</p>
                         </TableCell>
                         { this.props.adminPg &&
@@ -107,14 +101,9 @@ export default class RowElement extends React.Component {
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
                             <p><b>Job ID:</b> {resp.id}</p>
-                            {/* <p><b>Job ID:</b> 1</p> */}
                             <p><b>Progress: </b>{bar}</p>
-                            {/* <p><b>Progress: </b>5</p> */}
                             <p><b>Average Speed:</b> {humanReadableSpeed(speed)}</p>
-                            {/* <p><b>Average Speed:</b> 5</p> */}
                             <p><b>Source:</b> {resp.jobParameters.sourceBasePath}</p>
-                            {/* <p><b>Source:</b> src</p> */}
-                            {/* <p><b>Destination:</b> {decodeURIComponent(resp.dest.uri)}</p> */}
                             <p><b>Destination:</b>{resp.jobParameters.destBasePath}</p>
                             <p>{time}</p>
                             {actions}
