@@ -40,7 +40,7 @@ import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-const FETCH_TIMEOUT = 10000;
+const FETCH_TIMEOUT = 10000*2;
 
 export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
