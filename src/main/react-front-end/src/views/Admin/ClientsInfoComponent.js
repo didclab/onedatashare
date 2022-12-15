@@ -339,8 +339,8 @@ class ClientsInfoComponent extends Component{
 									SelectProps={{
 										native: true,
 									}}
-									onChangePage={this.handleUserTblChangePage}
-									onChangeRowsPerPage={this.handleUserTblChangeRowsPerPage}
+									onPageChange={this.handleUserTblChangePage}
+									onRowsPerPageChange={this.handleUserTblChangeRowsPerPage}
 									ActionsComponent={TablePaginationActions}
 									classes={{
 										caption: classes.tablePaginationCaption,
@@ -424,8 +424,8 @@ class ClientsInfoComponent extends Component{
 									SelectProps={{
 										native: true,
 									}}
-									onChangePage={this.handleAdminsTblChangePage}
-									onChangeRowsPerPage={this.handleAdminsTblChangeRowsPerPage}
+									onPageChange={this.handleAdminsTblChangePage}
+									onRowsPerPageChange={this.handleAdminsTblChangeRowsPerPage}
 									ActionsComponent={TablePaginationActions}
 									classes={{
 										caption: classes.tablePaginationCaption,
