@@ -41,7 +41,7 @@ class QueueComponent extends Component {
 			rowsPerPage: 10,
 			searchValue: '',
 			order: 'desc',
-			orderBy: 'job_id',
+			orderBy: 'id',
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
@@ -94,7 +94,7 @@ class QueueComponent extends Component {
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
 			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
-				jobIds.push(job.uuid)
+				jobIds.push(job.id)
 			}
 		})
 		if (jobIds.length > 0) {
@@ -103,7 +103,7 @@ class QueueComponent extends Component {
 				//TODO: use hash keys and values instead of finding on each update
 				let existingData = [...responsesToDisplay]
 				jobs.forEach(job => {
-					let existingJob = existingData.find(item => item.uuid === job.uuid)
+					let existingJob = existingData.find(item => item.id === job.id)
 					existingJob.status = job.status
 					existingJob.bytes.total = job.bytes.total
 					existingJob.bytes.done = job.bytes.done
@@ -126,10 +126,11 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
+
 		this.setState({
-			response: resp.jobs,
-			responsesToDisplay: resp.jobs,
-			totalCount: resp.totalCount,
+			response: resp.content,
+			responsesToDisplay: resp.content,
+			totalCount: resp.numberOfElements,
 			loading: false
 		});
 	}
@@ -227,7 +228,7 @@ class QueueComponent extends Component {
 	populateRows = () => {
 		const {selectedRowId} = this.state;
 		return this.state.responsesToDisplay.map(row => {
-			let identifier = `${row.owner}-${row.job_id}`
+			let identifier = row.id;
 			return (
 				<RowElement
 					adminPg={false}

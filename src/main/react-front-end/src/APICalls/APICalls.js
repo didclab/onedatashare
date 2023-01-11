@@ -21,7 +21,7 @@
  */
 
 
-import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
+ import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
 	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
 	UPDATE_ADMIN_RIGHTS,
 	GET_USER_JOBS_ENDPOINT,
@@ -40,7 +40,7 @@ import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 
-const FETCH_TIMEOUT = 10000;
+const FETCH_TIMEOUT = 10000*2;
 
 export const axios = Axios.create({
 	timeout: FETCH_TIMEOUT,
@@ -422,14 +422,16 @@ export async function savedCredList(type, accept, fail) {
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
 	let callback = accept;
-	axios.post(url + GET_USER_JOBS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
+	axios.get("/api/metadata/all/page/jobs", {
+		params : 
+		{
+		page:pageNo,
+		direction:order,
+		size:pageSize,
+		sort:sortBy
+		}
 	})
 		.then((response) => {
-			console.log(`Get jobs response ${response}`)
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
@@ -486,15 +488,32 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 
 export async function getJobUpdatesForUser(jobIds, accept, fail){
 	let callback = accept;
-	axios.post(url+GET_USER_UPDATES_ENDPOINT, jobIds)
+	var influx_data = [];
+	var flag = 0;
+	console.log("job ids",jobIds);
+	for(let jobId in jobIds)
+	{
+	axios.get("/api/metadata/measurements/job",{
+		params :
+		{
+			jobId:jobIds[jobId]
+		}
+	})
 	.then((response) => {
 		if(!(response.status === 200))
 			callback = fail;
-		statusHandle(response, callback);
+		flag=1;
+		influx_data.push(response);
 	})
 	.catch((error) => {
 		handleRequestFailure(error, fail);
     });
+	}
+	if (flag==1)
+	{
+		console.log("Influx data",influx_data);
+		statusHandle(influx_data, callback);
+	}
 }
 
 
@@ -842,8 +861,6 @@ export async function registerUser(requestBody, errorCallback) {
 					}
 				);
 }
-
-
 export async function verifyRegistraionCode(emailId, code) {
     return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
     	    email : emailId,
