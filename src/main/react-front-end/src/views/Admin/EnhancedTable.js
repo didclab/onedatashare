@@ -376,8 +376,8 @@ class EnhancedTable extends Component {
                         nextIconButtonProps={{
                             'aria-label': 'next page',
                         }}
-                        onChangePage={this.handleChangePage}
-                        onChangeRowsPerPage={this.handleChangeRowsPerPage}
+                        onPageChange={this.handleChangePage}
+                        onRowsPerPageChange={this.handleChangeRowsPerPage}
                     />
                 </Paper>
             </div>
