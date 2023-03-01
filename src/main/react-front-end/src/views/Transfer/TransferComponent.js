@@ -421,10 +421,12 @@
                  onChange={handleChange("optimizer")}
              >
                <FormControlLabel value="None" control={<Radio />} label={<ToggleLabel>None</ToggleLabel>} />
-               <FormControlLabel value="BO" control={<Radio />} label={<ToggleLabel>BO</ToggleLabel>}  />
-               <FormControlLabel value="SGD" control={<Radio />} label={<ToggleLabel>SGD</ToggleLabel>}  />
-               <FormControlLabel value="MADDPG" control={<Radio />} label={<ToggleLabel>MADDPG</ToggleLabel>}  />
-               <FormControlLabel value="VDA2C" control={<Radio />} label={<ToggleLabel>VDA2C</ToggleLabel>}  />
+               <FormControlLabel value="VDA2C" control={<Radio />} label={<ToggleLabel>Value Decomposition Actor Critic (VDA2C)</ToggleLabel>}  />
+               <FormControlLabel value="BO" control={<Radio />} label={<ToggleLabel>Bayesian Optimization (BO)</ToggleLabel>}  />
+               <FormControlLabel value="SGD" control={<Radio />} label={<ToggleLabel>Stochastic Gradient Descent (SGD)</ToggleLabel>}  />
+               <FormControlLabel value="MADDPG" control={<Radio />} label={<ToggleLabel>Multi-Agent DDPG (MADDPG)</ToggleLabel>}  />
+               <FormControlLabel value="PPO" control={<Radio />} label={<ToggleLabel>Proximal Policy Optimization (PPO)</ToggleLabel>}  />
+               <FormControlLabel value="DDPG" control={<Radio />} label={<ToggleLabel>Deep Deterministic Policy Gradient (DDPG)</ToggleLabel>}  />
  
              </RadioGroup>
            </FormControl>
@@ -550,7 +552,7 @@
          </Grid>
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
-             <FormLabel component="legend"><ToggleHeader>Chunk Size</ToggleHeader></FormLabel>
+             <FormLabel component="legend"><ToggleHeader>Chunk Size <sub style={{top: "0",bottom: "0",lineHeigh: "1",fontSize: ".7em",verticalAlign: "middle"}}>(bytes)</sub></ToggleHeader></FormLabel>
              <TextField
                  id="outlined-number"
                  label={<FieldLabel>Chunk Size</FieldLabel>}
