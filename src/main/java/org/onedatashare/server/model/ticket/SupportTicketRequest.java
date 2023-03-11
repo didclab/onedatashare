@@ -36,7 +36,6 @@ import org.springframework.stereotype.Component;
  * @since 05-03/2018
  */
 @Data
-@Component
 public class SupportTicketRequest {
 
     @NonNull
@@ -94,17 +93,3 @@ public class SupportTicketRequest {
 
     }    //getRequestString()
 }    //class
-
-/*
-Sample request object to Freshdesk
-{
-        "name":"Test User",
-        "email":"linuscas@buffalo.edu",
-        "phone": "2019524216",
-        "source" : 2,
-        "status" : 2,
-        "priority" : 2,
-        "description" : "TEst ticket <br /> New Line",
-        "subject" : "TEst ticket 2 using api"
-}
-*/
