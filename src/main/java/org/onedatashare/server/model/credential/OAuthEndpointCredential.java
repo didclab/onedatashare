@@ -1,6 +1,7 @@
 package org.onedatashare.server.model.credential;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Date;
  */
 @Data
 @Accessors(chain = true)
+@NoArgsConstructor
 public class OAuthEndpointCredential extends EndpointCredential {
     private String token;
     private boolean tokenExpires = false;
