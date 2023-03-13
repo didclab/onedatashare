@@ -155,7 +155,7 @@ public class BoxResource extends Resource {
         stat.setId(fileInfo.getID());
         stat.setName(fileInfo.getName());
         stat.setSize(fileInfo.getSize());
-        stat.setTime(fileInfo.getModifiedAt().getTime());
+        stat.setTime(fileInfo.getModifiedAt().getTime() / 1000);
         stat.setFile(true);
         stat.setDir(false);
         try {
@@ -169,8 +169,9 @@ public class BoxResource extends Resource {
         Stat stat = new Stat();
         stat.setFiles(new ArrayList<>());
         stat.setId(folderInfo.getID());
+        stat.setSize(folderInfo.getSize());
         stat.setName(folderInfo.getName());
-        stat.setTime(folderInfo.getModifiedAt().getTime());
+        stat.setTime(folderInfo.getModifiedAt().getTime() / 1000);
         stat.setFile(false);
         stat.setDir(true);
         try {
