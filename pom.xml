@@ -14,7 +14,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.0.3.RELEASE</version>
+        <version>2.7.9</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -22,7 +22,8 @@
         <project.basedir>.</project.basedir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <java.version>11</java.version>
+        <spring-cloud.version>2021.0.5</spring-cloud.version>
     </properties>
 
     <dependencyManagement>
@@ -30,9 +31,21 @@
             <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>bom</artifactId>
-                <version>2.16.0</version>
+                <version>2.20.2</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.github.classgraph</groupId>
+                <artifactId>classgraph</artifactId>
+                <version>4.8.139</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -58,12 +71,11 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-            <version>2.0.4.RELEASE</version>
+
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-            <version>2.0.9.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,26 +103,32 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-vfs2</artifactId>
-            <version>2.3</version>
+            <version>2.9.0</version>
         </dependency>
 
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-            <version>3.6</version>
+            <version>3.9.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
+            <version>1.22</version>
         </dependency>
-
-
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-starter-config</artifactId>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
+            <version>4.4</version>
         </dependency>
 
         <dependency>
@@ -134,13 +152,13 @@
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
             <artifactId>jackrabbit-webdav</artifactId>
-            <version>1.6.5</version>
+            <version>2.21.15</version>
         </dependency>
 
         <dependency>
             <groupId>com.dropbox.core</groupId>
             <artifactId>dropbox-core-sdk</artifactId>
-            <version>5.1.1</version>
+            <version>5.4.4</version>
         </dependency>
 
         <dependency>
@@ -212,19 +230,19 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-ses</artifactId>
-            <version>1.11.548</version>
+            <version>1.12.405</version>
         </dependency>
 
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.3</version>
+            <version>1.15.3</version>
         </dependency>
 
         <dependency>
             <groupId>com.box</groupId>
             <artifactId>box-java-sdk</artifactId>
-            <version>2.32.0</version>
+            <version>4.0.0</version>
         </dependency>
 
         <!--        <dependency>-->
