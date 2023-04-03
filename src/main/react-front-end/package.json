@@ -30,7 +30,7 @@
     "redux": "^4.0.5",
     "sass": "^1.49.9",
     "styled-components": "^4.4.1",
-    "universal-cookie": "^4.0.3"
+    "universal-cookie": "^4.0.4"
   },
   "scripts": {
     "start": "react-scripts start",
