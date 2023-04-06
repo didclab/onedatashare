@@ -1,6 +1,7 @@
 package org.onedatashare.server.module;
 
 import com.box.sdk.*;
+
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
@@ -12,12 +13,11 @@ import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Mono;
 
-import javax.swing.*;
 import java.util.ArrayList;
+import java.util.List;
 
 public class BoxResource extends Resource {
     private BoxAPIConnection client;
@@ -25,6 +25,7 @@ public class BoxResource extends Resource {
 
     @Value("${box.clientId}")
     private String clientId;
+
     @Value("${box.clientSecret}")
     private String clientSecret;
 
@@ -80,18 +81,21 @@ public class BoxResource extends Resource {
                 betterStat.setId(folder.getID());
                 betterStat.setName(folder.getInfo().getName());
                 betterStat.setSize(folder.getInfo().getSize());
-                ArrayList<Stat> childList = new ArrayList<>();
-                for (BoxItem.Info itemInfo : folder) {
+                List<Stat> childList = new ArrayList<>();
+                Iterable<BoxItem.Info> items = folder.getChildren();
+                for (BoxItem.Info itemInfo : items) {
                     if (itemInfo instanceof BoxFile.Info) {
-                        BoxFile.Info fileInfo = (BoxFile.Info) itemInfo;
+                        BoxFile file = new BoxFile(this.client, itemInfo.getID());
+                        BoxFile.Info fileInfo = file.getInfo();
                         childList.add(boxFileToStat(fileInfo));
-                        // Do something with the file.
                     } else if (itemInfo instanceof BoxFolder.Info) {
-                        BoxFolder.Info folderInfo = (BoxFolder.Info) itemInfo;
+                        folder = new BoxFolder(this.client, itemInfo.getID());
+                        BoxFolder.Info folderInfo = folder.getInfo();
                         childList.add(boxFolderToStat(folderInfo));
                     }
                 }
                 betterStat.setFiles(childList);
+                betterStat.setFilesList(childList);
                 s.success(betterStat);
 
         });
@@ -146,15 +150,16 @@ public class BoxResource extends Resource {
         });
     }
 
-    public Stat boxFileToStat(BoxItem.Info fileInfo) {
+    public Stat boxFileToStat(BoxFile.Info fileInfo) {
         Stat stat = new Stat();
         stat.setId(fileInfo.getID());
         stat.setName(fileInfo.getName());
         stat.setSize(fileInfo.getSize());
+        stat.setTime(fileInfo.getModifiedAt().getTime() / 1000);
         stat.setFile(true);
         stat.setDir(false);
         try {
-            stat.setTime(fileInfo.getCreatedAt().getTime());
+            stat.setPermissions(fileInfo.getPermissions().toString());
         } catch (NullPointerException ignored) {
         }
         return stat;
@@ -164,15 +169,14 @@ public class BoxResource extends Resource {
         Stat stat = new Stat();
         stat.setFiles(new ArrayList<>());
         stat.setId(folderInfo.getID());
+        stat.setSize(folderInfo.getSize());
         stat.setName(folderInfo.getName());
+        stat.setTime(folderInfo.getModifiedAt().getTime() / 1000);
+        stat.setFile(false);
         stat.setDir(true);
         try {
-            stat.setTime(folderInfo.getCreatedAt().getTime());
+            stat.setPermissions(folderInfo.getPermissions().toString());
         } catch (NullPointerException ignored) {
-        }
-        stat.setFile(false);
-        if (folderInfo.getCreatedAt() != null) {
-            stat.setTime(folderInfo.getCreatedAt().getTime());
         }
         return stat;
     }
