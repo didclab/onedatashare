@@ -239,7 +239,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 	endpointCheckin=(url, portNum, credential, callback) => {
 		const {endpoint} = this.state;
-		const type = showDisplay[getName(endpoint).toLowerCase()].label;
+		const type = showDisplay[getName(endpoint).toLowerCase()].id;
 		this.props.setLoading(true);
 
 		console.log(`Url is ${url}`);
