@@ -43,7 +43,7 @@ public class BoxService extends ResourceServiceBase {
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchOAuthCredential(EndpointType.box, credId)
                 .flatMap(BoxResource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
