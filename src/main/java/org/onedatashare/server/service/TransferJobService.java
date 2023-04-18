@@ -26,6 +26,7 @@ package org.onedatashare.server.service;
 import org.apache.http.entity.ContentType;
 import org.onedatashare.server.controller.TransferJobController;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
+import org.onedatashare.server.model.request.StopRequest;
 import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.request.TransferJobRequestWithMetaData;
 import org.onedatashare.server.model.response.TransferJobSubmittedResponse;
@@ -80,5 +81,19 @@ public class TransferJobService {
                         .onStatus(HttpStatus::is5xxServerError,
                                 response -> Mono.error(new Exception("Internal server error")))
                         .bodyToMono(TransferJobSubmittedResponse.class));
+    }
+    public Mono<Void> stopTransferJob(StopRequest stopRequest) {
+        return webClientBuilder.build().post()
+                .uri(transferQueueingServiceUri + "/stopJob")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(stopRequest, StopRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError,
+                        clientResponse -> Mono.error(new Exception(clientResponse.toString())))
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new CredentialNotFoundException()))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new Exception("Internal server error")))
+                .bodyToMono(Void.class);
     }
 }
