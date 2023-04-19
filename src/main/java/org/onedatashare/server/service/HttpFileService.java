@@ -27,8 +27,6 @@ import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.module.HttpResource;
-import org.onedatashare.server.module.VfsResource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -36,8 +34,12 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class HttpFileService extends ResourceServiceBase {
 
-    @Autowired
+    
     CredentialService credentialService;
+
+    public HttpFileService(CredentialService credentialService) {
+        this.credentialService = credentialService;
+    }
 
     @Override
     protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {

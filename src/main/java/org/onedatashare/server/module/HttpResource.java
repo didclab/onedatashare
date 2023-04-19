@@ -1,30 +1,41 @@
 package org.onedatashare.server.module;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.VFS;
-import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
-import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
-import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
+import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
+import org.onedatashare.server.model.filesystem.operations.ListOperation;
+import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+
 import reactor.core.publisher.Mono;
 
-public class HttpResource extends VfsResource{
+public class HttpResource extends Resource {
+
+    private AccountEndpointCredential accountCredential;
 
     public HttpResource(EndpointCredential credential) throws FileSystemException {
         super(credential);
-        this.fileSystemOptions = new FileSystemOptions();
-        FtpFileSystemConfigBuilder.getInstance().setPassiveMode(this.fileSystemOptions, true);
-
-        AccountEndpointCredential accountCredential = (AccountEndpointCredential) credential;
-
-        if(accountCredential.getUsername() != null && accountCredential.getSecret() != null) {
-            StaticUserAuthenticator auth = new StaticUserAuthenticator(accountCredential.getUri(), accountCredential.getUsername(), accountCredential.getSecret());
-            DefaultFileSystemConfigBuilder.getInstance().setUserAuthenticator(this.fileSystemOptions, auth);
-        }
-
-        this.fileSystemManager = VFS.getManager();
+        this.accountCredential = (AccountEndpointCredential) credential;
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential){
@@ -36,6 +47,103 @@ public class HttpResource extends VfsResource{
                 s.error(e);
             }
         });
+    }
+
+    @Override
+    public Mono<Void> delete(DeleteOperation operation) {
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Stat> list(ListOperation listOperation) {
+        return Mono.create(s -> {
+            try {
+                Stat stat = null;
+                // String path = (listOperation.getPath().isEmpty() || listOperation.getPath() == null ||  listOperation.getPath().equals("/")) ? this.baseUri : listOperation.getPath();
+                String path;
+                System.out.println("--------listOperation path2: " + listOperation.getPath());
+                System.out.println("--------account cred uri: " + this.accountCredential.getUri());
+                if (listOperation.getPath().isEmpty() || listOperation.getPath() == null || listOperation.getPath().equals("/")) {
+                    path = this.accountCredential.getUri();
+                    // this.accountCredential.setUri("/");
+                } else {
+                    // path = this.accountCredential.getUri() + "/" + listOperation.getPath();
+                    path = Paths.get(listOperation.getPath()).toAbsolutePath().toString();
+                }
+                System.out.println("--------listOperation path2: " + listOperation.getPath());
+                // System.out.println("--------baseUri path: " + this.baseUri);
+                // logger.debug("File path: ", path);
+                // path = Paths.get(listOperation.getPath()).toAbsolutePath().toString();
+                System.out.println("--------file path: " + path);
+                Document doc = fetchAndParseHtml(path);
+                if (doc == null) {
+                    s.error(new FileNotFoundException());
+                    return;
+                }
+
+                stat = fileToStat(doc);
+                if (path.endsWith("/")) { // folder
+                    Elements links = doc.select("a");
+                    ArrayList<Stat> files = new ArrayList<>();
+                    for (Element link : links) {
+                        files.add(fileToStat(link));
+                    }
+                    stat.setFiles(files);
+                }
+                s.success(stat);
+            } catch (IOException | NumberFormatException e) {
+                s.error(e);
+            }
+        });
+    }
+
+    protected Document fetchAndParseHtml(String url) throws IOException {
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpGet httpGet = new HttpGet(url);
+            return httpClient.execute(httpGet, httpResponse -> {
+                int statusCode = httpResponse.getCode();
+                if (statusCode >= 200 && statusCode < 300) {
+                    return Jsoup.parse(httpResponse.getEntity().getContent(), null, url);
+                } else {
+                    throw new IOException("Failed to fetch HTML, status code: " + statusCode);
+                }
+            });
+        }
+    }
+    
+
+    private Stat fileToStat(Element elem) throws MalformedURLException, IOException {
+        Stat stat = new Stat(); 
+        String href = elem.attr("abs:href");
+        if (elem.text().endsWith("/")) { // folder
+            stat.setDir(true);
+            stat.setFile(false);
+        } else { // file
+            Element parent = elem.parent();
+            if (parent != null) {
+                Pattern pattern = Pattern.compile("(?<=\\s)\\d+(?=\\s*$)"); // regex to match the file size that appears at the end of the string in the html page
+                Matcher matcher = pattern.matcher(parent.html());
+                if (matcher.find()) {
+                    stat.setSize(Long.parseLong(matcher.group()));
+                }
+            }
+            stat.setFile(true);
+            stat.setDir(false);
+        }
+        
+        stat.setName(URI.create(href).getPath());
+        stat.setId(href);
+        return stat;
+    }
+
+    @Override
+    public Mono<Void> mkdir(MkdirOperation operation) {
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono download(DownloadOperation operation) {
+        return Mono.empty();
     }
 }
 
