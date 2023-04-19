@@ -59,22 +59,12 @@ public class HttpResource extends Resource {
         return Mono.create(s -> {
             try {
                 Stat stat = null;
-                // String path = (listOperation.getPath().isEmpty() || listOperation.getPath() == null ||  listOperation.getPath().equals("/")) ? this.baseUri : listOperation.getPath();
                 String path;
-                System.out.println("--------listOperation path2: " + listOperation.getPath());
-                System.out.println("--------account cred uri: " + this.accountCredential.getUri());
                 if (listOperation.getPath().isEmpty() || listOperation.getPath() == null || listOperation.getPath().equals("/")) {
                     path = this.accountCredential.getUri();
-                    // this.accountCredential.setUri("/");
                 } else {
-                    // path = this.accountCredential.getUri() + "/" + listOperation.getPath();
-                    path = Paths.get(listOperation.getPath()).toAbsolutePath().toString();
+                    path = this.accountCredential.getUri() + "/" + listOperation.getPath();
                 }
-                System.out.println("--------listOperation path2: " + listOperation.getPath());
-                // System.out.println("--------baseUri path: " + this.baseUri);
-                // logger.debug("File path: ", path);
-                // path = Paths.get(listOperation.getPath()).toAbsolutePath().toString();
-                System.out.println("--------file path: " + path);
                 Document doc = fetchAndParseHtml(path);
                 if (doc == null) {
                     s.error(new FileNotFoundException());
