@@ -1,13 +1,6 @@
 package org.onedatashare.server.module;
 
 import org.apache.commons.vfs2.*;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
@@ -18,6 +11,7 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +20,9 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
 import static org.onedatashare.server.model.core.ODSConstants.MAX_FILES_TRANSFERRABLE;
 
@@ -71,27 +63,21 @@ public class VfsResource extends Resource {
         return this.fileSystemManager.resolveFile(path, this.fileSystemOptions);
     }
 
-    private Stat fileToStat(Element elem) throws MalformedURLException, IOException {
+    private Stat fileToStat(FileObject file){
         Stat stat = new Stat();
-        String href = elem.attr("abs:href");
-        if (elem.text().endsWith("/")) { // folder
+        FileContent fileContent = getContent(file);
+        FileType type = getType(file);
+        if(type == FileType.FOLDER) {
             stat.setDir(true);
             stat.setFile(false);
-        } else { // file
-            Element parent = elem.parent();
-            if (parent != null) {
-                Pattern pattern = Pattern.compile("(?<=\\s)\\d+(?=\\s*$)"); // regex to match the file size that appears at the end of the string in the html page
-                Matcher matcher = pattern.matcher(parent.html());
-                if (matcher.find()) {
-                    stat.setSize(Long.parseLong(matcher.group()));
-                }
-            }
+        }else if(type == FileType.FILE) {
+            stat.setSize(size(fileContent));
             stat.setFile(true);
             stat.setDir(false);
         }
-        
-        stat.setName(URI.create(href).getPath());
-        stat.setId(href);
+        stat.setId(file.getName().getPath());
+        stat.setName(file.getName().getBaseName());
+        stat.setTime(lastModified(fileContent));
         return stat;
     }
 
@@ -140,44 +126,37 @@ public class VfsResource extends Resource {
     public Mono<Stat> list(ListOperation listOperation) {
         return Mono.create(s -> {
             try {
-                Stat stat = null;
-                String path = (listOperation.getPath().isEmpty() || listOperation.getPath() == null ||  listOperation.getPath().equals("/")) ? this.baseUri : listOperation.getPath();
-                Document doc = fetchAndParseHtml(path);
-                if (doc == null) {
-                    s.error(new FileNotFoundException());
-                    return;
+                Stat stat;
+//                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
+                FileObject fileObject;
+                if(listOperation.getPath().isEmpty() || listOperation.getPath() == null){
+                    logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
+                    fileObject = this.resolveFile(this.baseUri);
+                    logger.info(fileObject.toString());
+                }else{
+                    logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
+                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
+                    logger.info(fileObject.toString());
                 }
-
-                stat = fileToStat(doc);
-                if (path.endsWith("/")) { // folder
-                    Elements links = doc.select("a");
+                logger.info(fileObject.toString());
+                if(!fileObject.exists()){
+                    s.error(new FileNotFoundException());
+                }
+                stat = fileToStat(fileObject);
+                if(fileObject.getType() == FileType.FOLDER) {
+                    FileObject[] children = fileObject.getChildren();
                     ArrayList<Stat> files = new ArrayList<>();
-                    for (Element link : links) {
-                        files.add(fileToStat(link));
+                    for(FileObject file : children) {
+                        files.add(fileToStat(file));
                     }
                     stat.setFiles(files);
                 }
                 s.success(stat);
-            } catch (IOException | NumberFormatException e) {
+            } catch (FileSystemException e) {
                 s.error(e);
             }
         });
     }
-
-    protected Document fetchAndParseHtml(String url) throws IOException {
-        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
-            HttpGet httpGet = new HttpGet(url);
-            return httpClient.execute(httpGet, httpResponse -> {
-                int statusCode = httpResponse.getCode();
-                if (statusCode >= 200 && statusCode < 300) {
-                    return Jsoup.parse(httpResponse.getEntity().getContent(), null, url);
-                } else {
-                    throw new IOException("Failed to fetch HTML, status code: " + statusCode);
-                }
-            });
-        }
-    }
-
 
     @Override
     public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
@@ -218,5 +197,39 @@ public class VfsResource extends Resource {
                 s.error(e);
             }
         });
+    }
+
+    private FileContent getContent(FileObject file){
+        try {
+            return file.getContent();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    private FileType getType(FileObject file){
+        try {
+            return file.getType();
+        } catch (FileSystemException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private long size(FileContent fileContent){
+        try{
+            return fileContent.getSize();
+        }catch (IOException e){
+            return 0l;
+        }
+    }
+
+    private long lastModified(FileContent fileContent){
+        try {
+            return fileContent.getLastModifiedTime()/1000;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0l;
     }
 }
