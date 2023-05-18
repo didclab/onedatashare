@@ -35,12 +35,12 @@ import {
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
-import Redirect from "react-router/es/Redirect";
+import { Navigate } from "react-router-dom";
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
     super(props);
-    const { tag } = this.props.match.params;
+    const { tag } = this.props.matchedParams;
     this.processOAuth(tag);
   }
 
@@ -135,7 +135,7 @@ export default class OauthProcessComponent extends Component {
   render() {
     return (
       <div>
-        <Redirect to={transferPageUrl} />
+        <Navigate to={transferPageUrl} />
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );

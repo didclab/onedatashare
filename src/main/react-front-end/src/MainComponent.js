@@ -26,14 +26,14 @@ import React, { Component } from 'react';
 import NavbarComponent from "./views/NavbarComponent";
 import HomePageComponent from './views/HomePageComponent';
 
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Routes, Navigate } from 'react-router-dom';
 import { store } from './App.js';
 
-import AccountControlComponent from "./views/Login/AccountControlComponent.js";
+import AccountControlComponentWrapper from "./views/Login/AccountControlComponentWrapper";
 import {siteURLS} from "./constants";
 
 // import TransferComponentOld from './views/Transfer/TransferComponentOld';
-import TransferComponent from './views/Transfer/TransferComponent';
+import TransferComponentWrapper from './views/Transfer/TransferComponentWrapper';
 import HistoryComponent from './views/Admin/HistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
@@ -83,104 +83,70 @@ export default class MainComponent extends Component {
 
 
         <div className="content" style={{ display: 'block'}}>
-          <Switch>
+          <Routes>
 
-            <Route path={ siteURLS.accountPageUrl /*'/account'*/}
-              render={(props) => <AccountControlComponent {...props} />}
-            />
+            {/* '/account' */}
+            <Route path={`${siteURLS.accountPageUrl}/*`} element={<AccountControlComponentWrapper />} />
 
-            <Route exact path={ siteURLS.rootUrl /*'/'*/}
-              render={(props) =>
-                <HomePageComponent  {...props} store={store} />
-              }
-            />
+            {/* '/' */}
+            <Route path={siteURLS.rootUrl} element={<HomePageComponent store={store} />} />
 
-            <Route exact path={ siteURLS.termsUrl /*'/terms'*/}
-              render={() =>
-                <TermsComponent />
-              }
-            />
+            {/* '/terms' */}
+            <Route path={siteURLS.termsUrl} element={<TermsComponent />} />
 
-            <Route exact path={ siteURLS.policyUrl /*'/policy'*/}
-              render={() =>
-                <PolicyComponent />
-              }
-            />
+            {/* '/policy' */}
+            <Route path={siteURLS.policyUrl} element={<PolicyComponent />} />
 
-            <Route exact path={ siteURLS.supportPageUrl /*"/support"*/}
-              render={() =>
-                <SupportComponent />
-              }
-            />
+            {/* '/support' */}
+            <Route path={siteURLS.supportPageUrl} element={<SupportComponent />} />
 
-            <Route exact path={ siteURLS.endpoint_dbUrl /*"/endpoint_db"*/}
-              render={() =>
-                <EndpointDB />
-              }
-            />
+            {/* '/endpoint_db' */}
+            <Route path={siteURLS.endpoint_dbUrl} element={<EndpointDB />} />
 
-            <Route exact path={ siteURLS.getStartedPageUrl /*"/get-started"*/}
-              render={() =>
-                <GetStartedComponent />
-              }
-            />
+            {/* '/get-started' */}
+            <Route path={siteURLS.getStartedPageUrl} element={<GetStartedComponent />} />
 
-            {isLoggedIn &&
-              <Route exact path={ siteURLS.transferPageUrl /*'/transfer'*/}
-                render={(props) =>
-                  <TransferComponent  {...props} store={store} />
-                }
-              />
+            {/* '/transfer' */}
+            { isLoggedIn &&
+              <Route path={siteURLS.transferPageUrl} element={<TransferComponentWrapper store={store} />} />
             }
 
-            {isLoggedIn &&
-              <Route exact path={ siteURLS.queuePageUrl /*'/queue'*/}
-                render={(props) =>
-                  <QueueComponent {...props} />
-                }
-              />
+            {/* '/queue' */}
+            { isLoggedIn &&
+              <Route path={siteURLS.queuePageUrl} element={<QueueComponent />} />
             }
 
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.historyPageUrl /*'/history' */}
-                render={(props) =>
-                  <HistoryComponent  {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.userListPageUrl /*'/clientsInfo'*/}
-                render={(props) =>
-                  <ClientsInfoComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.notificationPageUrl /*'/sendNotifications'*/} render=
-                {(props) =>
-                  <NotificationsComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.newNotificationsUrl /*'/newNotifications'*/} render=
-                {(props) =>
-                  <NewNotificationsComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn &&
-              <Route exact path={ siteURLS.userPageUrl /*'/user'*/}
-                render={(props) =>
-                  <UserAccountComponent {...props} />
-                }
-              />
+            {/* '/history' */}
+            { isLoggedIn && admin &&
+              <Route path={siteURLS.historyPageUrl} element={<HistoryComponent store={store} />} />
             }
 
-            {!isLoggedIn &&
-              <Route render={() => <Redirect to={ siteURLS.rootUrl /*'/'*/} />} />
+            {/* '/clientsInfo' */}
+            { isLoggedIn && admin &&
+              <Route path={siteURLS.userListPageUrl} element={<ClientsInfoComponent store={store} />} />
             }
-          </Switch>
+
+            {/* '/sendNotifications' */}
+            { isLoggedIn && admin &&
+              <Route path={siteURLS.notificationPageUrl} element={<NotificationsComponent store={store} />} />
+            }
+
+            {/* '/newNotifications' */}
+            { isLoggedIn && admin &&
+              <Route path={siteURLS.newNotificationsUrl} element={<NewNotificationsComponent store={store} />} />
+            }
+
+            {/* '/user' */}
+            { isLoggedIn &&
+              <Route path={siteURLS.userPageUrl} element={<UserAccountComponent />} />
+            }
+
+            {/* '/' */}
+            { !isLoggedIn &&
+              <Route element={<Navigate to={ siteURLS.rootUrl} />} />
+            }
+
+          </Routes>
         </div>
 
       </div>
