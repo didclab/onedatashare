@@ -32,7 +32,7 @@ import CreateAccountComponent from "./CreateAccountComponent";
 import ValidateEmailComponent from "./ValidateEmailComponent";
 import ForgotPasswordComponent from "./ForgotPasswordComponent";
 
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 
 import { login } from "../../APICalls/APICalls.js";
 
@@ -40,8 +40,10 @@ import "./AccountControlComponent.css";
 
 import {
   signInUrl,
-  siteURLS,
-  siteURLS_account
+  registerPageUrl,
+  forgotPasswordUrl,
+  lostValidationCodeUrl,
+    siteURLS
 } from "../../constants";
 import { GREY } from "../../color";
 import { store } from "../../App.js";
@@ -58,8 +60,8 @@ export default class AccountControlComponent extends Component {
 
     const cookieSaved = cookies.get("SavedUsers") || 0;
     const rememberMeAccounts = cookieSaved === 0 ? {} : JSON.parse(cookieSaved);
-    this.newLogin = () => {
-      return <SavedLoginComponent
+    this.newLogin = (
+      <SavedLoginComponent
         accounts={rememberMeAccounts}
         login={(email) => {
           const user = JSON.parse(cookies.get("SavedUsers"))[email];
@@ -76,7 +78,7 @@ export default class AccountControlComponent extends Component {
           this.setState({ loading: loading });
         }}
       />
-    };
+    );
 
     this.state = {
       isSmall: window.innerWidth <= 640,
@@ -194,69 +196,100 @@ export default class AccountControlComponent extends Component {
   // Switches to a route and renders a component based on the redirect set inside render method.
   getInnerCard() {
     return (
-      <Routes>
-        <Route path={"/"} element={<this.state.screen />} />
+      <Switch>
+        <Route
+          exact
+          path={"/account"}
+          render={(props) => this.state.screen}
+        ></Route>
 
-        <Route path={siteURLS_account.registerPageUrl} element={
-          <CreateAccountComponent backToSignin={() => {
-            this.setState({ redirectToSignIn: true });
-          }} />}
-        />
+        <Route
+          exact
+          path={registerPageUrl}
+          render={(props) => (
+            <CreateAccountComponent
+              {...props}
+              backToSignin={() => {
+                this.setState({ redirectToSignIn: true });
+              }}
+            />
+          )}
+        ></Route>
 
-        <Route path={siteURLS_account.lostValidationCodeUrl} element={
-          <ValidateEmailComponent email={this.state.email} backToSignin={() => {
-            this.setState({
-              loading: false,
-              redirectToSignIn: true,
-              lostValidationCodePressed: false,
-            });
-          }} />}
-        />
+        <Route
+          exact
+          path={lostValidationCodeUrl}
+          render={(props) => (
+            <ValidateEmailComponent
+              {...props}
+              email={this.state.email}
+              backToSignin={() => {
+                this.setState({
+                  loading: false,
+                  redirectToSignIn: true,
+                  lostValidationCodePressed: false,
+                });
+              }}
+            />
+          )}
+        ></Route>
 
-        <Route path={siteURLS_account.forgotPasswordUrl} element={
-          <ForgotPasswordComponent email={this.state.email} back={() => {
-            this.props.location.pathname = signInUrl;
-            this.setState({
-              loading: false,
-              redirectToSignIn: true,
-              forgotPasswordPressed: false,
-            });
-          }} />}
-        />
+        <Route
+          exact
+          path={forgotPasswordUrl}
+          render={(props) => (
+            <ForgotPasswordComponent
+              {...props}
+              back={() => {
+                this.props.location.pathname = signInUrl;
+                this.setState({
+                  loading: false,
+                  redirectToSignIn: true,
+                  forgotPasswordPressed: false,
+                });
+              }}
+              email={this.state.email}
+            />
+          )}
+        ></Route>
 
-        <Route path={siteURLS_account.signInPageUrl} element={
-          <NewLoginComponent email={this.state.email}
-            isLoading={(loading) => {
-              this.setState({ loading: loading });
-            }}
-            createAccountPressed={() => {
-              this.setState({
-                loading: false,
-                creatingAccount: true,
-                signIn: false,
-              });
-            }}
-            lostValidationCodePressed={(email) => {
-              this.setState({
-                loading: false,
-                lostValidationCodePressed: true,
-                signIn: false,
-                email: email,
-              });
-            }}
-            forgotPasswordPressed={(email) => {
-              this.setState({
-                loading: false,
-                signIn: false,
-                email: email,
-                forgotPasswordPressed: true,
-              });
-            }}
-            userLoggedIn={this.userSigningIn}
-          />}
-        />
-
-      </Routes>
+        <Route
+          exact
+          path={signInUrl}
+          render={(props) => (
+            <NewLoginComponent
+              email={this.props.email}
+              isLoading={(loading) => {
+                this.setState({ loading: loading });
+              }}
+              createAccountPressed={() => {
+                this.setState({
+                  loading: false,
+                  creatingAccount: true,
+                  signIn: false,
+                });
+              }}
+              lostValidationCodePressed={(email) => {
+                this.setState({
+                  loading: false,
+                  lostValidationCodePressed: true,
+                  signIn: false,
+                  email: email,
+                });
+              }}
+              forgotPasswordPressed={(email) => {
+                this.setState({
+                  loading: false,
+                  signIn: false,
+                  email: email,
+                  forgotPasswordPressed: true,
+                });
+              }}
+              userLoggedIn={this.userSigningIn}
+            />
+          )}
+        ></Route>
+      </Switch>
     );
   }
 
@@ -279,6 +312,7 @@ export default class AccountControlComponent extends Component {
     this.setState.lostValidationCodePressed = false;
     this.setStateforgotPasswordPressed = false;
     this.setState.redirectToSignIn = false;
+    console.log(this.setState);
 
     return (
       <div
@@ -302,18 +336,18 @@ export default class AccountControlComponent extends Component {
           {/* At any point of time only one among below should be true */}
           {currentRoute !== siteURLS.lostValidationCodeUrl &&
             lostValidationCodePressed && (
-              <Navigate to={siteURLS.lostValidationCodeUrl} />
+              <Redirect to={siteURLS.lostValidationCodeUrl} />
             )}
-          {store.getState().login && <Navigate to={siteURLS.transferPageUrl} />}
+          {store.getState().login && <Redirect to={siteURLS.transferPageUrl} />}
           {currentRoute !== siteURLS.registerPageUrl && creatingAccount && (
-            <Navigate to={siteURLS.registerPageUrl} />
+            <Redirect to={siteURLS.registerPageUrl} />
           )}
           {currentRoute !== siteURLS.forgotPasswordUrl && forgotPasswordPressed && (
-            <Navigate to={siteURLS.forgotPasswordUrl} />
+            <Redirect to={siteURLS.forgotPasswordUrl} />
           )}
-          {redirectToSignIn && <Navigate to={siteURLS.signInPageUrl} />}
+          {redirectToSignIn && <Redirect to={siteURLS.signInPageUrl} />}
           {currentRoute === siteURLS.accountPageUrl && signIn && (
-            <Navigate from={siteURLS.accountPageUrl} to={siteURLS.signInPageUrl} />
+            <Redirect from={siteURLS.accountPageUrl} to={siteURLS.signInPageUrl} />
           )}
           {loading && <LinearProgress />}
 

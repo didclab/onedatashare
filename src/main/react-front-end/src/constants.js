@@ -93,15 +93,6 @@ export const siteURLS = {
 	policyUrl: "/policy",
 };
 
-export const siteURLS_account = {
-	// urls with base path "/account"
-	accountPageUrl: "/",
-	registerPageUrl: "/register",
-	signInPageUrl: "/signIn",
-	forgotPasswordUrl: "/forgotPassword",
-	lostValidationCodeUrl: "/lostValidationCode",
-}
-
 export const s3Regions =
 	[
 		"us-east-1",

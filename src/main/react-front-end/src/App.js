@@ -24,10 +24,10 @@
 import React, { Component } from 'react';
 import './App.css';
 import MainComponent from "./MainComponent";
-import OauthProcessComponentWrapper from "./views/OauthProcessComponentWrapper";
+import OauthProcessComponent from "./views/OauthProcessComponent";
 import { createStore } from 'redux';
 import { onedatashareModel } from './model/reducers';
-import { Route, Routes } from 'react-router-dom';
+import  { Route, Switch} from 'react-router-dom';
 
 import Snackbar from '@material-ui/core/Snackbar';
 import Button from '@material-ui/core/Button';
@@ -42,12 +42,12 @@ export const eventEmitter = new EventEmitter();
 export const store = createStore(onedatashareModel);
 class App extends Component {
 
-  constructor() {
+  constructor(){
     super();
-    this.state = {
+    this.state={
       loaded: false,
-      open: false,
-      vertical: 'top',
+      open: false, 
+      vertical: 'top', 
       horizontal: 'center',
       error: "null"
     };
@@ -66,22 +66,22 @@ class App extends Component {
     this.setState({ open: false });
   };
 
-  componentDidMount() {
-    this.setState({ loaded: true });
+  componentDidMount(){
+    this.setState({loaded: true});
     eventEmitter.on("errorOccured", this.handleOpen);
     // console.log(process.env);
   }
 
-
+  
   render() {
-    const { vertical, horizontal, error, open } = this.state;
+    const { vertical,horizontal, error, open } = this.state;
 
     return (
       <div>
 
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
-          style={{ marginTop: "20px", zIndex: 1500 }}
+          style={{marginTop: "20px", zIndex: 1500}}
           open={open}
           onClose={this.handleClose}
           ContentProps={{
@@ -95,10 +95,11 @@ class App extends Component {
           message={<span id="message-id">{error}</span>}
         />
 
-        <Routes>
-          <Route path={'/oauth/:tag'} element={<OauthProcessComponentWrapper />} />
-          <Route path={'/*'} element={<MainComponent />} />
-        </Routes>
+        <Switch>
+          {/*<Route path='/account' component={AccountControlComponent}/>*/}
+          <Route path='/oauth/:tag' component={OauthProcessComponent}/>
+          <Route exact path='/*/' component={MainComponent}/>
+        </Switch>
 
       </div>
     );
