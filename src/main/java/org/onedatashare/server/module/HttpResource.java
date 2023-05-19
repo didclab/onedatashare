@@ -56,7 +56,6 @@ public class HttpResource extends VfsResource {
         ArrayList<Stat> fileList = new ArrayList<>();
         for (Element elem : elements) {
             if(elem.text().equals("../") || elem.text().equals("./")) continue;
-            System.out.println(elem.toString());
             if (elem.text().endsWith("/")) {
                 fileList.add(this.folderFromElement(elem, path));
             } else {
