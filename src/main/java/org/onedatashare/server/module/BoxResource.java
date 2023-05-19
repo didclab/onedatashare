@@ -34,7 +34,6 @@ public class BoxResource extends Resource {
         super(credential);
         OAuthEndpointCredential oAuthEndpointCredential = (OAuthEndpointCredential) credential;
         this.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
-        ODSLoggerService.logInfo("The token is:" + oAuthEndpointCredential.getToken());
     }
 
     public static Mono<? extends Resource> initialize(EndpointCredential credential) {

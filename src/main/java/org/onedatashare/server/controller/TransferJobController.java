@@ -40,7 +40,7 @@ public class TransferJobController {
         logger.info("Recieved request: " + request.toString());
         return principalMono.flatMap(p -> transferJobService.submitTransferJobRequest(p.getName(), request));
     }
-    @PostMapping
+    @PostMapping("/stop")
     public  Mono<Void> stopJob(@RequestBody StopRequest stopRequest){
         return transferJobService.stopTransferJob(stopRequest)
                 .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
