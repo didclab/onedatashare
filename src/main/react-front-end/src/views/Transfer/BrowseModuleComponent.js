@@ -42,7 +42,9 @@ import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
 import { GRIDFTP, VFS, getType} from "../../constants";
 import {showText, showType, showDisplay} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
-
+import { Dropbox } from '../protocols/Dropbox';
+import { Box } from  '../protocols/Box'
+ 
 import {eventEmitter} from "../../App";
 
 const pickModule = 0;
@@ -195,7 +197,9 @@ export default class BrowseModuleComponent extends Component {
 	    <div id={"browser"+endpoint.side} className={"transferGroup"} /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/>
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
-				{displays.map( (service) => {
+				<Dropbox data={displays[0]} login={() => {this.login(displays[0])}}></Dropbox>
+				<Box data={displays[2]} login={() => {this.login(displays[2])}}></Box>
+				{/* {displays.map( (service) => {
 					const disable = (service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp) || (service[0] === VFS &&  this.checkIfOneSideIsLoggedInAsVFS());
 					return(
 						<EndpointButton key={service.side + service[1].id} id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
@@ -203,7 +207,7 @@ export default class BrowseModuleComponent extends Component {
 							{service[1].label}
 						</EndpointButton>
 					);
-				})}
+				})} */}
 		    </div>}
 
 		    {(!endpoint.login && mode === inModule) &&
