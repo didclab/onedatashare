@@ -101,6 +101,7 @@ export default class EndpointBrowseComponent extends Component {
 		this.getFilesFromBackend = this.getFilesFromBackend.bind(this);
 		this.fileNodeDoubleClicked = this.fileNodeDoubleClicked.bind(this);
 		this.getFilesFromBackendWithPath = this.getFilesFromBackendWithPath.bind(this);
+		this.httpPathHandler = this.httpPathHandler.bind(this);
 		this.breadcrumbClicked = this.breadcrumbClicked.bind(this);
 		this.toggleSelection = this.toggleSelection.bind(this);
 		this.toggleSelectionInGroup = this.toggleSelectionInGroup.bind(this);
@@ -322,6 +323,63 @@ export default class EndpointBrowseComponent extends Component {
 		this.setState({directoryPath: directoryPath, ids: ids});
 	}
 
+	// Fetch HTTP directory
+	httpPathHandler(endpoint, path, id) {
+		const {setLoading} = this.props;
+		setLoading(true);
+		var uri = endpoint.uri;
+		uri = makeFileNameFromPath(uri, path, "");
+		// console.log(path)
+		let dirPath = "/" + (path[0]? path[0] : "")
+		listFiles(uri, endpoint, dirPath , (data) =>{
+			setLoading(false);
+			let sortedfiles = this.filenameAscendingOrderSort(data.files);
+			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
+			this.setState({directoryPath: path, ids: id});
+		}, (error) =>{
+			if(error === "500"){
+				this._handleError("Login Failed. Re-directing to OAuth page");
+				setLoading(false);
+				emptyFileNodesData(endpoint);
+
+				let type = getName(endpoint);
+				let cred = endpoint.credential;
+				let savedCreds = cookies.get(type);
+
+				// Delete the creds from the cookie if they exist
+				if(savedCreds !== undefined){
+					let parsedCredsArr = JSON.parse();
+					let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+																	return curObj.name !== cred.name;
+															});
+					if(filteredCredsArr.length === 0){
+						cookies.remove(type);
+					}
+					else{
+						cookies.set(type, JSON.stringify(filteredCredsArr));
+					}
+				}
+
+				unselectAll();
+				this.props.back();
+
+				setTimeout(()=> {
+					const type = getType(endpoint)
+					if(isOAuth[type] && type !== showType.gsiftp){
+						OAuthFunctions[type]();
+					}
+					// if(getType(endpoint) === DROPBOX_TYPE)
+					// 	openDropboxOAuth();
+					// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+					// 	openGoogleDriveOAuth();
+					// else if(getType(endpoint) === BOX_TYPE)
+					// 	openBoxOAuth();
+					},
+					3000);
+			}
+		});
+	}
+
 
 	// Fully functional with S3
 	// FTP: Can browse files from the root directory, but unable to go into other directories
@@ -334,58 +392,7 @@ export default class EndpointBrowseComponent extends Component {
 		var uri = endpoint.uri;
 		var uriType = uri.split(":")
 		if (uriType[0] === "http") {
-			const {setLoading} = this.props;
-			setLoading(true);
-			uri = makeFileNameFromPath(uri, path, "");
-			// console.log(path)
-			let dirPath = "/" + (path[0]? path[0] : "")
-			listFiles(uri, endpoint, dirPath , (data) =>{
-				setLoading(false);
-				let sortedfiles = this.filenameAscendingOrderSort(data.files);
-				setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
-				this.setState({directoryPath: path, ids: id});
-			}, (error) =>{
-				if(error === "500"){
-					this._handleError("Login Failed. Re-directing to OAuth page");
-					setLoading(false);
-					emptyFileNodesData(endpoint);
-	
-					let type = getName(endpoint);
-					let cred = endpoint.credential;
-					let savedCreds = cookies.get(type);
-	
-					// Delete the creds from the cookie if they exist
-					if(savedCreds !== undefined){
-						let parsedCredsArr = JSON.parse();
-						let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
-																		return curObj.name !== cred.name;
-																});
-						if(filteredCredsArr.length === 0){
-							cookies.remove(type);
-						}
-						else{
-							cookies.set(type, JSON.stringify(filteredCredsArr));
-						}
-					}
-	
-					unselectAll();
-					this.props.back();
-	
-					setTimeout(()=> {
-						const type = getType(endpoint)
-						if(isOAuth[type] && type !== showType.gsiftp){
-							OAuthFunctions[type]();
-						}
-						// if(getType(endpoint) === DROPBOX_TYPE)
-						// 	openDropboxOAuth();
-						// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-						// 	openGoogleDriveOAuth();
-						// else if(getType(endpoint) === BOX_TYPE)
-						// 	openBoxOAuth();
-						},
-						3000);
-				}
-			});
+			this.httpPathHandler(endpoint, path, id)
 		}
 		else {
 			const {setLoading} = this.props;
