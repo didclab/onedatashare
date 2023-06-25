@@ -332,56 +332,114 @@ export default class EndpointBrowseComponent extends Component {
 			return
 		}
 		var uri = endpoint.uri;
-		const {setLoading} = this.props;
-		setLoading(true);
-		uri = makeFileNameFromPath(uri, path, "");
-		listFiles(uri, endpoint, id[id.length-1], (data) =>{
-			setLoading(false);
-			let sortedfiles = this.filenameAscendingOrderSort(data.files);
-			setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
-			this.setState({directoryPath: path, ids: id});
-		}, (error) =>{
-			if(error === "500"){
-				this._handleError("Login Failed. Re-directing to OAuth page");
+		var uriType = uri.split(":")
+		if (uriType[0] === "http") {
+			const {setLoading} = this.props;
+			setLoading(true);
+			uri = makeFileNameFromPath(uri, path, "");
+			// console.log(path)
+			let dirPath = "/" + (path[0]? path[0] : "")
+			listFiles(uri, endpoint, dirPath , (data) =>{
 				setLoading(false);
-				emptyFileNodesData(endpoint);
-
-				let type = getName(endpoint);
-				let cred = endpoint.credential;
-				let savedCreds = cookies.get(type);
-
-				// Delete the creds from the cookie if they exist
-				if(savedCreds !== undefined){
-					let parsedCredsArr = JSON.parse();
-					let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
-																	return curObj.name !== cred.name;
-															});
-					if(filteredCredsArr.length === 0){
-						cookies.remove(type);
+				let sortedfiles = this.filenameAscendingOrderSort(data.files);
+				setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
+				this.setState({directoryPath: path, ids: id});
+			}, (error) =>{
+				if(error === "500"){
+					this._handleError("Login Failed. Re-directing to OAuth page");
+					setLoading(false);
+					emptyFileNodesData(endpoint);
+	
+					let type = getName(endpoint);
+					let cred = endpoint.credential;
+					let savedCreds = cookies.get(type);
+	
+					// Delete the creds from the cookie if they exist
+					if(savedCreds !== undefined){
+						let parsedCredsArr = JSON.parse();
+						let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+																		return curObj.name !== cred.name;
+																});
+						if(filteredCredsArr.length === 0){
+							cookies.remove(type);
+						}
+						else{
+							cookies.set(type, JSON.stringify(filteredCredsArr));
+						}
 					}
-					else{
-						cookies.set(type, JSON.stringify(filteredCredsArr));
-					}
+	
+					unselectAll();
+					this.props.back();
+	
+					setTimeout(()=> {
+						const type = getType(endpoint)
+						if(isOAuth[type] && type !== showType.gsiftp){
+							OAuthFunctions[type]();
+						}
+						// if(getType(endpoint) === DROPBOX_TYPE)
+						// 	openDropboxOAuth();
+						// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+						// 	openGoogleDriveOAuth();
+						// else if(getType(endpoint) === BOX_TYPE)
+						// 	openBoxOAuth();
+						},
+						3000);
 				}
-
-				unselectAll();
-				this.props.back();
-
-				setTimeout(()=> {
-					const type = getType(endpoint)
-					if(isOAuth[type] && type !== showType.gsiftp){
-						OAuthFunctions[type]();
+			});
+		}
+		else {
+			const {setLoading} = this.props;
+			setLoading(true);
+			uri = makeFileNameFromPath(uri, path, "");
+			console.log(endpoint)
+			listFiles(uri, endpoint, id[id.length-1], (data) =>{
+				setLoading(false);
+				let sortedfiles = this.filenameAscendingOrderSort(data.files);
+				setFilesWithPathListAndId(sortedfiles, path, id, endpoint);
+				this.setState({directoryPath: path, ids: id});
+			}, (error) =>{
+				if(error === "500"){
+					this._handleError("Login Failed. Re-directing to OAuth page");
+					setLoading(false);
+					emptyFileNodesData(endpoint);
+	
+					let type = getName(endpoint);
+					let cred = endpoint.credential;
+					let savedCreds = cookies.get(type);
+	
+					// Delete the creds from the cookie if they exist
+					if(savedCreds !== undefined){
+						let parsedCredsArr = JSON.parse();
+						let filteredCredsArr = parsedCredsArr.filter((curObj)=>{
+																		return curObj.name !== cred.name;
+																});
+						if(filteredCredsArr.length === 0){
+							cookies.remove(type);
+						}
+						else{
+							cookies.set(type, JSON.stringify(filteredCredsArr));
+						}
 					}
-					// if(getType(endpoint) === DROPBOX_TYPE)
-					// 	openDropboxOAuth();
-					// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
-					// 	openGoogleDriveOAuth();
-					// else if(getType(endpoint) === BOX_TYPE)
-					// 	openBoxOAuth();
-					},
-					3000);
-			}
-		});
+	
+					unselectAll();
+					this.props.back();
+	
+					setTimeout(()=> {
+						const type = getType(endpoint)
+						if(isOAuth[type] && type !== showType.gsiftp){
+							OAuthFunctions[type]();
+						}
+						// if(getType(endpoint) === DROPBOX_TYPE)
+						// 	openDropboxOAuth();
+						// else if(getType(endpoint) === GOOGLEDRIVE_TYPE)
+						// 	openGoogleDriveOAuth();
+						// else if(getType(endpoint) === BOX_TYPE)
+						// 	openBoxOAuth();
+						},
+						3000);
+				}
+			});
+		}
 	};
 
 	handleClickOpen = (url) => {
