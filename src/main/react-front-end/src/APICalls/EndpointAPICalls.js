@@ -52,12 +52,15 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 export async function listFiles(uri, endpoint, id, accept, fail) {
 
     let { params } = constructParamsForList({uri, endpoint, id})
+    // console.log(params)
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), LIST_OP_URL)
+    console.log(params)
     axios.get(url, { params })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
+                // console.log(response)
             statusHandle(response, callback);
         })
         .catch((error) => {
