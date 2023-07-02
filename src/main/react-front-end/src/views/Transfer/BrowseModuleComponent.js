@@ -39,7 +39,7 @@ import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import { GRIDFTP, VFS, getType} from "../../constants";
+import { VFS, getType} from "../../constants";
 import {showText, showType, showDisplay} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 
@@ -65,12 +65,6 @@ export default class BrowseModuleComponent extends Component {
 		const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
 			return (getType(currentState.endpoint1) === showType.gsiftp || getType(currentState.endpoint2) === showType.gsiftp) && (currentState.endpoint1.login || currentState.endpoint1.login);
 		}
-		const checkIfGridftpIsOpen = (currentState) => {
-			return (getType(currentState.endpoint1) === showType.gsiftp
-				|| getType(currentState.endpoint2) === showType.gsiftp)
-				|| !(currentState.endpoint1.login || currentState.endpoint1.login);
-		}
-
 
 		let constructState = store.getState();
 
@@ -80,20 +74,8 @@ export default class BrowseModuleComponent extends Component {
 			endpoint: props.endpoint, 
 			mode: props.mode,
 			loading: false,
-			oneSideIsLoggedInAsGridftp: checkIfOneSideIsLoggedInAsGrid(constructState),
-			gridftpIsOpen: checkIfGridftpIsOpen(constructState)
 		};
 
-
-		this.unsubcribe = store.subscribe(() => {
-			let currentState = store.getState();
-			// Check if either side is logged in as GRID_FTP
-			let oneSideIsLoggedInAsGrid = checkIfOneSideIsLoggedInAsGrid(currentState);
-			let gridftpIsOpen = checkIfGridftpIsOpen(currentState);
-			if(oneSideIsLoggedInAsGrid !== this.state.oneSideIsLoggedInAsGridftp || gridftpIsOpen !== this.state.gridftpIsOpen){
-				this.setState({oneSideIsLoggedInAsGridftp: oneSideIsLoggedInAsGrid, gridftpIsOpen: gridftpIsOpen});
-			}
-    	});
 
 		this.setLoading = this.setLoading.bind(this);
 		this.getLoading = this.getLoading.bind(this);
@@ -182,7 +164,7 @@ export default class BrowseModuleComponent extends Component {
 	}
 
 	render() {
-		const {endpoint, mode, history, type, loading, creds, oneSideIsLoggedInAsGridftp, gridftpIsOpen} = this.state;
+		const {endpoint, mode, history, type, loading, creds} = this.state;
 		const {update} = this.props;
 
 
@@ -196,7 +178,7 @@ export default class BrowseModuleComponent extends Component {
 	      	{(!endpoint.login && mode === pickModule) &&
 	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
 				{displays.map( (service) => {
-					const disable = (service[0] === GRIDFTP ? !gridftpIsOpen : oneSideIsLoggedInAsGridftp) || (service[0] === VFS &&  this.checkIfOneSideIsLoggedInAsVFS());
+					const disable = (service[0] === VFS &&  this.checkIfOneSideIsLoggedInAsVFS());
 					return(
 						<EndpointButton key={service.side + service[1].id} id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
 							<Icon className={service[1].icon + ' browseIcon'}/>
