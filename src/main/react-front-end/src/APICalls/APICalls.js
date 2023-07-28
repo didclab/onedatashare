@@ -432,6 +432,7 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 		}
 	})
 		.then((response) => {
+			console.log(response)
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
@@ -861,6 +862,7 @@ export async function registerUser(requestBody, errorCallback) {
 					}
 				);
 }
+
 export async function verifyRegistraionCode(emailId, code) {
     return axios.post(EMAIL_VERIFICATION_ENDPOINT, {
     	    email : emailId,
