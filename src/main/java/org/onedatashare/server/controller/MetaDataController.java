@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.security.Principal;
@@ -112,6 +111,12 @@ public class MetaDataController {
     public Mono<MonitorData> monitorAJob(Mono<Principal> principalMono, Long jobId) {
         return principalMono.map(Principal::getName)
                 .flatMap(user -> metaDataService.monitor(user, jobId));
+    }
+
+    @GetMapping("/measurements/job/node")
+    public Mono<List<InfluxData>> queryMeasurementsByNode(Mono<Principal> principalMono, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @RequestParam String appId, @RequestParam Long jobId){
+        return principalMono.map(Principal::getName)
+                .flatMap(user -> metaDataService.getJobMeasurementsUniversal(user, jobId, start, appId));
     }
 
 }
