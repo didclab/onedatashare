@@ -21,7 +21,7 @@
  */
 
 
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
 		listFiles} from "../../APICalls/EndpointAPICalls";
@@ -98,6 +98,7 @@ export default class EndpointAuthenticateComponent extends Component {
 			needPassword: false,
 			username: "",
 			password: "",
+			credentialID: "",
 			endpointSelected: {},
 			selectingEndpoint: false,
 			portNum: -1,
@@ -780,6 +781,24 @@ export default class EndpointAuthenticateComponent extends Component {
 									}
 								}}
 							/>
+							{loginType === showType.s3? 
+							(<Fragment></Fragment>):(
+								<TextValidator
+									required={!typesWithOptionalPassword.includes(loginType)}
+									style={{width: "100%"}}
+									id={endpoint.side+"CredentialID"}
+									label={loginType === showType.s3 ? "AWS SECRET KEY" : "Credential ID"}
+									value={this.state.credentialID}
+									onChange={this.handleChange('credentialID')}
+									margin="normal"
+									variant="outlined"
+									onKeyPress={(e) => {
+										if (e.key === 'Enter') {
+											this.handleClick()
+										}
+									}}
+								/>
+							)}
 
 						</ValidatorForm>
 					</div>
