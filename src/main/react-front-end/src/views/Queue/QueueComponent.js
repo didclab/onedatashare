@@ -93,26 +93,21 @@ class QueueComponent extends Component {
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
-				jobIds.push(job.id)
-			}
+			jobIds.push(job.id)
 		})
 		if (jobIds.length > 0) {
-			getJobUpdatesForUser(jobIds, resp => {
-				let jobs = resp
-				//TODO: use hash keys and values instead of finding on each update
-				let existingData = [...responsesToDisplay]
-				jobs.forEach(job => {
+			for (const jobId of jobIds) {
+				getJobUpdatesForUser(jobId, resp => {
+					let data = resp
+					let existingData = [...responsesToDisplay]
 					let existingJob = existingData.find(item => item.id === job.id)
-					existingJob.status = job.status
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
+					existingJob.status = data.status
+					existingJob.bytes.total = data.bytes.total
+					existingJob.bytes.done = data.bytes.done
+					existingJob.bytes.avg = data.bytes.avg
+					this.setState({responsesToDisplay: existingData})
 				})
-				this.setState({responsesToDisplay: existingData})
-			}, error => {
-				console.log('Failed to get job updates')
-			});
+			}
 		}
 	}
 

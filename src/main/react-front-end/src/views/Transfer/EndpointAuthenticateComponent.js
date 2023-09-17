@@ -524,7 +524,7 @@ export default class EndpointAuthenticateComponent extends Component {
 		}
 
 		// Encrypting user password
-		const credId = username+"@"+ url.toString().split("://")[1];
+		const credId = this.state.credentialID === ""? username+"@"+ url.toString().split("://")[1]: this.state.credentialID;
 
 
 		this.endpointCheckin(url,
