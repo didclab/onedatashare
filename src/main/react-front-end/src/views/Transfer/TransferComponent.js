@@ -41,6 +41,11 @@
  import AccordionDetails from "@material-ui/core/AccordionDetails";
  
  import Divider from "@material-ui/core/Divider";
+ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+ import { LocalizationProvider } from '@mui/x-date-pickers';
+ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+ import dayjs from 'dayjs';
+ 
  import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, ExpandMore} from "@material-ui/icons";
  
  import { submitTransferRequest } from "../../APICalls/APICalls";
@@ -81,7 +86,6 @@
          pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
          parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
- 
        },
        compact: store.getState().compactViewEnabled,
        notif: false,
@@ -501,6 +505,15 @@
              <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>
            </FormControl>
          </Grid>
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()}/>
+                </LocalizationProvider>
+              </FormControl>
+          </Grid>
  
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
