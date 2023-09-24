@@ -41,7 +41,7 @@
  import AccordionDetails from "@material-ui/core/AccordionDetails";
  
  import Divider from "@material-ui/core/Divider";
- import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
  import { LocalizationProvider } from '@mui/x-date-pickers';
  import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
  import dayjs from 'dayjs';
@@ -510,7 +510,7 @@
             <FormControl component="fieldset">
               <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()}/>
+                  <DateTimePicker label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()}/>
                 </LocalizationProvider>
               </FormControl>
           </Grid>
