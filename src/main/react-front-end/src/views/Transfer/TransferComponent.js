@@ -41,7 +41,7 @@
  import AccordionDetails from "@material-ui/core/AccordionDetails";
  
  import Divider from "@material-ui/core/Divider";
- import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+ import { DateTimePicker } from '@mui/x-date-pickers';
  import { LocalizationProvider } from '@mui/x-date-pickers';
  import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
  import dayjs from 'dayjs';
@@ -86,6 +86,7 @@
          pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
          parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
+         scheduledTime: new Date().toISOString(),
        },
        compact: store.getState().compactViewEnabled,
        notif: false,
@@ -108,6 +109,7 @@
      this.sendFile = this.sendFile.bind(this);
      this.onSendToRight = this.onSendToRight.bind(this);
      this.onSendToLeft = this.onSendToLeft.bind(this);
+     this.setDate = this.setDate.bind(this);
  
      this.printError();
  
@@ -149,6 +151,12 @@
      // this.setState({ width: window.innerWidth, height: window.innerHeight });
      this.setState({ compact: store.getState().compactViewEnabled });
    }
+
+   setDate = (new_date) => {
+    const date = new Date(new_date);
+    const iso8601_conversion = date.toISOString();
+    this.setState({ settings: { ...this.state.settings, scheduledTime: iso8601_conversion } })
+  }
  
    sendFile = (processed) => {
      if (processed.selectedTasks.length === 0) {
@@ -510,7 +518,7 @@
             <FormControl component="fieldset">
               <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DateTimePicker label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()}/>
+                  <DateTimePicker viewRenderers={{hours: null, minutes: null,seconds: null}} label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()} onChange={(e) => this.setDate(e)} minDate={dayjs()}/>
                 </LocalizationProvider>
               </FormControl>
           </Grid>
