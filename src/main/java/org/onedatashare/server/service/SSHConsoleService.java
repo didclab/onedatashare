@@ -1,18 +1,13 @@
 package org.onedatashare.server.service;
 
 import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import org.onedatashare.server.model.response.ShellCommandResponse;
 import org.onedatashare.server.model.useraction.UserAction;
-import org.onedatashare.server.model.SSHUserInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.io.InputStream;
 
 @Service
 public class SSHConsoleService {
@@ -22,7 +17,7 @@ public class SSHConsoleService {
     @Autowired
     private DecryptionService decryptionService;
 
-    public SSHConsoleService(){
+    public SSHConsoleService() {
         jsch = new JSch();
     }
 
@@ -41,7 +36,7 @@ public class SSHConsoleService {
         return null;
     }
 
-    public Flux runCommand(UserAction ua, String commandWithPath){
+    public Flux runCommand(UserAction ua, String commandWithPath) {
 //        return createSession(ua.getUri(), ua.getCredential().getUsername(), ua.getCredential().getPassword(), Integer.parseInt(ua.getPortNumber()))
 //                .flux()
 //                .flatMap(session -> {
@@ -60,7 +55,7 @@ public class SSHConsoleService {
         return null;
     }
 
-    public Flux connectAndReadOutput(Channel channel){
+    public Flux connectAndReadOutput(Channel channel) {
 //        try {
 //            InputStream in = channel.getInputStream();
 //            InputStream err = channel.getExtInputStream();
@@ -99,8 +94,8 @@ public class SSHConsoleService {
 //                response.setError(errorBuffer.toString());
 //            }
 //            return Flux.just(response);
-            return null;
-        }
+        return null;
+    }
 }
 
 
