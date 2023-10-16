@@ -1,8 +1,128 @@
+/**
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
+ */
+
+
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.ScheduledTransferJobRequest;
+import org.onedatashare.server.model.TransferJobRequestDTO;
+import org.onedatashare.server.model.error.CredentialNotFoundException;
+import org.onedatashare.server.model.request.StopRequest;
+import org.onedatashare.server.model.request.TransferJobRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TransferSchedulerService {
 
+    @Value("${transfer.scheduler.service.uri}")
+    private String transferQueueingServiceUri;
+    private static Logger logger = LoggerFactory.getLogger(TransferSchedulerService.class);
+
+    private WebClient.Builder webClientBuilder;
+
+
+    public TransferSchedulerService(WebClient.Builder webClientBuilder) {
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    @PostConstruct
+    private void initialize() {
+        this.webClientBuilder = WebClient.builder();
+    }
+
+    public Mono<UUID> runJob(String ownerId, TransferJobRequest jobRequest) {
+        //eventually we want to include calendar like system for scheduling jobs
+        TransferJobRequestDTO dto = TransferJobRequestDTO.transferFormUserRequest(jobRequest, ownerId, "");
+        return webClientBuilder.build()
+                .post()
+                .uri(transferQueueingServiceUri + "/job/run")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(dto, TransferJobRequestDTO.class)
+                .retrieve()
+                .bodyToMono(UUID.class);
+    }
+
+    public Mono<Void> stopTransferJob(StopRequest stopRequest) {
+        return webClientBuilder.build().post()
+                .uri(transferQueueingServiceUri + "/stopJob")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(stopRequest, StopRequest.class)
+                .retrieve()
+                .onStatus(HttpStatus::isError,
+                        clientResponse -> Mono.error(new Exception(clientResponse.toString())))
+                .onStatus(HttpStatus::is4xxClientError,
+                        response -> Mono.error(new CredentialNotFoundException()))
+                .onStatus(HttpStatus::is5xxServerError,
+                        response -> Mono.error(new Exception("Internal server error")))
+                .bodyToMono(Void.class);
+    }
+
+    public Mono<UUID> scheduleJob(LocalDateTime jobStartTime, TransferJobRequestDTO transferRequest) {
+        return webClientBuilder.build()
+                .post()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", jobStartTime).build())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(transferRequest, TransferJobRequestDTO.class)
+                .retrieve()
+                .bodyToMono(UUID.class);
+    }
+
+    public Mono<List<ScheduledTransferJobRequest>> listScheduledJobs(String userEmail) {
+        return webClientBuilder.build()
+                .get()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/jobs").queryParam("userEmail", userEmail).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<ScheduledTransferJobRequest>>() {});
+    }
+
+    public Mono<TransferJobRequestDTO> getJobDetails(UUID jobUuid) {
+        return this.webClientBuilder.build()
+                .get()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/details").queryParam("jobUuid", jobUuid).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(TransferJobRequestDTO.class);
+    }
+
+    public void deleteScheduledJob(UUID jobUuid) {
+        this.webClientBuilder.build()
+                .delete()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/delete").queryParam("jobUuid", jobUuid).build())
+                .retrieve();
+
+    }
 }
