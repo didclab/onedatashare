@@ -57,7 +57,6 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-		this.interval = setInterval(this.update, 2000)    // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
@@ -65,6 +64,7 @@ class QueueComponent extends Component {
 
 	componentDidMount() {
 		document.title = "OneDataShare - Queue"
+		this.interval = setInterval(() => this.update(), 5000);
 		this.queueFunc()
 	}
 
@@ -90,10 +90,11 @@ class QueueComponent extends Component {
 	}
 
 	update() {
+		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			if (job.status === jobStatus.TRANSFERRING || job.status === jobStatus.SCHEDULED) {
+			if (statusSet.has(job.status)) {
 				jobIds.push(job.id)
 			}
 		})
@@ -101,9 +102,9 @@ class QueueComponent extends Component {
 			getJobUpdatesForUser(jobIds, resp => {
 				let jobs = resp
 				//TODO: use hash keys and values instead of finding on each update
-				let existingData = [...responsesToDisplay]
+				// let existingData = [...responsesToDisplay]
 				jobs.forEach(job => {
-					let existingJob = existingData.find(item => item.id === job.id)
+					let existingJob = responsesToDisplay.find(item => item.id === job.id)
 					existingJob.status = job.status
 					existingJob.bytes.total = job.bytes.total
 					existingJob.bytes.done = job.bytes.done
@@ -126,7 +127,7 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-
+		console.log(resp)
 		this.setState({
 			response: resp.content,
 			responsesToDisplay: resp.content,
@@ -247,11 +248,11 @@ class QueueComponent extends Component {
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = {
-			jobId: 'job_id',
-			status: 'status',
-			avgSpeed : "bytes.avg",
-			source : "src.uri",
-			destination: "dest.uri"
+			// jobId: 'job_id',
+			// status: 'status',
+			// avgSpeed : "bytes.avg",
+			// source : "src.uri",
+			// destination: "dest.uri"
 		};
 		return(
 			<QueueView
