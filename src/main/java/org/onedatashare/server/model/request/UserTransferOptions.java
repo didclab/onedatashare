@@ -25,6 +25,8 @@ package org.onedatashare.server.model.request;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class UserTransferOptions {
     private Boolean compress; //implemented
@@ -37,6 +39,7 @@ public class UserTransferOptions {
     private Integer parallelThreadCount; //supported
     private Integer pipeSize; //supported
     private Integer chunkSize; //supported
+    private LocalDateTime scheduledTime;
 
     public UserTransferOptions() {
         this.compress = false;
@@ -49,5 +52,6 @@ public class UserTransferOptions {
         this.pipeSize = 1;
         this.parallelThreadCount = 1;
         this.chunkSize = 10 << 1024 << 1024;
+        this.scheduledTime = LocalDateTime.now();
     }
 }

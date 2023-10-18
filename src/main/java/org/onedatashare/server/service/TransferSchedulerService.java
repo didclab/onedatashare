@@ -63,18 +63,6 @@ public class TransferSchedulerService {
         this.webClientBuilder = WebClient.builder();
     }
 
-    public Mono<UUID> runJob(String ownerId, TransferJobRequest jobRequest) {
-        //eventually we want to include calendar like system for scheduling jobs
-        TransferJobRequestDTO dto = TransferJobRequestDTO.transferFormUserRequest(jobRequest, ownerId, "");
-        return webClientBuilder.build()
-                .post()
-                .uri(transferQueueingServiceUri + "/job/run")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(dto, TransferJobRequestDTO.class)
-                .retrieve()
-                .bodyToMono(UUID.class);
-    }
-
     public Mono<Void> stopTransferJob(StopRequest stopRequest) {
         return webClientBuilder.build().post()
                 .uri(transferQueueingServiceUri + "/stopJob")
@@ -90,10 +78,10 @@ public class TransferSchedulerService {
                 .bodyToMono(Void.class);
     }
 
-    public Mono<UUID> scheduleJob(LocalDateTime jobStartTime, TransferJobRequestDTO transferRequest) {
+    public Mono<UUID> scheduleJob(TransferJobRequestDTO transferRequest) {
         return webClientBuilder.build()
                 .post()
-                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", jobStartTime).build())
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", transferRequest.getOptions().getScheduledTime()).build())
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(transferRequest, TransferJobRequestDTO.class)
                 .retrieve()

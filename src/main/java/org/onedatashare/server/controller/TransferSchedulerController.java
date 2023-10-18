@@ -3,7 +3,6 @@ package org.onedatashare.server.controller;
 import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
 import org.onedatashare.server.model.request.StopRequest;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.onedatashare.server.service.TransferSchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,12 +31,11 @@ public class TransferSchedulerController {
 
     Logger logger = LoggerFactory.getLogger(TransferSchedulerController.class);
 
-    @PostMapping("/run")
-    public ResponseEntity<Mono<UUID>> runJob(@RequestBody TransferJobRequest request,
-                                       Principal principal) {
-        logger.info("Recieved request: " + request.toString());
-        Mono<UUID> uuid = transferSchedulerService.runJob(principal.getName(), request);
-        return ResponseEntity.ok(uuid);
+    @PostMapping("/schedule")
+    public ResponseEntity<Mono<UUID>> runJob(@RequestBody TransferJobRequestDTO request,
+                                             Principal principal) {
+        logger.debug("Recieved request: " + request.toString());
+        return ResponseEntity.ok(transferSchedulerService.scheduleJob(request));
     }
 
     @PostMapping("/stop")
@@ -46,12 +44,6 @@ public class TransferSchedulerController {
                 .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "Failed to stop job execution")));
     }
-
-    @PostMapping("/schedule")
-    public ResponseEntity<Mono<UUID>> scheduleJob(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime jobStartTime, @RequestBody TransferJobRequestDTO transferRequest) {
-        return ResponseEntity.ok(this.transferSchedulerService.scheduleJob(jobStartTime, transferRequest));
-    }
-
     @GetMapping("/list")
     public ResponseEntity<Mono<List<ScheduledTransferJobRequest>>> listScheduledJobs(@RequestParam String userEmail) {
         return ResponseEntity.ok(this.transferSchedulerService.listScheduledJobs(userEmail));
