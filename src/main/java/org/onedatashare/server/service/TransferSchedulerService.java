@@ -27,7 +27,6 @@ import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.StopRequest;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +38,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
-import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -83,7 +80,7 @@ public class TransferSchedulerService {
                 .post()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", transferRequest.getOptions().getScheduledTime()).build())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(transferRequest, TransferJobRequestDTO.class)
+                .body(Mono.just(transferRequest), TransferJobRequestDTO.class)
                 .retrieve()
                 .bodyToMono(UUID.class);
     }
@@ -94,7 +91,8 @@ public class TransferSchedulerService {
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/jobs").queryParam("userEmail", userEmail).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledTransferJobRequest>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<ScheduledTransferJobRequest>>() {
+                });
     }
 
     public Mono<TransferJobRequestDTO> getJobDetails(UUID jobUuid) {

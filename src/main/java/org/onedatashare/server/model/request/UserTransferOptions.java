@@ -24,6 +24,7 @@
 package org.onedatashare.server.model.request;
 
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -39,6 +40,7 @@ public class UserTransferOptions {
     private Integer parallelThreadCount; //supported
     private Integer pipeSize; //supported
     private Integer chunkSize; //supported
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime scheduledTime;
 
     public UserTransferOptions() {
