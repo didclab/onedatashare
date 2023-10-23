@@ -110,10 +110,7 @@ class QueueComponent extends Component {
 					existingJob.bytes.done = job.bytes.done
 					existingJob.bytes.avg = job.bytes.avg
 				})
-				this.setState({responsesToDisplay: existingData})
-			}, error => {
-				console.log('Failed to get job updates')
-			});
+			}
 		}
 	}
 

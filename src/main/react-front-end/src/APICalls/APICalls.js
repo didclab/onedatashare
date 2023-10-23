@@ -487,20 +487,18 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 	});
 }
 
-export async function getJobUpdatesForUser(jobIds, accept, fail){
+export async function getJobUpdatesForUser(jobId, accept, fail){
 	let callback = accept;
 	var influx_data = [];
 	var flag = 0;
-	console.log("job ids",jobIds);
-	for(let jobId in jobIds)
-	{
 	axios.get("/api/metadata/measurements/job",{
 		params :
 		{
-			jobId:jobIds[jobId]
+			jobId: jobId
 		}
 	})
 	.then((response) => {
+		console.log(response)
 		if(!(response.status === 200))
 			callback = fail;
 		flag=1;
@@ -510,7 +508,6 @@ export async function getJobUpdatesForUser(jobIds, accept, fail){
 		console.log("Failed")
 		handleRequestFailure(error, fail);
     });
-	}
 	if (flag==1)
 	{
 		console.log("Influx data",influx_data);
