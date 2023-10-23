@@ -23,7 +23,7 @@
 
 export function humanReadableSpeed(size) {
 	if (size < 1024) 
-		return parseFloat(size.toFixed(4)) + ' B/s';
+		return parseFloat(size.toFixed(4)) + ' Mb/s';
     let i = Math.floor(Math.log(size) / Math.log(1024));
 	let num = (size / Math.pow(1024, i));
     let round = Math.round(num);

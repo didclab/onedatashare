@@ -435,6 +435,7 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
+			console.log(response)
 		})
 		.catch((error) => {
 			handleRequestFailure(error, fail);
@@ -506,6 +507,7 @@ export async function getJobUpdatesForUser(jobIds, accept, fail){
 		influx_data.push(response);
 	})
 	.catch((error) => {
+		console.log("Failed")
 		handleRequestFailure(error, fail);
     });
 	}
