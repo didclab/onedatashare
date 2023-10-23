@@ -29,7 +29,6 @@ import {
   sideLeft,
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
-  GRIDFTP_NAME,
   BOX_NAME,
 } from "../constants";
 import { eventEmitter } from "../App";
@@ -95,9 +94,6 @@ export default class OauthProcessComponent extends Component {
       } else if (tag === "googledrive") {
         console.log("Google drive oAuth identifier received");
         this.updateLocalCredStore(GOOGLEDRIVE_NAME, qsObj);
-      } else if (tag === "gridftp") {
-        console.log("GridFTP oAuth identifier received");
-        this.updateLocalCredStore(GRIDFTP_NAME, qsObj);
       } else if (tag === "box") {
         console.log("Box oAuth identifier received");
         this.updateLocalCredStore(BOX_NAME, qsObj);

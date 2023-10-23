@@ -149,7 +149,6 @@ export const GOOGLEDRIVE_TYPE = "gdrive:/";
 export const BOX_TYPE = "box:///";
 export const FTP_TYPE = "ftp://";
 export const SFTP_TYPE = "sftp://";
-export const GRIDFTP_TYPE = "gsiftp://";
 export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
 export const S3_TYPE = "s3:";
@@ -161,7 +160,6 @@ export const BOX_NAME = "Box";
 export const FTP_NAME = "FTP";
 export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
-export const GRIDFTP_NAME = "GridFTP";
 export const S3_NAME = "S3";
 export const VFS_NAME = "VFS";
 
@@ -172,7 +170,6 @@ export const FTP = "ftp";
 export const SFTP = "sftp";
 export const HTTP = "http";
 export const HTTPS = "https";
-export const GRIDFTP = "gsiftp";
 export const VFS = "vfs";
 export const S3 = "s3";
 
@@ -216,7 +213,6 @@ export const showText = {
 	ftp: FTP_NAME,
 	sftp: SFTP_NAME,
 	http: HTTP_NAME,
-	gsiftp: GRIDFTP_NAME,
 	https: HTTP_NAME,
 	s3: S3_NAME,
 	vfs: VFS_NAME
@@ -229,7 +225,6 @@ export const showType = {
 	ftp: FTP_TYPE,
 	sftp: SFTP_TYPE,
 	http: HTTP_TYPE,
-	gsiftp: GRIDFTP_TYPE,
 	https: HTTP_TYPE,
 	s3: S3_TYPE,
 	vfs: VFS_TYPE,
@@ -242,7 +237,6 @@ export const isOAuth = {
 	[FTP_TYPE]: false,
 	[SFTP_TYPE]: false,
 	[HTTP_TYPE]: false,
-	[GRIDFTP_TYPE]: true,
 	[HTTPS_TYPE]: false,
 	[S3_TYPE]: false,
 	[VFS_TYPE]: false,
@@ -264,7 +258,6 @@ export const SERVICES = {
 		[DROPBOX_TYPE, DROPBOX_NAME, DROPBOX],
 		[GOOGLEDRIVE_TYPE, GOOGLEDRIVE_NAME, GOOGLEDRIVE],
 		[BOX_TYPE, BOX_NAME, BOX],
-		[GRIDFTP_TYPE, GRIDFTP_NAME, GRIDFTP],
 	],
 	Login: [
 		[FTP_TYPE, FTP_NAME, FTP],

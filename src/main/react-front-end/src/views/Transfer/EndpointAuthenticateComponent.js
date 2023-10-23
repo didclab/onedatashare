@@ -115,9 +115,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 		let loginType = getType(props.endpoint)
 		let endpointName = getName(props.endpoint)
-		if(loginType === showType.gsiftp /*loginType === GRIDFTP_TYPE*/){
-			this.endpointIdsListUpdateFromBackend();
-		}else if(!isOAuth[loginType]/*loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE*/){
+		if(!isOAuth[loginType]/*loginType === FTP_TYPE || loginType === SFTP_TYPE || loginType === HTTP_TYPE*/){
 		    this.historyListUpdateFromBackend(endpointName);
 		}
 		this.handleChange = this.handleChange.bind(this);
@@ -705,8 +703,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		        <Divider />
 				{/* Google Drive, Dropbox, Box login handler */}
 				{(isOAuth[loginType] && loginType !== showType.gsiftp) && this.getCredentialListComponentFromList(credList, type, loginType)}
-				{/* GridFTP OAuth handler */}
-				{loginType === showType.gsiftp && this.getEndpointListComponentFromList(endpointIdsList)}
 				{/* Other login handlers*/}
 				{!isOAuth[loginType] && historyList &&
 		        	this.getHistoryListComponentFromList(historyList)}
