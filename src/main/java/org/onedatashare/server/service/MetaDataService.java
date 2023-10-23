@@ -44,9 +44,7 @@ public class MetaDataService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    //CockroachDB data calls below
-
-
+    
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
@@ -217,6 +215,23 @@ public class MetaDataService {
 
     private Mono<List<InfluxData>> influxDataCall(URI uri) {
         logger.info(uri.toString());
+        return this.webClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {
+                });
+    }
+
+    public Mono<? extends List<InfluxData>> getJobMeasurementsUniversal(String user, Long jobId, LocalDateTime start, String appId) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/stats/influx/transfer/node")
+                .queryParam(USER_EMAIL, user)
+                .queryParam("jobId", jobId)
+                .queryParam("appId", appId)
+                .queryParam("start", start)
+                .build()
+                .toUri();
         return this.webClientBuilder.build()
                 .get()
                 .uri(uri)

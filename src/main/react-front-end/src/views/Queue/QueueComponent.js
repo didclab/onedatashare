@@ -57,7 +57,6 @@ class QueueComponent extends Component {
 		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
-		this.interval = setInterval(this.update, 2000)    // making a queue request every 2 seconds
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
@@ -65,6 +64,7 @@ class QueueComponent extends Component {
 
 	componentDidMount() {
 		document.title = "OneDataShare - Queue"
+		this.interval = setInterval(() => this.update(), 5000);
 		this.queueFunc()
 	}
 
@@ -90,22 +90,25 @@ class QueueComponent extends Component {
 	}
 
 	update() {
+		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			jobIds.push(job.id)
+			if (statusSet.has(job.status)) {
+				jobIds.push(job.id)
+			}
 		})
 		if (jobIds.length > 0) {
-			for (const jobId of jobIds) {
-				getJobUpdatesForUser(jobId, resp => {
-					let data = resp
-					let existingData = [...responsesToDisplay]
-					let existingJob = existingData.find(item => item.id === job.id)
-					existingJob.status = data.status
-					existingJob.bytes.total = data.bytes.total
-					existingJob.bytes.done = data.bytes.done
-					existingJob.bytes.avg = data.bytes.avg
-					this.setState({responsesToDisplay: existingData})
+			getJobUpdatesForUser(jobIds, resp => {
+				let jobs = resp
+				//TODO: use hash keys and values instead of finding on each update
+				// let existingData = [...responsesToDisplay]
+				jobs.forEach(job => {
+					let existingJob = responsesToDisplay.find(item => item.id === job.id)
+					existingJob.status = job.status
+					existingJob.bytes.total = job.bytes.total
+					existingJob.bytes.done = job.bytes.done
+					existingJob.bytes.avg = job.bytes.avg
 				})
 			}
 		}
@@ -121,7 +124,7 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-
+		console.log(resp)
 		this.setState({
 			response: resp.content,
 			responsesToDisplay: resp.content,
@@ -242,11 +245,11 @@ class QueueComponent extends Component {
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = {
-			jobId: 'job_id',
-			status: 'status',
-			avgSpeed : "bytes.avg",
-			source : "src.uri",
-			destination: "dest.uri"
+			// jobId: 'job_id',
+			// status: 'status',
+			// avgSpeed : "bytes.avg",
+			// source : "src.uri",
+			// destination: "dest.uri"
 		};
 		return(
 			<QueueView

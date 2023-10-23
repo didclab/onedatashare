@@ -157,7 +157,7 @@ public class Stat {
    * Set the files underneath this tree and reset cached values.
    */
   public Stat setFiles(Collection<Stat> fs) {
-    return setFiles(fs.toArray(new Stat[fs.size()]));
+    return setFiles(fs.toArray(new Stat[0]));
   }
 
   public void setFilesList(List<Stat> fs){

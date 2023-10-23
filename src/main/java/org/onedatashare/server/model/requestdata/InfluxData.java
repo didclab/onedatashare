@@ -11,75 +11,90 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InfluxData {
 
-    @JsonProperty(value = "interface")
     private String networkInterface;
 
-    @JsonProperty(value = "ods_user")
     private String odsUser;
 
-    @JsonProperty(value = "transfer_node_name")
     private String transferNodeName;
 
-    @JsonProperty(value = "active_core_count")
-    private Double coreCount;
+    private Long coreCount;
 
-    @JsonProperty(value = "cpu_frequency_max")
     private Double cpu_frequency_max;
 
-    @JsonProperty(value = "cpu_frequency_current")
     private Double cpu_frequency_current;
 
-    @JsonProperty(value = "cpu_frequency_min")
     private Double cpu_frequency_min;
 
-    @JsonProperty(value = "energy_consumed")
-    private Double energyConsumed;
-
-    @JsonProperty(value = "cpu_arch")
     private String cpuArchitecture;
 
-    @JsonProperty(value = "packet_loss_rate")
     private Double packetLossRate;
 
-    @JsonProperty(value = "link_capacity")
-    private Double linkCapacity;
-
-    /* Delta values*/
-    private Long bytesSentDelta;
-
-    private Long bytesReceivedDelta;
-
-    private Long packetsSentDelta;
-
-    private Long packetsReceivedDelta;
-
-    //NIC values
-
-    @JsonProperty(value = "bytes_sent")
     private Long bytesSent;
 
-    @JsonProperty(value = "bytes_recv")
     private Long bytesReceived;
 
-    @JsonProperty(value = "packets_sent")
     private Long packetSent;
 
-    @JsonProperty(value = "packets_recv")
     private Long packetReceived;
 
-    @JsonProperty(value = "dropin")
-    private Double dropin;
+    private Long dropin;
 
-    @JsonProperty(value = "dropout")
-    private Double dropout;
+    private Long dropout;
 
-    @JsonProperty(value = "nic_speed")
-    private Double nicSpeed;
+    private Long nicMtu;
 
-    @JsonProperty(value = "nic_mtu")
-    private Double nicMtu;
+    private Double latency;
 
-    //2022-06-01 10:41:15.123591
+    private Double rtt;
+
+    private Double sourceRtt;
+
+    private Double sourceLatency;
+
+    private Double destinationRtt;
+
+    private Double destLatency;
+
+    private Long errin;
+
+    private Long errout;
+
+    private String jobId;
+
+    private Double readThroughput;
+
+    private Double writeThroughput;
+
+    private Long bytesWritten;
+
+    private Long bytesRead;
+
+    private Long concurrency;
+
+    private Long parallelism;
+
+    private Long pipelining;
+
+    private Long memory;
+
+    private Long maxMemory;
+
+    private Long freeMemory;
+
+    private Long allocatedMemory;
+
+    private Long jobSize;
+
+    private Long avgFileSize;
+
+    private String sourceType;
+
+    private String sourceCredId;
+
+    private String destType;
+
+    private String destCredId;
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSSSSS")
     @JsonProperty(value = "start_time")
     private LocalDateTime startTime;
@@ -88,48 +103,11 @@ public class InfluxData {
     @JsonProperty(value = "end_time")
     private LocalDateTime endTime;
 
-    @JsonProperty(value = "latency")
-    private Double latency;
-
-    @JsonProperty(value = "rtt")
-    private Double rtt;
-
-    @JsonProperty(value = "errin")
-    private Double errin;
-
-    @JsonProperty(value = "errout")
-    private Double errout;
-
-    //Job Values
-
-    private Long jobId;
-
     private Double throughput;
-
-    private Integer concurrency;
-
-    private Integer parallelism;
-
-    private Integer pipelining;
-
-    private Long memory;
-
-    private Long maxMemory;
-
-    private Long freeMemory;
-
-    private Long jobSize;
-
-    private Long avgFileSize;
 
     private Long dataBytesSent;
 
     private Boolean compression;
 
-    private Long allocatedMemory;
-
-    private String sourceType;
-
-    private String destType;
 
 }

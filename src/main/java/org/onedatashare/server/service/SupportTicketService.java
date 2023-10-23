@@ -65,13 +65,14 @@ public class SupportTicketService {
 
     private GHRepository repository;
 
-    @PostConstruct
-    public void postConstruct() throws IOException {
-        GitHub github = new GitHubBuilder()
-                .withOAuthToken(githubToken, organizationId)
-                .build();
-        this.repository = github.getRepository(repositoryString);
-    }
+//    @PostConstruct
+//    public void postConstruct() throws IOException {
+//        GitHub github = new GitHubBuilder()
+//
+//                .withOAuthToken(githubToken, organizationId)
+//                .build();
+//        this.repository = github.getRepository(repositoryString);
+//    }
 
     public Mono<Long> createGitHubSuppTicket(SupportTicketRequest supportTicketRequest) {
         return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
