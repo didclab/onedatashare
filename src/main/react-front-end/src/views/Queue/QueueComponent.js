@@ -110,7 +110,7 @@ class QueueComponent extends Component {
 					existingJob.bytes.done = job.bytes.done
 					existingJob.bytes.avg = job.bytes.avg
 				})
-			}
+			})
 		}
 	}
 
