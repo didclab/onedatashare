@@ -172,7 +172,7 @@
  
      let sourceParent = ""
      let destParent = ""
-     let infoList=[]
+     let infoList={}
      let sourceCredId =""
      let destCredId = ""
      if(isOAuth[showType[sType]]){
@@ -186,14 +186,14 @@
        sourceCredId = endpointSrc?.credential?.credId
        sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
        processed.selectedTasks.forEach(x=>{
-         infoList.push({path:x.value,id:x.value, size: x.size})
+         infoList = {path:x.value,id:x.value, size: x.size}
        })
      }
      else{
        sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
        sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")?"":"/" : sourceParent
        sourceCredId = endpointSrc.credential.credId
-       processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
+       processed.selectedTasks.forEach(x=>infoList = {path:x.id, id:x.name ,size:x.size})
      }
      if(isOAuth[showType[dType]]){
        let ids = processed.fromTo[1].ids
@@ -213,26 +213,23 @@
        destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
        destCredId = endpointDest.credential.credId
      }
- 
+
      let source = {
        credId:sourceCredId,
        type:sType,
-       parentInfo:{
-         id:sourceParent,
-         size:"",
-         path:sourceParent
+       fileSourcePath: sourceParent,
+       resourceList:{
+         id: infoList.id,
+         size: infoList.size,
+         path: infoList.path
        },
-       infoList:infoList
      }
      let destination={
        credId:destCredId,
        type:dType,
-       parentInfo:{
-         id:destParent,
-         size:"",
-         path:destParent
-       }
+       fileDesinationPath: destParent,
      }
+
      var optionParsed = {}
      Object.keys(options).forEach((v)=>{
        var value = options[v];
@@ -241,6 +238,7 @@
        }
        optionParsed[v] = value
      })
+     console.log({source, destination, optionParsed})
      submitTransferRequest(source,destination, optionParsed, (response) => {
        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
        setBeforeTransferReorder(processed);

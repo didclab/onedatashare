@@ -44,7 +44,7 @@ export const LOGOUT_ENDPOINT = "/deauthenticate";
 // export const apiBaseUrl = "/api/" + version + "/";
 // export const apiCredUrl = apiBaseUrl + "cred/";
 export const url = "/api/stork/";
-export const transferJobUrl = "/api/transferjob"
+export const transferJobUrl = "/api/job/schedule"
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
 
