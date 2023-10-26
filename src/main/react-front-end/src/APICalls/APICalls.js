@@ -544,6 +544,7 @@ export async function submitIssue(reqBody, success, fail) {
 }
 export async function submitTransferRequest(source,dest,options,accept,fail){
 	let callback = accept;
+	source.resourceList = [source.resourceList]
 	axios.post(transferJobUrl, {
 		source: source,
 		destination: dest,

@@ -213,7 +213,6 @@
        destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
        destCredId = endpointDest.credential.credId
      }
-     
      let source = {
        credId:sourceCredId,
        type:sType,

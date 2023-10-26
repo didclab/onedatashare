@@ -6,6 +6,7 @@ import org.onedatashare.server.model.request.StopRequest;
 import org.onedatashare.server.service.TransferSchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,6 @@ public class TransferSchedulerController {
                 .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "Failed to stop job execution")));
     }
-
     @GetMapping("/list")
     public ResponseEntity<Mono<List<ScheduledTransferJobRequest>>> listScheduledJobs(@RequestParam String userEmail) {
         return ResponseEntity.ok(this.transferSchedulerService.listScheduledJobs(userEmail));
