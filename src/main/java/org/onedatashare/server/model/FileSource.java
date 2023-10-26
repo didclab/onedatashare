@@ -18,9 +18,9 @@ public class FileSource implements Serializable {
     @NonNull
     public EndpointType type;
 
-    @NonNull
-    public String fileSourcePath; //can also be the parent Id to the directory to find all data in the infoList
+    public String fileSourcePath = ""; //can also be the parent Id to the directory to find all data in the infoList
 
     @NonNull
     public ArrayList<EntityInfo> resourceList; //a list of files and folders. This will end up being a list of only files with paths fully expanded
+
 }

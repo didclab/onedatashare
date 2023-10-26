@@ -544,10 +544,12 @@ export async function submitIssue(reqBody, success, fail) {
 }
 export async function submitTransferRequest(source,dest,options,accept,fail){
 	let callback = accept;
+	source.resourceList = [source.resourceList]
 	axios.post(transferJobUrl, {
 		source: source,
 		destination: dest,
-		options: options
+		options: options,
+		transferNodeName: "",
 	}).then((response) => {
 		if (!(response.status === 200))
 			callback = fail;

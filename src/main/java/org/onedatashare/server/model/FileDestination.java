@@ -19,7 +19,6 @@ public class FileDestination implements Serializable {
     @NonNull
     private EndpointType type;
 
-    @NonNull
-    String fileDestinationPath;
 
+    String fileDestinationPath = "";
 }

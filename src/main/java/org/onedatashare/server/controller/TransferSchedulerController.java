@@ -35,6 +35,7 @@ public class TransferSchedulerController {
     public ResponseEntity<Mono<UUID>> runJob(@RequestBody TransferJobRequestDTO request,
                                              Principal principal) {
         logger.debug("Recieved request: " + request.toString());
+        request.setOwnerId(principal.getName());
         return ResponseEntity.ok(transferSchedulerService.scheduleJob(request));
     }
 

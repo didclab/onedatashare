@@ -44,7 +44,7 @@ public class MetaDataService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    
+
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);

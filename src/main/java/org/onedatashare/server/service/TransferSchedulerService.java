@@ -76,6 +76,7 @@ public class TransferSchedulerService {
     }
 
     public Mono<UUID> scheduleJob(TransferJobRequestDTO transferRequest) {
+        logger.info(transferRequest.toString());
         return webClientBuilder.build()
                 .post()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", transferRequest.getOptions().getScheduledTime()).build())
