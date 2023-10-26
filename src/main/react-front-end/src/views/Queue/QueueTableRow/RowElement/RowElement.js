@@ -57,8 +57,9 @@ export default class RowElement extends React.Component {
     render() {
         const {resp, infoVisible} = this.props
         let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
+        console.log(resp.jobParameters.jobSize)
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
-        let difference = Date.parse(resp.endTime)/1000 - Date.parse(resp.startTime)/1000;
+        let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
         if (isNaN(speed))
         {
@@ -85,10 +86,10 @@ export default class RowElement extends React.Component {
                             <p>{humanReadableSpeed(speed)}</p>
                         </TableCell>
                         <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{resp.jobParameters.sourceBasePath}</p>
+                            <p>{resp.jobParameters.sourceCredential}</p>
                         </TableCell>
                         <TableCell className={"destinationCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{resp.jobParameters.destBasePath}</p>
+                            <p>{resp.jobParameters.destCredential}</p>
                         </TableCell>
                         { this.props.adminPg &&
                         <TableCell className={"startCell-admin queueBodyCell"}>

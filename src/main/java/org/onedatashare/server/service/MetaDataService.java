@@ -44,8 +44,6 @@ public class MetaDataService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    //CockroachDB data calls below
-
 
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
@@ -221,7 +219,8 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {
+                });
     }
 
     public Mono<? extends List<InfluxData>> getJobMeasurementsUniversal(String user, Long jobId, LocalDateTime start, String appId) {
@@ -237,6 +236,7 @@ public class MetaDataService {
                 .get()
                 .uri(uri)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {});
+                .bodyToMono(new ParameterizedTypeReference<List<InfluxData>>() {
+                });
     }
 }

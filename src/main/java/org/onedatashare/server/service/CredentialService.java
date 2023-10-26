@@ -55,11 +55,14 @@ public class CredentialService {
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
-    @Autowired
     private WebClient.Builder webClientBuilder;
 
-    @Autowired
     private EurekaClient discoveryClient;
+
+    public CredentialService(EurekaClient discoveryClient, WebClient.Builder webClientBuilder){
+        this.webClientBuilder = webClientBuilder;
+        this.discoveryClient = discoveryClient;
+    }
 
     @PostConstruct
     private void initialize(){
