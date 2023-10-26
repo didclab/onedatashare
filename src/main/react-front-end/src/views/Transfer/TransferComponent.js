@@ -172,28 +172,28 @@
  
      let sourceParent = ""
      let destParent = ""
-     let infoList={}
+     let infoList= []
      let sourceCredId =""
      let destCredId = ""
      if(isOAuth[showType[sType]]){
        sourceParent = sType!== "box" ?"":"0"
        sourceCredId = endpointSrc.credential.uuid
        processed.selectedTasks.forEach(x=>{
-         infoList.push({path:x.id,id:x.id,size:x.size})
+         infoList.push({id:x.id,size:x.size, path:x.id})
        }
        )
      } else if (endpointSrc?.uri === showType.vfs) {
        sourceCredId = endpointSrc?.credential?.credId
        sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
        processed.selectedTasks.forEach(x=>{
-         infoList = {path:x.value,id:x.value, size: x.size}
+        infoList.push({id:x.id, size:x.size, path:x.id})
        })
      }
      else{
        sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
        sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")?"":"/" : sourceParent
        sourceCredId = endpointSrc.credential.credId
-       processed.selectedTasks.forEach(x=>infoList = {path:x.id, id:x.name ,size:x.size})
+       processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
      }
      if(isOAuth[showType[dType]]){
        let ids = processed.fromTo[1].ids
@@ -213,16 +213,11 @@
        destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
        destCredId = endpointDest.credential.credId
      }
-
      let source = {
        credId:sourceCredId,
        type:sType,
        fileSourcePath: sourceParent,
-       resourceList:{
-         id: infoList.id,
-         size: infoList.size,
-         path: infoList.path
-       },
+       resourceList: infoList
      }
      let destination={
        credId:destCredId,
