@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.UUID;
 
@@ -55,10 +54,6 @@ public class TransferSchedulerService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    @PostConstruct
-    private void initialize() {
-        this.webClientBuilder = WebClient.builder();
-    }
 
     public Mono<Void> stopTransferJob(StopRequest stopRequest) {
         return webClientBuilder.build().post()
