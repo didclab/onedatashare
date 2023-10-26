@@ -54,12 +54,7 @@ public class TransferSchedulerService {
     public TransferSchedulerService(WebClient.Builder webClientBuilder) {
         this.webClientBuilder = webClientBuilder;
     }
-
-    @PostConstruct
-    private void initialize() {
-        this.webClientBuilder = WebClient.builder();
-    }
-
+    
     public Mono<Void> stopTransferJob(StopRequest stopRequest) {
         return webClientBuilder.build().post()
                 .uri(transferQueueingServiceUri + "/stopJob")
