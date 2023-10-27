@@ -25,6 +25,7 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
+import org.onedatashare.server.model.TransferParams;
 import org.onedatashare.server.model.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.StopRequest;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class TransferSchedulerService {
     public TransferSchedulerService(WebClient.Builder webClientBuilder) {
         this.webClientBuilder = webClientBuilder;
     }
+
 
     public Mono<Void> stopTransferJob(StopRequest stopRequest) {
         return webClientBuilder.build().post()
@@ -105,5 +107,14 @@ public class TransferSchedulerService {
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/delete").queryParam("jobUuid", jobUuid).build())
                 .retrieve();
 
+    }
+
+    public Mono<Void> changeParams(TransferParams transferParams) {
+        return this.webClientBuilder.build()
+                .put()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/apply/application/params").build())
+                .body(Mono.just(transferParams), TransferParams.class)
+                .retrieve()
+                .bodyToMono(Void.class);
     }
 }

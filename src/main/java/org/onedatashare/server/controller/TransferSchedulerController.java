@@ -2,6 +2,7 @@ package org.onedatashare.server.controller;
 
 import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
+import org.onedatashare.server.model.TransferParams;
 import org.onedatashare.server.model.request.StopRequest;
 import org.onedatashare.server.service.TransferSchedulerService;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
+import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +46,7 @@ public class TransferSchedulerController {
                 .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
                         "Failed to stop job execution")));
     }
+
     @GetMapping("/list")
     public ResponseEntity<Mono<List<ScheduledTransferJobRequest>>> listScheduledJobs(@RequestParam String userEmail) {
         return ResponseEntity.ok(this.transferSchedulerService.listScheduledJobs(userEmail));
@@ -58,6 +61,11 @@ public class TransferSchedulerController {
     public ResponseEntity<Void> deleteScheduledJob(@RequestParam UUID jobUuid) {
         this.transferSchedulerService.deleteScheduledJob(jobUuid);
         return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/adjust")
+    public ResponseEntity<Mono<Void>> changeTransferParams(@RequestBody TransferParams transferParams) {
+        return ResponseEntity.ok((this.transferSchedulerService.changeParams(transferParams)));
     }
 
 }

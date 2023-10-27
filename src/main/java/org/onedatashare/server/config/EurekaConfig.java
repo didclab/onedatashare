@@ -19,4 +19,5 @@ public class EurekaConfig {
     public WebClient.Builder webClientBuilder() {
         return WebClient.builder();
     }
+
 }
