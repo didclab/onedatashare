@@ -55,14 +55,14 @@ public class BoxResource extends Resource {
                 file.delete();
                 s.success();
             } catch (BoxAPIException boxAPIException) {
-                logger.error("Failed to delete this id" + operation.getToDelete() + "as a file but failedEndpointAuthenticateComponent.js");
+                logger.error("Failed to delete this id " + operation.getToDelete() + "as a file but failedEndpointAuthenticateComponent.js");
             }
             try {
                 BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
                 folder.delete(true);
                 s.success();
             } catch (BoxAPIException boxAPIResponseException) {
-                logger.error("Failed to delete this id " + operation.getToDelete() + "as a folder recursively but failed");
+                logger.error("Failed to delete this id " + operation.getToDelete() + " as a folder recursively but failed");
             }
             s.success();
         });

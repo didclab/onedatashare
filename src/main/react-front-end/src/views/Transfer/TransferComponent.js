@@ -41,6 +41,11 @@
  import AccordionDetails from "@material-ui/core/AccordionDetails";
  
  import Divider from "@material-ui/core/Divider";
+ import { DateTimePicker } from '@mui/x-date-pickers';
+ import { LocalizationProvider } from '@mui/x-date-pickers';
+ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+ import dayjs from 'dayjs';
+ 
  import {KeyboardArrowRightRounded, KeyboardArrowLeftRounded, KeyboardArrowDownRounded, KeyboardArrowUpRounded, ExpandMore} from "@material-ui/icons";
  
  import { submitTransferRequest } from "../../APICalls/APICalls";
@@ -81,7 +86,7 @@
          pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
          parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
- 
+         scheduledTime: new Date().toISOString(),
        },
        compact: store.getState().compactViewEnabled,
        notif: false,
@@ -104,6 +109,7 @@
      this.sendFile = this.sendFile.bind(this);
      this.onSendToRight = this.onSendToRight.bind(this);
      this.onSendToLeft = this.onSendToLeft.bind(this);
+     this.setDate = this.setDate.bind(this);
  
      this.printError();
  
@@ -145,6 +151,12 @@
      // this.setState({ width: window.innerWidth, height: window.innerHeight });
      this.setState({ compact: store.getState().compactViewEnabled });
    }
+
+   setDate = (new_date) => {
+    const date = new Date(new_date);
+    const iso8601_conversion = date.toISOString();
+    this.setState({ settings: { ...this.state.settings, scheduledTime: iso8601_conversion } })
+  }
  
    sendFile = (processed) => {
      if (processed.selectedTasks.length === 0) {
@@ -160,28 +172,28 @@
  
      let sourceParent = ""
      let destParent = ""
-     let infoList=[]
+     let infoList= []
      let sourceCredId =""
      let destCredId = ""
      if(isOAuth[showType[sType]]){
        sourceParent = sType!== "box" ?"":"0"
        sourceCredId = endpointSrc.credential.uuid
        processed.selectedTasks.forEach(x=>{
-         infoList.push({path:x.id,id:x.id,size:x.size})
+         infoList.push({id:x.id,size:x.size, path:x.id})
        }
        )
      } else if (endpointSrc?.uri === showType.vfs) {
        sourceCredId = endpointSrc?.credential?.credId
        sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
        processed.selectedTasks.forEach(x=>{
-         infoList.push({path:x.value,id:x.value, size: x.size})
+        infoList.push({id:x.id, size:x.size, path:x.id})
        })
      }
      else{
        sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
        sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")?"":"/" : sourceParent
        sourceCredId = endpointSrc.credential.credId
-       processed.selectedTasks.forEach(x=>infoList.push({path:x.id, id:x.name ,size:x.size}))
+       processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
      }
      if(isOAuth[showType[dType]]){
        let ids = processed.fromTo[1].ids
@@ -201,26 +213,18 @@
        destParent = destParent.includes(".") ? destParent.substr(0,destParent.lastIndexOf("/"))+"/":destParent
        destCredId = endpointDest.credential.credId
      }
- 
      let source = {
        credId:sourceCredId,
        type:sType,
-       parentInfo:{
-         id:sourceParent,
-         size:"",
-         path:sourceParent
-       },
-       infoList:infoList
+       fileSourcePath: sourceParent,
+       resourceList: infoList
      }
      let destination={
        credId:destCredId,
        type:dType,
-       parentInfo:{
-         id:destParent,
-         size:"",
-         path:destParent
-       }
+       fileDesinationPath: destParent,
      }
+
      var optionParsed = {}
      Object.keys(options).forEach((v)=>{
        var value = options[v];
@@ -229,6 +233,7 @@
        }
        optionParsed[v] = value
      })
+     console.log({source, destination, optionParsed})
      submitTransferRequest(source,destination, optionParsed, (response) => {
        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
        setBeforeTransferReorder(processed);
@@ -501,6 +506,15 @@
              <FormLabel style={{ marginTop: "20px", fontSize: "20px" }}>{this.state.settings.retry} Times</FormLabel>
            </FormControl>
          </Grid>
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+            <FormControl component="fieldset">
+              <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DateTimePicker viewRenderers={{hours: null, minutes: null,seconds: null}} label={<FieldLabel>Date</FieldLabel>} defaultValue={dayjs()} onChange={(e) => this.setDate(e)} minDate={dayjs()}/>
+                </LocalizationProvider>
+              </FormControl>
+          </Grid>
  
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
