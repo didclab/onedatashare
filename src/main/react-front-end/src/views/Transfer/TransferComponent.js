@@ -175,6 +175,8 @@
      let infoList= []
      let sourceCredId =""
      let destCredId = ""
+     
+     // Populate source object
      if(isOAuth[showType[sType]]){
        sourceParent = sType!== "box" ?"":"0"
        sourceCredId = endpointSrc.credential.uuid
@@ -182,19 +184,43 @@
          infoList.push({id:x.id,size:x.size, path:x.id})
        }
        )
-     } else if (endpointSrc?.uri === showType.vfs) {
+     } 
+     else if (endpointSrc?.uri === showType.vfs) {
        sourceCredId = endpointSrc?.credential?.credId
        sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
        processed.selectedTasks.forEach(x=>{
         infoList.push({id:x.id, size:x.size, path:x.id})
        })
      }
+     else if (sType === "http") {
+      console.log("HTTP Here!")
+      sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
+      console.log(sourceParent)
+
+
+      // Logic to evaluate whether path is directory or a file
+
+      // Path is a file we set sourceParent to root directory
+      if (sourceParent.lastIndexOf("/") == 0) {
+        sourceParent = "/"
+      }
+      // Path is a directory we set sourceParent to the directory path
+      else {
+        sourceParent = sourceParent.substring(0, sourceParent.lastIndexOf("/"))
+      }
+      console.log(sourceParent)
+      sourceCredId = endpointSrc.credential.credId
+      processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
+     }
      else{
        sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
-       sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")?"":"/" : sourceParent
+       console.log(sourceParent)
+       sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")? "":"/" : sourceParent
        sourceCredId = endpointSrc.credential.credId
        processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
      }
+     
+     // Populate destination object
      if(isOAuth[showType[dType]]){
        let ids = processed.fromTo[1].ids
        let lastId = ids[ids.length - 1]
