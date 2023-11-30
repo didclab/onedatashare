@@ -193,10 +193,7 @@
        })
      }
      else if (sType === "http") {
-      console.log("HTTP Here!")
       sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
-      console.log(sourceParent)
-
 
       // Logic to evaluate whether path is directory or a file
 
@@ -208,13 +205,11 @@
       else {
         sourceParent = sourceParent.substring(0, sourceParent.lastIndexOf("/"))
       }
-      console.log(sourceParent)
       sourceCredId = endpointSrc.credential.credId
       processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
      }
      else{
        sourceParent = longestCommonPrefix(processed.fromTo[0].selectedTasks.map(x=>x.id))
-       console.log(sourceParent)
        sourceParent = sourceParent.includes(".") ? sourceParent.substr(0,sourceParent.lastIndexOf("/"))+(sourceParent!=="")? "":"/" : sourceParent
        sourceCredId = endpointSrc.credential.credId
        processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
