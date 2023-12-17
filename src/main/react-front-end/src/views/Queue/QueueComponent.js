@@ -252,23 +252,25 @@ class QueueComponent extends Component {
 			// destination: "dest.uri"
 		};
 		return(
-			<QueueView
-				adminPg={false}
-				loading={this.state.loading}
-				orderBy={this.state.orderBy}
-				order={this.state.order}
-				page={this.state.page}
-				responsesToDisplay={this.state.responsesToDisplay}
-				rowsPerPage={this.state.rowsPerPage}
-				rowsPerPageOptions={rowsPerPageOptions}
-				sortableColumns={sortableColumns}
-				totalCount={this.state.totalCount}
-				classes={this.props}
-				handleChangePage={this.handleChangePage}
-				handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-				handleRequestSort={this.handleRequestSort}
-				populateRows={this.populateRows}
-			/>
+			<div className='historyPage'>
+				<QueueView
+					adminPg={false}
+					loading={this.state.loading}
+					orderBy={this.state.orderBy}
+					order={this.state.order}
+					page={this.state.page}
+					responsesToDisplay={this.state.responsesToDisplay}
+					rowsPerPage={this.state.rowsPerPage}
+					rowsPerPageOptions={rowsPerPageOptions}
+					sortableColumns={sortableColumns}
+					totalCount={this.state.totalCount}
+					classes={this.props}
+					handleChangePage={this.handleChangePage}
+					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+					handleRequestSort={this.handleRequestSort}
+					populateRows={this.populateRows}
+				/>
+			</div>
 		);
 	}
 }

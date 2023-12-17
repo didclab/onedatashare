@@ -13,7 +13,13 @@ import moment from "moment";
 import InfoRow from "./InfoRow";
 
 export default class RowElement extends React.Component {
-
+    constructor(props) {
+        super(props);
+        this.state = {
+          expanded: true,
+        };
+        this.handleToggle = this.handleToggle.bind(this);
+    }
     infoRow() {
         return (
             <InfoRow
@@ -23,6 +29,15 @@ export default class RowElement extends React.Component {
         );
     }
 
+    handleToggle() {
+        // Update the 'expanded' state when needed
+        this.setState((prevState) => ({
+          expanded: !prevState.expanded,
+        }));
+
+        console.log(this.state.expanded)
+      }
+
     renderActions(owner, jobID, status, deleted) {
         const {infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick} = this.props
         const titles = ["Cancel", "Restart", "Delete"];
@@ -31,9 +46,9 @@ export default class RowElement extends React.Component {
         const log = [status === 'transferring' || status === 'scheduled',
             status !== 'transferring' && status !== 'scheduled',
             status !== 'transferring' && status !== 'scheduled' && !deleted]
-        let butts = []
+        let buttons = []
         for (let i = 0; i < titles.length; i += 1) {
-            butts.push(
+            buttons.push(
                 log[i] &&
                 <JobActionButton
                     icon={icons[i]}
@@ -49,15 +64,13 @@ export default class RowElement extends React.Component {
                     jobId={jobID}
                     onClick={infoButtonOnClick}
                     owner={owner} />
-                {!this.props.adminPg && butts}
+                {!this.props.adminPg && buttons}
             </div>
         );
     }
-
     render() {
         const {resp, infoVisible} = this.props
         let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
-        console.log(resp.jobParameters.jobSize)
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
@@ -67,37 +80,39 @@ export default class RowElement extends React.Component {
         }
 
         let time = moment(resp.startTime).fromNow();
-        let admin = this.props.adminPg;
         return (
             <React.Fragment>
-                <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
-                    <Hidden mdDown>
-                        { admin &&
-                        <TableCell className={"userCell-admin queueBodyCell"}>
-                            <p>{resp.owner}</p>
-                        </TableCell> }
-                        <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{resp.id}</p>
-                        </TableCell>
-                        <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {bar}
-                        </TableCell>
-                        <TableCell className={"speedCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{humanReadableSpeed(speed)}</p>
-                        </TableCell>
-                        <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{resp.jobParameters.sourceCredential}</p>
-                        </TableCell>
-                        <TableCell className={"destinationCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            <p>{resp.jobParameters.destCredential}</p>
-                        </TableCell>
-                        { this.props.adminPg &&
-                        <TableCell className={"startCell-admin queueBodyCell"}>
-                            <p>{time}</p>
-                        </TableCell>}
-                        <TableCell className={"actionCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
-                            {actions}
-                        </TableCell>
+                {this.state.expanded? <></> : 
+                <React.Fragment>
+                    <div className="screenShade" onClick={() => {this.handleToggle()}}>               
+                        <div className="jobInfoBox" onClick={(e) => { e.stopPropagation(); }}>
+                            {resp.batchSteps.map((file) => {
+                                return(
+                                    <div>{JSON.stringify(file)}</div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </React.Fragment>
+                
+                }
+                <TableRow className={this.state.expanded? "Row": "Row expanded"} onClick={() => {this.handleToggle()}}>
+                    <Hidden mdDown >
+                            <TableCell className={"idCell" + " queueBodyCell"}>
+                                <p>{resp.id}</p>
+                            </TableCell>
+                            <TableCell className={"dateCell" + " queueBodyCell"}>
+                                <p>{resp.createTime}</p>
+                            </TableCell>
+                            <TableCell className={"sourceCell" + " queueBodyCell"}>
+                                <p>{resp.jobParameters.sourceCredentialType}</p>
+                            </TableCell>
+                            <TableCell className={"destinationCell" + " queueBodyCell"}>
+                                <p>{resp.jobParameters.destCredentialType}</p>
+                            </TableCell>
+                            <TableCell className={"jobSizeCell" + " queueBodyCell"}>
+                                <p>{resp.jobParameters.jobSize}</p>
+                            </TableCell>
                     </Hidden>
                     <Hidden lgUp>
                         <TableCell className="mobileCell">

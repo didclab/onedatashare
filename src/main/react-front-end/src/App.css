@@ -110,10 +110,6 @@
 /*                         */
 /***************************/
 
-.content {
-  padding-top: 15vh;
-}
-
 button.defaultButton {
   background-color: white;
   font-size: 1.2em;
@@ -261,14 +257,72 @@ div.homePage {
 /*    For Queue/QueueComponent.js   */
 /*                                  */
 /************************************/
+
+.screenShade {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgba(34, 34, 34, 0.5);
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+}
+
+.jobInfoBox {
+  background-color: rgb(255, 255, 255);
+  width: 50%;
+  height: 50%;
+  z-index: 99;
+  padding: 10px; /* Add padding for content */
+  overflow: auto; /* Enable scrolling if needed */
+  /* You can adjust these properties as needed */
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  /* Ensure text wraps within the box */
+  white-space: normal;
+  word-wrap: break-word;
+}
+.historyPage {
+  display: flex;
+  outline: 2px solid #00bfff;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  padding-top: 15vh;
+  /* align-items: center; */
+}
+
 .QueueView {
-  margin-left: 10%;
-  margin-right: 10%;
-  padding-bottom: 15vh;
+  display: flex;
+  width: 80%;
+  height: fit-content;
+  /* outline: 2px solid #ccff00; */
+  background-color: white;
+  flex-direction: column;
+}
+
+.Row {
+  display: flex;
+  flex-direction: column;
+}
+
+.Row:hover {
+  background-color: rgb(172, 172, 172);
+  /* outline: 2px solid #ff0000; */
+}
+
+.Row.expanded {
+  width: 100%;
+  /* outline: 2px solid #00ff5e; */
+  text-align: start;
 }
 
 .QueueView p {
   font-size: 1.25rem;
+  /* outline: 2px solid #ff0000; */
 }
 
 .queueHeaderCell {
@@ -276,6 +330,7 @@ div.homePage {
   align-content: center;
   text-align: center !important;
   word-break: break-word;
+  /* outline: 2px solid #ff0000; */
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
@@ -283,6 +338,7 @@ div.homePage {
   color: #31708f;
   text-align: center;
   padding-top: .5vh;
+  /* outline: 2px solid #ff0000; */
 }
 
 .queueBodyCell * {
@@ -290,12 +346,13 @@ div.homePage {
   align-content: center;
   font-size: 1.2rem;
   vertical-align: middle;
+  /* outline: 2px solid #ff0000; */
 }
 
 .queueBodyCell {
   word-break: break-word;
+  /* outline: 2px solid #ff0000; */
 }
-
 
 .idCell{
   width: 8%;
@@ -304,6 +361,10 @@ div.homePage {
 .progressCell {
   width: 20%;
   display: inline-table;
+}
+
+.dateCell {
+  width: 15%;
 }
 
 .speedCell {
@@ -316,6 +377,10 @@ div.homePage {
 
 .destinationCell {
   width: 15%;
+}
+
+.jobSizeCell {
+  width: 10%;
 }
 
 .actionCell {
@@ -421,7 +486,6 @@ div.homePage {
 
 .QueueView table {
   display: table;
-  margin: auto !important;
 }
 
 .infoCell {

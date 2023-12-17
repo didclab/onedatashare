@@ -21,7 +21,7 @@
  */
 
  import React, { Component } from 'react';
- import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
+ import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser, getJobDetails } from '../../APICalls/APICalls';
  import { eventEmitter } from '../../App';
  import { updateGAPageView } from '../../analytics/ga';
  import { jobStatus } from '../../constants';
@@ -63,13 +63,8 @@
 	}
 
 	componentDidMount() {
-		document.title = "OneDataShare - Queue"
-		this.interval = setInterval(() => this.update(), 5000);
+		document.title = "OneDataShare - History"
 		this.queueFunc()
-	}
-
-	componentWillUnmount() {
-		clearInterval(this.interval)
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -89,29 +84,17 @@
 		}
 	}
 
+	// Function that is used to update the table on the page. 
+	// getJobUpdatesForUser takes an array of jobIds and return information about that job
 	update() {
 		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			if (statusSet.has(job.status)) {
+			if (statusSet.has(job.status) && !jobIds.includes(job.id)) {
 				jobIds.push(job.id)
 			}
 		})
-		if (jobIds.length > 0) {
-			getJobUpdatesForUser(jobIds, resp => {
-				let jobs = resp
-				//TODO: use hash keys and values instead of finding on each update
-				// let existingData = [...responsesToDisplay]
-				jobs.forEach(job => {
-					let existingJob = responsesToDisplay.find(item => item.id === job.id)
-					existingJob.status = job.status
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
-				})
-			})
-		}
 	}
 
 	paginateResults(results, page, limit) {
@@ -124,13 +107,25 @@
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		console.log(resp)
+		
+		// Temporary boolean to check for duplicates changes on backend required
+		let itemsInList = []
+		let dupRemoval = []
+		resp.content.forEach(item => {
+			if (!itemsInList.includes(item.id)) {
+				dupRemoval.push(item)
+				itemsInList.push(item.id)
+			}
+		})
+		console.log(dupRemoval)
+
 		this.setState({
 			response: resp.content,
-			responsesToDisplay: resp.content,
-			totalCount: resp.numberOfElements,
+			responsesToDisplay: dupRemoval,
+			totalCount: itemsInList.length,
 			loading: false
 		});
+		this.update();
 	}
 
 	queueFuncFail(resp) {
@@ -252,23 +247,25 @@
 			// destination: "dest.uri"
 		};
 		return(
-			<QueueView
-				adminPg={false}
-				loading={this.state.loading}
-				orderBy={this.state.orderBy}
-				order={this.state.order}
-				page={this.state.page}
-				responsesToDisplay={this.state.responsesToDisplay}
-				rowsPerPage={this.state.rowsPerPage}
-				rowsPerPageOptions={rowsPerPageOptions}
-				sortableColumns={sortableColumns}
-				totalCount={this.state.totalCount}
-				classes={this.props}
-				handleChangePage={this.handleChangePage}
-				handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-				handleRequestSort={this.handleRequestSort}
-				populateRows={this.populateRows}
-			/>
+			<div className='historyPage'>
+				<QueueView
+					className="QueueView"
+					loading={this.state.loading}
+					orderBy={this.state.orderBy}
+					order={this.state.order}
+					page={this.state.page}
+					responsesToDisplay={this.state.responsesToDisplay}
+					rowsPerPage={this.state.rowsPerPage}
+					rowsPerPageOptions={rowsPerPageOptions}
+					sortableColumns={sortableColumns}
+					totalCount={this.state.totalCount}
+					classes={this.props}
+					handleChangePage={this.handleChangePage}
+					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+					handleRequestSort={this.handleRequestSort}
+					populateRows={this.populateRows}
+				/>
+			</div>
 		);
 	}
  }

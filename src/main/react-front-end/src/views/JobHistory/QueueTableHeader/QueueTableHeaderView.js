@@ -14,20 +14,9 @@ function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableCol
     let labels = [];
     let headers = [];
     let menuOpts = [];
-    let titles = ["Item 1", "Item 2", "Item 3", "Item 4", "Item 5", "Item 6", "Item 7", "Item 8"];
-    let classes = ["Cell 1", "Cell 2", "Cell 3", "Cell 4", "Cell 5", "Cell 6", "Cell 7", "Cell 8"];
+    let titles = ["Job ID", "Date", "Source", "Destination", "Job size"];
+    let classes = ["Cell 1", "Cell 2", "Cell 3", "Cell 4", "Cell 5"];
     let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
-    if (adminPg) {
-        for (let i = 0; i < classes.length; i += 1) {
-            classes[i] = classes[i] + "-admin";
-        }
-        titles.splice(0, 0, "User");
-        classes.splice(0, 0, "userCell-admin");
-        keys.splice(0,0, sortableColumns.userName);
-        titles.push("Start Time");
-        classes.push("timeCell-admin");
-        keys.push(sortableColumns.startTime);
-    }
     for (let i = 0; i < titles.length; i += 1) {
         labels.push(
             <QueueTableSortLabel
@@ -86,7 +75,6 @@ const QueueTableHeaderView = ({
             <TableRow >
                 <Hidden mdDown>
                     {headerCells}
-                    <TableCell className="actionCell queueHeaderCell"><p>Actions</p></TableCell>
                 </Hidden>
                 <Hidden lgUp>
                     <QueueMobileHeader

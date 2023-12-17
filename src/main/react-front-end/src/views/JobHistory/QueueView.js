@@ -35,10 +35,8 @@ const QueueView = ({
                    }) => {
     return (
         <div className="QueueView">
-            <TableContainer component={Paper}>
-                <Table >
-                    <QueueTableHeaderView
-                        adminPg={adminPg}
+            <Table>
+                <QueueTableHeaderView
                         customToolbar={customToolbar}
                         orderBy={orderBy}
                         order={order}
@@ -53,25 +51,24 @@ const QueueView = ({
                         queueFunc={queueFunc}
                         refreshFailure={refreshFailure}
                         refreshSuccess={refreshSuccess}
-                    />
-                    <QueueTableBodyView
-                        loading={loading}
-                        populateRows={populateRows}
-                    />
-                    <TableFooter>
-                        <QueuePagination
-                            colSpan={7}
-                            classes={classes}
-                            handleChangePage={handleChangePage}
-                            handleChangeRowsPerPage={handleChangeRowsPerPage}
-                            page={page}
-                            rowsPerPage={rowsPerPage}
-                            rowsPerPageOptions={rowsPerPageOptions}
-                            TablePaginationActions={TablePaginationActions}
-                            totalCount={totalCount} />
-                    </TableFooter>
-                </Table>
-            </TableContainer>
+                />
+                <QueueTableBodyView
+                    loading={loading}
+                    populateRows={populateRows}
+                />
+                <TableFooter>
+                    <QueuePagination
+                        colSpan={7}
+                        classes={classes}
+                        handleChangePage={handleChangePage}
+                        handleChangeRowsPerPage={handleChangeRowsPerPage}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        rowsPerPageOptions={rowsPerPageOptions}
+                        TablePaginationActions={TablePaginationActions}
+                        totalCount={totalCount} />
+                </TableFooter>
+            </Table>
         </div>
     );
 };
