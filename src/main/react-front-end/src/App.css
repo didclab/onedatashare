@@ -543,6 +543,7 @@ queueHeaderCell button {
 .outeractionContainer{
   /*display: flex;*/
   /*flex-direction: row;*/
+  padding-top: 15vh;
   justify-content: center;
   margin-top: -15vh;
   /*width: 100vw;*/

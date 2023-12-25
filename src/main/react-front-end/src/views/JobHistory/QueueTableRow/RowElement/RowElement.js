@@ -30,12 +30,9 @@ export default class RowElement extends React.Component {
     }
 
     handleToggle() {
-        // Update the 'expanded' state when needed
         this.setState((prevState) => ({
           expanded: !prevState.expanded,
         }));
-
-        console.log(this.state.expanded)
       }
 
     renderActions(owner, jobID, status, deleted) {
@@ -71,7 +68,6 @@ export default class RowElement extends React.Component {
     render() {
         const {resp, infoVisible} = this.props
         let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
-        let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
         if (isNaN(speed))
@@ -88,7 +84,7 @@ export default class RowElement extends React.Component {
                         <div className="jobInfoBox" onClick={(e) => { e.stopPropagation(); }}>
                             {resp.batchSteps.map((file) => {
                                 return(
-                                    <div>{JSON.stringify(file)}</div>
+                                    <div>{JSON.stringify(file.step_name)}</div>
                                 )
                             })}
                         </div>
@@ -122,7 +118,6 @@ export default class RowElement extends React.Component {
                             <p><b>Source:</b> {resp.jobParameters.sourceBasePath}</p>
                             <p><b>Destination:</b>{resp.jobParameters.destBasePath}</p>
                             <p>{time}</p>
-                            {actions}
                         </TableCell>
                     </Hidden>
                 </TableRow>
