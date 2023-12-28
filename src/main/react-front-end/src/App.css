@@ -124,6 +124,7 @@ button.defaultButton {
 /*********************************/
 
 div.homePage {
+  padding-top: 15vh;
   /*background: #579;*/
   overflow: hidden;
   margin-top: -10vh;
