@@ -98,7 +98,7 @@ export default class RowElement extends React.Component {
                                 <p>{resp.id}</p>
                             </TableCell>
                             <TableCell className={"dateCell" + " queueBodyCell"}>
-                                <p>{resp.createTime}</p>
+                                <p>{resp.createTime.substring(0, 10)}</p>
                             </TableCell>
                             <TableCell className={"sourceCell" + " queueBodyCell"}>
                                 <p>{resp.jobParameters.sourceCredentialType}</p>
