@@ -189,7 +189,7 @@
        sourceCredId = endpointSrc?.credential?.credId
        sourceParent = Array.isArray(processed.fromTo[0].path) ? "" : processed.fromTo[0].path
        processed.selectedTasks.forEach(x=>{
-        infoList.push({id:x.id, size:x.size, path:x.id})
+        infoList.push({path:x.value})
        })
      }
      else if (sType === "http") {
@@ -254,7 +254,7 @@
        }
        optionParsed[v] = value
      })
-     console.log({source, destination, optionParsed})
+     
      submitTransferRequest(source,destination, optionParsed, (response) => {
        eventEmitter.emit("messageOccured", "Transfer initiated! Please visit the queue page to monitor the transfer");
        setBeforeTransferReorder(processed);
