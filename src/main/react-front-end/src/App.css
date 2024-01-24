@@ -288,11 +288,10 @@ div.homePage {
 }
 .historyPage {
   display: flex;
-  outline: 2px solid #00bfff;
   width: 100vw;
-  height: 100vh;
   justify-content: center;
   padding-top: 15vh;
+  padding-bottom: 15vh;
   /* align-items: center; */
 }
 
