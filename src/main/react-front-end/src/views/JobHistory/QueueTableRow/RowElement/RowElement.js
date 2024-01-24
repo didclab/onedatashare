@@ -4,6 +4,9 @@ import TableCell from "@material-ui/core/TableCell";
 import Cancel from "@material-ui/icons/Cancel";
 import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
+import Table from "@material-ui/core/Table";
+import TableHead from "@material-ui/core/TableHead";
+import TableFooter from "@material-ui/core/TableFooter";
 import {humanReadableSpeed} from "../../../../utils";
 import {Hidden} from "@material-ui/core";
 import QueueProgressBar from "../QueueProgressBar";
@@ -33,7 +36,14 @@ export default class RowElement extends React.Component {
         this.setState((prevState) => ({
           expanded: !prevState.expanded,
         }));
-      }
+    }
+
+    // Finds time difference  between two dates in ISO 1082 format
+    findTimeDiff(startTime, endTime) {
+        let diff = new Date(endTime) - new Date(startTime)
+        // Difference is in ms
+        return `${diff}ms`
+    }
 
     renderActions(owner, jobID, status, deleted) {
         const {infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick} = this.props
@@ -82,11 +92,38 @@ export default class RowElement extends React.Component {
                 <React.Fragment>
                     <div className="screenShade" onClick={() => {this.handleToggle()}}>               
                         <div className="jobInfoBox" onClick={(e) => { e.stopPropagation(); }}>
-                            {resp.batchSteps.map((file) => {
-                                return(
-                                    <div>{JSON.stringify(file.step_name)}</div>
-                                )
-                            })}
+                            <Table>
+                                <TableHead>
+                                    <TableCell><h15><strong>Filename</strong></h15></TableCell>
+                                    <TableCell><h15><strong>Duration</strong></h15></TableCell>
+                                    <TableCell><h15><strong>Status</strong></h15></TableCell>
+                                    <TableCell><h15><strong>Read Count</strong></h15></TableCell>
+                                    <TableCell><h15><strong>Write Count</strong></h15></TableCell>
+                                </TableHead>
+                                {resp.batchSteps.map((file) => {
+                                        console.log(file)
+                                        return(
+                                            <TableRow>
+                                                <TableCell>
+                                                    {JSON.stringify(file.step_name)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {this.findTimeDiff(file.startTime, file.endTime)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {JSON.stringify(file.exitCode)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {JSON.stringify(file.readCount)}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {JSON.stringify(file.writeCount)}
+                                                </TableCell>
+                                                
+                                            </TableRow>
+                                        )
+                                    })}
+                            </Table>
                         </div>
                     </div>
                 </React.Fragment>
@@ -95,7 +132,7 @@ export default class RowElement extends React.Component {
                 <TableRow className={this.state.expanded? "Row": "Row expanded"} onClick={() => {this.handleToggle()}}>
                     <Hidden mdDown >
                             <TableCell className={"idCell" + " queueBodyCell"}>
-                                <p>{resp.id}</p>
+                                <p>{resp.jobInstanceId}</p>
                             </TableCell>
                             <TableCell className={"dateCell" + " queueBodyCell"}>
                                 <p>{resp.createTime.substring(0, 10)}</p>
