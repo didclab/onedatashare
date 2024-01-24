@@ -6,7 +6,6 @@ import Refresh from "@material-ui/icons/Refresh";
 import DeleteOutline from "@material-ui/icons/DeleteOutline";
 import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
-import TableFooter from "@material-ui/core/TableFooter";
 import {humanReadableSpeed} from "../../../../utils";
 import {Hidden} from "@material-ui/core";
 import QueueProgressBar from "../QueueProgressBar";
@@ -105,7 +104,7 @@ export default class RowElement extends React.Component {
                                         return(
                                             <TableRow>
                                                 <TableCell>
-                                                    {JSON.stringify(file.step_name)}
+                                                    {file.step_name}
                                                 </TableCell>
                                                 <TableCell>
                                                     {this.findTimeDiff(file.startTime, file.endTime)}
