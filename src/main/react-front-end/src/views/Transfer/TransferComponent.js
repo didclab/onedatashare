@@ -108,7 +108,6 @@
      this.updateBrowseTwo = this.updateBrowseTwo.bind(this);
      this.sendFile = this.sendFile.bind(this);
      this.onSendToRight = this.onSendToRight.bind(this);
-     this.onSendToLeft = this.onSendToLeft.bind(this);
      this.setDate = this.setDate.bind(this);
  
      this.printError();
@@ -383,16 +382,6 @@
        fromTo: [entity.left, entity.right],
        selectedTasks: getSelectedTasksFromSide({ side: "left" })
      }
-     this.sendFile(processed);
-   }
-   onSendToLeft() {
-     const entity = getEntities();
-     const processed = {
-       fromTo: [entity.right, entity.left],
-       selectedTasks: getSelectedTasksFromSide({ side: "right" })
-     }
- 
-     // console.log(processed);
      this.sendFile(processed);
    }
  
@@ -674,10 +663,6 @@
                      <Hidden mdUp>
                        <Grid container item direction="row" align-items="center" justifyContent="center">
                          <Grid item>
-                           <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}>
-                             <KeyboardArrowUpRounded />
-                             Send
-                           </Button>
                          </Grid>
                          <Grid item>
                            <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}>
@@ -699,7 +684,6 @@
                  <Hidden smDown>
                    <Grid container direction="row" align-items="center" justifyContent="center">
                      <Grid item>
-                       <Button className={"sendButton"} id="sendFromRightToLeft" onClick={this.onSendToLeft}> <KeyboardArrowLeftRounded/>    Send</Button>
                      </Grid>
                      <Grid item>
                        <Button className={"sendButton"} id="sendFromLeftToRight" onClick={this.onSendToRight}> Send<KeyboardArrowRightRounded /></Button>
