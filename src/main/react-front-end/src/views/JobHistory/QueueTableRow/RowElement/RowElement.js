@@ -40,8 +40,7 @@ export default class RowElement extends React.Component {
     // Finds time difference  between two dates in ISO 1082 format
     findTimeDiff(startTime, endTime) {
         let diff = new Date(endTime) - new Date(startTime)
-        // Difference is in ms
-        return `${diff}ms`
+        return `${diff / 1000}s`
     }
 
     renderActions(owner, jobID, status, deleted) {
