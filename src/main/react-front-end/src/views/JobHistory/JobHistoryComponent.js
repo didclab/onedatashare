@@ -53,8 +53,8 @@
 		this.toggleTabs = this.toggleTabs.bind(this)
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.cancelButtonOnClick = this.cancelButtonOnClick.bind(this)
-		this.restartButtonOnClick = this.restartButtonOnClick.bind(this)
-		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
+		// this.restartButtonOnClick = this.restartButtonOnClick.bind(this)
+		// this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
@@ -117,7 +117,6 @@
 				itemsInList.push(item.id)
 			}
 		})
-		console.log(dupRemoval)
 
 		this.setState({
 			response: resp.content,
@@ -166,27 +165,27 @@
 		});
 	}
 
-	restartButtonOnClick(jobID) {
-		restartJob(jobID, () => {
-			//success
-			this.queueFunc()
-		}, () => {
-			//failed
-			var msg = 'Restart job failed since either or both credentials of the job do not exist'
-			console.log(msg)
-			eventEmitter.emit("errorOccured", msg)
-		});
-	}
+	// restartButtonOnClick(jobID) {
+	// 	restartJob(jobID, () => {
+	// 		//success
+	// 		this.queueFunc()
+	// 	}, () => {
+	// 		//failed
+	// 		var msg = 'Restart job failed since either or both credentials of the job do not exist'
+	// 		console.log(msg)
+	// 		eventEmitter.emit("errorOccured", msg)
+	// 	});
+	// }
 
-	deleteButtonOnClick(jobID) {
-		deleteJob(jobID, () => {
-			//success
-			this.queueFunc()
-		}, () => {
-			//failed
-			console.log('Error in delete job request to API layer')
-		})
-	}
+	// deleteButtonOnClick(jobID) {
+	// 	deleteJob(jobID, () => {
+	// 		//success
+	// 		this.queueFunc()
+	// 	}, () => {
+	// 		//failed
+	// 		console.log('Error in delete job request to API layer')
+	// 	})
+	// }
 
 	toggleTabs() {
 		const {selectedTab} = this.state

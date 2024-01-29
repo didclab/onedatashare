@@ -489,7 +489,6 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 }
 
 export async function getJobDetails(jobId, accept, fail) {
-	console.log("Hi")
 	let callback = accept;
 
 	axios.get("/api/metadata/job",{
