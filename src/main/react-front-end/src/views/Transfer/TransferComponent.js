@@ -158,6 +158,7 @@
   }
  
    sendFile = (processed) => {
+    console.log(processed)
      if (processed.selectedTasks.length === 0) {
        eventEmitter.emit("errorOccured", "You did not select any files!");
        return 0;
@@ -174,8 +175,8 @@
      let infoList= []
      let sourceCredId =""
      let destCredId = ""
-     
-     // Populate source object
+
+     // Populate variables for source object
      if(isOAuth[showType[sType]]){
        sourceParent = sType!== "box" ?"":"0"
        sourceCredId = endpointSrc.credential.uuid
@@ -213,8 +214,8 @@
        sourceCredId = endpointSrc.credential.credId
        processed.selectedTasks.forEach(x=>infoList.push({id:x.name , size:x.size, path:x.id}))
      }
-     
-     // Populate destination object
+
+     // Populate variables for destination object
      if(isOAuth[showType[dType]]){
        let ids = processed.fromTo[1].ids
        let lastId = ids[ids.length - 1]
@@ -244,6 +245,8 @@
        type:dType,
        fileDesinationPath: destParent,
      }
+
+     console.log(source)
 
      var optionParsed = {}
      Object.keys(options).forEach((v)=>{

@@ -20,17 +20,17 @@
  ##**************************************************************
  */
 
-
-import React, { Component } from 'react';
-import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
-import { eventEmitter } from '../../App';
-import { updateGAPageView } from '../../analytics/ga';
-import { jobStatus } from '../../constants';
-import QueueView from "./QueueView";
-import RowElement from "./QueueTableRow/RowElement/RowElement";
-
-class QueueComponent extends Component {
-
+ import React, { Component } from 'react';
+ import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser, getJobDetails } from '../../APICalls/APICalls';
+ import { eventEmitter } from '../../App';
+ import { updateGAPageView } from '../../analytics/ga';
+ import { jobStatus } from '../../constants';
+ import QueueView from "./QueueView";
+ import RowElement from "./QueueTableRow/RowElement/RowElement";
+ 
+ const rowsPerPageOptions = [10, 20, 50, 100]
+ 
+ class JobHistoryComponent extends Component {
 	constructor(props) {
 		super(props)
 		this.state = {
@@ -53,8 +53,8 @@ class QueueComponent extends Component {
 		this.toggleTabs = this.toggleTabs.bind(this)
 		this.infoButtonOnClick = this.infoButtonOnClick.bind(this)
 		this.cancelButtonOnClick = this.cancelButtonOnClick.bind(this)
-		this.restartButtonOnClick = this.restartButtonOnClick.bind(this)
-		this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
+		// this.restartButtonOnClick = this.restartButtonOnClick.bind(this)
+		// this.deleteButtonOnClick = this.deleteButtonOnClick.bind(this)
 		this.handleChangeRowsPerPage = this.handleChangeRowsPerPage.bind(this)
 		this.handleChangePage = this.handleChangePage.bind(this)
 		this.queueFuncSuccess = this.queueFuncSuccess.bind(this)
@@ -63,12 +63,8 @@ class QueueComponent extends Component {
 	}
 
 	componentDidMount() {
-		document.title = "OneDataShare - Queue"
+		document.title = "OneDataShare - History"
 		this.queueFunc()
-	}
-
-	componentWillUnmount() {
-		clearInterval(this.interval)
 	}
 
 	componentDidUpdate(prevProps, prevState) {
@@ -88,29 +84,17 @@ class QueueComponent extends Component {
 		}
 	}
 
+	// Function that is used to update the table on the page. 
+	// getJobUpdatesForUser takes an array of jobIds and return information about that job
 	update() {
 		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			if (statusSet.has(job.status)) {
+			if (statusSet.has(job.status) && !jobIds.includes(job.id)) {
 				jobIds.push(job.id)
 			}
 		})
-		if (jobIds.length > 0) {
-			getJobUpdatesForUser(jobIds, resp => {
-				let jobs = resp
-				//TODO: use hash keys and values instead of finding on each update
-				// let existingData = [...responsesToDisplay]
-				jobs.forEach(job => {
-					let existingJob = responsesToDisplay.find(item => item.id === job.id)
-					existingJob.status = job.status
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
-				})
-			})
-		}
 	}
 
 	paginateResults(results, page, limit) {
@@ -123,13 +107,24 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		console.log(resp)
+		
+		// Temporary boolean to check for duplicates changes on backend required
+		let itemsInList = []
+		let dupRemoval = []
+		resp.content.forEach(item => {
+			if (!itemsInList.includes(item.id)) {
+				dupRemoval.push(item)
+				itemsInList.push(item.id)
+			}
+		})
+
 		this.setState({
 			response: resp.content,
-			responsesToDisplay: resp.content,
-			totalCount: resp.numberOfElements,
+			responsesToDisplay: dupRemoval,
+			totalCount: itemsInList.length,
 			loading: false
 		});
+		this.update();
 	}
 
 	queueFuncFail(resp) {
@@ -170,27 +165,27 @@ class QueueComponent extends Component {
 		});
 	}
 
-	restartButtonOnClick(jobID) {
-		restartJob(jobID, () => {
-			//success
-			this.queueFunc()
-		}, () => {
-			//failed
-			var msg = 'Restart job failed since either or both credentials of the job do not exist'
-			console.log(msg)
-			eventEmitter.emit("errorOccured", msg)
-		});
-	}
+	// restartButtonOnClick(jobID) {
+	// 	restartJob(jobID, () => {
+	// 		//success
+	// 		this.queueFunc()
+	// 	}, () => {
+	// 		//failed
+	// 		var msg = 'Restart job failed since either or both credentials of the job do not exist'
+	// 		console.log(msg)
+	// 		eventEmitter.emit("errorOccured", msg)
+	// 	});
+	// }
 
-	deleteButtonOnClick(jobID) {
-		deleteJob(jobID, () => {
-			//success
-			this.queueFunc()
-		}, () => {
-			//failed
-			console.log('Error in delete job request to API layer')
-		})
-	}
+	// deleteButtonOnClick(jobID) {
+	// 	deleteJob(jobID, () => {
+	// 		//success
+	// 		this.queueFunc()
+	// 	}, () => {
+	// 		//failed
+	// 		console.log('Error in delete job request to API layer')
+	// 	})
+	// }
 
 	toggleTabs() {
 		const {selectedTab} = this.state
@@ -253,7 +248,7 @@ class QueueComponent extends Component {
 		return(
 			<div className='historyPage'>
 				<QueueView
-					adminPg={false}
+					className="QueueView"
 					loading={this.state.loading}
 					orderBy={this.state.orderBy}
 					order={this.state.order}
@@ -272,10 +267,6 @@ class QueueComponent extends Component {
 			</div>
 		);
 	}
-}
-
-export default QueueComponent
-
-
-
-
+ }
+ 
+ export default JobHistoryComponent;

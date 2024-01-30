@@ -34,7 +34,7 @@ import {siteURLS} from "./constants";
 
 // import TransferComponentOld from './views/Transfer/TransferComponentOld';
 import TransferComponent from './views/Transfer/TransferComponent';
-import HistoryComponent from './views/Admin/HistoryComponent'
+import JobHistoryComponent from './views/JobHistory/JobHistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
 import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
@@ -140,14 +140,23 @@ export default class MainComponent extends Component {
                 }
               />
             }
+            
+            {isLoggedIn &&
+              <Route exact path={ siteURLS.historyPageUrl /*'/queue'*/}
+                render={(props) =>
+                  <JobHistoryComponent {...props} />
+                }
+              />
+            }
 
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.historyPageUrl /*'/history' */}
+            {/* {isLoggedIn && admin &&
+              <Route exact path={ siteURLS.historyPageUrl '/history' } 
                 render={(props) =>
                   <HistoryComponent  {...props} store={store} />
                 }
               />
-            }
+            } */}
+            
             {isLoggedIn && admin &&
               <Route exact path={ siteURLS.userListPageUrl /*'/clientsInfo'*/}
                 render={(props) =>

@@ -421,6 +421,7 @@ export async function savedCredList(type, accept, fail) {
 	Desc: Extract all transfers for the user
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
+	console.log(pageNo, pageSize, sortBy, order)
 	let callback = accept;
 	axios.get("/api/metadata/all/page/jobs", {
 		params : 
@@ -485,6 +486,27 @@ export async function getSearchJobs(username, startJobId, endJobId, progress, pa
 	.catch((error) => {
 		fail(error);
 	});
+}
+
+export async function getJobDetails(jobId, accept, fail) {
+	let callback = accept;
+
+	axios.get("/api/metadata/job",{
+		params :
+		{
+			jobId: jobId
+		}
+	})
+	.then((response) => {
+		console.log(response)
+		if(!(response.status === 200))
+			callback = fail;
+		statusHandle(response, callback)
+	})
+	.catch((error) => {
+		console.log("Failed")
+		handleRequestFailure(error, fail);
+    });
 }
 
 export async function getJobUpdatesForUser(jobId, accept, fail){
