@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
-import org.onedatashare.server.controller.AdminController;
 import org.onedatashare.server.model.core.Mail;
 import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
@@ -44,7 +43,7 @@ import static reactor.core.publisher.Mono.just;
 /**
  * A system test suite that tests operations permitted by admins and owners on users and roles
  * <br><br>
- * Entry point for requests: {@link AdminController}
+ * Entry point for requests: {link AdminController}
  */
 @SpringBootTest
 @RunWith(SpringRunner.class)
