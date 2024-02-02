@@ -24,8 +24,6 @@
 package org.onedatashare.server.service;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.onedatashare.module.globusapi.EndPoint;
-import org.onedatashare.module.globusapi.GlobusClient;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.error.*;
 import org.onedatashare.server.model.response.LoginResponse;
@@ -120,37 +118,37 @@ public class UserService {
                         throwable -> Mono.just(user));
     }
 
-    public GlobusClient getGlobusClientFromUser(User user){
-        for (Credential credential : user.getCredentials().values()) {
-            if (credential.type == Credential.CredentialType.OAUTH) {
-                OAuthCredential oaucr = (OAuthCredential) credential;
-                if (oaucr.name.contains("GridFTP")) {
-                    return new GlobusClient(oaucr.token);
-                }
-            }
-        }
-        return new GlobusClient();
-    }
-
-    public Mono<GlobusClient> getGlobusClient(String cookie){
-        return getLoggedInUser(cookie)
-                .map(user -> getGlobusClientFromUser(user));
-    }
-
-    public Mono<GlobusClient> getClient(String cookie){
-        return getLoggedInUser(cookie)
-                .map(user -> {
-                    for (Credential credential : user.getCredentials().values()) {
-                        if (credential.type == Credential.CredentialType.OAUTH) {
-                            OAuthCredential oaucr = (OAuthCredential) credential;
-                            if (oaucr.name.contains("GridFTP")) {
-                                return new GlobusClient(oaucr.token);
-                            }
-                        }
-                    }
-                    return new GlobusClient();
-                });
-    }
+//    public GlobusClient getGlobusClientFromUser(User user){
+//        for (Credential credential : user.getCredentials().values()) {
+//            if (credential.type == Credential.CredentialType.OAUTH) {
+//                OAuthCredential oaucr = (OAuthCredential) credential;
+//                if (oaucr.name.contains("GridFTP")) {
+//                    return new GlobusClient(oaucr.token);
+//                }
+//            }
+//        }
+//        return new GlobusClient();
+//    }
+//
+//    public Mono<GlobusClient> getGlobusClient(String cookie){
+//        return getLoggedInUser(cookie)
+//                .map(user -> getGlobusClientFromUser(user));
+//    }
+//
+//    public Mono<GlobusClient> getClient(String cookie){
+//        return getLoggedInUser(cookie)
+//                .map(user -> {
+//                    for (Credential credential : user.getCredentials().values()) {
+//                        if (credential.type == Credential.CredentialType.OAUTH) {
+//                            OAuthCredential oaucr = (OAuthCredential) credential;
+//                            if (oaucr.name.contains("GridFTP")) {
+//                                return new GlobusClient(oaucr.token);
+//                            }
+//                        }
+//                    }
+//                    return new GlobusClient();
+//                });
+//    }
 
     public Mono<Boolean> resetPassword(String email, String password, String passwordConfirm, String authToken){
         return getUser(email).flatMap(user-> {
@@ -232,27 +230,27 @@ public class UserService {
                 .flatMap(userRepository::save).map(User::getHistory);
     }
 
-    public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
-        return getLoggedInUser(cookie).map(user -> {
-            if(!user.getGlobusEndpoints().containsKey(enp)) {
-                user.getGlobusEndpoints().put(id, enp);
-            }
-            return user;
-        }).flatMap(userRepository::save).map(User::getGlobusEndpoints);
-    }
-    public Mono<Map<UUID,EndPoint>> getEndpointId(String cookie) {
-        return getLoggedInUser(cookie).map(User::getGlobusEndpoints);
-    }
-
-    public Mono<Void> deleteEndpointId(String cookie, UUID enpid) {
-        return getLoggedInUser(cookie)
-                .map(user -> {
-                    if(user.getGlobusEndpoints().remove(enpid) != null) {
-                        return userRepository.save(user).subscribe();
-                    }
-                    return Mono.error(new NotFoundException());
-                }).then();
-    }
+//    public Mono<Map<UUID,EndPoint>> saveEndpointId(UUID id, EndPoint enp, String cookie) {
+//        return getLoggedInUser(cookie).map(user -> {
+//            if(!user.getGlobusEndpoints().containsKey(enp)) {
+//                user.getGlobusEndpoints().put(id, enp);
+//            }
+//            return user;
+//        }).flatMap(userRepository::save).map(User::getGlobusEndpoints);
+//    }
+//    public Mono<Map<UUID,EndPoint>> getEndpointId(String cookie) {
+//        return getLoggedInUser(cookie).map(User::getGlobusEndpoints);
+//    }
+//
+//    public Mono<Void> deleteEndpointId(String cookie, UUID enpid) {
+//        return getLoggedInUser(cookie)
+//                .map(user -> {
+//                    if(user.getGlobusEndpoints().remove(enpid) != null) {
+//                        return userRepository.save(user).subscribe();
+//                    }
+//                    return Mono.error(new NotFoundException());
+//                }).then();
+//    }
 
     public Mono<LinkedList<URI>> getHistory(String cookie) {
         return getLoggedInUser(cookie).map(User::getHistory);
