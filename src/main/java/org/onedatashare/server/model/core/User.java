@@ -1,23 +1,23 @@
 /**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
  */
 
 
@@ -26,84 +26,104 @@ package org.onedatashare.server.model.core;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.onedatashare.module.globusapi.EndPoint;
 import org.onedatashare.server.model.util.Util;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.net.IDN;
-import java.net.URI;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 @Data
 @Document
 public class User {
 
-    /** User's email. */
+    /**
+     * User's email.
+     */
     @Id
     private String email;
 
-    /** Hashed password. */
+    /**
+     * Hashed password.
+     */
     private String hash;
 
-    /** Salt used for hash. */
+    /**
+     * Salt used for hash.
+     */
     private String salt;
 
-    /** User first name. */
+    /**
+     * User first name.
+     */
     private String firstName;
 
-    /** User last name */
+    /**
+     * User last name
+     */
     private String lastName;
 
-    /** User last Activity */
+    /**
+     * User last Activity
+     */
     private Long lastActivity;
 
-    /** User Organization */
+    /**
+     * User Organization
+     */
     private String organization;
 
-    /** Temp code and expire date **/
+    /**
+     * Temp code and expire date
+     **/
     private VerifyCode code;
 
-    /** Set to true once the user has validated registration. */
+    /**
+     * Set to true once the user has validated registration.
+     */
     private boolean validated = false;
 
-    /** The validation token we're expecting. */
+    /**
+     * The validation token we're expecting.
+     */
     private String validationToken;
 
-    /** Set to true if user is administrator. Currently Replaced with roles but still updated */
+    /**
+     * Set to true if user is administrator. Currently Replaced with roles but still updated
+     */
     @Deprecated
     private boolean isAdmin = false;
 
-    /** Set to true if user want to save OAuth credentials */
+    /**
+     * Set to true if user want to save OAuth credentials
+     */
     private boolean saveOAuthTokens = true;
 
-    /** Token for reset password. */
+    /**
+     * Token for reset password.
+     */
     private String authToken;
 
-    /** Registration time */
+    /**
+     * Registration time
+     */
     private long registerMoment;
 
-    /** Previously visited URIs. */
-    private LinkedList<URI> history = new LinkedList<>();
 
-    /** Previously visited URIs. */
-    private Map<UUID, EndPoint> globusEndpoints = new HashMap<>();
-
-    /** Stored credentials. */
-    private Map<UUID, Credential> credentials = new HashMap<>();
-
-    /** Job UUIDs with indices corresponding to job IDs. */
-    private HashSet<UUID> jobs = new HashSet<>();
-
-    /** The minimum allowed password length. */
+    /**
+     * The minimum allowed password length.
+     */
     public static final int PASS_LEN = 6;
 
-    /** Used to hold session connections for reuse. */
-    private transient Map<Session, Session> sessions = new HashMap<>();
 
-    /** Makes sure that view of user in transfer page is consistent with his/her preference. */
+    /**
+     * Makes sure that view of user in transfer page is consistent with his/her preference.
+     */
     private boolean compactViewEnabled = false;
 
     private List<Role> roles;
@@ -180,35 +200,6 @@ public class User {
         return parts[0].toLowerCase() + "@" + IDN.toASCII(parts[1]).toLowerCase();
     }
 
-    /**
-     * Get the normalized email address of this user.
-     */
-    public String normalizedEmail() {
-        return normalizeEmail(email);
-    }
-
-    /**
-     * Save a {@link Job} to this {@code User}'s {@code jobs} list.
-     */
-    public Job saveJob(Job job) {
-        if (job.getUuid() == null) {
-            job.uuid();
-        }
-        job.setOwner(normalizedEmail());
-        job.setJob_id(jobs.size() + 1);
-        jobs.add(job.getUuid());
-        return job;
-    }
-
-    /**
-     * Link a job to the user
-     * @param uuid - Identifier of the job
-     * @return Updated user object
-     */
-    public User addJob(UUID uuid) {
-        jobs.add(uuid);
-        return this;
-    }
 
     /**
      * Generate a random salt using a secure random number generator.
@@ -277,7 +268,8 @@ public class User {
 
     /**
      * Method that sets the timeout for the validation code based on a constant value
-     * @param code - validation code
+     *
+     * @param code              - validation code
      * @param expire_in_minutes - timeout value
      */
     public void setVerifyCode(String code, int expire_in_minutes) {
@@ -326,17 +318,5 @@ public class User {
             long t = date.getTimeInMillis();
             this.expireDate = new Date(t + minutes * ONE_MINUTE_IN_MILLIS);
         }
-    }
-
-    public void grantAdminRole(){
-        if(!roles.contains(Role.ADMIN)) {
-            roles.add(Role.ADMIN);
-            isAdmin = true;
-        }
-    }
-
-    public void removeAdminRole(){
-        roles.remove(Role.ADMIN);
-        isAdmin = false;
     }
 }
