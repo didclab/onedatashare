@@ -6,6 +6,5 @@ import lombok.Data;
 public class StopRequest {
     Long jobId;
     String transferNodeName;
-
 }
 
