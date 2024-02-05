@@ -64,7 +64,6 @@ class QueueComponent extends Component {
 
 	componentDidMount() {
 		document.title = "OneDataShare - Queue"
-		this.interval = setInterval(() => this.update(), 5000);
 		this.queueFunc()
 	}
 

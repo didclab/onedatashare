@@ -1,23 +1,23 @@
 /**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
+ * ##**************************************************************
+ * ##
+ * ## Copyright (C) 2018-2020, OneDataShare Team,
+ * ## Department of Computer Science and Engineering,
+ * ## University at Buffalo, Buffalo, NY, 14260.
+ * ##
+ * ## Licensed under the Apache License, Version 2.0 (the "License"); you
+ * ## may not use this file except in compliance with the License.  You may
+ * ## obtain a copy of the License at
+ * ##
+ * ##    http://www.apache.org/licenses/LICENSE-2.0
+ * ##
+ * ## Unless required by applicable law or agreed to in writing, software
+ * ## distributed under the License is distributed on an "AS IS" BASIS,
+ * ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * ## See the License for the specific language governing permissions and
+ * ## limitations under the License.
+ * ##
+ * ##**************************************************************
  */
 
 
@@ -47,17 +47,17 @@ public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
         String authToken = authentication.getCredentials().toString();
 
         String userName = null;
-        try{
+        try {
             userName = jwtUtil.getEmailFromToken(authToken);
-        } catch (Exception e){
+        } catch (Exception e) {
             Mono.empty();
         }
 
-        if(userName != null && jwtUtil.validateToken(authToken)){
+        if (userName != null && jwtUtil.validateToken(authToken)) {
             Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
             List<String> roleList = claims.get("role", List.class);
             List<Role> roles = new ArrayList<>();
-            if(roleList != null) {
+            if (roleList != null) {
                 for (String role : roleList) {
                     roles.add(Role.valueOf(role));
                 }
