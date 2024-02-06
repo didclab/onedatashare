@@ -45,8 +45,8 @@ export default class RowElement extends React.Component {
     }
 
     // This function formats bytes takes in an input of bytes and returns a string rounding to the nearest 3 digit integer
-    // Input: Integer of Bytes
-    // Output: Formatted string for table
+    // Input: number of bytes
+    // Output: Formatted string for jobSize column in table
     formatBytes(bytes) {
         let result = bytes
         try {
