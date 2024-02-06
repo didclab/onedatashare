@@ -44,7 +44,6 @@ public class MetaDataService {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
@@ -81,7 +80,7 @@ public class MetaDataService {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
                 .queryParam(USER_EMAIL, userId)
-                .queryParam("page", page)
+                .queryParam("number", page)
                 .queryParam("size", size)
                 .queryParam("sort", sort + "," + direction)
                 .build().toUri();
