@@ -18,6 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -82,7 +83,8 @@ public class MetaDataService {
                 .queryParam(USER_EMAIL, userId)
                 .queryParam("number", page)
                 .queryParam("size", size)
-                .queryParam("sort", sort + "," + direction)
+                .queryParam("sort", sort)
+                .queryParam("direction", direction)
                 .build().toUri();
         logger.info(uri.toString());
         return this.webClientBuilder.build()
