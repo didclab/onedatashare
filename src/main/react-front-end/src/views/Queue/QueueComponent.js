@@ -124,11 +124,10 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		console.log(resp)
 		this.setState({
 			response: resp.content,
 			responsesToDisplay: resp.content,
-			totalCount: resp.numberOfElements,
+			totalCount: resp.totalElements,
 			loading: false
 		});
 	}
