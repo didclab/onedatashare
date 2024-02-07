@@ -107,24 +107,12 @@
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
-		
-		// Temporary boolean to check for duplicates changes on backend required
-		let itemsInList = []
-		let dupRemoval = []
-		resp.content.forEach(item => {
-			if (!itemsInList.includes(item.id)) {
-				dupRemoval.push(item)
-				itemsInList.push(item.id)
-			}
-		})
-
 		this.setState({
 			response: resp.content,
-			responsesToDisplay: dupRemoval,
-			totalCount: itemsInList.length,
+			responsesToDisplay: resp.content,
+			totalCount: resp.totalElements,
 			loading: false
 		});
-		this.update();
 	}
 
 	queueFuncFail(resp) {

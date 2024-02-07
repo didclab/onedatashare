@@ -21,6 +21,7 @@ export default class RowElement extends React.Component {
           expanded: true,
         };
         this.handleToggle = this.handleToggle.bind(this);
+        this.formatBytes = this.formatBytes.bind(this);
     }
     infoRow() {
         return (
@@ -37,11 +38,32 @@ export default class RowElement extends React.Component {
         }));
     }
 
-    // Finds time difference  between two dates in ISO 1082 format
+    // Finds time difference between two dates in ISO 1082 format
     findTimeDiff(startTime, endTime) {
         let diff = new Date(endTime) - new Date(startTime)
         return `${diff / 1000}s`
     }
+
+    // This function formats bytes takes in an input of bytes and returns a string rounding to the nearest 3 digit integer
+    // Input: number of bytes
+    // Output: Formatted string for jobSize column in table
+    formatBytes(bytes) {
+        let result = bytes
+        try {
+            result = parseFloat(result)
+        }
+        catch (err) {
+            console.error(err)
+        }
+        const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+        let unitIndex = 0;
+        while (result >= 1024 && unitIndex < units.length - 1) {
+            result /= 1024;
+            unitIndex++;
+        }
+        return result.toFixed(2) + ' ' + units[unitIndex];
+    }
+    
 
     renderActions(owner, jobID, status, deleted) {
         const {infoButtonOnClick, cancelButtonOnClick, restartButtonOnClick, deleteButtonOnClick} = this.props
@@ -75,7 +97,6 @@ export default class RowElement extends React.Component {
     }
     render() {
         const {resp, infoVisible} = this.props
-        let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
         let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
         if (isNaN(speed))
@@ -142,13 +163,12 @@ export default class RowElement extends React.Component {
                                 <p>{resp.jobParameters.destCredentialType}</p>
                             </TableCell>
                             <TableCell className={"jobSizeCell" + " queueBodyCell"}>
-                                <p>{resp.jobParameters.jobSize}</p>
+                                <p>{this.formatBytes(resp.jobParameters.jobSize)}</p>
                             </TableCell>
                     </Hidden>
                     <Hidden lgUp>
                         <TableCell className="mobileCell">
                             <p><b>Job ID:</b> {resp.id}</p>
-                            <p><b>Progress: </b>{bar}</p>
                             <p><b>Average Speed:</b> {humanReadableSpeed(speed)}</p>
                             <p><b>Source:</b> {resp.jobParameters.sourceBasePath}</p>
                             <p><b>Destination:</b>{resp.jobParameters.destBasePath}</p>
