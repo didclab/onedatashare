@@ -23,7 +23,7 @@ public class SftpService extends ResourceServiceBase {
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchAccountCredential(EndpointType.sftp, credId)
                 .flatMap(SftpResource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

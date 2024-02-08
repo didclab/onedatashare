@@ -59,6 +59,6 @@ public class SupportTicketController {
      */
     @PostMapping
     public Mono<Long> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createGitHubSuppTicket(supportTicketRequest).subscribeOn(Schedulers.elastic());
+        return supportTicketService.createGitHubSuppTicket(supportTicketRequest).subscribeOn(Schedulers.boundedElastic());
     }
 }

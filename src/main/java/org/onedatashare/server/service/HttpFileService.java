@@ -43,7 +43,7 @@ public class HttpFileService extends ResourceServiceBase {
     protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {
         return  credentialService.fetchAccountCredential(EndpointType.http, credId)
                 .flatMap(HttpResource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

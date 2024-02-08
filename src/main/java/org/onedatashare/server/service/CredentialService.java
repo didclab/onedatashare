@@ -32,10 +32,11 @@ import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -77,8 +78,8 @@ public class CredentialService {
         return this.webClientBuilder.build().get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
-                .onStatus(HttpStatus::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
-                .onStatus(HttpStatus::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
+                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
+                .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
     }
 
     public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type) {
@@ -122,12 +123,12 @@ public class CredentialService {
                 );
     }
 
-    public Mono<HttpStatus> createCredential(AccountEndpointCredential credential, String userId, EndpointType type) {
+    public Mono<HttpStatusCode> createCredential(AccountEndpointCredential credential, String userId, EndpointType type) {
         return this.webClientBuilder.build().post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "account-cred", type)))
                 .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
                 .exchange()
-                .map(response -> response.statusCode());
+                .map(ClientResponse::statusCode);
     }
 
     public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type) {
