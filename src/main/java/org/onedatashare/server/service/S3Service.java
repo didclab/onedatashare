@@ -26,7 +26,7 @@ public class S3Service extends ResourceServiceBase {
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchAccountCredential(EndpointType.s3, credId)
                 .flatMap(S3Resource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

@@ -45,7 +45,7 @@ public class GDriveService extends ResourceServiceBase {
     protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {
         return this.credentialService.fetchOAuthCredential(EndpointType.gdrive, credId)
                 .flatMap(GDriveResource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

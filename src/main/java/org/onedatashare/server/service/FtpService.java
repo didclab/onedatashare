@@ -23,7 +23,7 @@ public class FtpService extends ResourceServiceBase {
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchAccountCredential(EndpointType.ftp, credId)
                 .flatMap(FtpResource::initialize)
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

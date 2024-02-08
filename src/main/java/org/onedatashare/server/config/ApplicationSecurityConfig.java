@@ -51,24 +51,24 @@ public class ApplicationSecurityConfig {
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
-                .httpBasic().disable()
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authenticationManager(odsAuthenticationManager)
                 .securityContextRepository(odsSecurityConfigRepository)
-                .authorizeExchange()
-                //Permit all the HTTP methods
-                .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
-                //Need authentication for APICalls
-                .pathMatchers("/api/stork/ticket**").permitAll()
-                .pathMatchers("/api/**").authenticated()
-                //Need to be admin to access admin functionalities
-                //TODO: Check if this setting is secure
-                .pathMatchers("/**").permitAll()
-                .and()
-                .exceptionHandling()
-                .authenticationEntryPoint(this::authenticationFailedHandler).accessDeniedHandler(this::accessDeniedHandler)
-                .and()
-                .csrf().disable().authorizeExchange().and()
+                .authorizeExchange(authorizeExchangeSpec -> {
+                    //Permit all the HTTP methods
+                        authorizeExchangeSpec.pathMatchers(HttpMethod.OPTIONS).permitAll()
+                                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
+                                //Need authentication for APICalls
+                                .pathMatchers("/api/stork/ticket**").permitAll()
+                                .pathMatchers("/api/**").authenticated()
+                                //Need to be admin to access admin functionalities
+                                //TODO: Check if this setting is secure
+                                .pathMatchers("/**").permitAll();
+                })
+                .exceptionHandling(exceptionHandlingSpec ->
+                        exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
+                                .accessDeniedHandler(this::accessDeniedHandler))
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
 
     }

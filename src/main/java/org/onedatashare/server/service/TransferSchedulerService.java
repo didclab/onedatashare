@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -62,11 +63,11 @@ public class TransferSchedulerService {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(stopRequest, StopRequest.class)
                 .retrieve()
-                .onStatus(HttpStatus::isError,
+                .onStatus(HttpStatusCode::isError,
                         clientResponse -> Mono.error(new Exception(clientResponse.toString())))
-                .onStatus(HttpStatus::is4xxClientError,
+                .onStatus(HttpStatusCode::is4xxClientError,
                         response -> Mono.error(new CredentialNotFoundException()))
-                .onStatus(HttpStatus::is5xxServerError,
+                .onStatus(HttpStatusCode::is5xxServerError,
                         response -> Mono.error(new Exception("Internal server error")))
                 .bodyToMono(Void.class);
     }

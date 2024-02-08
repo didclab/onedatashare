@@ -24,10 +24,12 @@
 package org.onedatashare.server.model.credential;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.onedatashare.server.model.core.Credential;
 import java.util.Date;
 
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class OAuthCredential extends Credential {
   public transient String token;
   public String name;

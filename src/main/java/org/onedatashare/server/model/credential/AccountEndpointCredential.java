@@ -24,12 +24,14 @@
 package org.onedatashare.server.model.credential;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 
 /**
  * POJO for storing account credential i.e., userName and Password
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class AccountEndpointCredential extends EndpointCredential {
     private String uri;
     private String username;

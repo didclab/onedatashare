@@ -45,7 +45,7 @@ public class DbxService extends ResourceServiceBase {
     protected Mono<? extends Resource> getResource(String credId) {
         return credentialService.fetchOAuthCredential(EndpointType.dropbox, credId)
                 .flatMap(credential -> DropboxResource.initialize(credential, DROPBOX_CLIENT_IDENTIFIER))
-                .subscribeOn(Schedulers.elastic());
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override
