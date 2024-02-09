@@ -27,6 +27,7 @@ import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -35,11 +36,13 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
+@Configuration
 public class ApplicationSecurityConfig {
 
     @Autowired
@@ -47,9 +50,11 @@ public class ApplicationSecurityConfig {
 
     @Autowired
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
+    private ServerCsrfTokenRequestAttributeHandler requestHandler;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+        ServerCsrfTokenRequestAttributeHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
         return http
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authenticationManager(odsAuthenticationManager)
@@ -68,7 +73,7 @@ public class ApplicationSecurityConfig {
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(csrfSpec -> csrfSpec.csrfTokenRequestHandler(requestHandler))
                 .build();
 
     }
