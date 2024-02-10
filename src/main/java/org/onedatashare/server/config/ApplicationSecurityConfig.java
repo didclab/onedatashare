@@ -50,11 +50,9 @@ public class ApplicationSecurityConfig {
 
     @Autowired
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
-    private ServerCsrfTokenRequestAttributeHandler requestHandler;
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
-        ServerCsrfTokenRequestAttributeHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
         return http
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .authenticationManager(odsAuthenticationManager)
@@ -73,7 +71,7 @@ public class ApplicationSecurityConfig {
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(csrfSpec -> csrfSpec.csrfTokenRequestHandler(requestHandler))
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .build();
 
     }
