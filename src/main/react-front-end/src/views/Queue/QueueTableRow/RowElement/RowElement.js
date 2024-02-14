@@ -54,10 +54,34 @@ export default class RowElement extends React.Component {
         );
     }
 
+    getCompletedChunks(resp) {
+        return resp.batchSteps.reduce((acc, step) => {
+            return acc + step.readCount;
+        }
+        , 0);
+    }
+
+    getTotalChunks(resp) {
+        let total = 0;
+        for (let i in resp.jobParameters) {
+            if (i.includes("id:")) {
+                const step_name = i;
+                const step_info = JSON.parse(resp.jobParameters[step_name]);
+                const chunk_size = step_info.chunkSize;
+                const tot_size = step_info.size;
+                total += Math.ceil(tot_size/chunk_size);
+            }
+        }
+        return total;
+    }
+
     render() {
-        const {resp, infoVisible} = this.props
-        let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
-        console.log(resp.jobParameters.jobSize)
+        const {resp, infoVisible} = this.props;
+        const completedChunks = this.getCompletedChunks(resp);
+        const totalChunks = this.getTotalChunks(resp);
+        // console.log(completedChunks, totalChunks);
+
+        let bar = (<QueueProgressBar status={resp.status} total={totalChunks} done={completedChunks}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);

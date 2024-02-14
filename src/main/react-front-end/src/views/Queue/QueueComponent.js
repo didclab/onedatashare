@@ -45,6 +45,7 @@ class QueueComponent extends Component {
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
+			pollTime: 5000
 		}
 
 		this.update = this.update.bind(this)
@@ -64,6 +65,7 @@ class QueueComponent extends Component {
 
 	componentDidMount() {
 		document.title = "OneDataShare - Queue"
+		this.interval = setInterval(this.queueFunc, this.state.pollTime)
 		this.queueFunc()
 	}
 
@@ -88,12 +90,15 @@ class QueueComponent extends Component {
 		}
 	}
 
+	isJobRunning(job) {
+		return (job.status === "STARTED" || job.status === jobStatus.STARTING) && job.exitCode === "UNKNOWN";
+	}
+
 	update() {
-		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
-			if (statusSet.has(job.status)) {
+			if (this.isJobRunning(job)) {
 				jobIds.push(job.id)
 			}
 		})
@@ -118,11 +123,17 @@ class QueueComponent extends Component {
 		return results.slice(offset, offset + limit)
 	}
 
+	filterRunningJobs(jobs) {
+		return jobs.filter(job => this.isJobRunning(job))
+	}
+
+
 	queueFuncSuccess = (resp) => {
 		// const { page, rowsPerPage } = this.state
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
+		// console.log(resp)
 		this.setState({
 			response: resp.content,
 			responsesToDisplay: resp.content,
