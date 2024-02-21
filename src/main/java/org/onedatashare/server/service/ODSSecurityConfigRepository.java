@@ -79,19 +79,23 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
         return token;
     }
 
+    //TODO: check exception handling
     @Override
-    public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
+    public SecurityContext load(ServerWebExchange serverWebExchange){
         String authToken = this.fetchAuthToken(serverWebExchange);
         try {
             if (authToken != null) {
                 String email = jwtUtil.getEmailFromToken(authToken);
                 Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
-                return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
+                return new SecurityContextImpl(this.odsAuthenticationManager.authenticate(auth));
             }
+            throw new Exception("");
         }
         catch(ExpiredJwtException e){
             ODSLoggerService.logError("Token Expired");
+            throw e;
+        }catch (Exception e){
+            throw e;
         }
-        return Mono.empty();
     }
 }

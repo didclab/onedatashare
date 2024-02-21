@@ -5,7 +5,7 @@ import com.box.sdk.*;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.model.error.ODSAccessDeniedException;
+import org.onedatashare.server.exceptionHandler.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
@@ -14,7 +14,8 @@ import org.onedatashare.server.service.ODSLoggerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import reactor.core.publisher.Mono;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,91 +37,79 @@ public class BoxResource extends Resource {
         this.client = new BoxAPIConnection(oAuthEndpointCredential.getToken());
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential) {
-        return Mono.create(s -> {
-            try {
-                BoxResource boxResource = new BoxResource(credential);
-                s.success(boxResource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential) {
+        return new BoxResource(credential);
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(s -> {
-            try {
-                BoxFile file = new BoxFile(this.client, operation.getToDelete());
-                file.delete();
-                s.success();
-            } catch (BoxAPIException boxAPIException) {
-                logger.error("Failed to delete this id " + operation.getToDelete() + "as a file but failedEndpointAuthenticateComponent.js");
-            }
-            try {
-                BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
-                folder.delete(true);
-                s.success();
-            } catch (BoxAPIException boxAPIResponseException) {
-                logger.error("Failed to delete this id " + operation.getToDelete() + " as a folder recursively but failed");
-            }
-            s.success();
-        });
+    public ResponseEntity delete(DeleteOperation operation) {
+        HttpStatus status=HttpStatus.ACCEPTED;
+        try {
+            BoxFile file = new BoxFile(this.client, operation.getToDelete());
+            file.delete();
+        } catch (BoxAPIException boxAPIException) {
+            logger.error("Failed to delete this id " + operation.getToDelete() + "as a file but failedEndpointAuthenticateComponent.js");
+            status=HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        try {
+            BoxFolder folder = new BoxFolder(this.client, operation.getToDelete());
+            folder.delete(true);
+        } catch (BoxAPIException boxAPIResponseException) {
+            logger.error("Failed to delete this id " + operation.getToDelete() + " as a folder recursively but failed");
+            status= HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        return new ResponseEntity<>(status);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return Mono.create(s -> {
-                Stat betterStat = new Stat();
-                if (operation.getId().isEmpty() || operation.getId().equals("/") || operation.getId().equals("0")) {
-                    operation.setId("0");
+    public Stat list(ListOperation operation) {
+            Stat betterStat = new Stat();
+            if (operation.getId().isEmpty() || operation.getId().equals("/") || operation.getId().equals("0")) {
+                operation.setId("0");
+            }
+            BoxFolder folder = new BoxFolder(this.client, operation.getId()); //generally speaking u would only ever list a directory
+            betterStat.setDir(true).setFile(false);
+            betterStat.setId(folder.getID());
+            betterStat.setName(folder.getInfo().getName());
+            betterStat.setSize(folder.getInfo().getSize());
+            List<Stat> childList = new ArrayList<>();
+            Iterable<BoxItem.Info> items = folder.getChildren();
+            for (BoxItem.Info itemInfo : items) {
+                if (itemInfo instanceof BoxFile.Info) {
+                    BoxFile file = new BoxFile(this.client, itemInfo.getID());
+                    BoxFile.Info fileInfo = file.getInfo();
+                    childList.add(boxFileToStat(fileInfo));
+                } else if (itemInfo instanceof BoxFolder.Info) {
+                    folder = new BoxFolder(this.client, itemInfo.getID());
+                    BoxFolder.Info folderInfo = folder.getInfo();
+                    childList.add(boxFolderToStat(folderInfo));
                 }
-                BoxFolder folder = new BoxFolder(this.client, operation.getId()); //generally speaking u would only ever list a directory
-                betterStat.setDir(true).setFile(false);
-                betterStat.setId(folder.getID());
-                betterStat.setName(folder.getInfo().getName());
-                betterStat.setSize(folder.getInfo().getSize());
-                List<Stat> childList = new ArrayList<>();
-                Iterable<BoxItem.Info> items = folder.getChildren();
-                for (BoxItem.Info itemInfo : items) {
-                    if (itemInfo instanceof BoxFile.Info) {
-                        BoxFile file = new BoxFile(this.client, itemInfo.getID());
-                        BoxFile.Info fileInfo = file.getInfo();
-                        childList.add(boxFileToStat(fileInfo));
-                    } else if (itemInfo instanceof BoxFolder.Info) {
-                        folder = new BoxFolder(this.client, itemInfo.getID());
-                        BoxFolder.Info folderInfo = folder.getInfo();
-                        childList.add(boxFolderToStat(folderInfo));
-                    }
-                }
-                betterStat.setFiles(childList);
-                betterStat.setFilesList(childList);
-                s.success(betterStat);
-
-        });
+            }
+            betterStat.setFiles(childList);
+            betterStat.setFilesList(childList);
+            return betterStat;
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
-        return Mono.create(s -> {
-            String[] pathToMake = operation.getFolderToCreate().split("/");
-            BoxFolder parentFolder = null;
-            String operationId = operation.getId();
-            if(operation.getId() == null){
-                parentFolder = new BoxFolder(this.client,"0");
-            }else if (operation.getId().isEmpty() || operation.getId().equals("0")) {
-                parentFolder = new BoxFolder(this.client,"0");
-            } else {
-                parentFolder = new BoxFolder(this.client, operationId);
-            }
-            for (String partOfPath : pathToMake) {
-                ODSLoggerService.logInfo(partOfPath);
-                BoxFolder.Info folder = parentFolder.createFolder(partOfPath);
-                operationId = folder.getID();
-                parentFolder = new BoxFolder(this.client, operationId);
-            }
-            s.success();
-        });
+    public ResponseEntity mkdir(MkdirOperation operation) {
+        String[] pathToMake = operation.getFolderToCreate().split("/");
+        BoxFolder parentFolder = null;
+        String operationId = operation.getId();
+        if(operation.getId() == null){
+            parentFolder = new BoxFolder(this.client,"0");
+        }else if (operation.getId().isEmpty() || operation.getId().equals("0")) {
+            parentFolder = new BoxFolder(this.client,"0");
+        } else {
+            parentFolder = new BoxFolder(this.client, operationId);
+        }
+        for (String partOfPath : pathToMake) {
+            ODSLoggerService.logInfo(partOfPath);
+            BoxFolder.Info folder = parentFolder.createFolder(partOfPath);
+            operationId = folder.getID();
+            parentFolder = new BoxFolder(this.client, operationId);
+        }
+
+        return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 
     /**
@@ -132,21 +121,18 @@ public class BoxResource extends Resource {
      * @return
      */
     @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            String url = "";
-            try {
-                BoxFile file = new BoxFile(this.client, operation.getId());
-                url = file.getDownloadURL().toString();
-                s.success(url);
-            } catch (BoxAPIResponseException be) {
-                if (be.getResponseCode() == 403) {
-                    s.error(new ODSAccessDeniedException(403));
-                }
-            } catch (Exception e) {
-                s.error(e);
+    public String download(DownloadOperation operation) {
+        String url = "";
+        try {
+            BoxFile file = new BoxFile(this.client, operation.getId());
+            url = file.getDownloadURL().toString();
+            return url;
+        } catch (BoxAPIResponseException be) {
+            if (be.getResponseCode() == 403) {
+                throw new ODSAccessDeniedException(403);
             }
-        });
+            throw be;
+        }
     }
 
     public Stat boxFileToStat(BoxFile.Info fileInfo) {

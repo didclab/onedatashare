@@ -7,7 +7,7 @@ import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
-import reactor.core.publisher.Mono;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 
 public class FtpResource extends VfsResource {
 
@@ -26,14 +26,11 @@ public class FtpResource extends VfsResource {
         this.fileSystemManager = VFS.getManager();
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
-            try {
-                FtpResource ftpResource = new FtpResource(credential);
-                s.success(ftpResource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential){
+        try{
+            return new FtpResource(credential);
+        } catch (Exception e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 }

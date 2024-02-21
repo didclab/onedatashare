@@ -25,18 +25,20 @@ package org.onedatashare.server.service;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.server.model.core.User;
-import org.onedatashare.server.model.error.InvalidFieldException;
-import org.onedatashare.server.model.error.InvalidODSCredentialsException;
-import org.onedatashare.server.model.error.OldPwdMatchingException;
+import org.onedatashare.server.exceptionHandler.error.InvalidFieldException;
+import org.onedatashare.server.exceptionHandler.error.InvalidODSCredentialsException;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
+import org.onedatashare.server.exceptionHandler.error.OldPwdMatchingException;
 import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.Date;
+import java.util.Optional;
 
 import static org.onedatashare.server.model.core.ODSConstants.TOKEN_TIMEOUT_IN_MINUTES;
 
@@ -62,151 +64,144 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Mono<User> createUser(User user) {
+    public User createUser(User user) {
         user.setRegisterMoment(System.currentTimeMillis());
         return userRepository.insert(user);
     }
 
-    public Mono<LoginResponse> login(String email, String password) {
-        return getUser(User.normalizeEmail(email))
-                .filter(usr -> usr.getHash().equals(usr.hash(password)))
-                .switchIfEmpty(Mono.error(new InvalidODSCredentialsException("Invalid username or password")))
-                .map(user -> LoginResponse.LoginResponseFromUser(user, jwtUtil.generateToken(user), JWTUtil.getExpirationTime()))
-                .doOnSuccess(userLogin -> saveLastActivity(email, System.currentTimeMillis()).subscribe());
-    }
-
-    public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) {
-        if (!emailService.isValidEmail(email)) {
-            return Mono.error(new InvalidFieldException("Invalid Email id"));
+    //TODO: validate
+    public LoginResponse login(String email, String password) throws Exception {
+        User user= getUser(User.normalizeEmail(email));
+        if(!user.getHash().equals(user.hash(password))){
+            throw new InvalidODSCredentialsException("Invalid username or password");
         }
-        return captchaService.verifyValue(captchaVerificationValue)
-                .flatMap(captchaVerified -> {
-                    if (captchaVerified) {
-                        return doesUserExists(email).flatMap(user -> {
-
-                            // This would be a same temporary password for each user while creating,
-                            // once the user goes through the whole User creation workflow, he/she can change the password.
-                            String password = User.salt(20);
-                            if (user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
-                                ODSLoggerService.logWarning("User with email " + email + " already exists.");
-                                if (!user.isValidated()) {
-                                    return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
-                                } else {
-                                    return Mono.just(new Response("Account already exists", 302));
-                                }
-                            }
-                            return createUser(new User(email, firstName, lastName, organization, password))
-                                    .flatMap(createdUser -> sendVerificationCode(createdUser.getEmail(), TOKEN_TIMEOUT_IN_MINUTES));
-                        });
-                    } else {
-                        return Mono.error(new Exception("Captcha verification failed"));
-                    }
-                });
+        LoginResponse response=LoginResponse.LoginResponseFromUser(user, jwtUtil.generateToken(user), JWTUtil.getExpirationTime());
+        saveLastActivity(email, System.currentTimeMillis());
+        return response;
     }
 
-    public Mono<Response> resendVerificationCode(String email) {
-        return doesUserExists(email).flatMap(user -> {
-            if (user.getEmail() == null) {
-                return Mono.just(new Response("User not registered", 500));
-            }
-            if (!user.isValidated()) {
-                return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
-            } else {
-                return Mono.just(new Response("User account is already validated.", 500));
-            }
-        });
-    }
-
-    public Mono<User> doesUserExists(String email) {
-        User user = new User();
-        return userRepository.findById(email)
-                .switchIfEmpty(Mono.just(user))
-                .onErrorResume(
-                        throwable -> throwable instanceof Exception,
-                        throwable -> Mono.just(user));
-    }
-
-    public Mono<Boolean> resetPassword(String email, String password, String passwordConfirm, String authToken) {
-        return getUser(email).flatMap(user -> {
-            if (!password.equals(passwordConfirm)) {
-                return Mono.error(new Exception("Password is not confirmed."));
-            } else if (user.getAuthToken() == null) {
-                return Mono.error(new Exception("Does not have Auth Token"));
-            } else if (user.getAuthToken().equals(authToken)) {
-                user.setPassword(password);
-                // Setting the verification code to null while resetting the password.
-                // This will allow the user to use the same verification code multiple times with in 24 hrs.
-                user.setCode(null);
-                user.setAuthToken(null);
-                user.setValidated(true);
-                userRepository.save(user).subscribe();
-                return Mono.just(true);
-            } else {
-                return Mono.error(new Exception("Wrong Token"));
-            }
-        });
-    }
-
-    public Mono<String> resetPasswordWithOld(String cookie, String oldPassword, String newPassword, String confirmPassword) {
-        return getLoggedInUser(cookie).flatMap(user -> {
-            if (!newPassword.equals(confirmPassword)) {
-                ODSLoggerService.logError("Passwords don't match.");
-                return Mono.error(new OldPwdMatchingException("Passwords don't match."));
-            } else if (!user.checkPassword(oldPassword)) {
-                ODSLoggerService.logError("Old Password is incorrect.");
-                return Mono.error(new OldPwdMatchingException("Old Password is incorrect."));
-            } else {
-                try {
-                    user.setPassword(newPassword);
-                    userRepository.save(user).subscribe();
-                    ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
-                    return Mono.just(user.getHash());
-                } catch (RuntimeException e) {
-                    return Mono.error(new OldPwdMatchingException(e.getMessage()));
+    public Object register(String email, String firstName, String lastName, String organization, String captchaVerificationValue) throws Exception {
+        if (!emailService.isValidEmail(email)) {
+            throw new InvalidFieldException("Invalid Email id");
+        }
+        boolean captchaVerified= captchaService.verifyValue(captchaVerificationValue);
+        if (captchaVerified) {
+            User user=doesUserExists(email);
+            // This would be a same temporary password for each user while creating,
+            // once the user goes through the whole User creation workflow, he/she can change the password.
+            String password = User.salt(20);
+            if (user.getEmail() != null && user.getEmail().equals(email.toLowerCase())) {
+                ODSLoggerService.logWarning("User with email " + email + " already exists.");
+                if (!user.isValidated()) {
+                    return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
+                } else {
+                    return new Response("Account already exists", 302);
                 }
             }
-        });
+            User createdUser= createUser(new User(email, firstName, lastName, organization, password));
+            return sendVerificationCode(createdUser.getEmail(), TOKEN_TIMEOUT_IN_MINUTES);
+        } else {
+            throw new Exception("Captcha verification failed");
+        }
     }
 
-    public Mono<User> getUser(String email) {
-        return userRepository.findById(email)
-                .switchIfEmpty(Mono.error(new Exception("No User found with Id: " + email)));
+    public Response resendVerificationCode(String email) throws Exception {
+        User user= doesUserExists(email);
+        if (user.getEmail() == null) {
+            return new Response("User not registered", 500);
+        }
+        if (!user.isValidated()) {
+            return sendVerificationCode(email, TOKEN_TIMEOUT_IN_MINUTES);
+        } else {
+            return new Response("User account is already validated.", 500);
+        }
     }
 
+    public User doesUserExists(String email) {
+        User user=new User();
+        return userRepository.findById(email).orElse(user);
+    }
 
-    public Mono<Response> sendVerificationCode(String email, int expire_in_minutes) {
-        return getUser(email).flatMap(user -> {
-            String code = RandomStringUtils.randomAlphanumeric(6);
-            user.setVerifyCode(code, expire_in_minutes);
-            userRepository.save(user).subscribe();
+    public Boolean resetPassword(String email, String password, String passwordConfirm, String authToken) throws Exception {
+        User user= getUser(email);
+        if (!password.equals(passwordConfirm)) {
+            throw new Exception("Password is not confirmed.");
+        } else if (user.getAuthToken() == null) {
+            throw new Exception("Does not have Auth Token");
+        } else if (user.getAuthToken().equals(authToken)) {
+            user.setPassword(password);
+            // Setting the verification code to null while resetting the password.
+            // This will allow the user to use the same verification code multiple times with in 24 hrs.
+            user.setCode(null);
+            user.setAuthToken(null);
+            user.setValidated(true);
+            userRepository.save(user);
+            return true;
+        } else {
+            throw new Exception("Wrong Token");
+        }
+    }
+
+    public String resetPasswordWithOld(String cookie, String oldPassword, String newPassword, String confirmPassword) throws Exception {
+     User user=getLoggedInUser(cookie);
+        if (!newPassword.equals(confirmPassword)) {
+            ODSLoggerService.logError("Passwords don't match.");
+           throw new OldPwdMatchingException("Passwords don't match.");
+        } else if (!user.checkPassword(oldPassword)) {
+            ODSLoggerService.logError("Old Password is incorrect.");
+            throw new OldPwdMatchingException("Old Password is incorrect.");
+        } else {
             try {
-                String subject = "OneDataShare Authorization Code";
-                String emailText = "The authorization code for your OneDataShare account is : " + code;
-                emailService.sendEmail(email, subject, emailText);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return Mono.error(new Exception("Email Sending Failed."));
+                user.setPassword(newPassword);
+                userRepository.save(user);
+                ODSLoggerService.logInfo("Password reset for user " + user.getEmail() + " successful.");
+                return user.getHash();
+            } catch (RuntimeException e) {
+                throw new OldPwdMatchingException(e.getMessage());
             }
-            return Mono.just(new Response("Success", 200));
-        });
+        }
+    }
+
+    public User getUser(String email) throws Exception {
+        Optional<User> response= userRepository.findById(email);
+        if(response.isPresent()){
+            return response.get();
+        }
+        throw new Exception("No User found with Id: " + email);
     }
 
 
-    public Mono<Boolean> validate(String email, String authToken) {
-        return getUser(email).flatMap(user -> {
-            if (user.isValidated()) {
-                return Mono.error(new Exception("Already Validated"));
-            } else if (user.getAuthToken() == null) {
-                return Mono.error(new Exception("Did not have Auth Token"));
-            } else if (user.getAuthToken().equals(authToken)) {
-                user.setValidated(true);
-                user.setAuthToken(null);
-                userRepository.save(user).subscribe();
-                return Mono.just(true);
-            } else {
-                return Mono.error(new Exception("Wrong Token"));
-            }
-        });
+    public Response sendVerificationCode(String email, int expire_in_minutes) throws Exception {
+        User user=getUser(email);
+        String code = RandomStringUtils.randomAlphanumeric(6);
+        user.setVerifyCode(code, expire_in_minutes);
+        userRepository.save(user);
+        try {
+            String subject = "OneDataShare Authorization Code";
+            String emailText = "The authorization code for your OneDataShare account is : " + code;
+            emailService.sendEmail(email, subject, emailText);
+        } catch (Exception ex) {
+            throw new ODSException("Email Sending Failed.",ex.getClass().getName());
+        }
+        return new Response("Success", 200);
+    }
+
+
+    //TODO: Exception handling
+    public Boolean validate(String email, String authToken) throws Exception {
+        User user= getUser(email);
+        if (user.isValidated()) {
+            throw new Exception("Already Validated");
+        } else if (user.getAuthToken() == null) {
+            throw new Exception("Did not have Auth Token");
+        } else if (user.getAuthToken().equals(authToken)) {
+            user.setValidated(true);
+            user.setAuthToken(null);
+            userRepository.save(user);
+            return true;
+        } else {
+            throw new Exception("Wrong Token");
+        }
     }
 
     /**
@@ -219,24 +214,24 @@ public class UserService {
      * @author Yifuyin
      */
 
-    public Mono<String> verifyCode(String email, String code) {
-        return getUser(email).flatMap(user -> {
-            User.VerifyCode expectedCode = user.getCode();
-            if (expectedCode == null) {
-                return Mono.error(new Exception("code not set"));
-            } else if (expectedCode.expireDate.before(new Date())) {
-                return Mono.error(new Exception("code expired"));
-            } else if (expectedCode.code.equals(code)) {
-                user.setAuthToken(code + User.salt(12));
-                userRepository.save(user).subscribe();
-                return Mono.just(user.getAuthToken());
-            } else {
-                return Mono.error(new Exception("Code not match"));
-            }
-        });
+    //TODO: Exception handling
+    public String verifyCode(String email, String code) throws Exception {
+        User user= getUser(email);
+        User.VerifyCode expectedCode = user.getCode();
+        if (expectedCode == null) {
+            throw new ODSException("code not set","VerificationCodeNotSet");
+        } else if (expectedCode.expireDate.before(new Date())) {
+            throw new ODSException("code expired","ExpiredCode");
+        } else if (expectedCode.code.equals(code)) {
+            user.setAuthToken(code + User.salt(12));
+            userRepository.save(user);
+            return user.getAuthToken();
+        } else {
+            throw new ODSException("Code not match","CodeNotMatched");
+        }
     }
 
-    public Mono<Boolean> isRegisteredEmail(String email) {
+    public Boolean isRegisteredEmail(String email) {
         return userRepository.existsById(email);
     }
 
@@ -248,7 +243,7 @@ public class UserService {
      * @param cookie - Unused parameter (to be removed)
      * @return
      */
-    public Mono<User> getLoggedInUser(String cookie) {
+    public User getLoggedInUser(String cookie) throws Exception {
         return getLoggedInUser();
     }
 
@@ -257,9 +252,8 @@ public class UserService {
      *
      * @return User : The current logged in user
      */
-    public Mono<User> getLoggedInUser() {
-        return getLoggedInUserEmail()
-                .flatMap(this::getUser);
+    public User getLoggedInUser() throws Exception {
+        return getUser(getLoggedInUserEmail());
     }
 
 
@@ -269,17 +263,15 @@ public class UserService {
      *
      * @return email: Email id of the user making the request
      */
-    public Mono<String> getLoggedInUserEmail() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(securityContext -> (String) securityContext.getAuthentication().getPrincipal());
+    public String getLoggedInUserEmail() {
+        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 
-    public Mono<Void> saveLastActivity(String email, Long lastActivity) {
-        return getUser(email).doOnSuccess(user -> {
-            user.setLastActivity(lastActivity);
-            userRepository.save(user).subscribe();
-        }).then();
+    public void saveLastActivity(String email, Long lastActivity) throws Exception {
+        User user=getUser(email);
+        user.setLastActivity(lastActivity);
+        userRepository.save(user);
     }
 
 }

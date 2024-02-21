@@ -4,17 +4,14 @@ import org.apache.log4j.Logger;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.core.client.config.ClientAsyncConfiguration;
 import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
-import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Configuration;
@@ -46,32 +43,27 @@ public class S3Resource extends Resource{
                 .build();
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
-            try {
-                AccountEndpointCredential accountEndpointCredential = (AccountEndpointCredential) credential;
-                S3Resource s3Resource = new S3Resource(accountEndpointCredential);
-                s.success(s3Resource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential){
+        try {
+            AccountEndpointCredential accountEndpointCredential = (AccountEndpointCredential) credential;
+            S3Resource s3Resource = new S3Resource(accountEndpointCredential);
+            return s3Resource;
+        } catch (Exception e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(monoSink -> {
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .key(operation.getToDelete())
-                    .bucket(this.regionAndBucket[1])
-                    .build();
-            this.s3AsyncClient.deleteObject(deleteObjectRequest);
-            monoSink.success();
-        });
+    public Void delete(DeleteOperation operation) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .key(operation.getToDelete())
+                .bucket(this.regionAndBucket[1])
+                .build();
+        this.s3AsyncClient.deleteObject(deleteObjectRequest);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
+    public Stat list(ListOperation operation) {
         return Mono.fromFuture(
                 this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).prefix(operation.getId().isEmpty()?"": operation.getId()).build()))
                 .map(listObjectsV2Response -> {
@@ -109,7 +101,7 @@ public class S3Resource extends Resource{
      * @return
      */
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
+    public Void mkdir(MkdirOperation operation) {
         return null;
     }
 
@@ -120,7 +112,7 @@ public class S3Resource extends Resource{
      * @return
      */
     @Override
-    public Mono download(DownloadOperation operation) {
+    public String download(DownloadOperation operation) {
         return null;
     }
 }

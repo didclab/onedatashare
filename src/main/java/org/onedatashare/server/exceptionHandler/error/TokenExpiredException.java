@@ -21,22 +21,19 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
+import org.onedatashare.server.model.credential.OAuthCredential;
 import org.springframework.http.HttpStatus;
 
-public class NotFoundException extends ODSError {
-  public NotFoundException() {
-    super("Not Found");
-    type = "NotFound";
-    error = "Not Found";
-    status = HttpStatus.INTERNAL_SERVER_ERROR;
-  }
+public class TokenExpiredException extends ODSError {
 
-  public NotFoundException(String message){
-    super(message);
-    type = "NotFound";
-    error = message;
-    status = HttpStatus.INTERNAL_SERVER_ERROR;
-  }
+    public OAuthCredential cred;
+    public TokenExpiredException(OAuthCredential cred, String message) {
+        super(message);
+        type = "TokenExpired";
+        error = "Token has expired.";
+        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
+        this.cred = cred;
+    }
 }

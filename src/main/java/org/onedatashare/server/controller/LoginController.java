@@ -23,7 +23,9 @@
 
 package org.onedatashare.server.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import org.onedatashare.server.model.request.LoginControllerRequest;
+import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,28 +41,27 @@ import reactor.core.publisher.Mono;
 import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @RestController
-@io.swagger.v3.oas.annotations.Hidden
+@Hidden
 public class LoginController {
 
     @Autowired
     private UserService userService;
 
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
-    public Mono<ResponseEntity> login(@RequestBody LoginControllerRequest request) {
-        return userService.login(request.getEmail(), request.getPassword())
-                // Access token
-                .map(loginResponse -> {
-                    String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
-                            .httpOnly(true)
-                            .build().toString();
-                    cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
-                    HttpHeaders responseHeaders = new HttpHeaders();
-                    responseHeaders.set(HttpHeaders.SET_COOKIE,
-                            cookieString);
-                    //Remove the token from the response
-                    loginResponse.setToken(null);
-                    return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
-                });
+    public ResponseEntity login(@RequestBody LoginControllerRequest request) {
+        LoginResponse loginResponse= userService.login(request.getEmail(), request.getPassword());
+        // Access token
+        String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
+                .httpOnly(true)
+                .build().toString();
+        cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.SET_COOKIE,
+                cookieString);
+        //Remove the token from the response
+        loginResponse.setToken(null);
+        return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
+
     }
 
 
@@ -69,36 +70,34 @@ public class LoginController {
      * @return Mono<ResponseEntity>
      */
     @RequestMapping(value = LOGOUT_ENDPOINT, method = RequestMethod.POST)
-    public Mono<ResponseEntity> logout() {
-        return Mono.fromSupplier(() -> {
-            String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
-                    .httpOnly(true)
-                    .build().toString();
-            HttpHeaders responseHeaders = new HttpHeaders();
-            responseHeaders.set(HttpHeaders.SET_COOKIE,
-                    cookieString + "; Max-Age=" + 0);
-            return ResponseEntity.ok().headers(responseHeaders).body(null);
-        });
+    public ResponseEntity logout() {
+        String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, null)
+                .httpOnly(true)
+                .build().toString();
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set(HttpHeaders.SET_COOKIE,
+                cookieString + "; Max-Age=" + 0);
+        return ResponseEntity.ok().headers(responseHeaders).body(null);
     }
 
     @RequestMapping(value = IS_REGISTERED_EMAIL_ENDPOINT, method = RequestMethod.POST)
-    public Mono<Boolean> isRegisteredEmail(@RequestBody LoginControllerRequest request) {
+    public Boolean isRegisteredEmail(@RequestBody LoginControllerRequest request) {
         return userService.isRegisteredEmail(request.getEmail());
     }
 
     @RequestMapping(value = SEND_PASSWD_RST_CODE_ENDPOINT, method = RequestMethod.POST)
-    public Mono<Response> sendPasswordResetCode(@RequestBody LoginControllerRequest request) {
+    public Response sendPasswordResetCode(@RequestBody LoginControllerRequest request) throws Exception {
         return userService.sendVerificationCode(request.getEmail(), TOKEN_TIMEOUT_IN_MINUTES);
     }
 
     @RequestMapping(value = RESET_PASSWD_ENDPOINT, method = RequestMethod.POST)
-    public Mono<Boolean> resetPassword(@RequestBody LoginControllerRequest request) {
+    public Boolean resetPassword(@RequestBody LoginControllerRequest request) throws Exception {
         return userService.resetPassword(request.getEmail(), request.getPassword(), request.getConfirmPassword(),
                 request.getCode());
     }
 
     @RequestMapping(value = UPDATE_PASSWD_ENDPOINT, method = RequestMethod.POST)
-    public Mono<String> updatePassword(@RequestBody LoginControllerRequest request) {
+    public String updatePassword(@RequestBody LoginControllerRequest request) {
         return userService.resetPasswordWithOld(null, request.getPassword(), request.getNewPassword(),
                 request.getConfirmPassword());
     }

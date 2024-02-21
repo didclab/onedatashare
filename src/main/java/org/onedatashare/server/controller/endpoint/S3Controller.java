@@ -31,9 +31,12 @@ import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.S3Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/s3")
@@ -43,22 +46,22 @@ public class S3Controller extends EndpointBaseController{
     private S3Service s3Service;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) throws IOException {
         return s3Service.list(operation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return s3Service.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) throws IOException {
         return s3Service.delete(operation);
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+    protected DownloadResponse downloadOperation(DownloadOperation operation) {
         return null;
     }
 }

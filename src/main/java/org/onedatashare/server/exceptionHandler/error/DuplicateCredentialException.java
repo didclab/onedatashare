@@ -21,19 +21,15 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
 import org.springframework.http.HttpStatus;
 
-public abstract class ODSError extends RuntimeException {
-  public HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-  public String error;
-  public String type;
-
-  public ODSError(String reason) {
-    super(reason);
-    if (reason == null)
-      throw new NullPointerException();
-  }
+public class DuplicateCredentialException extends ODSError {
+    public DuplicateCredentialException() {
+        super("Credential is already registered.");
+        type = "NOT_ACCEPTABLE";
+        error = "Duplicate Credential";
+        status = HttpStatus.NOT_ACCEPTABLE;
+    }
 }
-

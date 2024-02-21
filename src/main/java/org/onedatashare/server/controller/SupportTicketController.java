@@ -58,7 +58,7 @@ public class SupportTicketController {
      * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
      */
     @PostMapping
-    public Mono<Long> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createGitHubSuppTicket(supportTicketRequest).subscribeOn(Schedulers.boundedElastic());
+    public Long handle(@RequestBody SupportTicketRequest supportTicketRequest){
+        return supportTicketService.createGitHubSuppTicket(supportTicketRequest);
     }
 }

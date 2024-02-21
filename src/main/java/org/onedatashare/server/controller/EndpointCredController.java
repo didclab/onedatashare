@@ -6,6 +6,8 @@ import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.service.CredentialService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -18,23 +20,20 @@ public class EndpointCredController {
     private CredentialService credentialService;
 
     @PostMapping("{type}")
-    public Mono<Object> saveCredential(@RequestBody AccountEndpointCredential credential, @PathVariable AuthType type,
-                                       Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> credentialService.createCredential(credential, user,
-                        EndpointType.valueOf(type.toString())));
+    public Object saveCredential(@RequestBody AccountEndpointCredential credential, @PathVariable AuthType type,
+                                         Principal principal) {
+        return credentialService.createCredential(credential, principal.getName(),
+                        EndpointType.valueOf(type.toString()));
     }
 
     @GetMapping("{type}")
-    public Mono<CredList> getCredential(@PathVariable EndpointType type, Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> credentialService.getStoredCredentialNames(user, type));
+    public CredList getCredential(@PathVariable EndpointType type, Principal principal) {
+        return credentialService.getStoredCredentialNames(principal.getName(), type);
     }
 
     @DeleteMapping("{type}/{credId}")
-    public Mono<Void> deleteCredential(@PathVariable String credId, @PathVariable EndpointType type,
-                                       Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> credentialService.deleteCredential(user, type, credId));
+    public Object deleteCredential(@PathVariable String credId, @PathVariable EndpointType type,
+                                           Principal principal) {
+        return credentialService.deleteCredential(principal.getName(), type, credId);
     }
 }

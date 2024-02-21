@@ -32,9 +32,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.web.server.ServerWebExchange;
@@ -52,10 +55,10 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
         return http
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
-                .authenticationManager(odsAuthenticationManager)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .authenticationManager(odsAuthenticationManager).securityContext(securityWebFilterChain())
                 .securityContextRepository(odsSecurityConfigRepository)
                 .authorizeExchange(authorizeExchangeSpec -> {
                     //Permit all the HTTP methods
@@ -76,15 +79,11 @@ public class ApplicationSecurityConfig {
 
     }
 
-    private Mono<Void> authenticationFailedHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
-            return Mono.fromRunnable(() -> {
-                serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            });
+    private Void authenticationFailedHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
+            return serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
     }
 
-    private Mono<Void> accessDeniedHandler(ServerWebExchange serverWebExchange, AccessDeniedException e) {
-        return Mono.fromRunnable(() -> {
-            serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-        });
+    private Void accessDeniedHandler(ServerWebExchange serverWebExchange, AccessDeniedException e) {
+        return serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
     }
 }

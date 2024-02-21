@@ -33,11 +33,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
@@ -54,12 +53,12 @@ public class CredentialService {
 
     private static final int TIMEOUT_IN_MILLIS = 10000;
 
-    private WebClient.Builder webClientBuilder;
+    private RestClient.Builder restClientBuilder;
 
     private EurekaClient discoveryClient;
 
-    public CredentialService(EurekaClient discoveryClient, WebClient.Builder webClientBuilder) {
-        this.webClientBuilder = webClientBuilder;
+    public CredentialService(EurekaClient discoveryClient, RestClient.Builder restClientBuilder) {
+        this.restClientBuilder = restClientBuilder;
         this.discoveryClient = discoveryClient;
     }
 
@@ -69,28 +68,40 @@ public class CredentialService {
         this.credListUrl = this.credentialServiceUrl + "/%s/%s";
     }
 
-    private Mono<String> getUserId() {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(securityContext -> (String) securityContext.getAuthentication().getPrincipal());
+    private String getUserId() {
+        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
-    private WebClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId) {
-        return this.webClientBuilder.build().get()
+    //TODO: check exception handling
+    private RestClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId) {
+        return this.restClientBuilder.build().get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
-                .onStatus(HttpStatusCode::is4xxClientError, response -> Mono.error(new CredentialNotFoundException()))
-                .onStatus(HttpStatusCode::is5xxServerError, response -> Mono.error(new Exception("Internal server error")));
+                .onStatus(HttpStatusCode::is4xxClientError, (request,response) -> {
+                    try {
+                        throw new CredentialNotFoundException(response.getStatusText());
+                    } catch (CredentialNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                })
+                .onStatus(HttpStatusCode::is5xxServerError, (request,response) -> {
+                    try {
+                        throw new Exception("Internal server error");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
-    public Mono<CredList> getStoredCredentialNames(String userId, EndpointType type) {
+    public CredList getStoredCredentialNames(String userId, EndpointType type) {
         switch (type) {
             case vfs:
                 return this.getVfsNodesOfUserName(userId, type);
             default:
-                return this.webClientBuilder.build().get()
+                return this.restClientBuilder.build().get()
                         .uri(URI.create(String.format(this.credListUrl, userId, type)))
                         .retrieve()
-                        .bodyToMono(CredList.class);
+                        .body(CredList.class);
         }
     }
 
@@ -101,7 +112,7 @@ public class CredentialService {
      * @param type
      * @return
      */
-    private Mono<CredList> getVfsNodesOfUserName(String userId, EndpointType type) {
+    private CredList getVfsNodesOfUserName(String userId, EndpointType type) {
         CredList credList = new CredList();
         if (type.equals(EndpointType.vfs)) {
             for (Application application : this.discoveryClient.getApplications().getRegisteredApplications()) {
@@ -111,46 +122,35 @@ public class CredentialService {
                 }
             }
         }
-        return Mono.just(credList);
+        return credList;
     }
 
 
-    public Mono<AccountEndpointCredential> fetchAccountCredential(EndpointType type, String credId) {
-        return getUserId()
-                .flatMap(
-                        userId -> fetchCredential(userId, type, credId)
-                                .bodyToMono(AccountEndpointCredential.class)
-                );
+    public AccountEndpointCredential fetchAccountCredential(EndpointType type, String credId) {
+        return fetchCredential(getUserId(),type,credId).body(AccountEndpointCredential.class);
     }
 
-    public Mono<HttpStatusCode> createCredential(AccountEndpointCredential credential, String userId, EndpointType type) {
-        return this.webClientBuilder.build().post()
+    public HttpStatusCode createCredential(AccountEndpointCredential credential, String userId, EndpointType type) {
+        return this.restClientBuilder.build().post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "account-cred", type)))
-                .body(BodyInserters.fromPublisher(Mono.just(credential), AccountEndpointCredential.class))
-                .exchange()
-                .map(ClientResponse::statusCode);
+                .body(credential)
+                .exchange(((clientRequest, clientResponse) -> clientResponse.getStatusCode()));
     }
 
-    public Mono<Void> createCredential(OAuthEndpointCredential credential, String userId, EndpointType type) {
-        return this.webClientBuilder.build().post()
+    public HttpStatusCode createCredential(OAuthEndpointCredential credential, String userId, EndpointType type) {
+        return this.restClientBuilder.build().post()
                 .uri(URI.create(String.format(this.urlFormatted, userId, "oauth-cred", type)))
-                .body(BodyInserters.fromPublisher(Mono.just(credential), OAuthEndpointCredential.class))
-                .exchange()
-                .then();
+                .body(credential)
+                .exchange(((clientRequest, clientResponse) -> clientResponse.getStatusCode()));
     }
 
-    public Mono<OAuthEndpointCredential> fetchOAuthCredential(EndpointType type, String credId) {
-        return getUserId()
-                .flatMap(
-                        userId -> fetchCredential(userId, type, credId)
-                                .bodyToMono(OAuthEndpointCredential.class)
-                );
+    public OAuthEndpointCredential fetchOAuthCredential(EndpointType type, String credId) {
+        return fetchCredential(getUserId(),type,credId).body(OAuthEndpointCredential.class);
     }
 
-    public Mono<Void> deleteCredential(String userId, EndpointType type, String credId) {
-        return this.webClientBuilder.build().delete()
+    public HttpStatusCode deleteCredential(String userId, EndpointType type, String credId) {
+        return this.restClientBuilder.build().delete()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
-                .exchange()
-                .then();
+                .exchange((clientRequest, clientResponse) -> clientResponse.getStatusCode());
     }
 }

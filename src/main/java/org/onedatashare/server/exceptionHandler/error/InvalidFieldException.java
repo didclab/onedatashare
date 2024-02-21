@@ -21,21 +21,14 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
-import org.onedatashare.server.model.credential.OAuthCredential;
-import org.springframework.http.HttpStatus;
+public class InvalidFieldException extends ODSError {
 
-import java.util.Arrays;
-
-public class TokenExpiredException extends ODSError {
-
-    public OAuthCredential cred;
-    public TokenExpiredException(OAuthCredential cred, String message) {
-        super(message);
-        type = "TokenExpired";
-        error = "Token has expired.";
-        this.status = HttpStatus.INTERNAL_SERVER_ERROR;
-        this.cred = cred;
+    public InvalidFieldException(String err){
+        super(err);
+        type = "Invalid Field";
+        error = err;
     }
+    
 }

@@ -33,6 +33,7 @@ import org.onedatashare.server.service.DbxService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -44,7 +45,7 @@ public class DbxController extends EndpointBaseController{
     private DbxService dbxService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) {
         return dbxService.list(operation);
     }
 
@@ -54,17 +55,17 @@ public class DbxController extends EndpointBaseController{
      * @return
      */
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) {
         return dbxService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) {
         return dbxService.delete(operation);
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+    protected DownloadResponse downloadOperation(DownloadOperation operation) {
         return null;
     }
 }

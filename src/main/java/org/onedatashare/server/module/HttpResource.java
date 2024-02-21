@@ -1,9 +1,7 @@
 package org.onedatashare.server.module;
 
 import lombok.SneakyThrows;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
-import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.http.HttpFileSystemConfigBuilder;
@@ -14,8 +12,8 @@ import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.net.URL;
@@ -41,7 +39,7 @@ public class HttpResource extends VfsResource {
 
     @SneakyThrows
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
+    public Stat list(ListOperation listOperation) {
         Stat stat = new Stat();
         AccountEndpointCredential cred = (AccountEndpointCredential) super.credential;
         Path path;
@@ -64,7 +62,7 @@ public class HttpResource extends VfsResource {
             }
         }
         stat.setFiles(fileList);
-        return Mono.just(stat);
+        return stat;
     }
 
     public Stat fileFromElement(Element elem) throws IOException {
@@ -86,14 +84,11 @@ public class HttpResource extends VfsResource {
         return folderStat;
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential) {
-        return Mono.create(s -> {
-            try {
-                HttpResource httpResource = new HttpResource(credential);
-                s.success(httpResource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential) {
+        try {
+            return new HttpResource(credential);
+        } catch (Exception e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 }

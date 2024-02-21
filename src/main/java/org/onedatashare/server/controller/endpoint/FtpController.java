@@ -31,6 +31,7 @@ import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.FtpService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -43,22 +44,22 @@ public class FtpController extends EndpointBaseController{
     private FtpService ftpService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) {
         return ftpService.list(operation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) {
         return ftpService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) {
         return ftpService.delete(operation);
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
+    protected DownloadResponse downloadOperation(DownloadOperation operation) {
         return null;
     }
 }

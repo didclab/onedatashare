@@ -48,12 +48,12 @@ public class RegistrationController {
     }
 
     @RequestMapping(value = EMAIL_VERIFICATION_ENDPOINT, method = RequestMethod.POST)
-    public Mono<String> verifyEmailUsingCode(@RequestBody RegistrationControllerRequest request) {
+    public String verifyEmailUsingCode(@RequestBody RegistrationControllerRequest request) {
         return userService.verifyCode(request.getEmail(), request.getCode());
     }
 
     @RequestMapping(value = RESEND_ACC_ACT_CODE_ENDPOINT, method = RequestMethod.POST)
-    public Mono<Response> resendAccountActivationCode(@RequestBody RegistrationControllerRequest request){
+    public Response resendAccountActivationCode(@RequestBody RegistrationControllerRequest request){
         return userService.resendVerificationCode(request.getEmail());
     }
 

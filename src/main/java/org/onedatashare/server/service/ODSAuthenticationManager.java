@@ -26,6 +26,7 @@ package org.onedatashare.server.service;
 import io.jsonwebtoken.Claims;
 import org.onedatashare.server.model.core.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,19 +39,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
+public class ODSAuthenticationManager implements AuthenticationManager {
     @Autowired
     private JWTUtil jwtUtil;
 
     @Override
-    public Mono<Authentication> authenticate(Authentication authentication) {
+    public Authentication authenticate(Authentication authentication) {
         String authToken = authentication.getCredentials().toString();
 
         String userName = null;
         try {
             userName = jwtUtil.getEmailFromToken(authToken);
         } catch (Exception e) {
-            Mono.empty();
+            authentication.setAuthenticated(false);
+            return authentication;
         }
 
         if (userName != null && jwtUtil.validateToken(authToken)) {
@@ -62,13 +64,13 @@ public class ODSAuthenticationManager implements ReactiveAuthenticationManager {
                     roles.add(Role.valueOf(role));
                 }
             }
-            UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+            return new UsernamePasswordAuthenticationToken(
                     userName,
                     authToken,
                     roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList())
             );
-            return Mono.just(auth);
         }
-        return Mono.empty();
+        authentication.setAuthenticated(false);
+        return authentication;
     }
 }

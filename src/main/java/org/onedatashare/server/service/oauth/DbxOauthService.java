@@ -44,7 +44,7 @@ import java.util.Map;
 
 
 @Service
-public class DbxOauthService  {
+public class DbxOauthService {
 
     @Autowired
     private DbxConfig dbxConfig;
@@ -57,22 +57,28 @@ public class DbxOauthService  {
     private static final String STATE = "state", CODE = "code";
 
     @PostConstruct
-    public void DbxOauthServiceInitialize(){
+    public void DbxOauthServiceInitialize() {
         secrets = new DbxAppInfo(dbxConfig.getKey(), dbxConfig.getSecret());
         config = DbxRequestConfig.newBuilder(dbxConfig.getIdentifier()).build();
         sessionStore = new DbxSessionStore() {
-            public void clear() { set(null); }
-            public String get() { return token; }
+            public void clear() {
+                set(null);
+            }
+
+            public String get() {
+                return token;
+            }
+
             public void set(String s) {
-                if(s!=null)
+                if (s != null)
                     token = s;
             }
         };
         auth = new DbxWebAuth(config, secrets);
     }
 
-    public String start(){
-    	return auth.authorize(DbxWebAuth
+    public String start() {
+        return auth.authorize(DbxWebAuth
                 .Request
                 .newBuilder()
                 .withTokenAccessType(TokenAccessType.OFFLINE)
@@ -80,28 +86,21 @@ public class DbxOauthService  {
                 .build());
     }
 
-    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
-        return Mono.create(s -> {
-            Map<String,String[]> map = new HashMap();
-            map.put(STATE, new String[] {queryParameters.get(STATE)});
-            map.put(CODE, new String[] {queryParameters.get(CODE)});
-            sessionStore.set(queryParameters.get(STATE));
-            try {
-                DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
+    public OAuthEndpointCredential finish(Map<String, String> queryParameters) throws DbxWebAuth.ProviderException, DbxWebAuth.NotApprovedException, DbxWebAuth.BadRequestException, DbxWebAuth.BadStateException, DbxException, DbxWebAuth.CsrfException {
+        Map<String, String[]> map = new HashMap<>();
+        map.put(STATE, new String[]{queryParameters.get(STATE)});
+        map.put(CODE, new String[]{queryParameters.get(CODE)});
+        sessionStore.set(queryParameters.get(STATE));
+        DbxAuthFinish finish = auth.finishFromRedirect(dbxConfig.getRedirectUri(), sessionStore, map);
 
-                Timestamp timestamp = new Timestamp(Long.valueOf(finish.getExpiresAt()));
+        Timestamp timestamp = new Timestamp(Long.valueOf(finish.getExpiresAt()));
 
-                FullAccount account = new DbxClientV2(config, finish.getAccessToken()).users().getCurrentAccount();
-                OAuthEndpointCredential credential = new OAuthEndpointCredential(account.getEmail())
-                        .setToken(finish.getAccessToken())
-                        .setTokenExpires(true)
-                        .setRefreshToken(finish.getRefreshToken())
-                        .setRefreshTokenExpires(true)
-                        .setExpiresAt(new Date(timestamp.getTime()));
-                s.success(credential);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+        FullAccount account = new DbxClientV2(config, finish.getAccessToken()).users().getCurrentAccount();
+        return new OAuthEndpointCredential(account.getEmail())
+                .setToken(finish.getAccessToken())
+                .setTokenExpires(true)
+                .setRefreshToken(finish.getRefreshToken())
+                .setRefreshTokenExpires(true)
+                .setExpiresAt(new Date(timestamp.getTime()));
     }
 }
