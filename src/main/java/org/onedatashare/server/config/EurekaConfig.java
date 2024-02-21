@@ -11,8 +11,8 @@ public class EurekaConfig {
 
     @Bean
     @Profile("dev")
-    public WebClient endpointCredentialClient(){
-        return WebClient.builder().build();
+    public WebClient.Builder endpointCredentialClient(){
+        return WebClient.builder();
     }
 
 
