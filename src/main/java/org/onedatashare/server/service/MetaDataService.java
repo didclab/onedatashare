@@ -18,7 +18,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,8 +41,11 @@ public class MetaDataService {
     private String INFLUX_USER_MEASUREMENTS = "/stats/influx/user";
     private String DATE = "/date";
 
-    @Autowired
     private WebClient.Builder webClientBuilder;
+
+    public MetaDataService(WebClient.Builder webClientBuilder){
+        this.webClientBuilder = webClientBuilder;
+    }
 
     @SneakyThrows
     public Mono<List<Long>> getAllJobIds(String userId) {
