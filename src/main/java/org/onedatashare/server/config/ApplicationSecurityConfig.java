@@ -23,6 +23,8 @@
 
 package org.onedatashare.server.config;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -43,8 +46,7 @@ import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttrib
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-@EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableWebSecurity
 @Configuration
 public class ApplicationSecurityConfig {
 
@@ -55,35 +57,37 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Bean
-    public SecurityFilterChain securityWebFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authenticationManager(odsAuthenticationManager).securityContext(securityWebFilterChain())
-                .securityContextRepository(odsSecurityConfigRepository)
-                .authorizeExchange(authorizeExchangeSpec -> {
+                .authenticationManager(odsAuthenticationManager)
+                .securityContext((httpSecuritySecurityContextConfigurer ->
+                        httpSecuritySecurityContextConfigurer.securityContextRepository(odsSecurityConfigRepository)))
+                .authorizeHttpRequests(requests -> {
                     //Permit all the HTTP methods
-                        authorizeExchangeSpec.pathMatchers(HttpMethod.OPTIONS).permitAll()
-                                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
+                        requests.requestMatchers(HttpMethod.OPTIONS).permitAll()
+                                .requestMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                                 //Need authentication for APICalls
-                                .pathMatchers("/api/stork/ticket**").permitAll()
-                                .pathMatchers("/api/**").authenticated()
+                                .requestMatchers("/api/stork/ticket**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
                                 //Need to be admin to access admin functionalities
                                 //TODO: Check if this setting is secure
-                                .pathMatchers("/**").permitAll();
+                                .requestMatchers("/**").permitAll();
                 })
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .build();
 
     }
 
-    private Void authenticationFailedHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
-            return serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+    private void accessDeniedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
+        httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
     }
 
-    private Void accessDeniedHandler(ServerWebExchange serverWebExchange, AccessDeniedException e) {
-        return serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+    private void authenticationFailedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) {
+        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
+
 }

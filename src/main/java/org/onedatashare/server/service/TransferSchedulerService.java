@@ -37,7 +37,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -58,19 +57,22 @@ public class TransferSchedulerService {
     }
 
 
-    public ResponseEntity stopTransferJob(StopRequest stopRequest) {
+    //TODO: Fix commented code
+    public ResponseEntity<Void> stopTransferJob(StopRequest stopRequest) {
         return restClientBuilder.build().post()
                 .uri(transferQueueingServiceUri + "/stopJob")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(stopRequest)
                 .retrieve()
-                .onStatus(HttpStatusCode::isError,
-                        clientResponse -> new Exception(clientResponse.toString()))
-                .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> Mono.error(new CredentialNotFoundException()))
-                .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> Mono.error(new Exception("Internal server error")))
-                .bodyToMono(Void.class);
+//                .onStatus(HttpStatusCode::isError,
+//                        (request, response) -> {
+//                    throw new Exception(response.toString());
+//                })
+//                .onStatus(HttpStatusCode::is4xxClientError,
+//                        (request, response) -> {throw new CredentialNotFoundException()})
+//                .onStatus(HttpStatusCode::is5xxServerError,
+//                        (request,response) -> {throw new Exception("Internal server error")})
+                .toBodilessEntity();
     }
 
     public UUID scheduleJob(TransferJobRequestDTO transferRequest) {
@@ -103,19 +105,19 @@ public class TransferSchedulerService {
                 .body(TransferJobRequestDTO.class);
     }
 
-    public ResponseEntity deleteScheduledJob(UUID jobUuid) {
+    public void deleteScheduledJob(UUID jobUuid) {
         this.restClientBuilder.build()
                 .delete()
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/delete").queryParam("jobUuid", jobUuid).build())
-                .retrieve().body();
+                .retrieve().toBodilessEntity();
 
     }
 
-    public ResponseEntity changeParams(TransferParams transferParams) {
+    public ResponseEntity<Void> changeParams(TransferParams transferParams) {
         return this.restClientBuilder.build()
                 .put()
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/apply/application/params").build())
                 .body(transferParams)
-                .retrieve();
+                .retrieve().toBodilessEntity();
     }
 }

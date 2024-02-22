@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/ftp")
 public class FtpController extends EndpointBaseController{
@@ -44,17 +46,17 @@ public class FtpController extends EndpointBaseController{
     private FtpService ftpService;
 
     @Override
-    protected Stat listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) throws IOException {
         return ftpService.list(operation);
     }
 
     @Override
-    protected ResponseEntity mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return ftpService.mkdir(operation);
     }
 
     @Override
-    protected ResponseEntity deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) throws IOException {
         return ftpService.delete(operation);
     }
 

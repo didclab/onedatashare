@@ -30,10 +30,12 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.springframework.stereotype.Component;
 
 
 import java.io.IOException;
 
+@Component
 public class IndexFilter implements Filter {
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, jakarta.servlet.ServletException {

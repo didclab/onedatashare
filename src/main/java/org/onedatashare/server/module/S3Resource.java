@@ -9,6 +9,8 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
@@ -19,6 +21,8 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 public class S3Resource extends Resource{
@@ -54,24 +58,30 @@ public class S3Resource extends Resource{
     }
 
     @Override
-    public Void delete(DeleteOperation operation) {
+    public ResponseEntity delete(DeleteOperation operation) {
         DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .key(operation.getToDelete())
                 .bucket(this.regionAndBucket[1])
                 .build();
         this.s3AsyncClient.deleteObject(deleteObjectRequest);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
+    //TODO: fix exception handling
     @Override
     public Stat list(ListOperation operation) {
-        return Mono.fromFuture(
-                this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).prefix(operation.getId().isEmpty()?"": operation.getId()).build()))
-                .map(listObjectsV2Response -> {
-                    Stat parent = new Stat();
-                    parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.contents()));
-                    logger.info(parent.getFilesList());
-                    return parent;
-                });
+        try {
+            CompletableFuture<ListObjectsV2Response> listObjectsV2Response = this.s3AsyncClient.
+                    listObjectsV2(ListObjectsV2Request.builder()
+                            .bucket(this.regionAndBucket[1])
+                            .prefix(operation.getId().isEmpty() ? "" : operation.getId()).build());
+            Stat parent = new Stat();
+            parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.get().contents()));
+            logger.info(parent.getFilesList());
+            return parent;
+        }catch (InterruptedException | ExecutionException e){
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     private List<Stat> s3ObjectListToStatList(List<S3Object> s3ObjectList){
@@ -101,7 +111,7 @@ public class S3Resource extends Resource{
      * @return
      */
     @Override
-    public Void mkdir(MkdirOperation operation) {
+    public ResponseEntity mkdir(MkdirOperation operation) {
         return null;
     }
 

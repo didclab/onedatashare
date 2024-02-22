@@ -39,6 +39,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/gdrive")
 public class GDriveController extends EndpointBaseController{
@@ -46,17 +48,17 @@ public class GDriveController extends EndpointBaseController{
     private GDriveService gdriveService;
 
     @Override
-    protected Stat listOperation(ListOperation listOperation) {
+    protected Stat listOperation(ListOperation listOperation) throws IOException {
         return gdriveService.list(listOperation);
     }
 
     @Override
-    protected ResponseEntity mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return gdriveService.mkdir(operation);
     }
 
     @Override
-    protected ResponseEntity deleteOperation(DeleteOperation deleteOperation) {
+    protected ResponseEntity deleteOperation(DeleteOperation deleteOperation) throws IOException {
         return gdriveService.delete(deleteOperation);
     }
 

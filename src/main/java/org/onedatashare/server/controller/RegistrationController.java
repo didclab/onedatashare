@@ -42,18 +42,18 @@ public class RegistrationController {
     private UserService userService;
 
     @RequestMapping(value = REGISTRATION_ENDPOINT, method = RequestMethod.POST)
-    public Object registerUser(@RequestBody RegistrationControllerRequest request) {
+    public Object registerUser(@RequestBody RegistrationControllerRequest request) throws Exception {
         return userService.register(request.getEmail(), request.getFirstName(), request.getLastName(),
                 request.getOrganization(), request.getCaptchaVerificationValue());
     }
 
     @RequestMapping(value = EMAIL_VERIFICATION_ENDPOINT, method = RequestMethod.POST)
-    public String verifyEmailUsingCode(@RequestBody RegistrationControllerRequest request) {
+    public String verifyEmailUsingCode(@RequestBody RegistrationControllerRequest request) throws Exception {
         return userService.verifyCode(request.getEmail(), request.getCode());
     }
 
     @RequestMapping(value = RESEND_ACC_ACT_CODE_ENDPOINT, method = RequestMethod.POST)
-    public Response resendAccountActivationCode(@RequestBody RegistrationControllerRequest request){
+    public Response resendAccountActivationCode(@RequestBody RegistrationControllerRequest request) throws Exception {
         return userService.resendVerificationCode(request.getEmail());
     }
 

@@ -48,7 +48,7 @@ public class LoginController {
     private UserService userService;
 
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
-    public ResponseEntity login(@RequestBody LoginControllerRequest request) {
+    public ResponseEntity login(@RequestBody LoginControllerRequest request) throws Exception {
         LoginResponse loginResponse= userService.login(request.getEmail(), request.getPassword());
         // Access token
         String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
@@ -97,7 +97,7 @@ public class LoginController {
     }
 
     @RequestMapping(value = UPDATE_PASSWD_ENDPOINT, method = RequestMethod.POST)
-    public String updatePassword(@RequestBody LoginControllerRequest request) {
+    public String updatePassword(@RequestBody LoginControllerRequest request) throws Exception {
         return userService.resetPasswordWithOld(null, request.getPassword(), request.getNewPassword(),
                 request.getConfirmPassword());
     }

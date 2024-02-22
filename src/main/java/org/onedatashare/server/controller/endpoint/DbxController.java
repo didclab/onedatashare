@@ -38,6 +38,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/api/dropbox")
 public class DbxController extends EndpointBaseController{
@@ -45,7 +47,7 @@ public class DbxController extends EndpointBaseController{
     private DbxService dbxService;
 
     @Override
-    protected Stat listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) throws IOException {
         return dbxService.list(operation);
     }
 
@@ -55,12 +57,12 @@ public class DbxController extends EndpointBaseController{
      * @return
      */
     @Override
-    protected ResponseEntity mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return dbxService.mkdir(operation);
     }
 
     @Override
-    protected ResponseEntity deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) throws IOException {
         return dbxService.delete(operation);
     }
 
