@@ -24,6 +24,7 @@
 package org.onedatashare.server.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.onedatashare.server.model.core.ODSConstants.TOKEN_PREFIX;
 
@@ -72,7 +74,11 @@ public class ODSSecurityConfigRepository implements SecurityContextRepository {
                 }
                 // Try fetching token from the cookies
                 else if(token == null) {
-                  token = Arrays.stream(request.getCookies()).filter(cookie->"ATOKEN".equals(cookie.getName())).findFirst().toString();
+                  Optional<Cookie> cookieValue = Arrays.stream(request.getCookies()).filter(cookie->"ATOKEN".equals(cookie.getName())).findFirst();
+                  if(!cookieValue.isPresent()){
+                      throw new NullPointerException();
+                  }
+                  token=cookieValue.get().getValue();
                 }
             } catch (NullPointerException npe) {
                 ODSLoggerService.logError("No token Found for request at " + endpoint);

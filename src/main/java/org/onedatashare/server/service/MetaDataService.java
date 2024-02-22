@@ -42,6 +42,10 @@ public class MetaDataService {
     @Autowired
     private RestClient.Builder restClientBuilder;
 
+    public MetaDataService(RestClient.Builder webClientBuilder){
+        this.restClientBuilder = webClientBuilder;
+    }
+
     @SneakyThrows
     public List<Long> getAllJobIds(String userId) {
         logger.info("Querying all user jobs {}", userId);
