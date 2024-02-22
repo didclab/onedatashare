@@ -272,6 +272,25 @@ div.homePage {
   z-index: 99;
 }
 
+.pollingButton {
+  position: relative;
+  width: 15%;
+  background-color: #d9edf7;
+  box-shadow: none;
+  border: none;
+  outline: 1px solid black;
+  border-radius: 10px 10px 0px 0px
+}
+
+.pollingButton:hover {
+  background-color: #f7d9d9;
+}
+
+.QueueTable {
+  width: 80%;
+  /* outline: #d9534f 1px solid; */
+}
+
 .jobInfoBox {
   background-color: rgb(255, 255, 255);
   width: 50%;
@@ -288,16 +307,18 @@ div.homePage {
 }
 .historyPage {
   display: flex;
+  flex-direction: column;
   width: 100vw;
   justify-content: center;
   padding-top: 15vh;
   padding-bottom: 15vh;
-  /* align-items: center; */
+  align-items: center;
+  outline: 2px solid red;
 }
 
 .QueueView {
   display: flex;
-  width: 80%;
+  width: 100%;
   height: fit-content;
   /* outline: 2px solid #ccff00; */
   background-color: white;

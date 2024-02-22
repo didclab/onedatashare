@@ -513,28 +513,29 @@ export async function getJobUpdatesForUser(jobId, accept, fail){
 	let callback = accept;
 	var influx_data = [];
 	var flag = 0;
-	axios.get("/api/metadata/measurements/job",{
+
+	try {
+		jobId = parseInt(jobId)
+	} 
+	catch (error) {
+		console.log("Input error, expected int")
+	}
+	axios.get("/api/metadata/job",{
 		params :
 		{
 			jobId: jobId
 		}
 	})
 	.then((response) => {
-		console.log(response)
 		if(!(response.status === 200))
 			callback = fail;
-		flag=1;
 		influx_data.push(response);
+		accept(influx_data)
 	})
 	.catch((error) => {
 		console.log("Failed")
 		handleRequestFailure(error, fail);
     });
-	if (flag==1)
-	{
-		console.log("Influx data",influx_data);
-		statusHandle(influx_data, callback);
-	}
 }
 
 

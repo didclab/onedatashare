@@ -235,23 +235,25 @@
 		};
 		return(
 			<div className='historyPage'>
-				<QueueView
-					className="QueueView"
-					loading={this.state.loading}
-					orderBy={this.state.orderBy}
-					order={this.state.order}
-					page={this.state.page}
-					responsesToDisplay={this.state.responsesToDisplay}
-					rowsPerPage={this.state.rowsPerPage}
-					rowsPerPageOptions={rowsPerPageOptions}
-					sortableColumns={sortableColumns}
-					totalCount={this.state.totalCount}
-					classes={this.props}
-					handleChangePage={this.handleChangePage}
-					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-					handleRequestSort={this.handleRequestSort}
-					populateRows={this.populateRows}
-				/>
+				<div className='QueueTable'>
+					<QueueView
+						className="QueueView"
+						loading={this.state.loading}
+						orderBy={this.state.orderBy}
+						order={this.state.order}
+						page={this.state.page}
+						responsesToDisplay={this.state.responsesToDisplay}
+						rowsPerPage={this.state.rowsPerPage}
+						rowsPerPageOptions={rowsPerPageOptions}
+						sortableColumns={sortableColumns}
+						totalCount={this.state.totalCount}
+						classes={this.props}
+						handleChangePage={this.handleChangePage}
+						handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+						handleRequestSort={this.handleRequestSort}
+						populateRows={this.populateRows}
+					/>
+				</div>	
 			</div>
 		);
 	}

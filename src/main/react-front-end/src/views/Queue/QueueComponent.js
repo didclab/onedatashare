@@ -45,6 +45,7 @@ class QueueComponent extends Component {
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
+			pollCountdown: 5,
 		}
 
 		this.update = this.update.bind(this)
@@ -61,10 +62,22 @@ class QueueComponent extends Component {
 		this.queueFuncFail = this.queueFuncFail.bind(this)
 		updateGAPageView()
 	}
-
+	
 	componentDidMount() {
 		document.title = "OneDataShare - Queue"
 		this.queueFunc()
+		this.startInterval()
+	}
+
+	startInterval() {
+		this.interval = setInterval(() => {
+			this.setState({pollCountdown: this.state.pollCountdown - 1})
+			// Reason for -1 is because when reached 0, we want to wait 1 more second to accomodate for decimal seconds
+			if (this.state.pollCountdown === -1) {
+				this.update()
+				this.setState({pollCountdown: 5})
+			}
+		}, 1000);
 	}
 
 	componentWillUnmount() {
@@ -88,31 +101,30 @@ class QueueComponent extends Component {
 		}
 	}
 
-	update() {
-		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
+	async update() {
+		const statusSet = new Set(["STARTED", "EXECUTING", "STOPPING", "UNKNOWN"])
 		const {responsesToDisplay} = this.state
-		let jobIds = []
-		responsesToDisplay.forEach(job => {
-			if (statusSet.has(job.status)) {
-				jobIds.push(job.id)
-			}
-		})
-		if (jobIds.length > 0) {
-			getJobUpdatesForUser(jobIds, resp => {
-				let jobs = resp
-				//TODO: use hash keys and values instead of finding on each update
-				// let existingData = [...responsesToDisplay]
-				jobs.forEach(job => {
-					let existingJob = responsesToDisplay.find(item => item.id === job.id)
-					existingJob.status = job.status
-					existingJob.bytes.total = job.bytes.total
-					existingJob.bytes.done = job.bytes.done
-					existingJob.bytes.avg = job.bytes.avg
-				})
-			})
-		}
-	}
 
+		for (const job of responsesToDisplay) {
+			if (job.status in statusSet) {
+				const resp = await new Promise((resolve, reject) => {
+					getJobUpdatesForUser(job.id, resolve, reject)
+				})
+				const data = resp[0].data
+				const index = responsesToDisplay.findIndex(obj => obj.id === data.id)
+				if (index != -1) {
+					responsesToDisplay[index] = data
+				}
+				else {
+					responsesToDisplay.push(data)
+				}
+			}
+		}
+			// existingJob.status = resp.status
+			// existingJob.bytes.total = resp.bytes.total
+			// existingJob.bytes.done = resp.bytes.done
+			// existingJob.bytes.avg = resp.bytes.avg
+	}
 	paginateResults(results, page, limit) {
 		let offset = page * limit
 		return results.slice(offset, offset + limit)
@@ -133,8 +145,7 @@ class QueueComponent extends Component {
 
 	queueFuncFail(resp) {
 		//failed
-		console.log(resp)
-		console.log('Error in queue request to API layer');
+		console.error('Error in queue request to API layer response: ' + resp);
 	}
 
 	queueFunc(isHistory = false) {
@@ -239,7 +250,6 @@ class QueueComponent extends Component {
 			);
 		});
 	}
-
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = {
@@ -251,23 +261,26 @@ class QueueComponent extends Component {
 		};
 		return(
 			<div className='historyPage'>
-				<QueueView
-					adminPg={false}
-					loading={this.state.loading}
-					orderBy={this.state.orderBy}
-					order={this.state.order}
-					page={this.state.page}
-					responsesToDisplay={this.state.responsesToDisplay}
-					rowsPerPage={this.state.rowsPerPage}
-					rowsPerPageOptions={rowsPerPageOptions}
-					sortableColumns={sortableColumns}
-					totalCount={this.state.totalCount}
-					classes={this.props}
-					handleChangePage={this.handleChangePage}
-					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-					handleRequestSort={this.handleRequestSort}
-					populateRows={this.populateRows}
-				/>
+				<div className='QueueTable'>
+					<button className="pollingButton" onMouseEnter={() => {console.log("Enter")}}>{this.state.pollCountdown}</button>
+					<QueueView
+						adminPg={false}
+						loading={this.state.loading}
+						orderBy={this.state.orderBy}
+						order={this.state.order}
+						page={this.state.page}
+						responsesToDisplay={this.state.responsesToDisplay}
+						rowsPerPage={this.state.rowsPerPage}
+						rowsPerPageOptions={rowsPerPageOptions}
+						sortableColumns={sortableColumns}
+						totalCount={this.state.totalCount}
+						classes={this.props}
+						handleChangePage={this.handleChangePage}
+						handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+						handleRequestSort={this.handleRequestSort}
+						populateRows={this.populateRows}
+					/>
+				</div>
 			</div>
 		);
 	}
