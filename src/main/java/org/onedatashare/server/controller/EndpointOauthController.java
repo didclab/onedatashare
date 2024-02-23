@@ -152,9 +152,9 @@ public class EndpointOauthController {
     @GetMapping
     public ModelAndView handle(@RequestParam EndpointType type) throws NotFoundException {
         return switch (type) {
-            case box -> new ModelAndView(boxOauthService.start());
-            case dropbox -> new ModelAndView(dbxOauthService.start());
-            case gdrive -> new ModelAndView(gDriveOauthService.start());
+            case box -> new ModelAndView("redirect:"+boxOauthService.start());
+            case dropbox -> new ModelAndView("redirect:"+dbxOauthService.start());
+            case gdrive -> new ModelAndView("redirect:"+gDriveOauthService.start());
             default -> throw new NotFoundException();
         };
     }
