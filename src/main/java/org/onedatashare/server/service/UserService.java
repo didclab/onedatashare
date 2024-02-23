@@ -69,7 +69,6 @@ public class UserService {
         return userRepository.insert(user);
     }
 
-    //TODO: validate
     public LoginResponse login(String email, String password) throws Exception {
         User user= getUser(User.normalizeEmail(email));
         if(!user.getHash().equals(user.hash(password))){

@@ -130,7 +130,6 @@ class UserServiceTest {
             assertEquals(validInputEmail, user.getEmail(),"Did not retrieve the expected user");
         }
 
-        //TODO
         @Test
         @DisplayName("Invalid user email")
         public void getUser_test_invalidEmail() throws Exception{
@@ -138,7 +137,6 @@ class UserServiceTest {
                 User user = userService.getUser(invalidInputEmail);
                 fail("Did not expect to retrieve any user");
             }catch (Exception e){
-                assertTrue(e instanceof Exception, "Did not receive expected error");
                 assertEquals(e.getMessage(), "No User found with Id: " + invalidInputEmail,"Did not retrieve the expected user");
             }
         }

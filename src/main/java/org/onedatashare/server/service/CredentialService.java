@@ -69,25 +69,16 @@ public class CredentialService {
     private String getUserId() {
         return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
-
-    //TODO: check exception handling
+    
     private RestClient.ResponseSpec fetchCredential(String userId, EndpointType type, String credId) {
         return this.restClientBuilder.build().get()
                 .uri(URI.create(String.format(this.urlFormatted, userId, type, credId)))
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, (request,response) -> {
-                    try {
-                        throw new CredentialNotFoundException(response.getStatusText());
-                    } catch (CredentialNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    logger.error("Credentials not found for the user{}: Exception:{}",userId,response);
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, (request,response) -> {
-                    try {
-                        throw new Exception("Internal server error");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                    logger.error("Internal Server Error while fetching credentials for the user{}: Exception:{}",userId,response);
                 });
     }
 

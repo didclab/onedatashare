@@ -57,21 +57,18 @@ public class TransferSchedulerService {
     }
 
 
-    //TODO: Fix commented code
     public ResponseEntity<Void> stopTransferJob(StopRequest stopRequest) {
         return restClientBuilder.build().post()
                 .uri(transferQueueingServiceUri + "/stopJob")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(stopRequest)
                 .retrieve()
-//                .onStatus(HttpStatusCode::isError,
-//                        (request, response) -> {
-//                    throw new Exception(response.toString());
-//                })
-//                .onStatus(HttpStatusCode::is4xxClientError,
-//                        (request, response) -> {throw new CredentialNotFoundException()})
-//                .onStatus(HttpStatusCode::is5xxServerError,
-//                        (request,response) -> {throw new Exception("Internal server error")})
+                .onStatus(HttpStatusCode::isError,
+                        (request, response) -> logger.error("Exception occurred while trying to stop transfer job:{}", response))
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        (request, response) -> logger.error("Credentials not found for the client trying to stop transfer job:{}", response))
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        (request,response) -> logger.error("Internal server error occurred while trying to stop transfer job:{}", response))
                 .toBodilessEntity();
     }
 
