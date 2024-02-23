@@ -6,10 +6,7 @@ import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.service.CredentialService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 

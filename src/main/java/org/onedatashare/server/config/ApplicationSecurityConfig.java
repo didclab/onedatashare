@@ -37,9 +37,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
 @EnableWebSecurity
 @Configuration
@@ -85,6 +87,15 @@ public class ApplicationSecurityConfig {
 
     private void authenticationFailedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) {
         httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        firewall.setAllowUrlEncodedSlash(true);
+        return (web) -> web.httpFirewall(firewall);
     }
 
 }

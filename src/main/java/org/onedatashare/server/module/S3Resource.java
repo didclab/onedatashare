@@ -80,6 +80,7 @@ public class S3Resource extends Resource{
             logger.info(parent.getFilesList());
             return parent;
         }catch (InterruptedException | ExecutionException e){
+            logger.error("Exception occurred while listing S3 objects",e);
             throw new ODSException(e.getMessage(),e.getClass().getName());
         }
     }
