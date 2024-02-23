@@ -23,27 +23,33 @@
 
 package org.onedatashare.server.controller;
 
+import com.dropbox.core.DbxException;
+import com.dropbox.core.DbxWebAuth;
+import org.onedatashare.server.exceptionHandler.error.DuplicateCredentialException;
+import org.onedatashare.server.exceptionHandler.error.NotFoundException;
 import org.onedatashare.server.model.core.EndpointType;
-import org.onedatashare.server.model.error.DuplicateCredentialException;
-import org.onedatashare.server.model.error.NotFoundException;
+import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.service.CredentialService;
 import org.onedatashare.server.service.ODSLoggerService;
 import org.onedatashare.server.service.oauth.BoxOauthService;
 import org.onedatashare.server.service.oauth.DbxOauthService;
 import org.onedatashare.server.service.oauth.GDriveOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.reactive.result.view.Rendering;
-import reactor.core.publisher.Mono;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.security.Principal;
 import java.util.Map;
+
 
 /**
  * Controller for handling OAuth control requests
@@ -57,9 +63,6 @@ public class EndpointOauthController {
     @Autowired
     private DbxOauthService dbxOauthService;
 
-//    @Autowired
-//    private GridFtpAuthService gridFtpAuthService;
-
     @Autowired
     private BoxOauthService boxOauthService;
 
@@ -72,8 +75,8 @@ public class EndpointOauthController {
      * @return Mono\<String\>
      */
     @GetMapping("/gdrive")
-    public Mono googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters,
-                                       Mono<Principal> principalMono) {
+    public ModelAndView googleDriveOauthFinish(@RequestParam Map<String, String> queryParameters,
+                                                         Principal principal) {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
@@ -85,17 +88,11 @@ public class EndpointOauthController {
                             "oauth after cancellation" + queryParameters.get("error_description"));
                 }
             }
-            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+            return new ModelAndView("redirect:/transfer"+ errorStringBuilder);
         }
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> gDriveOauthService.finish(queryParameters)
-                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gdrive)
-                                .thenReturn(
-                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
-                                                .build()
-                                )
-                        )
-                );
+        OAuthEndpointCredential credential=gDriveOauthService.finish(queryParameters);
+        credentialService.createCredential(credential, principal.getName(), EndpointType.gdrive);
+        return new ModelAndView("redirect:/transfer?accountId=" + credential.getAccountId());
     }
 
     /**
@@ -104,8 +101,8 @@ public class EndpointOauthController {
      * @return Mono\<String\>
      */
     @GetMapping("/dropbox")
-    public Mono dropboxOauthFinish(@RequestParam Map<String, String> queryParameters,
-                                   Mono<Principal> principalMono) {
+    public ModelAndView dropboxOauthFinish(@RequestParam Map<String, String> queryParameters,
+                                                     Principal principal) throws DbxWebAuth.ProviderException, DbxWebAuth.NotApprovedException, DbxWebAuth.BadRequestException, DbxWebAuth.BadStateException, DbxException, DbxWebAuth.CsrfException {
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error_description")) {
@@ -117,41 +114,13 @@ public class EndpointOauthController {
                             "oauth after cancellation" + queryParameters.get("error_description"));
                 }
             }
-            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+            return new ModelAndView("redirect:/transfer"+ errorStringBuilder);
         }
 
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> dbxOauthService.finish(queryParameters)
-                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.dropbox)
-                                .thenReturn(
-                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
-                                                .build()
-                                )
-                        )
-                );
+        OAuthEndpointCredential credential=dbxOauthService.finish(queryParameters);
+        credentialService.createCredential(credential, principal.getName(), EndpointType.dropbox);
+        return new ModelAndView("redirect:/transfer?accountId=" + credential.getAccountId());
     }
-
-    /**
-     * Handler for GridFTP requests
-     * @param queryParameters - Query parameters
-     * @return Mono\<String\>
-     */
-//    @GetMapping("/gftp")
-//    public Mono gridftpOauthFinish(@RequestParam Map<String, String> queryParameters, Mono<Principal> principalMono) {
-//        if (!queryParameters.containsKey("code")) {
-//            return Mono.just(Rendering.redirectTo("/transfer").build());
-//        }
-//
-//        return principalMono.map(Principal::getName)
-//                .flatMap(user -> gridFtpAuthService.finish(queryParameters)
-//                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.gftp)
-//                                .thenReturn(
-//                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
-//                                                .build()
-//                                )
-//                        )
-//                );
-//    }
 
     /**
      * Handler for Box requests
@@ -159,7 +128,7 @@ public class EndpointOauthController {
      * @return Mono\<String\>
      */
     @GetMapping("/box")
-    public Mono boxOauthFinish(@RequestParam Map<String, String> queryParameters, Mono<Principal> principalMono){
+    public ModelAndView boxOauthFinish(@RequestParam Map<String, String> queryParameters, Principal principal){
         if (!queryParameters.containsKey("code")) {
             StringBuilder errorStringBuilder = new StringBuilder();
             if (queryParameters.containsKey("error")) {
@@ -171,45 +140,38 @@ public class EndpointOauthController {
                             "oauth after cancellation" + queryParameters.get("error_description"));
                 }
             }
-            return Mono.just(Rendering.redirectTo("/transfer" + errorStringBuilder.toString()).build());
+            return new ModelAndView("redirect:/transfer"+ errorStringBuilder);
         }
 
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> boxOauthService.finish(queryParameters)
-                        .flatMap(credential -> credentialService.createCredential(credential, user, EndpointType.box)
-                                .thenReturn(
-                                        Rendering.redirectTo("/transfer?accountId=" + credential.getAccountId())
-                                                .build()
-                                )
-                        )
-                );
+        OAuthEndpointCredential credential=boxOauthService.finish(queryParameters);
+        credentialService.createCredential(credential, principal.getName(), EndpointType.box);
+
+        return new ModelAndView("redirect:/transfer?accountId="+ credential.getAccountId());
     }
 
     @GetMapping
-    public Rendering handle(@RequestParam EndpointType type) throws NotFoundException {
-        switch (type){
-            case box:
-                return Rendering.redirectTo(boxOauthService.start()).build();
-            case dropbox:
-                return Rendering.redirectTo(dbxOauthService.start()).build();
-            case gdrive:
-                return Rendering.redirectTo(gDriveOauthService.start()).build();
-//            case gftp:
-//                return Rendering.redirectTo(gridFtpAuthService.start()).build();
-            default:
-                throw new NotFoundException();
-        }
+    public ModelAndView handle(@RequestParam EndpointType type) throws NotFoundException {
+        return switch (type) {
+            case box -> new ModelAndView(boxOauthService.start());
+            case dropbox -> new ModelAndView(dbxOauthService.start());
+            case gdrive -> new ModelAndView(gDriveOauthService.start());
+            default -> throw new NotFoundException();
+        };
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public Rendering handle(NotFoundException notfound) {
+    public ResponseEntity<Object> handle(NotFoundException notfound) {
         ODSLoggerService.logError(notfound.status.toString());
-        return Rendering.redirectTo("/404").build();
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                .location(URI.create("/404"))
+                .build();
     }
 
     @ExceptionHandler(DuplicateCredentialException.class)
-    public Rendering handle(DuplicateCredentialException dce) {
+    public ResponseEntity handle(DuplicateCredentialException dce) {
         ODSLoggerService.logError(dce.status.toString());
-        return Rendering.redirectTo("/transfer").build();
+        return ResponseEntity.status(HttpStatus.TEMPORARY_REDIRECT)
+                .location(URI.create("/transfer"))
+                .build();
     }
 }

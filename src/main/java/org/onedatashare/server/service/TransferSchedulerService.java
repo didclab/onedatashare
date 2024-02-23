@@ -26,17 +26,17 @@ package org.onedatashare.server.service;
 import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
 import org.onedatashare.server.model.TransferParams;
-import org.onedatashare.server.model.error.CredentialNotFoundException;
+import org.onedatashare.server.exceptionHandler.error.CredentialNotFoundException;
 import org.onedatashare.server.model.request.StopRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -49,73 +49,72 @@ public class TransferSchedulerService {
     private String transferQueueingServiceUri;
     private static Logger logger = LoggerFactory.getLogger(TransferSchedulerService.class);
 
-    private WebClient.Builder webClientBuilder;
+    private RestClient.Builder restClientBuilder;
 
 
-    public TransferSchedulerService(WebClient.Builder webClientBuilder) {
-        this.webClientBuilder = webClientBuilder;
+    public TransferSchedulerService(RestClient.Builder restClientBuilder) {
+        this.restClientBuilder = restClientBuilder;
     }
 
 
-    public Mono<Void> stopTransferJob(StopRequest stopRequest) {
-        return webClientBuilder.build().post()
+    public ResponseEntity<Void> stopTransferJob(StopRequest stopRequest) {
+        return restClientBuilder.build().post()
                 .uri(transferQueueingServiceUri + "/stopJob")
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(stopRequest, StopRequest.class)
+                .body(stopRequest)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError,
-                        clientResponse -> Mono.error(new Exception(clientResponse.toString())))
+                        (request, response) -> logger.error("Exception occurred while trying to stop transfer job:{}", response))
                 .onStatus(HttpStatusCode::is4xxClientError,
-                        response -> Mono.error(new CredentialNotFoundException()))
+                        (request, response) -> logger.error("Credentials not found for the client trying to stop transfer job:{}", response))
                 .onStatus(HttpStatusCode::is5xxServerError,
-                        response -> Mono.error(new Exception("Internal server error")))
-                .bodyToMono(Void.class);
+                        (request,response) -> logger.error("Internal server error occurred while trying to stop transfer job:{}", response))
+                .toBodilessEntity();
     }
 
-    public Mono<UUID> scheduleJob(TransferJobRequestDTO transferRequest) {
+    public UUID scheduleJob(TransferJobRequestDTO transferRequest) {
         logger.info(transferRequest.toString());
-        return webClientBuilder.build()
+        return restClientBuilder.build()
                 .post()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/schedule").queryParam("jobStartTime", transferRequest.getOptions().getScheduledTime()).build())
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(Mono.just(transferRequest), TransferJobRequestDTO.class)
+                .body(transferRequest)
                 .retrieve()
-                .bodyToMono(UUID.class);
+                .body(UUID.class);
     }
 
-    public Mono<List<ScheduledTransferJobRequest>> listScheduledJobs(String userEmail) {
-        return webClientBuilder.build()
+    public List<ScheduledTransferJobRequest> listScheduledJobs(String userEmail) {
+        return restClientBuilder.build()
                 .get()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/jobs").queryParam("userEmail", userEmail).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<List<ScheduledTransferJobRequest>>() {
+                .body(new ParameterizedTypeReference<List<ScheduledTransferJobRequest>>() {
                 });
     }
 
-    public Mono<TransferJobRequestDTO> getJobDetails(UUID jobUuid) {
-        return this.webClientBuilder.build()
+    public TransferJobRequestDTO getJobDetails(UUID jobUuid) {
+        return this.restClientBuilder.build()
                 .get()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/details").queryParam("jobUuid", jobUuid).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(TransferJobRequestDTO.class);
+                .body(TransferJobRequestDTO.class);
     }
 
     public void deleteScheduledJob(UUID jobUuid) {
-        this.webClientBuilder.build()
+        this.restClientBuilder.build()
                 .delete()
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/delete").queryParam("jobUuid", jobUuid).build())
-                .retrieve();
+                .retrieve().toBodilessEntity();
 
     }
 
-    public Mono<Void> changeParams(TransferParams transferParams) {
-        return this.webClientBuilder.build()
+    public ResponseEntity<Void> changeParams(TransferParams transferParams) {
+        return this.restClientBuilder.build()
                 .put()
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/apply/application/params").build())
-                .body(Mono.just(transferParams), TransferParams.class)
-                .retrieve()
-                .bodyToMono(Void.class);
+                .body(transferParams)
+                .retrieve().toBodilessEntity();
     }
 }

@@ -21,14 +21,19 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
-public class InvalidFieldException extends ODSError {
+import org.springframework.http.HttpStatus;
 
-    public InvalidFieldException(String err){
-        super(err);
-        type = "Invalid Field";
-        error = err;
-    }
-    
+public abstract class ODSError extends RuntimeException {
+  public HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+  public String error;
+  public String type;
+
+  public ODSError(String reason) {
+    super(reason);
+    if (reason == null)
+      throw new NullPointerException();
+  }
 }
+

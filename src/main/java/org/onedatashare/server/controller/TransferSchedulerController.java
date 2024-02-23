@@ -7,7 +7,6 @@ import org.onedatashare.server.model.request.StopRequest;
 import org.onedatashare.server.service.TransferSchedulerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +32,7 @@ public class TransferSchedulerController {
     Logger logger = LoggerFactory.getLogger(TransferSchedulerController.class);
 
     @PostMapping("/schedule")
-    public ResponseEntity<Mono<UUID>> runJob(@RequestBody TransferJobRequestDTO request,
+    public ResponseEntity<UUID> runJob(@RequestBody TransferJobRequestDTO request,
                                              Principal principal) {
         logger.debug("Recieved request: " + request.toString());
         request.setOwnerId(principal.getName());
@@ -41,30 +40,32 @@ public class TransferSchedulerController {
     }
 
     @PostMapping("/stop")
-    public Mono<Void> stopJob(@RequestBody StopRequest stopRequest) {
-        return transferSchedulerService.stopTransferJob(stopRequest)
-                .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
-                        "Failed to stop job execution")));
+    public ResponseEntity stopJob(@RequestBody StopRequest stopRequest) {
+        try {
+            return transferSchedulerService.stopTransferJob(stopRequest);
+        }catch (Exception e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to stop job execution");
+        }
     }
 
     @GetMapping("/list")
-    public ResponseEntity<Mono<List<ScheduledTransferJobRequest>>> listScheduledJobs(@RequestParam String userEmail) {
+    public ResponseEntity<List<ScheduledTransferJobRequest>> listScheduledJobs(@RequestParam String userEmail) {
         return ResponseEntity.ok(this.transferSchedulerService.listScheduledJobs(userEmail));
     }
 
     @GetMapping("/details")
-    public ResponseEntity<Mono<TransferJobRequestDTO>> getScheduledJob(@RequestParam UUID jobUuid) {
+    public ResponseEntity<TransferJobRequestDTO> getScheduledJob(@RequestParam UUID jobUuid) {
         return ResponseEntity.ok(this.transferSchedulerService.getJobDetails(jobUuid));
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteScheduledJob(@RequestParam UUID jobUuid) {
+    public ResponseEntity deleteScheduledJob(@RequestParam UUID jobUuid) {
         this.transferSchedulerService.deleteScheduledJob(jobUuid);
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/adjust")
-    public ResponseEntity<Mono<Void>> changeTransferParams(@RequestBody TransferParams transferParams) {
+    public ResponseEntity changeTransferParams(@RequestBody TransferParams transferParams) {
         return ResponseEntity.ok((this.transferSchedulerService.changeParams(transferParams)));
     }
 

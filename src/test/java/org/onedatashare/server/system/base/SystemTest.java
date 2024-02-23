@@ -65,7 +65,7 @@ public abstract class SystemTest {
         when(userRepository.save(any())).thenAnswer(updateUser());
 
         // Service mocked methods
-        when(captchaService.verifyValue(any())).thenReturn(just(true));
+        when(captchaService.verifyValue(any())).thenReturn(true);
         doAnswer(addToEmails()).when(emailService).sendEmail(any(), any(), any());
         doCallRealMethod().when(emailService).isValidEmail(any());
 

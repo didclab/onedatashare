@@ -23,6 +23,8 @@
 
 package org.onedatashare.server.service;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.spi.LoggerFactory;
 import org.kohsuke.github.GHIssue;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
@@ -65,6 +67,8 @@ public class SupportTicketService {
 
     private GHRepository repository;
 
+    Logger logger= Logger.getLogger(SupportTicketService.class);
+
 //    @PostConstruct
 //    public void postConstruct() throws IOException {
 //        GitHub github = new GitHubBuilder()
@@ -74,21 +78,19 @@ public class SupportTicketService {
 //        this.repository = github.getRepository(repositoryString);
 //    }
 
-    public Mono<Long> createGitHubSuppTicket(SupportTicketRequest supportTicketRequest) {
-        return captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue())
-                .flatMap(captchaVerified -> {
-                    if (captchaVerified) {
-                        try {
-                            GHIssue issue = repository.createIssue("User: " + supportTicketRequest.getEmail() + " " + supportTicketRequest.getSubject())
-                                    .body(supportTicketRequest.getDescription())
-                                    .label("BUG Report")
-                                    .create();
-                            return Mono.just(issue.getId());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return Mono.just((long) -1);
-                });
+    public Long createGitHubSuppTicket(SupportTicketRequest supportTicketRequest) {
+        Boolean captchaVerified= captchaService.verifyValue(supportTicketRequest.getCaptchaVerificationValue());
+        if (captchaVerified) {
+            try {
+                GHIssue issue = repository.createIssue("User: " + supportTicketRequest.getEmail() + " " + supportTicketRequest.getSubject())
+                        .body(supportTicketRequest.getDescription())
+                        .label("BUG Report")
+                        .create();
+                return issue.getId();
+            } catch (IOException e) {
+                logger.error("Exception occurred while creating Github support request",e);
+            }
+        }
+        return (long) -1;
     }
 }

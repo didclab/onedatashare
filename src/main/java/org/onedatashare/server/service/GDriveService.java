@@ -25,12 +25,16 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.module.GDriveResource;
+import org.onedatashare.server.module.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
 import static org.onedatashare.server.model.core.ODSConstants.GDRIVE_URI_SCHEME;
@@ -42,31 +46,28 @@ public class GDriveService extends ResourceServiceBase {
     CredentialService credentialService;
 
     @Override
-    protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {
-        return this.credentialService.fetchOAuthCredential(EndpointType.gdrive, credId)
-                .flatMap(GDriveResource::initialize)
-                .subscribeOn(Schedulers.boundedElastic());
+    protected Resource getResource(String credId) {
+        return GDriveResource.initialize(this.credentialService.fetchOAuthCredential(EndpointType.gdrive, credId));
     }
 
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return getResource(listOperation.getCredId())
-                .flatMap(resource -> resource.list(listOperation));
+    public Stat list(ListOperation listOperation) throws IOException {
+        return getResource(listOperation.getCredId()).list(listOperation);
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return getResource(mkdirOperation.getCredId()).flatMap(resource -> resource.mkdir(mkdirOperation));
+    public ResponseEntity mkdir(MkdirOperation mkdirOperation) throws IOException {
+        return getResource(mkdirOperation.getCredId()).mkdir(mkdirOperation);
     }
 
 
     @Override
-    public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return getResource(deleteOperation.getCredId()).flatMap(resource -> resource.delete(deleteOperation));
+    public ResponseEntity delete(DeleteOperation deleteOperation) throws IOException {
+        return getResource(deleteOperation.getCredId()).delete(deleteOperation);
     }
 
     @Override
-    public Mono<String> download(DownloadOperation downloadOperation) {
+    public DownloadResponse download(DownloadOperation downloadOperation) {
         return null;
     }
 

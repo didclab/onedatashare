@@ -1,4 +1,4 @@
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
 
 import org.onedatashare.server.model.core.EndpointType;

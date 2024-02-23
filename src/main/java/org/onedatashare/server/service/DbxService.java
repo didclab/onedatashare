@@ -25,13 +25,17 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import org.springframework.beans.factory.annotation.Value;
 import org.onedatashare.server.module.DropboxResource;
 import org.onedatashare.server.module.Resource;
+
+import java.io.IOException;
 
 @Service
 public class DbxService extends ResourceServiceBase {
@@ -42,32 +46,28 @@ public class DbxService extends ResourceServiceBase {
     @Value("${dropbox.identifier}")
     private String DROPBOX_CLIENT_IDENTIFIER;
 
-    protected Mono<? extends Resource> getResource(String credId) {
-        return credentialService.fetchOAuthCredential(EndpointType.dropbox, credId)
-                .flatMap(credential -> DropboxResource.initialize(credential, DROPBOX_CLIENT_IDENTIFIER))
-                .subscribeOn(Schedulers.boundedElastic());
+    protected Resource getResource(String credId) {
+        return DropboxResource.initialize(credentialService.fetchOAuthCredential(EndpointType.dropbox, credId),
+                DROPBOX_CLIENT_IDENTIFIER);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return this.getResource(listOperation.getCredId()).
-                flatMap(resource -> resource.list(listOperation));
+    public Stat list(ListOperation listOperation) throws IOException {
+        return this.getResource(listOperation.getCredId()).list(listOperation);
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return this.getResource(mkdirOperation.getCredId()).
-                flatMap(resource -> resource.mkdir(mkdirOperation));
+    public ResponseEntity mkdir(MkdirOperation mkdirOperation) throws IOException {
+        return this.getResource(mkdirOperation.getCredId()).mkdir(mkdirOperation);
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation deleteOperation) {
-        return this.getResource(deleteOperation.getCredId()).
-                flatMap(resource -> resource.delete(deleteOperation));
+    public ResponseEntity delete(DeleteOperation deleteOperation) throws IOException {
+        return this.getResource(deleteOperation.getCredId()).delete(deleteOperation);
     }
 
     @Override
-    public Mono<String> download(DownloadOperation downloadOperation) {
+    public DownloadResponse download(DownloadOperation downloadOperation) {
         return null;
     }
 
