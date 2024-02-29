@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Mono;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -28,95 +27,83 @@ public class MetaDataController {
 
     //CDB calls
     @GetMapping("/job")
-    public Mono<BatchJobData> getJobStatistic(Mono<Principal> principalMono, @RequestParam Long jobId) {
+    public BatchJobData getJobStatistic(Principal principal, @RequestParam Long jobId) {
         return metaDataService.getJobStat(jobId);
     }
 
     @GetMapping("/all/job/ids")
-    public Mono<List<Long>> getAllJobIds(Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getAllJobIds(user));
+    public List<Long> getAllJobIds(Principal principal) {
+        return metaDataService.getAllJobIds(principal.getName());
     }
 
     @GetMapping("/all/jobs")
-    public Mono<List<BatchJobData>> getAllJobStats(Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getAllStats(user));
+    public List<BatchJobData> getAllJobStats(Principal principal) {
+        return metaDataService.getAllStats(principal.getName());
     }
 
     @GetMapping("/all/page/jobs")
-    public Mono<PageImplResponse<BatchJobData>> getAllJobStats(Mono<Principal> principalMono,
+    public PageImplResponse<BatchJobData> getAllJobStats(Principal principal,
                                                                @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
                                                                @RequestParam(value = "size", defaultValue = "30", required = false) Integer size,
                                                                @RequestParam(value = "sort", defaultValue = "id", required = false) String sort,
                                                                @RequestParam(value = "direction", defaultValue = "DESC", required = false) String direction) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getAllStats(user, page, size, sort, direction));
+        return metaDataService.getAllStats(principal.getName(), page, size, sort, direction);
     }
 
 
     @GetMapping("/job/date")
-    public Mono<BatchJobData> getJobByStartDate(Mono<Principal> principalMono, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getStatByDate(user, date));
+    public BatchJobData getJobByStartDate(Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime date) {
+        return metaDataService.getStatByDate(principal.getName(), date);
     }
 
     @GetMapping("/all/jobs/range")
-    public Mono<List<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
+    public List<BatchJobData> getJobsByDateRange(Principal principal,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getStatsByDateRange(user, start, end));
+        return metaDataService.getStatsByDateRange(principal.getName(), start, end);
     }
 
     @GetMapping("/jobs/id/list")
-    public Mono<List<BatchJobData>> getJobsByListOfIds(Mono<Principal> principalMono, @RequestParam(value = "jobId", required = false) List<Long> jobIds) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getManyJobStats(user, jobIds).collectList());
+    public List<BatchJobData> getJobsByListOfIds(Principal principal, @RequestParam(value = "jobId", required = false) List<Long> jobIds) {
+        return metaDataService.getManyJobStats(principal.getName(), jobIds);
     }
 
     @GetMapping("/all/page/jobs/range")
-    public Mono<Page<BatchJobData>> getJobsByDateRange(Mono<Principal> principalMono,
+    public Page<BatchJobData> getJobsByDateRange(Principal principal,
                                                        @RequestParam
                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end, Pageable pageable) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getStatsByDateRange(user, start, end, pageable));
+        return metaDataService.getStatsByDateRange(principal.getName(), start, end, pageable);
     }
 
 
     //Influx Calls
     @GetMapping("/measurements/job")
-    public Mono<List<InfluxData>> jobMeasurements(Mono<Principal> principalMono, @RequestParam Long jobId) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.measurementsUserJob(user, jobId));
+    public List<InfluxData> jobMeasurements(Principal principal, @RequestParam Long jobId) {
+        return metaDataService.measurementsUserJob(principal.getName(), jobId);
     }
 
     @GetMapping("/measurements/user")
-    public Mono<List<InfluxData>> allUserMeasurements(Mono<Principal> principalMono) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.userMeasurements(user));
+    public List<InfluxData> allUserMeasurements(Principal principal) {
+        return metaDataService.userMeasurements(principal.getName());
     }
 
     @GetMapping("/measurements/range")
-    public Mono<List<InfluxData>> userRangeMeasurements(Mono<Principal> principalMono, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+    public List<InfluxData> userRangeMeasurements(Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
                                                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.measurementsByRange(start, end, user));
+        return metaDataService.measurementsByRange(start, end, principal.getName());
     }
 
     @GetMapping("/measurements/monitor")
-    public Mono<MonitorData> monitorAJob(Mono<Principal> principalMono, Long jobId) {
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.monitor(user, jobId));
+    public MonitorData monitorAJob(Principal principal, Long jobId) {
+        return metaDataService.monitor(principal.getName(), jobId);
     }
 
     @GetMapping("/measurements/job/node")
-    public Mono<List<InfluxData>> queryMeasurementsByNode(Mono<Principal> principalMono, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @RequestParam String appId, @RequestParam Long jobId){
-        return principalMono.map(Principal::getName)
-                .flatMap(user -> metaDataService.getJobMeasurementsUniversal(user, jobId, start, appId));
+    public List<InfluxData> queryMeasurementsByNode(Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @RequestParam String appId, @RequestParam Long jobId){
+        return metaDataService.getJobMeasurementsUniversal(principal.getName(), jobId, start, appId);
     }
 
 }

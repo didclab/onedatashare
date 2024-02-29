@@ -21,15 +21,12 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
-import org.springframework.http.HttpStatus;
-
-public class DuplicateCredentialException extends ODSError {
-    public DuplicateCredentialException() {
-        super("Credential is already registered.");
-        type = "NOT_ACCEPTABLE";
-        error = "Duplicate Credential";
-        status = HttpStatus.NOT_ACCEPTABLE;
+public class ODSAccessDeniedException extends ODSError{
+    public ODSAccessDeniedException(int err) {
+        super("Access Denied to this File or Folder");
+        type = "AccessDenied";
+        error = "Access Denied to this File or Folder.";
     }
 }

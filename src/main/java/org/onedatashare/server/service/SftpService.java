@@ -6,12 +6,17 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
+import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.module.SftpResource;
 import org.onedatashare.server.module.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.io.IOException;
 
 @Service
 public class SftpService extends ResourceServiceBase {
@@ -20,32 +25,28 @@ public class SftpService extends ResourceServiceBase {
 
 
     @Override
-    protected Mono<? extends Resource> getResource(String credId) {
-        return credentialService.fetchAccountCredential(EndpointType.sftp, credId)
-                .flatMap(SftpResource::initialize)
-                .subscribeOn(Schedulers.boundedElastic());
+    protected Resource getResource(String credId) {
+        return SftpResource.initialize(credentialService.fetchAccountCredential(EndpointType.sftp, credId));
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return getResource(operation.getCredId())
-                .flatMap(resource -> resource.delete(operation));
+    public ResponseEntity delete(DeleteOperation operation) throws IOException {
+        getResource(operation.getCredId()).delete(operation);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return getResource(operation.getCredId())
-                .flatMap(resource -> resource.list(operation));
+    public Stat list(ListOperation operation) throws IOException {
+        return getResource(operation.getCredId()).list(operation);
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
-        return getResource(operation.getCredId())
-                .flatMap(resource -> resource.mkdir(operation));
+    public ResponseEntity mkdir(MkdirOperation operation) throws IOException {
+        return getResource(operation.getCredId()).mkdir(operation);
     }
 
     @Override
-    public Mono<String> download(DownloadOperation operation) {
+    public DownloadResponse download(DownloadOperation operation) {
         return null;
     }
 }

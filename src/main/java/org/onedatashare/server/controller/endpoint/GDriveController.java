@@ -34,9 +34,12 @@ import org.onedatashare.server.service.GDriveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/gdrive")
@@ -45,22 +48,22 @@ public class GDriveController extends EndpointBaseController{
     private GDriveService gdriveService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation listOperation) {
+    protected Stat listOperation(ListOperation listOperation) throws IOException {
         return gdriveService.list(listOperation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return gdriveService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation deleteOperation) {
+    protected ResponseEntity deleteOperation(DeleteOperation deleteOperation) throws IOException {
         return gdriveService.delete(deleteOperation);
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation) {
+    protected DownloadResponse downloadOperation(DownloadOperation downloadOperation) {
        return null;
     }
 }

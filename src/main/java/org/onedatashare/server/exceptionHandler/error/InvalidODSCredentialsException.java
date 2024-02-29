@@ -21,16 +21,15 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
+
 import org.springframework.http.HttpStatus;
 
-public class OldPwdMatchingException extends ODSError{
-    public OldPwdMatchingException(String err)
-    {
-        super(err);
-        type = "Invalid Password";
-        error = err;
-        status = HttpStatus.INTERNAL_SERVER_ERROR;
+public class InvalidODSCredentialsException extends ODSError{
+    public InvalidODSCredentialsException(String reason) {
+        super(reason);
+        type = "InvalidLogin";
+        error = "Invalid ODS email ID / password Combination";
+        status = HttpStatus.UNAUTHORIZED;
     }
-
 }

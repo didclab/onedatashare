@@ -27,7 +27,6 @@ import org.onedatashare.server.model.ticket.SupportTicketRequest;
 import org.onedatashare.server.service.SupportTicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 /**
@@ -58,7 +57,7 @@ public class SupportTicketController {
      * @return ticketNumber - An integer value returned by Freshdesk after generating the ticket
      */
     @PostMapping
-    public Mono<Long> handle(@RequestBody SupportTicketRequest supportTicketRequest){
-        return supportTicketService.createGitHubSuppTicket(supportTicketRequest).subscribeOn(Schedulers.boundedElastic());
+    public Long handle(@RequestBody SupportTicketRequest supportTicketRequest){
+        return supportTicketService.createGitHubSuppTicket(supportTicketRequest);
     }
 }

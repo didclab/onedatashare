@@ -23,6 +23,9 @@
 
 package org.onedatashare.server.config;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +34,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.firewall.StrictHttpFirewall;
 
-@EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
+@EnableWebSecurity
 @Configuration
+@EnableMethodSecurity
+@RequiredArgsConstructor
 public class ApplicationSecurityConfig {
 
     @Autowired
@@ -52,39 +56,46 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .authenticationManager(odsAuthenticationManager)
-                .securityContextRepository(odsSecurityConfigRepository)
-                .authorizeExchange(authorizeExchangeSpec -> {
+                .securityContext((httpSecuritySecurityContextConfigurer ->
+                        httpSecuritySecurityContextConfigurer.securityContextRepository(odsSecurityConfigRepository)))
+                .authorizeHttpRequests(requests -> {
                     //Permit all the HTTP methods
-                        authorizeExchangeSpec.pathMatchers(HttpMethod.OPTIONS).permitAll()
-                                .pathMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
+                        requests.requestMatchers(HttpMethod.OPTIONS).permitAll()
+                                .requestMatchers("/api/stork/admin/**").hasAuthority("ADMIN")
                                 //Need authentication for APICalls
-                                .pathMatchers("/api/stork/ticket**").permitAll()
-                                .pathMatchers("/api/**").authenticated()
+                                .requestMatchers("/api/stork/ticket**").permitAll()
+                                .requestMatchers("/api/**").authenticated()
                                 //Need to be admin to access admin functionalities
                                 //TODO: Check if this setting is secure
-                                .pathMatchers("/**").permitAll();
+                                .requestMatchers("/**").permitAll();
                 })
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .build();
 
     }
 
-    private Mono<Void> authenticationFailedHandler(ServerWebExchange serverWebExchange, AuthenticationException e) {
-            return Mono.fromRunnable(() -> {
-                serverWebExchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-            });
+    private void accessDeniedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
+        httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
     }
 
-    private Mono<Void> accessDeniedHandler(ServerWebExchange serverWebExchange, AccessDeniedException e) {
-        return Mono.fromRunnable(() -> {
-            serverWebExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
-        });
+    private void authenticationFailedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AuthenticationException e) {
+        httpServletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        firewall.setAllowUrlEncodedSlash(true);
+        return (web) -> web.httpFirewall(firewall);
+    }
+
 }

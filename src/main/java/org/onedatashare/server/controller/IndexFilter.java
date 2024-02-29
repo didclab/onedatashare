@@ -23,20 +23,25 @@
 
 package org.onedatashare.server.controller;
 
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ServerWebExchange;
-import org.springframework.web.server.WebFilter;
-import org.springframework.web.server.WebFilterChain;
-import reactor.core.publisher.Mono;
 
+
+import java.io.IOException;
 @Component
-public class IndexFilter implements WebFilter {
+public class IndexFilter implements Filter {
   @Override
-  public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-    if( ODSConstants.ODS_URIS_SET.contains(exchange.getRequest().getURI().getPath()) ){
-      return chain.filter(exchange.mutate().request(exchange.getRequest().mutate().path("/index.html").build()).build());
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, jakarta.servlet.ServletException {
+    HttpServletRequest httpServletRequest=(HttpServletRequest) servletRequest;
+    if( ODSConstants.ODS_URIS_SET.contains(httpServletRequest.getRequestURI()) ){
+      ((HttpServletResponse) servletResponse).sendRedirect("/index.html");
     }
-    return chain.filter(exchange);
+    filterChain.doFilter(servletRequest,servletResponse);
   }
 }

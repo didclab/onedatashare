@@ -32,9 +32,12 @@ import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.service.HttpFileService;
 import org.onedatashare.server.service.SftpService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/api/http")
@@ -43,22 +46,22 @@ public class HttpController extends EndpointBaseController{
     private HttpFileService httpFileService;
 
     @Override
-    protected Mono<Stat> listOperation(ListOperation operation) {
+    protected Stat listOperation(ListOperation operation) throws IOException {
         return httpFileService.list(operation);
     }
 
     @Override
-    protected Mono<Void> mkdirOperation(MkdirOperation operation) {
+    protected ResponseEntity mkdirOperation(MkdirOperation operation) throws IOException {
         return httpFileService.mkdir(operation);
     }
 
     @Override
-    protected Mono<Void> deleteOperation(DeleteOperation operation) {
+    protected ResponseEntity deleteOperation(DeleteOperation operation) throws IOException {
         return httpFileService.delete(operation);
     }
 
     @Override
-    protected Mono<DownloadResponse> downloadOperation(DownloadOperation operation) {
-        return httpFileService.download(operation).map(DownloadResponse::new);
+    protected DownloadResponse downloadOperation(DownloadOperation operation) {
+        return httpFileService.download(operation);
     }
 }

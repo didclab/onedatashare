@@ -4,6 +4,7 @@ import org.apache.commons.vfs2.*;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.exceptions.FileAlreadyExistsException;
 import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
 import org.onedatashare.server.model.filesystem.exceptions.NoWritePermissionException;
@@ -11,20 +12,14 @@ import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
-import org.onedatashare.server.model.response.DownloadResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import reactor.core.publisher.Mono;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Stack;
-
-import static org.onedatashare.server.model.core.ODSConstants.MAX_FILES_TRANSFERRABLE;
 
 public class VfsResource extends Resource {
     protected FileSystemManager fileSystemManager;
@@ -38,25 +33,22 @@ public class VfsResource extends Resource {
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(s ->{
-            try {
-                FileObject fileObject = this.resolveFile(this.baseUri + operation.getPath() + operation.getToDelete());
-                if(!fileObject.exists()){
-                    s.error(new FileNotFoundException());
-                    return;
-                }
-                if(fileObject.isWriteable()){
-                    fileObject.deleteAll();
-                    s.success();
-                }
-                else {
-                    s.error(new NoWritePermissionException());
-                }
-            } catch (FileSystemException e) {
-                s.error(e);
+    public ResponseEntity delete(DeleteOperation operation) {
+        try {
+            FileObject fileObject = this.resolveFile(this.baseUri + operation.getPath() + operation.getToDelete());
+            if(!fileObject.exists()){
+                throw new FileNotFoundException();
             }
-        });
+            if(fileObject.isWriteable()){
+                fileObject.deleteAll();
+                return new ResponseEntity(HttpStatus.OK);
+            }
+            else {
+                throw new NoWritePermissionException();
+            }
+        } catch (FileSystemException | FileNotFoundException | NoWritePermissionException e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     protected FileObject resolveFile(String path) throws FileSystemException {
@@ -123,80 +115,71 @@ public class VfsResource extends Resource {
 //    }
 
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return Mono.create(s -> {
-            try {
-                Stat stat;
+    public Stat list(ListOperation listOperation) {
+        try {
+            Stat stat;
 //                FileObject fileObject = this.resolveFile(this.baseUri + listOperation.getId());//this should be the path to the resource no the id of the resouce
-                FileObject fileObject;
-                if(listOperation.getPath().isEmpty() || listOperation.getPath() == null){
-                    logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
-                    fileObject = this.resolveFile(this.baseUri);
-                    logger.info(fileObject.toString());
-                }else{
-                    logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
-                    fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
-                    logger.info(fileObject.toString());
-                }
+            FileObject fileObject;
+            if(listOperation.getPath().isEmpty() || listOperation.getPath() == null){
+                logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
+                fileObject = this.resolveFile(this.baseUri);
                 logger.info(fileObject.toString());
-                if(!fileObject.exists()){
-                    s.error(new FileNotFoundException());
-                }
-                stat = fileToStat(fileObject);
-                if(fileObject.getType() == FileType.FOLDER) {
-                    FileObject[] children = fileObject.getChildren();
-                    ArrayList<Stat> files = new ArrayList<>();
-                    for(FileObject file : children) {
-                        files.add(fileToStat(file));
-                    }
-                    stat.setFiles(files);
-                }
-                s.success(stat);
-            } catch (FileSystemException e) {
-                s.error(e);
+            }else{
+                logger.info("Listing", this.baseUri + "/"+ listOperation.getPath());
+                fileObject = this.resolveFile(this.baseUri + "/" +listOperation.getPath());
+                logger.info(fileObject.toString());
             }
-        });
+            logger.info(fileObject.toString());
+            if(!fileObject.exists()){
+                throw new FileNotFoundException();
+            }
+            stat = fileToStat(fileObject);
+            if(fileObject.getType() == FileType.FOLDER) {
+                FileObject[] children = fileObject.getChildren();
+                ArrayList<Stat> files = new ArrayList<>();
+                for(FileObject file : children) {
+                    files.add(fileToStat(file));
+                }
+                stat.setFiles(files);
+            }
+            return stat;
+        } catch (FileSystemException | FileNotFoundException e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
-        return Mono.create(s -> {
-            try {
-                logger.info("Line number 160 VfsResource.java. Printing the baseUri + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate()\n= {}", Paths.get(this.baseUri, mkdirOperation.getPath(), mkdirOperation.getFolderToCreate()).toString());
-                logger.info(Paths.get(this.baseUri, mkdirOperation.getPath(), mkdirOperation.getFolderToCreate()).toString());
-                FileObject fileObject = this.resolveFile(this.baseUri + "/"
-                        + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
-                if(fileObject.exists()){
-                    s.error(new FileAlreadyExistsException());
-                    return;
-                }
-                if(fileObject.isWriteable()){
-                    s.error(new NoWritePermissionException());
-                    return;
-                }
-                fileObject.createFolder();
-                s.success();
-            } catch (FileSystemException e) {
-                s.error(e);
+    public ResponseEntity mkdir(MkdirOperation mkdirOperation) {
+        try {
+            logger.info("Line number 160 VfsResource.java. Printing the baseUri + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate()\n= {}", Paths.get(this.baseUri, mkdirOperation.getPath(), mkdirOperation.getFolderToCreate()).toString());
+            logger.info(Paths.get(this.baseUri, mkdirOperation.getPath(), mkdirOperation.getFolderToCreate()).toString());
+            FileObject fileObject = this.resolveFile(this.baseUri + "/"
+                    + mkdirOperation.getPath() + mkdirOperation.getFolderToCreate());
+            if(fileObject.exists()){
+                throw new FileAlreadyExistsException();
             }
-        });
+            if(fileObject.isWriteable()){
+                throw new NoWritePermissionException();
+            }
+            fileObject.createFolder();
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (FileSystemException | FileAlreadyExistsException | NoWritePermissionException e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            try {
-                String url = this.baseUri + operation.getId() + operation.fileToDownload;
-                FileObject fileObject = this.resolveFile(url);
-                if(!fileObject.exists()){
-                    s.error(new FileNotFoundException());
-                    return;
-                }
-                s.success(new DownloadResponse(url));
-            } catch (FileSystemException e) {
-                s.error(e);
+    public String download(DownloadOperation operation) {
+        try {
+            String url = this.baseUri + operation.getId() + operation.fileToDownload;
+            FileObject fileObject = this.resolveFile(url);
+            if(!fileObject.exists()){
+                throw new FileNotFoundException();
             }
-        });
+            return url;
+        } catch (FileSystemException | FileNotFoundException e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     private FileContent getContent(FileObject file){

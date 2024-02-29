@@ -21,15 +21,22 @@
  */
 
 
-package org.onedatashare.server.model.error;
+package org.onedatashare.server.exceptionHandler.error;
 
 import org.springframework.http.HttpStatus;
 
-public class InvalidODSCredentialsException extends ODSError{
-    public InvalidODSCredentialsException(String reason) {
-        super(reason);
-        type = "InvalidLogin";
-        error = "Invalid ODS email ID / password Combination";
-        status = HttpStatus.UNAUTHORIZED;
-    }
+public class NotFoundException extends ODSError {
+  public NotFoundException() {
+    super("Not Found");
+    type = "NotFound";
+    error = "Not Found";
+    status = HttpStatus.INTERNAL_SERVER_ERROR;
+  }
+
+  public NotFoundException(String message){
+    super(message);
+    type = "NotFound";
+    error = message;
+    status = HttpStatus.INTERNAL_SERVER_ERROR;
+  }
 }

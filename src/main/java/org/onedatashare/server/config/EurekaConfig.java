@@ -4,26 +4,23 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestClient;
 
 @Configuration
 public class EurekaConfig {
 
     @Bean
     @Profile("dev")
-    public WebClient.Builder endpointCredentialClient(){
-        return WebClient.builder();
+    public RestClient.Builder endpointCredentialClient(){
+        return RestClient.builder();
     }
 
 
     @Bean
     @Profile("prod")
     @LoadBalanced
-    public WebClient.Builder webClientBuilder() {
-        return WebClient.builder()
-                .codecs(configurer -> configurer
-                        .defaultCodecs()
-                        .maxInMemorySize(-1));
+    public RestClient.Builder webClientBuilder() {
+        return RestClient.builder();
 
     }
 
