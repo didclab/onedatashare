@@ -61,6 +61,17 @@ public class MetaDataController {
         return metaDataService.getStatsByDateRange(principal.getName(), start, end);
     }
 
+    /**
+     *
+     * @param principal
+     * @param status: Has required values of: ABANDONED, COMPLETED, FAILED, STARTED, STARTING, STOPPED, STOPPING, UNKNOWN
+     * @return
+     */
+    @GetMapping("/job/status")
+    public List<BatchJobData> queryJobsByStatus(Principal principal, @RequestParam String status){
+        return metaDataService.queryRunningJobs(principal.getName(), status);
+    }
+
     @GetMapping("/jobs/id/list")
     public List<BatchJobData> getJobsByListOfIds(Principal principal, @RequestParam(value = "jobId", required = false) List<Long> jobIds) {
         return metaDataService.getManyJobStats(principal.getName(), jobIds);
