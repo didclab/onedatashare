@@ -42,12 +42,8 @@ public class MetaDataController {
     }
 
     @GetMapping("/all/page/jobs")
-    public PageImplResponse<BatchJobData> getAllJobStats(Principal principal,
-                                                               @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
-                                                               @RequestParam(value = "size", defaultValue = "30", required = false) Integer size,
-                                                               @RequestParam(value = "sort", defaultValue = "id", required = false) String sort,
-                                                               @RequestParam(value = "direction", defaultValue = "DESC", required = false) String direction) {
-        return metaDataService.getAllStats(principal.getName(), page, size, sort, direction);
+    public PageImplResponse<BatchJobData> getAllJobStats(Principal principal, Pageable pageable) {
+        return metaDataService.getAllStats(principal.getName(), pageable);
     }
 
 
