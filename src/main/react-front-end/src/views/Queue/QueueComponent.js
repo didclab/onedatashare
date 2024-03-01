@@ -107,7 +107,7 @@ class QueueComponent extends Component {
 
 		for (const job of responsesToDisplay) {
 			if (job.status in statusSet) {
-				const resp = await new Promise((resolve, reject) => {
+				const resp = new Promise((resolve, reject) => {
 					getJobUpdatesForUser(job.id, resolve, reject)
 				})
 				const data = resp[0].data
