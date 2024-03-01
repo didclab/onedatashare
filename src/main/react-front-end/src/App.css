@@ -286,6 +286,13 @@ div.homePage {
   background-color: #f7d9d9;
 }
 
+.pollingButton.stopped:hover {
+  background-color: #83ff85;
+}
+
+
+
+
 .QueueTable {
   width: 80%;
   /* : #d9534f 1px solid; */

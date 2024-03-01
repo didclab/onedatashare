@@ -45,6 +45,8 @@ class QueueComponent extends Component {
 			totalCount: 0,
 			loading: true,
 			pollCountdown: 30,
+			pollButtonHover: false,
+			pollRunning: true
 		}
 
 		this.update = this.update.bind(this)
@@ -77,6 +79,17 @@ class QueueComponent extends Component {
 				this.setState({pollCountdown: 30})
 			}
 		}, 1000);
+	}
+
+	handlePollButton() {
+		if (this.state.pollRunning) {
+			clearInterval(this.interval)
+			this.setState({pollRunning: !this.state.pollRunning})
+		}
+		else {
+			this.startInterval()
+			this.setState({pollRunning: !this.state.pollRunning})
+		}
 	}
 
 	componentWillUnmount() {
@@ -257,7 +270,24 @@ class QueueComponent extends Component {
 		return(
 			<div className='historyPage'>
 				<div className='QueueTable'>
-					<button className="pollingButton" onMouseEnter={() => {console.log("Enter")}}>{this.state.pollCountdown}</button>
+					{this.state.pollRunning ? (	
+						<button className="pollingButton" 
+							onMouseLeave={() => {this.setState({pollButtonHover: !this.state.pollButtonHover})}} 
+							onMouseEnter={() => {this.setState({pollButtonHover: !this.state.pollButtonHover})}}
+							onClick={() => {clearInterval(this.handlePollButton())}}
+						>
+							{this.state.pollButtonHover ? "Stop" : this.state.pollCountdown}
+						</button>
+					) : (
+					<button className="pollingButton stopped" 
+						onMouseLeave={() => {this.setState({pollButtonHover: !this.state.pollButtonHover})}} 
+						onMouseEnter={() => {this.setState({pollButtonHover: !this.state.pollButtonHover})}}
+						onClick={() => {clearInterval(this.handlePollButton())}}
+					>
+						{this.state.pollButtonHover ? "Continue" : this.state.pollCountdown}
+					</button>
+				)
+					}
 					<QueueView
 						adminPg={false}
 						loading={this.state.loading}
