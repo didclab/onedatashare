@@ -41,7 +41,7 @@ class QueueComponent extends Component {
 			rowsPerPage: 10,
 			searchValue: '',
 			order: 'desc',
-			orderBy: 'id',
+			orderBy: 'createTime',
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
@@ -89,7 +89,7 @@ class QueueComponent extends Component {
 	}
 
 	update() {
-		const statusSet = new Set(["STARTED", "STARTING", "STOPPED", "STOPPING", "UNKNOWN"])
+		const statusSet = new Set(["STARTED", "STARTING", "EXECUTING", "STOPPING"])
 		const {responsesToDisplay} = this.state
 		let jobIds = []
 		responsesToDisplay.forEach(job => {
@@ -123,8 +123,15 @@ class QueueComponent extends Component {
 		//success
 		//let responsesToDisplay = this.paginateResults(resp.jobs, page, rowsPerPage);
 		//commented to fix second page render issue as it slices all jobs and returns null object
+		const filterSet = new Set(["STARTED", "STARTING", "EXECUTING", "STOPPING"])
+		let filteredResponse = []
+		for (const job of resp.content) {
+			if (job.status in filterSet) {
+				filteredResponse.push(job)
+			}
+		}
 		this.setState({
-			response: resp.content,
+			response: filteredResponse,
 			responsesToDisplay: resp.content,
 			totalCount: resp.totalElements,
 			loading: false
@@ -212,6 +219,7 @@ class QueueComponent extends Component {
 	}
 
 	handleRequestSort = (property) => {
+		console.log(property)
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
 		const { order, orderBy} = this.state;
@@ -242,13 +250,13 @@ class QueueComponent extends Component {
 
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
-		const sortableColumns = {
-			// jobId: 'job_id',
-			// status: 'status',
-			// avgSpeed : "bytes.avg",
-			// source : "src.uri",
-			// destination: "dest.uri"
-		};
+		const sortableColumns = []
+		console.log(this.state.responsesToDisplay)
+		if (this.state.responsesToDisplay[0]) {
+			for (const key of Object.keys(this.state.responsesToDisplay[0])) {
+				sortableColumns.push(key)
+			}
+		}
 		return(
 			<div className='historyPage'>
 				<QueueView
