@@ -40,7 +40,8 @@ public class IndexFilter implements Filter {
     HttpServletRequest httpServletRequest=(HttpServletRequest) servletRequest;
     if( ODSConstants.ODS_URIS_SET.contains(httpServletRequest.getRequestURI()) ){
       httpServletRequest.getRequestDispatcher("/index.html").forward(servletRequest,servletResponse);
+    }else {
+      filterChain.doFilter(servletRequest, servletResponse);
     }
-    filterChain.doFilter(servletRequest,servletResponse);
   }
 }
