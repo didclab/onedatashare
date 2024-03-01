@@ -7,11 +7,11 @@ import org.onedatashare.server.model.requestdata.MonitorData;
 import org.onedatashare.server.model.response.PageImplResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -19,6 +19,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class MetaDataService {
@@ -39,10 +41,9 @@ public class MetaDataService {
     private String INFLUX_USER_MEASUREMENTS = "/stats/influx/user";
     private String DATE = "/date";
 
-    @Autowired
     private RestClient.Builder restClientBuilder;
 
-    public MetaDataService(RestClient.Builder webClientBuilder){
+    public MetaDataService(RestClient.Builder webClientBuilder) {
         this.restClientBuilder = webClientBuilder;
     }
 
@@ -78,14 +79,13 @@ public class MetaDataService {
                 });
     }
 
-    public PageImplResponse<BatchJobData> getAllStats(String userId, Integer page, Integer size, String sort, String direction) {
+    public PageImplResponse<BatchJobData> getAllStats(String userId, Pageable page) {
         URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
                 .path(BASE_PATH + "/stat/page")
                 .queryParam(USER_EMAIL, userId)
-                .queryParam("number", page)
-                .queryParam("size", size)
-                .queryParam("sort", sort)
-                .queryParam("direction", direction)
+                .queryParam("page", page.getPageNumber())
+                .queryParam("size", page.getPageSize())
+                .queryParam("sort", getSortQueryParam(page.getSort()))
                 .build().toUri();
         logger.info(uri.toString());
         return this.restClientBuilder.build()
@@ -94,6 +94,15 @@ public class MetaDataService {
                 .retrieve()
                 .body(new ParameterizedTypeReference<PageImplResponse<BatchJobData>>() {
                 });
+    }
+
+    private String getSortQueryParam(Sort sort) {
+        if (sort.isSorted()) {
+            return sort.stream()
+                    .map(order -> String.format("%s,%s", order.getProperty(), order.getDirection()))
+                    .collect(Collectors.joining(","));
+        }
+        return null;
     }
 
 
@@ -240,6 +249,45 @@ public class MetaDataService {
                 .uri(uri)
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<InfluxData>>() {
+                });
+    }
+
+    public List<UUID> getUserUuids(String userEmail) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/uuids")
+                .queryParam(USER_EMAIL, userEmail)
+                .build().toUri();
+        UUID[] uuids = this.restClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body(UUID[].class);
+        return List.of(uuids);
+    }
+
+    public BatchJobData getUserJobByUuid(UUID jobUuid) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/job/uuid")
+                .queryParam("jobUuid", jobUuid)
+                .build().toUri();
+        return this.restClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body(BatchJobData.class);
+    }
+
+    public List<BatchJobData> queryRunningJobs(String ownerId, String status) {
+        URI uri = UriComponentsBuilder.fromUriString(this.metaHostName)
+                .path(BASE_PATH + "/stat/running")
+                .queryParam("userEmail", ownerId)
+                .queryParam("status", status)
+                .build().toUri();
+        return this.restClientBuilder.build()
+                .get()
+                .uri(uri)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<BatchJobData>>() {
                 });
     }
 }
