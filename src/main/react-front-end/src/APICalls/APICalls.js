@@ -422,14 +422,15 @@ export async function savedCredList(type, accept, fail) {
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
 	console.log(pageNo, pageSize, sortBy, order)
+	const sortKey = sortBy + "," + order
+	console.log(sortKey)
 	let callback = accept;
 	axios.get("/api/metadata/all/page/jobs", {
 		params : 
 		{
-		page:pageNo,
-		direction:order,
+		number:pageNo,
 		size:pageSize,
-		sort:sortBy
+		sort: sortKey
 		}
 	})
 		.then((response) => {
