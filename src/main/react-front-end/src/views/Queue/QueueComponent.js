@@ -25,7 +25,6 @@ import React, { Component } from 'react';
 import { cancelJob, restartJob, deleteJob, getJobUpdatesForUser, getJobsForUser } from '../../APICalls/APICalls';
 import { eventEmitter } from '../../App';
 import { updateGAPageView } from '../../analytics/ga';
-import { jobStatus } from '../../constants';
 import QueueView from "./QueueView";
 import RowElement from "./QueueTableRow/RowElement/RowElement";
 
@@ -45,7 +44,7 @@ class QueueComponent extends Component {
 			selectedRowId: null,
 			totalCount: 0,
 			loading: true,
-			pollCountdown: 5,
+			pollCountdown: 30,
 		}
 
 		this.update = this.update.bind(this)
@@ -75,7 +74,7 @@ class QueueComponent extends Component {
 			// Reason for -1 is because when reached 0, we want to wait 1 more second to accomodate for decimal seconds
 			if (this.state.pollCountdown === -1) {
 				this.update()
-				this.setState({pollCountdown: 5})
+				this.setState({pollCountdown: 30})
 			}
 		}, 1000);
 	}
@@ -84,40 +83,28 @@ class QueueComponent extends Component {
 		clearInterval(this.interval)
 	}
 
-	componentDidUpdate(prevProps, prevState) {
-		const {
-			page: prevPage,
-			rowsPerPage: prevRowsPerPage,
-			orderBy: prevOrderBy,
-			order: prevOrder,
-			response: prevResponse,
-			loading: prevLoading
-		} = prevState
-		const {loading, response, page, rowsPerPage, orderBy, order} = this.state
-		if ((!prevLoading && loading !== prevLoading) || response.length !== prevResponse.length ||
-			page !== prevPage || rowsPerPage !== prevRowsPerPage || orderBy !== prevOrderBy ||
-			order !== prevOrder) {
-			this.queueFunc()
-		}
-	}
-
 	update() {
 		const statusSet = new Set(["STARTED", "STARTING", "EXECUTING", "STOPPING"])
-		const {responsesToDisplay} = this.state
+		let newData = [...this.state.responsesToDisplay]
 
-		for (const job of responsesToDisplay) {
-			if (job.status in statusSet) {
+		for (const job of newData) {
+			if (statusSet.has(job.status)) {
 				const resp = new Promise((resolve, reject) => {
 					getJobUpdatesForUser(job.id, resolve, reject)
+				}).then((resp) => {
+					const data = resp[0].data
+					const index = newData.findIndex(obj => obj.id === data.id)
+					if (index != -1) {
+						newData[index] = data
+						this.setState({responsesToDisplay: newData})
+					}
+					else {
+						newData.push(data)
+						this.setState({responsesToDisplay: newData})
+					}
+				}).catch(error => {
+					console.error(error)
 				})
-				const data = resp[0].data
-				const index = responsesToDisplay.findIndex(obj => obj.id === data.id)
-				if (index != -1) {
-					responsesToDisplay[index] = data
-				}
-				else {
-					responsesToDisplay.push(data)
-				}
 			}
 		}
 			// existingJob.status = resp.status
@@ -125,6 +112,7 @@ class QueueComponent extends Component {
 			// existingJob.bytes.done = resp.bytes.done
 			// existingJob.bytes.avg = resp.bytes.avg
 	}
+
 	paginateResults(results, page, limit) {
 		let offset = page * limit
 		return results.slice(offset, offset + limit)
@@ -142,6 +130,7 @@ class QueueComponent extends Component {
 				filteredResponse.push(job)
 			}
 		}
+		
 		this.setState({
 			response: filteredResponse,
 			responsesToDisplay: resp.content,
@@ -230,7 +219,6 @@ class QueueComponent extends Component {
 	}
 
 	handleRequestSort = (property) => {
-		console.log(property)
 		let defaultOrder = 'desc'
 		let newOrder = defaultOrder
 		const { order, orderBy} = this.state;
@@ -261,7 +249,6 @@ class QueueComponent extends Component {
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
 		const sortableColumns = []
-		console.log(this.state.responsesToDisplay)
 		if (this.state.responsesToDisplay[0]) {
 			for (const key of Object.keys(this.state.responsesToDisplay[0])) {
 				sortableColumns.push(key)

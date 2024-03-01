@@ -513,7 +513,6 @@ export async function getJobDetails(jobId, accept, fail) {
 export async function getJobUpdatesForUser(jobId, accept, fail){
 	let callback = accept;
 	var influx_data = [];
-	var flag = 0;
 
 	try {
 		jobId = parseInt(jobId)
@@ -526,15 +525,17 @@ export async function getJobUpdatesForUser(jobId, accept, fail){
 		{
 			jobId: jobId
 		}
-	})
-	.then((response) => {
-		if(!(response.status === 200))
+	}).then((response) => {
+		if (response.status === 200 && response.data !== undefined) {
+			influx_data.push(response);
+			accept(influx_data)
+		}
+		else {
 			callback = fail;
-		influx_data.push(response);
-		accept(influx_data)
+		}
 	})
 	.catch((error) => {
-		console.log("Failed")
+		console.log(error)
 		handleRequestFailure(error, fail);
     });
 }

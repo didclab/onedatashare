@@ -8,7 +8,6 @@ const QueueProgressBar = ({
                           }) => {
     
     const calculateProgress = useMemo (()=> {
-        let filelist = []
         let totalJobSize = resp.jobParameters.jobSize
         let totalWrote = 0
         for (const file of resp.batchSteps) {
@@ -23,7 +22,6 @@ const QueueProgressBar = ({
             }
         }
         // console.log(filelist)
-        console.log(totalWrote / totalJobSize * 100)
         return Math.ceil((totalWrote / totalJobSize) * 100)
     }, [resp])
 

@@ -288,7 +288,7 @@ div.homePage {
 
 .QueueTable {
   width: 80%;
-  /* outline: #d9534f 1px solid; */
+  /* : #d9534f 1px solid; */
 }
 
 .jobInfoBox {
@@ -313,14 +313,12 @@ div.homePage {
   padding-top: 15vh;
   padding-bottom: 15vh;
   align-items: center;
-  outline: 2px solid red;
 }
 
 .QueueView {
   display: flex;
   width: 100%;
   height: fit-content;
-  /* outline: 2px solid #ccff00; */
   background-color: white;
   flex-direction: column;
 }
@@ -332,18 +330,17 @@ div.homePage {
 
 .Row:hover {
   background-color: rgb(172, 172, 172);
-  /* outline: 2px solid #ff0000; */
 }
 
 .Row.expanded {
   width: 100%;
-  /* outline: 2px solid #00ff5e; */
+  /* : 2px solid #00ff5e; */
   text-align: start;
 }
 
 .QueueView p {
   font-size: 1.25rem;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell {
@@ -351,7 +348,7 @@ div.homePage {
   align-content: center;
   text-align: center !important;
   word-break: break-word;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
@@ -361,7 +358,7 @@ div.homePage {
   padding-top: .5vh;
   cursor: default;
   pointer-events: none;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell * {
@@ -369,12 +366,12 @@ div.homePage {
   align-content: center;
   font-size: 1.2rem;
   vertical-align: middle;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell {
   word-break: break-word;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .idCell{
