@@ -359,6 +359,8 @@ div.homePage {
   color: #31708f;
   text-align: center;
   padding-top: .5vh;
+  cursor: default;
+  pointer-events: none;
   /* outline: 2px solid #ff0000; */
 }
 
