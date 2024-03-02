@@ -149,35 +149,6 @@ export default class MainComponent extends Component {
               />
             }
 
-            {/* {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.historyPageUrl '/history' } 
-                render={(props) =>
-                  <HistoryComponent  {...props} store={store} />
-                }
-              />
-            } */}
-            
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.userListPageUrl /*'/clientsInfo'*/}
-                render={(props) =>
-                  <ClientsInfoComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.notificationPageUrl /*'/sendNotifications'*/} render=
-                {(props) =>
-                  <NotificationsComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.newNotificationsUrl /*'/newNotifications'*/} render=
-                {(props) =>
-                  <NewNotificationsComponent {...props} store={store} />
-                }
-              />
-            }
             {isLoggedIn &&
               <Route exact path={ siteURLS.userPageUrl /*'/user'*/}
                 render={(props) =>
