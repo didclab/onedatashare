@@ -27,7 +27,6 @@ import MenuIcon from '@material-ui/icons/Menu';
 
 
 import { Link } from 'react-router-dom';
-import AdminDropdown from "./AdminDropdown";
 // import { endpoint_db } from '../constants';
 import { siteURLS } from "../constants";
 import { store } from '../App';
@@ -86,12 +85,6 @@ class NavbarComponent extends Component {
 									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 									<Link to={siteURLS.historyPageUrl} href={siteURLS.historyPageUrl} id="NavHistory" className={"navbarButton"}>History</Link>
-
-									{this.state.admin===true &&
-									<AdminDropdown/>
-									}
-
-
 								</Box>
 								}
 							</Hidden>
@@ -144,9 +137,6 @@ class NavbarComponent extends Component {
 								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 								</ListItem>
-								}
-								{(this.state.login && this.state.admin) &&
-								<AdminDropdown mobile={true}/>
 								}
 								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
 								{!this.state.login &&
