@@ -37,10 +37,6 @@ import TransferComponent from './views/Transfer/TransferComponent';
 import JobHistoryComponent from './views/JobHistory/JobHistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
-import ClientsInfoComponent from './views/Admin/ClientsInfoComponent';
-import NotificationsComponent from './views/Admin/NotificationsComponent';
-import NewNotificationsComponent from './views/Admin/NewNotificationsComponent';
-// import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
 import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
