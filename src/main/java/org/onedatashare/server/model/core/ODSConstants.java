@@ -34,7 +34,7 @@ public class ODSConstants {
     public static final String GDRIVE_URI_SCHEME = "googledrive:/";
     public static final String TOKEN_COOKIE_NAME = "ATOKEN";
     public static final String TOKEN_PREFIX = "Bearer ";
-    public static final String[] ODS_URIS_ARR = new String[]{"/transfer", "/terms", "/policy", "/user", "/queue",
+    public static final String[] ODS_URIS_ARR = new String[]{"/","/transfer", "/terms", "/policy", "/user", "/queue",
             "/clientsInfo", "/history", "/account", "/account/signIn", "/account/register", "/oauth",
             "/support", "/get-started", "/oauth/uuid",
             "/oauth/googledrive", "/oauth/dropbox", "/oauth/gridftp", "/oauth/box",
@@ -51,5 +51,4 @@ public class ODSConstants {
     public static final String RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
     public static final int TOKEN_TIMEOUT_IN_MINUTES = 3;
     public static final long JWT_TOKEN_EXPIRES_IN = 86400 * 100;
-    public static final int MAX_FILES_TRANSFERRABLE = 1000;
 }

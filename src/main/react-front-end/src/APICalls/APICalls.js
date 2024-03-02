@@ -422,14 +422,15 @@ export async function savedCredList(type, accept, fail) {
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
 	console.log(pageNo, pageSize, sortBy, order)
+	const sortKey = sortBy + "," + order
+	console.log(sortKey)
 	let callback = accept;
 	axios.get("/api/metadata/all/page/jobs", {
 		params : 
 		{
-		page:pageNo,
-		direction:order,
+		number:pageNo,
 		size:pageSize,
-		sort:sortBy
+		sort: sortKey
 		}
 	})
 		.then((response) => {
@@ -512,29 +513,31 @@ export async function getJobDetails(jobId, accept, fail) {
 export async function getJobUpdatesForUser(jobId, accept, fail){
 	let callback = accept;
 	var influx_data = [];
-	var flag = 0;
-	axios.get("/api/metadata/measurements/job",{
+
+	try {
+		jobId = parseInt(jobId)
+	} 
+	catch (error) {
+		console.log("Input error, expected int")
+	}
+	axios.get("/api/metadata/job",{
 		params :
 		{
 			jobId: jobId
 		}
-	})
-	.then((response) => {
-		console.log(response)
-		if(!(response.status === 200))
+	}).then((response) => {
+		if (response.status === 200 && response.data !== undefined) {
+			influx_data.push(response);
+			accept(influx_data)
+		}
+		else {
 			callback = fail;
-		flag=1;
-		influx_data.push(response);
+		}
 	})
 	.catch((error) => {
-		console.log("Failed")
+		console.log(error)
 		handleRequestFailure(error, fail);
     });
-	if (flag==1)
-	{
-		console.log("Influx data",influx_data);
-		statusHandle(influx_data, callback);
-	}
 }
 
 
