@@ -224,6 +224,9 @@ class QueueComponent extends Component {
 			responsesToDisplay: nextRecords,
 			selectedRowId: null,
 			loading: true
+		}, () => {
+			console.log(this.state.page)
+			this.queueFunc();
 		});
 	}
 
