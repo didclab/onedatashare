@@ -52,6 +52,7 @@ import {
 	mkdir,
 	deleteCall,
 	getSharableLink,
+	OAuthFunctions
 } from "../../APICalls/EndpointAPICalls";
 
 
@@ -62,9 +63,7 @@ import { getFilesFromMemory, getIdsFromEndpoint, getPathFromMemory,
 import {eventEmitter, store} from "../../App";
 
 import { cookies } from "../../model/reducers";
-import { getName, getType } from '../../constants.js';
-import {showType, isOAuth} from "../../constants";
-import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
+import { getName, getType, showType, isOAuth} from "../../constants";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import {compactViewPreference} from "../../model/actions";
 import Switch from "@material-ui/core/Switch";

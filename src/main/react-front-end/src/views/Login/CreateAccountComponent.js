@@ -32,7 +32,7 @@ import {
   spaceBetweenStyle,
   validatePassword,
   validPassword,
-} from "../../constants.js";
+} from "../../constants";
 import {
   registerUser,
   verifyRegistraionCode,
