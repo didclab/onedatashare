@@ -503,27 +503,6 @@ export async function upload(uri, credential, accept, fail) {
 		});
 }
 
-/*
-	Desc: Retrieve all the available users
-*/
-export async function getUsers(pageNo, pageSize, sortBy, order, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + GET_USERS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			handleRequestFailure(error, fail);
-		});
-}
 
 
 export async function getUser(email, accept, fail) {
