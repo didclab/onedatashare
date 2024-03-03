@@ -40,12 +40,11 @@ class NavbarComponent extends Component {
 		this.state = {
 			login: store.getState().login,
 			email: store.getState().email,
-			admin: store.getState().admin,
 			mobileMenu: false
 		};
 
 		this.unsubscribe = store.subscribe(()=>{
-			this.setState({login: store.getState().login, email : store.getState().email, admin: store.getState().admin});
+			this.setState({login: store.getState().login, email : store.getState().email});
 		});
 
 	}
