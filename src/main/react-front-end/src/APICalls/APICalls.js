@@ -520,44 +520,6 @@ export async function getUser(email, accept, fail) {
 			handleRequestFailure(error, fail);
 		})
 }
-
-export async function updateSaveOAuth(email, saveOAuth, successCallback) {
-	axios.post(url + 'user', {
-		action: "updateSaveOAuth",
-		email: email,
-		saveOAuth: saveOAuth
-	})
-		.then((response) => {
-			if (response.status === 200)
-				successCallback();
-		})
-		.catch((error) => {
-			handleRequestFailure(error);
-			console.debug("Error encountered while updating the user.");
-		});
-}
-
-/*
-	Desc: Call the backend to save the OAuth Credentials when the user toggles
-        the button in account preferences to save credentials
-	input: Array of OAuth credentials
-	accept: (successMessage:string){}
-	fail: (errorMessage:string){}
-*/
-
-export async function saveOAuthCredentials(credentials, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'cred/saveCredentials', credentials)
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			handleRequestFailure(error, fail);
-		});
-}
-
 /*
 	Desc: Change Password
 */
