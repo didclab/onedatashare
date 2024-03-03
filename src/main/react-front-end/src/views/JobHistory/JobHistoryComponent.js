@@ -188,6 +188,8 @@
 			responsesToDisplay: nextRecords,
 			selectedRowId: null,
 			loading: true
+		}, () => {
+			this.queueFunc();
 		});
 	}
 

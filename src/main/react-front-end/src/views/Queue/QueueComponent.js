@@ -225,7 +225,6 @@ class QueueComponent extends Component {
 			selectedRowId: null,
 			loading: true
 		}, () => {
-			console.log(this.state.page)
 			this.queueFunc();
 		});
 	}
