@@ -23,13 +23,7 @@
 
  import { url, AUTH_ENDPOINT, RESET_PASSWD_ENDPOINT, IS_REGISTERED_EMAIL_ENDPOINT, 
 	SEND_PASSWD_RST_CODE_ENDPOINT, REGISTRATION_ENDPOINT, EMAIL_VERIFICATION_ENDPOINT,   
-	UPDATE_ADMIN_RIGHTS,
-	GET_USER_JOBS_ENDPOINT,
-	GET_ADMIN_JOBS_ENDPOINT,
 	GET_USERS_ENDPOINT,
-	GET_ADMINS_ENDPOINT,
-	GET_USER_UPDATES_ENDPOINT,
-	GET_ADMIN_UPDATES_ENDPOINT,
 	UPDATE_PASSWD_ENDPOINT,
 	GET_SEARCH_JOBS_ENDPOINT,
 	LOGOUT_ENDPOINT,
@@ -197,71 +191,6 @@ export async function resendVerificationCode(emailId){
 		});
 	}
 
-export async function getAllUsers(email) {
-	return axios.get(url + 'admin/getAllUsers', {
-		email: email,
-	}).then((response) => {
-		if (response.status === 200 && response.data) {
-			return response.data
-		}
-	}).catch(error => handleRequestFailure(error));
-}
-
-export async function getAllMails(email) {
-	return axios.get(url + 'admin/getMails', {
-		email: email,
-	}).then((response) => {
-		if (response.status === 200 && response.data) {
-			return response.data
-		}
-	}).catch(error => handleRequestFailure(error));
-}
-
-export async function getAllTrashMails(email) {
-	return axios.get(url + 'admin/getTrashMails', {
-		email: email,
-	}).then((response) => {
-		if (response.status === 200 && response.data) {
-			return response.data
-		}
-	}).catch(error => handleRequestFailure(error));
-}
-
-export async function deleteMail(uuid) {
-	return fetch(url + 'admin/deleteMail', {
-		method: 'POST',
-		headers: {
-			Accept: 'application/json',
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			mailId: uuid
-		}),
-	}).then((response) => {
-		if (response.status === 200 && response.data) {
-			return response.data;
-		} else {
-			return response;
-		}
-	}).catch((error) => {
-		handleRequestFailure(error);
-		return error.data;
-	});
-}
-
-
-export async function sendEmailNotification(senderEmail, subject, message, emailList, isHtml) {
-	return axios.post(url + 'admin/sendNotifications', {
-		senderEmail: senderEmail,
-		subject: subject,
-		message: message,
-		emailList: emailList,
-		isHtml: isHtml
-		})
-		.then((response) => {
-			return response.data;
-		}).catch(error => handleRequestFailure(error));
-}
 
 /** Set passowrd for the first time is the same as reset password */
 export async function setPassword(emailId, code, password, confirmPassword) {
@@ -318,22 +247,6 @@ export async function logout(){
 		}).catch((error) => {
 			console.debug(`Logout failed ${error}`)
 		})
-}
-
-export async function isAdmin(email, hash, accept, fail) {
-	let callback = accept;
-	axios.post(url + 'user', {
-		action: 'isAdmin',
-		email: email,
-		hash: hash,
-	}).then((response) => {
-		if (!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-		.catch((error) => {
-			handleRequestFailure(error, fail);
-		});
 }
 
 export async function history(uri, portNum, accept, fail) {
@@ -444,27 +357,6 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 		});
 }
 
-/*
-	Desc: Fetch all transfers. Only for Admins
-*/
-export async function getJobsForAdmin(owner, pageNo, pageSize, sortBy, order, accept, fail) {
-	let callback = accept;
-	axios.post(url+GET_ADMIN_JOBS_ENDPOINT, {
-		status: 'all',
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
-	})
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-		handleRequestFailure(error, fail);
-	});
-}
 
 export async function getSearchJobs(username, startJobId, endJobId, progress, pageNo, pageSize, sortBy, order, accept, fail) {
 	let callback = accept;
@@ -540,19 +432,6 @@ export async function getJobUpdatesForUser(jobId, accept, fail){
     });
 }
 
-
-export async function getJobUpdatesForAdmin(jobIds,accept, fail){
-	let callback = accept;
-	axios.post(url+GET_ADMIN_UPDATES_ENDPOINT, jobIds)
-	.then((response) => {
-		if(!(response.status === 200))
-			callback = fail;
-		statusHandle(response, callback);
-	})
-	.catch((error) => {
-		handleRequestFailure(error, fail);
-    });
-}
 
 // Service method that connects with ODS backend to submit an issue reported by the user and create a ticket.
 export async function submitIssue(reqBody, success, fail) {
@@ -647,29 +526,6 @@ export async function getUsers(pageNo, pageSize, sortBy, order, accept, fail) {
 }
 
 
-/*
-	Desc: Retrieve all the available users
-*/
-export async function getAdmins(pageNo, pageSize, sortBy, order, accept, fail) {
-	let callback = accept;
-
-	axios.post(url + GET_ADMINS_ENDPOINT, {
-		pageNo: pageNo,
-		pageSize: pageSize,
-		sortBy: sortBy,
-		sortOrder: order
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				callback = fail;
-			statusHandle(response, callback);
-		})
-		.catch((error) => {
-			handleRequestFailure(error, fail);
-		});
-}
-
-
 export async function getUser(email, accept, fail) {
 	let callback = accept;
 
@@ -721,24 +577,6 @@ export async function saveOAuthCredentials(credentials, accept, fail) {
 		})
 		.catch((error) => {
 			handleRequestFailure(error, fail);
-		});
-}
-
-export async function updateAdminRightsApiCall(email, isAdmin) {
-	return axios.put(url + UPDATE_ADMIN_RIGHTS, {
-		email: email,
-		isAdmin: isAdmin
-	})
-		.then((response) => {
-			if (!(response.status === 200))
-				return false;
-			else {
-				return true;
-			}
-		})
-		.catch((error) => {
-			handleRequestFailure(error);
-			console.debug("Error encountered while updating the user.");
 		});
 }
 
