@@ -51,13 +51,11 @@ export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedIn: store.getState().login,
-      admin: store.getState().admin,
+      isLoggedIn: store.getState().login
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
-        isLoggedIn: store.getState().login,
-        admin: store.getState().admin
+        isLoggedIn: store.getState().login
       });
     });
 
@@ -68,7 +66,7 @@ export default class MainComponent extends Component {
 
 
   render() {
-    const { isLoggedIn, admin } = this.state;
+    const { isLoggedIn } = this.state;
     return (
       <div className="App">
 
