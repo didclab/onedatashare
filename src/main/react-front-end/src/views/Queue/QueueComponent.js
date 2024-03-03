@@ -112,7 +112,7 @@ class QueueComponent extends Component {
 						this.setState({responsesToDisplay: newData})
 					}
 					else {
-						newData.push(data)
+						newData.unshift(data);
 						this.setState({responsesToDisplay: newData})
 					}
 				}).catch(error => {
@@ -219,12 +219,16 @@ class QueueComponent extends Component {
 	handleChangePage(event, page) {
 		const {response, rowsPerPage} = this.state
 		let nextRecords = this.paginateResults(response, page, rowsPerPage)
+		
 		this.setState({
 			page: page,
 			responsesToDisplay: nextRecords,
 			selectedRowId: null,
 			loading: true
+		}, () => {
+			this.queueFunc();
 		});
+
 	}
 
 	handleChangeRowsPerPage = (event) => {
