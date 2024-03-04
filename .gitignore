@@ -96,6 +96,7 @@ Dockerfile
 
 #properties
 src/main/resources/*.properties
+src
 
 # UI build files
 src/main/resources/static/
