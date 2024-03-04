@@ -272,6 +272,32 @@ div.homePage {
   z-index: 99;
 }
 
+.pollingButton {
+  position: relative;
+  width: 15%;
+  background-color: #d9edf7;
+  box-shadow: none;
+  border: none;
+  outline: 1px solid black;
+  border-radius: 10px 10px 0px 0px
+}
+
+.pollingButton:hover {
+  background-color: #f7d9d9;
+}
+
+.pollingButton.stopped:hover {
+  background-color: #83ff85;
+}
+
+
+
+
+.QueueTable {
+  width: 80%;
+  /* : #d9534f 1px solid; */
+}
+
 .jobInfoBox {
   background-color: rgb(255, 255, 255);
   width: 50%;
@@ -288,18 +314,18 @@ div.homePage {
 }
 .historyPage {
   display: flex;
+  flex-direction: column;
   width: 100vw;
   justify-content: center;
   padding-top: 15vh;
   padding-bottom: 15vh;
-  /* align-items: center; */
+  align-items: center;
 }
 
 .QueueView {
   display: flex;
-  width: 80%;
+  width: 100%;
   height: fit-content;
-  /* outline: 2px solid #ccff00; */
   background-color: white;
   flex-direction: column;
 }
@@ -311,18 +337,17 @@ div.homePage {
 
 .Row:hover {
   background-color: rgb(172, 172, 172);
-  /* outline: 2px solid #ff0000; */
 }
 
 .Row.expanded {
   width: 100%;
-  /* outline: 2px solid #00ff5e; */
+  /* : 2px solid #00ff5e; */
   text-align: start;
 }
 
 .QueueView p {
   font-size: 1.25rem;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell {
@@ -330,7 +355,7 @@ div.homePage {
   align-content: center;
   text-align: center !important;
   word-break: break-word;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
@@ -338,7 +363,9 @@ div.homePage {
   color: #31708f;
   text-align: center;
   padding-top: .5vh;
-  /* outline: 2px solid #ff0000; */
+  cursor: default;
+  pointer-events: none;
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell * {
@@ -346,12 +373,12 @@ div.homePage {
   align-content: center;
   font-size: 1.2rem;
   vertical-align: middle;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell {
   word-break: break-word;
-  /* outline: 2px solid #ff0000; */
+  /* : 2px solid #ff0000; */
 }
 
 .idCell{

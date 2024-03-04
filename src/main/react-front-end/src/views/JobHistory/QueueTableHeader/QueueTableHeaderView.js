@@ -7,71 +7,73 @@ import {Hidden} from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import QueueMobileHeader from "./QueueMobileHeader";
-import AdminHistoryTools from "./AdminHistoryTools";
 
+function makeHeaderCells(order, orderBy, handleRequestSort) {
 
-function makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns) {
-    let labels = [];
     let headers = [];
     let menuOpts = [];
-    let titles = ["Job ID", "Date", "Source", "Destination", "Job size"];
-    let classes = ["Cell 1", "Cell 2", "Cell 3", "Cell 4", "Cell 5"];
-    let keys = [sortableColumns.jobId, sortableColumns.status, sortableColumns.avgSpeed, sortableColumns.source, sortableColumns.destination];
-    for (let i = 0; i < titles.length; i += 1) {
-        labels.push(
-            <QueueTableSortLabel
-                handleRequestSort={handleRequestSort}
-                order={order}
-                orderBy={orderBy}
-                sortKey={keys[i]}
-                title={titles[i]}
-            />
-        );
-    }
-    for (let i = 0; i < titles.length; i += 1) {
-        headers.push(
-            <Tooltip title={"Sort by" + titles[i]} placement='bottom-end' key = {titles[i]}>
-                <TableCell className={classes[i] + " queueHeaderCell"}>
-                    {labels[i]}
+    // jobId: 'job_id',
+	// status: 'status',
+	// avgSpeed : "bytes.avg",
+	// source : "src.uri",
+	// destination: "dest.uri"
+
+    const headerCells = {
+        'id': { title: 'Job ID', class: 'idCell' },
+        'version': { title: 'Version', class: 'versionCell' },
+        'jobInstanceId': { title: 'Job Instance ID', class: 'jobInstanceIdCell' },
+        'createTime': { title: 'Date', class: 'createTimeCell' },
+        'startTime': { title: 'Start Time', class: 'startTimeCell' },
+        'status': { title: 'Status', class: 'statusCell' },
+        'exitCode': { title: 'Exit Code', class: 'exitCodeCell' },
+        'exitMessage': { title: 'Exit Message', class: 'exitMessageCell' },
+        'lastUpdated': { title: 'Last Updated', class: 'lastUpdatedCell' },
+        'batchSteps': { title: 'Batch Steps', class: 'batchStepsCell' },
+        'jobParameters': { title: 'Job Parameters', class: 'jobParametersCell' },
+        'speed': { title: 'Speed', class: 'speedCell' },
+        'source': { title: 'Source', class: 'sourceCell' },
+        'destination': { title: 'Destination', class: 'destinationCell' },
+        'jobSize': { title: 'Job Size', class: 'jobSizeCell' }
+    };
+    
+
+    const enabledHeaders = ['id', 'createTime', 'source', 'destination', 'jobSize']
+
+
+    for (const key of enabledHeaders) {
+        const item = headerCells[key]
+        if (item) {
+            headers.push(
+                <TableCell className={item.class + " queueHeaderCell"} key={key}>
+                    <QueueTableSortLabel
+                        handleRequestSort={handleRequestSort}
+                        order={order}
+                        orderBy={orderBy}
+                        sortKey={key}
+                        title={item.title}
+                    />
                 </TableCell>
-            </Tooltip>
-        );
-        menuOpts.push(
-            <MenuItem value={keys[i]}>
-                {titles[i]}
-            </MenuItem>
-        );
+            );
+            menuOpts.push(
+                <MenuItem>
+                    {item.title}
+                </MenuItem>
+            );
+        }
+    }
+    for (const item in headerCells) {
     }
     return [headers, menuOpts];
 };
 
 const QueueTableHeaderView = ({
-                                  adminPg,
-                                  customToolbar,
                                   handleRequestSort,
                                   order,
                                   orderBy,
-                                  page,
-                                  queueFunc,
-                                  refreshSuccess,
-                                  refreshFailure,
-                                  rowsPerPage,
-                                  sortableColumns,
                               }) => {
-    let [headerCells, menuOpts] = makeHeaderCells(adminPg, order, orderBy, handleRequestSort, sortableColumns);
+    let [headerCells, menuOpts] = makeHeaderCells(order, orderBy, handleRequestSort);
     return (
         <TableHead >
-            { adminPg && <AdminHistoryTools
-                customToolbar={customToolbar}
-                order={order}
-                orderBy={orderBy}
-                page={page}
-                refreshFailure={refreshFailure}
-                refreshSuccess={refreshSuccess}
-                rowsPerPage={rowsPerPage}
-                queueFunc={queueFunc}
-            />
-            }
             <TableRow >
                 <Hidden mdDown>
                     {headerCells}

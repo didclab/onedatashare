@@ -40,7 +40,7 @@
 			page: 0,
 			rowsPerPage: 10,
 			searchValue: '',
-			order: 'desc',
+			order: 'asc',
 			orderBy: 'id',
 			selectedRowId: null,
 			totalCount: 0,
@@ -226,32 +226,33 @@
 
 	render() {
 		const rowsPerPageOptions = [10, 20, 50, 100];
-		const sortableColumns = {
-			// jobId: 'job_id',
-			// status: 'status',
-			// avgSpeed : "bytes.avg",
-			// source : "src.uri",
-			// destination: "dest.uri"
-		};
+		const sortableColumns = [];
+		if (this.state.responsesToDisplay[0]) {
+			for (const key of Object.keys(this.state.responsesToDisplay[0])) {
+				sortableColumns.push(key)
+			}
+		}
 		return(
 			<div className='historyPage'>
-				<QueueView
-					className="QueueView"
-					loading={this.state.loading}
-					orderBy={this.state.orderBy}
-					order={this.state.order}
-					page={this.state.page}
-					responsesToDisplay={this.state.responsesToDisplay}
-					rowsPerPage={this.state.rowsPerPage}
-					rowsPerPageOptions={rowsPerPageOptions}
-					sortableColumns={sortableColumns}
-					totalCount={this.state.totalCount}
-					classes={this.props}
-					handleChangePage={this.handleChangePage}
-					handleChangeRowsPerPage={this.handleChangeRowsPerPage}
-					handleRequestSort={this.handleRequestSort}
-					populateRows={this.populateRows}
-				/>
+				<div className='QueueTable'>
+					<QueueView
+						className="QueueView"
+						loading={this.state.loading}
+						orderBy={this.state.orderBy}
+						order={this.state.order}
+						page={this.state.page}
+						responsesToDisplay={this.state.responsesToDisplay}
+						rowsPerPage={this.state.rowsPerPage}
+						rowsPerPageOptions={rowsPerPageOptions}
+						sortableColumns={sortableColumns}
+						totalCount={this.state.totalCount}
+						classes={this.props}
+						handleChangePage={this.handleChangePage}
+						handleChangeRowsPerPage={this.handleChangeRowsPerPage}
+						handleRequestSort={this.handleRequestSort}
+						populateRows={this.populateRows}
+					/>
+				</div>	
 			</div>
 		);
 	}

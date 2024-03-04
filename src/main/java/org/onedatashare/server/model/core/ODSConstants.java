@@ -34,7 +34,7 @@ public class ODSConstants {
     public static final String GDRIVE_URI_SCHEME = "googledrive:/";
     public static final String TOKEN_COOKIE_NAME = "ATOKEN";
     public static final String TOKEN_PREFIX = "Bearer ";
-    public static final String[] ODS_URIS_ARR = new String[]{"/transfer", "/terms", "/policy", "/user", "/queue",
+    public static final String[] ODS_URIS_ARR = new String[]{"/","/transfer", "/terms", "/policy", "/user", "/queue",
             "/clientsInfo", "/history", "/account", "/account/signIn", "/account/register", "/oauth",
             "/support", "/get-started", "/oauth/uuid",
             "/oauth/googledrive", "/oauth/dropbox", "/oauth/gridftp", "/oauth/box",
