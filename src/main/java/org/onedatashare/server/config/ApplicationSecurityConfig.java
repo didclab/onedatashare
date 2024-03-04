@@ -26,6 +26,9 @@ package org.onedatashare.server.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.onedatashare.server.model.core.AuthProvider;
+import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.security.oauth2.*;
 import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +45,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
 @EnableWebSecurity
 @Configuration
@@ -54,6 +63,25 @@ public class ApplicationSecurityConfig {
 
     @Autowired
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
+
+    @Autowired
+    private OAuth2UserService OAuth2UserService;
+
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+    @Autowired
+    private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
+    @Autowired
+    private OAuth2AuthorizationRequestRepositoryCookie OAuth2AuthorizationRequestRepositoryCookie;
+
+    @Bean
+    public OAuth2AuthorizationRequestRepositoryCookie cookieAuthorizationRequestRepository() {
+        return new OAuth2AuthorizationRequestRepositoryCookie();
+    }
+
+    private final AppPropertiesForCredentials appProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -73,6 +101,16 @@ public class ApplicationSecurityConfig {
                                 //TODO: Check if this setting is secure
                                 .requestMatchers("/**").permitAll();
                 })
+                .oauth2Login()
+                .authorizationEndpoint()
+                        .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                .and()
+                .userInfoEndpoint()
+                    .userService(OAuth2UserService)
+                .and()
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                .and()
                 .exceptionHandling(exceptionHandlingSpec ->
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
@@ -80,7 +118,6 @@ public class ApplicationSecurityConfig {
                 .build();
 
     }
-
     private void accessDeniedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
         httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
     }
@@ -98,4 +135,36 @@ public class ApplicationSecurityConfig {
         return (web) -> web.httpFirewall(firewall);
     }
 
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        return new InMemoryClientRegistrationRepository(getCilogonClientRegistration(), getGithubClientRegistration(), getGoogleClientRegistration());
+    }
+
+    private ClientRegistration getGithubClientRegistration() {
+        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfGitHub = appProperties.getClients().get(String.valueOf(AuthProvider.github));
+        return CommonOAuth2Provider.GITHUB.getBuilder(String.valueOf(AuthProvider.github)).clientId(clientPropertiesOfGitHub.getClientId())
+                .clientSecret(clientPropertiesOfGitHub.getClientSecret()).build();
+    }
+    private ClientRegistration getGoogleClientRegistration() {
+        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfGoogle = appProperties.getClients().get(String.valueOf(AuthProvider.google));
+        return CommonOAuth2Provider.GOOGLE.getBuilder(String.valueOf(AuthProvider.google)).clientId(clientPropertiesOfGoogle.getClientId())
+                .clientSecret(clientPropertiesOfGoogle.getClientSecret()).build();
+    }
+    private ClientRegistration getCilogonClientRegistration() {
+        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfCilogon = appProperties.getClients().get(String.valueOf(AuthProvider.cilogon));
+        return ClientRegistration.withRegistrationId(String.valueOf(AuthProvider.cilogon))
+                .clientId(clientPropertiesOfCilogon.getClientId())
+                .clientSecret(clientPropertiesOfCilogon.getClientSecret())
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri("{baseUrl}/")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .scope("openid", "email", "profile")
+                .authorizationUri(clientPropertiesOfCilogon.getAuthorizationUri())
+                .tokenUri(clientPropertiesOfCilogon.getTokenUri())
+                .userInfoUri(clientPropertiesOfCilogon.getUserinfoUri())
+                .clientName(ODSConstants.CILOGON)
+                .jwkSetUri(clientPropertiesOfCilogon.getJwtSetUri())
+                .userNameAttributeName("sub")
+                .build();
+    }
 }

@@ -30,6 +30,9 @@ import lombok.Getter;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.onedatashare.server.model.core.User;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
@@ -70,6 +73,19 @@ public class JWTUtil implements Serializable {
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", user.getRoles());
         return generateToken(claims, user.getEmail());
+    }
+
+    public String generateToken(Authentication authentication) {
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            DefaultOAuth2User user = (DefaultOAuth2User) oauthToken.getPrincipal();
+            Map<String, Object> claims = user.getAttributes();
+            String email = (String) claims.get("email");
+            return generateToken(claims, email);
+        }
+        else {
+            return null;
+        }
     }
 
     private String generateToken(Map<String, Object> claims, String username) {
