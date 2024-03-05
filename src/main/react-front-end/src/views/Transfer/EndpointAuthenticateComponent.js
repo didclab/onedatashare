@@ -24,12 +24,10 @@
 import React, { Component, Fragment } from 'react';
 import PropTypes from "prop-types";
 import {/*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
-		listFiles} from "../../APICalls/EndpointAPICalls";
+		listFiles, OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 import { globusFetchEndpoints, globusEndpointDetail, deleteEndpointId, globusEndpointActivateWeb } from "../../APICalls/globusAPICalls";
 import {savedCredList, saveEndpointCred, deleteCredential } from "../../APICalls/APICalls";
-import { generateURLFromPortNumber, generateURLForS3, showDisplay, s3Regions } from "../../constants";
-import {showType, isOAuth} from "../../constants";
-import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
+import { generateURLFromPortNumber, generateURLForS3, showDisplay, s3Regions , showType, isOAuth} from "../../constants";
 import {store} from "../../App";
 
 import ListItem from '@material-ui/core/ListItem';

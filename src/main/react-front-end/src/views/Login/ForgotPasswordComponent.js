@@ -28,7 +28,7 @@ import Button from "@material-ui/core/Button";
 import PropTypes from "prop-types";
 import { updateGAPageView } from "../../analytics/ga";
 import PasswordRequirementsComponent from "../Login/PasswordRequirementsComponent";
-import { spaceBetweenStyle, validPassword } from "../../constants.js";
+import { spaceBetweenStyle, validPassword } from "../../constants";
 import {
   resetPasswordSendCode,
   resetPasswordVerifyCode,

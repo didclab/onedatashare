@@ -37,7 +37,6 @@ import TransferComponent from './views/Transfer/TransferComponent';
 import JobHistoryComponent from './views/JobHistory/JobHistoryComponent'
 import QueueComponent from './views/Queue/QueueComponent';
 import UserAccountComponent from './views/Login/UserAccountComponent';
-// import SupportComponentOld from './views/Support/SupportComponentOld';
 import SupportComponent from './views/Support/SupportComponent';
 import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
@@ -52,13 +51,11 @@ export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isLoggedIn: store.getState().login,
-      admin: store.getState().admin,
+      isLoggedIn: store.getState().login
     }
     this.unsubscribe = store.subscribe(() => {
       this.setState({
-        isLoggedIn: store.getState().login,
-        admin: store.getState().admin
+        isLoggedIn: store.getState().login
       });
     });
 
@@ -69,12 +66,9 @@ export default class MainComponent extends Component {
 
 
   render() {
-    const { isLoggedIn, admin } = this.state;
+    const { isLoggedIn } = this.state;
     return (
       <div className="App">
-
-        <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
 
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
@@ -146,35 +140,6 @@ export default class MainComponent extends Component {
               />
             }
 
-            {/* {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.historyPageUrl '/history' } 
-                render={(props) =>
-                  <HistoryComponent  {...props} store={store} />
-                }
-              />
-            } */}
-            
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.userListPageUrl /*'/clientsInfo'*/}
-                render={(props) =>
-                  <ClientsInfoComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.notificationPageUrl /*'/sendNotifications'*/} render=
-                {(props) =>
-                  <NotificationsComponent {...props} store={store} />
-                }
-              />
-            }
-            {isLoggedIn && admin &&
-              <Route exact path={ siteURLS.newNotificationsUrl /*'/newNotifications'*/} render=
-                {(props) =>
-                  <NewNotificationsComponent {...props} store={store} />
-                }
-              />
-            }
             {isLoggedIn &&
               <Route exact path={ siteURLS.userPageUrl /*'/user'*/}
                 render={(props) =>

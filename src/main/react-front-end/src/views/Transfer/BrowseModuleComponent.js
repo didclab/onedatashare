@@ -39,8 +39,7 @@ import {styled} from "@material-ui/core/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import { VFS, getType} from "../../constants";
-import {showText, showType, showDisplay} from "../../constants";
+import { VFS, getType, showText, showType, showDisplay} from "../../constants";
 import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
 
 import {eventEmitter} from "../../App";
