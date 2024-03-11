@@ -23,6 +23,15 @@ public class AppPropertiesForCredentials {
         private String tokenUri;
         private String userinfoUri;
         private String jwtSetUri;
+        private String redirectUriTemplate;
+
+        public String getRedirectUriTemplate() {
+            return redirectUriTemplate;
+        }
+
+        public void setRedirectUriTemplate(String redirectUriTemplate) {
+            this.redirectUriTemplate = redirectUriTemplate;
+        }
 
         public String getClientId() {
             return clientId;
