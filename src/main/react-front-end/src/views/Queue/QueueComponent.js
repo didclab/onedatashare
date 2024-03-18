@@ -139,14 +139,15 @@ class QueueComponent extends Component {
 		const filterSet = new Set(["STARTED", "STARTING", "EXECUTING", "STOPPING"])
 		let filteredResponse = []
 		for (const job of resp.content) {
-			if (job.status in filterSet) {
+			if (filterSet.has(job.status)) {
 				filteredResponse.push(job)
 			}
 		}
+
 		
 		this.setState({
-			response: filteredResponse,
-			responsesToDisplay: resp.content,
+			response: resp,
+			responsesToDisplay: filteredResponse,
 			totalCount: resp.totalElements,
 			loading: false
 		});
