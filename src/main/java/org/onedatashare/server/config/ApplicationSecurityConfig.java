@@ -74,14 +74,10 @@ public class ApplicationSecurityConfig {
     private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
 
     @Autowired
-    private OAuth2AuthorizationRequestRepositoryCookie OAuth2AuthorizationRequestRepositoryCookie;
+    private OAuth2AuthorizationRequestRepositoryCookie oauth2AuthorizationRequestRepositoryCookie;
 
-    @Bean
-    public OAuth2AuthorizationRequestRepositoryCookie cookieAuthorizationRequestRepository() {
-        return new OAuth2AuthorizationRequestRepositoryCookie();
-    }
-
-    private final AppPropertiesForCredentials appProperties;
+    @Autowired
+    private OAuthClientProperties oauthClientProperties;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -104,7 +100,7 @@ public class ApplicationSecurityConfig {
                 .oauth2Login()
                 .authorizationEndpoint()
                     .baseUri("/oauth2/authorization")
-                    .authorizationRequestRepository(cookieAuthorizationRequestRepository())
+                    .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie)
                 .and()
                 .redirectionEndpoint()
                     .baseUri("/oauth2/callback/*")
@@ -145,29 +141,26 @@ public class ApplicationSecurityConfig {
     }
 
     private ClientRegistration getGithubClientRegistration() {
-        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfGitHub = appProperties.getClients().get(String.valueOf(AuthProvider.github));
-        return CommonOAuth2Provider.GITHUB.getBuilder(String.valueOf(AuthProvider.github)).clientId(clientPropertiesOfGitHub.getClientId())
-                .clientSecret(clientPropertiesOfGitHub.getClientSecret()).redirectUri(clientPropertiesOfGitHub.getRedirectUriTemplate()).build();
+        return CommonOAuth2Provider.GITHUB.getBuilder(AuthProvider.github.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.github.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).build();
     }
     private ClientRegistration getGoogleClientRegistration() {
-        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfGoogle = appProperties.getClients().get(String.valueOf(AuthProvider.google));
-        return CommonOAuth2Provider.GOOGLE.getBuilder(String.valueOf(AuthProvider.google)).clientId(clientPropertiesOfGoogle.getClientId())
-                .clientSecret(clientPropertiesOfGoogle.getClientSecret()).redirectUri(clientPropertiesOfGoogle.getRedirectUriTemplate()).build();
+        return CommonOAuth2Provider.GOOGLE.getBuilder(AuthProvider.google.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.google.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.google.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.google.toString())).build();
     }
     private ClientRegistration getCilogonClientRegistration() {
-        AppPropertiesForCredentials.OAuth2ClientProperties clientPropertiesOfCilogon = appProperties.getClients().get(String.valueOf(AuthProvider.cilogon));
-        return ClientRegistration.withRegistrationId(String.valueOf(AuthProvider.cilogon))
-                .clientId(clientPropertiesOfCilogon.getClientId())
-                .clientSecret(clientPropertiesOfCilogon.getClientSecret())
+        return ClientRegistration.withRegistrationId(AuthProvider.cilogon.toString())
+                .clientId(oauthClientProperties.getClientId(AuthProvider.cilogon.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.cilogon.toString()))
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-                .redirectUri(clientPropertiesOfCilogon.getRedirectUriTemplate())
+                .redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.cilogon.toString()))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .scope("openid", "email", "profile")
-                .authorizationUri(clientPropertiesOfCilogon.getAuthorizationUri())
-                .tokenUri(clientPropertiesOfCilogon.getTokenUri())
-                .userInfoUri(clientPropertiesOfCilogon.getUserinfoUri())
+                .authorizationUri(oauthClientProperties.getAuthorizationUri(AuthProvider.cilogon.toString()))
+                .tokenUri(oauthClientProperties.getTokenUri(AuthProvider.cilogon.toString()))
+                .userInfoUri(oauthClientProperties.getUserinfoUri(AuthProvider.cilogon.toString()))
                 .clientName(ODSConstants.CILOGON)
-                .jwkSetUri(clientPropertiesOfCilogon.getJwtSetUri())
+                .jwkSetUri(oauthClientProperties.getJwkSetUri(AuthProvider.cilogon.toString()))
                 .userNameAttributeName("sub")
                 .build();
     }

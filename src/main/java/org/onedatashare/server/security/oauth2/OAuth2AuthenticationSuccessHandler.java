@@ -9,6 +9,8 @@ import org.onedatashare.server.model.util.CookieUtils;
 import org.onedatashare.server.repository.UserRepository;
 import org.onedatashare.server.service.JWTUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
@@ -34,18 +36,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private JWTUtil jwtUtil;
     @Autowired
     UserRepository userRepository;
-    private AppProperties appProperties;
-
-    private OAuth2AuthorizationRequestRepositoryCookie oauth2Authorizationrequestrepositorycookie;
-
-    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
-
     @Autowired
-    OAuth2AuthenticationSuccessHandler(AppProperties appProperties,
-                                       OAuth2AuthorizationRequestRepositoryCookie oauth2Authorizationrequestrepositorycookie) {
-        this.appProperties = appProperties;
-        this.oauth2Authorizationrequestrepositorycookie = oauth2Authorizationrequestrepositorycookie;
-    }
+    private AppProperties appProperties;
+    @Autowired
+    private OAuth2AuthorizationRequestRepositoryCookie oauth2AuthorizationRequestRepositoryCookie;
+    private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -97,8 +92,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String token = jwtUtil.generateToken(authentication);
 
+        String email = jwtUtil.getEmailFromToken(token);
+
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam(TOKEN_COOKIE_NAME, token)
+                .queryParam("email", email)
                 .build().toUriString();
     }
 
@@ -115,7 +113,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
-        oauth2Authorizationrequestrepositorycookie.removeAuthorizationRequestCookies(request, response);
+        oauth2AuthorizationRequestRepositoryCookie.removeAuthorizationRequestCookies(request, response);
     }
 
     //TODO: Need to discuss about this flow when compared to Generic OAuth

@@ -31,7 +31,6 @@ import SavedLoginComponent from "./SavedLoginComponent";
 import CreateAccountComponent from "./CreateAccountComponent";
 import ValidateEmailComponent from "./ValidateEmailComponent";
 import ForgotPasswordComponent from "./ForgotPasswordComponent";
-
 import { Route, Switch, Redirect } from "react-router-dom";
 
 import { login } from "../../APICalls/APICalls.js";
@@ -43,12 +42,14 @@ import {
   registerPageUrl,
   forgotPasswordUrl,
   lostValidationCodeUrl,
-    siteURLS
+  siteURLS,
 } from "../../constants";
 import { GREY } from "../../color";
 import { store } from "../../App.js";
 import { loginAction } from "../../model/actions";
 import { cookies } from "../../model/reducers";
+import SocialLogin from "./SocialLogin";
+import OAuth2RedirectHandler from "./OAuthRedirectHandler";
 
 export default class AccountControlComponent extends Component {
   constructor(props) {
@@ -104,7 +105,6 @@ export default class AccountControlComponent extends Component {
     this.userLogin = this.userLogin.bind(this);
     this.userSigningIn = this.userSigningIn.bind(this);
   }
-  
 
   componentDidMount() {
     document.body.style.backgroundColor = GREY;
@@ -191,7 +191,9 @@ export default class AccountControlComponent extends Component {
         fail(error);
       }
     );
-
+  }
+  oauthUserSigningIn(email, token, remember) {
+    this.userLogin(email, token, remember, true, true, false, 86400 * 100);
   }
   // Switches to a route and renders a component based on the redirect set inside render method.
   getInnerCard() {
@@ -257,37 +259,48 @@ export default class AccountControlComponent extends Component {
           exact
           path={signInUrl}
           render={(props) => (
-            <NewLoginComponent
-              email={this.props.email}
-              isLoading={(loading) => {
-                this.setState({ loading: loading });
-              }}
-              createAccountPressed={() => {
-                this.setState({
-                  loading: false,
-                  creatingAccount: true,
-                  signIn: false,
-                });
-              }}
-              lostValidationCodePressed={(email) => {
-                this.setState({
-                  loading: false,
-                  lostValidationCodePressed: true,
-                  signIn: false,
-                  email: email,
-                });
-              }}
-              forgotPasswordPressed={(email) => {
-                this.setState({
-                  loading: false,
-                  signIn: false,
-                  email: email,
-                  forgotPasswordPressed: true,
-                });
-              }}
-              userLoggedIn={this.userSigningIn}
-            />
+            <>
+              <NewLoginComponent
+                email={this.props.email}
+                isLoading={(loading) => {
+                  this.setState({ loading: loading });
+                }}
+                createAccountPressed={() => {
+                  this.setState({
+                    loading: false,
+                    creatingAccount: true,
+                    signIn: false,
+                  });
+                }}
+                lostValidationCodePressed={(email) => {
+                  this.setState({
+                    loading: false,
+                    lostValidationCodePressed: true,
+                    signIn: false,
+                    email: email,
+                  });
+                }}
+                forgotPasswordPressed={(email) => {
+                  this.setState({
+                    loading: false,
+                    signIn: false,
+                    email: email,
+                    forgotPasswordPressed: true,
+                  });
+                }}
+                userLoggedIn={this.userSigningIn}
+              />
+              <SocialLogin />
+            </>
           )}
+        ></Route>
+        <Route
+          path="/oauth2/redirect"
+          render={
+            <OAuth2RedirectHandler
+              oauthUserSigningIn={this.oauthUserSigningIn}
+            />
+          }
         ></Route>
       </Switch>
     );
@@ -342,20 +355,24 @@ export default class AccountControlComponent extends Component {
           {currentRoute !== siteURLS.registerPageUrl && creatingAccount && (
             <Redirect to={siteURLS.registerPageUrl} />
           )}
-          {currentRoute !== siteURLS.forgotPasswordUrl && forgotPasswordPressed && (
-            <Redirect to={siteURLS.forgotPasswordUrl} />
-          )}
+          {currentRoute !== siteURLS.forgotPasswordUrl &&
+            forgotPasswordPressed && (
+              <Redirect to={siteURLS.forgotPasswordUrl} />
+            )}
           {redirectToSignIn && <Redirect to={siteURLS.signInPageUrl} />}
           {currentRoute === siteURLS.accountPageUrl && signIn && (
-            <Redirect from={siteURLS.accountPageUrl} to={siteURLS.signInPageUrl} />
+            <Redirect
+              from={siteURLS.accountPageUrl}
+              to={siteURLS.signInPageUrl}
+            />
           )}
           {loading && <LinearProgress />}
 
-            <Card elevation={3}>
-                <CardContent style={{ padding: "3em" }}>
-                    {this.getInnerCard()}
-                </CardContent>
-            </Card>
+          <Card elevation={3}>
+            <CardContent style={{ padding: "3em" }}>
+              {this.getInnerCard()}
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
