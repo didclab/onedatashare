@@ -95,7 +95,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers("/api/**").authenticated()
                                 //Need to be admin to access admin functionalities
                                 //TODO: Check if this setting is secure
-                                .requestMatchers("/**").permitAll();
+                                .requestMatchers("/**", "/oauth2/**").permitAll();
                 })
                 .oauth2Login()
                 .authorizationEndpoint()

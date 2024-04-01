@@ -37,13 +37,7 @@ import { login } from "../../APICalls/APICalls.js";
 
 import "./AccountControlComponent.css";
 
-import {
-  signInUrl,
-  registerPageUrl,
-  forgotPasswordUrl,
-  lostValidationCodeUrl,
-  siteURLS,
-} from "../../constants";
+import { siteURLS } from "../../constants";
 import { GREY } from "../../color";
 import { store } from "../../App.js";
 import { loginAction } from "../../model/actions";
@@ -207,7 +201,7 @@ export default class AccountControlComponent extends Component {
 
         <Route
           exact
-          path={registerPageUrl}
+          path={siteURLS.registerPageUrl}
           render={(props) => (
             <CreateAccountComponent
               {...props}
@@ -220,7 +214,7 @@ export default class AccountControlComponent extends Component {
 
         <Route
           exact
-          path={lostValidationCodeUrl}
+          path={siteURLS.lostValidationCodeUrl}
           render={(props) => (
             <ValidateEmailComponent
               {...props}
@@ -238,12 +232,12 @@ export default class AccountControlComponent extends Component {
 
         <Route
           exact
-          path={forgotPasswordUrl}
+          path={siteURLS.forgotPasswordUrl}
           render={(props) => (
             <ForgotPasswordComponent
               {...props}
               back={() => {
-                this.props.location.pathname = signInUrl;
+                this.props.location.pathname = siteURLS.signInPageUrl;
                 this.setState({
                   loading: false,
                   redirectToSignIn: true,
@@ -257,7 +251,7 @@ export default class AccountControlComponent extends Component {
 
         <Route
           exact
-          path={signInUrl}
+          path={siteURLS.signInPageUrl}
           render={(props) => (
             <>
               <NewLoginComponent

@@ -29,7 +29,7 @@ import { Link } from 'react-router-dom';
 
 import './GetStartedComponent.css';
 
-import { ODS_S3_BUCKET, gs1, gs2, gs3, gs4, gs5, gs6, gs7 } from "../constants.js"
+import { ODS_S3_BUCKET, gs1, gs2, gs3, gs4, gs5, gs6, gs7 } from "../constants"
 
 export default class GetStartedComponent extends Component{
 

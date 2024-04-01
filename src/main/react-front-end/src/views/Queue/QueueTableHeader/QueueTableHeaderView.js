@@ -6,7 +6,6 @@ import {Hidden} from "@material-ui/core";
 import MenuItem from "@material-ui/core/MenuItem";
 import Tooltip from "@material-ui/core/Tooltip";
 import QueueMobileHeader from "./QueueMobileHeader";
-import AdminHistoryTools from "./AdminHistoryTools";
 
 
 function makeHeaderCells(order, orderBy, handleRequestSort, sortableColumns) {

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { signInUrl } from "../../constants.js";
+import { siteURLS } from "../../constants.js";
 class OAuth2RedirectHandler extends Component {
   getUrlParameter(name) {
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -26,7 +26,7 @@ class OAuth2RedirectHandler extends Component {
       }
       <Redirect
         to={{
-          pathname: signInUrl,
+          pathname: siteURLS.signInPageUrl,
         }}
       />;
     }
