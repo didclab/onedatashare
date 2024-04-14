@@ -25,10 +25,10 @@ package org.onedatashare.server.service;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

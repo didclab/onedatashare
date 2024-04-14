@@ -1,9 +1,9 @@
 package org.onedatashare.server.module;
 
+import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;

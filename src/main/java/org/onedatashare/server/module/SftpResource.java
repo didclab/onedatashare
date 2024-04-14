@@ -1,28 +1,18 @@
 package org.onedatashare.server.module;
 
+import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonservice.model.credential.EndpointCredential;
 import lombok.SneakyThrows;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.sftp.IdentityInfo;
 import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
-import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
-import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
-import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.io.InputStream;
 
 public class SftpResource extends VfsResource {
     private static final String CONTENT_DISPOSITION_HEADER = "attachment; filename=\"%s\"";

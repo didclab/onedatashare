@@ -1,12 +1,12 @@
 package org.onedatashare.server.module;
 
+import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonservice.model.credential.EndpointCredential;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
-import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.exceptionHandler.error.ODSException;
 
 public class FtpResource extends VfsResource {

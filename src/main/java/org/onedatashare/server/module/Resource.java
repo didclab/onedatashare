@@ -1,20 +1,16 @@
 package org.onedatashare.server.module;
 
-import com.dropbox.core.DbxException;
+import com.onedatashare.commonservice.model.credential.EndpointCredential;
 import lombok.NoArgsConstructor;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
 
 @NoArgsConstructor
 public abstract class Resource {

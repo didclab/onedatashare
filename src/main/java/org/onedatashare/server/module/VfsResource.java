@@ -1,9 +1,9 @@
 package org.onedatashare.server.module;
 
+import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonservice.model.credential.EndpointCredential;
 import org.apache.commons.vfs2.*;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
-import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.exceptions.FileAlreadyExistsException;
 import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;

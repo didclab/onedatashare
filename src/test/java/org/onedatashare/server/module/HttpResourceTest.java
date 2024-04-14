@@ -1,12 +1,10 @@
 package org.onedatashare.server.module;
 
-import org.apache.commons.vfs2.FileSystemException;
+import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
-import reactor.core.publisher.Mono;
 
 public class HttpResourceTest {
 
