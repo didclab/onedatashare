@@ -1,23 +1,26 @@
 package org.onedatashare.server.security.oauth2.user;
 
+import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class UserPrincipal implements OAuth2User, UserDetails {
+public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
     private String email;
     private String firstName;
     private String lastName;
     private String organisation;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
+    private OidcIdToken idToken;
 
     public UserPrincipal(String email, String firstName, String lastName, String organisation, Collection<? extends GrantedAuthority> authorities) {
         this.email = email;
@@ -29,21 +32,25 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     public static UserPrincipal create(User user) {
         // Have firstName, lastName and organisation here
-        List<GrantedAuthority> authorities = Collections.
-                singletonList(new SimpleGrantedAuthority("ROLE_USER"));
-
+        List<Role> roles = user.getRoles();
         return new UserPrincipal(
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
                 user.getOrganization(),
-                authorities
+                roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList())
         );
     }
 
     public static UserPrincipal create(User user, Map<String, Object> attributes) {
         UserPrincipal userPrincipal = UserPrincipal.create(user);
         userPrincipal.setAttributes(attributes);
+        return userPrincipal;
+    }
+
+    public static UserPrincipal create(User user, Map<String, Object> attributes, OidcIdToken idToken) {
+        UserPrincipal userPrincipal = UserPrincipal.create(user, attributes);
+        userPrincipal.setIdToken(idToken);
         return userPrincipal;
     }
 
@@ -59,6 +66,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
     public String getLastName() {
         return lastName;
     }
+
     public String getOrganisation() {
         return organisation;
     }
@@ -100,7 +108,7 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return attributes;
+        return attributes != null ? attributes : Collections.emptyMap();
     }
 
     public void setAttributes(Map<String, Object> attributes) {
@@ -109,7 +117,22 @@ public class UserPrincipal implements OAuth2User, UserDetails {
 
     @Override
     public String getName() {
-        return firstName.concat(" ").concat(lastName);
+        return email;
     }
 
+    @Override
+    public Map<String, Object> getClaims() {
+        return attributes;
+    }
+    @Override
+    public OidcUserInfo getUserInfo() {
+        return new OidcUserInfo(getClaims());
+    }
+    public void setIdToken(OidcIdToken idToken) {
+        this.idToken = idToken;
+    }
+    @Override
+    public OidcIdToken getIdToken() {
+        return idToken;
+    }
 }

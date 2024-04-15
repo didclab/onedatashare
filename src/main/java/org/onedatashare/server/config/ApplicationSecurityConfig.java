@@ -37,13 +37,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -65,7 +72,7 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Autowired
-    private OAuth2UserService OAuth2UserService;
+    private OidcUserService OAuth2UserService;
 
     @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -80,10 +87,31 @@ public class ApplicationSecurityConfig {
     private OAuthClientProperties oauthClientProperties;
 
     @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+        auth.setUserDetailsService(userDetailsService);
+        return auth;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authenticationManager(odsAuthenticationManager)
+                //.authenticationManager(odsAuthenticationManager)
+                // This is taken by implementing TokenAuthenticationFilter() which does the same job.
                 .securityContext((httpSecuritySecurityContextConfigurer ->
                         httpSecuritySecurityContextConfigurer.securityContextRepository(odsSecurityConfigRepository)))
                 .authorizeHttpRequests(requests -> {
@@ -106,7 +134,7 @@ public class ApplicationSecurityConfig {
                     .baseUri("/oauth2/callback/*")
                 .and()
                 .userInfoEndpoint()
-                    .userService(OAuth2UserService)
+                    .oidcUserService(OAuth2UserService)
                 .and()
                         .successHandler(oAuth2AuthenticationSuccessHandler)
                         .failureHandler(oAuth2AuthenticationFailureHandler)
@@ -115,6 +143,7 @@ public class ApplicationSecurityConfig {
                         exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
                                 .accessDeniedHandler(this::accessDeniedHandler))
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
 
     }
@@ -142,11 +171,11 @@ public class ApplicationSecurityConfig {
 
     private ClientRegistration getGithubClientRegistration() {
         return CommonOAuth2Provider.GITHUB.getBuilder(AuthProvider.github.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.github.toString()))
-                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).build();
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).scope("openid", "profile", "email", "user:read").build();
     }
     private ClientRegistration getGoogleClientRegistration() {
         return CommonOAuth2Provider.GOOGLE.getBuilder(AuthProvider.google.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.google.toString()))
-                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.google.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.google.toString())).build();
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.google.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.google.toString())).scope("openid", "profile", "email").build();
     }
     private ClientRegistration getCilogonClientRegistration() {
         return ClientRegistration.withRegistrationId(AuthProvider.cilogon.toString())

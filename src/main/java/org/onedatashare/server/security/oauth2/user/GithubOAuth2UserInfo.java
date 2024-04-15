@@ -12,12 +12,20 @@ public class GithubOAuth2UserInfo extends OAuth2UserInfo {
 
     @Override
     public String getFirstName() {
-        return (String) attributes.get("firstName");
+        String firstName = (String) attributes.get("name");
+        if (firstName != null && firstName.contains(" ")) {
+            firstName = firstName.substring(0, firstName.lastIndexOf(" "));
+        }
+        return firstName;
     }
 
     @Override
     public String getLastName() {
-        return (String) attributes.get("secondName");
+        String lastName = (String) attributes.get("name");
+        if (lastName != null && lastName.contains(" ")) {
+            lastName = lastName.substring(lastName.lastIndexOf(" ") + 1);
+        }
+        return lastName;
     }
 
     @Override

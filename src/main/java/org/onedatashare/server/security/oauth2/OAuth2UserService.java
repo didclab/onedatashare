@@ -10,19 +10,20 @@ import org.onedatashare.server.security.oauth2.user.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class OAuth2UserService extends DefaultOAuth2UserService {
+public class OAuth2UserService extends OidcUserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -30,9 +31,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private List<Role> roles;
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(oAuth2UserRequest);
-
+    public OidcUser loadUser(OidcUserRequest oAuth2UserRequest) throws OAuth2AuthenticationException {
+        OidcUser oAuth2User = super.loadUser(oAuth2UserRequest);
         try {
             return processOAuth2User(oAuth2UserRequest, oAuth2User);
         } catch (AuthenticationException ex) {
@@ -42,17 +42,23 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    private OAuth2User processOAuth2User(OAuth2UserRequest oAuth2UserRequest, OAuth2User oAuth2User) throws IOException {
+    private OidcUser processOAuth2User(OidcUserRequest oAuth2UserRequest, OidcUser oAuth2User) throws IOException {
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oAuth2UserRequest, oAuth2User.getAttributes());
 
-        if(StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
+        if (StringUtils.isEmpty(oAuth2UserInfo.getEmail())) {
             throw new OAuth2AuthenticationProcessingException("Email not found from OAuth2 provider");
         }
 
         Optional<User> userOptional = userRepository.findById(oAuth2UserInfo.getEmail());
         User user;
         user = userOptional.orElseGet(() -> registerNewUser(oAuth2UserInfo));
-        return UserPrincipal.create(user, oAuth2User.getAttributes());
+
+        if (oAuth2User instanceof OidcUser) {
+            OidcUser oidcUser = (OidcUser) oAuth2User;
+            return UserPrincipal.create(user, oAuth2User.getAttributes(), oidcUser.getIdToken());
+        } else {
+            return UserPrincipal.create(user, oAuth2User.getAttributes());
+        }
     }
 
     private User registerNewUser(OAuth2UserInfo oAuth2UserInfo) {
@@ -61,6 +67,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         user.setLastName(oAuth2UserInfo.getLastName());
         user.setEmail(oAuth2UserInfo.getEmail());
         user.setOrganization(oAuth2UserInfo.getOrganisation());
+        roles = new ArrayList<>();
         roles.add(Role.USER);
         user.setRoles(roles);
         return userRepository.save(user);
