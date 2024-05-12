@@ -48,6 +48,8 @@ export default class NewLoginComponent extends Component {
     forgotPasswordPressed: PropTypes.func,
     isLoading: PropTypes.func,
     userLoggedIn: PropTypes.func,
+    error: PropTypes.bool,
+    errorMessage: PropTypes.string
   };
 
   constructor(props) {
@@ -73,6 +75,12 @@ export default class NewLoginComponent extends Component {
   componentDidMount() {
     if (this.props.email) {
       this.setState({ email: this.props.email });
+    }
+    if (this.props.error) {
+      this.setState({ error: this.props.error });
+    }
+    if (this.props.errorMessage) {
+      this.setState({ errorMessage: this.props.errorMessage });
     }
   }
 

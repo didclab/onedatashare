@@ -43,7 +43,6 @@ import { store } from "../../App.js";
 import { loginAction } from "../../model/actions";
 import { cookies } from "../../model/reducers";
 import SocialLogin from "./SocialLogin";
-import OAuth2RedirectHandler from "./OAuthRedirectHandler";
 
 export default class AccountControlComponent extends Component {
   constructor(props) {
@@ -101,6 +100,10 @@ export default class AccountControlComponent extends Component {
   }
 
   componentDidMount() {
+    const { history } = this.props;
+    if (history.location.state && history.location.state.error) {
+      history.replace({ ...history.location, state: { ...history.location.state, error: false, errorMessage: "" } });
+    }
     document.body.style.backgroundColor = GREY;
     document.title = "OneDataShare - Account";
     window.addEventListener("resize", this.resize.bind(this));
@@ -186,9 +189,6 @@ export default class AccountControlComponent extends Component {
       }
     );
   }
-  oauthUserSigningIn(email, token, remember) {
-    this.userLogin(email, token, remember, true, true, false, 86400 * 100);
-  }
   // Switches to a route and renders a component based on the redirect set inside render method.
   getInnerCard() {
     return (
@@ -256,6 +256,8 @@ export default class AccountControlComponent extends Component {
             <>
               <NewLoginComponent
                 email={this.props.email}
+                error={props.history.location.state ? props.history.location.state.error : false}
+                errorMessage={props.history.location.state ? props.history.location.state.errorMessage : ""}
                 isLoading={(loading) => {
                   this.setState({ loading: loading });
                 }}
@@ -287,14 +289,6 @@ export default class AccountControlComponent extends Component {
               <SocialLogin />
             </>
           )}
-        ></Route>
-        <Route
-          path="/oauth2/redirect"
-          render={
-            <OAuth2RedirectHandler
-              oauthUserSigningIn={this.oauthUserSigningIn}
-            />
-          }
         ></Route>
       </Switch>
     );

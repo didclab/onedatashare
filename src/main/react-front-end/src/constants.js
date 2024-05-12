@@ -68,6 +68,7 @@ export const siteURLS = {
   historyPageUrl: "/history",
   termsUrl: "/terms",
   policyUrl: "/policy",
+  oauthRedirectUrl: "/oauth2/redirect"
 };
 
 export const s3Regions = [

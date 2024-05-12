@@ -42,7 +42,7 @@ import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
-
+import OAuth2RedirectHandler from './views/Login/OAuthRedirectHandler.js';
 import "./MainComponent.css"
 
 // XNOTE: split the components into logged in, not logged in, and admin using HOCs
@@ -78,6 +78,10 @@ export default class MainComponent extends Component {
 
             <Route path={ siteURLS.accountPageUrl /*'/account'*/}
               render={(props) => <AccountControlComponent {...props} />}
+            />
+
+            <Route path={siteURLS.oauthRedirectUrl /*'/oauth2/redirect'*/}
+              render={(props) => <OAuth2RedirectHandler {...props} />}
             />
 
             <Route exact path={ siteURLS.rootUrl /*'/'*/}
