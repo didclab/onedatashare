@@ -234,6 +234,11 @@ public class UserService {
         return userRepository.existsById(email);
     }
 
+    public Boolean hasHash(String email) {
+        Optional<User> user = userRepository.findById(email);
+        return user.isPresent() && user.get().getHash() != null;
+    }
+
     /**
      * //TODO: remove this function
      * Modified the function to use the security context

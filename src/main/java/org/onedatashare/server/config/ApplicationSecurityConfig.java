@@ -46,8 +46,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -58,6 +56,9 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 @EnableWebSecurity
 @Configuration
@@ -72,7 +73,10 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Autowired
-    private OidcUserService OAuth2UserService;
+    private OidcUserService oidcUserService;
+
+    @Autowired
+    private OAuthUserService oAuthUserService;
 
     @Autowired
     private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -108,7 +112,7 @@ public class ApplicationSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+            http
                 .httpBasic(AbstractHttpConfigurer::disable)
                 //.authenticationManager(odsAuthenticationManager)
                 // This is taken by implementing TokenAuthenticationFilter() which does the same job.
@@ -125,26 +129,39 @@ public class ApplicationSecurityConfig {
                                 //TODO: Check if this setting is secure
                                 .requestMatchers("/**", "/oauth2/**").permitAll();
                 })
-                .oauth2Login()
-                .authorizationEndpoint()
-                    .baseUri("/oauth2/authorization")
-                    .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie)
-                .and()
-                .redirectionEndpoint()
-                    .baseUri("/oauth2/callback/*")
-                .and()
-                .userInfoEndpoint()
-                    .oidcUserService(OAuth2UserService)
-                .and()
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
-                        .failureHandler(oAuth2AuthenticationFailureHandler)
-                .and()
                 .exceptionHandling(exceptionHandlingSpec ->
-                        exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
-                                .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(AbstractHttpConfigurer::disable)
+                        exceptionHandlingSpec
+                                .authenticationEntryPoint(this::authenticationFailedHandler)
+                                .accessDeniedHandler(this::accessDeniedHandler)
+                )
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                    config.setAllowedMethods(Collections.singletonList("*"));
+                    config.setAllowedHeaders(Collections.singletonList("*"));
+                    config.setAllowCredentials(true);
+                    cors.configurationSource(request -> config);
+                })
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .build();
+                .oauth2Login()
+                .authorizationEndpoint(authorizationEndpoint ->
+                        authorizationEndpoint
+                                .baseUri("/oauth2/authorization")
+                                .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie)
+                )
+                .redirectionEndpoint(redirectionEndpoint ->
+                        redirectionEndpoint
+                                .baseUri("/oauth2/callback/*")
+                )
+                .userInfoEndpoint(userInfoEndpoint ->
+                        userInfoEndpoint
+                                .oidcUserService(oidcUserService)
+                                .userService(oAuthUserService)
+                )
+                .successHandler(oAuth2AuthenticationSuccessHandler)
+                .failureHandler(oAuth2AuthenticationFailureHandler);
+            return http.build();
 
     }
     private void accessDeniedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
@@ -171,7 +188,7 @@ public class ApplicationSecurityConfig {
 
     private ClientRegistration getGithubClientRegistration() {
         return CommonOAuth2Provider.GITHUB.getBuilder(AuthProvider.github.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.github.toString()))
-                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).scope("openid", "profile", "email", "user:read").build();
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).scope("user:email", "read:user").build();
     }
     private ClientRegistration getGoogleClientRegistration() {
         return CommonOAuth2Provider.GOOGLE.getBuilder(AuthProvider.google.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.google.toString()))
@@ -184,7 +201,7 @@ public class ApplicationSecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.cilogon.toString()))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
-                .scope("openid", "email", "profile")
+                .scope("openid", "email", "profile", "org.cilogon.userinfo")
                 .authorizationUri(oauthClientProperties.getAuthorizationUri(AuthProvider.cilogon.toString()))
                 .tokenUri(oauthClientProperties.getTokenUri(AuthProvider.cilogon.toString()))
                 .userInfoUri(oauthClientProperties.getUserinfoUri(AuthProvider.cilogon.toString()))

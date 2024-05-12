@@ -14,9 +14,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
-import static org.onedatashare.server.model.core.ODSConstants.TOKEN_COOKIE_NAME;
+import static org.onedatashare.server.model.core.ODSConstants.*;
 
 @Component
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
@@ -32,18 +34,21 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
 
-        String targetUrl = determineTargetUrl(request, response, authentication);
+        List<String> redirectParams = getDetails(request, authentication);
 
         if (response.isCommitted()) {
-            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            logger.debug("Response has already been committed. Unable to redirect to " + redirectParams.get(0));
             return;
         }
-
+        CookieUtils.addCookie(response, TOKEN_COOKIE_NAME, redirectParams.get(1), Math.toIntExact(JWTUtil.getExpirationTime()), true);
+        CookieUtils.addCookie(response, SAVE_OAUTH_TOKENS, String.valueOf(true), Math.toIntExact(JWTUtil.getExpirationTime()), false);
+        CookieUtils.addCookie(response, USER_EMAIL, redirectParams.get(2), Math.toIntExact(JWTUtil.getExpirationTime()), false);
+        CookieUtils.addCookie(response, COMPACT_VIEW_ENABLED, String.valueOf(false), Math.toIntExact(JWTUtil.getExpirationTime()), false);
         clearAuthenticationAttributes(request, response);
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        getRedirectStrategy().sendRedirect(request, response, redirectParams.get(0));
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    protected List<String> getDetails(HttpServletRequest request, Authentication authentication) {
         Optional<String> redirectUri = CookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
 
@@ -57,10 +62,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         String email = jwtUtil.getEmailFromToken(token);
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
-                .queryParam(TOKEN_COOKIE_NAME, token)
-                .queryParam("email", email)
-                .build().toUriString();
+        List<String> result = new ArrayList<>();
+        result.add(UriComponentsBuilder.fromUriString(targetUrl).build().toUriString());
+        result.add(token);
+        result.add(email);
+        return result;
     }
 
     private boolean isAuthorizedRedirectUri(String uri) {
@@ -74,6 +80,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                             && authorizedURI.getPort() == clientRedirectUri.getPort();
                 });
     }
+
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         oauth2AuthorizationRequestRepositoryCookie.removeAuthorizationRequestCookies(request, response);

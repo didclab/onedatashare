@@ -30,7 +30,7 @@ public class CilogonOAuth2UserInfo extends OAuth2UserInfo {
     }
     @Override
     public String getOrganisation() {
-        return (String) attributes.get("o");
+        return (String) attributes.get("idp_name");
     }
 
 }

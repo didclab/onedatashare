@@ -26,6 +26,7 @@ package org.onedatashare.server.service;
 import io.jsonwebtoken.*;
 import lombok.Getter;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.security.oauth2.user.UserPrincipal;
 import org.slf4j.Logger;
@@ -37,10 +38,7 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JWTUtil implements Serializable {
@@ -92,11 +90,16 @@ public class JWTUtil implements Serializable {
     }
     public String createToken(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.USER);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", roles);
 
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationTime * 1000);
 
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(userPrincipal.getUsername())
                 .setIssuedAt(new Date())
                 .setExpiration(expiryDate)

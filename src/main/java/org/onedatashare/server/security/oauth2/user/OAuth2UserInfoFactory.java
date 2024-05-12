@@ -4,18 +4,13 @@ import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.onedatashare.server.security.oauth2.exceptions.OAuth2AuthenticationProcessingException;
 import org.onedatashare.server.model.core.AuthProvider;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 
 public class OAuth2UserInfoFactory {
-
-    @Value("${github.organization.id}")
-    static String organizationId;
 
     public static OAuth2UserInfo getOAuth2UserInfo(OAuth2UserRequest oAuth2UserRequest, Map<String, Object> attributes) throws IOException {
         String registrationId = oAuth2UserRequest.getClientRegistration().getRegistrationId();
@@ -24,14 +19,16 @@ public class OAuth2UserInfoFactory {
         } else if (registrationId.equalsIgnoreCase(AuthProvider.cilogon.toString())) {
             return new CilogonOAuth2UserInfo(attributes);
         } else if (registrationId.equalsIgnoreCase(AuthProvider.github.toString())) {
-            GitHub github = new GitHubBuilder().withOAuthToken(oAuth2UserRequest.getAccessToken().getTokenValue(), organizationId).build();
-            if(Objects.nonNull(github.getMyself().getEmail())) {
-                attributes.put("externalEmail", github.getMyself().getEmail());
+            GitHub github = new GitHubBuilder().withOAuthToken(oAuth2UserRequest.getAccessToken().getTokenValue()).build();
+            List<String> emails = github.getMyself().getEmails();
+            Map<String, Object> newAttributes = new HashMap<>(attributes);
+            if(!emails.isEmpty()) {
+                newAttributes.put("externalEmail", emails.get(0));
             }
             else {
-                attributes.put("externalEmail", null);
+                newAttributes.put("externalEmail", null);
             }
-            return new GithubOAuth2UserInfo(attributes);
+            return new GithubOAuth2UserInfo(newAttributes);
         } else {
             throw new OAuth2AuthenticationProcessingException("Sorry! Login with " + registrationId + " is not supported yet.");
         }
