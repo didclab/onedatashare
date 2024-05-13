@@ -135,14 +135,6 @@ public class ApplicationSecurityConfig {
                                 .accessDeniedHandler(this::accessDeniedHandler)
                 )
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {
-                    CorsConfiguration config = new CorsConfiguration();
-                    config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
-                    config.setAllowedMethods(Collections.singletonList("*"));
-                    config.setAllowedHeaders(Collections.singletonList("*"));
-                    config.setAllowCredentials(true);
-                    cors.configurationSource(request -> config);
-                })
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .oauth2Login()
                 .authorizationEndpoint(authorizationEndpoint ->

@@ -47,9 +47,9 @@ export const LOGOUT_ENDPOINT = "/deauthenticate";
 // export const url = "/api/"+ version + "/stork/";
 // export const apiBaseUrl = "/api/" + version + "/";
 // export const apiCredUrl = apiBaseUrl + "cred/";
-export const url = "/api/stork/";
-export const transferJobUrl = "/api/job/schedule";
-export const apiBaseUrl = "/api/";
+export const url = "http://localhost:8080/api/stork/";
+export const transferJobUrl = "http://localhost:8080/api/job/schedule";
+export const apiBaseUrl = "http://localhost:8080/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
 
 export const siteURLS = {
@@ -99,15 +99,19 @@ export const s3Regions = [
   // "me-south-1",
 ];
 
-export const AUTH_ENDPOINT = "/authenticate";
-export const RESET_PASSWD_ENDPOINT = "/reset-password";
-export const IS_REGISTERED_EMAIL_ENDPOINT = "/is-email-registered";
-export const SEND_PASSWD_RST_CODE_ENDPOINT = "/send-passwd-rst-code";
-export const UPDATE_PASSWD_ENDPOINT = "/api/stork/update-password";
+export const AUTH_ENDPOINT = "http://localhost:8080/authenticate";
+export const RESET_PASSWD_ENDPOINT = "http://localhost:8080/reset-password";
+export const IS_REGISTERED_EMAIL_ENDPOINT =
+  "http://localhost:8080/is-email-registered";
+export const SEND_PASSWD_RST_CODE_ENDPOINT =
+  "http://localhost:8080/send-passwd-rst-code";
+export const UPDATE_PASSWD_ENDPOINT =
+  "http://localhost:8080/api/stork/update-password";
 
-export const REGISTRATION_ENDPOINT = "/register";
-export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
-export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
+export const REGISTRATION_ENDPOINT = "http://localhost:8080/register";
+export const EMAIL_VERIFICATION_ENDPOINT = "http://localhost:8080/verify-email";
+export const RESEND_ACC_ACT_CODE_ENDPOINT =
+  "http://localhost:8080/resend-acc-act-code";
 
 export const GET_SEARCH_JOBS_ENDPOINT = "q/search-jobs";
 
