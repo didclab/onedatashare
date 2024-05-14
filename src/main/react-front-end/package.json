@@ -47,7 +47,7 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:3000",
+  "proxy": "https://onedatashare.org",
   "browserslist": [
     ">0.2%",
     "not dead",

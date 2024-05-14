@@ -46,7 +46,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -73,7 +72,7 @@ public class ApplicationSecurityConfig {
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
     @Autowired
-    private OidcUserService oidcUserService;
+    private CustomOidcUserService oidcUserService;
 
     @Autowired
     private OAuthUserService oAuthUserService;

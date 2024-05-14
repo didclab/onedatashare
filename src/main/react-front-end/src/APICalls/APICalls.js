@@ -337,7 +337,7 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 	const sortKey = sortBy + "," + order
 	console.log(sortKey)
 	let callback = accept;
-	axios.get("http://localhost:8080/api/metadata/all/page/jobs", {
+	axios.get("/api/metadata/all/page/jobs", {
 		params : 
 		{
 		page:pageNo,

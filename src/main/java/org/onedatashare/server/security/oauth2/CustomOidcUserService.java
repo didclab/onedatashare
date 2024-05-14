@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class OidcUserService extends org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService {
+public class CustomOidcUserService extends org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService {
 
     @Autowired
     private UserRepository userRepository;
