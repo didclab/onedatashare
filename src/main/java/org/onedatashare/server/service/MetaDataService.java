@@ -35,11 +35,15 @@ public class MetaDataService {
     private String USER_JOBS = "/user_jobs";
     private String STAT = "/stat";
     private String JOB_ID_QUERY = "jobId";
+    private static final String JOB_UUID_QUERY = "jobUuid";
     private String ALL_STATS = "/all_stats";
     private String INFLUX_RANGE_MEASUREMENTS = "/stats/influx/job/range";
     private String INFLUX_JOB_MEASUREMENTS = "/stats/influx/job";
     private String INFLUX_USER_MEASUREMENTS = "/stats/influx/user";
     private String DATE = "/date";
+    private static final String DELETE_JOB_PATH = "/delete_job";
+    private static final String DELETE_ALL_JOBS_USER_PATH = "/delete_all_jobs_user";
+    private static final String DELETE_JOB_UUID_PATH = "/delete_job_uuid";
 
     private RestClient.Builder restClientBuilder;
 
@@ -289,5 +293,44 @@ public class MetaDataService {
                 .retrieve()
                 .body(new ParameterizedTypeReference<List<BatchJobData>>() {
                 });
+    }
+
+    @SneakyThrows
+    public void deleteJob(Long jobId) {
+        URI uri = UriComponentsBuilder.fromUriString(metaHostName)
+                .path(BASE_PATH + DELETE_JOB_PATH)
+                .queryParam(JOB_ID_QUERY, jobId)
+                .build().toUri();
+        this.restClientBuilder.build()
+                .delete()
+                .uri(uri)
+                .retrieve()
+                .body(Void.class);
+    }
+
+    @SneakyThrows
+    public void deleteAllJobs(String userEmail) {
+        URI uri = UriComponentsBuilder.fromUriString(metaHostName)
+                .path(BASE_PATH + DELETE_ALL_JOBS_USER_PATH)
+                .queryParam(USER_EMAIL, userEmail)
+                .build().toUri();
+        this.restClientBuilder.build()
+                .delete()
+                .uri(uri)
+                .retrieve()
+                .body(Void.class);
+    }
+
+    @SneakyThrows
+    public void deleteJobByUuid(UUID jobUuid) {
+        URI uri = UriComponentsBuilder.fromUriString(metaHostName)
+                .path(BASE_PATH + DELETE_JOB_UUID_PATH)
+                .queryParam(JOB_UUID_QUERY, jobUuid.toString())
+                .build().toUri();
+        this.restClientBuilder.build()
+                .delete()
+                .uri(uri)
+                .retrieve()
+                .body(Void.class);
     }
 }

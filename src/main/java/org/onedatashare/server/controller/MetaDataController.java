@@ -9,15 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.UUID;
 @RestController
 @RequestMapping("/api/metadata")
 public class MetaDataController {
@@ -111,6 +108,22 @@ public class MetaDataController {
     @GetMapping("/measurements/job/node")
     public List<InfluxData> queryMeasurementsByNode(Principal principal, @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start, @RequestParam String appId, @RequestParam Long jobId){
         return metaDataService.getJobMeasurementsUniversal(principal.getName(), jobId, start, appId);
+    }
+
+    // DELETE mappings
+    @DeleteMapping("/delete_job")
+    public void deleteJobByJobId(@RequestParam Long jobId) {
+        metaDataService.deleteJob(jobId);
+    }
+
+    @DeleteMapping("/delete_all_jobs_user")
+    public void deleteAllJobsByUserEmail(Principal principal) {
+        metaDataService.deleteAllJobs(principal.getName());
+    }
+
+    @DeleteMapping("/delete_job_uuid")
+    public void deleteJobByUuid(@RequestParam UUID jobUuid) {
+        metaDataService.deleteJobByUuid(jobUuid);
     }
 
 }
