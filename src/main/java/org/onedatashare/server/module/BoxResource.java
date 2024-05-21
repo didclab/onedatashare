@@ -2,8 +2,8 @@ package org.onedatashare.server.module;
 
 import com.box.sdk.*;
 
-import com.onedatashare.commonservice.model.credential.EndpointCredential;
-import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.exceptionHandler.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;

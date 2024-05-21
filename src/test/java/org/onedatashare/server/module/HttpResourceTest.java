@@ -1,6 +1,6 @@
 package org.onedatashare.server.module;
 
-import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonutils.model.credential.AccountEndpointCredential;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.onedatashare.server.model.core.Stat;

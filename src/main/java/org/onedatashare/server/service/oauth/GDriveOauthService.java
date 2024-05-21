@@ -33,7 +33,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
-import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import lombok.SneakyThrows;
 import org.onedatashare.server.config.GDriveConfig;
 import org.onedatashare.server.exceptionHandler.error.ODSException;

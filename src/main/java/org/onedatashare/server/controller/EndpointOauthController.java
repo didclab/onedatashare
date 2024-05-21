@@ -25,7 +25,7 @@ package org.onedatashare.server.controller;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxWebAuth;
-import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.exceptionHandler.error.DuplicateCredentialException;
 import org.onedatashare.server.exceptionHandler.error.NotFoundException;
 import org.onedatashare.server.model.core.EndpointType;

@@ -1,6 +1,6 @@
 package org.onedatashare.server.module;
 
-import com.onedatashare.commonservice.model.credential.EndpointCredential;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import lombok.NoArgsConstructor;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;

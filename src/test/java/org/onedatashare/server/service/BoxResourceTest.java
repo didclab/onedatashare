@@ -1,7 +1,7 @@
 package org.onedatashare.server.service;
 
 
-import com.onedatashare.commonservice.model.credential.OAuthEndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import junit.framework.TestCase;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;

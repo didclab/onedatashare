@@ -1,7 +1,7 @@
 package org.onedatashare.server.module;
 
-import com.onedatashare.commonservice.model.credential.AccountEndpointCredential;
-import com.onedatashare.commonservice.model.credential.EndpointCredential;
+import com.onedatashare.commonutils.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import org.apache.log4j.Logger;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.exceptionHandler.error.ODSException;
