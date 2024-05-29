@@ -42,6 +42,7 @@ import EndpointDB from './views/Endpoint_Authorization/Endpoint_DB'
 import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
+import CarbonMapComponent from "./views/CarbonMap/CarbonMapComponent"
 
 import "./MainComponent.css"
 
@@ -136,6 +137,13 @@ export default class MainComponent extends Component {
               <Route exact path={ siteURLS.historyPageUrl /*'/queue'*/}
                 render={(props) =>
                   <JobHistoryComponent {...props} />
+                }
+              />
+            }
+            {isLoggedIn &&
+              <Route exact path={ siteURLS.mapPageUrl /*'/queue'*/}
+                render={(props) =>
+                  <CarbonMapComponent {...props}/>
                 }
               />
             }

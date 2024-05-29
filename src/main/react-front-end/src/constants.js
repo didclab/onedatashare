@@ -63,6 +63,7 @@ export const siteURLS = {
 	lostValidationCodeUrl: "/account/lostValidationCode",
 	userPageUrl: "/user",
 	historyPageUrl: "/history",
+	mapPageUrl: "/map",
 	termsUrl: "/terms",
 	policyUrl: "/policy",
 };

@@ -84,6 +84,7 @@ class NavbarComponent extends Component {
 									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
 									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
 									<Link to={siteURLS.historyPageUrl} href={siteURLS.historyPageUrl} id="NavHistory" className={"navbarButton"}>History</Link>
+									<Link to={siteURLS.mapPageUrl} href={siteURLS.mapPageUrl} id="NavMap" className={"navbarButton"}>Map</Link>
 								</Box>
 								}
 							</Hidden>
