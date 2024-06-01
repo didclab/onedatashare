@@ -48,25 +48,6 @@ export const transferJobUrl = "/api/job/schedule"
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
 
-export const transferPageUrl = "/transfer";
-export const queuePageUrl = "/queue";
-export const endpoint_db = "/endpoint_db"
-export const accountPageUrl = "/account";
-export const registerPageUrl = "/account/register";
-export const signInUrl = "/account/signIn";
-export const forgotPasswordUrl = "/account/forgotPassword";
-export const lostValidationCodeUrl = "/account/lostValidationCode";
-export const userPageUrl = "/user";
-export const userListPageUrl = "/clientsInfo";
-export const historyPageUrl = "/history";
-export const notificationPageUrl = "/sendNotifications";
-export const newNotifications = "/newNotifications";
-export const addAccountUrl = "/account/add";
-export const dataPageUrl = "/data";
-export const managementPageUrl = "/management";
-export const oauthPreUrl = "/oauth/";
-export const termsUrl = "/terms";
-export const policyUrl = "/policy";
 
 export const siteURLS = {
 	rootUrl: "/",
@@ -81,14 +62,7 @@ export const siteURLS = {
 	forgotPasswordUrl: "/account/forgotPassword",
 	lostValidationCodeUrl: "/account/lostValidationCode",
 	userPageUrl: "/user",
-	userListPageUrl: "/clientsInfo",
 	historyPageUrl: "/history",
-	notificationPageUrl: "/sendNotifications",
-	newNotificationsUrl: "/newNotifications",
-	addAccountUrl: "/account/add",
-	dataPageUrl: "/data",
-	managementPageUrl: "/management",
-	oauthPreUrl: "/oauth/",
 	termsUrl: "/terms",
 	policyUrl: "/policy",
 };
@@ -132,16 +106,9 @@ export const REGISTRATION_ENDPOINT = "/register";
 export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
 export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
-export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
-export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
-export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
-export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
 
 export const GET_SEARCH_JOBS_ENDPOINT = "q/search-jobs";
 
-export const GET_ADMINS_ENDPOINT = "admin/get-admins";
-export const GET_USERS_ENDPOINT = "admin/get-users";
-export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
@@ -200,8 +167,6 @@ export const gs7 = ODS_S3_BUCKET + "gs7.png";
 // RSA key for encryption
 export const ODS_PUBLIC_KEY = process.env.REACT_APP_ODS_RSA_PUBLIC_KEY;
 
-//Status
-export const completeStatus = "complete";
 
 
 
@@ -276,9 +241,6 @@ export const defaultPort = {
 	gsiftp: -1,
 	https: 443
 }
-
-//Seconds for which the cookie is valid
-export const maxCookieAge = 3600;
 
 export const jobStatus = {
 	COMPLETED: 'completed',

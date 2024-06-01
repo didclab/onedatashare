@@ -30,6 +30,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class UserTransferOptions {
+    private Integer userDesiredCarbonIntensity;
     private Boolean compress; //implemented
     private Boolean encrypt; //we currently need to add FTPS, HTTPS support I believe
     private String optimizer; //not yet supported, might use B.O maybe?
@@ -55,5 +56,6 @@ public class UserTransferOptions {
         this.parallelThreadCount = 1;
         this.chunkSize = 10 << 1024 << 1024;
         this.scheduledTime = LocalDateTime.now();
+        this.userDesiredCarbonIntensity = -1;
     }
 }

@@ -28,7 +28,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.onedatashare.server.model.core.ODSConstants;
 import org.springframework.stereotype.Component;
 
@@ -40,8 +39,9 @@ public class IndexFilter implements Filter {
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, jakarta.servlet.ServletException {
     HttpServletRequest httpServletRequest=(HttpServletRequest) servletRequest;
     if( ODSConstants.ODS_URIS_SET.contains(httpServletRequest.getRequestURI()) ){
-      ((HttpServletResponse) servletResponse).sendRedirect("/index.html");
+      httpServletRequest.getRequestDispatcher("/index.html").forward(servletRequest,servletResponse);
+    }else {
+      filterChain.doFilter(servletRequest, servletResponse);
     }
-    filterChain.doFilter(servletRequest,servletResponse);
   }
 }

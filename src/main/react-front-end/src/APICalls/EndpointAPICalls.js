@@ -21,11 +21,10 @@
  */
 
 
-import { ENDPOINT_OP_URL, LIST_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, S3 } from '../constants';
+import { ENDPOINT_OP_URL, LIST_OP_URL, MKDIR_OP_URL, SFTP_DOWNLOAD_URL, DEL_OP_URL, DOWNLOAD_OP_URL, S3, GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, apiBaseUrl, getType, showType, isOAuth } from '../constants';
 import { axios, statusHandle, handleRequestFailure } from "./APICalls";
 import { getIdsFromEndpoint } from '../views/Transfer/initialize_dnd.js';
 import { cookies } from "../model/reducers";
-import { GOOGLEDRIVE_TYPE, BOX_TYPE, DROPBOX_TYPE, apiBaseUrl, getType, showType, isOAuth} from "../constants.js";
 
 function getUriType(uri) {
     return uri.split(":")[0].toLowerCase();

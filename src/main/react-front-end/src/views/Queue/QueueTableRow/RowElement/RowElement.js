@@ -56,8 +56,7 @@ export default class RowElement extends React.Component {
 
     render() {
         const {resp, infoVisible} = this.props
-        let bar = (<QueueProgressBar status={resp.status} total={resp.jobParameters.jobSize} done={resp.jobParameters.jobSize}/>);
-        console.log(resp.jobParameters.jobSize)
+        let bar = (<QueueProgressBar status={resp.status} resp={resp}/>);
         let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
         let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
         let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
