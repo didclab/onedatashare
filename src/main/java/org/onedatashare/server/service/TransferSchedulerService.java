@@ -27,6 +27,9 @@ import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
 import org.onedatashare.server.model.TransferParams;
 import org.onedatashare.server.exceptionHandler.error.CredentialNotFoundException;
+import org.onedatashare.server.model.carbon.CarbonIpEntry;
+import org.onedatashare.server.model.carbon.CarbonMeasureResponse;
+import org.onedatashare.server.model.carbon.CarbonTraceRouteResponse;
 import org.onedatashare.server.model.request.StopRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestClient;
 import reactor.core.publisher.Mono;
 
@@ -116,5 +120,33 @@ public class TransferSchedulerService {
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/apply/application/params").build())
                 .body(transferParams)
                 .retrieve().toBodilessEntity();
+    }
+
+    public List<CarbonIpEntry> traceRouteCarbon(String transferNodeName, String sourceIp, String destinationIp) {
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/measure/carbon/traceroute")
+                        .queryParam("transferNodeName", transferNodeName)
+                        .queryParam("sourceIp", sourceIp)
+                        .queryParam("destinationIp", destinationIp)
+                        .build())
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CarbonIpEntry>>(){});
+    }
+
+    public CarbonMeasureResponse carbonMeasure(UUID jobUuid){
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/carbon").queryParam("jobUuid", jobUuid).build())
+                .retrieve()
+                .body(CarbonMeasureResponse.class);
+    }
+
+    public CarbonTraceRouteResponse carbonTraceRoute(@RequestParam UUID jobUuid){
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/carbon/traceroute").queryParam("jobUuid", jobUuid).build())
+                .retrieve()
+                .body(CarbonTraceRouteResponse.class);
     }
 }
