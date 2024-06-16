@@ -23,18 +23,16 @@
 
 package org.onedatashare.server.service;
 
-import org.onedatashare.server.model.core.EndpointType;
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.onedatashare.server.module.HttpResource;
 import org.onedatashare.server.module.Resource;
-import org.onedatashare.server.module.VfsResource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 
@@ -46,7 +44,7 @@ public class HttpFileService extends ResourceServiceBase {
 
     @Override
     protected Resource getResource(String credId) {
-        return  HttpResource.initialize(credentialService.fetchAccountCredential(EndpointType.http, credId));
+        return  HttpResource.initialize(credentialService.fetchAccountCredential(EndpointCredentialType.http, credId));
     }
 
     @Override

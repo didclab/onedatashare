@@ -1,10 +1,10 @@
 package org.onedatashare.server.model;
 
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.onedatashare.server.model.core.EndpointType;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class FileSource implements Serializable {
     @NonNull
     private String credId;
     @NonNull
-    public EndpointType type;
+    public EndpointCredentialType type;
 
     public String fileSourcePath = ""; //can also be the parent Id to the directory to find all data in the infoList
 

@@ -22,9 +22,10 @@
 
 
 package org.onedatashare.server.exceptionHandler.error;
+import com.onedatashare.commonutils.error.ODSError;
 import org.springframework.http.HttpStatus;
 
-public class OldPwdMatchingException extends ODSError{
+public class OldPwdMatchingException extends ODSError {
     public OldPwdMatchingException(String err)
     {
         super(err);

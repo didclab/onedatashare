@@ -30,7 +30,7 @@ import com.dropbox.core.v2.files.*;
 import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;

@@ -23,11 +23,11 @@
 
 package org.onedatashare.server.model.request;
 
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
-import org.onedatashare.server.model.core.EndpointType;
 
 import java.util.HashSet;
 
@@ -43,7 +43,7 @@ public class TransferJobRequest {
     @Data
     @Accessors(chain = true)
     public static class Destination {
-        @NonNull protected EndpointType type;
+        @NonNull protected EndpointCredentialType type;
         @NonNull protected String credId;
         @NonNull protected EntityInfo parentInfo;
     }
@@ -51,7 +51,7 @@ public class TransferJobRequest {
     @Data
     @Accessors(chain = true)
     public static class Source {
-        @NonNull protected EndpointType type;
+        @NonNull protected EndpointCredentialType type;
         @NonNull protected String credId;
         @NonNull protected EntityInfo parentInfo;
         @NonNull protected HashSet<EntityInfo> infoList;

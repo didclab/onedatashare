@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.exceptionHandler.error;
 
+import com.onedatashare.commonutils.error.ODSError;
 import org.onedatashare.server.model.credential.OAuthCredential;
 import org.springframework.http.HttpStatus;
 

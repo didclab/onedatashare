@@ -4,7 +4,7 @@ import com.onedatashare.commonutils.model.credential.AccountEndpointCredential;
 import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import org.apache.commons.vfs2.*;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.exceptions.FileAlreadyExistsException;
 import org.onedatashare.server.model.filesystem.exceptions.FileNotFoundException;
 import org.onedatashare.server.model.filesystem.exceptions.NoWritePermissionException;

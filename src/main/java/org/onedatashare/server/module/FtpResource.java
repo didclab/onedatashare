@@ -7,7 +7,7 @@ import org.apache.commons.vfs2.VFS;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder;
 import org.apache.commons.vfs2.provider.ftp.FtpFileSystemConfigBuilder;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 
 public class FtpResource extends VfsResource {
 

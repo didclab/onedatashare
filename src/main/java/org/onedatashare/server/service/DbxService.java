@@ -23,14 +23,14 @@
 
 package org.onedatashare.server.service;
 
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.response.DownloadResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import org.springframework.beans.factory.annotation.Value;
 import org.onedatashare.server.module.DropboxResource;
 import org.onedatashare.server.module.Resource;
@@ -47,7 +47,7 @@ public class DbxService extends ResourceServiceBase {
     private String DROPBOX_CLIENT_IDENTIFIER;
 
     protected Resource getResource(String credId) {
-        return DropboxResource.initialize(credentialService.fetchOAuthCredential(EndpointType.dropbox, credId),
+        return DropboxResource.initialize(credentialService.fetchOAuthCredential(EndpointCredentialType.dropbox, credId),
                 DROPBOX_CLIENT_IDENTIFIER);
     }
 

@@ -12,7 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 
 import java.io.IOException;

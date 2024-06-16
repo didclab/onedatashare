@@ -59,7 +59,24 @@
             <id>org.source.repo</id>
             <url>http://maven.orgName.com/maven2/</url>
         </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
     <dependencies>
         <dependency>
@@ -139,11 +156,11 @@
             <version>2.4.6</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.dropbox.core</groupId>
-            <artifactId>dropbox-core-sdk</artifactId>
-            <version>5.1.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.dropbox.core</groupId>-->
+<!--            <artifactId>dropbox-core-sdk</artifactId>-->
+<!--            <version>5.1.1</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -169,13 +186,6 @@
             <artifactId>spring-restdocs-mockmvc</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-drive</artifactId>
-            <version>v3-rev197-1.25.0</version>
-        </dependency>
-
 
         <dependency>
             <groupId>javax.mail</groupId>
@@ -211,13 +221,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.3</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.box</groupId>
-            <artifactId>box-java-sdk</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
         <!--        <dependency>-->
         <!--            <groupId>org.onedatashare.module</groupId>-->
         <!--            <artifactId>globus-api</artifactId>-->
@@ -315,7 +318,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.onedatashare.commonutils</groupId>
+            <groupId>io.github.rrekhi1</groupId>
             <artifactId>commonutils</artifactId>
             <version>0.0.1</version>
         </dependency>

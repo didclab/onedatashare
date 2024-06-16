@@ -4,7 +4,7 @@ import com.onedatashare.commonutils.model.credential.AccountEndpointCredential;
 import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import org.apache.log4j.Logger;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;

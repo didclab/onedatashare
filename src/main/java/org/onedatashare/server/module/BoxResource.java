@@ -5,7 +5,7 @@ import com.box.sdk.*;
 import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.exceptionHandler.error.ODSAccessDeniedException;
+import com.onedatashare.commonutils.error.ODSAccessDeniedException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
@@ -23,13 +23,6 @@ import java.util.List;
 public class BoxResource extends Resource {
     private BoxAPIConnection client;
     Logger logger = LoggerFactory.getLogger(BoxResource.class);
-
-    @Value("${box.clientId}")
-    private String clientId;
-
-    @Value("${box.clientSecret}")
-    private String clientSecret;
-
 
     public BoxResource(EndpointCredential credential) {
         super(credential);

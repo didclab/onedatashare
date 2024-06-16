@@ -2,6 +2,8 @@ package org.onedatashare.server.exceptionHandler;
 
 import com.box.sdk.BoxAPIResponseException;
 import com.dropbox.core.DbxException;
+import com.onedatashare.commonutils.error.ODSAccessDeniedException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.apache.log4j.Logger;
 import org.onedatashare.server.exceptionHandler.error.*;
 import org.springframework.http.HttpStatus;

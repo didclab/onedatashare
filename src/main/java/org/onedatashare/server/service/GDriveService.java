@@ -23,6 +23,8 @@
 
 package org.onedatashare.server.service;
 
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.response.DownloadResponse;
@@ -31,13 +33,8 @@ import org.onedatashare.server.module.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import static org.onedatashare.server.model.core.ODSConstants.GDRIVE_URI_SCHEME;
 
 @Service
 public class GDriveService extends ResourceServiceBase {
@@ -47,7 +44,7 @@ public class GDriveService extends ResourceServiceBase {
 
     @Override
     protected Resource getResource(String credId) {
-        return GDriveResource.initialize(this.credentialService.fetchOAuthCredential(EndpointType.gdrive, credId));
+        return GDriveResource.initialize(this.credentialService.fetchOAuthCredential(EndpointCredentialType.gdrive, credId));
     }
 
     @Override
