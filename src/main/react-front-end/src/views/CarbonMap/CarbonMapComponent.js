@@ -20,59 +20,100 @@
  ##**************************************************************
  */
 
- import React, {useState} from "react"
- import { Tooltip } from 'react-tooltip'
- import MapData from "./assets/world.json"
- import {
-    ComposableMap,
-    Geographies,
-    Geography,
-    ZoomableGroup,
-    Marker
-  } from "react-simple-maps";
- 
- const geoUrl =
-   "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+ import React, { useEffect } from "react";
+ import L from "leaflet";
+ import "leaflet/dist/leaflet.css";
+ import marker from "./assets/marker-icon.svg"
  
  const CarbonMapComponent = () => {
-    const [hoverContent, setHoverContent] = useState("Hello")
+
+  useEffect(() => {
+    const map = L.map('map').setView([42.8864, -78.8784], 13);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      worldCopyJump: false,
+      minZoom: 5,
+    }).addTo(map);
+
+    // map.setMaxBounds(map.getBounds());
+    // console.log(map.getBounds())
+
+    const waypoint1 = [42.8864, -78.8784];
+    const waypoint2 = [42.9000, -78.8700];
+    const waypoint3 = [42.9000, -78.8720];
+    const waypoint4 = [40.7128, -74.0060];
+    const waypoint5 = [36.7783, -119.4179];
+    const waypoint6 = [27.6648, -81.5158];
+
+    var markerIcon = L.icon({
+      iconUrl: marker,
+      iconSize: [38, 95],
+      iconAnchor: [19, 60], 
+      popupAnchor: [0, -30]
+    });
+
+    L.marker(waypoint1, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
+
+    L.marker(waypoint2, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
+
+    L.marker(waypoint3, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
+
+    L.marker(waypoint4, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
+
+    L.marker(waypoint5, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
     
-    return (
-        <div className="map-background">
-            <Tooltip id="my-tooltip" />
-            <ComposableMap>
-                <ZoomableGroup center={[0, 0]} zoom={9}>
-                    <Geographies geography={geoUrl}>
-                        {({ geographies }) =>
-                        geographies.map((geo) => (
-                            <Geography 
-                                key={geo.rsmKey} geography={geo}
-                                data-tooltip-id="my-tooltip"
-                                data-tooltip-content={hoverContent}
-                                data-tooltip-place="top"
-                                onMouseEnter={() => {
-                                    const { name } = geo.properties;
-                                    console.log(geo.properties)
-                                    setHoverContent(`${name}`)
-                                }}
-                                onMouseLeave={() => {
-                                    setHoverContent("")
-                                }}
-                                style={{
-                                    color: "#FFF",
-                                    hover: {
-                                        fill: "#F53",
-                                        outline: "none"
-                                    }
-                                }} 
-                            />
-                        ))
-                        }
-                    </Geographies>
-                </ZoomableGroup>
-        </ComposableMap>
-        </div>
-    );
+    L.marker(waypoint6, { icon: markerIcon })
+      .addTo(map)
+      .bindPopup('Example IP: 111.111.1111', { className: 'popup' });
+
+    const latlngs = [waypoint1, waypoint2];
+    const latlngs1 = [waypoint2, waypoint3];
+    const latlngs2 = [waypoint1, waypoint4];
+    const latlngs3 = [waypoint1, waypoint5];
+    const latlngs4 = [waypoint1, waypoint6];
+
+    const polyline = L.polyline(latlngs, { color: 'red', weight: 6 })
+      .addTo(map).bindPopup('Carbon Intensity: 0.92', { className: 'popup' });
+    const polyline2 = L.polyline(latlngs1, { color: 'blue', weight: 6})
+      .addTo(map).bindPopup('Carbon Intensity: 0.95', { className: 'popup' });
+    const polyline3 = L.polyline(latlngs2, { color: 'black', weight: 6})
+      .addTo(map).bindPopup('Carbon Intensity: 0.95', { className: 'popup' });
+    const polyline4 = L.polyline(latlngs3, { color: 'green', weight: 6})
+      .addTo(map).bindPopup('Carbon Intensity: 0.95', { className: 'popup' });
+    const polyline5 = L.polyline(latlngs4, { color: 'red', weight: 6})
+      .addTo(map).bindPopup('Carbon Intensity: 0.95', { className: 'popup' });
+
+
+    const group = new L.featureGroup([polyline, polyline2, polyline3, polyline4]);
+    map.fitBounds(group.getBounds());
+
+    const initialBounds = map.getBounds();
+    const southWest = initialBounds.getSouthWest();
+    const northEast = initialBounds.getNorthEast();
+    
+    const adjustedSouthWest = L.latLng(-350, southWest.lng - 340);
+    const adjustedNorthEast = L.latLng(350, northEast.lng + 340);
+    
+    map.setMaxBounds(L.latLngBounds(adjustedSouthWest, adjustedNorthEast));
+  }, []);
+
+   return (
+    <div className="map-page-container">
+        <div id="map"></div>
+    </div>
+   );
  };
  
  export default CarbonMapComponent;
+ 
