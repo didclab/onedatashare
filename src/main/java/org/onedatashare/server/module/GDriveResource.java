@@ -3,20 +3,18 @@ package org.onedatashare.server.module;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.exceptionHandler.error.NotFoundException;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.config.GDriveConfig;
+import com.onedatashare.commonutils.config.auth.GDrivePropertiesConfig;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -27,7 +25,7 @@ import java.util.List;
  * Resource class that provides services for Google Drive endpoint.
  */
 public class GDriveResource extends Resource {
-    public static GDriveConfig gDriveConfig;
+    public static GDrivePropertiesConfig gDrivePropertiesConfig;
     public static final String ROOT_DIR_ID = "root";
     private static final String DOWNLOAD_URL = "https://drive.google.com/uc?id=%s&export=download";
     private OAuthEndpointCredential credential;
@@ -35,8 +33,8 @@ public class GDriveResource extends Resource {
 
     public GDriveResource(EndpointCredential credential) throws IOException {
         this.credential = (OAuthEndpointCredential) credential;
-        gDriveConfig = GDriveConfig.getInstance();
-        service = gDriveConfig.getDriveService(this.credential);
+        gDrivePropertiesConfig = GDrivePropertiesConfig.getInstance();
+        service = gDrivePropertiesConfig.getDriveService(this.credential);
 
     }
 

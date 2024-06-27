@@ -25,7 +25,7 @@ package org.onedatashare.server.service;
 
 import org.junit.jupiter.api.Test;
 
-import org.onedatashare.server.service.oauth.DbxOauthService;
+import com.onedatashare.commonutils.service.auth.dbx.DbxOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class DbxOauthServiceTest {

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.onedatashare.server.model.core.EndpointType;
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
 
 import java.io.Serializable;
 
@@ -17,7 +17,7 @@ public class FileDestination implements Serializable {
     private String credId;
 
     @NonNull
-    private EndpointType type;
+    private EndpointCredentialType type;
 
 
     String fileDestinationPath = "";

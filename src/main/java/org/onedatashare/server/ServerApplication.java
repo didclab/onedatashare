@@ -48,7 +48,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
                 ) 
         }
 )
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.onedatashare.commonutils","org.onedatashare.server"})
 @EnableDiscoveryClient
 public class ServerApplication {
 

@@ -1,5 +1,7 @@
 package org.onedatashare.server.module;
 
+import com.onedatashare.commonutils.model.credential.AccountEndpointCredential;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
 import lombok.SneakyThrows;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator;
@@ -10,9 +12,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.AccountEndpointCredential;
-import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 
 import java.io.IOException;

@@ -24,17 +24,16 @@
 package org.onedatashare.server.service;
 
 
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
 import org.onedatashare.server.model.response.DownloadResponse;
-import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.module.BoxResource;
 import org.onedatashare.server.module.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 
@@ -46,7 +45,7 @@ public class BoxService extends ResourceServiceBase {
 
     @Override
     protected Resource getResource(String credId) {
-        return BoxResource.initialize(credentialService.fetchOAuthCredential(EndpointType.box, credId));
+        return BoxResource.initialize(credentialService.fetchOAuthCredential(EndpointCredentialType.box, credId));
     }
 
     @Override

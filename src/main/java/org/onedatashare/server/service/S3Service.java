@@ -1,7 +1,7 @@
 package org.onedatashare.server.service;
 
-import com.dropbox.core.DbxException;
-import org.onedatashare.server.model.core.EndpointType;
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
@@ -13,8 +13,6 @@ import org.onedatashare.server.module.S3Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 
@@ -24,12 +22,12 @@ public class S3Service extends ResourceServiceBase {
     @Autowired
     CredentialService credentialService;
 
-    private static final EndpointType ENDPOINT_TYPE = EndpointType.s3;
+    private static final EndpointCredentialType ENDPOINT_TYPE = EndpointCredentialType.s3;
 
 
     @Override
     protected Resource getResource(String credId) {
-        return S3Resource.initialize(credentialService.fetchAccountCredential(EndpointType.s3, credId));
+        return S3Resource.initialize(credentialService.fetchAccountCredential(EndpointCredentialType.s3, credId));
     }
 
     @Override

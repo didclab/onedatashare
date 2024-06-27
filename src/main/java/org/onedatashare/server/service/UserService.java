@@ -27,7 +27,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.onedatashare.server.model.core.User;
 import org.onedatashare.server.exceptionHandler.error.InvalidFieldException;
 import org.onedatashare.server.exceptionHandler.error.InvalidODSCredentialsException;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.exceptionHandler.error.OldPwdMatchingException;
 import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
@@ -35,7 +35,6 @@ import org.onedatashare.server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.Date;
 import java.util.Optional;

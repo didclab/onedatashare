@@ -25,7 +25,6 @@
         <java.version>21</java.version>
         <springdoc-openapi.version>2.3.0</springdoc-openapi.version>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -59,6 +58,13 @@
         <repository>
             <id>org.source.repo</id>
             <url>http://maven.orgName.com/maven2/</url>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
     </repositories>
 
@@ -140,11 +146,11 @@
             <version>2.4.6</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.dropbox.core</groupId>
-            <artifactId>dropbox-core-sdk</artifactId>
-            <version>5.1.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.dropbox.core</groupId>-->
+<!--            <artifactId>dropbox-core-sdk</artifactId>-->
+<!--            <version>5.1.1</version>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -156,7 +162,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.vintage</groupId>
+                    <artifactId>junit-vintage-engine</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
 
 
         <dependency>
@@ -170,13 +187,6 @@
             <artifactId>spring-restdocs-mockmvc</artifactId>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-drive</artifactId>
-            <version>v3-rev197-1.25.0</version>
-        </dependency>
-
 
         <dependency>
             <groupId>javax.mail</groupId>
@@ -212,13 +222,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.3</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.box</groupId>
-            <artifactId>box-java-sdk</artifactId>
-            <version>4.0.0</version>
-        </dependency>
-
         <!--        <dependency>-->
         <!--            <groupId>org.onedatashare.module</groupId>-->
         <!--            <artifactId>globus-api</artifactId>-->
@@ -282,6 +285,12 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -289,9 +298,15 @@
             <version>2.8.9</version>
             <scope>test</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.junit.jupiter</groupId>-->
+<!--            <artifactId>junit-jupiter-api</artifactId>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.9.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -314,8 +329,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-    </dependencies>
 
+        <dependency>
+            <groupId>io.github.rrekhi1</groupId>
+            <artifactId>commonutils</artifactId>
+            <version>0.0.3</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

@@ -27,10 +27,10 @@ import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.files.*;
+import com.onedatashare.commonutils.model.credential.EndpointCredential;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.EndpointCredential;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.exceptionHandler.error.ODSException;
+import com.onedatashare.commonutils.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
@@ -39,12 +39,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.onedatashare.server.model.core.ODSConstants.DROPBOX_URI_SCHEME;
 

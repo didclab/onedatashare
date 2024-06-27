@@ -23,6 +23,8 @@
 
 package org.onedatashare.server.exceptionHandler.error;
 
+import com.onedatashare.commonutils.error.ODSError;
+
 public class InvalidFieldException extends ODSError {
 
     public InvalidFieldException(String err){

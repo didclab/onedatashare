@@ -23,6 +23,7 @@
 
 package org.onedatashare.server.exceptionHandler.error;
 
+import com.onedatashare.commonutils.error.ODSError;
 import org.springframework.http.HttpStatus;
 
 public class DuplicateCredentialException extends ODSError {

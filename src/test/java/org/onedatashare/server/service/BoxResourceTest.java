@@ -1,13 +1,12 @@
 package org.onedatashare.server.service;
 
 
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import junit.framework.TestCase;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.module.BoxResource;
-import reactor.core.publisher.Mono;
 import org.junit.Assert;
 
 public class BoxResourceTest extends TestCase {

@@ -25,15 +25,15 @@ package org.onedatashare.server.controller;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.DbxWebAuth;
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
+import com.onedatashare.commonutils.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.exceptionHandler.error.DuplicateCredentialException;
 import org.onedatashare.server.exceptionHandler.error.NotFoundException;
-import org.onedatashare.server.model.core.EndpointType;
-import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.service.CredentialService;
+import com.onedatashare.commonutils.service.auth.CredentialService;
 import org.onedatashare.server.service.ODSLoggerService;
-import org.onedatashare.server.service.oauth.BoxOauthService;
-import org.onedatashare.server.service.oauth.DbxOauthService;
-import org.onedatashare.server.service.oauth.GDriveOauthService;
+import com.onedatashare.commonutils.service.auth.box.BoxOauthService;
+import com.onedatashare.commonutils.service.auth.dbx.DbxOauthService;
+import com.onedatashare.commonutils.service.auth.gdrive.GDriveOauthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -91,7 +91,7 @@ public class EndpointOauthController {
             return new ModelAndView("redirect:/transfer"+ errorStringBuilder);
         }
         OAuthEndpointCredential credential=gDriveOauthService.finish(queryParameters);
-        credentialService.createCredential(credential, principal.getName(), EndpointType.gdrive);
+        credentialService.createCredential(credential, principal.getName(), EndpointCredentialType.gdrive);
         return new ModelAndView("redirect:/transfer?accountId=" + credential.getAccountId());
     }
 
@@ -118,7 +118,7 @@ public class EndpointOauthController {
         }
 
         OAuthEndpointCredential credential=dbxOauthService.finish(queryParameters);
-        credentialService.createCredential(credential, principal.getName(), EndpointType.dropbox);
+        credentialService.createCredential(credential, principal.getName(), EndpointCredentialType.dropbox);
         return new ModelAndView("redirect:/transfer?accountId=" + credential.getAccountId());
     }
 
@@ -144,13 +144,13 @@ public class EndpointOauthController {
         }
 
         OAuthEndpointCredential credential=boxOauthService.finish(queryParameters);
-        credentialService.createCredential(credential, principal.getName(), EndpointType.box);
+        credentialService.createCredential(credential, principal.getName(), EndpointCredentialType.box);
 
         return new ModelAndView("redirect:/transfer?accountId="+ credential.getAccountId());
     }
 
     @GetMapping
-    public ModelAndView handle(@RequestParam EndpointType type) throws NotFoundException {
+    public ModelAndView handle(@RequestParam EndpointCredentialType type) throws NotFoundException {
         return switch (type) {
             case box -> new ModelAndView("redirect:"+boxOauthService.start());
             case dropbox -> new ModelAndView("redirect:"+dbxOauthService.start());

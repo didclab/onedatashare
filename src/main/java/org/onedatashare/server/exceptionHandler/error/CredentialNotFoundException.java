@@ -1,14 +1,12 @@
 package org.onedatashare.server.exceptionHandler.error;
 
-
-import org.onedatashare.server.model.core.EndpointType;
-
+import com.onedatashare.commonutils.model.credential.EndpointCredentialType;
 public class CredentialNotFoundException extends Exception{
     public CredentialNotFoundException(){
         super("Credential not found for transfer");
     }
 
-    public CredentialNotFoundException(EndpointType type, String id){
+    public CredentialNotFoundException(EndpointCredentialType type, String id){
         super(String.format("Credential %s/%s not found",type, id));
     }
 }

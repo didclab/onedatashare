@@ -23,9 +23,10 @@
 
 package org.onedatashare.server.exceptionHandler.error;
 
+import com.onedatashare.commonutils.error.ODSError;
 import org.springframework.http.HttpStatus;
 
-public class InvalidODSCredentialsException extends ODSError{
+public class InvalidODSCredentialsException extends ODSError {
     public InvalidODSCredentialsException(String reason) {
         super(reason);
         type = "InvalidLogin";
