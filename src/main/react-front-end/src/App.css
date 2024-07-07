@@ -525,6 +525,7 @@ queueHeaderCell button {
   width: 50px !important;
   height: 35px !important;
   border-radius: 0 !important;
+  color: #000 !important;
 }
 .sendButton:hover {
   background-color: #172753 !important;

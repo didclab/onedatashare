@@ -20,64 +20,72 @@
  ##**************************************************************
  */
 
-
-import React, {Component} from "react";
-import Hidden from "@material-ui/core/Hidden";
-import Grid from "@material-ui/core/Grid";
+import React, { Component } from "react";
+import Hidden from "@mui/material/Hidden";
+import Grid from "@mui/material/Grid";
 
 export default class HomeInfoSlice extends Component {
+  makeWideView() {
+    if (this.props.imgOnLeft) {
+      return (
+        <Grid container direction="row">
+          <Grid item container xs={5}>
+            <img
+              className="homeImg homeImgLeft"
+              src={this.props.img}
+              alt={this.props.imgAltTxt}
+            />
+          </Grid>
+          <Grid className="rightHomeTxt" item container xs={7}>
+            <h2>{this.props.title}</h2>
+            <p>{this.props.text}</p>
+          </Grid>
+        </Grid>
+      );
+    }
+    return (
+      <Grid container direction="row">
+        <Grid className="leftHomeTxt" item container xs={7}>
+          <h2>{this.props.title}</h2>
+          {/*<h2>Hello</h2>*/}
+          <p>{this.props.text}</p>
+        </Grid>
+        <Grid container item xs={5}>
+          <img
+            className="homeImg homeImgRight"
+            src={this.props.img}
+            alt={this.props.altImgTxt}
+          />
+        </Grid>
+      </Grid>
+    );
+  }
 
-    makeWideView() {
-        if (this.props.imgOnLeft) {
-            return (
-                <Grid container direction='row'>
-                    <Grid item container xs={5}>
-                        <img className='homeImg homeImgLeft' src={this.props.img} alt={this.props.imgAltTxt} />
-                    </Grid>
-                    <Grid className='rightHomeTxt' item container xs={7}>
-                        <h2>{this.props.title}</h2>
-                        <p>{this.props.text}</p>
-                    </Grid>
-                </Grid>
-            );
-        }
-        return (
-            <Grid container direction='row'>
-                <Grid className='leftHomeTxt' item container xs={7}>
-                    <h2>{this.props.title}</h2>
-                    {/*<h2>Hello</h2>*/}
-                    <p>{this.props.text}</p>
-                </Grid>
-                <Grid container item xs={5}>
-                    <img className='homeImg homeImgRight' src={this.props.img} alt={this.props.altImgTxt}/>
-                </Grid>
+  render() {
+    let wideView = this.makeWideView();
+    let name = this.props.className + " HomeInfoSlice";
+    return (
+      <div className={name}>
+        {/* This renders desktop view */}
+        <Hidden smDown>{wideView}</Hidden>
+        {/* This renders mobile view */}
+        <Hidden mdUp>
+          <Grid container direction="column">
+            <Grid item container xs={12}>
+              <img
+                className="homeImg"
+                width={"500px"}
+                src={this.props.img}
+                alt={this.props.altImgTxt}
+              />
             </Grid>
-        );
-
-    }
-
-    render() {
-        let wideView = this.makeWideView();
-        let name = this.props.className + ' HomeInfoSlice';
-        return (
-            <div className={name}>
-                {/* This renders desktop view */}
-                <Hidden smDown>
-                    {wideView}
-                </Hidden>
-                {/* This renders mobile view */}
-                <Hidden mdUp>
-                    <Grid container direction='column'>
-                        <Grid item container xs={12}>
-                            <img className='homeImg' width={'500px'} src={this.props.img} alt={this.props.altImgTxt} />
-                        </Grid>
-                        <Grid item container xs={12}>
-                            <h2>{this.props.title}</h2>
-                            <p>{this.props.text}</p>
-                        </Grid>
-                    </Grid>
-                </Hidden>
-            </div>
-        );
-    }
-};
+            <Grid item container xs={12}>
+              <h2>{this.props.title}</h2>
+              <p>{this.props.text}</p>
+            </Grid>
+          </Grid>
+        </Hidden>
+      </div>
+    );
+  }
+}

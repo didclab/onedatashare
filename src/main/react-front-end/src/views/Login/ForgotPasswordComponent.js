@@ -21,10 +21,10 @@
  */
 
 import React, { Component } from "react";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import CardActions from "@material-ui/core/CardActions";
-import Button from "@material-ui/core/Button";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import CardActions from "@mui/material/CardActions";
+import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
 import { updateGAPageView } from "../../analytics/ga";
 import PasswordRequirementsComponent from "../Login/PasswordRequirementsComponent";
@@ -36,10 +36,10 @@ import {
 } from "../../APICalls/APICalls.js";
 import { eventEmitter } from "../../App";
 
-import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
-import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
 
 const beforeCode = 0;
 const codeSent = 1;

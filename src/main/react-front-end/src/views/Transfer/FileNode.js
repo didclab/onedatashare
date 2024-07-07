@@ -20,17 +20,16 @@
  ##**************************************************************
  */
 
+import React, { Component } from "react";
+import Button from "@mui/material/Button";
 
-import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
-
-import FolderIcon from "@material-ui/icons/Folder";
-import FileIcon from "@material-ui/icons/Note";
-import InFolderIcon from "@material-ui/icons/ArrowForwardIos";
-import { Draggable } from 'react-beautiful-dnd';
+import FolderIcon from "@mui/icons-material/Folder";
+import FileIcon from "@mui/icons-material/Note";
+import InFolderIcon from "@mui/icons-material/ArrowForwardIos";
+import { Draggable } from "react-beautiful-dnd";
 import styled from "styled-components";
-import {getSelectionCount} from "./initialize_dnd";
-import Checkbox from '@material-ui/core/Checkbox';
+import { getSelectionCount } from "./initialize_dnd";
+import Checkbox from "@mui/material/Checkbox";
 
 /**
 	Component for file and directory
@@ -43,40 +42,35 @@ import Checkbox from '@material-ui/core/Checkbox';
 const FileDiv = styled.div`
   outline: none;
   user-select: none;
-  background-color: ${props => getBackgroundColor(props.isSelected)};
-  color: ${ props => getTextColor(props.isSelected)},
+  background-color: ${(props) => getBackgroundColor(props.isSelected)};
+  color: ${(props) => getTextColor(props.isSelected)},
   display: flex;
   flex-direction: column; 
   padding: 5px;
-  ${props =>
-    props.isDragging
-      ? `box-shadow: 2px 2px 1px ${"#333"};`
-      : ''} ${props =>
-    props.isGhosting
-      ? 'opacity: 0.2;'
-      : ''}
+  ${(props) =>
+    props.isDragging ? `box-shadow: 2px 2px 1px ${"#333"};` : ""} ${(props) =>
+  props.isGhosting ? "opacity: 0.2;" : ""}
 `;
 
-
 const getBackgroundColor = (isSelected, isGhosting) => {
-	if(isGhosting){
-		return "#888";
-	}
-	if (isSelected) {
-	    return "#d9edf7";
-	}
-	return "#ffffff";
+  if (isGhosting) {
+    return "#888";
+  }
+  if (isSelected) {
+    return "#d9edf7";
+  }
+  return "#ffffff";
 };
 
 const getTextColor = (isSelected, isGhosting) => {
-	if(isGhosting){
-		return "#888";
-	}
-	if (isSelected) {
-	    return "#31708f";
-	}
+  if (isGhosting) {
+    return "#888";
+  }
+  if (isSelected) {
+    return "#31708f";
+  }
 
-	return "#333333";
+  return "#333333";
 };
 
 // const getExtraStyle = (isDragging, isGhosting): string => {
@@ -91,14 +85,14 @@ const getTextColor = (isSelected, isGhosting) => {
 // };
 
 const keyCodes = {
-	enter: 13,
-	escape: 27,
-	arrowDown: 40,
-	arrowUp: 38,
-	tab: 9,
+  enter: 13,
+  escape: 27,
+  arrowDown: 40,
+  arrowUp: 38,
+  tab: 9,
 };
 
-const SelectionCount = styled('div')`
+const SelectionCount = styled("div")`
   left: -${15}px;
   top: -${15}px;
   color: ${"#fff"};
@@ -115,189 +109,220 @@ const SelectionCount = styled('div')`
 const primaryButton = 0;
 
 export default class FileNode extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      nextProps.isSelected === this.props.isSelected &&
+      nextProps.isGhosting === this.props.isGhosting &&
+      nextProps.file === this.props.file
+    )
+      return false;
 
-	shouldComponentUpdate(nextProps, nextState) { 
-    	if (nextProps.isSelected === this.props.isSelected && 
-    		nextProps.isGhosting === this.props.isGhosting && 
-    		nextProps.file === this.props.file) return false;
+    return true;
+  }
+  onKeyDown = (event, provided, snapshot) => {
+    if (provided.dragHandleProps) {
+      provided.dragHandleProps.onKeyDown(event);
+    }
 
-    	return true;
-  	}
-	onKeyDown = (
-	    event,
-	    provided,
-	    snapshot,
-	) => {
-	    if (provided.dragHandleProps) {
-	      provided.dragHandleProps.onKeyDown(event);
-	    }
+    if (event.defaultPrevented) {
+      return;
+    }
 
-	    if (event.defaultPrevented) {
-	      return;
-	    }
+    if (snapshot.isDragging) {
+      return;
+    }
 
-	    if (snapshot.isDragging) {
-	      return;
-	    }
+    if (event.keyCode !== keyCodes.enter) {
+      return;
+    }
+    // we are using the event for selection
+    event.preventDefault();
 
-	    if (event.keyCode !== keyCodes.enter) {
-	      return;
-	    }
-	    // we are using the event for selection
-	    event.preventDefault();
+    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+    const wasShiftKeyUsed = event.shiftKey;
 
-	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed = event.shiftKey;
+    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
+  };
 
-	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
-	};
+  onClick = (event) => {
+    if (event.defaultPrevented) {
+      return;
+    }
+    if (event.button !== primaryButton) {
+      return;
+    }
+    // marking the event as used
+    event.preventDefault();
 
-	onClick = (event) => {
-	    if (event.defaultPrevented) {
-	      return;
-	    }
-	    if (event.button !== primaryButton) {
-	      return;
-	    }
-	    // marking the event as used
-	    event.preventDefault();
+    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
+    const wasShiftKeyUsed = event.shiftKey;
+    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
+  };
+  onTouchStart = (event) => {
+    this.setState({ dragging: false });
+  };
 
-	    const wasMetaKeyUsed = event.metaKey || event.ctrlKey;
-	    const wasShiftKeyUsed = event.shiftKey;
-	    this.performAction(wasMetaKeyUsed, wasShiftKeyUsed);
-	  };
-	onTouchStart = (event) => {
+  onTouchMove = (event) => {
+    this.setState({ dragging: true });
+  };
 
-		this.setState({dragging: false});
-	}
+  onTouchEnd = (event) => {
+    if (event.defaultPrevented || this.state.dragging) {
+      return;
+    }
 
-	onTouchMove = (event) => {
+    //     // marking the event as used
+    //     // we would also need to add some extra logic to prevent the click
+    //     // if this element was an anchor
+    event.preventDefault();
 
-		this.setState({dragging: true});
-	}
+    this.props.toggleSelectionInGroup(this.props.file);
+    return false;
+  };
 
-	onTouchEnd = (event) => {
-	    if (event.defaultPrevented || this.state.dragging) {
-	      return;
-	    }
+  performAction = (wasMetaKeyUsed, wasShiftKeyUsed) => {
+    const { toggleSelection, toggleSelectionInGroup, multiSelectTo } =
+      this.props;
 
-	//     // marking the event as used
-	//     // we would also need to add some extra logic to prevent the click
-	//     // if this element was an anchor
-	    event.preventDefault();
+    if (wasMetaKeyUsed) {
+      toggleSelectionInGroup(this.props.file);
+      return;
+    }
 
-	    this.props.toggleSelectionInGroup(this.props.file);
-	    return false;
-	};
+    if (wasShiftKeyUsed) {
+      multiSelectTo(this.props.file);
+      return;
+    }
+    toggleSelection(this.props.file);
+  };
 
-	performAction = (wasMetaKeyUsed, wasShiftKeyUsed) => {
-		const {
-		  toggleSelection,
-		  toggleSelectionInGroup,
-		  multiSelectTo,
-		} = this.props;
+  constructor(props) {
+    super(props);
+    this.humanFileSize = this.humanFileSize.bind(this);
+    this.state = {
+      isDragging: false,
+    };
+  }
 
-		if (wasMetaKeyUsed) {
-		  toggleSelectionInGroup(this.props.file);
-		  return;
-		}
+  humanFileSize(bytes) {
+    var thresh = 1024;
+    if (Math.abs(bytes) < thresh) {
+      return bytes + " B";
+    }
+    var units = ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+    var u = -1;
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (Math.abs(bytes) >= thresh && u < units.length - 1);
+    return bytes.toFixed(1) + " " + units[u];
+  }
 
-		if (wasShiftKeyUsed) {
-		  multiSelectTo(this.props.file);
-		  return;
-		}
-		toggleSelection(this.props.file);
-	};
+  render() {
+    const { index, onDoubleClick, isSelected, isGhosting, endpoint } =
+      this.props;
+    const { name, dir, perm, time, size } = this.props.file;
+    const hasAttr = time !== 0 || perm || size !== 0;
+    var options = {
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    };
+    const date = new Date(time * 1000);
 
-	constructor(props){
-		super(props);
-		this.humanFileSize = this.humanFileSize.bind(this);
-		this.state = {
-			isDragging: false,
-		}
-
-	}
-
-	humanFileSize(bytes) {
-	    var thresh = 1024;
-	    if(Math.abs(bytes) < thresh) {
-	        return bytes + ' B';
-	    }
-	    var units = ['kB','MB','GB','TB','PB','EB','ZB','YB']
-	    var u = -1;
-	    do {
-	        bytes /= thresh;
-	        ++u;
-	    } while(Math.abs(bytes) >= thresh && u < units.length - 1);
-	    return bytes.toFixed(1)+' '+units[u];
-	}
-
-	render(){
-		const {index, onDoubleClick, isSelected, isGhosting, endpoint} = this.props;
-		const {name, dir, perm, time, size} = this.props.file;
-		const hasAttr = (time !== 0 || perm || size !== 0);
-		var options = { year: 'numeric', month: 'numeric', day: 'numeric',hour: 'numeric', minute: 'numeric', second: 'numeric'};
-		const date = new Date(time * 1000);
-		
-		return (
-			<Draggable draggableId={ endpoint.side + " " +JSON.stringify(this.props.file) } index = {index}>
-			{(provided, snapshot) => {
-				const selectionCount = getSelectionCount(endpoint);
-				const shouldShowSelection =
-	            snapshot.isDragging && selectionCount > 1;
-				return (
-					<FileDiv
-						onDoubleClick={() => {
-							if(dir){onDoubleClick(this.props.file.name, this.props.file.id)}
-						}}
-						{...provided.draggableProps}
-						{...provided.dragHandleProps}
-						ref={provided.innerRef}
-
-						onClick={this.onClick}
-		                onTouchEnd={(e)=>{this.onTouchEnd(e)}}
-		                onTouchStart={(e)=>{this.onTouchStart(e)}}
-
-		                onTouchMove={(e)=>{this.onTouchMove(e)}}
-		                onKeyDown={(event) =>
-		                  this.onKeyDown(event, provided, snapshot)
-		                }
-		                isSelected={isSelected}
-		                isGhosting={shouldShowSelection && isGhosting}
-					>
-						
-
-							<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "flex-start"}}>
-							<Checkbox
-								color="primary"
-								inputProps={{ 'aria-label': 'secondary checkbox' }}
-								checked={isSelected}
-							/>
-								{ dir && <FolderIcon className={"fileIcon"} />}
-								{!dir && <FileIcon className={"fileIcon"} />  }
-								<p  className={"fileName"}  > {name} </p>
-								{dir && 
-									<Button style={{width: "40px", float: "right"}} 
-										onTouchStart={() => {
-											onDoubleClick(this.props.file.name);
-										}}>
-										<InFolderIcon/>
-									</Button>
-								}
-							</div>
-							{shouldShowSelection &&
-								<SelectionCount>{selectionCount}</SelectionCount>
-							}
-							{hasAttr && 
-								<div style={{display: "flex", flexGrow: 1, flexDirection: "row", justifyContent: "space-between",marginLeft:"42px"}}>
-							
-									{time !== 0 && <p  className={"fileAttribute"}>{new Intl.DateTimeFormat('en-US', options).format(date)} </p>}
-									{perm && <p > {perm} </p>}
-									{size !== 0 && <p className={"fileAttribute"} > {this.humanFileSize(size)} </p>}
-								</div>
-							}
-					 </FileDiv>
-			)}}
-		</Draggable>);
-	}
+    return (
+      <Draggable
+        draggableId={endpoint.side + " " + JSON.stringify(this.props.file)}
+        index={index}
+      >
+        {(provided, snapshot) => {
+          const selectionCount = getSelectionCount(endpoint);
+          const shouldShowSelection = snapshot.isDragging && selectionCount > 1;
+          return (
+            <FileDiv
+              onDoubleClick={() => {
+                if (dir) {
+                  onDoubleClick(this.props.file.name, this.props.file.id);
+                }
+              }}
+              {...provided.draggableProps}
+              {...provided.dragHandleProps}
+              ref={provided.innerRef}
+              onClick={this.onClick}
+              onTouchEnd={(e) => {
+                this.onTouchEnd(e);
+              }}
+              onTouchStart={(e) => {
+                this.onTouchStart(e);
+              }}
+              onTouchMove={(e) => {
+                this.onTouchMove(e);
+              }}
+              onKeyDown={(event) => this.onKeyDown(event, provided, snapshot)}
+              isSelected={isSelected}
+              isGhosting={shouldShowSelection && isGhosting}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexGrow: 1,
+                  flexDirection: "row",
+                  justifyContent: "flex-start",
+                }}
+              >
+                <Checkbox
+                  color="primary"
+                  inputProps={{ "aria-label": "secondary checkbox" }}
+                  checked={isSelected}
+                />
+                {dir && <FolderIcon className={"fileIcon"} />}
+                {!dir && <FileIcon className={"fileIcon"} />}
+                <p className={"fileName"}> {name} </p>
+                {dir && (
+                  <Button
+                    style={{ width: "40px", float: "right" }}
+                    onTouchStart={() => {
+                      onDoubleClick(this.props.file.name);
+                    }}
+                  >
+                    <InFolderIcon />
+                  </Button>
+                )}
+              </div>
+              {shouldShowSelection && (
+                <SelectionCount>{selectionCount}</SelectionCount>
+              )}
+              {hasAttr && (
+                <div
+                  style={{
+                    display: "flex",
+                    flexGrow: 1,
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    marginLeft: "42px",
+                  }}
+                >
+                  {time !== 0 && (
+                    <p className={"fileAttribute"}>
+                      {new Intl.DateTimeFormat("en-US", options).format(date)}{" "}
+                    </p>
+                  )}
+                  {perm && <p> {perm} </p>}
+                  {size !== 0 && (
+                    <p className={"fileAttribute"}>
+                      {" "}
+                      {this.humanFileSize(size)}{" "}
+                    </p>
+                  )}
+                </div>
+              )}
+            </FileDiv>
+          );
+        }}
+      </Draggable>
+    );
+  }
 }

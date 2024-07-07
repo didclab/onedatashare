@@ -20,90 +20,89 @@
  ##**************************************************************
  */
 
-
-import React, { Component } from 'react';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import "./App.css";
 import MainComponent from "./MainComponent";
+import TransferComponent from "./views/Transfer/TransferComponent";
 import OauthProcessComponent from "./views/OauthProcessComponent";
-import { createStore } from 'redux';
-import { onedatashareModel } from './model/reducers';
-import  { Route, Switch} from 'react-router-dom';
+import { createStore } from "redux";
+import { onedatashareModel } from "./model/reducers";
+import { Route, Routes } from "react-router-dom";
 
-import Snackbar from '@material-ui/core/Snackbar';
-import Button from '@material-ui/core/Button';
+import Snackbar from "@mui/material/Snackbar";
+import Button from "@mui/material/Button";
+import { siteURLS } from "./constants";
+import EventEmitter from "eventemitter3";
 
-import EventEmitter from 'eventemitter3';
-
-import { initializeReactGA } from './analytics/ga';
+import { initializeReactGA } from "./analytics/ga";
+import SupportComponent from "./views/Support/SupportComponent";
+import PolicyComponent from "./views/PolicyComponent";
+import TermsComponent from "./views/TermsComponent";
 
 export const eventEmitter = new EventEmitter();
 
-
 export const store = createStore(onedatashareModel);
-class App extends Component {
 
-  constructor(){
-    super();
-    this.state={
-      loaded: false,
-      open: false, 
-      vertical: 'top', 
-      horizontal: 'center',
-      error: "null"
-    };
+const App = () => {
+  const [loaded, setLoaded] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [vertical, setVertical] = useState("top");
+  const [horizontal, setHorizontal] = useState("center");
+  const [error, setError] = useState(null);
 
-    initializeReactGA();
-  }
-
-
-  handleOpen = (errormsg) => {
+  const handleOpen = (errormsg) => {
     console.log(errormsg);
-    this.setState({ open: true, vertical: 'top', horizontal: 'center', error: JSON.stringify(errormsg) });
-    setTimeout(this.handleClose, 4000);
+    setOpen(true);
+    setVertical("top");
+    setHorizontal("center");
+    setError(JSON.stringify(errormsg));
+    setTimeout(handleClose, 4000);
   };
 
-  handleClose = () => {
-    this.setState({ open: false });
+  const handleClose = () => {
+    setOpen(false);
   };
 
-  componentDidMount(){
-    this.setState({loaded: true});
-    eventEmitter.on("errorOccured", this.handleOpen);
-    // console.log(process.env);
-  }
+  useEffect(() => {
+    setLoaded(true);
+    eventEmitter.on("errorOccured", handleOpen);
 
-  
-  render() {
-    const { vertical,horizontal, error, open } = this.state;
+    return () => {
+      eventEmitter.off("errorOccured", handleOpen);
+    };
+  }, []);
 
-    return (
-      <div>
+  return (
+    <div>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        style={{ marginTop: "20px", zIndex: 1500 }}
+        open={open}
+        onClose={handleClose}
+        ContentProps={{
+          "aria-describedby": "message-id",
+        }}
+        action={
+          <Button onClick={handleClose} color="secondary" size="small">
+            Close
+          </Button>
+        }
+        message={<span id="message-id">{error}</span>}
+      />
 
-        <Snackbar
-          anchorOrigin={{ vertical, horizontal }}
-          style={{marginTop: "20px", zIndex: 1500}}
-          open={open}
-          onClose={this.handleClose}
-          ContentProps={{
-            'aria-describedby': 'message-id',
-          }}
-          action={
-            <Button onClick={this.handleClose} color="secondary" size="small">
-              Close
-            </Button>
-          }
-          message={<span id="message-id">{error}</span>}
+      <Routes>
+        {/*<Route path='/account' component={AccountControlComponent}/>*/}
+        <Route path="/oauth/:tag" element={<OauthProcessComponent />} />
+        <Route exact path="/*" element={<MainComponent />} />
+        {/* <Route
+          exact
+          path={siteURLS.supportPageUrl}
+          element={<SupportComponent />}
         />
-
-        <Switch>
-          {/*<Route path='/account' component={AccountControlComponent}/>*/}
-          <Route path='/oauth/:tag' component={OauthProcessComponent}/>
-          <Route exact path='/*/' component={MainComponent}/>
-        </Switch>
-
-      </div>
-    );
-  }
-}
+        <Route exact path={siteURLS.termsUrl} element={<TermsComponent />} /> */}
+      </Routes>
+    </div>
+  );
+};
 
 export default App;

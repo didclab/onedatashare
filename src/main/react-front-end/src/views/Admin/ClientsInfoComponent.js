@@ -1,445 +1,535 @@
-/**
- ##**************************************************************
- ##
- ## Copyright (C) 2018-2020, OneDataShare Team, 
- ## Department of Computer Science and Engineering,
- ## University at Buffalo, Buffalo, NY, 14260.
- ## 
- ## Licensed under the Apache License, Version 2.0 (the "License"); you
- ## may not use this file except in compliance with the License.  You may
- ## obtain a copy of the License at
- ## 
- ##    http://www.apache.org/licenses/LICENSE-2.0
- ## 
- ## Unless required by applicable law or agreed to in writing, software
- ## distributed under the License is distributed on an "AS IS" BASIS,
- ## WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- ## See the License for the specific language governing permissions and
- ## limitations under the License.
- ##
- ##**************************************************************
- */
+import React, { Component } from "react";
+import {
+  getUsers,
+  updateAdminRightsApiCall,
+  getAdmins,
+} from "../../APICalls/APICalls";
 
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
 
-import React, {Component} from 'react';
-import { getUsers, updateAdminRightsApiCall, getAdmins } from '../../APICalls/APICalls';
+import Person from "@mui/icons-material/Person";
+import People from "@mui/icons-material/People";
+import Done from "@mui/icons-material/Done";
+import Clear from "@mui/icons-material/Clear";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import { eventEmitter } from "../../App";
+import { store } from "../../App.js";
+import TablePagination from "@mui/material/TablePagination";
+import TableFooter from "@mui/material/TableFooter";
+import TablePaginationActions from "../TablePaginationActions";
+import TableSortLabel from "@mui/material/TableSortLabel";
+import Tooltip from "@mui/material/Tooltip";
+import { updateGAPageView } from "../../analytics/ga";
 
-import Paper from '@material-ui/core/Paper';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
+import { styled } from "@mui/system";
 
-import Person from '@material-ui/icons/Person';
-import People from '@material-ui/icons/People';
-import Done from '@material-ui/icons/Done'
-import Clear from '@material-ui/icons/Clear';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import {eventEmitter} from "../../App";
-import {store} from '../../App.js';
-import TablePagination from '@material-ui/core/TablePagination'
-import TableFooter from '@material-ui/core/TableFooter'
-import TablePaginationActions from '../TablePaginationActions'
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Tooltip from '@material-ui/core/Tooltip';
-import { updateGAPageView } from '../../analytics/ga';
+import "./ClientsInfoComponent.css";
 
-import { withStyles } from '@material-ui/core';
+const styles = (theme) => ({
+  root: {
+    width: "fit-content",
+  },
+  toolbar: {
+    paddingLeft: "300px",
+    paddingRight: "300px",
+  },
+  tablePaginationCaption: {
+    fontSize: "15px",
+  },
+  tablePaginationSelect: {
+    fontSize: "15px",
+    lineHeight: "20px",
+  },
+});
 
+export default class ClientsInfoComponent extends Component {
+  constructor() {
+    super();
+    this.state = {
+      users: [],
+      totalUsersCount: 0,
+      admins: [],
+      totalAdminsCount: 0,
+      userTblPage: 0,
+      userTblRowsPerPage: 10,
+      userTblRowsPerPageOptions: [10, 20, 50, 100],
+      userTblOrder: "asc",
+      userTblOrderBy: "email",
+      adminTblPage: 0,
+      adminTblRowsPerPage: 10,
+      adminTblRowsPerPageOptions: [10, 20, 50, 100],
+      adminTblOrder: "asc",
+      adminTblOrderBy: "email",
+    };
+    this.getUserInfo = this.getUserInfo.bind(this);
+    this.getAdminInfo = this.getAdminInfo.bind(this);
+    this.getUserInfo();
+    this.getAdminInfo();
 
-import './ClientsInfoComponent.css';
+    updateGAPageView();
+  }
 
-const styles = theme => ({
-	root:{
-		width:'fit-content'
-	},
-	toolbar:{
-		paddingLeft:'300px',
-		paddingRight:'300px'
-	},
-tablePaginationCaption: {
-		fontSize: '15px'
-	},
-tablePaginationSelect: {
-		fontSize: '15px',
-		lineHeight:'20px'
-	}
-})
-class ClientsInfoComponent extends Component{
+  componentDidMount() {
+    document.title = "OneDataShare - Client Info";
+  }
 
-	constructor(){
-		super();
-		this.state = {users:[],
-			 totalUsersCount:0,
-			 admins:[],
-			 totalAdminsCount:0,
-			 userTblPage: 0,
-			 userTblRowsPerPage: 10,
-			 userTblRowsPerPageOptions : [10, 20, 50, 100],
-			 userTblOrder : 'asc',
-			 userTblOrderBy : 'email',
-			 adminTblPage: 0,
-			 adminTblRowsPerPage: 10,
-			 adminTblRowsPerPageOptions : [10, 20, 50, 100],
-			 adminTblOrder : 'asc',
-			 adminTblOrderBy : 'email'};
-		this.getUserInfo = this.getUserInfo.bind(this);
-		this.getAdminInfo = this.getAdminInfo.bind(this);
-		this.getUserInfo();
-		this.getAdminInfo();
+  getUserInfo = () =>
+    getUsers(
+      this.state.userTblPage,
+      this.state.userTblRowsPerPage,
+      this.state.userTblOrderBy,
+      this.state.userTblOrder,
+      (resp) => {
+        //success
+        this.setState({ users: resp.users, totalUsersCount: resp.totalCount });
+      },
+      (resp) => {
+        //failed
+        console.log("Error encountered in getUsers request to API layer");
+      }
+    );
 
-		updateGAPageView();
-	}
+  getAdminInfo = () =>
+    getAdmins(
+      this.state.adminTblPage,
+      this.state.adminTblRowsPerPage,
+      this.state.adminTblOrderBy,
+      this.state.adminTblOrder,
+      (resp) => {
+        //success
+        console.log(resp.users.length + "---");
+        this.setState({
+          admins: resp.users,
+          totalAdminsCount: resp.totalCount,
+        });
+      },
+      (resp) => {
+        //failed
+        console.log("Error encountered in getUsers request to API layer");
+      }
+    );
 
-	componentDidMount(){
-		document.title = "OneDataShare - Client Info";
-	}
+  // Shows the user a confirmation popup to confirm the update request.
+  updateAdminRights(event, row) {
+    var popupMsg = "";
+    var isAdmin = event.target.checked;
+    if (isAdmin) {
+      popupMsg =
+        "Please confirm if " +
+        row.firstName +
+        " " +
+        row.lastName +
+        " must be granted admin privileges.";
+      this.setState({
+        showIsAdminPopup: true,
+        adminChangePopupMsg: popupMsg,
+        targetUser: row.email,
+        isAdmin: true,
+        firstName: row.firstName,
+        lastName: row.lastName,
+      });
+    } else {
+      popupMsg =
+        "Please confirm if admin privileges of " +
+        row.firstName +
+        " " +
+        row.lastName +
+        " must be revoked.";
+      this.setState({
+        showIsAdminPopup: true,
+        adminChangePopupMsg: popupMsg,
+        targetUser: row.email,
+        isAdmin: false,
+        firstName: row.firstName,
+        lastName: row.lastName,
+      });
+    }
+  }
 
-	getUserInfo = () => getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
-		//success
-		this.setState({users:resp.users, totalUsersCount: resp.totalCount});
-		}, (resp) => {
-		//failed
-		console.log('Error encountered in getUsers request to API layer');
-	});
+  // The actual call to update the admin information is triggered after the user selects "Yes" in the confirmation popup
+  // The user information is retrieved from the state
+  updateAdminRightsUsingStateInfo(email, isAdmin) {
+    updateAdminRightsApiCall(email, isAdmin).then((resp) => {
+      if (resp) {
+        eventEmitter.emit(
+          "errorOccured",
+          "Admin privileges is " +
+            (this.state.isAdmin ? "granted for " : "revoked for ") +
+            this.state.firstName +
+            " " +
+            this.state.lastName
+        );
+      } else {
+        eventEmitter.emit("errorOccured", "Error while updating the user");
+      }
+      getUsers(
+        this.state.userTblPage,
+        this.state.userTblRowsPerPage,
+        this.state.userTblOrderBy,
+        this.state.userTblOrder,
+        (resp) => {
+          this.setState({
+            users: resp.users,
+            showIsAdminPopup: false,
+            adminChangePopupMsg: "",
+            targetUser: "",
+            firstName: "",
+            lastName: "",
+          });
+        },
+        (error) => {
+          console.log("Error encountered in getUsers request to API layer");
+        }
+      );
+    });
+  }
+  handleClose = () => {
+    this.setState({
+      showIsAdminPopup: false,
+      adminChangePopupMsg: "",
+      targetUser: "",
+      firstName: "",
+      lastName: "",
+    });
+  };
 
-	getAdminInfo = () => getAdmins(this.state.adminTblPage, this.state.adminTblRowsPerPage, this.state.adminTblOrderBy, this.state.adminTblOrder, (resp) => {
-		//success
-		console.log(resp.users.length + "---")
-		this.setState({admins:resp.users, totalAdminsCount: resp.totalCount});
-		}, (resp) => {
-		//failed
-		console.log('Error encountered in getUsers request to API layer');
-	});
+  handleUserTblChangePage = (event, page) => {
+    this.setState({ userTblPage: page }, this.getUserInfo);
+  };
 
-	// Shows the user a confirmation popup to confirm the update request.
-	updateAdminRights(event, row){
-		var popupMsg = ""
-		var isAdmin = event.target.checked;
-		if(isAdmin){
-			popupMsg = "Please confirm if " + row.firstName + " " + row.lastName+ " must be granted admin privileges.";
-			this.setState({showIsAdminPopup: true, adminChangePopupMsg:popupMsg, targetUser: row.email, isAdmin: true, firstName: row.firstName, lastName: row.lastName});
-		}
-		else{
-			popupMsg = "Please confirm if admin privileges of "+ row.firstName + " " + row.lastName+ " must be revoked.";
-			this.setState({showIsAdminPopup: true, adminChangePopupMsg:popupMsg, targetUser: row.email, isAdmin: false, firstName: row.firstName, lastName: row.lastName});
-		}		
-	}
+  handleUserTblChangeRowsPerPage = (event) => {
+    this.setState(
+      { userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
+      this.getUserInfo
+    );
+  };
 
-	// The actual call to update the admin information is triggered after the user selects "Yes" in the confirmation popup
-	// The user information is retrieved from the state
-	updateAdminRightsUsingStateInfo(email, isAdmin){
-		updateAdminRightsApiCall(email, isAdmin).then((resp)=>{
-			if(resp){
-				eventEmitter.emit("errorOccured", "Admin privileges is " + (this.state.isAdmin ? "granted for ": "revoked for ") + this.state.firstName + " " + this.state.lastName);
-			}
-			else{
-				eventEmitter.emit("errorOccured", "Error while updating the user");
-			}
-			getUsers(this.state.userTblPage, this.state.userTblRowsPerPage, this.state.userTblOrderBy, this.state.userTblOrder, (resp) => {
-				this.setState({users:resp.users, showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
-				}, (error) => {
-				console.log('Error encountered in getUsers request to API layer');
-			});
-		});
-	}
-	handleClose = () => {
-		this.setState({ showIsAdminPopup: false, adminChangePopupMsg: "", targetUser: "", firstName: "", lastName: ""});
-	};
+  handleUserTblRequestSort = (property) => {
+    const orderBy = property;
+    let order = "desc";
+    if (
+      this.state.userTblOrderBy === property &&
+      this.state.userTblOrder === "desc"
+    ) {
+      order = "asc";
+    }
+    this.setState({ userTblOrder: order, userTblOrderBy: orderBy });
+    this.getUserInfo();
+  };
 
-	handleUserTblChangePage = (event, page) => {
-		this.setState({ userTblPage: page },
-			this.getUserInfo);
-	};
+  handleAdminsTblChangePage = (event, page) => {
+    this.setState({ adminTblPage: page });
+    this.getAdminInfo();
+  };
 
-	handleUserTblChangeRowsPerPage = event => {	
-		this.setState({ userTblPage: 0, userTblRowsPerPage: parseInt(event.target.value) },
-			this.getUserInfo);
-	};
+  handleAdminsTblChangeRowsPerPage = (event) => {
+    this.setState({
+      adminTblPage: 0,
+      adminTblRowsPerPage: parseInt(event.target.value),
+    });
+    this.getAdminInfo();
+  };
 
-	handleUserTblRequestSort = (property) => {
-		const orderBy = property;
-		let order = 'desc';
-		if (this.state.userTblOrderBy === property && this.state.userTblOrder === 'desc') {
-		order = 'asc';
-		}
-		this.setState({ userTblOrder:order, userTblOrderBy:orderBy });
-		this.getUserInfo()		
-	};
-	
-	handleAdminsTblChangePage = (event, page) => {
-		this.setState({ adminTblPage: page });
-		this.getAdminInfo();
-	};
+  handleAdminsTblRequestSort = (property) => {
+    const orderBy = property;
+    let order = "desc";
+    if (
+      this.state.adminTblOrderBy === property &&
+      this.state.adminTblOrder === "desc"
+    ) {
+      order = "asc";
+    }
+    this.setState({ adminTblOrder: order, adminTblOrderBy: orderBy });
+    this.getAdminInfo();
+  };
 
-	handleAdminsTblChangeRowsPerPage = event => {
-		this.setState({ adminTblPage: 0, adminTblRowsPerPage: parseInt(event.target.value)});
-		this.getAdminInfo();
-	};
-
-	handleAdminsTblRequestSort = (property) => {
-		const orderBy = property;
-		let order = 'desc';
-		if (this.state.adminTblOrderBy === property && this.state.adminTblOrder === 'desc') {
-		order = 'asc';
-		}
-		this.setState({ adminTblOrder:order, adminTblOrderBy:orderBy });
-		this.getAdminInfo();		
-  	};
-
-	render(){
-		const {classes} = this.props;
-		const {users} = this.state;
-		const {admins} = this.state;
-		const {userTblRowsPerPage, userTblRowsPerPageOptions, userTblPage, userTblOrder, userTblOrderBy, totalUsersCount} = this.state;
-		const {adminTblRowsPerPage, adminTblRowsPerPageOptions, adminTblPage, adminTblOrder, adminTblOrderBy, totalAdminsCount} = this.state;
-		const tbcellStyle= {textAlign: 'center'}
-		const sortableColumns = {
-			email: 'email',
-			firstName: 'firstName',
-			lastName : "lastName",
-			lastActivity : "lastActivity",
-			registerMoment: "registerMoment",
-			organization: "organization"
-		}
-		return(
-			<div>
-				<Dialog
-	          open={this.state.showIsAdminPopup}
-	          onClose={this.handleClose}
-						aria-labelledby="form-dialog-title"
-	        >
-	          <DialogTitle id="form-dialog-title">Confirm</DialogTitle>
-	          <DialogContent style={{width:"100%"}}>
-	            <DialogContentText>
-	              {this.state.adminChangePopupMsg}
-	            </DialogContentText>	            
-	          </DialogContent>
-	          <DialogActions>
-			  	<Button onClick={() => this.updateAdminRightsUsingStateInfo(this.state.targetUser, this.state.isAdmin)} color="primary">
-	              Yes
-	            </Button>
-	            <Button onClick={() => this.handleClose()} color="secondary">
-	              No
-	            </Button>
-	          </DialogActions>
-	        </Dialog>
-				<Paper id="clientsInfo" style={{marginLeft: '5%', marginRight: '5%', marginBottom: '5%', border: 'solid 2px #d9edf7'}}>
-					<Table>
-						<TableHead style={{backgroundColor: '#d9edf7'}}>
-							<TableRow>
-								<TableCell colSpan={8} style={{...tbcellStyle, backgroundColor: '#d9edf7', width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Users Information</TableCell>
-							</TableRow>
-							<TableRow>
-								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.email}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.email)}}>
-											<People />Users
-										</TableSortLabel>
-									</Tooltip>						
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1.75rem', color: '#31708f'}}>
-									<Tooltip title="Sort on First Name" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.firstName}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.firstName)}}>
-											Name
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								{/* <TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.lastName}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastName)}}>
-											Last Name
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell> */}
-								<TableCell style={{...tbcellStyle, width: '10%',  fontSize: '1.75rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.organization}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.organization)}}>
-											Organization
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Sign Up" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.registerMoment}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.registerMoment)}}>
-											Sign Up
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '5%',  fontSize: '1.75rem', color: '#31708f'}}>
-								Validation
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>
-									<Tooltip title="Sort on Last Activity" placement='bottom-end' enterDelay={300}>
-										<TableSortLabel
-											active={userTblOrderBy === sortableColumns.lastActivity}
-											direction={userTblOrder}
-											onClick={() => {this.handleUserTblRequestSort(sortableColumns.lastActivity)}}>
-											Last Activity
-										</TableSortLabel>
-									</Tooltip>
-								</TableCell>
-								<TableCell style={{...tbcellStyle, width: '15%',  fontSize: '1.75rem', color: '#31708f'}}>Make Admin</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{
-								users.map(resp =>{
-									var timeStamp = resp.registerMoment;
-									var date = new Date(timeStamp);
-									var lastActivity = new Date(resp.lastActivity);
-
-									return(
-									<TableRow>
-										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName + " " + resp.lastName}</TableCell>
-										{/* <TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell> */}
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.organization}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{
-											(1 + date.getMonth()) +'/' + date.getDate() + '/' + date.getFullYear() + ' ' + date.getHours() + ':' + date.getMinutes()
-										}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>
-											{(resp.validated)?<Done style={{color: 'green'}} />:<Clear style={{color: 'red'}} />}
-										</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{(1 + lastActivity.getMonth()) +'/' + lastActivity.getDate() + '/' + lastActivity.getFullYear() + ' ' + date.getHours() + ':' + lastActivity.getMinutes()}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}><input type="checkbox" disabled = {resp.email === store.getState().email} checked = {resp.isAdmin} onChange={(event) => this.updateAdminRights(event, resp)}></input></TableCell>
-									</TableRow>)
-								})
-							}
-						</TableBody>
-						<TableFooter style={{textAlign:'center'}}>
-							<TableRow>
-								<TablePagination
-									rowsPerPageOptions={userTblRowsPerPageOptions}
-									colSpan={8}
-									count={totalUsersCount}
-									rowsPerPage={userTblRowsPerPage}
-									page={userTblPage}
-									SelectProps={{
-										native: true,
-									}}
-									onPageChange={this.handleUserTblChangePage}
-									onRowsPerPageChange={this.handleUserTblChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-									classes={{
-										caption: classes.tablePaginationCaption,
-										select: classes.tablePaginationSelect,
-										toolbar: classes.toolbar
-									}}
-								/>
-							</TableRow>
-						</TableFooter>
-					</Table>   
-				</Paper>
-
-				<Paper id="adminsInfo" style={{marginLeft: '10%', marginRight: '10%', marginTop: '2%', marginBottom: '10%', border: 'solid 2px #d9edf7'}}>
-					<Table>
-						<TableHead style={{backgroundColor: '#d9edf7'}}>
-							<TableRow>
-							<TableCell colSpan={6} style={{...tbcellStyle, backgroundColor: '#d9edf7', width: '7.5%',  fontSize: '2rem', color: '#31708f'}}>Admin Information</TableCell>
-							</TableRow>
-							<TableRow>
-							<TableCell style={{...tbcellStyle, width: '33%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on Username" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={adminTblOrderBy === sortableColumns.email}
-										direction={adminTblOrder}
-										onClick={() => {this.handleAdminsTblRequestSort(sortableColumns.email)}}>
-										<People />Users
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '33%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on First Name" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={adminTblOrderBy === sortableColumns.firstName}
-										direction={adminTblOrder}
-										onClick={() => {this.handleAdminsTblRequestSort(sortableColumns.firstName)}}>
-										First Name
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '33%',  fontSize: '2rem', color: '#31708f'}}>
-								<Tooltip title="Sort on Last Name" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={adminTblOrderBy === sortableColumns.lastName}
-										direction={adminTblOrder}
-										onClick={() => {this.handleAdminsTblRequestSort(sortableColumns.lastName)}}>
-										Last Name
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							<TableCell style={{...tbcellStyle, width: '33%',  fontSize: '2rem', color: '#31708f'}}>
-							<Tooltip title="Sort on Last Activity" placement='bottom-end' enterDelay={300}>
-									<TableSortLabel
-										active={adminTblOrderBy === sortableColumns.lastActivity}
-										direction={adminTblOrder}
-										onClick={() => {this.handleAdminsTblRequestSort(sortableColumns.lastActivity)}}>
-										Last Activity
-									</TableSortLabel>
-								</Tooltip>
-							</TableCell>
-							</TableRow>
-						</TableHead>
-						<TableBody>
-							{
-								admins.map(resp =>(
-									<TableRow>
-										<TableCell style={{fontSize: '1rem'}}><Person />{resp.email}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.firstName}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>{resp.lastName}</TableCell>
-										<TableCell style={{...tbcellStyle, fontSize: '1rem'}}>TBD</TableCell>
-									</TableRow>))
-							}
-						</TableBody>
-						<TableFooter style={{textAlign:'center'}}>
-							<TableRow>
-								<TablePagination
-									rowsPerPageOptions={adminTblRowsPerPageOptions}
-									colSpan={5}
-									count={totalAdminsCount}
-									rowsPerPage={adminTblRowsPerPage}
-									page={adminTblPage}
-									SelectProps={{
-										native: true,
-									}}
-									onPageChange={this.handleAdminsTblChangePage}
-									onRowsPerPageChange={this.handleAdminsTblChangeRowsPerPage}
-									ActionsComponent={TablePaginationActions}
-									classes={{
-										caption: classes.tablePaginationCaption,
-										select: classes.tablePaginationSelect,
-										toolbar: classes.toolbar
-									}}
-								/>
-							</TableRow>
-						</TableFooter>
-					</Table>   
-				</Paper>
-			</div>
-		);
-	}
+  render() {
+    return (
+      <Paper className="clients-info-paper">
+        <h2 className="clients-info-title">
+          <People className="clients-info-icon" />
+          Users
+        </h2>
+        <Table className="clients-info-table">
+          <TableHead>
+            <TableRow>
+              <TableCell key="user-email">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "email"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("email")}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-firstName">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "firstName"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("firstName")}
+                >
+                  First Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-lastName">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "lastName"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("lastName")}
+                >
+                  Last Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-organization">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "organization"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("organization")}
+                >
+                  Organization
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-dateSignedUp">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "dateSignedUp"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("dateSignedUp")}
+                >
+                  Signed Up
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-validated">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "validated"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("validated")}
+                >
+                  Validated
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-lastActivity">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "lastActivity"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("lastActivity")}
+                >
+                  Last Activity
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="user-admin">
+                <TableSortLabel
+                  active={this.state.userTblOrderBy === "admin"}
+                  direction={this.state.userTblOrder}
+                  onClick={() => this.handleUserTblRequestSort("admin")}
+                >
+                  Admin
+                </TableSortLabel>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {this.state.users.map((row) => (
+              <TableRow key={row.email}>
+                <TableCell>{row.email}</TableCell>
+                <TableCell>{row.firstName}</TableCell>
+                <TableCell>{row.lastName}</TableCell>
+                <TableCell>{row.organization}</TableCell>
+                <TableCell>
+                  {new Date(row.dateSignedUp).toDateString()}
+                </TableCell>
+                <TableCell>{row.validated ? <Done /> : <Clear />}</TableCell>
+                <TableCell>
+                  {new Date(row.lastActivity).toDateString()}
+                </TableCell>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    checked={row.admin}
+                    onChange={(event) => this.updateAdminRights(event, row)}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={this.state.userTblRowsPerPageOptions}
+                colSpan={8}
+                count={this.state.totalUsersCount}
+                rowsPerPage={this.state.userTblRowsPerPage}
+                page={this.state.userTblPage}
+                onPageChange={this.handleUserTblChangePage}
+                onRowsPerPageChange={this.handleUserTblChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+                classes={{
+                  select: styles.tablePaginationSelect,
+                  selectIcon: styles.tablePaginationSelect,
+                  actions: styles.tablePaginationActions,
+                  caption: styles.tablePaginationCaption,
+                }}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+        <h2 className="clients-info-title">
+          <Person className="clients-info-icon" />
+          Admins
+        </h2>
+        <Table className="clients-info-table">
+          <TableHead>
+            <TableRow>
+              <TableCell key="admin-email">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "email"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() => this.handleAdminsTblRequestSort("email")}
+                >
+                  Email
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-firstName">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "firstName"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() => this.handleAdminsTblRequestSort("firstName")}
+                >
+                  First Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-lastName">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "lastName"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() => this.handleAdminsTblRequestSort("lastName")}
+                >
+                  Last Name
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-organization">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "organization"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() =>
+                    this.handleAdminsTblRequestSort("organization")
+                  }
+                >
+                  Organization
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-dateSignedUp">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "dateSignedUp"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() =>
+                    this.handleAdminsTblRequestSort("dateSignedUp")
+                  }
+                >
+                  Signed Up
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-validated">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "validated"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() => this.handleAdminsTblRequestSort("validated")}
+                >
+                  Validated
+                </TableSortLabel>
+              </TableCell>
+              <TableCell key="admin-lastActivity">
+                <TableSortLabel
+                  active={this.state.adminTblOrderBy === "lastActivity"}
+                  direction={this.state.adminTblOrder}
+                  onClick={() =>
+                    this.handleAdminsTblRequestSort("lastActivity")
+                  }
+                >
+                  Last Activity
+                </TableSortLabel>
+              </TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {this.state.admins.map((row) => (
+              <TableRow key={row.email}>
+                <TableCell>{row.email}</TableCell>
+                <TableCell>{row.firstName}</TableCell>
+                <TableCell>{row.lastName}</TableCell>
+                <TableCell>{row.organization}</TableCell>
+                <TableCell>
+                  {new Date(row.dateSignedUp).toDateString()}
+                </TableCell>
+                <TableCell>{row.validated ? <Done /> : <Clear />}</TableCell>
+                <TableCell>
+                  {new Date(row.lastActivity).toDateString()}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={this.state.adminTblRowsPerPageOptions}
+                colSpan={7}
+                count={this.state.totalAdminsCount}
+                rowsPerPage={this.state.adminTblRowsPerPage}
+                page={this.state.adminTblPage}
+                onPageChange={this.handleAdminsTblChangePage}
+                onRowsPerPageChange={this.handleAdminsTblChangeRowsPerPage}
+                ActionsComponent={TablePaginationActions}
+                classes={{
+                  select: styles.tablePaginationSelect,
+                  selectIcon: styles.tablePaginationSelect,
+                  actions: styles.tablePaginationActions,
+                  caption: styles.tablePaginationCaption,
+                }}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+        <Dialog
+          open={this.state.showIsAdminPopup}
+          onClose={this.handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Confirm Admin Privileges Update"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {this.state.adminChangePopupMsg}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              No
+            </Button>
+            <Button
+              onClick={() =>
+                this.confirmUpdateAdminRights(this.state.isAdminRow)
+              }
+              color="primary"
+              autoFocus
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Paper>
+    );
+  }
 }
 
-export default withStyles(styles)(ClientsInfoComponent) 
+// export default AdminInfo;

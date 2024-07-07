@@ -20,7 +20,6 @@
  ##**************************************************************
  */
 
-
 import React, { Component } from "react";
 
 import {
@@ -34,7 +33,8 @@ import {
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
 import { cookies } from "../model/reducers";
-import Redirect from "react-router/es/Redirect";
+// import Redirect from "react-router/es/Redirect";
+import { Navigate } from "react-router-dom";
 
 export default class OauthProcessComponent extends Component {
   constructor(props) {
@@ -75,8 +75,7 @@ export default class OauthProcessComponent extends Component {
     } /*else if(isOAuth.hasOwnProperty(tag) && isOAuth[tag]){
       console.log(tag + " oAuth identifier received");
       this.updateLocalCredStore(showText[tag], qsObj);
-    }*/
-    else {
+    }*/ else {
       let qs = this.props.location.search;
       let qsObj = JSON.parse(
         decodeURIComponent(qs.substring(qs.indexOf("=") + 1))
@@ -86,7 +85,6 @@ export default class OauthProcessComponent extends Component {
       //   console.log(tag + "oAuth identifier received");
       //   this.updateLocalCredStore(showType[tag], qsObj);
       // }
-
 
       if (tag === "dropbox") {
         console.log("Dropbox oAuth identifier received");
@@ -108,30 +106,39 @@ export default class OauthProcessComponent extends Component {
       let accountId = qsObj.name.split(":+")[1];
       let oAuthToken = qsObj.token;
 
-      let existingToken = parsedJSON.some(obj => obj.name === accountId);
+      let existingToken = parsedJSON.some((obj) => obj.name === accountId);
       if (existingToken) {
         console.log(
           "Auth token for " + accountId + " already exists in session."
         );
       } else {
-        parsedJSON.push({ name: accountId, token: oAuthToken, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime });
+        parsedJSON.push({
+          name: accountId,
+          token: oAuthToken,
+          refreshToken: qsObj.refreshToken,
+          expiredTime: qsObj.expiredTime,
+        });
         cookies.set(protocolType, JSON.stringify(parsedJSON));
       }
     } else {
       cookies.set(
         protocolType,
         JSON.stringify([
-          { name: qsObj.name.split(":+")[1], token: qsObj.token, refreshToken: qsObj.refreshToken, expiredTime: qsObj.expiredTime }
+          {
+            name: qsObj.name.split(":+")[1],
+            token: qsObj.token,
+            refreshToken: qsObj.refreshToken,
+            expiredTime: qsObj.expiredTime,
+          },
         ])
       );
     }
   }
 
-
   render() {
     return (
       <div>
-        <Redirect to={transferPageUrl} />
+        <Navigate to={transferPageUrl} />
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );

@@ -21,18 +21,18 @@
  */
 
 import React, { Component } from "react";
-// ui import
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
-import LinearProgress from "@material-ui/core/LinearProgress";
-// components
+// UI import
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import LinearProgress from "@mui/material/LinearProgress";
+// Components
 import NewLoginComponent from "./NewLoginComponent";
 import SavedLoginComponent from "./SavedLoginComponent";
 import CreateAccountComponent from "./CreateAccountComponent";
 import ValidateEmailComponent from "./ValidateEmailComponent";
 import ForgotPasswordComponent from "./ForgotPasswordComponent";
 
-import { Route, Switch, Redirect } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 
 import { login } from "../../APICalls/APICalls.js";
 
@@ -43,7 +43,7 @@ import {
   registerPageUrl,
   forgotPasswordUrl,
   lostValidationCodeUrl,
-    siteURLS
+  siteURLS,
 } from "../../constants";
 import { GREY } from "../../color";
 import { store } from "../../App.js";
@@ -53,7 +53,7 @@ import { cookies } from "../../model/reducers";
 export default class AccountControlComponent extends Component {
   constructor(props) {
     super(props);
-    // redux login action
+    // Redux login action
     this.unsubscribe = store.subscribe(() => {
       this.setState({ authenticated: store.getState().login });
     });
@@ -104,7 +104,6 @@ export default class AccountControlComponent extends Component {
     this.userLogin = this.userLogin.bind(this);
     this.userSigningIn = this.userSigningIn.bind(this);
   }
-  
 
   componentDidMount() {
     document.body.style.backgroundColor = GREY;
@@ -145,13 +144,12 @@ export default class AccountControlComponent extends Component {
         expiresIn
       )
     );
-    //this.setState({authenticated : true});
   }
 
   componentWillUnmount() {
     this.unsubscribe();
 
-    //Reset the body style to prevent styling conflicts
+    // Reset the body style to prevent styling conflicts
     document.body.style.backgroundColor = null;
   }
 
@@ -168,7 +166,7 @@ export default class AccountControlComponent extends Component {
       email,
       password,
       (success) => {
-        console.log("SuccessFull login");
+        console.log("Successful login");
         this.userLogin(
           success.email,
           success.token,
@@ -178,50 +176,31 @@ export default class AccountControlComponent extends Component {
           success.admin,
           success.expiresIn
         );
-        // getToken(email,
-        //     (success) => {
-        //
-        //     },
-        //     (error) => {
-        //         fail(error);
-        //     }
-        // );
       },
       (error) => {
         fail(error);
       }
     );
-
   }
-  // Switches to a route and renders a component based on the redirect set inside render method.
+
   getInnerCard() {
     return (
-      <Switch>
+      <Routes>
+        <Route path="/account" element={this.state.screen} />
         <Route
-          exact
-          path={"/account"}
-          render={(props) => this.state.screen}
-        ></Route>
-
-        <Route
-          exact
           path={registerPageUrl}
-          render={(props) => (
+          element={
             <CreateAccountComponent
-              {...props}
               backToSignin={() => {
                 this.setState({ redirectToSignIn: true });
               }}
             />
-          )}
-        ></Route>
-
+          }
+        />
         <Route
-          exact
           path={lostValidationCodeUrl}
-          render={(props) => (
+          element={
             <ValidateEmailComponent
-              {...props}
               email={this.state.email}
               backToSignin={() => {
                 this.setState({
@@ -231,15 +210,12 @@ export default class AccountControlComponent extends Component {
                 });
               }}
             />
-          )}
-        ></Route>
-
+          }
+        />
         <Route
-          exact
           path={forgotPasswordUrl}
-          render={(props) => (
+          element={
             <ForgotPasswordComponent
-              {...props}
               back={() => {
                 this.props.location.pathname = signInUrl;
                 this.setState({
@@ -250,13 +226,11 @@ export default class AccountControlComponent extends Component {
               }}
               email={this.state.email}
             />
-          )}
-        ></Route>
-
+          }
+        />
         <Route
-          exact
           path={signInUrl}
-          render={(props) => (
+          element={
             <NewLoginComponent
               email={this.props.email}
               isLoading={(loading) => {
@@ -287,9 +261,9 @@ export default class AccountControlComponent extends Component {
               }}
               userLoggedIn={this.userSigningIn}
             />
-          )}
-        ></Route>
-      </Switch>
+          }
+        />
+      </Routes>
     );
   }
 
@@ -305,14 +279,14 @@ export default class AccountControlComponent extends Component {
       redirectToSignIn,
     } = this.state;
     const currentRoute = this.props.location.pathname;
-    this.setState.signIn =
+
+    this.state.signIn =
       Object.keys(rememberMeAccounts).length === 0 &&
       currentRoute !== siteURLS.registerPageUrl;
-    this.setState.creatingAccount = false;
-    this.setState.lostValidationCodePressed = false;
-    this.setStateforgotPasswordPressed = false;
-    this.setState.redirectToSignIn = false;
-    console.log(this.setState);
+    this.state.creatingAccount = false;
+    this.state.lostValidationCodePressed = false;
+    this.state.forgotPasswordPressed = false;
+    this.state.redirectToSignIn = false;
 
     return (
       <div
@@ -320,7 +294,7 @@ export default class AccountControlComponent extends Component {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          width: "..",
+          width: "100%",
           paddingBottom: "5%",
         }}
       >
@@ -331,31 +305,35 @@ export default class AccountControlComponent extends Component {
             alignSelf: isSmall ? "flex-start" : "center",
           }}
         >
-          {/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
-						{console.log(currentRoute)} */}
-          {/* At any point of time only one among below should be true */}
           {currentRoute !== siteURLS.lostValidationCodeUrl &&
             lostValidationCodePressed && (
-              <Redirect to={siteURLS.lostValidationCodeUrl} />
+              <Navigate to={siteURLS.lostValidationCodeUrl} replace />
             )}
-          {store.getState().login && <Redirect to={siteURLS.transferPageUrl} />}
+          {store.getState().login && (
+            <Navigate to={siteURLS.transferPageUrl} replace />
+          )}
           {currentRoute !== siteURLS.registerPageUrl && creatingAccount && (
-            <Redirect to={siteURLS.registerPageUrl} />
+            <Navigate to={siteURLS.registerPageUrl} replace />
           )}
-          {currentRoute !== siteURLS.forgotPasswordUrl && forgotPasswordPressed && (
-            <Redirect to={siteURLS.forgotPasswordUrl} />
-          )}
-          {redirectToSignIn && <Redirect to={siteURLS.signInPageUrl} />}
+          {currentRoute !== siteURLS.forgotPasswordUrl &&
+            forgotPasswordPressed && (
+              <Navigate to={siteURLS.forgotPasswordUrl} replace />
+            )}
+          {redirectToSignIn && <Navigate to={siteURLS.signInPageUrl} replace />}
           {currentRoute === siteURLS.accountPageUrl && signIn && (
-            <Redirect from={siteURLS.accountPageUrl} to={siteURLS.signInPageUrl} />
+            <Navigate
+              from={siteURLS.accountPageUrl}
+              to={siteURLS.signInPageUrl}
+              replace
+            />
           )}
           {loading && <LinearProgress />}
 
-            <Card elevation={3}>
-                <CardContent style={{ padding: "3em" }}>
-                    {this.getInnerCard()}
-                </CardContent>
-            </Card>
+          <Card elevation={3}>
+            <CardContent style={{ padding: "3em" }}>
+              {this.getInnerCard()}
+            </CardContent>
+          </Card>
         </div>
       </div>
     );

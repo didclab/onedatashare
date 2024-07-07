@@ -21,12 +21,12 @@
  */
 
 import React, { Component } from "react";
-import Typography from "@material-ui/core/Typography";
-import TextField from "@material-ui/core/TextField";
-import CardActions from "@material-ui/core/CardActions";
-import Checkbox from "@material-ui/core/Checkbox";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Button from "@material-ui/core/Button";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import CardActions from "@mui/material/CardActions";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Button from "@mui/material/Button";
 import PropTypes from "prop-types";
 import {
   spaceBetweenStyle,
@@ -38,7 +38,7 @@ import {
   verifyRegistraionCode,
   setPassword,
 } from "../../APICalls/APICalls.js";
-import LinearProgress from "@material-ui/core/LinearProgress";
+import LinearProgress from "@mui/material/LinearProgress";
 import ValidateEmailComponent from "../Login/ValidateEmailComponent";
 import PasswordRequirementsComponent from "../Login/PasswordRequirementsComponent";
 import { Link } from "react-router-dom";
@@ -50,10 +50,10 @@ import { ValidatorForm, TextValidator } from "react-material-ui-form-validator";
 
 import { updateGAPageView } from "../../analytics/ga";
 
-import VisibilityOutlinedIcon from "@material-ui/icons/VisibilityOutlined";
-import VisibilityOffOutlinedIcon from "@material-ui/icons/VisibilityOffOutlined";
-import InputAdornment from "@material-ui/core/InputAdornment";
-import IconButton from "@material-ui/core/IconButton";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
+import InputAdornment from "@mui/material/InputAdornment";
+import IconButton from "@mui/material/IconButton";
 
 export default class CreateAccountComponent extends Component {
   static propTypes = {
@@ -108,7 +108,6 @@ export default class CreateAccountComponent extends Component {
     this.handleShowPassword = this.handleShowPassword.bind(this);
     this.handleHidePassword = this.handleHidePassword.bind(this);
   }
-
 
   registerAccount() {
     if (this.state.captchaVerified) {
@@ -193,7 +192,7 @@ export default class CreateAccountComponent extends Component {
   }
 
   checkIfUserCanSubmit() {
-    let unsatisfiedRequirements = this.state.validations.filter(function(
+    let unsatisfiedRequirements = this.state.validations.filter(function (
       criteria
     ) {
       return criteria.containsError;

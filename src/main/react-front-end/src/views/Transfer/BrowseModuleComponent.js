@@ -20,205 +20,311 @@
  ##**************************************************************
  */
 
-
 /*	Window in the Transfer Component */
 
-import React, { Component } from 'react';
-import Button from '@material-ui/core/Button';
+import React, { Component } from "react";
+import Button from "@mui/material/Button";
 import { savedCredList } from "../../APICalls/APICalls";
-import {store} from "../../App";
+import { store } from "../../App";
 import PropTypes from "prop-types";
 
+import LinearProgress from "@mui/material/LinearProgress";
 
-import LinearProgress from '@material-ui/core/LinearProgress';
-
-import { loadCSS } from 'fg-loadcss';
-import Icon from '@material-ui/core/Icon';
-import {styled} from "@material-ui/core/styles";
-
+import { loadCSS } from "fg-loadcss";
+import Icon from "@mui/material/Icon";
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import { VFS, getType} from "../../constants";
-import {showText, showType, showDisplay} from "../../constants";
-import {OAuthFunctions} from "../../APICalls/EndpointAPICalls";
+import { VFS, getType } from "../../constants";
+import { showText, showType, showDisplay } from "../../constants";
+import { OAuthFunctions } from "../../APICalls/EndpointAPICalls";
 
-import {eventEmitter} from "../../App";
+import { eventEmitter } from "../../App";
 
 const pickModule = 0;
 const inModule = 1;
 
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#fff",
+      contrastText: "#000",
+    },
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          flexGrow: 1,
+          justifyContent: "flex-start",
+          width: "100%",
+          fontSize: "16px",
+          color: "#000",
+          margin: "0",
+          paddingLeft: "35%",
+          transition: "background-color 0.3s ease-out",
+          "&:hover": {
+            backgroundColor: "#E0E0E0",
+            color: "#000",
+            border: "none",
+          },
+        },
+      },
+    },
+  },
+});
+
 export default class BrowseModuleComponent extends Component {
+  static propTypes = {
+    endpoint: PropTypes.object,
+    history: PropTypes.array,
+    mode: PropTypes.number,
+    update: PropTypes.func,
+    type: PropTypes.string,
+    display: PropTypes.string,
+  };
 
-	static propTypes = {
-		endpoint : PropTypes.object,
-		history : PropTypes.array,
-		mode : PropTypes.number,
-		update : PropTypes.func,
-		type: PropTypes.string,
-		display: PropTypes.string 
-	}
+  constructor(props) {
+    super(props);
 
-	constructor(props){
-		super(props);
+    const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
+      return (
+        (getType(currentState.endpoint1) === showType.gsiftp ||
+          getType(currentState.endpoint2) === showType.gsiftp) &&
+        (currentState.endpoint1.login || currentState.endpoint1.login)
+      );
+    };
 
-		const checkIfOneSideIsLoggedInAsGrid = (currentState) => {
-			return (getType(currentState.endpoint1) === showType.gsiftp || getType(currentState.endpoint2) === showType.gsiftp) && (currentState.endpoint1.login || currentState.endpoint1.login);
-		}
+    let constructState = store.getState();
 
-		let constructState = store.getState();
+    this.state = {
+      history: props.history.filter((v) => {
+        return v.indexOf(props.endpoint.uri) === 0;
+      }),
+      creds: {},
+      endpoint: props.endpoint,
+      mode: props.mode,
+      loading: false,
+    };
 
-		this.state={
-			history: props.history.filter((v) => { return v.indexOf(props.endpoint.uri) === 0 }),
-			creds: {},
-			endpoint: props.endpoint, 
-			mode: props.mode,
-			loading: false,
-		};
+    this.setLoading = this.setLoading.bind(this);
+    this.getLoading = this.getLoading.bind(this);
 
+    this.credentialTypeExistsThenDo =
+      this.credentialTypeExistsThenDo.bind(this);
+    this._handleError = this._handleError.bind(this);
+    this.backHome = this.backHome.bind(this);
+    this.loginPrep = this.loginPrep.bind(this);
+    this.login = this.login.bind(this);
+  }
 
-		this.setLoading = this.setLoading.bind(this);
-		this.getLoading = this.getLoading.bind(this);
+  // endpointButton = () =>
+  //   styled(Button)({
+  //     flexGrow: 1,
+  //     justifyContent: "flex-start",
+  //     width: "100%",
+  //     fontSize: "16px",
+  //     fontcolor: "#000",
+  //     paddingLeft: "35%",
+  //   });
 
-		this.credentialTypeExistsThenDo = this.credentialTypeExistsThenDo.bind(this);
-		this._handleError = this._handleError.bind(this);
-		this.backHome = this.backHome.bind(this);
-		this.loginPrep = this.loginPrep.bind(this);
-		this.login = this.login.bind(this);
-	}
+  setLoading(bool) {
+    this.setState({ loading: bool });
+  }
 
-	endpointButton = () => styled(Button)({
-		flexGrow: 1,
-		justifyContent: "flex-start",
-		width: "100%",
-		fontSize: "16px",
-		paddingLeft: "35%"
-	});
+  getLoading() {
+    return this.state.loading;
+  }
 
-	setLoading(bool){
-		this.setState({loading: bool});
-	};
+  _handleError = (msg) => {
+    eventEmitter.emit("errorOccured", msg);
+  };
 
-	getLoading(){
-		return this.state.loading;
-	};
+  componentDidMount() {
+    loadCSS(
+      "https://use.fontawesome.com/releases/v5.1.0/css/all.css",
+      document.querySelector("#font-awesome-css")
+    );
+  }
 
-	_handleError = (msg) =>{
-    	eventEmitter.emit("errorOccured", msg);
-	}
+  credentialTypeExistsThenDo = (containsType, succeed, failed) => {
+    this.setLoading(true);
 
-	componentDidMount(){
-		loadCSS(
-	      'https://use.fontawesome.com/releases/v5.1.0/css/all.css',
-	      document.querySelector('#font-awesome-css'),
-	    );
-	}
+    // If the user has opted to store tokens on ODS server,
+    // query backed for saved credentials
+    console.log("Checking backend for " + containsType + " credentials");
 
-	credentialTypeExistsThenDo = (containsType, succeed, failed) => {
-		this.setLoading(true);
-		
-			// If the user has opted to store tokens on ODS server,
-			// query backed for saved credentials
-			console.log("Checking backend for " + containsType + " credentials");
+    savedCredList(
+      containsType,
+      (data) => {
+        if (data !== undefined && data.list.length > 0) {
+          succeed(data);
+        } else {
+          failed();
+        }
+        this.setLoading(false);
+      },
+      (error) => {
+        this._handleError(
+          "Could not get credential from our server. Maybe check your internet connection."
+        );
+        failed();
+        this.setLoading(false);
+      }
+    );
+  };
 
-			savedCredList(containsType, (data) => {
-				if(data !== undefined && data.list.length > 0){
-					succeed(data);
-				}else{
-					failed();
-				}
-				this.setLoading(false);
-			}, (error) =>{
-				this._handleError("Could not get credential from our server. Maybe check your internet connection.");
-				failed();
-				this.setLoading(false);
-			});
-	}
+  backHome = () => {
+    this.setState((prevState) => ({
+      mode: pickModule,
+      endpoint: {
+        uri: "",
+        login: false,
+        credential: {},
+        side: prevState?.endpoint?.side,
+      },
+    }));
+    this.props.update({
+      mode: pickModule,
+      endpoint: { uri: "", login: false, credential: {} },
+    });
+  };
 
-	backHome = () => {
-		this.setState((prevState) => ({mode: pickModule, endpoint: { uri: "", login: false, credential: {}, side: prevState?.endpoint?.side }}));
-		this.props.update({mode: pickModule, endpoint: {  uri: "", login: false, credential: {}}});
-	}
+  loginPrep = (uri) => (data) => {
+    const { endpoint } = this.state;
+    this.setState({
+      mode: inModule,
+      history: this.props.history.filter((v) => {
+        return v.indexOf(uri) === 0;
+      }),
+      endpoint: { ...endpoint, uri: uri },
+      creds: data ? data.list : {},
+    });
+    this.props.update({ mode: inModule, endpoint: { ...endpoint, uri: uri } });
+  };
 
-	loginPrep = (uri) => (data) => {
-		const {endpoint} = this.state;
-		this.setState({mode: inModule, history: this.props.history.filter(
-				(v) => { return v.indexOf(uri) === 0 }),
-			endpoint: {...endpoint, uri: uri},
-			creds: data? data.list : {}
-		});
-		this.props.update({mode: inModule, endpoint: {...endpoint, uri: uri}});
-	}
+  login = (service) => {
+    if (service[1].credTypeExists) {
+      this.credentialTypeExistsThenDo(
+        showText[service[0]],
+        this.loginPrep(showType[service[0]]),
+        OAuthFunctions[showType[service[0]]]
+      );
+    } else {
+      this.loginPrep(showType[service[0]])();
+    }
+  };
 
-	login = (service) => {
-		if(service[1].credTypeExists){
-			this.credentialTypeExistsThenDo(showText[service[0]], this.loginPrep(showType[service[0]]), OAuthFunctions[showType[service[0]]]);
-		}else{
-			this.loginPrep(showType[service[0]])();
-		}
-	}
+  checkIfOneSideIsLoggedInAsVFS = () => {
+    let storeContext = store.getState();
+    return (
+      (getType(storeContext.endpoint1) === showType.vfs ||
+        getType(storeContext.endpoint2) === showType.vfs) &&
+      (storeContext.endpoint1.login || storeContext.endpoint2.login)
+    );
+  };
 
-	checkIfOneSideIsLoggedInAsVFS = () => {
-		let storeContext = store.getState()
-		return (getType(storeContext.endpoint1) === showType.vfs || getType(storeContext.endpoint2) === showType.vfs) && (storeContext.endpoint1.login || storeContext.endpoint2.login);
-	}
+  render() {
+    const { endpoint, mode, history, type, loading, creds } = this.state;
+    const { update } = this.props;
+    const CustomButton = styled(Button)({
+      border: "none",
+    });
 
-	render() {
-		const {endpoint, mode, history, type, loading, creds} = this.state;
-		const {update} = this.props;
+    // const EndpointButton = this.endpointButton();
+    const displays = Object.entries(showDisplay);
 
+    return (
+      // saved credential
+      // login manually
+      <div
+        id={"browser" + endpoint.side}
+        className={
+          "transferGroup"
+        } /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/
+      >
+        {!endpoint.login && mode === pickModule && (
+          <div
+            className={
+              "browseContainer"
+            } /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/
+          >
+            {displays.map((service) => {
+              const disable =
+                service[0] === VFS && this.checkIfOneSideIsLoggedInAsVFS();
+              return (
+                <ThemeProvider theme={theme}>
+                  <Button
+                    className="defaultButton"
+                    variant="contained"
+                    size="large"
+                    key={service.side + service[1].id}
+                    id={service.side + service[1].id}
+                    disabled={disable}
+                    onClick={() => {
+                      this.login(service);
+                    }}
+                    sx={{
+                      width: "100%",
+                      justifyContent: "flex-start",
+                      border: "none",
+                    }}
+                  >
+                    <Icon className={service[1].icon + " browseIcon"} />
+                    {service[1].label}
+                  </Button>
+                </ThemeProvider>
 
-		const EndpointButton = this.endpointButton();
-		const displays = Object.entries(showDisplay);
+                // <EndpointButton
+                //   key={service.side + service[1].id}
+                //   id={service.side + service[1].id}
+                //   disabled={disable}
+                //   onClick={() => {
+                //     this.login(service);
+                //   }}
+                // >
+                //   <Icon className={service[1].icon + " browseIcon"} />
+                //   {service[1].label}
+                // </EndpointButton>
+              );
+            })}
+          </div>
+        )}
 
-	  return (
-	    // saved credential
-	    // login manually
-	    <div id={"browser"+endpoint.side} className={"transferGroup"} /*style={{borderWidth: '1px', borderColor: '#005bbb',borderStyle: 'solid',borderRadius: '10px', width: 'auto', height: 'auto', overflow: "hidden"}}*/>
-	      	{(!endpoint.login && mode === pickModule) &&
-	      	<div className={"browseContainer"} /*style={{height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-start"}}*/>
-				{displays.map( (service) => {
-					const disable = (service[0] === VFS &&  this.checkIfOneSideIsLoggedInAsVFS());
-					return(
-						<EndpointButton key={service.side + service[1].id} id={service.side + service[1].id} disabled={disable} onClick={() => {this.login(service)}}>
-							<Icon className={service[1].icon + ' browseIcon'}/>
-							{service[1].label}
-						</EndpointButton>
-					);
-				})}
-		    </div>}
-
-		    {(!endpoint.login && mode === inModule) &&
-	      	<div>
-	      		{loading && <LinearProgress/>}
-		      	<EndpointAuthenticateComponent endpoint={endpoint} 
-		      		history={history} type={type}
-		      		credentials={creds}
-			      	loginSuccess={(object) =>{
-			      		this.setState({endpoint: object});
-			      		update({endpoint: object})
-			      	}}
-					setLoading = {this.setLoading}
-					updateCredentials = {(data => {
-						this.setState({creds: data? data.list: {}})
-					})}
-			      	back={this.backHome}
-		      	/>
-		    </div>}
-		    {endpoint.login &&
-	      	<div>
-	      		{loading && <LinearProgress/>}
-		      	<EndpointBrowseComponent 
-		      		endpoint={endpoint} 
-		      		setLoading = {this.setLoading}
-		      		getLoading = {this.getLoading} 
-		      		back={this.backHome}
-		      		displayStyle={this.props.displayStyle}
-		      	/>
-		    </div>}
-	      </div>
-	    );
-  	}
+        {!endpoint.login && mode === inModule && (
+          <div>
+            {loading && <LinearProgress />}
+            <EndpointAuthenticateComponent
+              endpoint={endpoint}
+              history={history}
+              type={type}
+              credentials={creds}
+              loginSuccess={(object) => {
+                this.setState({ endpoint: object });
+                update({ endpoint: object });
+              }}
+              setLoading={this.setLoading}
+              updateCredentials={(data) => {
+                this.setState({ creds: data ? data.list : {} });
+              }}
+              back={this.backHome}
+            />
+          </div>
+        )}
+        {endpoint.login && (
+          <div>
+            {loading && <LinearProgress />}
+            <EndpointBrowseComponent
+              endpoint={endpoint}
+              setLoading={this.setLoading}
+              getLoading={this.getLoading}
+              back={this.backHome}
+              displayStyle={this.props.displayStyle}
+            />
+          </div>
+        )}
+      </div>
+    );
+  }
 }
-
-
