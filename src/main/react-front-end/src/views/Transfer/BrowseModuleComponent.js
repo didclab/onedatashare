@@ -36,8 +36,7 @@ import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
 
 import EndpointBrowseComponent from "./EndpointBrowseComponent";
 import EndpointAuthenticateComponent from "./EndpointAuthenticateComponent";
-import { VFS, getType } from "../../constants";
-import { showText, showType, showDisplay } from "../../constants";
+import { VFS, getType, showText, showType, showDisplay } from "../../constants";
 import { OAuthFunctions } from "../../APICalls/EndpointAPICalls";
 
 import { eventEmitter } from "../../App";

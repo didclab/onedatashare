@@ -188,7 +188,7 @@ export default class AccountControlComponent extends Component {
       <Routes>
         <Route path="/account" element={this.state.screen} />
         <Route
-          path={registerPageUrl}
+          path={siteURLS.registerPageUrl}
           element={
             <CreateAccountComponent
               backToSignin={() => {
@@ -198,7 +198,7 @@ export default class AccountControlComponent extends Component {
           }
         />
         <Route
-          path={lostValidationCodeUrl}
+          path={siteURLS.lostValidationCodeUrl}
           element={
             <ValidateEmailComponent
               email={this.state.email}
@@ -213,11 +213,11 @@ export default class AccountControlComponent extends Component {
           }
         />
         <Route
-          path={forgotPasswordUrl}
+          path={siteURLS.forgotPasswordUrl}
           element={
             <ForgotPasswordComponent
               back={() => {
-                this.props.location.pathname = signInUrl;
+                this.props.location.pathname = siteURLS.signInPageUrl;
                 this.setState({
                   loading: false,
                   redirectToSignIn: true,
@@ -229,7 +229,7 @@ export default class AccountControlComponent extends Component {
           }
         />
         <Route
-          path={signInUrl}
+          path={siteURLS.signInPageUrl}
           element={
             <NewLoginComponent
               email={this.props.email}

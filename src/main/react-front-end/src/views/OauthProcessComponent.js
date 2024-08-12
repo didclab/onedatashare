@@ -23,12 +23,12 @@
 import React, { Component } from "react";
 
 import {
-  transferPageUrl,
   DROPBOX_TYPE,
   sideLeft,
   DROPBOX_NAME,
   GOOGLEDRIVE_NAME,
   BOX_NAME,
+  siteURLS,
 } from "../constants";
 import { eventEmitter } from "../App";
 import { endpointLogin } from "../model/actions";
@@ -138,7 +138,7 @@ export default class OauthProcessComponent extends Component {
   render() {
     return (
       <div>
-        <Navigate to={transferPageUrl} />
+        <Navigate to={siteURLS.transferPageUrl} />
         <h1>Wait a second, You will be redirected.</h1>
       </div>
     );

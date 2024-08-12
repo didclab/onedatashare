@@ -25,7 +25,7 @@ class DropboxResourceTest {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
         deleteOperation.setToDelete("143081650992");
-        testObj.delete(deleteOperation).block();
+        testObj.delete(deleteOperation);
         Assert.assertTrue("",true);
     }
 
@@ -34,7 +34,7 @@ class DropboxResourceTest {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
         deleteOperation.setToDelete("/hello/omg");
-        testObj.delete(deleteOperation).block();
+        testObj.delete(deleteOperation);
         Assert.assertTrue("",true);
     }
 
@@ -43,7 +43,7 @@ class DropboxResourceTest {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
         deleteOperation.setToDelete("/nested/helloBQZ/ha");
-        testObj.delete(deleteOperation).block();
+        testObj.delete(deleteOperation);
         Assert.assertTrue("",true);
     }
 
@@ -52,7 +52,7 @@ class DropboxResourceTest {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         DeleteOperation deleteOperation = new DeleteOperation("","","");
         deleteOperation.setToDelete("id:SQhR5zO0sjAAAAAAAAAAXw");
-        testObj.delete(deleteOperation).block();
+        testObj.delete(deleteOperation);
         Assert.assertTrue("",true);
     }
 
@@ -61,7 +61,7 @@ class DropboxResourceTest {
     void listRootUsinglLash() {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         ListOperation listOperation = new ListOperation("", "", "/");
-        Stat stat = testObj.list(listOperation).block();
+        Stat stat = testObj.list(listOperation);
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
@@ -76,7 +76,7 @@ class DropboxResourceTest {
     void listRootUsingNothing() {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         ListOperation listOperation = new ListOperation("", "", "");
-        Stat stat = testObj.list(listOperation).block();
+        Stat stat = testObj.list(listOperation);
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
@@ -91,7 +91,7 @@ class DropboxResourceTest {
     void listidSQhR5zO0sjAAAAAAAAAAQAUsingZero() {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         ListOperation listOperation = new ListOperation("", "", "id:SQhR5zO0sjAAAAAAAAAAXg");
-        Stat stat = testObj.list(listOperation).block();
+        Stat stat = testObj.list(listOperation);
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
@@ -105,7 +105,7 @@ class DropboxResourceTest {
     void listNested() {
         testObj = new DropboxResource(oAuthEndpointCredentialWithDevToken(), clientIdentifier);
         ListOperation listOperation = new ListOperation("", "", "id:SQhR5zO0sjAAAAAAAAAADQ");
-        Stat stat = testObj.list(listOperation).block();
+        Stat stat = testObj.list(listOperation);
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
@@ -127,8 +127,8 @@ class DropboxResourceTest {
         mkdirOperation.setFolderToCreate(name);
         mkdirOperation.setCredId("");
         mkdirOperation.setId("/helloworld/hello");
-        testObj.mkdir(mkdirOperation).block();
-        Stat stat = testObj.list(new ListOperation("", "", "")).block();
+        testObj.mkdir(mkdirOperation);
+        Stat stat = testObj.list(new ListOperation("", "", ""));
         Assert.assertTrue(stat != null);
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
@@ -152,8 +152,8 @@ class DropboxResourceTest {
         mkdirOperation.setFolderToCreate(nameToCreate);
         mkdirOperation.setCredId("");
         mkdirOperation.setId(parentId);
-        testObj.mkdir(mkdirOperation).block();
-        Stat stat = testObj.list(new ListOperation("", "", "/nested/helloBQZ/")).block();
+        testObj.mkdir(mkdirOperation);
+        Stat stat = testObj.list(new ListOperation("", "", "/nested/helloBQZ/"));
         for (Stat childs : stat.getFilesList()) {
             System.out.println(childs.toString());
             System.out.println(childs.getId());

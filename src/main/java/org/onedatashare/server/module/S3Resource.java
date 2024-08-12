@@ -4,17 +4,16 @@ import org.apache.log4j.Logger;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.EndpointCredential;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import org.onedatashare.server.model.request.TransferJobRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.core.client.config.ClientAsyncConfiguration;
 import software.amazon.awssdk.core.client.config.SdkAdvancedAsyncClientOption;
-import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Configuration;
@@ -22,6 +21,8 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 public class S3Resource extends Resource{
@@ -46,40 +47,42 @@ public class S3Resource extends Resource{
                 .build();
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
-            try {
-                AccountEndpointCredential accountEndpointCredential = (AccountEndpointCredential) credential;
-                S3Resource s3Resource = new S3Resource(accountEndpointCredential);
-                s.success(s3Resource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential){
+        try {
+            AccountEndpointCredential accountEndpointCredential = (AccountEndpointCredential) credential;
+            S3Resource s3Resource = new S3Resource(accountEndpointCredential);
+            return s3Resource;
+        } catch (Exception e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(monoSink -> {
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .key(operation.getToDelete())
-                    .bucket(this.regionAndBucket[1])
-                    .build();
-            this.s3AsyncClient.deleteObject(deleteObjectRequest);
-            monoSink.success();
-        });
+    public ResponseEntity delete(DeleteOperation operation) {
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .key(operation.getToDelete())
+                .bucket(this.regionAndBucket[1])
+                .build();
+        this.s3AsyncClient.deleteObject(deleteObjectRequest);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
+    //TODO: fix exception handling
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return Mono.fromFuture(
-                this.s3AsyncClient.listObjectsV2(ListObjectsV2Request.builder().bucket(this.regionAndBucket[1]).prefix(operation.getId().isEmpty()?"": operation.getId()).build()))
-                .map(listObjectsV2Response -> {
-                    Stat parent = new Stat();
-                    parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.contents()));
-                    logger.info(parent.getFilesList());
-                    return parent;
-                });
+    public Stat list(ListOperation operation) {
+        try {
+            CompletableFuture<ListObjectsV2Response> listObjectsV2Response = this.s3AsyncClient.
+                    listObjectsV2(ListObjectsV2Request.builder()
+                            .bucket(this.regionAndBucket[1])
+                            .prefix(operation.getId().isEmpty() ? "" : operation.getId()).build());
+            Stat parent = new Stat();
+            parent.setFiles(s3ObjectListToStatList(listObjectsV2Response.get().contents()));
+            logger.info(parent.getFilesList());
+            return parent;
+        }catch (InterruptedException | ExecutionException e){
+            logger.error("Exception occurred while listing S3 objects",e);
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 
     private List<Stat> s3ObjectListToStatList(List<S3Object> s3ObjectList){
@@ -109,7 +112,7 @@ public class S3Resource extends Resource{
      * @return
      */
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
+    public ResponseEntity mkdir(MkdirOperation operation) {
         return null;
     }
 
@@ -120,7 +123,7 @@ public class S3Resource extends Resource{
      * @return
      */
     @Override
-    public Mono download(DownloadOperation operation) {
+    public String download(DownloadOperation operation) {
         return null;
     }
 }

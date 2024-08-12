@@ -24,24 +24,23 @@
 package org.onedatashare.server.repository;
 
 import org.onedatashare.server.model.core.Mail;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public interface MailRepository extends ReactiveMongoRepository<Mail, UUID> {
-    Flux<Mail> findAllBy(String id);
+public interface MailRepository extends MongoRepository<Mail, UUID> {
+    List<Mail> findAllBy(String id);
 
     @Query(value = "{status: 'Sent'}")
-    Flux<Mail> findAll();
+    List<Mail> findAll();
 
     @Query(value = "{status:'deleted'}")
-    Flux<Mail> findAllDeleted();
+    Mail findAllDeleted();
 
     @Override
-    Mono<Mail> findById(UUID id);
+    Optional<Mail> findById(UUID id);
 
 }

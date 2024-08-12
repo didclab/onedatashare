@@ -62,8 +62,8 @@ public class CaptchaService {
      * @param verificationValue
      * @return a boolean value if the verification was successful with the passed verificatioValue from frontend
      */
-    public Mono<Boolean> verifyValue(String verificationValue){
-        String errorMsg = "";
+    //TODO: Exception Handling
+    public Boolean verifyValue(String verificationValue){
         ODSLoggerService.logInfo("In CaptchaService.verifyValue: Received verificationValue of " + verificationValue);
 
         try{
@@ -90,23 +90,26 @@ public class CaptchaService {
                     resp.append(input);
 
                 GoogleCaptchaVerifyResponse respObj = objectMapper.readValue(resp.toString(), GoogleCaptchaVerifyResponse.class);
-                return Mono.just(respObj.getSuccess());
+                return respObj.getSuccess();
             }
             else{
                 ODSLoggerService.logError("There was an error verifying the captcha code - " + conn.getResponseMessage());
+                return false;
             }
         }
         catch(MalformedURLException mue){
             ODSLoggerService.logError("Exception occurred while creating URL object",mue);
+            return false;
         }
         catch(IOException ioe){
             ODSLoggerService.logError("Exception occurred while opening or reading from a connection with "
                                             + GOOGLE_CAPTCHA_VERIFY_API_URL, ioe);
+            return false;
         }
         catch (Exception ex){
             ODSLoggerService.logError("General error occurred while verify captcha", ex);
+            return false;
         }
-        return Mono.error(new Exception(errorMsg));
     }
 }
 

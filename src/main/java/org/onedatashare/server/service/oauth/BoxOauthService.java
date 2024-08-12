@@ -72,24 +72,22 @@ public class BoxOauthService{
      * @return OAuthCredential
      */
 
-    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
-        return Mono.create(s -> {
-            String code = queryParameters.get("code");
-            // Instantiate new Box API connection object
-            BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
-            client.refresh();
-            BoxUser user = BoxUser.getCurrentUser(client);
-            BoxUser.Info userInfo = user.getInfo();
-            Calendar calendar = Calendar.getInstance();
-            calendar.add(Calendar.MILLISECOND, Math.toIntExact(client.getExpires()));
+    public OAuthEndpointCredential finish(Map<String, String> queryParameters) {
+        String code = queryParameters.get("code");
+        // Instantiate new Box API connection object
+        BoxAPIConnection client = new BoxAPIConnection(clientId, clientSecret, code);
+        client.refresh();
+        BoxUser user = BoxUser.getCurrentUser(client);
+        BoxUser.Info userInfo = user.getInfo();
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MILLISECOND, Math.toIntExact(client.getExpires()));
 
-            OAuthEndpointCredential credential = new OAuthEndpointCredential(userInfo.getLogin())
-                    .setToken(client.getAccessToken())
-                    .setTokenExpires(true)
-                    .setRefreshToken(client.getRefreshToken())
-                    .setRefreshTokenExpires(true)
-                    .setExpiresAt(calendar.getTime());
-            s.success(credential);
-        });
+        return new OAuthEndpointCredential(userInfo.getLogin())
+                .setToken(client.getAccessToken())
+                .setTokenExpires(true)
+                .setRefreshToken(client.getRefreshToken())
+                .setRefreshTokenExpires(true)
+                .setExpiresAt(calendar.getTime());
+
     }
 }

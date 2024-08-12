@@ -7,7 +7,6 @@ import { Hidden } from "@mui/material";
 import MenuItem from "@mui/material/MenuItem";
 import Tooltip from "@mui/material/Tooltip";
 import QueueMobileHeader from "./QueueMobileHeader";
-import AdminHistoryTools from "./AdminHistoryTools";
 
 function makeHeaderCells(
   adminPg,

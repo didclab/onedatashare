@@ -27,31 +27,31 @@ import { Route, Routes, Navigate, Outlet } from "react-router-dom";
 import { store } from "./App.js";
 import AccountControlComponent from "./views/Login/AccountControlComponent.js";
 import { siteURLS } from "./constants";
+
+// import TransferComponentOld from './views/Transfer/TransferComponentOld';
 import TransferComponent from "./views/Transfer/TransferComponent";
-import HistoryComponent from "./views/Admin/HistoryComponent";
+import JobHistoryComponent from "./views/JobHistory/JobHistoryComponent";
 import QueueComponent from "./views/Queue/QueueComponent";
 import UserAccountComponent from "./views/Login/UserAccountComponent";
-import ClientsInfoComponent from "./views/Admin/ClientsInfoComponent";
-import NotificationsComponent from "./views/Admin/NotificationsComponent";
-import NewNotificationsComponent from "./views/Admin/NewNotificationsComponent";
 import SupportComponent from "./views/Support/SupportComponent";
 import EndpointDB from "./views/Endpoint_Authorization/Endpoint_DB";
 import TermsComponent from "./views/TermsComponent";
 import PolicyComponent from "./views/PolicyComponent";
 import GetStartedComponent from "./views/GetStartedComponent";
+
 import "./MainComponent.css";
+
+// XNOTE: split the components into logged in, not logged in, and admin using HOCs
 
 export default class MainComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isLoggedIn: store.getState().login,
-      admin: store.getState().admin,
     };
     this.unsubscribe = store.subscribe(() => {
       this.setState({
         isLoggedIn: store.getState().login,
-        admin: store.getState().admin,
       });
     });
   }
@@ -61,7 +61,7 @@ export default class MainComponent extends Component {
   }
 
   render() {
-    const { isLoggedIn, admin } = this.state;
+    const { isLoggedIn } = this.state;
     return (
       <div className="App">
         <link
@@ -80,28 +80,13 @@ export default class MainComponent extends Component {
           key={isLoggedIn}
           login={isLoggedIn}
           email={store.getState().email}
-        />
+        ></NavbarComponent>
 
         <div className="content" style={{ display: "block" }}>
-          <Routes>
+          <Switch>
             <Route
-              path={siteURLS.accountPageUrl}
-              element={<AccountControlComponent />}
-            />
-            <Route
-              path={siteURLS.rootUrl}
-              element={<HomePageComponent store={store} />}
-            />
-            <Route path={siteURLS.termsUrl} element={<TermsComponent />} />
-            <Route path={siteURLS.policyUrl} element={<PolicyComponent />} />
-            <Route
-              path={siteURLS.supportPageUrl}
-              element={<SupportComponent />}
-            />
-            <Route path={siteURLS.endpoint_dbUrl} element={<EndpointDB />} />
-            <Route
-              path={siteURLS.getStartedPageUrl}
-              element={<GetStartedComponent />}
+              path={siteURLS.accountPageUrl /*'/account'*/}
+              render={(props) => <AccountControlComponent {...props} />}
             />
 
             {/* {(isLoggedIn = true)} */}
@@ -125,39 +110,29 @@ export default class MainComponent extends Component {
                 element={<HistoryComponent store={store} />}
               />
             )}
-            {isLoggedIn && admin && (
-              <Route
-                path={siteURLS.userListPageUrl}
-                element={<ClientsInfoComponent store={store} />}
-              />
-            )}
-            {isLoggedIn && admin && (
-              <Route
-                path={siteURLS.notificationPageUrl}
-                element={<NotificationsComponent store={store} />}
-              />
-            )}
-            {isLoggedIn && admin && (
-              <Route
-                path={siteURLS.newNotificationsUrl}
-                element={<NewNotificationsComponent store={store} />}
-              />
-            )}
+
             {isLoggedIn && (
               <Route
-                path={siteURLS.userPageUrl}
-                element={<UserAccountComponent />}
+                exact
+                path={siteURLS.historyPageUrl /*'/queue'*/}
+                render={(props) => <JobHistoryComponent {...props} />}
               />
             )}
 
-            {/* 
+            {isLoggedIn && (
+              <Route
+                exact
+                path={siteURLS.userPageUrl /*'/user'*/}
+                render={(props) => <UserAccountComponent {...props} />}
+              />
+            )}
+
             {!isLoggedIn && (
               <Route
-                path="*"
-                element={<Navigate to={siteURLS.rootUrl} replace />}
+                render={() => <Redirect to={siteURLS.rootUrl /*'/'*/} />}
               />
-            )} */}
-          </Routes>
+            )}
+          </Switch>
         </div>
       </div>
     );

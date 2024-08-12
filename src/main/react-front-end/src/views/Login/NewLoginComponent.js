@@ -31,7 +31,7 @@ import PropTypes from "prop-types";
 
 import { checkLogin } from "../../APICalls/APICalls.js";
 
-import { spaceBetweenStyle } from "../../constants.js";
+import { spaceBetweenStyle } from "../../constants";
 import { updateGAPageView } from "../../analytics/ga";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";

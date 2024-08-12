@@ -110,10 +110,6 @@
 /*                         */
 /***************************/
 
-.content {
-  padding-top: 15vh;
-}
-
 button.defaultButton {
   background-color: white;
   font-size: 1.2em;
@@ -128,6 +124,7 @@ button.defaultButton {
 /*********************************/
 
 div.homePage {
+  padding-top: 15vh;
   /*background: #579;*/
   overflow: hidden;
   margin-top: -10vh;
@@ -261,14 +258,96 @@ div.homePage {
 /*    For Queue/QueueComponent.js   */
 /*                                  */
 /************************************/
-.QueueView {
-  margin-left: 10%;
-  margin-right: 10%;
+
+.screenShade {
+  position: fixed;
+  left: 0;
+  top: 0;
+  background-color: rgba(34, 34, 34, 0.5);
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+}
+
+.pollingButton {
+  position: relative;
+  width: 15%;
+  background-color: #d9edf7;
+  box-shadow: none;
+  border: none;
+  outline: 1px solid black;
+  border-radius: 10px 10px 0px 0px
+}
+
+.pollingButton:hover {
+  background-color: #f7d9d9;
+}
+
+.pollingButton.stopped:hover {
+  background-color: #83ff85;
+}
+
+
+
+
+.QueueTable {
+  width: 80%;
+  /* : #d9534f 1px solid; */
+}
+
+.jobInfoBox {
+  background-color: rgb(255, 255, 255);
+  width: 50%;
+  height: 50%;
+  z-index: 99;
+  padding: 10px; /* Add padding for content */
+  overflow: auto; /* Enable scrolling if needed */
+  /* You can adjust these properties as needed */
+  font-size: 14px;
+  font-family: Arial, sans-serif;
+  /* Ensure text wraps within the box */
+  white-space: normal;
+  word-wrap: break-word;
+}
+.historyPage {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  justify-content: center;
+  padding-top: 15vh;
   padding-bottom: 15vh;
+  align-items: center;
+}
+
+.QueueView {
+  display: flex;
+  width: 100%;
+  height: fit-content;
+  background-color: white;
+  flex-direction: column;
+}
+
+.Row {
+  display: flex;
+  flex-direction: column;
+}
+
+.Row:hover {
+  background-color: rgb(172, 172, 172);
+}
+
+.Row.expanded {
+  width: 100%;
+  /* : 2px solid #00ff5e; */
+  text-align: start;
 }
 
 .QueueView p {
   font-size: 1.25rem;
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell {
@@ -276,6 +355,7 @@ div.homePage {
   align-content: center;
   text-align: center !important;
   word-break: break-word;
+  /* : 2px solid #ff0000; */
 }
 
 .queueHeaderCell p, .queueHeaderCell h1 {
@@ -283,6 +363,9 @@ div.homePage {
   color: #31708f;
   text-align: center;
   padding-top: .5vh;
+  cursor: default;
+  pointer-events: none;
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell * {
@@ -290,12 +373,13 @@ div.homePage {
   align-content: center;
   font-size: 1.2rem;
   vertical-align: middle;
+  /* : 2px solid #ff0000; */
 }
 
 .queueBodyCell {
   word-break: break-word;
+  /* : 2px solid #ff0000; */
 }
-
 
 .idCell{
   width: 8%;
@@ -304,6 +388,10 @@ div.homePage {
 .progressCell {
   width: 20%;
   display: inline-table;
+}
+
+.dateCell {
+  width: 15%;
 }
 
 .speedCell {
@@ -316,6 +404,10 @@ div.homePage {
 
 .destinationCell {
   width: 15%;
+}
+
+.jobSizeCell {
+  width: 10%;
 }
 
 .actionCell {
@@ -382,96 +474,6 @@ div.homePage {
 
 /**************************************/
 /*                                    */
-/*    For Admin/HistoryComponent.js   */
-/*                                    */
-/**************************************/
-
-.userCell-admin{
-  width: 12.5%;
-}
-
-.idCell-admin{
-  width: 9%;
-}
-
-.progressCell-admin {
-  width: 15.5%;
-  display: inline-table;
-}
-
-.speedCell-admin {
-  width: 10%;
-}
-
-.sourceCell-admin {
-  width: 15%;
-}
-
-.destinationCell-admin {
-  width: 15%;
-}
-
-.startCell-admin {
-  width: 12.5%;
-}
-
-.actionCell-admin {
-  width: 10.5%;
-}
-
-.QueueView table {
-  display: table;
-  margin: auto !important;
-}
-
-.infoCell {
-  width: 200% !important;
-  background-color: #e8e8e8
-}
-
-.detailedInfo {
-  width: 100% !important;
-}
-
-.infoBox header {
-  background-color: rgba(0,0,0,0);
-}
-
-.infoBox {
-  width: 100%;
-}
-
-tr {
-  width: 100% !important;
-}
-
-.detailedInfo {
-  max-width: 90%;
-  margin: auto !important;
-  padding: 1.5%;
-}
-
-div.detailedInfo {
-  background-color: #ffffff;
-  border-radius: 4px;
-  text-align: left;
-  margin-top: 0.3%;
-}
-
-.detailedInfo *, .SearchComponent * {
-  font-size: 1.25rem !important;
-}
-
-queueHeaderCell button {
-  width: 15% !important;
-}
-
-.mobileCell .queueBar {
-  max-width: 75%;
-}
-
-/**************************************/
-/*                                    */
 /*  For Transfer/TransferComponent.js */
 /*                                    */
 /**************************************/
@@ -479,6 +481,7 @@ queueHeaderCell button {
 .outeractionContainer{
   /*display: flex;*/
   /*flex-direction: row;*/
+  padding-top: 15vh;
   justify-content: center;
   margin-top: -15vh;
   /*width: 100vw;*/

@@ -25,8 +25,7 @@ public class BoxResourceTest extends TestCase {
     public void testListRoot(){
         testObj = new BoxResource(createEndpointCredential());
         ListOperation listOperation = new ListOperation(accountId, "","");// zero is the root dir in Box
-        Mono<Stat> monoStat = testObj.list(listOperation);
-        Stat parent = monoStat.block();
+        Stat parent = testObj.list(listOperation);
         Assert.assertTrue(parent.getId() != null && !parent.getId().isEmpty());
         Assert.assertTrue(parent.isDir() || parent.isFile());
         for(Stat stat : parent.getFilesList()){
@@ -39,8 +38,7 @@ public class BoxResourceTest extends TestCase {
     public void testListApacheMaven(){
         testObj = new BoxResource(createEndpointCredential());
         ListOperation listOperation = new ListOperation(accountId, "","138759045640");// zero is the root dir in Box
-        Mono<Stat> monoStat = testObj.list(listOperation);
-        Stat parent = monoStat.block();
+        Stat parent = testObj.list(listOperation);
         Assert.assertTrue(parent.getId() != null && !parent.getId().isEmpty());
         Assert.assertTrue(parent.isDir() || parent.isFile());
         for(Stat stat : parent.getFilesList()){
@@ -60,8 +58,7 @@ public class BoxResourceTest extends TestCase {
         mkdirOperation.setFolderToCreate(folderName);
         testObj.mkdir(mkdirOperation);
         ListOperation listOperation = new ListOperation(accountId, "", mkdirOperation.getId());// zero is the root dir in Box
-        Mono<Stat> items = testObj.list(listOperation);
-        Stat parent = items.block();
+        Stat parent = testObj.list(listOperation);
 
     }
 

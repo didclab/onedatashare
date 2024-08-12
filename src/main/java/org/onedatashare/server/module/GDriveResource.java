@@ -6,12 +6,16 @@ import com.google.api.services.drive.model.FileList;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
-import org.onedatashare.server.model.error.NotFoundException;
+import org.onedatashare.server.exceptionHandler.error.NotFoundException;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
 import org.onedatashare.server.config.GDriveConfig;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -137,74 +141,56 @@ public class GDriveResource extends Resource {
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(s -> {
-            try {
-                this.service.files().delete(operation.getToDelete()).execute();
-                s.success();
-            } catch (IOException e) {
-                s.error(e);
-            }
-        });
+    public ResponseEntity delete(DeleteOperation operation) throws IOException{
+            this.service.files().delete(operation.getToDelete()).execute();
+            return new ResponseEntity(HttpStatus.OK);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return Mono.create(s ->{
-            try {
-                Stat stat = statHelper(operation.getPath(), operation.getId());
-                s.success(stat);
-            } catch (IOException e) {
-                s.error(e);
-            }
-        });
+    public Stat list(ListOperation operation) throws IOException{
+            return statHelper(operation.getPath(), operation.getId());
+
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
-        return Mono.create(s -> {
-            try {
+    public ResponseEntity mkdir(MkdirOperation operation) throws IOException{
 //                if(operation.getId() == null || operation.getId().equals("/") || operation.getId().equals("0")){
 //                    operation.setId("drive");
 //                }
-                String[] foldersToCreate = operation.getFolderToCreate().split("/");
-                String currId = operation.getId();
-                for(int i =0; i < foldersToCreate.length; i++){
-                    if(foldersToCreate[i].equals("")){
-                        continue;
-                    }
-                    File fileMetadata = new File();
-                    fileMetadata.setName(foldersToCreate[i]);
-                    fileMetadata.setMimeType("application/vnd.google-apps.folder");
-                    if(operation.getId() != null && !operation.getId().isEmpty()){
-                        fileMetadata.setParents(Collections.singletonList(currId));
-                    }
-                    File file = this.service.files().create(fileMetadata)
-                            .setFields("id")
-                            .execute();
-                    currId = file.getId();
-                }
-            } catch (IOException e) {
-                s.error(e);
+        String[] foldersToCreate = operation.getFolderToCreate().split("/");
+        String currId = operation.getId();
+        for(int i =0; i < foldersToCreate.length; i++){
+            if(foldersToCreate[i].equals("")){
+                continue;
             }
-            s.success();
-        });
+            File fileMetadata = new File();
+            fileMetadata.setName(foldersToCreate[i]);
+            fileMetadata.setMimeType("application/vnd.google-apps.folder");
+            if(operation.getId() != null && !operation.getId().isEmpty()){
+                fileMetadata.setParents(Collections.singletonList(currId));
+            }
+            File file = this.service.files().create(fileMetadata)
+                    .setFields("id")
+                    .execute();
+            currId = file.getId();
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @Override
-    public Mono download(DownloadOperation operation) {
+    public String download(DownloadOperation operation) {
         return null;
     }
 
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential){
-        return Mono.create(s -> {
-            try {
-                GDriveResource gDriveResource= new GDriveResource(credential);
-                s.success(gDriveResource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential){
+        try {
+            GDriveResource gDriveResource= new GDriveResource(credential);
+            return gDriveResource;
+        } catch (Exception e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 }

@@ -26,8 +26,7 @@ public class HttpResourceTest {
         //String credId, String path, String id
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", "", "");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFilesList());
         Assert.assertNotNull(result.getName());
@@ -39,8 +38,7 @@ public class HttpResourceTest {
     public void testListingRootThreeFilesTwoFolders(){
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", "", "");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFiles());
         for(Stat child : result.getFiles()){
@@ -53,8 +51,7 @@ public class HttpResourceTest {
     public void testListConcurrencyDataSet(){
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", "concurrency/", "");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFiles());
         for(Stat child : result.getFiles()){
@@ -67,8 +64,7 @@ public class HttpResourceTest {
     public void testListParallelDataSet(){
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", "parallel/", "");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFiles());
         for(Stat child : result.getFiles()){
@@ -81,8 +77,7 @@ public class HttpResourceTest {
     public void testListParallelDataSetUsingId(){
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", null, "parallel/");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFiles());
         for(Stat child : result.getFiles()){
@@ -95,8 +90,7 @@ public class HttpResourceTest {
     public void testListConcurrencyDataSetUsingId(){
         this.testObj = new HttpResource(this.testAccountCredential());
         ListOperation listOperation = new ListOperation("", null, "parallel/");
-        Mono<Stat> monoStat = this.testObj.list(listOperation);
-        Stat result = monoStat.block();
+        Stat result = this.testObj.list(listOperation);
         Assert.assertNotNull(result);
         Assert.assertNotNull(result.getFiles());
         for(Stat child : result.getFiles()){

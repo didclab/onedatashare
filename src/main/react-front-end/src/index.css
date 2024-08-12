@@ -11,29 +11,11 @@ body {
  
  }
 
-.slick-arrow{
-	position: absolute;
-	width: 100px;
-	height: 100px;
-	top: 45%;
-	cursor:pointer;
-}
 .userDescThemeFont{
     font-size:0.9em !important;
 }
 .userDescValueFont{
     font-size:0.8em !important;
-}
-.slick-prev {
-  left: 40px !important;
-  z-index: 1;
-}
-.slick-next {
-  right: 60px !important;
-  z-index: 1;
-}
-.slick-prev:before, .slick-next:before  {
-  content: '' !important;
 }
 
 /* Commenting out following CSS configurations for PR 254 */

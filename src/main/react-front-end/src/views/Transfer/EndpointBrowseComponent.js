@@ -50,6 +50,7 @@ import {
   mkdir,
   deleteCall,
   getSharableLink,
+  OAuthFunctions,
 } from "../../APICalls/EndpointAPICalls";
 
 import {
@@ -69,8 +70,7 @@ import {
 import { eventEmitter, store } from "../../App";
 
 import { cookies } from "../../model/reducers";
-import { getName, getType } from "../../constants.js";
-import { showType, isOAuth } from "../../constants";
+import { getName, getType, showType, isOAuth } from "../../constants";
 import { OAuthFunctions } from "../../APICalls/EndpointAPICalls";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { compactViewPreference } from "../../model/actions";

@@ -24,24 +24,26 @@
 package org.onedatashare.server.service;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.web.server.context.ServerSecurityContextRepository;
+import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Optional;
 
 import static org.onedatashare.server.model.core.ODSConstants.TOKEN_PREFIX;
 
 @Service
-public class ODSSecurityConfigRepository implements ServerSecurityContextRepository {
+public class ODSSecurityConfigRepository implements SecurityContextRepository {
 
     @Autowired
     private ODSAuthenticationManager odsAuthenticationManager;
@@ -49,28 +51,27 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     @Autowired
     private JWTUtil jwtUtil;
 
-    @Override
-    public Mono<Void> save(ServerWebExchange serverWebExchange, SecurityContext securityContext) {
-        return null;
-    }
-
-    public String fetchAuthToken(ServerWebExchange serverWebExchange){
-        ServerHttpRequest request = serverWebExchange.getRequest();
+    public String fetchAuthToken(HttpRequestResponseHolder requestResponseHolder){
+        HttpServletRequest request = requestResponseHolder.getRequest();
 
         String token = null;
-        String endpoint = request.getPath().pathWithinApplication().value().toString();
+        String endpoint = request.getContextPath()+request.getServletPath();
 
         //Check for token only when the request needs to be authenticated
         if(endpoint.startsWith("/api/")) {
             try {
                 // Try fetching token from the headers
-                token = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+                token = request.getHeader(HttpHeaders.AUTHORIZATION);
                 if(token != null && token.startsWith(TOKEN_PREFIX)){
                     token = token.substring(TOKEN_PREFIX.length());
                 }
                 // Try fetching token from the cookies
                 else if(token == null) {
-                  token = request.getCookies().getFirst("ATOKEN").getValue();
+                  Optional<Cookie> cookieValue = Arrays.stream(request.getCookies()).filter(cookie->"ATOKEN".equals(cookie.getName())).findFirst();
+                  if(!cookieValue.isPresent()){
+                      throw new NullPointerException();
+                  }
+                  token=cookieValue.get().getValue();
                 }
             } catch (NullPointerException npe) {
                 ODSLoggerService.logError("No token Found for request at " + endpoint);
@@ -80,18 +81,29 @@ public class ODSSecurityConfigRepository implements ServerSecurityContextReposit
     }
 
     @Override
-    public Mono<SecurityContext> load(ServerWebExchange serverWebExchange) {
-        String authToken = this.fetchAuthToken(serverWebExchange);
+    public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
+        String authToken = this.fetchAuthToken(requestResponseHolder);
         try {
             if (authToken != null) {
                 String email = jwtUtil.getEmailFromToken(authToken);
                 Authentication auth = new UsernamePasswordAuthenticationToken(email, authToken);
-                return this.odsAuthenticationManager.authenticate(auth).map(SecurityContextImpl::new);
+                return new SecurityContextImpl(this.odsAuthenticationManager.authenticate(auth));
             }
         }
         catch(ExpiredJwtException e){
             ODSLoggerService.logError("Token Expired");
+            throw e;
         }
-        return Mono.empty();
+        return null;
+    }
+
+    @Override
+    public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+
+    }
+
+    @Override
+    public boolean containsContext(HttpServletRequest request) {
+        return false;
     }
 }

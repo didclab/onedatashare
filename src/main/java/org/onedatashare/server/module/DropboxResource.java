@@ -30,23 +30,28 @@ import com.dropbox.core.v2.files.*;
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.credential.EndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
 import org.onedatashare.server.model.filesystem.operations.DownloadOperation;
 import org.onedatashare.server.model.filesystem.operations.ListOperation;
 import org.onedatashare.server.model.filesystem.operations.MkdirOperation;
-import reactor.core.publisher.Mono;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.onedatashare.server.model.core.ODSConstants.DROPBOX_URI_SCHEME;
 
 /**
  * Resource class that provides services specific to Dropbox endpoint.
  */
+//TODO: check exception handling
 public class DropboxResource extends Resource {
 
     private DbxClientV2 client;
@@ -128,79 +133,65 @@ public class DropboxResource extends Resource {
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return Mono.create(s -> {
-            try {
-                Stat parent = new Stat();
-                ArrayList<Stat> children = new ArrayList<>();
-                ListFolderResult result;
-                if (operation.getId().equals("") || operation.getId().equals("/") || operation.getId().equals("0")) {
-                    operation.setId("");
-                }
-                parent.setId(operation.getId());
-                result = this.client.files().listFolder(operation.getId());
-                for (Metadata metadata : result.getEntries()) {
-                    children.add(mDataToStat(metadata));
-                }
-                parent.setFiles(children);
-                s.success(parent);
-            } catch (DbxException e) {
-                s.error(e);
+    public Stat list(ListOperation operation)  {
+        try {
+            Stat parent = new Stat();
+            ArrayList<Stat> children = new ArrayList<>();
+            ListFolderResult result;
+            if (operation.getId().equals("") || operation.getId().equals("/") || operation.getId().equals("0")) {
+                operation.setId("");
             }
-        });
+            parent.setId(operation.getId());
+            result = this.client.files().listFolder(operation.getId());
+            for (Metadata metadata : result.getEntries()) {
+                children.add(mDataToStat(metadata));
+            }
+            parent.setFiles(children);
+            return parent;
+        }catch (DbxException exception){
+            throw new ODSException(exception.getMessage(),exception.getClass().getName());
+        }
     }
 
+    //TODO
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
-        return Mono.create(s -> {
-            if(operation.getPath().isEmpty()){
+    public ResponseEntity mkdir(MkdirOperation operation) {
+        try {
+            if (operation.getPath().isEmpty()) {
                 operation.setPath("/");
             }
-            try {
-                this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
-                s.success();
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+            this.client.files().createFolderV2(this.pathFromUrl(operation.getPath() + operation.getFolderToCreate()));
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (UnsupportedEncodingException| DbxException exception){
+            throw new ODSException(exception.getMessage(),exception.getClass().getName());
+        }
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return Mono.create(s -> {
-            try {
-                this.client.files().deleteV2(this.pathFromUrl(operation.getToDelete()));
-                s.success();
-            } catch (DbxException | UnsupportedEncodingException e) {
-                s.error(e);
-            }
-        });
+    public ResponseEntity delete(DeleteOperation operation) {
+        try {
+            this.client.files().deleteV2(this.pathFromUrl(operation.getToDelete()));
+            return new ResponseEntity(HttpStatus.OK);
+        }catch (UnsupportedEncodingException| DbxException exception){
+            throw new ODSException(exception.getMessage(),exception.getClass().getName());
+        }
     }
 
     @Override
-    public Mono download(DownloadOperation operation) {
-        return Mono.create(s -> {
-            String downloadLink;
-            try {
-                String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
-                //temporary link valid for 4 hours
-                downloadLink = this.client.files().getTemporaryLink(url).getLink();
-            } catch (DbxException | UnsupportedEncodingException e) {
-                s.error(e);
-                return;
-            }
-            s.success(downloadLink);
-        });
+    public String download(DownloadOperation operation) {
+        String downloadLink;
+        try {
+            String url = this.pathFromUrl(operation.getPath() + operation.getFileToDownload());
+            //temporary link valid for 4 hours
+            downloadLink = this.client.files().getTemporaryLink(url).getLink();
+        } catch (DbxException | UnsupportedEncodingException e) {
+           throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
+        return downloadLink;
     }
 
-    public static Mono<? extends Resource> initialize(EndpointCredential credential, String clientIdentifier) {
-        return Mono.create(s -> {
-            try {
-                DropboxResource dropBoxResource = new DropboxResource(credential, clientIdentifier);
-                s.success(dropBoxResource);
-            } catch (Exception e) {
-                s.error(e);
-            }
-        });
+    public static Resource initialize(EndpointCredential credential, String clientIdentifier) {
+        DropboxResource dropBoxResource = new DropboxResource(credential, clientIdentifier);
+        return dropBoxResource;
     }
 }

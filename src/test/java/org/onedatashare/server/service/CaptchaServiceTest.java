@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Assertions;
 import java.lang.reflect.Field;
 import java.util.Map;
 
+import static org.junit.Assert.assertFalse;
+
 
 public class CaptchaServiceTest {
 
@@ -48,20 +50,13 @@ public class CaptchaServiceTest {
 
     @Test
     public void givenBlankResponse_WhenVerified_ShouldReturnFalse() {
-        this.captchaService.verifyValue(null)
-                .subscribe(
-                        Assertions::assertFalse,
-                        Assertions::fail
-                );
+        boolean response=this.captchaService.verifyValue(null);
+        assertFalse(response);
     }
 
     @Test
     public void givenIncorrectResponse_WhenVerified_ShouldReturnFalse() {
-        this.captchaService.verifyValue("bogus")
-                .subscribe(
-                        Assertions::assertFalse,
-                        Assertions::fail
-                );
+        assertFalse(this.captchaService.verifyValue("bogus"));
     }
 
     @Test
@@ -69,11 +64,7 @@ public class CaptchaServiceTest {
         String prevSecretKey = System.getenv(GOOGLE_CAPTCHA_SECRET_KEY_VAR_NAME);
         changeEnvVar(GOOGLE_CAPTCHA_SECRET_KEY_VAR_NAME, FAKE_SECRET_KEY);
         this.captchaService = new CaptchaService();
-        this.captchaService.verifyValue("right_input")
-                .subscribe(
-                        Assertions::assertTrue,
-                        Assertions::fail
-                );
+        assertFalse(this.captchaService.verifyValue("right_input"));
         changeEnvVar(GOOGLE_CAPTCHA_SECRET_KEY_VAR_NAME, prevSecretKey);
     }
 

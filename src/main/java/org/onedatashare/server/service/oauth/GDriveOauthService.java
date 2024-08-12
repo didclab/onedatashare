@@ -34,14 +34,11 @@ import com.google.api.client.util.store.DataStore;
 import com.google.api.client.util.store.MemoryDataStoreFactory;
 import com.google.api.services.drive.Drive;
 import lombok.SneakyThrows;
-import org.onedatashare.server.controller.EndpointOauthController;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
 import org.onedatashare.server.config.GDriveConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.onedatashare.server.exceptionHandler.error.ODSException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -85,36 +82,33 @@ public class GDriveOauthService {
         return this.oAuthUrl;
     }
 
-    public Mono<OAuthEndpointCredential> finish(Map<String, String> queryParameters) {
-        return Mono.create(s -> {
-            String code = queryParameters.get(CODE);
-            try {
-                TokenResponse response = this.flow.newTokenRequest(code)
-                        .setRedirectUri(driveConfig.getRedirectUri())
-                        .execute();
-                Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
+    public OAuthEndpointCredential finish(Map<String, String> queryParameters) {
+        String code = queryParameters.get(CODE);
+        try {
+            TokenResponse response = this.flow.newTokenRequest(code)
+                    .setRedirectUri(driveConfig.getRedirectUri())
+                    .execute();
+            Credential driveCredential = this.flow.createAndStoreCredential(response, "user");
 
-                HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
-                JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-                Drive service = new Drive.Builder(httpTransport, jsonFactory, driveCredential)
-                        .setApplicationName(driveConfig.getAppName())
-                        .build();
+            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+            Drive service = new Drive.Builder(httpTransport, jsonFactory, driveCredential)
+                    .setApplicationName(driveConfig.getAppName())
+                    .build();
 
 
-                String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
-                Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-                calendar.add(Calendar.SECOND, Math.toIntExact(response.getExpiresInSeconds()));
+            String userId = service.about().get().setFields("user").execute().getUser().getEmailAddress();
+            Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
+            calendar.add(Calendar.SECOND, Math.toIntExact(response.getExpiresInSeconds()));
 
-                OAuthEndpointCredential credential  = new OAuthEndpointCredential(userId)
-                        .setToken(response.getAccessToken())
-                        .setRefreshToken(response.getRefreshToken())
-                        .setExpiresAt(calendar.getTime())
-                        .setTokenExpires(true);
-                s.success(credential);
-            } catch (IOException | GeneralSecurityException e) {
-                s.error(e);
-            }
-        });
+            return new OAuthEndpointCredential(userId)
+                    .setToken(response.getAccessToken())
+                    .setRefreshToken(response.getRefreshToken())
+                    .setExpiresAt(calendar.getTime())
+                    .setTokenExpires(true);
+        } catch (IOException | GeneralSecurityException e) {
+            throw new ODSException(e.getMessage(),e.getClass().getName());
+        }
     }
 }
 

@@ -23,9 +23,8 @@
 
 package org.onedatashare.server.controller.endpoint;
 
-import org.onedatashare.server.controller.EndpointCredController;
 import org.onedatashare.server.model.core.Stat;
-import org.onedatashare.server.model.error.TokenExpiredException;
+import org.onedatashare.server.exceptionHandler.error.TokenExpiredException;
 import org.onedatashare.server.model.filesystem.exceptions.ErrorMessage;
 import org.onedatashare.server.model.filesystem.exceptions.ErrorResponder;
 import org.onedatashare.server.model.filesystem.operations.DeleteOperation;
@@ -36,19 +35,18 @@ import org.onedatashare.server.model.response.DownloadResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Mono;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Optional;
 
 public abstract class EndpointBaseController {
     Logger logger = LoggerFactory.getLogger(EndpointBaseController.class);
     
     @GetMapping("/ls")
-    public Mono<Stat> list(@RequestParam String credId, @RequestParam Optional<String> path,
-                           @RequestParam Optional<String> identifier) {
+    public Stat list(@RequestParam String credId, @RequestParam Optional<String> path,
+                           @RequestParam Optional<String> identifier) throws IOException {
         ListOperation operation = ListOperation.builder()
                 .credId(credId)
                 .path(path.orElse(""))
@@ -59,26 +57,28 @@ public abstract class EndpointBaseController {
     }
 
     @PostMapping("/mkdir")
-    public Mono<Void> mkdir(@RequestBody MkdirOperation operation){
+    public ResponseEntity mkdir(@RequestBody MkdirOperation operation) throws IOException {
         logger.info(operation.toString());
-        return mkdirOperation(operation);
+        mkdirOperation(operation);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/rm")
-    public Mono<Void> delete(@RequestBody DeleteOperation operation){
+    public ResponseEntity delete(@RequestBody DeleteOperation operation) throws IOException {
         logger.info(operation.toString());
-        return deleteOperation(operation);
+        deleteOperation(operation);
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/download")
-    public Mono download(@RequestBody DownloadOperation operation){
+    public DownloadResponse download(@RequestBody DownloadOperation operation){
         return downloadOperation(operation);
     }
 
-    protected abstract Mono<Stat> listOperation(ListOperation listOperation);
-    protected abstract Mono<Void> mkdirOperation(MkdirOperation operation);
-    protected abstract Mono<Void> deleteOperation(DeleteOperation deleteOperation);
-    protected abstract Mono<DownloadResponse> downloadOperation(DownloadOperation downloadOperation);
+    protected abstract Stat listOperation(ListOperation listOperation) throws IOException;
+    protected abstract ResponseEntity<String> mkdirOperation(MkdirOperation operation) throws IOException;
+    protected abstract ResponseEntity<String> deleteOperation(DeleteOperation deleteOperation) throws IOException;
+    protected abstract DownloadResponse downloadOperation(DownloadOperation downloadOperation);
 
     @ExceptionHandler(ErrorResponder.class)
     public ResponseEntity<ErrorMessage> handle(ErrorResponder errorResponder) {

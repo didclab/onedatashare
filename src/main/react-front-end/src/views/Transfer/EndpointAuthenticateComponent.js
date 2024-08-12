@@ -25,6 +25,7 @@ import PropTypes from "prop-types";
 import {
   /*openDropboxOAuth, openGoogleDriveOAuth, openBoxOAuth,*/
   listFiles,
+  OAuthFunctions,
 } from "../../APICalls/EndpointAPICalls";
 import {
   globusFetchEndpoints,
@@ -42,9 +43,9 @@ import {
   generateURLForS3,
   showDisplay,
   s3Regions,
+  showType,
+  isOAuth,
 } from "../../constants";
-import { showType, isOAuth } from "../../constants";
-import { OAuthFunctions } from "../../APICalls/EndpointAPICalls";
 import { store } from "../../App";
 
 import ListItem from "@mui/material/ListItem";

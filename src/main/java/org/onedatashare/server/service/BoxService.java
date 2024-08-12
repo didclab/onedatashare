@@ -26,12 +26,17 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.*;
 import org.onedatashare.server.model.filesystem.operations.*;
+import org.onedatashare.server.model.response.DownloadResponse;
+import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.module.BoxResource;
 import org.onedatashare.server.module.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import java.io.IOException;
 
 @Service
 public class BoxService extends ResourceServiceBase {
@@ -40,29 +45,27 @@ public class BoxService extends ResourceServiceBase {
     CredentialService credentialService;
 
     @Override
-    protected Mono<? extends Resource> getResource(String credId) {
-        return credentialService.fetchOAuthCredential(EndpointType.box, credId)
-                .flatMap(BoxResource::initialize)
-                .subscribeOn(Schedulers.boundedElastic());
+    protected Resource getResource(String credId) {
+        return BoxResource.initialize(credentialService.fetchOAuthCredential(EndpointType.box, credId));
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation operation) {
-        return this.getResource(operation.getCredId()).flatMap(resource -> resource.delete(operation));
+    public ResponseEntity delete(DeleteOperation operation) throws IOException {
+        return this.getResource(operation.getCredId()).delete(operation);
     }
 
     @Override
-    public Mono<Stat> list(ListOperation operation) {
-        return this.getResource(operation.getCredId()).flatMap(resource -> resource.list(operation));
+    public Stat list(ListOperation operation) throws IOException {
+        return this.getResource(operation.getCredId()).list(operation);
     }
 
     @Override
-    public Mono<Void> mkdir(MkdirOperation operation) {
-        return this.getResource(operation.getCredId()).flatMap(resource -> resource.mkdir(operation));
+    public ResponseEntity mkdir(MkdirOperation operation) throws IOException {
+        return this.getResource(operation.getCredId()).mkdir(operation);
     }
 
     @Override
-    public Mono<String> download(DownloadOperation operation) {return null;}
+    public DownloadResponse download(DownloadOperation operation) {return null;}
 
 }
 

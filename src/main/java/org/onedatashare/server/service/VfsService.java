@@ -25,6 +25,9 @@ package org.onedatashare.server.service;
 
 import org.onedatashare.server.model.core.Stat;
 import org.onedatashare.server.model.filesystem.operations.*;
+import org.onedatashare.server.model.response.DownloadResponse;
+import org.onedatashare.server.module.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -39,26 +42,26 @@ public class VfsService extends ResourceServiceBase {
 
 
     @Override
-    protected Mono<? extends org.onedatashare.server.module.Resource> getResource(String credId) {
+    protected Resource getResource(String credId) {
         return null;
     }
     @Override
-    public Mono<Stat> list(ListOperation listOperation) {
-        return null;
-    }
-
-    @Override
-    public Mono<Void> mkdir(MkdirOperation mkdirOperation) {
+    public Stat list(ListOperation listOperation) {
         return null;
     }
 
     @Override
-    public Mono<Void> delete(DeleteOperation deleteOperation) {
+    public ResponseEntity mkdir(MkdirOperation mkdirOperation) {
         return null;
     }
 
     @Override
-    public Mono<String> download(DownloadOperation downloadOperation) {
+    public ResponseEntity delete(DeleteOperation deleteOperation) {
+        return null;
+    }
+
+    @Override
+    public DownloadResponse download(DownloadOperation downloadOperation) {
         return null;
     }
 
