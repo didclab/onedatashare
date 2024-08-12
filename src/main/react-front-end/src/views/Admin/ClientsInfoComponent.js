@@ -28,7 +28,6 @@ import TablePagination from "@mui/material/TablePagination";
 import TableFooter from "@mui/material/TableFooter";
 import TablePaginationActions from "../TablePaginationActions";
 import TableSortLabel from "@mui/material/TableSortLabel";
-import Tooltip from "@mui/material/Tooltip";
 import { updateGAPageView } from "../../analytics/ga";
 
 import { styled } from "@mui/system";

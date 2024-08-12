@@ -24,7 +24,7 @@ import React, { Component } from "react";
 import { Hidden } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Button from "@mui/material/Button";
-import { registerPageUrl } from "../../constants.js";
+import { siteURLS } from "../../constants";
 import Grid from "@mui/material/Grid";
 import Logo from "./images/logo.png";
 
@@ -57,7 +57,7 @@ export default class TitleClass extends Component {
           </Hidden>
           <p> Fast and secure file transfers made easy! </p>
           <br />
-          <a href={registerPageUrl}>
+          <a href={siteURLS.registerPageUrl}>
             <ThemeProvider theme={theme}>
               <Button
                 className="defaultButton"

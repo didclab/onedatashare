@@ -52,6 +52,26 @@ export const transferJobUrl = "/api/job/schedule";
 export const apiBaseUrl = "/api/";
 export const apiCredUrl = apiBaseUrl + "cred/";
 
+// export const transferPageUrl = "/transfer";
+// export const queuePageUrl = "/queue";
+// export const endpoint_db = "/endpoint_db";
+// export const accountPageUrl = "/account";
+// export const registerPageUrl = "/account/register";
+// export const signInUrl = "/account/signIn";
+// export const forgotPasswordUrl = "/account/forgotPassword";
+// export const lostValidationCodeUrl = "/account/lostValidationCode";
+// export const userPageUrl = "/user";
+// export const userListPageUrl = "/clientsInfo";
+// export const historyPageUrl = "/history";
+// export const notificationPageUrl = "/sendNotifications";
+// export const newNotifications = "/newNotifications";
+// export const addAccountUrl = "/account/add";
+// export const dataPageUrl = "/data";
+// export const managementPageUrl = "/management";
+// export const oauthPreUrl = "/oauth/";
+// export const termsUrl = "/terms";
+// export const policyUrl = "/policy";
+
 export const siteURLS = {
   rootUrl: "/",
   transferPageUrl: "/transfer",
@@ -65,7 +85,14 @@ export const siteURLS = {
   forgotPasswordUrl: "/account/forgotPassword",
   lostValidationCodeUrl: "/account/lostValidationCode",
   userPageUrl: "/user",
+  userListPageUrl: "/clientsInfo",
   historyPageUrl: "/history",
+  notificationPageUrl: "/sendNotifications",
+  newNotificationsUrl: "/newNotifications",
+  addAccountUrl: "/account/add",
+  dataPageUrl: "/data",
+  managementPageUrl: "/management",
+  oauthPreUrl: "/oauth/",
   termsUrl: "/terms",
   policyUrl: "/policy",
 };
@@ -108,7 +135,16 @@ export const REGISTRATION_ENDPOINT = "/register";
 export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
 export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
+export const GET_USER_JOBS_ENDPOINT = "q/user-jobs";
+export const GET_ADMIN_JOBS_ENDPOINT = "q/admin-jobs";
+export const GET_USER_UPDATES_ENDPOINT = "q/update-user-jobs";
+export const GET_ADMIN_UPDATES_ENDPOINT = "q/update-admin-jobs";
+
 export const GET_SEARCH_JOBS_ENDPOINT = "q/search-jobs";
+
+export const GET_ADMINS_ENDPOINT = "admin/get-admins";
+export const GET_USERS_ENDPOINT = "admin/get-users";
+export const UPDATE_ADMIN_RIGHTS = "admin/change-role";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";
@@ -120,7 +156,7 @@ export const HTTP_TYPE = "http://";
 export const HTTPS_TYPE = "https://";
 export const S3_TYPE = "s3:";
 export const VFS_TYPE = "vfs://";
-export const MINIO_TYPE = "vfs://";
+// export const MINIO_TYPE = "vfs://";
 
 export const DROPBOX_NAME = "DropBox";
 export const GOOGLEDRIVE_NAME = "GDrive";
@@ -130,7 +166,7 @@ export const SFTP_NAME = "SFTP";
 export const HTTP_NAME = "HTTP";
 export const S3_NAME = "S3";
 export const VFS_NAME = "VFS";
-export const MINIO_NAME = "MinIO";
+// export const MINIO_NAME = "MinIO";
 
 export const DROPBOX = "dropbox";
 export const GOOGLEDRIVE = "gdrive";
@@ -141,7 +177,7 @@ export const HTTP = "http";
 export const HTTPS = "https";
 export const VFS = "vfs";
 export const S3 = "s3";
-export const MINIO = "MinIO";
+// export const MINIO = "MinIO";
 
 //side
 export const sideLeft = "left";
@@ -180,7 +216,7 @@ export const showText = {
   https: HTTP_NAME,
   s3: S3_NAME,
   vfs: VFS_NAME,
-  minio: MINIO_NAME,
+  // minio: MINIO_NAME,
 };
 
 export const showType = {
@@ -193,7 +229,7 @@ export const showType = {
   https: HTTP_TYPE,
   s3: S3_TYPE,
   vfs: VFS_TYPE,
-  minio: MINIO_TYPE,
+  // minio: MINIO_TYPE,
 };
 
 export const isOAuth = {
@@ -206,7 +242,7 @@ export const isOAuth = {
   [HTTPS_TYPE]: false,
   [S3_TYPE]: false,
   [VFS_TYPE]: false,
-  [MINIO_TYPE]: false,
+  // [MINIO_TYPE]: false,
 };
 
 export const showDisplay = {
@@ -243,12 +279,12 @@ export const showDisplay = {
   },
   s3: { icon: "fab fa-amazon", credTypeExists: false, label: "S3", id: "S3" },
   vfs: { icon: "fas fa-box", credTypeExists: false, label: "VFS", id: "VFS" },
-  MinIO: {
-    icon: "fas fa-box",
-    credTypeExists: false,
-    label: "MinIO",
-    id: "MinIO",
-  },
+  // MinIO: {
+  //   icon: "fas fa-box",
+  //   credTypeExists: false,
+  //   label: "MinIO",
+  //   id: "MinIO",
+  // },
 };
 
 export const SERVICES = {
@@ -262,7 +298,7 @@ export const SERVICES = {
     [HTTP_TYPE, HTTP_NAME, HTTP],
     [SFTP_TYPE, SFTP_NAME, SFTP],
     [S3_TYPE, S3_NAME, S3],
-    [MINIO_TYPE, MINIO_NAME, MINIO],
+    // [MINIO_TYPE, MINIO_NAME, MINIO],
   ],
 };
 
@@ -274,7 +310,7 @@ export const defaultPort = {
   http: 80,
   gsiftp: -1,
   https: 443,
-  minio: 9000,
+  // minio: 9000,
 };
 
 export const jobStatus = {
@@ -415,11 +451,11 @@ export function generateURLForS3(bucketname, region) {
   return region + ":::" + bucketname;
 }
 
-//exclusive uri generator for s3
-export function generateURLForMINIO(hostname, portNum, bucketname, region) {
-  // http://localhost:9099/{bucket name}/{file name}
-  return hostname + ":" + portNum + "/" + bucketname + filename;
-}
+// //exclusive uri generator for s3
+// export function generateURLForMINIO(hostname, portNum, bucketname, region) {
+//   // http://localhost:9099/{bucket name}/{file name}
+//   return hostname + ":" + portNum + "/" + bucketname + filename;
+// }
 
 export function generateURLFromPortNumber(url, portNum, changedPortNum) {
   // Adding Port number to the URL to ensure that the backend remembers the endpoint URL
