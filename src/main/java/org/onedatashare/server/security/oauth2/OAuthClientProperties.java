@@ -7,7 +7,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySource("application-prod.properties")
 @ConfigurationProperties(prefix = "spring.security.oauth2.client.registration")
 public class OAuthClientProperties {
     @Autowired

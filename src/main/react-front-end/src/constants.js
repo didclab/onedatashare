@@ -290,8 +290,8 @@ export const ThirdWidth = 1 / 3;
 export const QuarterWidth = 1 / 4;
 
 //oauth2 cilogon login
-export const API_BASE_URL = "https://onedatashare.org";
-export const OAUTH2_REDIRECT_URI = "https://onedatashare.org/oauth2/redirect";
+export const API_BASE_URL = isLocal?"http://localhost:8080":"https://onedatashare.org";
+export const OAUTH2_REDIRECT_URI =API_BASE_URL+"/oauth2/redirect";
 
 export const GOOGLE_AUTH_URL =
   API_BASE_URL +

@@ -135,23 +135,18 @@ public class ApplicationSecurityConfig {
                 )
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
-                .oauth2Login()
-                .authorizationEndpoint(authorizationEndpoint ->
-                        authorizationEndpoint
-                                .baseUri("/oauth2/authorization")
-                                .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie)
-                )
-                .redirectionEndpoint(redirectionEndpoint ->
-                        redirectionEndpoint
-                                .baseUri("/oauth2/callback/*")
-                )
-                .userInfoEndpoint(userInfoEndpoint ->
-                        userInfoEndpoint
-                                .oidcUserService(oidcUserService)
-                                .userService(oAuthUserService)
-                )
-                .successHandler(oAuth2AuthenticationSuccessHandler)
-                .failureHandler(oAuth2AuthenticationFailureHandler);
+                .oauth2Login(oauth2-> oauth2
+                        .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig
+                                    .baseUri("/oauth2/authorization")
+                                    .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie))
+                        .redirectionEndpoint(redirectionEndpoint ->
+                                redirectionEndpoint.baseUri("/oauth2/redirect"))
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                        .oidcUserService(oidcUserService)
+                                        .userService(oAuthUserService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                );
             return http.build();
 
     }

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@PropertySource("application-prod.properties")
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
     private final OAuth2 oauth2 = new OAuth2();
