@@ -81,7 +81,7 @@ public class LoginController {
 
     @RequestMapping(value = IS_REGISTERED_EMAIL_ENDPOINT, method = RequestMethod.POST)
     public Boolean isRegisteredEmail(@RequestBody LoginControllerRequest request) {
-        return userService.isRegisteredEmail(request.getEmail());
+        return userService.hasHash(request.getEmail()) && userService.isRegisteredEmail(request.getEmail());
     }
 
     @RequestMapping(value = SEND_PASSWD_RST_CODE_ENDPOINT, method = RequestMethod.POST)

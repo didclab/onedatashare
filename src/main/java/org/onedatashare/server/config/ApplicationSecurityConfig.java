@@ -26,6 +26,9 @@ package org.onedatashare.server.config;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.onedatashare.server.model.core.AuthProvider;
+import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.security.oauth2.*;
 import org.onedatashare.server.service.ODSAuthenticationManager;
 import org.onedatashare.server.service.ODSSecurityConfigRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -41,7 +47,17 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.web.cors.CorsConfiguration;
+
+import java.util.Collections;
 
 @EnableWebSecurity
 @Configuration
@@ -55,11 +71,50 @@ public class ApplicationSecurityConfig {
     @Autowired
     private ODSSecurityConfigRepository odsSecurityConfigRepository;
 
+    @Autowired
+    private CustomOidcUserService oidcUserService;
+
+    @Autowired
+    private OAuthUserService oAuthUserService;
+
+    @Autowired
+    private OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
+
+    @Autowired
+    private OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
+
+    @Autowired
+    private OAuth2AuthorizationRequestRepositoryCookie oauth2AuthorizationRequestRepositoryCookie;
+
+    @Autowired
+    private OAuthClientProperties oauthClientProperties;
+
+    @Bean
+    public TokenAuthenticationFilter tokenAuthenticationFilter() {
+        return new TokenAuthenticationFilter();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
+        auth.setUserDetailsService(userDetailsService);
+        return auth;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http
+            http
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .authenticationManager(odsAuthenticationManager)
+                //.authenticationManager(odsAuthenticationManager)
+                // This is taken by implementing TokenAuthenticationFilter() which does the same job.
                 .securityContext((httpSecuritySecurityContextConfigurer ->
                         httpSecuritySecurityContextConfigurer.securityContextRepository(odsSecurityConfigRepository)))
                 .authorizeHttpRequests(requests -> {
@@ -71,16 +126,30 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers("/api/**").authenticated()
                                 //Need to be admin to access admin functionalities
                                 //TODO: Check if this setting is secure
-                                .requestMatchers("/**").permitAll();
+                                .requestMatchers("/**", "/oauth2/**").permitAll();
                 })
                 .exceptionHandling(exceptionHandlingSpec ->
-                        exceptionHandlingSpec.authenticationEntryPoint(this::authenticationFailedHandler)
-                                .accessDeniedHandler(this::accessDeniedHandler))
-                .csrf(AbstractHttpConfigurer::disable)
-                .build();
+                        exceptionHandlingSpec
+                                .authenticationEntryPoint(this::authenticationFailedHandler)
+                                .accessDeniedHandler(this::accessDeniedHandler)
+                )
+                .csrf(csrf -> csrf.disable())
+                .addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .oauth2Login(oauth2-> oauth2
+                        .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig
+                                    .baseUri("/oauth2/authorization")
+                                    .authorizationRequestRepository(oauth2AuthorizationRequestRepositoryCookie))
+                        .redirectionEndpoint(redirectionEndpoint ->
+                                redirectionEndpoint.baseUri("/oauth2/redirect"))
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                        .oidcUserService(oidcUserService)
+                                        .userService(oAuthUserService))
+                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                        .failureHandler(oAuth2AuthenticationFailureHandler)
+                );
+            return http.build();
 
     }
-
     private void accessDeniedHandler(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, AccessDeniedException e) {
         httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
     }
@@ -98,4 +167,33 @@ public class ApplicationSecurityConfig {
         return (web) -> web.httpFirewall(firewall);
     }
 
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository() {
+        return new InMemoryClientRegistrationRepository(getCilogonClientRegistration(), getGithubClientRegistration(), getGoogleClientRegistration());
+    }
+
+    private ClientRegistration getGithubClientRegistration() {
+        return CommonOAuth2Provider.GITHUB.getBuilder(AuthProvider.github.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.github.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.github.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.github.toString())).scope("user:email", "read:user").build();
+    }
+    private ClientRegistration getGoogleClientRegistration() {
+        return CommonOAuth2Provider.GOOGLE.getBuilder(AuthProvider.google.toString()).clientId(oauthClientProperties.getClientId(AuthProvider.google.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.google.toString())).redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.google.toString())).scope("openid", "profile", "email").build();
+    }
+    private ClientRegistration getCilogonClientRegistration() {
+        return ClientRegistration.withRegistrationId(AuthProvider.cilogon.toString())
+                .clientId(oauthClientProperties.getClientId(AuthProvider.cilogon.toString()))
+                .clientSecret(oauthClientProperties.getClientSecret(AuthProvider.cilogon.toString()))
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .redirectUri(oauthClientProperties.getRedirectUriTemplate(AuthProvider.cilogon.toString()))
+                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                .scope("openid", "email", "profile", "org.cilogon.userinfo")
+                .authorizationUri(oauthClientProperties.getAuthorizationUri(AuthProvider.cilogon.toString()))
+                .tokenUri(oauthClientProperties.getTokenUri(AuthProvider.cilogon.toString()))
+                .userInfoUri(oauthClientProperties.getUserinfoUri(AuthProvider.cilogon.toString()))
+                .clientName(ODSConstants.CILOGON)
+                .jwkSetUri(oauthClientProperties.getJwkSetUri(AuthProvider.cilogon.toString()))
+                .userNameAttributeName("sub")
+                .build();
+    }
 }

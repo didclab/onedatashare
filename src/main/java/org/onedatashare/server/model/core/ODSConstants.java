@@ -51,4 +51,8 @@ public class ODSConstants {
     public static final String RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
     public static final int TOKEN_TIMEOUT_IN_MINUTES = 3;
     public static final long JWT_TOKEN_EXPIRES_IN = 86400 * 100;
+    public static final String CILOGON = "CILOGON";
+    public static final String SAVE_OAUTH_TOKENS = "saveOAuthTokens";
+    public static final String USER_EMAIL = "email";
+    public static final String COMPACT_VIEW_ENABLED = "compactViewEnabled";
 }

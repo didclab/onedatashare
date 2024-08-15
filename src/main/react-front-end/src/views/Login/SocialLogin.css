@@ -1,0 +1,63 @@
+.social-login {
+    margin-top: 30px;
+  }
+  
+  .btn-social {
+    display: inline-block;
+    font-weight: 300;
+    text-align: center;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 0.5px solid transparent;
+    white-space: nowrap;
+    padding: 0 10px;
+    font-size: 5px;
+    border-radius: 2px;
+    height: 45px;
+    line-height: 45px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-transition: all .3s cubic-bezier(.645,.045,.355,1);
+    transition: all .3s cubic-bezier(.645,.045,.355,1);
+    position: relative;
+    color: rgba(0,0,0,.65);
+    background-color: transparent;
+    border-color: #e8e8e8;
+    outline: none;
+  }
+  
+  .btn-block {
+    display: block;
+    width: 100%;
+  }
+  
+  .social-btn {
+    margin-bottom: 15px;
+    font-weight: 400;
+    font-size: 16px;
+  }
+  
+  .social-btn img {
+    height: 30px;
+    float: left;
+    margin-top: 5px;
+  }
+  
+  .social-btn.google {
+    margin-top: 7px;
+  }
+  
+  .social-btn.cilogon img {
+    height: 24px;
+    margin-left: 1px;
+  }
+  
+  .social-btn.github img {
+    height: 24px;
+    margin-left: 1px;
+  }
+    

@@ -23,25 +23,29 @@
 
 package org.onedatashare.server.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import lombok.Getter;
 import org.onedatashare.server.model.core.ODSConstants;
+import org.onedatashare.server.model.core.Role;
 import org.onedatashare.server.model.core.User;
+import org.onedatashare.server.security.oauth2.user.UserPrincipal;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class JWTUtil implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private Logger logger = LoggerFactory.getLogger(JWTUtil.class);
 
     @Value("${springbootwebfluxjjwt.jjwt.secret}")
     private String secret;
@@ -72,6 +76,37 @@ public class JWTUtil implements Serializable {
         return generateToken(claims, user.getEmail());
     }
 
+    public String generateToken(Authentication authentication) {
+        if (authentication instanceof OAuth2AuthenticationToken) {
+            OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
+            DefaultOAuth2User user = (DefaultOAuth2User) oauthToken.getPrincipal();
+            Map<String, Object> claims = user.getAttributes();
+            String email = (String) claims.get("email");
+            return generateToken(claims, email);
+        }
+        else {
+            return null;
+        }
+    }
+    public String createToken(Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        List<Role> roles = new ArrayList<>();
+        roles.add(Role.USER);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", roles);
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationTime * 1000);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(userPrincipal.getUsername())
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, Base64.getEncoder().encodeToString(secret.getBytes()))
+                .compact();
+    }
+
     private String generateToken(Map<String, Object> claims, String username) {
         final Date createdDate = new Date();
         final Date expirationDate = new Date(createdDate.getTime() + expirationTime * 1000);
@@ -86,6 +121,24 @@ public class JWTUtil implements Serializable {
 
     public Boolean validateToken(String token) {
         return !isTokenExpired(token);
+    }
+
+    public Boolean validateTokenOauth(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token);
+            return true;
+        } catch (SignatureException ex) {
+            logger.error("Invalid JWT signature");
+        } catch (MalformedJwtException ex) {
+            logger.error("Invalid JWT token");
+        } catch (ExpiredJwtException ex) {
+            logger.error("Expired JWT token");
+        } catch (UnsupportedJwtException ex) {
+            logger.error("Unsupported JWT token");
+        } catch (IllegalArgumentException ex) {
+            logger.error("JWT claims string is empty.");
+        }
+        return false;
     }
 
 }
