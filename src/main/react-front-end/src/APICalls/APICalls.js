@@ -32,7 +32,6 @@ import { store } from "../App.js";
 import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
-
 const FETCH_TIMEOUT = 10000*2;
 
 export const axios = Axios.create({
@@ -42,6 +41,7 @@ export const axios = Axios.create({
 		'Content-Type': 'application/json'
 	}
 });
+
 
 
 export function handleRequestFailure(error, failureCallback){
@@ -296,6 +296,34 @@ export async function deleteCredential(credentialType,credential,accept, fail) {
 			handleRequestFailure(error, fail);
 		});
 
+}
+
+export async function getCarbonInfo(jobUuid, accept, fail) {
+	const testData = {
+		"traceRoute": [
+		  {
+			"ip": "192.168.1.1",
+			"carbonIntensity": 9.8,
+			"lat": 60,
+			"lon": -200
+		  },
+		  {
+			"ip": "192.168.1.1",
+			"carbonIntensity": 9.8,
+			"lat": 60,
+			"lon": -280
+		  }
+		],
+		"transferNodeName": "string"
+	}
+	// axios.get("job/carbon/", {
+	// 		params : 
+	// 		{
+	// 			jobUuid: jobUuid
+	// 		}
+	// 	}
+	// )
+	return testData
 }
 
 export async function saveEndpointCred(type, body, accept, fail) {

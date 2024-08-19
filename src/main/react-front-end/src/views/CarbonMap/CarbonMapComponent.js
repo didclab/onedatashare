@@ -20,12 +20,30 @@
  ##**************************************************************
  */
 
- import React, { useEffect } from "react";
+ import React, { useEffect, useState } from "react";
  import L from "leaflet";
  import "leaflet/dist/leaflet.css";
  import marker from "./assets/marker-icon.svg"
+ import { getCarbonInfo } from "../../APICalls/APICalls";
  
  const CarbonMapComponent = () => {
+  const [data, setData] = useState(null)
+
+  
+  function success(resp) {
+    alert("Success")
+    setData(resp)
+  }
+
+  useEffect(() => {
+    if (data !== null) {
+      let list = data.traceRoute
+      for (let wp of list) {
+        alert(JSON.stringify(wp))
+      }
+    }
+  }, [data])
+
 
   useEffect(() => {
     const map = L.map('map').setView([42.8864, -78.8784], 13);
@@ -35,7 +53,9 @@
       worldCopyJump: false,
       minZoom: 5,
     }).addTo(map);
-
+    getCarbonInfo("3fa85f64-5717-4562-b3fc-2c963f66afa6", success).then((resp) => {
+      setData(resp)
+    })
     // map.setMaxBounds(map.getBounds());
     // console.log(map.getBounds())
 
