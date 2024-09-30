@@ -79,10 +79,6 @@ export default class RowElement extends React.Component {
             speed += (sizeWritten / time_difference) / resp.batchSteps.length;
         }
 
-        if (resp.batchSteps.length > 0) {
-            console.log(parseFloat(speed));
-        }
-
         if (isNaN(speed)) {
             speed = 0;
         }
