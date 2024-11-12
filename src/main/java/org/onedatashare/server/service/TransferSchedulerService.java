@@ -23,13 +23,12 @@
 
 package org.onedatashare.server.service;
 
+import org.onedatashare.server.model.InitialAndFinal;
 import org.onedatashare.server.model.ScheduledTransferJobRequest;
 import org.onedatashare.server.model.TransferJobRequestDTO;
 import org.onedatashare.server.model.TransferParams;
-import org.onedatashare.server.exceptionHandler.error.CredentialNotFoundException;
-import org.onedatashare.server.model.carbon.CarbonIpEntry;
-import org.onedatashare.server.model.carbon.CarbonMeasureResponse;
-import org.onedatashare.server.model.carbon.CarbonTraceRouteResponse;
+import org.onedatashare.server.model.carbon.CarbonMeasurement;
+import org.onedatashare.server.model.node.FileTransferNodeMetaData;
 import org.onedatashare.server.model.request.StopRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +38,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.client.RestClient;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.UUID;
@@ -55,11 +52,9 @@ public class TransferSchedulerService {
 
     private RestClient.Builder restClientBuilder;
 
-
     public TransferSchedulerService(RestClient.Builder restClientBuilder) {
         this.restClientBuilder = restClientBuilder;
     }
-
 
     public ResponseEntity<Void> stopTransferJob(StopRequest stopRequest) {
         return restClientBuilder.build().post()
@@ -72,7 +67,7 @@ public class TransferSchedulerService {
                 .onStatus(HttpStatusCode::is4xxClientError,
                         (request, response) -> logger.error("Credentials not found for the client trying to stop transfer job:{}", response))
                 .onStatus(HttpStatusCode::is5xxServerError,
-                        (request,response) -> logger.error("Internal server error occurred while trying to stop transfer job:{}", response))
+                        (request, response) -> logger.error("Internal server error occurred while trying to stop transfer job:{}", response))
                 .toBodilessEntity();
     }
 
@@ -111,7 +106,6 @@ public class TransferSchedulerService {
                 .delete()
                 .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/delete").queryParam("jobUuid", jobUuid).build())
                 .retrieve().toBodilessEntity();
-
     }
 
     public ResponseEntity<Void> changeParams(TransferParams transferParams) {
@@ -122,31 +116,94 @@ public class TransferSchedulerService {
                 .retrieve().toBodilessEntity();
     }
 
-    public List<CarbonIpEntry> traceRouteCarbon(String transferNodeName, String sourceIp, String destinationIp) {
+    public List<FileTransferNodeMetaData> getUsersFileTransferNodes(String userName) {
+        String path = String.format("/api/nodes/connectors");
         return this.restClientBuilder.build()
                 .get()
-                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/measure/carbon/traceroute")
-                        .queryParam("transferNodeName", transferNodeName)
-                        .queryParam("sourceIp", sourceIp)
-                        .queryParam("destinationIp", destinationIp)
-                        .build())
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).queryParam("user", userName).build())
                 .retrieve()
-                .body(new ParameterizedTypeReference<List<CarbonIpEntry>>(){});
+                .body(new ParameterizedTypeReference<List<FileTransferNodeMetaData>>() {
+                });
     }
 
-    public CarbonMeasureResponse carbonMeasure(UUID jobUuid){
+    public List<FileTransferNodeMetaData> getOdsNodes() {
+        String path = "/api/nodes/ods";
         return this.restClientBuilder.build()
                 .get()
-                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/carbon").queryParam("jobUuid", jobUuid).build())
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
                 .retrieve()
-                .body(CarbonMeasureResponse.class);
+                .body(new ParameterizedTypeReference<List<FileTransferNodeMetaData>>() {
+                });
     }
 
-    public CarbonTraceRouteResponse carbonTraceRoute(@RequestParam UUID jobUuid){
+    public Integer totalConnectedFileTransferNodes() {
+        String path = "/api/nodes/count";
         return this.restClientBuilder.build()
                 .get()
-                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/carbon/traceroute").queryParam("jobUuid", jobUuid).build())
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
                 .retrieve()
-                .body(CarbonTraceRouteResponse.class);
+                .body(Integer.class);
+    }
+
+    public List<CarbonMeasurement> getCarbonEntry(UUID jobUuid, String transferNodeName, String odsUserEmail) {
+        String path = "/api/carbon/entry";
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).queryParam("jobUuid", jobUuid.toString()).queryParam("transferNodeName", transferNodeName).queryParam("userEmail", odsUserEmail).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CarbonMeasurement>>() {});
+    }
+
+    public List<CarbonMeasurement> getAllCarbonEntriesForJob(UUID uuid) {
+        String path = "/api/carbon/all/%s".formatted(uuid.toString());
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CarbonMeasurement>>() {
+                });
+    }
+
+    public CarbonMeasurement getLatestCarbonEntryForJob(UUID uuid) {
+        String path = "/api/carbon/latest/%s".formatted(uuid.toString());
+        return this.restClientBuilder.build()
+                .get()
+                .uri(transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(CarbonMeasurement.class);
+    }
+
+    public List<CarbonMeasurement> getAllUserEntries(String userEmail) {
+        String path = "/api/carbon/user";
+        return this.restClientBuilder.build()
+                .get()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).queryParam("userEmail", userEmail).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CarbonMeasurement>>() {
+                });
+    }
+
+    public List<CarbonMeasurement> getAllCarbonEntriesForNode(String transferNodeName) {
+        String path = "/api/carbon/node/%s".formatted(transferNodeName);
+        return this.restClientBuilder.build()
+                .get()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<List<CarbonMeasurement>>() {});
+    }
+
+    public InitialAndFinal<CarbonMeasurement> queryResultMeasurements(UUID jobUuid) {
+        String path = "/api/carbon/job/result/%s".formatted(jobUuid.toString());
+        return this.restClientBuilder.build()
+                .get()
+                .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path(path).build())
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .body(new ParameterizedTypeReference<InitialAndFinal<CarbonMeasurement>>() {});
     }
 }

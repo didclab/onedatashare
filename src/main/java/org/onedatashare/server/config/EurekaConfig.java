@@ -10,13 +10,6 @@ import org.springframework.web.client.RestClient;
 public class EurekaConfig {
 
     @Bean
-    @Profile("dev")
-    public RestClient.Builder endpointCredentialClient(){
-        return RestClient.builder();
-    }
-
-
-    @Bean
     @Profile("prod")
     @LoadBalanced
     public RestClient.Builder webClientBuilder() {

@@ -23,4 +23,7 @@ public class FileSource implements Serializable {
     @NonNull
     public ArrayList<EntityInfo> resourceList; //a list of files and folders. This will end up being a list of only files with paths fully expanded
 
+    @NonNull
+    public ArrayList<EntityInfo> infoList;
+
 }

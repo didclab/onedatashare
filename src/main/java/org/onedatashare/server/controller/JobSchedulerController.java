@@ -11,30 +11,28 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import reactor.core.publisher.Mono;
 
-import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/job")
-public class TransferSchedulerController {
+public class JobSchedulerController {
 
     private final TransferSchedulerService transferSchedulerService;
 
-    public TransferSchedulerController(TransferSchedulerService transferSchedulerService) {
+    public JobSchedulerController(TransferSchedulerService transferSchedulerService) {
         this.transferSchedulerService = transferSchedulerService;
     }
 
 
-    Logger logger = LoggerFactory.getLogger(TransferSchedulerController.class);
+    Logger logger = LoggerFactory.getLogger(JobSchedulerController.class);
 
     @PostMapping("/schedule")
     public ResponseEntity<UUID> runJob(@RequestBody TransferJobRequestDTO request,
                                              Principal principal) {
-        logger.debug("Recieved request: " + request.toString());
+        logger.debug("Received request: " + request.toString());
         request.setOwnerId(principal.getName());
         return ResponseEntity.ok(transferSchedulerService.scheduleJob(request));
     }
@@ -68,5 +66,4 @@ public class TransferSchedulerController {
     public ResponseEntity changeTransferParams(@RequestBody TransferParams transferParams) {
         return ResponseEntity.ok((this.transferSchedulerService.changeParams(transferParams)));
     }
-
 }

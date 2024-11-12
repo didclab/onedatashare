@@ -25,10 +25,12 @@ package org.onedatashare.server.service;
 
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import org.onedatashare.server.controller.FileTransferNodeController;
 import org.onedatashare.server.model.core.CredList;
 import org.onedatashare.server.model.core.EndpointType;
 import org.onedatashare.server.model.credential.AccountEndpointCredential;
 import org.onedatashare.server.model.credential.OAuthEndpointCredential;
+import org.onedatashare.server.model.node.FileTransferNodeMetaData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,10 +42,13 @@ import org.springframework.web.client.RestClient;
 import javax.annotation.PostConstruct;
 import javax.security.auth.login.CredentialNotFoundException;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CredentialService {
 
+    private final TransferSchedulerService transferSchedulerService;
     @Value("${cred.service.uri}")
     private String credentialServiceUrl;
     private String urlFormatted, credListUrl;
@@ -53,11 +58,10 @@ public class CredentialService {
 
     private RestClient.Builder restClientBuilder;
 
-    private EurekaClient discoveryClient;
 
-    public CredentialService(EurekaClient discoveryClient, RestClient.Builder restClientBuilder) {
+    public CredentialService(RestClient.Builder restClientBuilder, TransferSchedulerService transferSchedulerService) {
         this.restClientBuilder = restClientBuilder;
-        this.discoveryClient = discoveryClient;
+        this.transferSchedulerService = transferSchedulerService;
     }
 
     @PostConstruct
@@ -85,7 +89,7 @@ public class CredentialService {
     public CredList getStoredCredentialNames(String userId, EndpointType type) {
         switch (type) {
             case vfs:
-                return this.getVfsNodesOfUserName(userId, type);
+                return this.getVfsNodesOfUserName(userId);
             default:
                 return this.restClientBuilder.build().get()
                         .uri(URI.create(String.format(this.credListUrl, userId, type)))
@@ -101,16 +105,12 @@ public class CredentialService {
      * @param type
      * @return
      */
-    private CredList getVfsNodesOfUserName(String userId, EndpointType type) {
+    private CredList getVfsNodesOfUserName(String userId) {
+        List<String> vfsNodes = this.transferSchedulerService.getUsersFileTransferNodes(userId)
+                .stream().map(FileTransferNodeMetaData::getNodeName)
+                .collect(Collectors.toList());
         CredList credList = new CredList();
-        if (type.equals(EndpointType.vfs)) {
-            for (Application application : this.discoveryClient.getApplications().getRegisteredApplications()) {
-                String applicationName = application.getName();
-                if (applicationName.toLowerCase().contains(userId.toLowerCase())) {
-                    credList.getList().add(application.getName().toLowerCase());
-                }
-            }
-        }
+        credList.setList(vfsNodes);
         return credList;
     }
 

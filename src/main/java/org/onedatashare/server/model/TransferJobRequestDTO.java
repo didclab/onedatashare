@@ -14,5 +14,6 @@ public class TransferJobRequestDTO implements Serializable {
     private FileDestination destination;
     private UserTransferOptions options;
     private String transferNodeName;
+    private TransferSla transferSla;
 
 }
