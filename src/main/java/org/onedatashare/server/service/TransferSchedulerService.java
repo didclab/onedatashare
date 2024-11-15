@@ -92,13 +92,13 @@ public class TransferSchedulerService {
                 });
     }
 
-    public TransferJobRequestDTO getJobDetails(UUID jobUuid) {
+    public ScheduledTransferJobRequest getJobDetails(UUID jobUuid) {
         return this.restClientBuilder.build()
                 .get()
                 .uri(this.transferQueueingServiceUri, uriBuilder -> uriBuilder.path("/job/details").queryParam("jobUuid", jobUuid).build())
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .body(TransferJobRequestDTO.class);
+                .body(ScheduledTransferJobRequest.class);
     }
 
     public void deleteScheduledJob(UUID jobUuid) {

@@ -52,7 +52,7 @@ public class JobSchedulerController {
     }
 
     @GetMapping("/details")
-    public ResponseEntity<TransferJobRequestDTO> getScheduledJob(@RequestParam UUID jobUuid) {
+    public ResponseEntity<ScheduledTransferJobRequest> getScheduledJob(@RequestParam UUID jobUuid) {
         return ResponseEntity.ok(this.transferSchedulerService.getJobDetails(jobUuid));
     }
 
