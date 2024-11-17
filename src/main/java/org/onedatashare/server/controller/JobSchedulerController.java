@@ -37,10 +37,10 @@ public class JobSchedulerController {
         return ResponseEntity.ok(transferSchedulerService.scheduleJob(request));
     }
 
-    @PostMapping("/stop")
-    public ResponseEntity stopJob(@RequestBody StopRequest stopRequest) {
+    @DeleteMapping("/stop/{jobUuid}")
+    public ResponseEntity stopJob(@PathVariable UUID jobUuid, Principal principal) {
         try {
-            return transferSchedulerService.stopTransferJob(stopRequest);
+            return transferSchedulerService.stopTransferJob(jobUuid);
         }catch (Exception e){
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to stop job execution");
         }

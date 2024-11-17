@@ -56,14 +56,13 @@ public class TransferSchedulerService {
         this.restClientBuilder = restClientBuilder;
     }
 
-    public ResponseEntity<Void> stopTransferJob(StopRequest stopRequest) {
-        return restClientBuilder.build().post()
-                .uri(transferQueueingServiceUri + "/stopJob")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(stopRequest)
+    public ResponseEntity<Void> stopTransferJob(UUID jobUuid) {
+        String path = "/job/stop/%s".formatted(jobUuid);
+        return restClientBuilder.build().delete()
+                .uri(transferQueueingServiceUri + path)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError,
-                        (request, response) -> logger.error("Exception occurred while trying to stop transfer job:{}", response))
+                        (request, response) -> logger.error("Exception occurred while trying to stop transfer job:{}", response.getStatusText()))
                 .onStatus(HttpStatusCode::is4xxClientError,
                         (request, response) -> logger.error("Credentials not found for the client trying to stop transfer job:{}", response))
                 .onStatus(HttpStatusCode::is5xxServerError,

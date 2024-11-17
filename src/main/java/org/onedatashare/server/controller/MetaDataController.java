@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/metadata")
@@ -34,6 +35,11 @@ public class MetaDataController {
     @GetMapping("/all/job/ids")
     public List<Long> getAllJobIds(Principal principal) {
         return metaDataService.getAllJobIds(principal.getName());
+    }
+
+    @GetMapping("/all/job/uuids")
+    public List<UUID> getAllJobUuids(Principal principal) {
+        return this.metaDataService.getUserUuids(principal.getName())
     }
 
     @GetMapping("/all/jobs")
