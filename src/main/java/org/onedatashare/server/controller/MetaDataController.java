@@ -39,7 +39,7 @@ public class MetaDataController {
 
     @GetMapping("/all/job/uuids")
     public List<UUID> getAllJobUuids(Principal principal) {
-        return this.metaDataService.getUserUuids(principal.getName())
+        return this.metaDataService.getUserUuids(principal.getName());
     }
 
     @GetMapping("/all/jobs")
