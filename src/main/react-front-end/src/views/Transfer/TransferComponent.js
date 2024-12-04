@@ -545,6 +545,7 @@
              />
            </FormControl>
          </Grid>
+         
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
              <FormLabel component="legend"><ToggleHeader>Parallel Thread Count</ToggleHeader></FormLabel>
@@ -593,6 +594,76 @@
              />
            </FormControl>
          </Grid>
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Carbon Emission Sensitivity</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Carbon Emission Sensitivity</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                 variant="outlined"
+                //  onChange={handleChange("concurrencyThreadCount")}
+                 value={this.state.settings.concurrencyThreadCount}
+             />
+           </FormControl>
+         </Grid>
+
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Throughput Percentage</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Throughput Percentage</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                 variant="outlined"
+                //  onChange={handleChange("concurrencyThreadCount")}
+                 value={this.state.settings.concurrencyThreadCount}
+             />
+           </FormControl>
+         </Grid>
+
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Electricity Percentage</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Electricity Percentage</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                 variant="outlined"
+                //  onChange={handleChange("concurrencyThreadCount")}
+                 value={this.state.settings.concurrencyThreadCount}
+             />
+           </FormControl>
+         </Grid>
+
+
        </Grid>
            <Divider/>
      <Grid container justifyContent={'center'}>
