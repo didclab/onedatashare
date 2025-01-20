@@ -58,6 +58,9 @@
  
  import { eventEmitter } from "../../App.js";
  import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
+
+
+ import NetworkGraphComponent from './NetworkGraphComponent.js';
  
  
  
@@ -82,20 +85,16 @@
          encrypt: localStorage.hasOwnProperty("encrypt") ? JSON.parse(localStorage.getItem("encrypt")) : true,
          compress: localStorage.hasOwnProperty("compress") ? JSON.parse(localStorage.getItem("compress")) : true,
          retry: localStorage.hasOwnProperty("retry") ? Number(localStorage.getItem("retry")) : 5,
-         concurrencyThreadCount:localStorage.hasOwnProperty("concurrencyThreadCount")?Number(localStorage.getItem("concurrencyThreadCount")):1,
-         concurrencyThreadCountDisplay:localStorage.hasOwnProperty("concurrencyThreadCount")?Number(localStorage.getItem("concurrencyThreadCount")):1,
+         concurrencyThreadCount: localStorage.getItem("concurrencyThreadCount") && localStorage.getItem("concurrencyThreadCount").trim() !== ""? Number(localStorage.getItem("concurrencyThreadCount")) : 1,
          pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          pipeSizeDisplay:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
-         parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
-         parallelThreadCountDisplay:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
+         parallelThreadCount: localStorage.getItem("parallelThreadCount") && localStorage.getItem("parallelThreadCount").trim() !== "" ? Number(localStorage.getItem("parallelThreadCount")) : 1,
          scheduledTime: new Date().toISOString(),
          carbonSens:localStorage.hasOwnProperty("carbonSens")?Number(localStorage.getItem("carbonSens")):0,
-         carbonSensDisplay:localStorage.hasOwnProperty("carbonSens")?Number(localStorage.getItem("carbonSens")):0,
          throughput:localStorage.hasOwnProperty("throughput")?Number(localStorage.getItem("throughput")):0,
          throughputDisplay:localStorage.hasOwnProperty("throughput")?Number(localStorage.getItem("throughput")):0,
          electricity:localStorage.hasOwnProperty("electricity")?Number(localStorage.getItem("electricity")):0,
-         electricityDisplay:localStorage.hasOwnProperty("electricity")?Number(localStorage.getItem("electricity")):0
        },
        compact: store.getState().compactViewEnabled,
        notif: false,
@@ -402,125 +401,73 @@
        var value = event.target.value;
        
        switch(name) {
-
-        // Input conditionals for concurrencyThreadCount:
-        // Sets max value as 64 and Min value to 1
         case "concurrencyThreadCount":
-          if (value > 64) {
-            this.setState({ settings: { ...this.state.settings, [name]: 64, [name+"Display"]: 64 } });
+          if (value == "" || isNaN(value)) {
+            this.setState({ settings: { ...this.state.settings, [name]: value } });
+            // alert("is not a number")
           }
-          else if (value < 1) {
-            this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+          else if (value > 64) {
+            this.setState({ settings: { ...this.state.settings, [name]: 64 } });
           }
           else {
             this.setState({ settings: { ...this.state.settings, [name]: value } });
           }
           break;
-        case "concurrencyThreadCountDisplay":
-            if (value > 64) {
-              this.setState({ settings: { ...this.state.settings, ["concurrencyThreadCountDisplay"]: 64 } });
-            }
-            else {
-              this.setState({ settings: { ...this.state.settings, ["concurrencyThreadCountDisplay"]: value } });
-            }
-            break;
         case "parallelThreadCount":
-            if (value > 64) {
-              this.setState({ settings: { ...this.state.settings, [name]: 64, [name+"Display"]: 64 } });
+            if (value == "" || isNaN(value)) {
+              this.setState({ settings: { ...this.state.settings, [name]: value } });
+              // alert("is not a number")
             }
-            else if (value < 1) {
-              this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+            else if (value > 64) {
+              this.setState({ settings: { ...this.state.settings, [name]: 64 } });
             }
             else {
               this.setState({ settings: { ...this.state.settings, [name]: value } });
             }
             break;
-        case "parallelThreadCountDisplay":
-              if (value > 64) {
-                this.setState({ settings: { ...this.state.settings, ["parallelThreadCountDisplay"]: 64 } });
-              }
-              else {
-                this.setState({ settings: { ...this.state.settings, ["parallelThreadCountDisplay"]: value } });
-              }
-              break;
         case "pipeSize":
               if (value > 74) {
-                this.setState({ settings: { ...this.state.settings, [name]: 74, [name+"Display"]: 74 } });
-              }
-              else if (value < 1) {
-                this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+                this.setState({ settings: { ...this.state.settings, [name]: 74, } });
               }
               else {
                 this.setState({ settings: { ...this.state.settings, [name]: value } });
-              }
-              break;
-        case "pipeSizeDisplay":
-              if (value > 74) {
-                this.setState({ settings: { ...this.state.settings, ["pipeSizeDisplay"]: 74 } });
-              }
-              else {
-                this.setState({ settings: { ...this.state.settings, ["pipeSizeDisplay"]: value } });
               }
               break;
         case "carbonSens":
               if (value > 1) {
-                this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+                this.setState({ settings: { ...this.state.settings, [name]: 1, } });
               }
               else if (value < -1) {
-                this.setState({ settings: { ...this.state.settings, [name]: -1, [name+"Display"]: -1 } });
+                this.setState({ settings: { ...this.state.settings, [name]: -1} });
               }
               else {
                 this.setState({ settings: { ...this.state.settings, [name]: value } });
               }
               break;
-        case "carbonSensDisplay":
-              if (value > 1) {
-                this.setState({ settings: { ...this.state.settings, ["carbonSensDisplay"]: 1 } });
-              }
-              else {
-                this.setState({ settings: { ...this.state.settings, ["carbonSensDisplay"]: value } });
-              }
-              break;
         case "throughput":
                 if (value > 1) {
-                  this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+                  this.setState({ settings: { ...this.state.settings, [name]: 1} });
                 }
                 else if (value < -1) {
-                  this.setState({ settings: { ...this.state.settings, [name]: -1, [name+"Display"]: -1 } });
+                  this.setState({ settings: { ...this.state.settings, [name]: -1 } });
                 }
                 else {
                   this.setState({ settings: { ...this.state.settings, [name]: value } });
                 }
                 break;
-          case "throughputDisplay":
-                if (value > 1) {
-                  this.setState({ settings: { ...this.state.settings, ["throughputDisplay"]: 1 } });
-                }
-                else {
-                  this.setState({ settings: { ...this.state.settings, ["throughputDisplay"]: value } });
-                }
-                break;
           case "electricity":
                   if (value > 1) {
-                    this.setState({ settings: { ...this.state.settings, [name]: 1, [name+"Display"]: 1 } });
+                    this.setState({ settings: { ...this.state.settings, [name]: 1} });
                   }
                   else if (value < -1) {
-                    this.setState({ settings: { ...this.state.settings, [name]: -1, [name+"Display"]: -1 } });
+                    this.setState({ settings: { ...this.state.settings, [name]: -1} });
                   }
                   else {
                     this.setState({ settings: { ...this.state.settings, [name]: value } });
                   }
                   break;
-            case "electricityDisplay":
-                  if (value > 1) {
-                    this.setState({ settings: { ...this.state.settings, ["electricityDisplay"]: 1 } });
-                  }
-                  else {
-                    this.setState({ settings: { ...this.state.settings, ["electricityDisplay"]: value } });
-                  }
-                  break;
         default:
-          
+            console.log(this.state.settings.parallelThreadCount)
             this.setState({ settings: { ...this.state.settings, [name]: value } });
        }
        
@@ -560,8 +507,9 @@
      const ToggleHeader = this.headerStyle();
      const FieldLabel = this.fieldLabelStyle();
      return (
-         <Container>
+    <Container>
        <Grid container className="innerBox" direction="row" align-items="flex-start" justifyContent="center" spacing={2} style={{paddingLeft: "20px"}}>
+
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset" >
              <FormLabel component="legend" ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
@@ -652,6 +600,11 @@
            </FormControl>
          </Grid>
 
+
+        <Grid item style={{ width: "100%" }} >
+          <NetworkGraphComponent concurrencyThreadCount={this.state.settings.concurrencyThreadCount} parallelThreadCount={this.state.settings.parallelThreadCount}></NetworkGraphComponent>
+        </Grid>
+
          <Grid item md={desktopWidth} sm={tabletWidth}>
             <FormControl component="fieldset">
               <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
@@ -677,14 +630,20 @@
                   step: 1,
                 }}
                  variant="outlined"
-                 onChange={handleChange("concurrencyThreadCountDisplay")}
+                 onChange={handleChange("concurrencyThreadCount")}
                  onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleChange("concurrencyThreadCount")(e);
                   }
                 }}
-                onBlur={(e) => handleChange("concurrencyThreadCount")(e)}
-                value={this.state.settings.concurrencyThreadCountDisplay}
+                onBlur={() => {
+                  if (this.state.settings.concurrencyThreadCount === "") {
+                    this.setState({ settings: { ...this.state.settings, ["concurrencyThreadCount"]: 1 } });
+                  } else {
+                    handleChange("concurrencyThreadCount");
+                  }
+                }}                
+                value={this.state.settings.concurrencyThreadCount}
              />
            </FormControl>
          </Grid>
@@ -701,18 +660,25 @@
                  }}
                  variant="outlined"
                  inputProps={{
-                  min: -1,
+                  min: 1,
                   max: 64,
                   step: 1                 
                  }}
-                 onChange={handleChange("parallelThreadCountDisplay")}
+                 onChange={handleChange("parallelThreadCount")}
                  onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleChange("parallelThreadCount")(e);
                   }
                 }}
-                onBlur={(e) => handleChange("parallelThreadCount")(e)}
-                value={this.state.settings.parallelThreadCountDisplay}
+                on
+                onBlur={() => {
+                  if (this.state.settings.parallelThreadCount === "") {
+                    this.setState({ settings: { ...this.state.settings, ["parallelThreadCount"]: 1 } });
+                  } else {
+                    handleChange("parallelThreadCount");
+                  }
+                }}
+                value={this.state.settings.parallelThreadCount}
              />
            </FormControl>
          </Grid>
@@ -732,14 +698,20 @@
                   step: 1,
                 }}
                  variant="outlined"
-                 onChange={handleChange("pipeSizeDisplay")}
+                 onChange={handleChange("pipeSize")}
                  onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     handleChange("pipeSize")(e);
                   }
                 }}
-                onBlur={(e) => handleChange("pipeSize")(e)}
-                value={this.state.settings.pipeSizeDisplay}
+                onBlur={() => {
+                  if (this.state.settings.pipeSize === "") {
+                    this.setState({ settings: { ...this.state.settings, ["pipeSize"]: 1 } });
+                  } else {
+                    handleChange("pipeSize");
+                  }
+                }}
+                value={this.state.settings.pipeSize}
              />
            </FormControl>
          </Grid>
@@ -776,14 +748,20 @@
                   step: 0.1,
                 }}
                 variant="outlined"
-                onChange={handleChange("carbonSensDisplay")}
+                onChange={handleChange("carbonSens")}
                 onKeyDown={(e) => {
                  if (e.key === "Enter") {
                    handleChange("carbonSens")(e);
                  }
                }}
-               onBlur={(e) => handleChange("carbonSens")(e)}
-               value={this.state.settings.carbonSensDisplay}
+               onBlur={() => {
+                if (this.state.settings.carbonSens === "") {
+                  this.setState({ settings: { ...this.state.settings, ["carbonSens"]: 0.0 } });
+                } else {
+                  handleChange("carbonSens"); // Otherwise, call the handleChange
+                }
+              }}
+               value={this.state.settings.carbonSens}
              />
            </FormControl>
          </Grid>
@@ -805,14 +783,20 @@
                   step: 0.1,
                 }}
                 variant="outlined"
-                onChange={handleChange("throughputDisplay")}
+                onChange={handleChange("throughput")}
                 onKeyDown={(e) => {
                  if (e.key === "Enter") {
                    handleChange("throughput")(e);
                  }
                }}
-               onBlur={(e) => handleChange("throughput")(e)}
-               value={this.state.settings.throughputDisplay}
+               onBlur={() => {
+                if (this.state.settings.throughput === "") {
+                  this.setState({ settings: { ...this.state.settings, ["throughput"]: 0.0 } });
+                } else {
+                  handleChange("throughput");
+                }
+              }}
+               value={this.state.settings.throughput}
              />
            </FormControl>
          </Grid>
@@ -834,14 +818,20 @@
                   step: 0.1,
                 }}
                 variant="outlined"
-                onChange={handleChange("electricityDisplay")}
+                onChange={handleChange("electricity")}
                 onKeyDown={(e) => {
                  if (e.key === "Enter") {
                    handleChange("electricity")(e);
                  }
                }}
-               onBlur={(e) => handleChange("electricity")(e)}
-               value={this.state.settings.electricityDisplay}
+               onBlur={() => {
+                if (this.state.settings.electricity === "") {
+                  this.setState({ settings: { ...this.state.settings, ["electricity"]: 0.0 } });
+                } else {
+                  handleChange("electricity");
+                }
+              }}
+               value={this.state.settings.electricity}
              />
            </FormControl>
          </Grid>
@@ -878,7 +868,7 @@
      this.setState({isMessageVisible:false})
    }
    render() {
-    console.log(this.state.settings.carbonSensDisplay)
+    console.log(this.state.settings.parallelThreadCount)
      // const isSmall = screenIsSmall();
      // const isSmall = false;
      // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
