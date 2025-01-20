@@ -58,6 +58,9 @@
  
  import { eventEmitter } from "../../App.js";
  import { formatType,getType, gridFullWidth, gridHalfWidth, isOAuth, showType} from "../../constants";
+
+
+ import NetworkGraphComponent from './NetworkGraphComponent.js';
  
  
  
@@ -82,11 +85,16 @@
          encrypt: localStorage.hasOwnProperty("encrypt") ? JSON.parse(localStorage.getItem("encrypt")) : true,
          compress: localStorage.hasOwnProperty("compress") ? JSON.parse(localStorage.getItem("compress")) : true,
          retry: localStorage.hasOwnProperty("retry") ? Number(localStorage.getItem("retry")) : 5,
-         concurrencyThreadCount:localStorage.hasOwnProperty("concurrencyThreadCount")?Number(localStorage.getItem("concurrencyThreadCount")):1,
+         concurrencyThreadCount: localStorage.getItem("concurrencyThreadCount") && localStorage.getItem("concurrencyThreadCount").trim() !== ""? Number(localStorage.getItem("concurrencyThreadCount")) : 1,
          pipeSize:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
+         pipeSizeDisplay:localStorage.hasOwnProperty("pipeSize")?Number(localStorage.getItem("pipeSize")):1,
          chunkSize:localStorage.hasOwnProperty("chunkSize")?Number(localStorage.getItem("chunkSize")):10400000,
-         parallelThreadCount:localStorage.hasOwnProperty("parallelThreadCount")?Number(localStorage.getItem("parallelThreadCount")):1,
+         parallelThreadCount: localStorage.getItem("parallelThreadCount") && localStorage.getItem("parallelThreadCount").trim() !== "" ? Number(localStorage.getItem("parallelThreadCount")) : 1,
          scheduledTime: new Date().toISOString(),
+         carbonSens:localStorage.hasOwnProperty("carbonSens")?Number(localStorage.getItem("carbonSens")):0,
+         throughput:localStorage.hasOwnProperty("throughput")?Number(localStorage.getItem("throughput")):0,
+         throughputDisplay:localStorage.hasOwnProperty("throughput")?Number(localStorage.getItem("throughput")):0,
+         electricity:localStorage.hasOwnProperty("electricity")?Number(localStorage.getItem("electricity")):0,
        },
        compact: store.getState().compactViewEnabled,
        notif: false,
@@ -391,8 +399,79 @@
    getSettingComponent() {
      const handleChange = (name) => event => {
        var value = event.target.value;
-       console.log(value);
-       this.setState({ settings: { ...this.state.settings, [name]: value } });
+       
+       switch(name) {
+        case "concurrencyThreadCount":
+          if (value == "" || isNaN(value)) {
+            this.setState({ settings: { ...this.state.settings, [name]: value } });
+            // alert("is not a number")
+          }
+          else if (value > 64) {
+            this.setState({ settings: { ...this.state.settings, [name]: 64 } });
+          }
+          else {
+            this.setState({ settings: { ...this.state.settings, [name]: value } });
+          }
+          break;
+        case "parallelThreadCount":
+            if (value == "" || isNaN(value)) {
+              this.setState({ settings: { ...this.state.settings, [name]: value } });
+              // alert("is not a number")
+            }
+            else if (value > 64) {
+              this.setState({ settings: { ...this.state.settings, [name]: 64 } });
+            }
+            else {
+              this.setState({ settings: { ...this.state.settings, [name]: value } });
+            }
+            break;
+        case "pipeSize":
+              if (value > 74) {
+                this.setState({ settings: { ...this.state.settings, [name]: 74, } });
+              }
+              else {
+                this.setState({ settings: { ...this.state.settings, [name]: value } });
+              }
+              break;
+        case "carbonSens":
+              if (value > 1) {
+                this.setState({ settings: { ...this.state.settings, [name]: 1, } });
+              }
+              else if (value < -1) {
+                this.setState({ settings: { ...this.state.settings, [name]: -1} });
+              }
+              else {
+                this.setState({ settings: { ...this.state.settings, [name]: value } });
+              }
+              break;
+        case "throughput":
+                if (value > 1) {
+                  this.setState({ settings: { ...this.state.settings, [name]: 1} });
+                }
+                else if (value < -1) {
+                  this.setState({ settings: { ...this.state.settings, [name]: -1 } });
+                }
+                else {
+                  this.setState({ settings: { ...this.state.settings, [name]: value } });
+                }
+                break;
+          case "electricity":
+                  if (value > 1) {
+                    this.setState({ settings: { ...this.state.settings, [name]: 1} });
+                  }
+                  else if (value < -1) {
+                    this.setState({ settings: { ...this.state.settings, [name]: -1} });
+                  }
+                  else {
+                    this.setState({ settings: { ...this.state.settings, [name]: value } });
+                  }
+                  break;
+        default:
+            console.log(this.state.settings.parallelThreadCount)
+            this.setState({ settings: { ...this.state.settings, [name]: value } });
+       }
+       
+
      };
      const handleChangeCheckbox = (name) => event => {
        var value = event.target.checked;
@@ -428,8 +507,9 @@
      const ToggleHeader = this.headerStyle();
      const FieldLabel = this.fieldLabelStyle();
      return (
-         <Container>
+    <Container>
        <Grid container className="innerBox" direction="row" align-items="flex-start" justifyContent="center" spacing={2} style={{paddingLeft: "20px"}}>
+
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset" >
              <FormLabel component="legend" ><ToggleHeader>Optimization</ToggleHeader></FormLabel>
@@ -520,6 +600,11 @@
            </FormControl>
          </Grid>
 
+
+        <Grid item style={{ width: "100%" }} >
+          <NetworkGraphComponent concurrencyThreadCount={this.state.settings.concurrencyThreadCount} parallelThreadCount={this.state.settings.parallelThreadCount}></NetworkGraphComponent>
+        </Grid>
+
          <Grid item md={desktopWidth} sm={tabletWidth}>
             <FormControl component="fieldset">
               <FormLabel component="legend"><ToggleHeader>Date</ToggleHeader></FormLabel>
@@ -539,12 +624,30 @@
                  InputLabelProps={{
                    shrink: true,
                  }}
+                 inputProps={{
+                  min: 1,
+                  max: 64,
+                  step: 1,
+                }}
                  variant="outlined"
                  onChange={handleChange("concurrencyThreadCount")}
-                 value={this.state.settings.concurrencyThreadCount}
+                 onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleChange("concurrencyThreadCount")(e);
+                  }
+                }}
+                onBlur={() => {
+                  if (this.state.settings.concurrencyThreadCount === "") {
+                    this.setState({ settings: { ...this.state.settings, ["concurrencyThreadCount"]: 1 } });
+                  } else {
+                    handleChange("concurrencyThreadCount");
+                  }
+                }}                
+                value={this.state.settings.concurrencyThreadCount}
              />
            </FormControl>
          </Grid>
+         
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
              <FormLabel component="legend"><ToggleHeader>Parallel Thread Count</ToggleHeader></FormLabel>
@@ -556,8 +659,26 @@
                    shrink: true,
                  }}
                  variant="outlined"
+                 inputProps={{
+                  min: 1,
+                  max: 64,
+                  step: 1                 
+                 }}
                  onChange={handleChange("parallelThreadCount")}
-                 value={this.state.settings.parallelThreadCount}
+                 onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleChange("parallelThreadCount")(e);
+                  }
+                }}
+                on
+                onBlur={() => {
+                  if (this.state.settings.parallelThreadCount === "") {
+                    this.setState({ settings: { ...this.state.settings, ["parallelThreadCount"]: 1 } });
+                  } else {
+                    handleChange("parallelThreadCount");
+                  }
+                }}
+                value={this.state.settings.parallelThreadCount}
              />
            </FormControl>
          </Grid>
@@ -571,9 +692,26 @@
                  InputLabelProps={{
                    shrink: true,
                  }}
+                 inputProps={{
+                  min: 1,
+                  max: 74,
+                  step: 1,
+                }}
                  variant="outlined"
                  onChange={handleChange("pipeSize")}
-                 value={this.state.settings.pipeSize}
+                 onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleChange("pipeSize")(e);
+                  }
+                }}
+                onBlur={() => {
+                  if (this.state.settings.pipeSize === "") {
+                    this.setState({ settings: { ...this.state.settings, ["pipeSize"]: 1 } });
+                  } else {
+                    handleChange("pipeSize");
+                  }
+                }}
+                value={this.state.settings.pipeSize}
              />
            </FormControl>
          </Grid>
@@ -593,6 +731,112 @@
              />
            </FormControl>
          </Grid>
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Carbon Emission Sensitivity</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Carbon Emission Sensitivity</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                variant="outlined"
+                onChange={handleChange("carbonSens")}
+                onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   handleChange("carbonSens")(e);
+                 }
+               }}
+               onBlur={() => {
+                if (this.state.settings.carbonSens === "") {
+                  this.setState({ settings: { ...this.state.settings, ["carbonSens"]: 0.0 } });
+                } else {
+                  handleChange("carbonSens"); // Otherwise, call the handleChange
+                }
+              }}
+               value={this.state.settings.carbonSens}
+             />
+           </FormControl>
+         </Grid>
+
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Throughput Percentage</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Throughput Percentage</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                variant="outlined"
+                onChange={handleChange("throughput")}
+                onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   handleChange("throughput")(e);
+                 }
+               }}
+               onBlur={() => {
+                if (this.state.settings.throughput === "") {
+                  this.setState({ settings: { ...this.state.settings, ["throughput"]: 0.0 } });
+                } else {
+                  handleChange("throughput");
+                }
+              }}
+               value={this.state.settings.throughput}
+             />
+           </FormControl>
+         </Grid>
+
+
+         <Grid item md={desktopWidth} sm={tabletWidth}>
+           <FormControl component="fieldset">
+             <FormLabel component="legend"><ToggleHeader>Electricity Percentage</ToggleHeader></FormLabel>
+             <TextField
+                 id="outlined-number"
+                 label={<FieldLabel>Electricity Percentage</FieldLabel>}
+                 type="number"
+                 InputLabelProps={{
+                   shrink: true,
+                 }}
+                 inputProps={{
+                  min: -1,
+                  max: 1,
+                  step: 0.1,
+                }}
+                variant="outlined"
+                onChange={handleChange("electricity")}
+                onKeyDown={(e) => {
+                 if (e.key === "Enter") {
+                   handleChange("electricity")(e);
+                 }
+               }}
+               onBlur={() => {
+                if (this.state.settings.electricity === "") {
+                  this.setState({ settings: { ...this.state.settings, ["electricity"]: 0.0 } });
+                } else {
+                  handleChange("electricity");
+                }
+              }}
+               value={this.state.settings.electricity}
+             />
+           </FormControl>
+         </Grid>
+
+
        </Grid>
            <Divider/>
      <Grid container justifyContent={'center'}>
@@ -624,6 +868,7 @@
      this.setState({isMessageVisible:false})
    }
    render() {
+    console.log(this.state.settings.parallelThreadCount)
      // const isSmall = screenIsSmall();
      // const isSmall = false;
      // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };
