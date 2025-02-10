@@ -4,18 +4,44 @@ import cytoscape from 'cytoscape';
 
 const NetworkGraphComponent = (props) => {
   const [elements, setElements] = useState([        
-    { data: { id: 'Node A' }, position: {x: 0, y: 0}, locked: true },
-    { data: { id: 'Node B' }, position: {x: 350, y: 0}, locked: true },
+    { data: { id: 'Source', type: 'source' }, position: {x: 0, y: 0}, locked: true },
+    { data: {id: 'Transfer Node', type: 'source'}, position: {x: 175, y: 0}, locked: true},
+    { data: { id: 'Destination', type: 'destination' }, position: {x: 350, y: 0}, locked: true },
   ])
 
   useEffect(() => {
-    // Initialize Cytoscape on component mount
     const cy = cytoscape({
       container: document.getElementById('cy'), 
       elements: elements,
       style: [
         {
-          selector: 'node',
+          selector: 'node[type="source"]',
+          style: {
+            'background-color': 'black',
+            'label': 'data(id)',
+            'color': 'black',
+            'text-outline-color': 'black',
+            'font-size': 5,
+            'width': 5,
+            'height': 5, 
+            'shape': 'square'
+          }
+        },
+        {
+          selector: 'node[type="destination"]',
+          style: {
+            'background-color': 'black',
+            'label': 'data(id)',
+            'color': 'black',
+            'text-outline-color': 'black',
+            'font-size': 5,
+            'width': 5,
+            'height': 5, 
+            'shape': 'square'
+          }
+        },
+        {
+          selector: 'node[type="TCP"]',
           style: {
             'background-color': 'black',
             'label': 'data(id)',
@@ -47,8 +73,8 @@ const NetworkGraphComponent = (props) => {
         {
           selector: 'edge[type="concurrent"]',
           style: {
-            'width': 1,
-            'line-color': '#ccc',
+            'width': 0.1,
+            'line-color': 'red',
             'target-arrow-color': '#ccc',
             'curve-style': 'bezier'
           }
@@ -68,47 +94,67 @@ const NetworkGraphComponent = (props) => {
       autounselectify: true
     });
 
-    const maxThreadDistance = props.parallelThreadCount * 5; // Total range for threads
-    const spacing = maxThreadDistance / (props.parallelThreadCount - 1); // Calculate spacing dynamically
+    const maxThreadDistance = props.parallelThreadCount * 5;
+    const spacing = maxThreadDistance / (props.parallelThreadCount - 1);
     let counter = 0;
   
     const newNodes = [];
     if (props.parallelThreadCount == 1) {
       newNodes.push({
         group: 'nodes',
-        position: { x: 175, y: 0 },
+        position: { x: 87.5, y: 0 },
         data: { id: 'n' + counter, type: 'parallel' },
       });
       newNodes.push({
+        group: 'nodes',
+        position: { x: 262.5, y: 0 },
+        data: { id: 'd' + counter, type: 'parallel' },
+      });
+      newNodes.push({
         group: 'edges',
-        data: {source: 'Node A', target: 'n' + counter }
+        data: {source: 'Source', target: 'n' + counter }
+      });
+      newNodes.push({
+        group: 'edges',
+        data: {source: 'd' + counter, target: 'Destination' }
       });
     }
     for (let i = 0; i < props.parallelThreadCount; i++) {
-      const yPosition = -(maxThreadDistance / 2) + i * spacing; // Calculate y position for each node
+      const yPosition = -(maxThreadDistance / 2) + i * spacing;
       newNodes.push({
         group: 'nodes',
-        position: { x: 175, y: yPosition },
+        position: { x: 87.5, y: yPosition },
         data: { id: 'n' + counter, type: 'parallel' },
       });
       newNodes.push({
+        group: 'nodes',
+        position: { x: 262.5, y: yPosition },
+        data: { id: 'd' + counter, type: 'parallel' },
+      });
+      newNodes.push({
         group: 'edges',
-        data: {source: 'Node A', target: 'n' + counter }
+        data: {source: 'Source', target: 'n' + counter }
+      });
+      newNodes.push({
+        group: 'edges',
+        data: {source: 'd' + counter, target: 'Destination'}
       });
 
       for (let j = 0; j < props.concurrencyThreadCount; j++) {
         newNodes.push({
           group: 'edges',
-          data: { source: 'n' + counter, target: 'Node B', type:"concurrent"},
+          data: { source: 'n' + counter, target: 'Transfer Node', type:"concurrent"},
+        });
+        newNodes.push({
+          group: 'edges',
+          data: { source: 'd' + counter, target: 'Transfer Node', type:"concurrent"},
         });
       }
       counter += 1;
     }
   
-    // Add new elements to Cytoscape
     cy.add(newNodes);
 
-    // Cleanup Cytoscape instance when component unmounts
     return () => {
       cy.destroy();
     };
