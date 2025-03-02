@@ -106,6 +106,12 @@ class NavbarComponent extends Component {
 								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
 									Support
 								</Link>
+								<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Terms
+								</Link>
+								<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Policy
+								</Link>
 								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
 							</Box>
 						</Hidden>
