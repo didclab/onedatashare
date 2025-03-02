@@ -93,9 +93,18 @@ const NetworkGraphComponent = (props) => {
       boxSelectionEnabled: false,
       autounselectify: true
     });
+    let parallelThreadCount = props.parallelThreadCount;
+    let concurrencyThreadCount = props.concurrencyThreadCount;
 
-    const maxThreadDistance = props.parallelThreadCount * 5;
-    const spacing = maxThreadDistance / (props.parallelThreadCount - 1);
+    if (parallelThreadCount > 10) {
+      parallelThreadCount = 10
+    }
+
+    if (props.concurrencyThreadCount > 10) {
+      concurrencyThreadCount = 10
+    }
+    const maxThreadDistance = parallelThreadCount * 5;
+    const spacing = maxThreadDistance / (parallelThreadCount - 1);
     let counter = 0;
   
     const newNodes = [];
@@ -119,7 +128,7 @@ const NetworkGraphComponent = (props) => {
         data: {source: 'd' + counter, target: 'Destination' }
       });
     }
-    for (let i = 0; i < props.parallelThreadCount; i++) {
+    for (let i = 0; i < parallelThreadCount; i++) {
       const yPosition = -(maxThreadDistance / 2) + i * spacing;
       newNodes.push({
         group: 'nodes',
@@ -140,7 +149,7 @@ const NetworkGraphComponent = (props) => {
         data: {source: 'd' + counter, target: 'Destination'}
       });
 
-      for (let j = 0; j < props.concurrencyThreadCount; j++) {
+      for (let j = 0; j < concurrencyThreadCount; j++) {
         newNodes.push({
           group: 'edges',
           data: { source: 'n' + counter, target: 'Transfer Node', type:"concurrent"},
