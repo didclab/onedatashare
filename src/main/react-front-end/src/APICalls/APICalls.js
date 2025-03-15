@@ -63,7 +63,6 @@ export function handleRequestFailure(error, failureCallback){
 }
 
 export function statusHandle(response, callback) {
-	//console.log(response)
 	const statusFirstDigit = Math.floor(response.status / 100);
 	if (statusFirstDigit < 3) {
 		// 100-200 success code=
@@ -82,7 +81,6 @@ export function statusHandle(response, callback) {
 				callback(`Timeout 10000ms`)
 				return;
 			}
-			// console.log(response)
 			//const errorText = JSON.stringify(response.response.data);
 			callback(`500`);
 		}
@@ -292,7 +290,7 @@ export async function deleteCredential(credentialType,credential,accept, fail) {
 			statusHandle(response, callback);
 		})
 		.catch((error) => {
-			console.log(error)
+			console.error(error)
 			handleRequestFailure(error, fail);
 		});
 
@@ -300,8 +298,6 @@ export async function deleteCredential(credentialType,credential,accept, fail) {
 
 export async function saveEndpointCred(type, body, accept, fail) {
 	let callback = accept;
-	console.log(type + "being saved to endpoint cred");
-	console.log(body);
 	axios.post(apiCredUrl + type.toLowerCase(), body
 		).then((response) => {
 			if(!(response.status === 200))
@@ -333,9 +329,7 @@ export async function savedCredList(type, accept, fail) {
 	Desc: Extract all transfers for the user
 */
 export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fail) {
-	console.log(pageNo, pageSize, sortBy, order)
 	const sortKey = sortBy + "," + order
-	console.log(sortKey)
 	let callback = accept;
 	axios.get("/api/metadata/all/page/jobs", {
 		params : 
@@ -349,7 +343,6 @@ export async function getJobsForUser(pageNo, pageSize, sortBy, order, accept, fa
 			if(!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
-			console.log(response)
 		})
 		.catch((error) => {
 			handleRequestFailure(error, fail);
@@ -390,13 +383,12 @@ export async function getJobDetails(jobId, accept, fail) {
 		}
 	})
 	.then((response) => {
-		console.log(response)
 		if(!(response.status === 200))
 			callback = fail;
 		statusHandle(response, callback)
 	})
 	.catch((error) => {
-		console.log("Failed")
+		console.error("Failed")
 		handleRequestFailure(error, fail);
     });
 }
@@ -409,7 +401,7 @@ export async function getJobUpdatesForUser(jobId, accept, fail){
 		jobId = parseInt(jobId)
 	} 
 	catch (error) {
-		console.log("Input error, expected int")
+		console.error("Input error, expected int")
 	}
 	axios.get("/api/metadata/job",{
 		params :
@@ -426,7 +418,7 @@ export async function getJobUpdatesForUser(jobId, accept, fail){
 		}
 	})
 	.catch((error) => {
-		console.log(error)
+		console.error(error)
 		handleRequestFailure(error, fail);
     });
 }
@@ -463,7 +455,6 @@ export async function submitTransferRequest(source,dest,options,accept,fail){
 }
 export async function submit(src, srcEndpoint, dest, destEndpoint, options, accept, fail) {
 	let callback = accept;
-	// console.log(src)
 	let src0 = Object.assign({}, src);
 	let dest0 = Object.assign({}, dest);
 	if (Object.keys(src0.credential).length === 0) {
@@ -648,7 +639,7 @@ export async function registerUser(requestBody, errorCallback) {
 	return axios.post(REGISTRATION_ENDPOINT, requestBody)
 				.then((response) => {
 						if(response.data && response.data.status && response.data.status === 302) {
-							console.log("User already exists");
+							console.error("User already exists");
 							return {status : 302}
 						}
 						if(!(response.status === 200))

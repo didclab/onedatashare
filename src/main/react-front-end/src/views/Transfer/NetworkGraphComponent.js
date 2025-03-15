@@ -4,11 +4,22 @@ import cytoscape from 'cytoscape';
 
 const NetworkGraphComponent = (props) => {
   const [elements, setElements] = useState([        
-    { data: { id: 'Source', type: 'source' }, position: {x: 0, y: 0}, locked: true },
-    { data: {id: 'Transfer Node', type: 'source'}, position: {x: 175, y: 0}, locked: true},
-    { data: { id: 'Destination', type: 'destination' }, position: {x: 350, y: 0}, locked: true },
+    { data: { id: 'Source', label: props.sourceNodeName["uri"], type: 'source' }, position: {x: 0, y: 0}, locked: true },
+    { data: {id: 'Transfer Node', label: "ODS Transfer Service", type: 'source'}, position: {x: 175, y: 0}, locked: true},
+    { data: { id: 'Destination', label: props.destinationNodeName["uri"], type: 'destination' }, position: {x: 350, y: 0}, locked: true },
   ])
 
+  // This function keeps track of the source and destination node names
+  useEffect(() => {
+    setElements([
+      { data: { id: 'Source', label: props.sourceNodeName["uri"], type: 'source' }, position: {x: 0, y: 0}, locked: true },
+      { data: {id: 'Transfer Node', label: "ODS Transfer Service", type: 'source'}, position: {x: 175, y: 0}, locked: true},
+      { data: { id: 'Destination', label: props.destinationNodeName["uri"], type: 'destination' }, position: {x: 350, y: 0}, locked: true },
+    ]);
+  }, [props.sourceNodeName, props.destinationNodeName]); 
+
+
+  // This useEffect function creates the Network graph in Transfer settings
   useEffect(() => {
     const cy = cytoscape({
       container: document.getElementById('cy'), 
@@ -18,7 +29,7 @@ const NetworkGraphComponent = (props) => {
           selector: 'node[type="source"]',
           style: {
             'background-color': 'black',
-            'label': 'data(id)',
+            'label': 'data(label)',
             'color': 'black',
             'text-outline-color': 'black',
             'font-size': 5,
@@ -31,7 +42,7 @@ const NetworkGraphComponent = (props) => {
           selector: 'node[type="destination"]',
           style: {
             'background-color': 'black',
-            'label': 'data(id)',
+            'label': 'data(label)',
             'color': 'black',
             'text-outline-color': 'black',
             'font-size': 5,
@@ -167,7 +178,7 @@ const NetworkGraphComponent = (props) => {
     return () => {
       cy.destroy();
     };
-  }, [props]);
+  }, [props, elements]);
 
   return (
     <div

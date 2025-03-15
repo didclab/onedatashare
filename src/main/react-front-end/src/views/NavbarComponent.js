@@ -51,7 +51,6 @@ class NavbarComponent extends Component {
 
 	componentWillUnmount() {
 		this.unsubscribe();
-		// console.log(store);
 	}
 
 	Navbar = () => styled(AppBar)(props =>({

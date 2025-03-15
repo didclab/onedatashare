@@ -120,7 +120,6 @@ export default class RowElement extends React.Component {
                                     <TableCell><h15><strong>Write Count</strong></h15></TableCell>
                                 </TableHead>
                                 {resp.batchSteps.map((file) => {
-                                        console.log(file)
                                         return(
                                             <TableRow>
                                                 <TableCell>

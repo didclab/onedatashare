@@ -67,12 +67,10 @@ export async function globusEndpointDetail(endpointId, accept, fail) {
  * @param {String} id 
  */
 export async function globusEndpointActivateWeb(id) {
-    console.log("In globus activate web");
     axios.get(globusBaseUrl + 'endpoint-activate/' + id)
         .then((response) => {
             if (!(response.status === 200)){
             }
-            console.log(`Enpoint needs to be activated on ${response.data.url}`)
             window.open(response.data.url);
         })
         .catch((error) => {

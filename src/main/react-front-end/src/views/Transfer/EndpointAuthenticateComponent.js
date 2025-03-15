@@ -201,7 +201,6 @@ export default class EndpointAuthenticateComponent extends Component {
 	handleUrlChange = event => {
 
 		let url = event.target.value;
-		console.log(url);
 		let portNum = this.state.portNum;
 
 		// Count the number of colons (2nd colon means the URL contains the portnumber)
@@ -239,7 +238,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		const type = showDisplay[getName(endpoint).toLowerCase()].id;
 		this.props.setLoading(true);
 
-		console.log(`Url is ${url}`);
 		// if((type == showDisplay.ftp.label || type == showDisplay.sftp.label) && (url.match(/:/g) || []).length < 2)
 		// {
 		// 	url+=`:${portNum}`
@@ -270,8 +268,6 @@ export default class EndpointAuthenticateComponent extends Component {
 				accountId: credential.credId,
 			},
 			(response) => {
-				console.log("saved endpoint cred")
-				console.log("the type is " + type);
 				listFiles(url, endpointSet, null, (succ) =>
 					{
 						this.props.loginSuccess(endpointSet);
@@ -506,7 +502,6 @@ export default class EndpointAuthenticateComponent extends Component {
 		if(loginType === showType.s3){
 			let combinedUrl = generateURLForS3(url, this.state.portNum);
 			const credId = combinedUrl.toString();
-			console.log(combinedUrl);
 			this.endpointCheckin(combinedUrl,
 				this.state.portNum,
 				{type: loginType, credId: credId, name: username, password: password, encryptedSecret: "", uri: combinedUrl},
@@ -740,7 +735,7 @@ export default class EndpointAuthenticateComponent extends Component {
 
 						<ValidatorForm
 							ref="form"
-							onError={errors => console.log(errors)}>
+							onError={errors => console.error(errors)}>
 
 							<TextValidator
 								required={!typesWithOptionalUserName.includes(loginType)}
@@ -812,7 +807,7 @@ export default class EndpointAuthenticateComponent extends Component {
 								<div style={{ paddingLeft: '3%', paddingRight: '3%', width: "100%" }}>
 									<ValidatorForm
 										ref="form"
-										onError={errors => console.log(errors)}>
+										onError={errors => console.error(errors)}>
 										<TextValidator
 											style={{width: "100%"}}
 											id={endpoint.side+"SFTP_RSA"}
@@ -859,7 +854,7 @@ export default class EndpointAuthenticateComponent extends Component {
 							<ValidatorForm
 								ref="form"
 								onSubmit={authFunction}
-								onError={errors => console.log(errors)}>
+								onError={errors => console.error(errors)}>
 
 			    		<TextValidator
 								required

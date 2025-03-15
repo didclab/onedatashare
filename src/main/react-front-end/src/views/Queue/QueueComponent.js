@@ -186,7 +186,7 @@ class QueueComponent extends Component {
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Error in cancel request to API layer');
+			console.error('Error in cancel request to API layer');
 		});
 	}
 
@@ -197,7 +197,7 @@ class QueueComponent extends Component {
 		}, () => {
 			//failed
 			var msg = 'Restart job failed since either or both credentials of the job do not exist'
-			console.log(msg)
+			console.error(msg)
 			eventEmitter.emit("errorOccured", msg)
 		});
 	}
@@ -208,7 +208,7 @@ class QueueComponent extends Component {
 			this.queueFunc()
 		}, () => {
 			//failed
-			console.log('Error in delete job request to API layer')
+			console.error('Error in delete job request to API layer')
 		})
 	}
 
