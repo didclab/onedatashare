@@ -612,10 +612,10 @@
  
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
-             <FormLabel component="legend"><ToggleHeader>Concurrency Thread Count</ToggleHeader></FormLabel>
+             <FormLabel component="legend"><ToggleHeader>Concurrency Count</ToggleHeader></FormLabel>
              <TextField
                  id="outlined-number"
-                 label={<FieldLabel>Concurrency Thread Count</FieldLabel>}
+                 label={<FieldLabel>Concurrency Count</FieldLabel>}
                  type="number"
                  InputLabelProps={{
                    shrink: true,

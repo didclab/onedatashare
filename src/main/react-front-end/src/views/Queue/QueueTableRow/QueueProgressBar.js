@@ -11,7 +11,6 @@ const QueueProgressBar = ({
         let totalJobSize = resp.jobParameters.jobSize
         let totalWrote = 0
         for (const file of resp.batchSteps) {
-            // console.log(file.writeCount)
             let temp = resp.jobParameters[file.step_name]
             try {
                 temp = JSON.parse(temp)
@@ -21,7 +20,6 @@ const QueueProgressBar = ({
                 continue
             }
         }
-        // console.log(filelist)
         return Math.ceil((totalWrote / totalJobSize) * 100)
     }, [resp])
 
