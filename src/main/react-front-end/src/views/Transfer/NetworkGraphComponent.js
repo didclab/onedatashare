@@ -18,9 +18,9 @@ const NetworkGraphComponent = (props) => {
     ]);
   }, [props.sourceNodeName, props.destinationNodeName]); 
 
+  
 
-  // This useEffect function creates the Network graph in Transfer settings
-  useEffect(() => {
+  function createGraph() {
     const cy = cytoscape({
       container: document.getElementById('cy'), 
       elements: elements,
@@ -111,15 +111,16 @@ const NetworkGraphComponent = (props) => {
       parallelThreadCount = 10
     }
 
-    if (props.concurrencyThreadCount > 10) {
+    if (concurrencyThreadCount > 10) {
       concurrencyThreadCount = 10
     }
-    const maxThreadDistance = parallelThreadCount * 5;
-    const spacing = maxThreadDistance / (parallelThreadCount - 1);
+    
+    const maxThreadDistance = concurrencyThreadCount * 5;
+    const spacing = maxThreadDistance / (concurrencyThreadCount - 1);
     let counter = 0;
   
     const newNodes = [];
-    if (props.parallelThreadCount == 1) {
+    if (props.concurrencyThreadCount == 1) {
       newNodes.push({
         group: 'nodes',
         position: { x: 87.5, y: 0 },
@@ -139,7 +140,7 @@ const NetworkGraphComponent = (props) => {
         data: {source: 'd' + counter, target: 'Destination' }
       });
     }
-    for (let i = 0; i < parallelThreadCount; i++) {
+    for (let i = 0; i < concurrencyThreadCount; i++) {
       const yPosition = -(maxThreadDistance / 2) + i * spacing;
       newNodes.push({
         group: 'nodes',
@@ -160,7 +161,7 @@ const NetworkGraphComponent = (props) => {
         data: {source: 'd' + counter, target: 'Destination'}
       });
 
-      for (let j = 0; j < concurrencyThreadCount; j++) {
+      for (let j = 0; j < parallelThreadCount; j++) {
         newNodes.push({
           group: 'edges',
           data: { source: 'n' + counter, target: 'Transfer Node', type:"concurrent"},
@@ -177,6 +178,16 @@ const NetworkGraphComponent = (props) => {
 
     return () => {
       cy.destroy();
+    };
+  }
+
+  // This useEffect function creates the Network graph in Transfer settings
+  useEffect(() => {
+    createGraph();
+
+    window.addEventListener('resize', createGraph);
+    return () => {
+      window.removeEventListener('resize', createGraph);
     };
   }, [props, elements]);
 
