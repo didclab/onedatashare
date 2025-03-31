@@ -99,13 +99,19 @@ class NavbarComponent extends Component {
 								{!this.state.login &&
 								<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 								}
+								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Support
+								</Link>
+								<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Terms
+								</Link>
+								<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Policy
+								</Link>
 								{this.state.login &&
 								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
 									<span>Log out</span>
 								</p>}
-								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
-									Support
-								</Link>
 								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
 							</Box>
 						</Hidden>
@@ -148,6 +154,21 @@ class NavbarComponent extends Component {
 									<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 								</ListItem>
 								}
+								<ListItem onClick={() => this.toggleMobileMenu()}>
+									<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+										Support
+									</Link>
+								</ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
+									<Link to={siteURLS.termsUrl} href={siteURLS.termsUrl} className={"navbarButton"}>
+										Terms
+									</Link>
+								</ListItem>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
+									<Link to={siteURLS.policyUrl} href={siteURLS.policyUrl} className={"navbarButton"}>
+										Support
+									</Link>
+								</ListItem>
 								{this.state.login &&
 								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
@@ -155,11 +176,6 @@ class NavbarComponent extends Component {
 									</p>
 								</ListItem>
 								}
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
-										Support
-									</Link>
-								</ListItem>
 
 							</List>
 
