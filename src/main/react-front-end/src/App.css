@@ -110,6 +110,7 @@
   /* outline: red solid 1px; */
   align-items: center;
   gap: 5%;
+  padding: 5px;
 }
 
 .navbarButton-active {
@@ -148,24 +149,34 @@
   cursor: pointer;
 }
 
-.navbarButton,
-.navbarButton:visited,
 .navbarButton:hover,
 .navbarButton:focus,
 .navbarButton:active {
-  color: #F2F2F2;
+  color: #3966f0;
   text-decoration: none;
   cursor: pointer;
 }
 
-.navbarButto-active,
+.navbarButton:hover .icon,
+.navbarButton:focus .icon,
+.navbarButton:active .icon {
+  border-radius: 50%;
+  color: #3966f0;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+.navbarButton-active,
 .navbarButton-active:visited,
 .navbarButton-active:hover,
 .navbarButton-active:focus,
 .navbarButton-active:active {
+  border-radius: 5px;
   color: #3966f0;
   text-decoration: none;
   cursor: pointer;
+  background-color: #F2F2F2;
 }
 
 .homepage_section{
