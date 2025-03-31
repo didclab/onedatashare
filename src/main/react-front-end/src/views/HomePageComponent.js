@@ -56,7 +56,7 @@ export default class HomePageComponent extends Component {
 										title={data.title}
 										text ={data.text}
 										key={`home-icon-${i}`}
-										img={require('./HomePage' + data.img)}
+										img={require('../assets' + data.img)}
 										imgAltTxt={data.imgAltTxt} /> );
 		}
 		return retVal;
@@ -66,7 +66,7 @@ export default class HomePageComponent extends Component {
 		let retVal = [];
 		for (let i=0; i<TripleIconInfo.length; i+=1) {
 			let data = TripleIconInfo[i];
-			retVal.push( <TripleIconSlice img={require('./HomePage' + data.img)}
+			retVal.push( <TripleIconSlice img={require('../assets' + data.img)}
 										  title={data.title}
 										  key={`triple-icon-${i}`}
 										  imgAltTxt={data.imgAlt}/> );

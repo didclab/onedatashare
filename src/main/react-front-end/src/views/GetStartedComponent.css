@@ -3,7 +3,7 @@
     .adjustTop{
         /* For Homepage, reverting padding-top applied to entire page using 
         .content class in MainComponent.css  */
-        margin-top : -5%;
+        margin-top : 64px;
     }
 
     .adjustContent{

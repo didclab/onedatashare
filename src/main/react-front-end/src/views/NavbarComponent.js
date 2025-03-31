@@ -24,6 +24,10 @@
 import React, { Component,  } from 'react';
 import {AppBar, IconButton, Toolbar, Grid, Hidden, styled, Box, Drawer, List, ListItem, Divider} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
+import Logo from "../assets/images/logo.png";
+import { ReactComponent as TransferIcon } from "../assets/images/transfer.svg";
+import { ReactComponent as ScheduleIcon } from "../assets/images/schedule.svg";
+import { ReactComponent as HistoryIcon}  from "../assets/images/history.svg";
 
 
 import { Link } from 'react-router-dom';
@@ -54,42 +58,48 @@ class NavbarComponent extends Component {
 		// console.log(store);
 	}
 
-	Navbar = () => styled(AppBar)(props =>({
-		position: "relative",
-		backgroundColor: "#323840",
-		zIndex: 1400
-	}))
-
-
 	toggleMobileMenu(){
 		this.setState((prevState) => ({
 			mobileMenu: !prevState.mobileMenu
 		}));
 	}
 
+	
+
 
 	render() {
-		const Navigation = this.Navbar();
 		return (
 			<React.Fragment>
-				<Navigation>
-					<Toolbar style={{marginLeft: "1%"}}>
+				<AppBar className='navbar-root' style={{backgroundColor: "#172753"}}>
+					<Toolbar>
 						<Grid container className={"leftNav"} alignItems={"center"}>
-							<Link to={"/"} href={"/"} color={"inherit"} className={"navbarHome"}><h4>OneDataShare</h4></Link>
-
 							<Hidden smDown>
-								{(this.state.login) &&
-
-								<Box display="flex" width={"50%"}>
-									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
-									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
-									<Link to={siteURLS.historyPageUrl} href={siteURLS.historyPageUrl} id="NavHistory" className={"navbarButton"}>History</Link>
+								<Box display="flex" width={"50%"} justifyContent={"flex-start"} alignItems={"center"}>
+									<Link to={"/"} className={"navbarHome"}>
+										<img className="navbarLogo" src={Logo} alt="OneDataShare Logo" />
+										<h4 className="navbarName">OneDataShare</h4>
+									</Link>
+									{(this.state.login) &&
+										<React.Fragment>
+											<Link to={siteURLS.transferPageUrl} id="NavTransfer" className={`navbarButton${window.location.pathname === "/transfer" ? "-active": ""}`} style={{ textDecoration: 'none'}}>
+												<TransferIcon className='icon'/>
+												{"Transfer"}
+											</Link>
+											<Link to={siteURLS.queuePageUrl} id="NavQueue" className={`navbarButton${window.location.pathname === "/queue" ? "-active": ""}`} style={{ textDecoration: 'none' }}>
+												<ScheduleIcon className="icon"/>
+												{"Queue"}
+											</Link>
+											<Link to={siteURLS.historyPageUrl} id="NavHistory" className={`navbarButton${window.location.pathname === "/history" ? "-active": ""}`} style={{ textDecoration: 'none' }}>
+												<HistoryIcon className="icon"/>
+												{"History"}
+											</Link>
+										</React.Fragment>
+									}
 								</Box>
-								}
 							</Hidden>
 						</Grid>
 						<Hidden smDown>
-							<Box className={"rightNav"}>
+							<Grid className={"rightNav"}>
 								{this.state.login &&
 								<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
 								}
@@ -107,7 +117,7 @@ class NavbarComponent extends Component {
 									Support
 								</Link>
 								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
-							</Box>
+							</Grid>
 						</Hidden>
 						<Hidden mdUp>
 							<IconButton onClick={() => this.toggleMobileMenu()} >
@@ -115,7 +125,7 @@ class NavbarComponent extends Component {
 							</IconButton>
 						</Hidden>
 					</Toolbar>
-				</Navigation>
+				</AppBar>
 				<Hidden mdUp>
 					<Drawer anchor={"top"} open={this.state.mobileMenu} onClose={() => this.toggleMobileMenu()} style={{flexShrink: 0}}>
 						<Toolbar/>

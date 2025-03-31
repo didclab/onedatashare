@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Ubuntu');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+
 
 /************************************/
 /*                                  */
@@ -36,14 +37,22 @@
 /*                                         */
 /*******************************************/
 
-.navbar_navbar{
-  width: 100%;
-  background-color: black;
+
+.navbar-root{
+  display: grid;
+  width: 100vw;
+  grid-template-columns: repeat(2, 1fr);
+  height: 64px;
+  font-family: 'Inter', sans-serif;
+  font-weight: bold;
 }
 
 .leftNav{
   display: flex;
+  flex-direction: row;
   flex-grow: 1;
+  justify-content: left;
+  width: 50%;
 }
 
 .rightNav{
@@ -51,41 +60,113 @@
   justify-content: flex-end;
   margin-left: auto;
   width: 50%;
+  /* outline: red solid 1px; */
 }
 
 .navbarHome{
-  color: #ccd6e3;
+  display: flex;
+  flex-direction: row;
+  font-weight: bold;
+  /* outline: red solid 1px; */
+  align-items: center;
+  gap: 5%;
+  margin: 0 5%;
   text-decoration: none;
-  display: inline-block;
-  margin: 0 3%;
+}
+
+.navbarHome h4 {
+  font-family: 'Inter', sans-serif;
+  font-weight: bold;
+  color: white;
+}
+
+.navbarLogo {
+  width: 50px;
+  height: 50px;
+  color: black;
+  /* filter: invert(100%); */
+  object-fit: contain;
 }
 
 .navbarHome:hover{
-  color: #F2F2F2;
   text-decoration: none;
+    /* outline: red solid 1px; */
+    
 }
 
-.navbarHome:visited .navbarHome:active .navbarHome:link{
-  text-decoration: none;
-}
-
-.navbarButton{
-  color: #ccd6e3;
-  text-decoration: none;
-  display: inline-block;
+.navbarButton {
+  display: flex;
+  color: #FFFFFF;
   margin: 0 5%;
+  /* outline: red solid 1px; */
+  align-items: center;
+  gap: 5%;
 }
+
+.navbarButton-active {
+  display: flex;
+  color: #3966f0;
+  margin: 0 5%;
+  /* outline: red solid 1px; */
+  align-items: center;
+  gap: 5%;
+}
+
+.navbarButton-active {
+  display: flex;
+  color: #3966f0;
+  margin: 0 5%;
+  /* outline: red solid 1px; */
+  align-items: center;
+  gap: 5%;
+}
+
+
+.navbarButton-active .icon {
+  width: 20px;
+  height: auto;
+  color: #3966f0;
+  pointer-events: none;
+}
+
+.navbarButton .icon {
+  width: 20px;
+  height: auto;
+  color: white;
+  /* pointer-events: none; */
+}
+
 .navbarButton:hover{
   color: #F2F2F2;
   text-decoration: none;
   cursor: pointer;
 }
 
-.navbarButton:visited .navbarButton:active .navbarButton:link{
+.navbarButton:hover .icon{
+  color: #F2F2F2;;
   text-decoration: none;
+  cursor: pointer;
 }
 
+.navbarButton,
+.navbarButton:visited,
+.navbarButton:hover,
+.navbarButton:focus,
+.navbarButton:active {
+  color: #F2F2F2;
+  text-decoration: none;
+  cursor: pointer;
+}
 
+.navbarButto-active,
+.navbarButton-active:visited,
+.navbarButton-active:hover,
+.navbarButton-active:focus,
+.navbarButton-active:active {
+  color: #3966f0;
+  text-decoration: none;
+  cursor: pointer;
+}
 
 .homepage_section{
   width: 100%;
