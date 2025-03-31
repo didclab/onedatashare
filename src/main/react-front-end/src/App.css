@@ -105,7 +105,7 @@
 
 .navbarButton-active {
   display: flex;
-  color: #3966f0;
+  color: #172753;
   margin: 0 5%;
   /* outline: red solid 1px; */
   align-items: center;
@@ -113,20 +113,10 @@
   padding: 5px;
 }
 
-.navbarButton-active {
-  display: flex;
-  color: #3966f0;
-  margin: 0 5%;
-  /* outline: red solid 1px; */
-  align-items: center;
-  gap: 5%;
-}
-
-
 .navbarButton-active .icon {
   width: 20px;
   height: auto;
-  color: #3966f0;
+  color: #172753;
   pointer-events: none;
 }
 
@@ -173,7 +163,7 @@
 .navbarButton-active:focus,
 .navbarButton-active:active {
   border-radius: 5px;
-  color: #3966f0;
+  color: #172753;
   text-decoration: none;
   cursor: pointer;
   background-color: #F2F2F2;
