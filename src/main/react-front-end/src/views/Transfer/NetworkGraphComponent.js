@@ -18,6 +18,16 @@ const NetworkGraphComponent = (props) => {
     ]);
   }, [props.sourceNodeName, props.destinationNodeName]); 
 
+    // This useEffect function creates the Network graph in Transfer settings
+    useEffect(() => {
+      createGraph();
+  
+      window.addEventListener('resize', createGraph);
+      return () => {
+        window.removeEventListener('resize', createGraph);
+      };
+    }, [props, elements]);
+
   
 
   function createGraph() {
@@ -180,16 +190,6 @@ const NetworkGraphComponent = (props) => {
       cy.destroy();
     };
   }
-
-  // This useEffect function creates the Network graph in Transfer settings
-  useEffect(() => {
-    createGraph();
-
-    window.addEventListener('resize', createGraph);
-    return () => {
-      window.removeEventListener('resize', createGraph);
-    };
-  }, [props, elements]);
 
   return (
     <div
