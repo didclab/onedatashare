@@ -187,6 +187,15 @@ class NavbarComponent extends Component {
 								{!this.state.login &&
 								<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 								}
+								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Support
+								</Link>
+								<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Terms
+								</Link>
+								<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Policy
+								</Link>
 								{this.state.login &&
 								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
 									<span style={{whiteSpace: "nowrap"}}>Log out</span>
