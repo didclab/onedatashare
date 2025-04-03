@@ -78,7 +78,6 @@ class App extends Component {
 
     return (
       <div>
-
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
           style={{marginTop: "20px", zIndex: 1500}}

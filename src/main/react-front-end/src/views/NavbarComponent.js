@@ -53,6 +53,22 @@ class NavbarComponent extends Component {
 
 	}
 
+	componentDidMount() {
+		window.addEventListener("resize", () => {
+			if (window.innerWidth >= 960 && this.state.mobileMenu) {
+				this.toggleMobileMenu()
+			}
+		})
+
+		return () => {
+			window.removeListener("resize", () => {
+				if (window.innerWidth >= 960 && this.state.mobileMenu) {
+					this.state.toggleMobileMenu()
+				}
+			})
+		}
+	}
+
 	componentWillUnmount() {
 		this.unsubscribe();
 		// console.log(store);
@@ -64,21 +80,81 @@ class NavbarComponent extends Component {
 		}));
 	}
 
+	renderMobileMenu() {
+		return (
+				<Drawer anchor={"top"} open={this.state.mobileMenu} onClose={() => this.toggleMobileMenu()} BackdropProps={{style: { zIndex: 1000}}}>
+					<div className={"drawerContainer"}>
+						<List>
+							{this.state.login && 
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
+							</ListItem>
+							}
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+							{this.state.login &&
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
+							</ListItem>
+							}
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+							{this.state.login && 
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
+							</ListItem>
+							}
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+							{!this.state.login &&
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarButton"}>Sign in</Link>
+							</ListItem>
+							}
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+							{!this.state.login &&
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
+							</ListItem>
+							}
+							{this.state.login &&
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={"navbarButton"}>
+									<span style={{textwrap: "none"}}>Log out</span>
+								</Link>
+							</ListItem>
+							}
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+							<ListItem onClick={() => this.toggleMobileMenu()}>
+								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
+									Support
+								</Link>
+							</ListItem>
+							{this.state.login && <Divider style={{backgroundColor: "#FFFFFF"}} variant={"middle"}/>}
+						</List>
+					</div>
+				</Drawer>
+		)
+	}
+
 	
 
 
 	render() {
 		return (
 			<React.Fragment>
-				<AppBar className='navbar-root' style={{backgroundColor: "#172753"}}>
+				<AppBar className='navbar-root' style={{backgroundColor: "#172753", zIndex: 1400}}>
 					<Toolbar>
 						<Grid container className={"leftNav"} alignItems={"center"}>
+
+							{/*Home Button and OneDatashare logo */}
+							<Link to={"/"} className={"navbarHome"} onClick={() => {this.state.mobileMenu ? this.toggleMobileMenu() : <></>}}>
+											<img className="navbarLogo" src={Logo} alt="OneDataShare Logo" />
+											<h4 className="navbarName">OneDataShare</h4>
+							</Link>
+
+							
+
+							{/* Left side of the navbar hidden on small screen*/}
 							<Hidden smDown>
 								<Box display="flex" width={"50%"} justifyContent={"flex-start"} alignItems={"center"}>
-									<Link to={"/"} className={"navbarHome"}>
-										<img className="navbarLogo" src={Logo} alt="OneDataShare Logo" />
-										<h4 className="navbarName">OneDataShare</h4>
-									</Link>
 									{(this.state.login) &&
 										<React.Fragment>
 											<Link to={siteURLS.transferPageUrl} id="NavTransfer" className={`navbarButton${window.location.pathname === "/transfer" ? "-active": ""}`} style={{ textDecoration: 'none'}}>
@@ -98,6 +174,8 @@ class NavbarComponent extends Component {
 								</Box>
 							</Hidden>
 						</Grid>
+
+
 						<Hidden smDown>
 							<Grid className={"rightNav"}>
 								{this.state.login &&
@@ -111,72 +189,23 @@ class NavbarComponent extends Component {
 								}
 								{this.state.login &&
 								<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
-									<span>Log out</span>
+									<span style={{whiteSpace: "nowrap"}}>Log out</span>
 								</p>}
 								<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
 									Support
 								</Link>
-								{/*<a href={endpoint_db} className={"navbarButton"} id="NavEndpoint">Authorization Database</a>*/}
 							</Grid>
 						</Hidden>
+
+
 						<Hidden mdUp>
 							<IconButton onClick={() => this.toggleMobileMenu()} >
-								<MenuIcon style={{color: "white", fontSize: "20px"}}/>
+								<MenuIcon style={{color: "white", fontSize: "40px"}}/>
 							</IconButton>
 						</Hidden>
 					</Toolbar>
 				</AppBar>
-				<Hidden mdUp>
-					<Drawer anchor={"top"} open={this.state.mobileMenu} onClose={() => this.toggleMobileMenu()} style={{flexShrink: 0}}>
-						<Toolbar/>
-						<div className={"drawerContainer"}>
-							<List>
-								{this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={"navbarButton"}>{this.state.email}</Link>
-								</ListItem>
-								}
-								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
-								{this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.transferPageUrl} href={siteURLS.transferPageUrl} id="NavTransfer" className={"navbarButton"}>Transfer</Link>
-								</ListItem>
-								}
-								{this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.queuePageUrl} href={siteURLS.queuePageUrl} id="NavQueue" className={"navbarButton"}>Queue</Link>
-								</ListItem>
-								}
-								{this.state.login && <Divider style={{backgroundColor: "#676c73"}} variant={"middle"}/>}
-								{!this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarButton"}>Sign in</Link>
-								</ListItem>
-								}
-								{!this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
-								</ListItem>
-								}
-								{this.state.login &&
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<p id="NavLogout" onClick={()=>{logout()}} className={"navbarButton"}>
-										<span>Log out</span>
-									</p>
-								</ListItem>
-								}
-								<ListItem onClick={() => this.toggleMobileMenu()}>
-									<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={"navbarButton"}>
-										Support
-									</Link>
-								</ListItem>
-
-							</List>
-
-						</div>
-
-					</Drawer>
-				</Hidden>
+				{this.renderMobileMenu()}
 			</React.Fragment>
 
 		);

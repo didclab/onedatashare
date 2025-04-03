@@ -40,11 +40,13 @@
 
 .navbar-root{
   display: grid;
+  position: relative;
   width: 100vw;
   grid-template-columns: repeat(2, 1fr);
   height: 64px;
   font-family: 'Inter', sans-serif;
   font-weight: bold;
+  z-index: 1400;
 }
 
 .leftNav{
@@ -182,8 +184,11 @@
 }
 
 .drawerContainer {
-  background-color: #323840;
-  overflow: auto
+  margin-top: 64px;
+  background-color: #172753;
+  width: 100vw;
+  height: 50vh;
+
 }
 
 /***************************/
