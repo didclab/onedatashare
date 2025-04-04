@@ -30,6 +30,11 @@ import Logo from "../assets/images/logo.png";
 import { ReactComponent as TransferIcon } from "../assets/images/transfer.svg";
 import { ReactComponent as ScheduleIcon } from "../assets/images/schedule.svg";
 import { ReactComponent as HistoryIcon}  from "../assets/images/history.svg";
+import { ReactComponent as AccountIcon} from "../assets/images/account.svg";
+import { ReactComponent as PolicyIcon} from "../assets/images/policy.svg";
+import { ReactComponent as TermsIcon} from "../assets/images/terms.svg";
+import { ReactComponent as SupportIcon} from "../assets/images/support.svg";
+import { ReactComponent as LogoutIcon} from "../assets/images/logout.svg";
 
 
 import { Link } from 'react-router-dom';
@@ -124,21 +129,21 @@ class NavbarComponent extends Component {
 					<div className={`drawerContainer${this.state.isMobile ? "-mobile": ""}`}>
 						{this.state.login && (	
 							<List className={`drawerContainer${this.state.isMobile ? "-mobile": ""}`} style={{width:"100%"}}>
-								<ListItem style={{justifyContent: "center"}} onClick={() => this.toggleMobileMenu()}>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={siteURLS.transferPageUrl} id="NavTransfer" className={`navbarButton-mobile${window.location.pathname === "/transfer" ? "-active": ""}`} style={{ textDecoration: 'none'}}>
 										<TransferIcon className='icon'/>
 										{"Transfer"}
 									</Link>
 								</ListItem>
 
-								<ListItem style={{justifyContent: "center"}} onClick={() => this.toggleMobileMenu()}>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={siteURLS.queuePageUrl} id="NavQueue" className={`navbarButton-mobile${window.location.pathname === "/queue" ? "-active": ""}`} style={{ textDecoration: 'none', gap:"2%" }}>
 										<ScheduleIcon className="icon"/>
 										{"Queue"}
 									</Link>
 								</ListItem>
 
-								<ListItem style={{justifyContent: "center"}} onClick={() => this.toggleMobileMenu()}>
+								<ListItem onClick={() => this.toggleMobileMenu()}>
 									<Link to={siteURLS.historyPageUrl} id="NavHistory" className={`navbarButton-mobile${window.location.pathname === "/history" ? "-active": ""}`} style={{ textDecoration: 'none' }}>
 										<HistoryIcon className="icon"/>
 										{"History"}
@@ -154,20 +159,20 @@ class NavbarComponent extends Component {
 
 	renderUserMenu() {
 		return (
-			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { minWidth: "300px", width: "15%", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
+			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { maxWidth: "350px", minWidth: "300px", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
 				<div className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 					<List className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 						{this.state.login &&
 							<React.Fragment>
 								<ListItem onClick={() => this.toggleUserMenu()}>
 									<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-										{!this.state.isMobile ? (<React.Fragment><ScheduleIcon className="icon" />{"Account Details"}</React.Fragment>) : (this.state.email)}
+										{!this.state.isMobile ? (<React.Fragment><AccountIcon className="icon" style={{width: "30px"}}/>{"Account Details"}</React.Fragment>) : (this.state.email)}
 									</Link>
 								</ListItem>
 								<Hidden mdUp>
 									<ListItem onClick={() => this.toggleUserMenu()}>
 										<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-											<ScheduleIcon className="icon"/>
+											<LogoutIcon className="icon"/>
 											<span style={{textwrap: "none"}}>Log out</span>
 										</Link>
 									</ListItem>
@@ -177,21 +182,21 @@ class NavbarComponent extends Component {
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<ScheduleIcon className="icon"/>
+								<TermsIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
 								Terms
 							</Link>
 						</ListItem>
 						
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<ScheduleIcon className="icon" />
+								<PolicyIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
 								Policy
 							</Link>
 						</ListItem>
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<ScheduleIcon className="icon" />
+								<SupportIcon className="icon" style={{color: "white", width: "30px"}}/>
 								Support
 							</Link>
 						</ListItem>
@@ -213,6 +218,7 @@ class NavbarComponent extends Component {
 						</IconButton>
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={"navbarButton"}>
+								<LogoutIcon className="icon" style={{width: "40px"}}/>
 								<span style={{textwrap: "none"}}>Log out</span>
 							</Link>
 						</ListItem>
