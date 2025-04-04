@@ -226,7 +226,7 @@ class NavbarComponent extends Component {
 				}
 				{!this.state.login &&
 					<React.Fragment>
-						<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarButton"}>Sign in</Link>
+						<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarSignIn"}>Sign in</Link>
 						<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 					</React.Fragment>
 				}
