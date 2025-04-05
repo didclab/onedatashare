@@ -170,7 +170,7 @@ class NavbarComponent extends Component {
 									</Link>
 								</ListItem>
 								<Hidden mdUp>
-									<ListItem onClick={() => this.toggleUserMenu()}>
+									<ListItem onClick={() => this.closeUserMenu()}>
 										<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
 											<LogoutIcon className="icon"/>
 											<span style={{textwrap: "none"}}>Log out</span>
