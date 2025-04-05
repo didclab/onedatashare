@@ -216,7 +216,7 @@ class NavbarComponent extends Component {
 							<AccountCircle style={{color: "white", fontSize: "40px"}}/>
 							<div className={`navbarButton`}>{this.state.email}</div>
 						</IconButton>
-						<ListItem onClick={() => this.toggleUserMenu()}>
+						<ListItem onClick={() => this.closeUserMenu()}>
 							<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={"navbarButton"}>
 								<LogoutIcon className="icon" style={{width: "40px"}}/>
 								<span style={{textwrap: "none"}}>Log out</span>
