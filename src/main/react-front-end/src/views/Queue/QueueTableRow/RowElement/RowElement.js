@@ -13,7 +13,15 @@ import moment from "moment";
 import InfoRow from "./InfoRow";
 
 export default class RowElement extends React.Component {
-
+    constructor(props) {
+        super(props);
+        this.state = {
+            bar: null,
+            actions: null,
+            speed: 0,
+        };
+    }
+    
     infoRow() {
         return (
             <InfoRow
@@ -36,6 +44,7 @@ export default class RowElement extends React.Component {
             butts.push(
                 log[i] &&
                 <JobActionButton
+                    key={jobID}
                     icon={icons[i]}
                     jobId={jobID}
                     onClick={events[i]}
@@ -54,47 +63,65 @@ export default class RowElement extends React.Component {
         );
     }
 
-    render() {
-        const {resp, infoVisible} = this.props
-        let bar = (<QueueProgressBar status={resp.status} resp={resp}/>);
-        let actions = (this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted));
-        let difference = (Date.parse(resp.endTime) - Date.parse(resp.startTime))/1000;
-        let speed = parseFloat((resp.jobParameters.jobSize/1000000)*8)/(difference);
-        if (isNaN(speed))
-        {
+    calculateState = () => {
+        const { resp } = this.props;
+        
+        // Calculate progress bar and actions
+        let bar = (<QueueProgressBar status={resp.status} resp={resp} />);
+        let actions = this.renderActions(resp.owner, resp.job_id, resp.status, resp.deleted);
+
+        // Calculate speed
+        let speed = 0;
+        for (let element of resp.batchSteps) {
+            const fileInfo = JSON.parse(resp.jobParameters[element.step_name]);
+            let sizeWritten = element.writeCount * fileInfo.chunkSize * 8; // Convert bytes to bits
+            let time_difference = (Date.parse(resp.endTime) ? Date.parse(resp.endTime) : Date.now() - Date.parse(resp.startTime)) / 1000;
+            speed += (sizeWritten / time_difference) / resp.batchSteps.length;
+        }
+
+        if (isNaN(speed)) {
             speed = 0;
         }
 
+        // Update the state with calculated values
+        this.setState({ bar, actions, speed });
+    }
+
+    componentDidMount() {
+        this.calculateState();
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.resp !== this.props.resp || prevProps.infoVisible !== this.props.infoVisible) {
+            this.calculateState();
+        }
+    }
+
+    render() {
+        const {resp, infoVisible} = this.props
+        const {bar, actions, speed} = this.state;
+
         let time = moment(resp.startTime).fromNow();
-        let admin = this.props.adminPg;
         return (
             <React.Fragment>
                 <TableRow className={"QueueRow"} style={{alignSelf: "stretch"}}>
                     <Hidden mdDown>
-                        { admin &&
-                        <TableCell className={"userCell-admin queueBodyCell"}>
-                            <p>{resp.owner}</p>
-                        </TableCell> }
-                        <TableCell className={"idCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"idCell" + " queueBodyCell"}>
                             <p>{resp.id}</p>
                         </TableCell>
-                        <TableCell className={"progressCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"progressCell" + " queueBodyCell"}>
                             {bar}
                         </TableCell>
-                        <TableCell className={"speedCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"speedCell" + " queueBodyCell"}>
                             <p>{humanReadableSpeed(speed)}</p>
                         </TableCell>
-                        <TableCell className={"sourceCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"sourceCell" + " queueBodyCell"}>
                             <p>{resp.jobParameters.sourceCredential}</p>
                         </TableCell>
-                        <TableCell className={"destinationCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"destinationCell" + " queueBodyCell"}>
                             <p>{resp.jobParameters.destCredential}</p>
                         </TableCell>
-                        { this.props.adminPg &&
-                        <TableCell className={"startCell-admin queueBodyCell"}>
-                            <p>{time}</p>
-                        </TableCell>}
-                        <TableCell className={"actionCell" + (admin ? "-admin" : "") + " queueBodyCell"}>
+                        <TableCell className={"actionCell" + " queueBodyCell"}>
                             {actions}
                         </TableCell>
                     </Hidden>

@@ -22,13 +22,24 @@
 
 
 export function humanReadableSpeed(size) {
-	if (size < 1024) 
-		return parseFloat(size.toFixed(2)) + ' Mb/s';
-    let i = Math.floor(Math.log(size) / Math.log(1024));
-	let num = (size / Math.pow(1024, i));
-    let round = Math.round(num);
-    num = round < 10 ? num.toFixed(2) : round < 100 ? num.toFixed(1) : round;
-    num = num*(1);
-    num = parseFloat(num.toFixed(4));
-    return `${num} ${'KMGTPEZY'[i]}b/s`
+    if (size < 1000) 
+        return parseFloat(size.toFixed(2)) + ' bit/s';
+    
+    let i = 0;
+    let base = 1000;
+    let num = size;
+    
+    // Keep dividing size by 1000 until it's less than 1000
+    while (num >= base) {
+        num /= base;
+        i++;
+    }
+
+    // Round number to nearest two digits
+    num = num.toFixed(2);
+    
+    // Units array for return to choose from
+    const units = ['bit/s', 'Kbit/s', 'Mbit/s', 'Gbit/s', 'Tbit/s', 'Pbit/s', 'Ebit/s', 'Zbit/s', 'Ybit/s'];
+
+    return `${num} ${units[i]}`;
 }
