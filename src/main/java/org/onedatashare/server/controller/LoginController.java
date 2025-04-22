@@ -20,7 +20,6 @@
  * ##**************************************************************
  */
 
-
 package org.onedatashare.server.controller;
 
 import io.swagger.v3.oas.annotations.Hidden;
@@ -29,6 +28,7 @@ import org.onedatashare.server.model.response.LoginResponse;
 import org.onedatashare.server.model.util.Response;
 import org.onedatashare.server.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -46,26 +46,30 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    @Value("${auth.cookie.domain}")
+    private String cookieDomain;
+
     @RequestMapping(value = AUTH_ENDPOINT, method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody LoginControllerRequest request) throws Exception {
-        LoginResponse loginResponse= userService.login(request.getEmail(), request.getPassword());
+        LoginResponse loginResponse = userService.login(request.getEmail(), request.getPassword());
         // Access token
         String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
                 .httpOnly(true)
+                .domain(cookieDomain)
                 .build().toString();
         cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set(HttpHeaders.SET_COOKIE,
                 cookieString);
-        //Remove the token from the response
+        // Remove the token from the response
         loginResponse.setToken(null);
         return ResponseEntity.ok().headers(responseHeaders).body(loginResponse);
 
     }
 
-
     /**
      * This function removes the ATOKEN cookie from the browser
+     * 
      * @return Mono<ResponseEntity>
      */
     @RequestMapping(value = LOGOUT_ENDPOINT, method = RequestMethod.POST)

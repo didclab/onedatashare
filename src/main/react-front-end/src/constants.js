@@ -68,7 +68,8 @@ export const siteURLS = {
   historyPageUrl: "/history",
   termsUrl: "/terms",
   policyUrl: "/policy",
-  oauthRedirectUrl: "/oauth2/redirect"
+  oauthRedirectUrl: "/oauth2/redirect",
+  jobMetricsUrl: process.env.REACT_APP_JOB_METRICS_URL
 };
 
 export const s3Regions = [

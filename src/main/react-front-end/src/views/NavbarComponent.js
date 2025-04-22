@@ -35,6 +35,7 @@ import { ReactComponent as PolicyIcon} from "../assets/images/policy.svg";
 import { ReactComponent as TermsIcon} from "../assets/images/terms.svg";
 import { ReactComponent as SupportIcon} from "../assets/images/support.svg";
 import { ReactComponent as LogoutIcon} from "../assets/images/logout.svg";
+import { ReactComponent as MetricsIcon } from "../assets/images/metrics.svg";
 
 
 import { Link } from 'react-router-dom';
@@ -43,7 +44,7 @@ import { siteURLS } from "../constants";
 import { store } from '../App';
 import { logout } from '../APICalls/APICalls';
 import { isMobile } from 'react-device-detect';
-
+import OpenInNewIcon from '@material-ui/icons/OpenInNew';
 
 class NavbarComponent extends Component {
 
@@ -149,7 +150,13 @@ class NavbarComponent extends Component {
 										{"History"}
 									</Link>
 								</ListItem>
-
+								<ListItem onClick={() => this.toggleMobileMenu()}>
+									<a href={siteURLS.jobMetricsUrl} target="_blank" rel="noopener noreferrer" className="navbarButton-mobile" style={{ textDecoration: 'none' }}>
+										<MetricsIcon className="icon" style={{ display: 'flex', alignItems: 'center' }}/>
+										<span className={`navbarButton-mobile`}>Metrics</span>
+										<OpenInNewIcon style={{ marginLeft: '1px', fontSize: '16px' }} />
+									</a>
+								</ListItem>
 							</List>
 						)}
 					</div>
@@ -253,6 +260,11 @@ class NavbarComponent extends Component {
 							<HistoryIcon className="icon"/>
 							{"History"}
 						</Link>
+						<a href={siteURLS.jobMetricsUrl} target="_blank" rel="noopener noreferrer" className="navbarButton" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+							<MetricsIcon className="icon" style={{ display: 'flex', alignItems: 'center' }}/>
+							<span>{"Metrics"}</span>
+							<OpenInNewIcon style={{ marginLeft: '4px', fontSize: '16px' }} />
+						</a>
 					</React.Fragment>
 				}
 			</Box>

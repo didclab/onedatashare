@@ -3,12 +3,16 @@ package org.onedatashare.server.model.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.SerializationUtils;
 
 import java.util.Base64;
 import java.util.Optional;
 
 public class CookieUtils {
+
+    @Value("${app.cookie.domain}")
+    private static String cookieDomain;
 
     public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
         Cookie[] cookies = request.getCookies();
@@ -29,6 +33,7 @@ public class CookieUtils {
         cookie.setPath("/");
         cookie.setHttpOnly(httpOnly);
         cookie.setMaxAge(maxAge);
+        cookie.setDomain(cookieDomain);
         response.addCookie(cookie);
     }
 
@@ -40,6 +45,7 @@ public class CookieUtils {
                     cookie.setValue("");
                     cookie.setPath("/");
                     cookie.setMaxAge(0);
+                    cookie.setDomain(cookieDomain);
                     response.addCookie(cookie);
                 }
             }

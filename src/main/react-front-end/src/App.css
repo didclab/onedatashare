@@ -27,8 +27,13 @@
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /*******************************************/
@@ -38,7 +43,7 @@
 /*******************************************/
 
 
-.navbar-root{
+.navbar-root {
   display: grid;
   position: relative;
   width: 100vw;
@@ -49,7 +54,7 @@
   z-index: 1400;
 }
 
-.leftNav{
+.leftNav {
   display: flex;
   flex-direction: row;
   flex-grow: 1;
@@ -57,7 +62,7 @@
   width: 50%;
 }
 
-.rightNav{
+.rightNav {
   display: flex;
   justify-content: flex-end;
   margin-left: auto;
@@ -65,7 +70,7 @@
   /* outline: red solid 1px; */
 }
 
-.navbarHome{
+.navbarHome {
   display: flex;
   flex-direction: row;
   font-weight: bold;
@@ -90,10 +95,10 @@
   object-fit: contain;
 }
 
-.navbarHome:hover{
+.navbarHome:hover {
   text-decoration: none;
-    /* outline: red solid 1px; */
-    
+  /* outline: red solid 1px; */
+
 }
 
 .navbarButton {
@@ -130,16 +135,15 @@
 
 .navbarButton-active .icon {
   width: 20px;
-  height: auto;
+  height: 20px;
   color: #172753;
   pointer-events: none;
 }
 
 .navbarButton .icon {
   width: 20px;
-  height: auto;
+  height: 20px;
   color: white;
-  /* pointer-events: none; */
 }
 
 .navbarButton-menu .icon {
@@ -179,7 +183,7 @@
 
 .navbarButton-mobile .icon {
   width: 40px;
-  height: auto;
+  height: 40px;
   color: white;
   /* pointer-events: none; */
 }
@@ -193,7 +197,7 @@
   white-space: nowrap;
   display: inline-block;
   border: black 1px solid;
-  
+
 }
 
 .navbarSignIn:hover {
@@ -203,8 +207,9 @@
   border: black 1px solid;
 }
 
-.navbarButton:hover .icon{
-  color: #3966f0;;
+.navbarButton:hover .icon {
+  color: #3966f0;
+  ;
   text-decoration: none;
   cursor: pointer;
 }
@@ -261,7 +266,7 @@
   gap: 1%;
 }
 
-.homepage_section{
+.homepage_section {
   width: 100%;
   height: 800px;
   margin: 0px !important;
@@ -371,7 +376,7 @@ div.homePage {
   font-size: 1.7em;
 }
 
-.homeImg{
+.homeImg {
   max-width: 100%;
   max-height: 30vh;
   object-fit: contain;
@@ -403,7 +408,7 @@ div.homePage {
   height: 10vh;
   width: auto;
   padding-left: 2vw;
-  padding-right:2vw;
+  padding-right: 2vw;
 }
 
 /***********************************/
@@ -424,7 +429,7 @@ div.homePage {
   padding-top: 4.5vh;
 }
 
-.TitleSlice h1 ~ p {
+.TitleSlice h1~p {
   font-size: 2.5rem;
   font-style: italic;
   color: #d9eff6;
@@ -513,8 +518,10 @@ div.homePage {
   width: 50%;
   height: 50%;
   z-index: 99;
-  padding: 10px; /* Add padding for content */
-  overflow: auto; /* Enable scrolling if needed */
+  padding: 10px;
+  /* Add padding for content */
+  overflow: auto;
+  /* Enable scrolling if needed */
   /* You can adjust these properties as needed */
   font-size: 14px;
   font-family: Arial, sans-serif;
@@ -522,6 +529,7 @@ div.homePage {
   white-space: normal;
   word-wrap: break-word;
 }
+
 .historyPage {
   display: flex;
   flex-direction: column;
@@ -568,7 +576,8 @@ div.homePage {
   /* : 2px solid #ff0000; */
 }
 
-.queueHeaderCell p, .queueHeaderCell h1 {
+.queueHeaderCell p,
+.queueHeaderCell h1 {
   font-size: 1.75rem !important;
   color: #31708f;
   text-align: center;
@@ -591,7 +600,7 @@ div.homePage {
   /* : 2px solid #ff0000; */
 }
 
-.idCell{
+.idCell {
   width: 8%;
 }
 
@@ -675,8 +684,7 @@ div.homePage {
   background-color: #FFF4E3 !important;
 }
 
-.QueueProgressBar * {
-}
+.QueueProgressBar * {}
 
 .MuiTablePagination-toolbar {
   font-size: 1.5rem;
@@ -688,7 +696,7 @@ div.homePage {
 /*                                    */
 /**************************************/
 
-.outeractionContainer{
+.outeractionContainer {
   /*display: flex;*/
   /*flex-direction: row;*/
   padding-top: 15vh;
@@ -697,12 +705,12 @@ div.homePage {
   /*width: 100vw;*/
 }
 
-.actionContainer{
+.actionContainer {
   max-width: 100vw !important;
   margin-top: 15px;
 }
 
-.wrapperBox{
+.wrapperBox {
   background-color: white;
   margin-bottom: 20px;
   height: auto;
@@ -712,7 +720,7 @@ div.homePage {
   border: solid 1px lightgray;
 }
 
-.compactSwitch{
+.compactSwitch {
   /*width: 200px;*/
   /*right: 1%;*/
   /*position: absolute;*/
@@ -721,17 +729,17 @@ div.homePage {
   padding-right: 10px;
 }
 
-.wrapperBoxLabel{
+.wrapperBoxLabel {
   color: black;
   font-size: 12px;
 }
 
-.innerBox{
+.innerBox {
   margin-top: 20px;
   padding: 20px;
 }
 
-.sendButton{
+.sendButton {
   background-color: #337ab7aa !important;
   font-size: 11px !important;
   margin-top: 5px !important;
@@ -739,21 +747,23 @@ div.homePage {
   height: 35px !important;
   border-radius: 0 !important;
 }
+
 .sendButton:hover {
   background-color: #172753 !important;
-  color:white !important
+  color: white !important
 }
-#sendFromRightToLeft{
+
+#sendFromRightToLeft {
   padding: 15px;
   margin-right: 10px;
 }
 
-#sendFromLeftToRight{
+#sendFromLeftToRight {
   padding: 15px;
   margin-left: 10px;
 }
 
-.boxHeader{
+.boxHeader {
   padding: 50px 25px;
   background-color: #172753;
   color: white;
@@ -762,7 +772,7 @@ div.homePage {
   font-weight: bold;
 }
 
-.transferGroup{
+.transferGroup {
   border: solid 1px lightgray;
   width: auto;
   height: auto;
@@ -770,14 +780,14 @@ div.homePage {
   /*margin-top: 30px;*/
 }
 
-.browseContainer{
+.browseContainer {
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
 }
 
-.browseButton{
+.browseButton {
   flex-grow: 1;
   text-align: left;
   justify-content: flex-start;
@@ -786,7 +796,7 @@ div.homePage {
   /*padding-left: 30%;*/
 }
 
-.browseIcon{
+.browseIcon {
   margin-right: 10px;
   font-size: 16px;
   width: 20px;
@@ -794,7 +804,7 @@ div.homePage {
 }
 
 
-.transferSettings{
+.transferSettings {
   border-top: solid 1px #172753;
   border-bottom: solid 1px #172753;
   color: #172753;
@@ -804,34 +814,37 @@ div.homePage {
   background-color: #F2F2F2;
 }
 
-.searchTextfield{
+.searchTextfield {
   background-color: white;
   border-radius: 0 !important;
 }
 
 
-.fileIcon{
-  margin-top:11px;
-  margin-left:10px
+.fileIcon {
+  margin-top: 11px;
+  margin-left: 10px
 }
-.fileName{
- margin-left: 10px;
+
+.fileName {
+  margin-left: 10px;
   flex-grow: 1;
   text-align: left;
-  font-size:16px;
-  margin-top:8px
+  font-size: 16px;
+  margin-top: 8px
 }
-.fileAttribute{
- font-size: 12px;
+
+.fileAttribute {
+  font-size: 12px;
   color: #444
 }
-@media only screen and (min-width: 800px){
-  .boxHeader{
+
+@media only screen and (min-width: 800px) {
+  .boxHeader {
     text-align: center;
   }
 }
 
-.errorConsole{
+.errorConsole {
   text-align: left;
   border: solid 1px #172753;
   height: 125px;
@@ -852,7 +865,7 @@ div.homePage {
 /*  border-radius: 10px;*/
 /*}*/
 
-.terminalContainer{
+.terminalContainer {
   margin-bottom: 50px;
 
 }
@@ -863,7 +876,7 @@ div.homePage {
 /*                                    */
 /**************************************/
 
-.authenticationContainer{
+.authenticationContainer {
   flex-grow: 1;
   flex-direction: column;
 }
@@ -874,16 +887,16 @@ div.homePage {
 /*                                    */
 /**************************************/
 
-.terminalBar{
+.terminalBar {
   background-color: #337ab7;
 }
 
-.terminalWrapper{
-  height:300px;
+.terminalWrapper {
+  height: 300px;
   padding-left: 5px;
   padding-top: 5px;
   background-color: black;
-  color:white;
+  color: white;
   font-family: courier, serif;
   overflow: scroll;
 }
@@ -895,14 +908,31 @@ div.homePage {
 /*                                    */
 /**************************************/
 
-.accCardStyle{
+.accCardStyle {
   width: 450px;
   border-radius: 1%;
   align-self: center;
 }
 
 @media only screen and (max-width: 640px) {
-  .accCardStyle{
+  .accCardStyle {
     align-self: flex-start;
   }
+}
+
+/* Add specific styling for MetricsIcon */
+.navbarButton svg.icon,
+.navbarButton-mobile svg.icon {
+  min-width: 20px;
+  min-height: 20px;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.navbarButton-mobile svg.icon {
+  min-width: 40px;
+  min-height: 40px;
+  width: 40px;
+  height: 40px;
 }
