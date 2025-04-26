@@ -62,14 +62,12 @@
   justify-content: flex-end;
   margin-left: auto;
   width: 50%;
-  /* outline: red solid 1px; */
 }
 
 .navbarHome{
   display: flex;
   flex-direction: row;
   font-weight: bold;
-  /* outline: red solid 1px; */
   align-items: center;
   gap: 5%;
   margin: 0 1%;
@@ -92,7 +90,6 @@
 
 .navbarHome:hover{
   text-decoration: none;
-    /* outline: red solid 1px; */
     
 }
 
@@ -100,7 +97,6 @@
   display: flex;
   color: #FFFFFF;
   margin: 0 5%;
-  /* outline: red solid 1px; */
   align-items: center;
   gap: 5%;
 }
@@ -110,7 +106,6 @@
   display: flex;
   font-size: 20px;
   color: #FFFFFF;
-  /* margin: 0 5%; */
   align-items: center;
   justify-content: flex-start;
   gap: 2%;
@@ -122,7 +117,6 @@
   display: flex;
   color: #172753;
   margin: 0 5%;
-  /* outline: red solid 1px; */
   align-items: center;
   gap: 5%;
   padding: 5px;
@@ -143,21 +137,24 @@
 }
 
 .navbarButton-menu .icon {
+  display: flex;
   width: 40px;
+  object-fit: contain;
+  overflow: hidden;
   height: auto;
   color: white;
+  justify-content: center;
+  align-items: center;
   /* pointer-events: none; */
 }
 
 
 .navbarButton-mobile {
   display: flex;
-  /* align-items: center; */
   justify-content: flex-start;
   color: #FFFFFF;
   margin: 0 5%;
   margin-left: auto;
-  /* outline: red solid 1px; */
   width: 100%;
   font-size: 35px;
   gap: 2%;
@@ -166,7 +163,6 @@
 .navbarButton-mobile-active {
   display: flex;
   color: #172753;
-  /* outline: red solid 1px; */
   padding: 5px;
 }
 
@@ -211,7 +207,10 @@
 
 .navbarButton:hover,
 .navbarButton:focus,
-.navbarButton:active {
+.navbarButton:active,
+.navbarButton:hover .icon,
+.navbarButton:focus .icon,
+.navbarButton:active .icon {
   color: #3966f0;
   text-decoration: none;
   cursor: pointer;
@@ -311,7 +310,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* outline: 1px solid red; */
 }
 
 /***************************/
@@ -334,10 +332,15 @@ button.defaultButton {
 /*********************************/
 
 div.homePage {
-  padding-top: 15vh;
-  /*background: #579;*/
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
   overflow: hidden;
-  margin-top: -10vh;
+  outline: 1px solid red;
+  background-color: #172753;
+  margin-top: -64px;
 }
 
 .evenSlice {
@@ -362,7 +365,7 @@ div.homePage {
 }
 
 .HomeInfoSlice h2 {
-  color: #172753;
+  /* color: #172753; */
   font-size: 3em;
   padding-bottom: 3vh;
 }

@@ -166,7 +166,16 @@ class NavbarComponent extends Component {
 							<React.Fragment>
 								<ListItem onClick={() => this.toggleUserMenu()}>
 									<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-										{!this.state.isMobile ? (<React.Fragment><AccountIcon className="icon" style={{width: "30px"}}/>{"Account Details"}</React.Fragment>) : (this.state.email)}
+										{!this.state.isMobile ? (
+											<React.Fragment>
+											<div className='icon'>
+												<AccountIcon style={{color: "white", width: "30px", height: "30px"}}/>
+											</div>
+											{"Account Details"}
+											</React.Fragment>
+											) 
+											: 
+											(this.state.email)}
 									</Link>
 								</ListItem>
 								<Hidden mdUp>
@@ -182,21 +191,23 @@ class NavbarComponent extends Component {
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<TermsIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
+								<TermsIcon className="icon"/>
 								Terms
 							</Link>
 						</ListItem>
 						
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<PolicyIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
+								<PolicyIcon className="icon"/>
 								Policy
 							</Link>
 						</ListItem>
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<SupportIcon className="icon" style={{color: "white", width: "30px"}}/>
+								<div className='icon'>
+									<SupportIcon style={{color: "white", width: "30px", height: "30px"}}/>
+								</div>
 								Support
 							</Link>
 						</ListItem>
