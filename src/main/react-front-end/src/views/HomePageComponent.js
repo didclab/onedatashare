@@ -80,6 +80,9 @@ export default class HomePageComponent extends Component {
 			<div className='homePage'>
 				<div className='hero_section'>
 					<TitleSlice/>
+					<div className='hero_section_bottom'>
+						The Platforms we support
+					</div>
 				</div>
 				<div className='description_section'>
 					Fast, Easy, Free, Secure

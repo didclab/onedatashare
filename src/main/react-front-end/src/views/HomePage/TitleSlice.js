@@ -33,11 +33,13 @@ export default class TitleClass extends Component {
     render() {
         return(
             <div className="title_container">
-                <div className='socialIcons'>
+                <div className='socialSection'>
                     <div className="socialFiller"></div>
-					<img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}></img>
+                    <div className='socialIcons'>
+                        <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
+                        <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+                    </div>
                     <div className="socialFiller"></div>
-                    
 				</div>
                 <div className="TitleSlice">
                     <h1>OneDataShare</h1>
