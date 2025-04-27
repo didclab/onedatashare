@@ -38,7 +38,6 @@ import { login } from "../../APICalls/APICalls.js";
 import "./AccountControlComponent.css";
 
 import { siteURLS } from "../../constants";
-import { GREY } from "../../color";
 import { store } from "../../App.js";
 import { loginAction } from "../../model/actions";
 import { cookies } from "../../model/reducers";
@@ -104,7 +103,7 @@ export default class AccountControlComponent extends Component {
     if (history.location.state && history.location.state.error) {
       history.replace({ ...history.location, state: { ...history.location.state, error: false, errorMessage: "" } });
     }
-    document.body.style.backgroundColor = GREY;
+    document.body.style.backgroundColor = "#f2f2f2";
     document.title = "OneDataShare - Account";
     window.addEventListener("resize", this.resize.bind(this));
     this.setState({ loading: false });

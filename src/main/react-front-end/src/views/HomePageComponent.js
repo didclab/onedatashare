@@ -25,11 +25,12 @@ import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
 import {HomeInfo} from "./HomePage/HomePageInfo";
 import HomeInfoSlice from "./HomePage/HomeInfoSlice";
-import RecognitionSlice from "./HomePage/RecognitionSlice";
+import {nsfImage, ubImage} from "../constants";
 import TitleSlice from "./HomePage/TitleSlice";
 import TripleIconSlice from "./HomePage/TripleIconSlice";
 import {TripleIconInfo} from "./HomePage/TripleIconInfo";
 import Grid from "@material-ui/core/Grid";
+import RecognitionSlice from './HomePage/RecognitionSlice';
 
 export default class HomePageComponent extends Component {
 
@@ -75,24 +76,15 @@ export default class HomePageComponent extends Component {
 	}
 
 	render() {
-
-		let homeInfo = this.makeInfoSlices();
-		let tripleIcon = this.makeTriple();
-
 		return(
-			<div>
-				<div className='homePage'>
-
-					<TitleSlice />
-
-					<Grid className='TripleIconSlice' container direction='row'>
-					{tripleIcon}
-					</Grid>
-
-					{homeInfo}
+			<div className='homePage'>
+				<div className='hero_section'>
+					<TitleSlice/>
 				</div>
-
-				<RecognitionSlice />
+				<div className='description_section'>
+					Fast, Easy, Free, Secure
+				</div>
+				<RecognitionSlice/>
 
 			</div>
 		);

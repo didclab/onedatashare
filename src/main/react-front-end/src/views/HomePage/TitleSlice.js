@@ -32,31 +32,24 @@ export default class TitleClass extends Component {
 
     render() {
         return(
-            <Grid container className="TitleSlice">
-                <Hidden mdUp>
-                    <Grid item container xs={12}>
-                        <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
-                    </Grid>
-                </Hidden>
-                <Grid item container direction="column" md={7} xs={12}>
-                    <Hidden smDown>
-                        <h1>OneDataShare</h1>
-                    </Hidden>
-                    <Hidden mdUp>
-                        <h1>OneData <br/> Share </h1>
-                    </Hidden>
-                    <p> Fast and secure file transfers made easy! </p>
-                    <br/>
-                    <a href={siteURLS.registerPageUrl}>
-                        <Button className='defaultButton' variant="contained"> Get Started </Button>
-                    </a>
-                </Grid>
-                <Hidden smDown>
-                    <Grid item container md={5}>
-                        <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
-                    </Grid>
-                </Hidden>
-            </Grid>
+            <div className="title_container">
+                <div className='socialIcons'>
+                    <div className="socialFiller"></div>
+					<img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}></img>
+                    <div className="socialFiller"></div>
+                    
+				</div>
+                <div className="TitleSlice">
+                    <h1>OneDataShare</h1>
+                    <h2> Fast and secure file transfers made easy!  </h2>
+                    <div className="TitleSliceBottom">
+                        <a href={siteURLS.registerPageUrl}>
+                            <button className='getStartedBtn'>Get Started</button>
+                        </a>
+                    </div>
+                    <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
+                </div>
+            </div>
         )
     }
 }
