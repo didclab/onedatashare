@@ -56,6 +56,8 @@ public class LoginController {
         String cookieString = ResponseCookie.from(TOKEN_COOKIE_NAME, loginResponse.getToken())
                 .httpOnly(true)
                 .domain(cookieDomain)
+                .sameSite("None")
+                .secure(true)
                 .build().toString();
         cookieString = cookieString + "; Max-Age=" + loginResponse.getExpiresIn();
         HttpHeaders responseHeaders = new HttpHeaders();
