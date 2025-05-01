@@ -31,6 +31,7 @@ import TripleIconSlice from "./HomePage/TripleIconSlice";
 import {TripleIconInfo} from "./HomePage/TripleIconInfo";
 import Grid from "@material-ui/core/Grid";
 import RecognitionSlice from './HomePage/RecognitionSlice';
+import Logo from "../assets/images/logo.png";
 
 export default class HomePageComponent extends Component {
 
@@ -43,50 +44,26 @@ export default class HomePageComponent extends Component {
 		document.title = "OneDataShare";
 	}
 
-	makeInfoSlices(){
-		let retVal = [];
-		for (let i=0; i<HomeInfo.length; i+=1) {
-			let data = HomeInfo[i];
-			let left = i % 2;
-			let name = 'evenSlice';
-			if (!left) {
-				name = 'oddSlice';
-			}
-			retVal.push( <HomeInfoSlice className={name}
-										imgOnLeft={left}
-										title={data.title}
-										text ={data.text}
-										key={`home-icon-${i}`}
-										img={require('../assets' + data.img)}
-										imgAltTxt={data.imgAltTxt} /> );
-		}
-		return retVal;
-	}
-
-	makeTriple() {
-		let retVal = [];
-		for (let i=0; i<TripleIconInfo.length; i+=1) {
-			let data = TripleIconInfo[i];
-			retVal.push( <TripleIconSlice img={require('../assets' + data.img)}
-										  title={data.title}
-										  key={`triple-icon-${i}`}
-										  imgAltTxt={data.imgAlt}/> );
-		}
-		return retVal;
-	}
-
+	
 	render() {
 		return(
 			<div className='homePage'>
 				<div className='hero_section'>
 					<TitleSlice/>
-					<div className='hero_section_bottom'>
-						The Platforms we support
-					</div>
+				</div>
+				<div className='hero_section_bottom'>
+						<img src="https://img.icons8.com/?size=100&id=JF6kPfhVzeVz&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=11106&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=11107&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=17990&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=5fzjhSdcssrn&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=PDDAw6sv9exf&format=png&color=000000"/>
+						<img src="https://img.icons8.com/?size=100&id=25728&format=png&color=000000"/>
 				</div>
 				<div className='description_section'>
 					Fast, Easy, Free, Secure
 				</div>
+				
 				<RecognitionSlice/>
 
 			</div>

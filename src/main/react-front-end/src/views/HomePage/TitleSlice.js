@@ -29,28 +29,59 @@ import Grid from "@material-ui/core/Grid";
 import Logo from "../../assets/images/logo.png";
 
 export default class TitleClass extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isMobile: false
+        };
+        this.setMobileView = this.setMobileView.bind(this);
+    }
 
+    componentDidMount() {
+        this.setMobileView();
+        window.addEventListener('resize', this.setMobileView);
+    }
+
+    setMobileView() {
+        if (window.innerWidth >= 1300) {
+            this.setState(({isMobile: false}))
+        }
+        else {
+            this.setState(({isMobile: true}))
+        }
+    }
     render() {
         return(
-            <div className="title_container">
-                <div className='socialSection'>
-                    <div className="socialFiller"></div>
-                    <div className='socialIcons'>
-                        <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
-                        <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+            <div className="title_container" style={{flexDirection: this.state.isMobile ? "column" : "row", justifyContent: this.state.isMobile ? "center" : "flex-start"}}>
+                <img className={`homeImg${this.state.isMobile? "-mobile":""}`} src={Logo} alt="OneDataShare Logo" draggable={false} />
+                {!this.state.isMobile &&
+                    <div className='socialSection'>
+                        <div className='socialIcons'>
+                            <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
+                            <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+                        </div>
+                        <div className="socialFiller"></div>
                     </div>
-                    <div className="socialFiller"></div>
-				</div>
+                }
+                
                 <div className="TitleSlice">
-                    <h1>OneDataShare</h1>
-                    <h2> Fast and secure file transfers made easy!  </h2>
+                    <h2> Fast and secure file <br/> transfers made easy!  </h2>
                     <div className="TitleSliceBottom">
                         <a href={siteURLS.registerPageUrl}>
                             <button className='getStartedBtn'>Get Started</button>
                         </a>
                     </div>
-                    <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
                 </div>
+
+                
+                {this.state.isMobile &&
+                    <div className='socialSection-mobile'>
+                        <div className='socialIcons-mobile'>
+                            <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
+                            <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+                        </div>
+                    </div>
+                }
             </div>
         )
     }

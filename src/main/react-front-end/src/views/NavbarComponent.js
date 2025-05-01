@@ -158,7 +158,7 @@ class NavbarComponent extends Component {
 
 	renderUserMenu() {
 		return (
-			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { maxWidth: "350px", minWidth: "300px", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
+			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { maxWidth: "375px", minWidth: "300px", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
 				<div className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 					<List className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 						{this.state.login &&
@@ -223,15 +223,13 @@ class NavbarComponent extends Component {
 				{this.state.login &&
 					<Box display="flex" whiteSpace={"nowrap"}>
 						<IconButton onClick={() => this.toggleUserMenu()} >
-							<AccountCircle style={{color: "white", fontSize: "40px"}}/>
+							<AccountCircle style={{color: "white", fontSize: "35px"}}/>
 							<div className={`navbarButton`}>{this.state.email}</div>
 						</IconButton>
-						<ListItem onClick={() => this.closeUserMenu()}>
 							<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={"navbarButton"}>
-								<LogoutIcon className="icon" style={{width: "40px"}}/>
+								<LogoutIcon className="icon" style={{width: "30px"}}/>
 								<span style={{textwrap: "none"}}>Log out</span>
 							</Link>
-						</ListItem>
 					</Box>
 				}
 				{!this.state.login &&
@@ -313,6 +311,7 @@ class NavbarComponent extends Component {
 										<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarSignIn"}>
 											<h4 style={{fontWeight: "bold", fontSize: "15px"}}>Sign in</h4>
 										</Link>
+										<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 									</Box>
 								}
 							</Box>
