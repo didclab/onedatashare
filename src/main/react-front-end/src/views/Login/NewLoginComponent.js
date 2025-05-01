@@ -112,7 +112,7 @@ export default class NewLoginComponent extends Component {
 
     userLoggedIn(email, password, remember, (error) => {
       isLoading(false);
-      console.log("error message", error);
+      console.error("error message", error);
       this.setState({
         error: true,
         errorMessage: "Wrong password or server error.",

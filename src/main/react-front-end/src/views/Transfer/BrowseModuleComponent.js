@@ -118,7 +118,6 @@ export default class BrowseModuleComponent extends Component {
 		
 			// If the user has opted to store tokens on ODS server,
 			// query backed for saved credentials
-			console.log("Checking backend for " + containsType + " credentials");
 
 			savedCredList(containsType, (data) => {
 				if(data !== undefined && data.list.length > 0){

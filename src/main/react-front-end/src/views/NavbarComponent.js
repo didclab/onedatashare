@@ -87,7 +87,6 @@ class NavbarComponent extends Component {
 
 	componentWillUnmount() {
 		this.unsubscribe();
-		// console.log(store);
 	}
 
 	setMobileView() {

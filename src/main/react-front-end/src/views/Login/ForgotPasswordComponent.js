@@ -99,7 +99,6 @@ export default class ForgotPasswordComponent extends Component {
       this.props.email,
       this.state.code,
       (response) => {
-        // console.log(response)
         this.setState({ state: codeVerified, code: response });
       },
       (fail) => {

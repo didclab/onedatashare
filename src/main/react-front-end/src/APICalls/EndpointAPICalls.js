@@ -51,15 +51,12 @@ function buildEndpointOperationURL(baseURL, endpointType, operation) {
 export async function listFiles(uri, endpoint, id, accept, fail) {
 
     let { params } = constructParamsForList({uri, endpoint, id})
-    // console.log(params)
     let callback = accept;
     let url = buildEndpointOperationURL(ENDPOINT_OP_URL, getUriTypeFromEndpoint(endpoint), LIST_OP_URL)
-    console.log(params)
     axios.get(url, { params })
         .then((response) => {
             if (!(response.status === 200))
                 callback = fail;
-                // console.log(response)
             statusHandle(response, callback);
         })
         .catch((error) => {
@@ -122,14 +119,14 @@ async function getDownloadLink(uri, credential, _id) {
     })
         .then((response) => {
             if (!(response.status === 200))
-                console.log("Error in download API call");
+                console.error("Error in download API call");
             else {
                 return response.data
             }
         })
         .catch((error) => {
             handleRequestFailure(error);
-            console.log("Error encountered while generating download link");
+            console.error("Error encountered while generating download link");
         });
 }
 
@@ -145,7 +142,7 @@ export async function download(uri, credential, _id) {
             window.open(response.url)
         }
         else {
-            console.log("Error encountered while generating download link");
+            console.error("Error encountered while generating download link");
         }
     })
 }
@@ -200,7 +197,6 @@ export async function CliInterface(inp_cmd,host,uname,epw,port,accept, fail) {
 			if (!(response.status === 200))
 				callback = fail;
 			statusHandle(response, callback);
-		    //console.log(response.data);
 		    return response.data;
 		})
 		.catch((error) => {

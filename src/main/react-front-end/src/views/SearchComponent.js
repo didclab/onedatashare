@@ -36,7 +36,6 @@ export default class SearchComponent extends Component {
     }
 
     handleUsernameChange(event) {
-        //console.log('handleUsernameChange called', event);
         let searchBtn = ''; //enable
         if (event.target.value === '' && this.state.jobid === '' && this.state.progress === '')
             searchBtn = 'false';
@@ -47,7 +46,6 @@ export default class SearchComponent extends Component {
     }
 
     handleJobIdChange(event) {
-        //console.log('handleJobIdChange called');
         let searchBtn = ''; //enable
         if (event.target.value === '' && this.state.username === '' && this.state.progress === '')
             searchBtn = 'false';
@@ -58,7 +56,6 @@ export default class SearchComponent extends Component {
     }
 
     handleProgressChange(event) {
-        //console.log('handleProgressChange called');
         let searchBtn = ''; //enable
         if (event.target.value === '' && this.state.username === '' && this.state.jobid === '')
             searchBtn = 'false';

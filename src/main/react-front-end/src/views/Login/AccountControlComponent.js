@@ -164,7 +164,6 @@ export default class AccountControlComponent extends Component {
       email,
       password,
       (success) => {
-        console.log("SuccessFull login");
         this.userLogin(
           success.email,
           success.token,
@@ -312,7 +311,6 @@ export default class AccountControlComponent extends Component {
     this.setState.lostValidationCodePressed = false;
     this.setStateforgotPasswordPressed = false;
     this.setState.redirectToSignIn = false;
-    console.log(this.setState);
 
     return (
       <div
@@ -331,8 +329,6 @@ export default class AccountControlComponent extends Component {
             alignSelf: isSmall ? "flex-start" : "center",
           }}
         >
-          {/* { console.log(store.getState().login + "-" + forgotPasswordPressed  + "-" + creatingAccount +"-"+lostValidationCodePressed+ "-" + signIn + "-" + Object.keys(rememberMeAccounts).length )}
-						{console.log(currentRoute)} */}
           {/* At any point of time only one among below should be true */}
           {currentRoute !== siteURLS.lostValidationCodeUrl &&
             lostValidationCodePressed && (
