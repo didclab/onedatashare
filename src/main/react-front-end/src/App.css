@@ -13,6 +13,24 @@
   font-family: "Lexend Deca", sans-serif;
 }
 
+.root-container {
+  display: flex;
+  width: 100vw;
+  justify-content: center;
+}
+
+.App {
+  width: 100vw;
+  max-width: 2048px;
+}
+
+.content > * {
+  position: relative;
+  margin-top: 64px;
+  max-width: 2048px;
+}
+
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 80px;
@@ -44,15 +62,28 @@
 /*                                         */
 /*******************************************/
 
+.navbar-root {
+  position: fixed;
+  display: flex;
+  width: 100vw;
+  height: 64px;
+  z-index: 1400;
+  top: 0;
+  left: 0;
+  align-items: center;
+  justify-content: center;
+}
 
-.navbar-root{
+.navbar-container{
   display: grid;
-  position: relative;
   width: 100vw;
   grid-template-columns: repeat(2, 1fr);
   height: 64px;
+  max-height: 64px;
+  overflow: hidden;
   font-weight: bold;
   z-index: 1400;
+  left: 0;
 }
 
 .leftNav{
@@ -344,9 +375,9 @@ button.defaultButton {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-top: -64px;
   justify-content: center;
   overflow: hidden;
-  margin-top: -64px;
   width: 100vw;
 }
 
@@ -354,6 +385,7 @@ button.defaultButton {
   background-color: white;
   font-size: 1.2em;
   font-weight: normal;
+  font-family: "Roboto", sans-serif;
   color: #172753;
   white-space: nowrap;
 }
@@ -371,12 +403,54 @@ button.defaultButton {
 .description_section {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: auto;
   width: 100vw;
   align-items: center;
-  justify-content: center;
   background-color: white;
 }
+
+
+.description_card_container {
+  /* outline: 1px solid red; */
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  gap: min(2vw, 150px);
+  margin-bottom: 50px;
+}
+
+.description_card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  /* outline: 1px solid black; */
+  width: 250px;
+  height: 350px;
+  padding: 5px;
+  border-radius: 15px;
+  /* overflow: hidden; */
+} 
+
+.description_card img {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+
+.footer_section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+
 
 
 .evenSlice {
@@ -385,6 +459,23 @@ button.defaultButton {
 
 .oddSlice {
   background-color: #F2F2F2;
+}
+
+.platform_container {
+  /* outline: 1px solid red; */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 0 20px 20px 20px;
+  background-color: white;
+  margin-bottom: 50px;
+}
+
+.platforms {
+  display: flex;
+  width: 100%;
+  justify-content: space-evenly;
 }
 
 /**************************************/
@@ -443,6 +534,7 @@ button.defaultButton {
 /*****************************************/
 
 .RecognitionSlice {
+  position: relative;
   background-color: white;
   padding-top: 3vh;
   padding-bottom: 3vh;
@@ -608,6 +700,8 @@ button.defaultButton {
 
 .socialSection img {
   height: 5vh;
+  min-height: 50px;
+  min-width: 50px;
   width: auto;
   border-radius: 5px;
   background-color: white;
@@ -633,6 +727,8 @@ button.defaultButton {
 
 .socialSection-mobile img {
   height: 5vh;
+  min-height: 50px;
+  min-width: 50px;
   width: auto;
   border-radius: 5px;
   background-color: white;
@@ -910,12 +1006,12 @@ button.defaultButton {
 /**************************************/
 
 .outeractionContainer{
-  /*display: flex;*/
+  display: flex;
   /*flex-direction: row;*/
-  padding-top: 15vh;
-  justify-content: center;
-  margin-top: -15vh;
-  /*width: 100vw;*/
+  outline: 1px solid red;
+  height: 100vh;
+  width: 100vw;
+  margin-top: -20vh;
 }
 
 .actionContainer{

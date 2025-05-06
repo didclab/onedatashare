@@ -397,7 +397,7 @@ export default class UserAccountComponent extends Component {
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
-					marginBottom: '5%'
+					marginBottom: '5%',
 				}}
 			>
 				<div

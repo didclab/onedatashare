@@ -76,7 +76,7 @@ class App extends Component {
     const { vertical,horizontal, error, open } = this.state;
 
     return (
-      <div>
+      <div className='root-container'>
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
           style={{marginTop: "20px", zIndex: 1500}}

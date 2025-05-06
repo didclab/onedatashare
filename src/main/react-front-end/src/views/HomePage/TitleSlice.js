@@ -43,11 +43,11 @@ export default class TitleClass extends Component {
     }
 
     setMobileView() {
-        if (window.innerWidth >= 1300) {
-            this.setState(({isMobile: false}))
+        if (window.innerWidth <= 1300) {
+            this.setState(({isMobile: true}))
         }
         else {
-            this.setState(({isMobile: true}))
+            this.setState(({isMobile: false}))
         }
     }
     render() {
