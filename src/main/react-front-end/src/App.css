@@ -28,6 +28,7 @@
   position: relative;
   margin-top: 64px;
   max-width: 2048px;
+  /* min-height: 2000px; */
 }
 
 
@@ -344,6 +345,7 @@
   width: 100%;
   height: 100vh;
   gap: 1%;
+  overflow-y: hidden;
 }
 
 .menu-item {
@@ -398,6 +400,7 @@ button.defaultButton {
   align-items: center;
   background-color: #172753;
   margin-top: 64px;
+  min-height: 900px;
 }
 
 .description_section {
@@ -405,21 +408,36 @@ button.defaultButton {
   flex-direction: column;
   height: auto;
   width: 100vw;
+  /* height: 100vh; */
+  text-align: center;
   align-items: center;
+  justify-content: center;
   background-color: white;
+  gap: 50px;
 }
 
+#whyods {
+  font-size: 3.5em;
+  margin-top: 50px;
+}
+
+@media screen and (max-width: 768px) {
+  #whyods {
+    font-size: 3em;
+  }
+}
 
 .description_card_container {
   /* outline: 1px solid red; */
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 100%;
+  width: 70%;
   height: 100%;
   justify-content: center;
   gap: min(2vw, 150px);
   margin-bottom: 50px;
+  max-width: 2048px;
 }
 
 .description_card {
@@ -428,17 +446,33 @@ button.defaultButton {
   align-items: center;
   /* justify-content: center; */
   /* outline: 1px solid black; */
-  width: 250px;
-  height: 350px;
+  width: 350px;
+  height: 450px;
   padding: 5px;
   border-radius: 15px;
   /* overflow: hidden; */
 } 
 
+.description_card:hover {
+  background-color: #F2F2F2;
+  box-shadow: 0px 0px 10px #000000;
+}
+
+.description_card p {
+  font-size: 1.6em;
+  color: #172753;
+  text-align: center;
+  padding: 0px 10px;
+}
+
 .description_card img {
   width: 200px;
   height: 200px;
   object-fit: contain;
+}
+
+.description_icon {
+  object-fit: cover;
 }
 
 
@@ -447,10 +481,8 @@ button.defaultButton {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin-top: 50px;
+  width: 100%;
 }
-
-
 
 
 .evenSlice {
@@ -461,21 +493,24 @@ button.defaultButton {
   background-color: #F2F2F2;
 }
 
-.platform_container {
+.platform_section {
   /* outline: 1px solid red; */
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
   padding: 0 20px 20px 20px;
-  background-color: white;
+  height: 100vh;
   margin-bottom: 50px;
+  background-color: white;
 }
 
 .platforms {
   display: flex;
   width: 100%;
-  justify-content: space-evenly;
+  justify-content: center;
+  gap: min(5vw, 150px);
 }
 
 /**************************************/
@@ -640,11 +675,11 @@ button.defaultButton {
 }
 
 
-@media screen and (max-width: 375px) {
+@media screen and (max-width: 380px) {
   .TitleSlice h2 {
     color: #ffffff;
     font-family: "Roboto", sans-serif;
-    font-size: 4rem;
+    font-size: 3.5rem;
     font-weight: 400;
     white-space: nowrap;
   }
@@ -1008,7 +1043,7 @@ button.defaultButton {
 .outeractionContainer{
   display: flex;
   /*flex-direction: row;*/
-  outline: 1px solid red;
+  /* outline: 1px solid red; */
   height: 100vh;
   width: 100vw;
   margin-top: -20vh;

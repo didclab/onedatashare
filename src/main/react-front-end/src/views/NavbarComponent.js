@@ -303,20 +303,11 @@ class NavbarComponent extends Component {
 											<AccountCircle style={{color: "white", fontSize: "40px"}}/>
 										</IconButton>
 										<IconButton onClick={() => this.toggleMobileMenu()} >
-											<button class={`hamburger hamburger--slider ${this.state.mobileMenu ? "is-active" : ""}`} type="button">
-												<span class="hamburger-box">
-													<span class="hamburger-inner"></span>
+											<div className={`hamburger hamburger--slider ${this.state.mobileMenu ? "is-active" : ""}`} style={{"borderRadius": "5px"}} type="button">
+												<span className="hamburger-box">
+													<span className="hamburger-inner"></span>
 												</span>
-											</button>
-
-											{/* {!this.state.mobileMenu &&
-												<MenuIcon style={{color: "white", fontSize: "40px"}}/>
-
-											}
-											{this.state.mobileMenu &&
-												<CloseIcon style={{color: "white", fontSize: "40px"}}/>
-
-											} */}
+											</div>
 										</IconButton>
 									</React.Fragment>
 								}

@@ -38,8 +38,14 @@ export default class TitleClass extends Component {
     }
 
     componentDidMount() {
-        this.setMobileView();
+        if (window.innerWidth <= 1300) {
+            this.setState(({isMobile: true}))
+        }
         window.addEventListener('resize', this.setMobileView);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.setMobileView);
     }
 
     setMobileView() {

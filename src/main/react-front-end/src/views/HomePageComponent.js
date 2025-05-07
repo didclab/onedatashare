@@ -31,6 +31,7 @@ import FreeIcon from "../assets/images/free.png";
 import FastIcon from "../assets/images/fast.png";
 import SecureIcon from "../assets/images/secure.png";
 import EasyIcon from "../assets/images/ui.png";
+import EcofriendlyIcon from "../assets/images/ecofriendly.svg";
 import InteroperableIcon from "../assets/images/interoperable.png";
 import Grid from "@material-ui/core/Grid";
 import RecognitionSlice from './HomePage/RecognitionSlice';
@@ -70,7 +71,7 @@ export default class HomePageComponent extends Component {
 						<div className='description_card'>
 							<h1>Easy</h1>
 							<img src={EasyIcon} className='description_icon' alt="Easy Icon"/>
-							<p>We provide support for most popular cloud storage providers and data transfer end-points.</p>
+							<p>Our intuitive web interface makes file transfer and monitoring very easy from any device and location.</p>
 						</div>
 						<div className='description_card'>
 							<h1>Interoperable</h1>
@@ -82,9 +83,14 @@ export default class HomePageComponent extends Component {
 							<img src={FreeIcon} className='description_icon' alt="Free Icon"/>
 							<p>OneDataShare is a free service to the community. You don’t need to pay to transfer your data!</p>
 						</div>
+						<div className='description_card'>
+							<h1>Ecofriendly</h1>
+							<img src={EcofriendlyIcon} className='description_icon' alt="Free Icon" style={{"width": "150px"}}/>
+							<p>OneDataShare is committed to sustainability, leveraging optimized networking to actively reduce its carbon footprint.</p>
+						</div>
 					</div>
 				</div>
-				<div className='platform_container'>
+				<div className='platform_section'>
 					<h1>Platforms We Support</h1>
 					<div className='platforms'>
 						<img src="https://img.icons8.com/?size=100&id=JF6kPfhVzeVz&format=png&color=000000" alt="Platform Icon 1"/>
@@ -95,11 +101,11 @@ export default class HomePageComponent extends Component {
 						<img src="https://img.icons8.com/?size=100&id=PDDAw6sv9exf&format=png&color=000000" alt="Platform Icon 6"/>
 						<img src="https://img.icons8.com/?size=100&id=25728&format=png&color=000000" alt="Platform Icon 7"/>
 					</div>
+				</div>
 
-					{/* <div className='footer_section'>
+				<div className='footer_section'>
 						<h1>Our Sponsors: </h1>
 						<RecognitionSlice/>
-					</div> */}
 				</div>
 			</div>
 		);
