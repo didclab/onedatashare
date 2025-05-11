@@ -23,16 +23,11 @@
 
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import {HomeInfo} from "./HomePage/HomePageInfo";
-import HomeInfoSlice from "./HomePage/HomeInfoSlice";
 import {nsfImage, ubImage} from "../constants";
 import TitleSlice from "./HomePage/TitleSlice";
-import FreeIcon from "../assets/images/free.png";
-import FastIcon from "../assets/images/fast.png";
-import SecureIcon from "../assets/images/secure.png";
-import EasyIcon from "../assets/images/ui.png";
-import EcofriendlyIcon from "../assets/images/ecofriendly.svg";
-import InteroperableIcon from "../assets/images/interoperable.png";
+import WhySection from "./HomePage/WhySection";
+import WhoSection from './HomePage/WhoSection';
+import Platforms from './HomePage/Platforms';
 import Grid from "@material-ui/core/Grid";
 import RecognitionSlice from './HomePage/RecognitionSlice';
 import Logo from "../assets/images/logo.png";
@@ -55,54 +50,9 @@ export default class HomePageComponent extends Component {
 				<div className='hero_section'>
 					<TitleSlice/>	
 				</div>
-				<div className='description_section'>
-					<h1 id="whyods">Why OneDataShare?</h1>
-					<div className='description_card_container'>
-						<div className='description_card'>
-							<h1>Fast</h1>
-							<img src={FastIcon} className='description_icon' alt="Fast Icon"/>
-							<p>OneDataShare delivers your data in the fastest way possible via its state-of-the-art optimization mechanisms.</p>
-						</div>
-						<div className='description_card'>
-							<h1>Secure</h1>
-							<img src={SecureIcon} className='description_icon' alt="Secure Icon"/>
-							<p>User privacy is of utmost importance for us. OneDataShare encrypts and protects your user credentials.</p>
-						</div>
-						<div className='description_card'>
-							<h1>Easy</h1>
-							<img src={EasyIcon} className='description_icon' alt="Easy Icon"/>
-							<p>Our intuitive web interface makes file transfer and monitoring very easy from any device and location.</p>
-						</div>
-						<div className='description_card'>
-							<h1>Interoperable</h1>
-							<img src={InteroperableIcon} className='description_icon' alt="Interoperable Icon"/>
-							<p>We provide support for most popular cloud storage providers and data transfer end-points.</p>
-						</div>
-						<div className='description_card'>
-							<h1>Free</h1>
-							<img src={FreeIcon} className='description_icon' alt="Free Icon"/>
-							<p>OneDataShare is a free service to the community. You don’t need to pay to transfer your data!</p>
-						</div>
-						<div className='description_card'>
-							<h1>Ecofriendly</h1>
-							<img src={EcofriendlyIcon} className='description_icon' alt="Free Icon" style={{"width": "150px"}}/>
-							<p>OneDataShare is committed to sustainability, leveraging optimized networking to actively reduce its carbon footprint.</p>
-						</div>
-					</div>
-				</div>
-				<div className='platform_section'>
-					<h1>Platforms We Support</h1>
-					<div className='platforms'>
-						<img src="https://img.icons8.com/?size=100&id=JF6kPfhVzeVz&format=png&color=000000" alt="Platform Icon 1"/>
-						<img src="https://img.icons8.com/?size=100&id=11106&format=png&color=000000" alt="Platform Icon 2"/>
-						<img src="https://img.icons8.com/?size=100&id=11107&format=png&color=000000" alt="Platform Icon 3"/>
-						<img src="https://img.icons8.com/?size=100&id=17990&format=png&color=000000" alt="Platform Icon 4"/>
-						<img src="https://img.icons8.com/?size=100&id=5fzjhSdcssrn&format=png&color=000000" alt="Platform Icon 5"/>
-						<img src="https://img.icons8.com/?size=100&id=PDDAw6sv9exf&format=png&color=000000" alt="Platform Icon 6"/>
-						<img src="https://img.icons8.com/?size=100&id=25728&format=png&color=000000" alt="Platform Icon 7"/>
-					</div>
-				</div>
-
+				<WhoSection/>
+				<Platforms/>
+				<WhySection/>
 				<div className='footer_section'>
 						<h1>Our Sponsors: </h1>
 						<RecognitionSlice/>

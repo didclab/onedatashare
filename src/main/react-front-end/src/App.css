@@ -339,7 +339,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  margin-top: 64px;
+  margin-top: 45px;
   padding-top: 5%;
   background-color: #172753;
   width: 100%;
@@ -381,6 +381,8 @@ button.defaultButton {
   justify-content: center;
   overflow: hidden;
   width: 100vw;
+  gap: 100px;
+  background-color: white;
 }
 
 .getStartedBtn {
@@ -403,6 +405,48 @@ button.defaultButton {
   min-height: 900px;
 }
 
+.who_section {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  /* height: 80vh; */
+  color: #2d468d;
+  max-width: 2048px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  /* height: 100vh; */
+  /* padding: 20px; */
+  /* outline: 1px solid red; */
+}
+
+.who_container {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  height: 500px;
+  align-items: center;
+  /* gap: 15px; */
+  font-size: 25px;
+  text-align: center;
+  margin-top: -50px;
+  padding-bottom: 75px;
+  outline: 3px solid #2d468d;
+  border-radius: 15px;
+  background-color: rgb(238, 238, 238);
+  /* outline: 1px solid red; */
+}
+
+.who_section img {
+  width: 600px;
+  height: 300px;
+  object-fit: contain;
+  /* overflow: visible; */
+  /* outline: 1px solid red; */
+}
+
 .description_section {
   display: flex;
   flex-direction: column;
@@ -413,17 +457,18 @@ button.defaultButton {
   align-items: center;
   justify-content: center;
   background-color: white;
-  gap: 50px;
+  gap: 15px;
 }
 
 #whyods {
-  font-size: 3.5em;
+  font-size: 2.5em;
   margin-top: 50px;
+  color: #2d468d;
 }
 
 @media screen and (max-width: 768px) {
   #whyods {
-    font-size: 3em;
+    font-size: 2.5em;
   }
 }
 
@@ -432,12 +477,13 @@ button.defaultButton {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  width: 70%;
+  width: 90%;
   height: 100%;
   justify-content: center;
-  gap: min(2vw, 150px);
+  gap: 15px;
   margin-bottom: 50px;
   max-width: 2048px;
+  border-radius: 15px;
 }
 
 .description_card {
@@ -446,16 +492,43 @@ button.defaultButton {
   align-items: center;
   /* justify-content: center; */
   /* outline: 1px solid black; */
-  width: 350px;
-  height: 450px;
+  /* width: 350px; */
+  height: 330px;
   padding: 5px;
   border-radius: 15px;
   /* overflow: hidden; */
-} 
+  font-size: .95em;
+}
+
+#fast {
+  width: 50%;
+  background-color: #fab8b8;
+}
+
+#secure {
+  width: 40%;
+  background-color: #e1e4ff;
+}
+
+#easy {
+  width: 30%;
+  background-color: #f8fad6;
+}
+
+
+#free {
+  width: 30%;
+  background-color: #eecffa;
+}
+
+#ecofriendly {
+  background-color: #9ef8aa;
+  width: 29%;
+}
 
 .description_card:hover {
   background-color: #F2F2F2;
-  box-shadow: 0px 0px 10px #000000;
+  box-shadow: 0px 0px 10px #8d8d8d;
 }
 
 .description_card p {
@@ -466,8 +539,8 @@ button.defaultButton {
 }
 
 .description_card img {
-  width: 200px;
-  height: 200px;
+  width: 100px;
+  height: 100px;
   object-fit: contain;
 }
 
@@ -484,7 +557,6 @@ button.defaultButton {
   width: 100%;
 }
 
-
 .evenSlice {
   background-color: #ffffff;
 }
@@ -494,23 +566,26 @@ button.defaultButton {
 }
 
 .platform_section {
-  /* outline: 1px solid red; */
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   padding: 0 20px 20px 20px;
-  height: 100vh;
-  margin-bottom: 50px;
   background-color: white;
+  gap: 20px;
 }
 
 .platforms {
   display: flex;
   width: 100%;
   justify-content: center;
-  gap: min(5vw, 150px);
+  gap: 15px;
+}
+
+.platform_section h1 {
+  font-size: 2.5em;
+  color: #2d468d;
 }
 
 /**************************************/
@@ -539,11 +614,11 @@ button.defaultButton {
 .homeImg {
   /* position: absolute; */
   object-fit: contain;
-  width: 50%;
   margin: auto;
   width: 500px;
   height: 500px;
-  margin-right: 5%;
+  margin-right: 3%;
+  /* outline: 1px solid red; */
 
 }
 
@@ -576,10 +651,19 @@ button.defaultButton {
 }
 
 .RecognitionSlice img {
-  height: 10vh;
-  width: auto;
-  padding-left: 2vw;
-  padding-right:2vw;
+  /* height: 200px; */
+  /* width: 200px; */
+  object-fit: contain;
+}
+
+
+#nsf_logo {
+  width: 100px;
+}
+
+#ub_logo {
+  width: 150px;
+  height: 100px;
 }
 
 /***********************************/
@@ -595,7 +679,7 @@ button.defaultButton {
   width: 100%;
   padding: 10%;
   height: 100%;
-  margin-top: -64px;
+  margin-top: -20px;
   justify-content: center;
   align-items: center;
   gap: 40px;
@@ -608,6 +692,8 @@ button.defaultButton {
   flex-direction: column;
   background-color: #172753;
   justify-content: center;
+  /* align-items: center; */
+  /* outline: 1px solid red; */
   width: 45%;
   height: 250px;
 }
@@ -660,6 +746,45 @@ button.defaultButton {
     font-weight: 400;
     white-space: nowrap;
   }
+
+  .description_card_container {
+    padding: 0;
+  }
+
+  .description_card {
+    width: 350px;
+    padding: 0px;
+  }
+
+
+  .description_card {
+    width: 350px !important; 
+    height: 350px;
+  }
+
+  .who_container {
+    width: 90%;
+    font-size: 25px;
+    text-align: center;
+    /* text-wrap: nowrap; */
+    /* outline: 1px solid red; */
+  }
+
+
+  .who_section img {
+    width: 450px;
+    height: 300px;
+    object-fit: contain;
+    /* overflow: visible; */
+    /* outline: 1px solid red; */
+  }
+
+  .platforms {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
   
 }
 
@@ -670,6 +795,14 @@ button.defaultButton {
     font-size: 4rem;
     font-weight: 400;
     white-space: nowrap;
+  }
+
+  .who_section img {
+    width: 400px;
+    height: 300px;
+    object-fit: contain;
+    /* overflow: visible; */
+    /* outline: 1px solid red; */
   }
   
 }
@@ -696,6 +829,16 @@ button.defaultButton {
 
   .TitleSliceBottom {
     align-items: center;
+  }
+
+  .description_card_container {
+    width: 80%;
+    padding: 0;
+  }
+
+  .description_card {
+    width: 350px !important; 
+    height: 350px;
   }
   
 }
