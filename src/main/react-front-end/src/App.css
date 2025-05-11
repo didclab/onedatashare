@@ -570,6 +570,7 @@ button.defaultButton {
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
   flex-direction: column;
   padding: 0 20px 20px 20px;
   background-color: white;
@@ -764,7 +765,7 @@ button.defaultButton {
 
   .who_container {
     width: 90%;
-    font-size: 25px;
+    font-size: 20px;
     text-align: center;
     /* text-wrap: nowrap; */
     /* outline: 1px solid red; */
@@ -798,7 +799,7 @@ button.defaultButton {
   }
 
   .who_section img {
-    width: 400px;
+    width: 350px;
     height: 300px;
     object-fit: contain;
     /* overflow: visible; */
