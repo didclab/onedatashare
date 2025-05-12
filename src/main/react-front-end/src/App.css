@@ -435,7 +435,7 @@ button.defaultButton {
   padding-bottom: 75px;
   outline: 3px solid #2d468d;
   border-radius: 15px;
-  background-color: rgb(238, 238, 238);
+  background-color: rgb(255, 255, 255);
   /* outline: 1px solid red; */
 }
 
@@ -574,14 +574,14 @@ button.defaultButton {
   flex-direction: column;
   padding: 0 20px 20px 20px;
   background-color: white;
-  gap: 20px;
+  gap: 5px;
 }
 
 .platforms {
   display: flex;
   width: 100%;
   justify-content: center;
-  gap: 15px;
+  gap: 25px;
 }
 
 .platform_section h1 {
@@ -784,7 +784,7 @@ button.defaultButton {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
   }
   
 }
@@ -840,6 +840,12 @@ button.defaultButton {
   .description_card {
     width: 350px !important; 
     height: 350px;
+  }
+
+  .platforms {
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
   }
   
 }
