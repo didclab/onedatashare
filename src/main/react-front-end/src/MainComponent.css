@@ -1,0 +1,21 @@
+/*!* Desktop *!*/
+@media screen and (min-width: 980px)  {
+    .content{
+        padding-top : 64px;
+    }
+}
+
+/*!* Tablet *!*/
+@media screen and (max-width: 979px)  {
+    .content{
+        padding-top : 56px;
+    }
+}
+
+
+/*!* Mobile *!*/
+@media screen and (max-width: 500px)  {
+    .content{
+        padding-top : 46px;
+    }
+}

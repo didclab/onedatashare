@@ -99,6 +99,7 @@
   flex-direction: row;
   justify-content: flex-end;
   width: 50%;
+  /* outline: red solid 1px; */
 }
 
 .navbarHome{
