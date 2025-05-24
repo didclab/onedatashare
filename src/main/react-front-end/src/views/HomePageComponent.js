@@ -23,13 +23,14 @@
 
 import React, { Component } from 'react';
 import {updateGAPageView} from "../analytics/ga";
-import {HomeInfo} from "./HomePage/HomePageInfo";
-import HomeInfoSlice from "./HomePage/HomeInfoSlice";
-import RecognitionSlice from "./HomePage/RecognitionSlice";
+import {nsfImage, ubImage} from "../constants";
 import TitleSlice from "./HomePage/TitleSlice";
-import TripleIconSlice from "./HomePage/TripleIconSlice";
-import {TripleIconInfo} from "./HomePage/TripleIconInfo";
+import WhySection from "./HomePage/WhySection";
+import WhoSection from './HomePage/WhoSection';
+import Platforms from './HomePage/Platforms';
 import Grid from "@material-ui/core/Grid";
+import RecognitionSlice from './HomePage/RecognitionSlice';
+import Logo from "../assets/images/logo.png";
 
 export default class HomePageComponent extends Component {
 
@@ -42,58 +43,20 @@ export default class HomePageComponent extends Component {
 		document.title = "OneDataShare";
 	}
 
-	makeInfoSlices(){
-		let retVal = [];
-		for (let i=0; i<HomeInfo.length; i+=1) {
-			let data = HomeInfo[i];
-			let left = i % 2;
-			let name = 'evenSlice';
-			if (!left) {
-				name = 'oddSlice';
-			}
-			retVal.push( <HomeInfoSlice className={name}
-										imgOnLeft={left}
-										title={data.title}
-										text ={data.text}
-										key={`home-icon-${i}`}
-										img={require('../assets' + data.img)}
-										imgAltTxt={data.imgAltTxt} /> );
-		}
-		return retVal;
-	}
-
-	makeTriple() {
-		let retVal = [];
-		for (let i=0; i<TripleIconInfo.length; i+=1) {
-			let data = TripleIconInfo[i];
-			retVal.push( <TripleIconSlice img={require('../assets' + data.img)}
-										  title={data.title}
-										  key={`triple-icon-${i}`}
-										  imgAltTxt={data.imgAlt}/> );
-		}
-		return retVal;
-	}
-
+	
 	render() {
-
-		let homeInfo = this.makeInfoSlices();
-		let tripleIcon = this.makeTriple();
-
 		return(
-			<div>
-				<div className='homePage'>
-
-					<TitleSlice />
-
-					<Grid className='TripleIconSlice' container direction='row'>
-					{tripleIcon}
-					</Grid>
-
-					{homeInfo}
+			<div className='homePage'>
+				<div className='hero_section'>
+					<TitleSlice/>	
 				</div>
-
-				<RecognitionSlice />
-
+				<WhoSection/>
+				<Platforms/>
+				<WhySection/>
+				<div className='footer_section'>
+						<h1>Our Sponsors: </h1>
+						<RecognitionSlice/>
+				</div>
 			</div>
 		);
 	}

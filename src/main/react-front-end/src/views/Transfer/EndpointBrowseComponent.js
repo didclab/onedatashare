@@ -328,7 +328,6 @@ export default class EndpointBrowseComponent extends Component {
 		setLoading(true);
 		var uri = endpoint.uri;
 		uri = makeFileNameFromPath(uri, path, "");
-		// console.log(path)
 		let dirPath = "/" + (path[0]? path[0] : "")
 		listFiles(uri, endpoint, dirPath , (data) =>{
 			setLoading(false);
@@ -397,7 +396,6 @@ export default class EndpointBrowseComponent extends Component {
 			const {setLoading} = this.props;
 			setLoading(true);
 			uri = makeFileNameFromPath(uri, path, "");
-			console.log(endpoint)
 			listFiles(uri, endpoint, id[id.length-1], (data) =>{
 				setLoading(false);
 				let sortedfiles = this.filenameAscendingOrderSort(data.files);
@@ -518,10 +516,9 @@ export default class EndpointBrowseComponent extends Component {
 		let email = store.getState().email;
 		updateViewPreference(email, compactViewEnabled,
 			(success) => {
-				console.log("Compact View Preference Switched Successfully", success);
 				store.dispatch(compactViewPreference(compactViewEnabled));
 			},
-			(error) => { console.log("ERROR in updation" + error) }
+			(error) => { console.error("ERROR in updation" + error) }
 		);
 	};
 
@@ -537,10 +534,9 @@ export default class EndpointBrowseComponent extends Component {
 		// 	let email = store.getState().email;
 		// 	updateViewPreference(email, compactViewEnabled,
 		// 		(success) => {
-		// 			console.log("Compact View Preference Switched Successfully", success);
 		// 			store.dispatch(compactViewPreference(compactViewEnabled));
 		// 		},
-		// 		(error) => { console.log("ERROR in updation" + error) }
+
 		// 	);
 		// };
 
@@ -555,7 +551,7 @@ export default class EndpointBrowseComponent extends Component {
 					var regex = new RegExp(searchText, flags);
 					displayList = Object.keys(list).filter(key => regex.test(list[key].name));
 				} catch {
-					console.log("Invalid regex")
+					console.error("Invalid regex")
 				}	
 			}
 			else{

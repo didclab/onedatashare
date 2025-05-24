@@ -166,7 +166,6 @@
   }
  
    sendFile = (processed) => {
-    console.log(processed)
      if (processed.selectedTasks.length === 0) {
        eventEmitter.emit("errorOccured", "You did not select any files!");
        return 0;
@@ -254,7 +253,6 @@
        fileDesinationPath: destParent,
      }
 
-     console.log(source)
 
      var optionParsed = {}
      Object.keys(options).forEach((v)=>{
@@ -353,7 +351,6 @@
        setDraggingTask(null);
        return;
      }
-     // console.log(getSelectedTasks(), result.source, result.destination)
      const processed = mutliDragAwareReorder({
        entities: getEntities(),
        selectedTasks: getSelectedTasks(),
@@ -467,7 +464,6 @@
                   }
                   break;
         default:
-            console.log(this.state.settings.parallelThreadCount)
             this.setState({ settings: { ...this.state.settings, [name]: value } });
        }
        
@@ -602,7 +598,7 @@
 
 
         <Grid item style={{ width: "100%" }} >
-          <NetworkGraphComponent concurrencyThreadCount={this.state.settings.concurrencyThreadCount} parallelThreadCount={this.state.settings.parallelThreadCount}></NetworkGraphComponent>
+          <NetworkGraphComponent sourceNodeName={this.state.endpoint1} destinationNodeName={this.state.endpoint2} concurrencyThreadCount={this.state.settings.concurrencyThreadCount} parallelThreadCount={this.state.settings.parallelThreadCount}></NetworkGraphComponent>
         </Grid>
 
          <Grid item md={desktopWidth} sm={tabletWidth}>
@@ -616,10 +612,10 @@
  
          <Grid item md={desktopWidth} sm={tabletWidth}>
            <FormControl component="fieldset">
-             <FormLabel component="legend"><ToggleHeader>Concurrency Thread Count</ToggleHeader></FormLabel>
+             <FormLabel component="legend"><ToggleHeader>Concurrency Count</ToggleHeader></FormLabel>
              <TextField
                  id="outlined-number"
-                 label={<FieldLabel>Concurrency Thread Count</FieldLabel>}
+                 label={<FieldLabel>Concurrency Count</FieldLabel>}
                  type="number"
                  InputLabelProps={{
                    shrink: true,
@@ -868,7 +864,6 @@
      this.setState({isMessageVisible:false})
    }
    render() {
-    console.log(this.state.settings.parallelThreadCount)
      // const isSmall = screenIsSmall();
      // const isSmall = false;
      // const panelStyle = { height: "auto", margin: isSmall ? "10px" : "0px" };

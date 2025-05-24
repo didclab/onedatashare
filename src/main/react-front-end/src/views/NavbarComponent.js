@@ -25,6 +25,7 @@ import React, { Component,  } from 'react';
 import {AppBar, IconButton, Toolbar, Grid, Hidden, styled, Box, Drawer, List, ListItem, Divider} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu';
 import AccountCircle from '@material-ui/icons/esm/AccountCircle';
+import '../hamburgers.css';
 
 import Logo from "../assets/images/logo.png";
 import { ReactComponent as TransferIcon } from "../assets/images/transfer.svg";
@@ -87,7 +88,6 @@ class NavbarComponent extends Component {
 
 	componentWillUnmount() {
 		this.unsubscribe();
-		// console.log(store);
 	}
 
 	setMobileView() {
@@ -159,14 +159,23 @@ class NavbarComponent extends Component {
 
 	renderUserMenu() {
 		return (
-			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { maxWidth: "350px", minWidth: "300px", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
+			<Drawer anchor={"top"} open={this.state.userMenu} onClose={() => this.toggleUserMenu()} PaperProps={this.state.isMobile ? {style: { backgroundColor: 'transparent' }} : {style: { maxWidth: "375px", minWidth: "300px", marginLeft: "auto", backgroundColor: 'transparent' }}} BackdropProps={{style: { backgroundColor: "transparent", zIndex: 1000}}}>
 				<div className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 					<List className={`drawerContainer${this.state.isMobile ? "-mobile": "-menu"}`}>
 						{this.state.login &&
 							<React.Fragment>
 								<ListItem onClick={() => this.toggleUserMenu()}>
 									<Link to={siteURLS.userPageUrl} id="NavEmail" href={siteURLS.userPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-										{!this.state.isMobile ? (<React.Fragment><AccountIcon className="icon" style={{width: "30px"}}/>{"Account Details"}</React.Fragment>) : (this.state.email)}
+										{!this.state.isMobile ? (
+											<React.Fragment>
+											<div className='icon'>
+												<AccountIcon style={{color: "white", width: "30px", height: "30px"}}/>
+											</div>
+											{"Account Details"}
+											</React.Fragment>
+											) 
+											: 
+											(this.state.email)}
 									</Link>
 								</ListItem>
 								<Hidden mdUp>
@@ -182,21 +191,23 @@ class NavbarComponent extends Component {
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.termsUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<TermsIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
+								<TermsIcon className="icon"/>
 								Terms
 							</Link>
 						</ListItem>
 						
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.policyUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<PolicyIcon className="icon" style={{color: "white", width: "40px", marginLeft: "-2px"}}/>
+								<PolicyIcon className="icon"/>
 								Policy
 							</Link>
 						</ListItem>
 
 						<ListItem onClick={() => this.toggleUserMenu()}>
 							<Link to={siteURLS.supportPageUrl} href={siteURLS.supportPageUrl} className={`navbarButton${this.state.isMobile ? "-mobile": "-menu"}`}>
-								<SupportIcon className="icon" style={{color: "white", width: "30px"}}/>
+								<div className='icon'>
+									<SupportIcon style={{color: "white", width: "30px", height: "30px"}}/>
+								</div>
 								Support
 							</Link>
 						</ListItem>
@@ -213,15 +224,13 @@ class NavbarComponent extends Component {
 				{this.state.login &&
 					<Box display="flex" whiteSpace={"nowrap"}>
 						<IconButton onClick={() => this.toggleUserMenu()} >
-							<AccountCircle style={{color: "white", fontSize: "40px"}}/>
+							<AccountCircle style={{color: "white", fontSize: "35px"}}/>
 							<div className={`navbarButton`}>{this.state.email}</div>
 						</IconButton>
-						<ListItem onClick={() => this.closeUserMenu()}>
 							<Link id="NavLogout" to={"/"} onClick={()=>{logout()}} className={"navbarButton"}>
-								<LogoutIcon className="icon" style={{width: "40px"}}/>
+								<LogoutIcon className="icon" style={{width: "30px"}}/>
 								<span style={{textwrap: "none"}}>Log out</span>
 							</Link>
-						</ListItem>
 					</Box>
 				}
 				{!this.state.login &&
@@ -264,13 +273,13 @@ class NavbarComponent extends Component {
 
 	render() {
 		return (
-			<React.Fragment>
-				<AppBar className='navbar-root' style={{backgroundColor: "#172753", zIndex: 1400}}>
+			<div className="navbar-root">
+				<AppBar className='navbar-container' style={{position:"relative", backgroundColor: "#172753", zIndex: 1400, maxWidth: "2048px",}}>
 					<Toolbar style={{padding: "24px"}}>
 						<Grid container className={"leftNav"} alignItems={"center"}>
 
 							{/*Home Button and OneDatashare logo */}
-							<Link to={"/"} className={"navbarHome"} onClick={() => {if (this.state.mobileMenu) {this.toggleMobileMenu();}}}>
+							<Link to={"/"} className={"navbarHome"} onClick={() => {this.closeUserMenu(); if (this.state.mobileMenu) {this.toggleMobileMenu();}}}>
 								<img className="navbarLogo" src={Logo} alt="OneDataShare Logo" />
 								<h4 className="navbarName">OneDataShare</h4>
 							</Link>
@@ -294,7 +303,11 @@ class NavbarComponent extends Component {
 											<AccountCircle style={{color: "white", fontSize: "40px"}}/>
 										</IconButton>
 										<IconButton onClick={() => this.toggleMobileMenu()} >
-											<MenuIcon style={{color: "white", fontSize: "40px"}}/>
+											<div className={`hamburger hamburger--slider ${this.state.mobileMenu ? "is-active" : ""}`} style={{"borderRadius": "5px"}} type="button">
+												<span className="hamburger-box">
+													<span className="hamburger-inner"></span>
+												</span>
+											</div>
 										</IconButton>
 									</React.Fragment>
 								}
@@ -303,6 +316,7 @@ class NavbarComponent extends Component {
 										<Link to={siteURLS.signInPageUrl} id="NavSignIn" href={siteURLS.signInPageUrl} className={"navbarSignIn"}>
 											<h4 style={{fontWeight: "bold", fontSize: "15px"}}>Sign in</h4>
 										</Link>
+										<Link to={siteURLS.registerPageUrl} id="NavRegister" href={siteURLS.registerPageUrl} className={"navbarButton"}>Register</Link>
 									</Box>
 								}
 							</Box>
@@ -310,10 +324,10 @@ class NavbarComponent extends Component {
 
 
 					</Toolbar>
+					{this.renderMobileMenu()}
+					{this.renderUserMenu()}
 				</AppBar>
-				{this.renderMobileMenu()}
-				{this.renderUserMenu()}
-			</React.Fragment>
+			</div>
 
 		);
 	}

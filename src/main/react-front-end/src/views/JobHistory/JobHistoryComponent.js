@@ -117,8 +117,7 @@
 
 	queueFuncFail(resp) {
 		//failed
-		console.log(resp)
-		console.log('Error in queue request to API layer');
+		console.error(resp, 'Error in queue request to API layer');
 	}
 
 	queueFunc(isHistory = false) {
@@ -149,7 +148,7 @@
 			this.queueFunc();
 		}, (resp) => {
 			//failed
-			console.log('Error in cancel request to API layer');
+			console.error('Error in cancel request to API layer');
 		});
 	}
 
@@ -160,7 +159,6 @@
 	// 	}, () => {
 	// 		//failed
 	// 		var msg = 'Restart job failed since either or both credentials of the job do not exist'
-	// 		console.log(msg)
 	// 		eventEmitter.emit("errorOccured", msg)
 	// 	});
 	// }
@@ -171,7 +169,6 @@
 	// 		this.queueFunc()
 	// 	}, () => {
 	// 		//failed
-	// 		console.log('Error in delete job request to API layer')
 	// 	})
 	// }
 

@@ -43,11 +43,10 @@ import TermsComponent from './views/TermsComponent';
 import PolicyComponent from './views/PolicyComponent';
 import GetStartedComponent from './views/GetStartedComponent';
 import OAuth2RedirectHandler from './views/Login/OAuthRedirectHandler.js';
-import "./MainComponent.css"
 
 // XNOTE: split the components into logged in, not logged in, and admin using HOCs
 
-export default class MainComponent extends Component {
+export default class  extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,7 +72,7 @@ export default class MainComponent extends Component {
         <NavbarComponent key={isLoggedIn} login={isLoggedIn} email={store.getState().email}></NavbarComponent>
 
 
-        <div className="content" style={{ display: 'block'}}>
+        <div className="content">
           <Switch>
 
             <Route path={ siteURLS.accountPageUrl /*'/account'*/}

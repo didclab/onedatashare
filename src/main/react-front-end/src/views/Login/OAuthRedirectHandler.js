@@ -4,7 +4,6 @@ import { Redirect } from "react-router-dom";
 import { store } from "../../App.js";
 import { loginAction } from "../../model/actions";
 import { cookies } from "../../model/reducers";
-import { GREY } from "../../color";
 import SavedLoginComponent from "./SavedLoginComponent.js";
 
 class OAuth2RedirectHandler extends Component {
@@ -84,7 +83,7 @@ class OAuth2RedirectHandler extends Component {
   }
 
   componentDidMount() {
-    document.body.style.backgroundColor = GREY;
+    document.body.style.backgroundColor = "#f2f2f2";
     document.title = "OneDataShare - Account";
     window.addEventListener("resize", this.resize.bind(this));
     this.setState({ loading: false });

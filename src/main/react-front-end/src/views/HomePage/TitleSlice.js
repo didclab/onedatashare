@@ -29,34 +29,66 @@ import Grid from "@material-ui/core/Grid";
 import Logo from "../../assets/images/logo.png";
 
 export default class TitleClass extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            isMobile: false
+        };
+        this.setMobileView = this.setMobileView.bind(this);
+    }
 
+    componentDidMount() {
+        if (window.innerWidth <= 1300) {
+            this.setState(({isMobile: true}))
+        }
+        window.addEventListener('resize', this.setMobileView);
+    }
+
+    componentWillUnmount() {
+        window.removeEventListener('resize', this.setMobileView);
+    }
+
+    setMobileView() {
+        if (window.innerWidth <= 1300) {
+            this.setState(({isMobile: true}))
+        }
+        else {
+            this.setState(({isMobile: false}))
+        }
+    }
     render() {
         return(
-            <Grid container className="TitleSlice">
-                <Hidden mdUp>
-                    <Grid item container xs={12}>
-                        <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
-                    </Grid>
-                </Hidden>
-                <Grid item container direction="column" md={7} xs={12}>
-                    <Hidden smDown>
-                        <h1>OneDataShare</h1>
-                    </Hidden>
-                    <Hidden mdUp>
-                        <h1>OneData <br/> Share </h1>
-                    </Hidden>
-                    <p> Fast and secure file transfers made easy! </p>
-                    <br/>
-                    <a href={siteURLS.registerPageUrl}>
-                        <Button className='defaultButton' variant="contained"> Get Started </Button>
-                    </a>
-                </Grid>
-                <Hidden smDown>
-                    <Grid item container md={5}>
-                        <img className='homeImg' src={Logo} alt="OneDataShare Logo" />
-                    </Grid>
-                </Hidden>
-            </Grid>
+            <div className="title_container" style={{flexDirection: this.state.isMobile ? "column" : "row", justifyContent: this.state.isMobile ? "center" : "flex-start"}}>
+                <img className={`homeImg${this.state.isMobile? "-mobile":""}`} src={Logo} alt="OneDataShare Logo" draggable={false} />
+                {!this.state.isMobile &&
+                    <div className='socialSection'>
+                        <div className='socialIcons'>
+                            <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
+                            <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+                        </div>
+                        <div className="socialFiller"></div>
+                    </div>
+                }
+                
+                <div className="TitleSlice">
+                    <h2> Fast and secure file <br/> transfers made easy!  </h2>
+                    <div className="TitleSliceBottom">
+                        <a href={siteURLS.registerPageUrl}>
+                            <button className='getStartedBtn'>Get Started</button>
+                        </a>
+                    </div>
+                </div>
+
+                
+                {this.state.isMobile &&
+                    <div className='socialSection-mobile'>
+                        <div className='socialIcons-mobile'>
+                            <img src="https://img.icons8.com/?size=100&id=106562&format=png&color=000000" onClick={() => {window.location.href = "https://github.com/didclab/onedatashare"}}/>
+                            <img src="https://img.icons8.com/?size=100&id=2PoOVhFsZ1Vj&format=png&color=000000" style={{padding: "5px"}}onClick={() => {window.location.href = "https://par.nsf.gov/servlets/purl/10074014"}}/>
+                        </div>
+                    </div>
+                }
+            </div>
         )
     }
 }

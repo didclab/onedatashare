@@ -66,14 +66,10 @@ export default class OauthProcessComponent extends Component {
         );
       }, 500);
     } else if (tag === "uuid") {
-      console.log(
-        "User has opted to save auth tokens at ODS servers. UUID received"
-      );
       let qs = this.props.location.search;
       let identifier = decodeURIComponent(qs.substring(qs.indexOf("=") + 1));
       endpointLogin(DROPBOX_TYPE, sideLeft, { uuid: identifier });
     } /*else if(isOAuth.hasOwnProperty(tag) && isOAuth[tag]){
-      console.log(tag + " oAuth identifier received");
       this.updateLocalCredStore(showText[tag], qsObj);
     }*/
     else {
@@ -83,19 +79,15 @@ export default class OauthProcessComponent extends Component {
       );
 
       // if(isOAuth.hasOwnProperty(tag) && isOAuth[tag]){
-      //   console.log(tag + "oAuth identifier received");
       //   this.updateLocalCredStore(showType[tag], qsObj);
       // }
 
 
       if (tag === "dropbox") {
-        console.log("Dropbox oAuth identifier received");
         this.updateLocalCredStore(DROPBOX_NAME, qsObj);
       } else if (tag === "googledrive") {
-        console.log("Google drive oAuth identifier received");
         this.updateLocalCredStore(GOOGLEDRIVE_NAME, qsObj);
       } else if (tag === "box") {
-        console.log("Box oAuth identifier received");
         this.updateLocalCredStore(BOX_NAME, qsObj);
       }
     }
@@ -110,7 +102,7 @@ export default class OauthProcessComponent extends Component {
 
       let existingToken = parsedJSON.some(obj => obj.name === accountId);
       if (existingToken) {
-        console.log(
+        console.error(
           "Auth token for " + accountId + " already exists in session."
         );
       } else {

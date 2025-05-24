@@ -48,15 +48,11 @@ export var draggingTask = null;
 export function getMapFromEndpoint(endpoint){
 
 	if(endpoint.side === "left"){
-//		console.log(column1.ids);
-//		console.log(column1.path);
 		return column1.ids.map(function(e, i) {
 		  return {id: column1.ids[i], path: buildPathToIndex(endpoint.uri, column1.path, i)};
 		});
 	}else{
 
-//		console.log(column2.ids);
-//		console.log(column2.path);
 		return column2.ids.map(function(e, i) {
 		  return {id: column2.ids[i], path: buildPathToIndex(endpoint.uri, column2.path, i)};
 		});
@@ -88,7 +84,6 @@ export function setDraggingTask(task){
 
 //@return: initial+"/"+path[1]+"/"+path[2]+...+path[n]+"/"+name
 export function makeFileNameFromPath(initial, path, name){
-//	console.log(initial, path, name)
 	var pathstr;
 	if(path.length === 0){
 		pathstr = initial;
@@ -217,7 +212,6 @@ export function setBeforeTransferReorder(reorderResult){
 	if(!reorderResult){
 		return
 	}
-	//console.log(reorderResult);
 	if(reorderResult.left){
 		column1.tasks = reorderResult["left"].tasks;
 	}

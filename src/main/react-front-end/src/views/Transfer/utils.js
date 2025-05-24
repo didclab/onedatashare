@@ -92,11 +92,8 @@ const reorderSingleDrag = ({
   const newForeignTasks = [...foreign.tasks];
   /*const foundDup = newForeignTasks.find((value) => {return value.name == task.name;});
   if(foundDup){
-    console.log(foundDup);
   };*/
   if(!newForeignTasks.find((value) => {return value.name === task.name;})){
-   // console.log(task);
-   // console.log(newForeignTasks);
     newForeignTasks.splice(destination.index, 0, task);
   }else{
   }
@@ -110,7 +107,6 @@ const reorderSingleDrag = ({
   if(selected.length === 0){
     selected.push(task);
   }
-  //console.log(selected);
   return {
     ...updated,
     selectedTasks:selected,
@@ -136,18 +132,14 @@ export const multiSelectTo = (
     return [newTask];
   }
 
-  //console.log(columnOfNew);
-
   if(columnOfNew == null){
     return selectedTasks;
   }
 
   const indexOfNew: number = columnOfNew.tasks.indexOf(newTask);
-  //console.log(indexOfNew);
   const lastSelected: Id = selectedTasks[selectedTasks.length - 1];
 
-  var indexOfLast: number = columnOfNew.tasks.indexOf(lastSelected);
-  //console.log(indexOfNew);
+  var indexOfLast: number = columnOfNew.tasks.indexOf(lastSelected);;
 
   // multi selecting in the same column
   // need to select everything between the last index and the current index inclusive
@@ -157,8 +149,6 @@ export const multiSelectTo = (
     return [];
   }
 
-  //console.log(selectedTaskIds);
-
   const isSelectingForwards = indexOfNew > indexOfLast;
   const start = isSelectingForwards ? indexOfLast : indexOfNew;
   const end = isSelectingForwards ? indexOfNew : indexOfLast;
@@ -167,14 +157,12 @@ export const multiSelectTo = (
 
   // everything inbetween needs to have it's selection toggled.
   // with the exception of the start and end values which will always be selected
-  //console.log(inBetween)
   const toAdd = inBetween.filter(
     (task) => {
       // if already selected: then no need to select it again
       return !selectedTasks.includes(task);
     },
   );
-  //console.log(toAdd)
 
   const sorted = isSelectingForwards ? toAdd : [...toAdd].reverse();
   const combined = [...selectedTasks, ...sorted];
@@ -220,7 +208,6 @@ const reorderMultiDrag = ({
         return -1;
 
       const indexOfA = columnForA.tasks.indexOf(a);
-      //console.log(columnForB)
       const indexOfB = columnForB.tasks.indexOf(b);
 
       if (indexOfA !== indexOfB) {
@@ -233,7 +220,6 @@ const reorderMultiDrag = ({
 
   selectedTasks[destination.droppableId] = [];
   const insertAtIndex = destination.index;
-  //console.log(insertAtIndex);
 
   const startSave = JSON.parse(JSON.stringify(start));
   // we need to remove all of the selected tasks from their columns

@@ -4,18 +4,65 @@ import cytoscape from 'cytoscape';
 
 const NetworkGraphComponent = (props) => {
   const [elements, setElements] = useState([        
-    { data: { id: 'Node A' }, position: {x: 0, y: 0}, locked: true },
-    { data: { id: 'Node B' }, position: {x: 350, y: 0}, locked: true },
+    { data: { id: 'Source', label: props.sourceNodeName["uri"], type: 'source' }, position: {x: 0, y: 0}, locked: true },
+    { data: {id: 'Transfer Node', label: "ODS Transfer Service", type: 'source'}, position: {x: 175, y: 0}, locked: true},
+    { data: { id: 'Destination', label: props.destinationNodeName["uri"], type: 'destination' }, position: {x: 350, y: 0}, locked: true },
   ])
 
+  // This function keeps track of the source and destination node names
   useEffect(() => {
-    // Initialize Cytoscape on component mount
+    setElements([
+      { data: { id: 'Source', label: props.sourceNodeName["uri"], type: 'source' }, position: {x: 0, y: 0}, locked: true },
+      { data: {id: 'Transfer Node', label: "ODS Transfer Service", type: 'source'}, position: {x: 175, y: 0}, locked: true},
+      { data: { id: 'Destination', label: props.destinationNodeName["uri"], type: 'destination' }, position: {x: 350, y: 0}, locked: true },
+    ]);
+  }, [props.sourceNodeName, props.destinationNodeName]); 
+
+    // This useEffect function creates the Network graph in Transfer settings
+    useEffect(() => {
+      createGraph();
+  
+      window.addEventListener('resize', createGraph);
+      return () => {
+        window.removeEventListener('resize', createGraph);
+      };
+    }, [props, elements]);
+
+  
+
+  function createGraph() {
     const cy = cytoscape({
       container: document.getElementById('cy'), 
       elements: elements,
       style: [
         {
-          selector: 'node',
+          selector: 'node[type="source"]',
+          style: {
+            'background-color': 'black',
+            'label': 'data(label)',
+            'color': 'black',
+            'text-outline-color': 'black',
+            'font-size': 5,
+            'width': 5,
+            'height': 5, 
+            'shape': 'square'
+          }
+        },
+        {
+          selector: 'node[type="destination"]',
+          style: {
+            'background-color': 'black',
+            'label': 'data(label)',
+            'color': 'black',
+            'text-outline-color': 'black',
+            'font-size': 5,
+            'width': 5,
+            'height': 5, 
+            'shape': 'square'
+          }
+        },
+        {
+          selector: 'node[type="TCP"]',
           style: {
             'background-color': 'black',
             'label': 'data(id)',
@@ -47,8 +94,8 @@ const NetworkGraphComponent = (props) => {
         {
           selector: 'edge[type="concurrent"]',
           style: {
-            'width': 1,
-            'line-color': '#ccc',
+            'width': 0.1,
+            'line-color': 'red',
             'target-arrow-color': '#ccc',
             'curve-style': 'bezier'
           }
@@ -67,52 +114,82 @@ const NetworkGraphComponent = (props) => {
       boxSelectionEnabled: false,
       autounselectify: true
     });
+    let parallelThreadCount = props.parallelThreadCount;
+    let concurrencyThreadCount = props.concurrencyThreadCount;
 
-    const maxThreadDistance = props.parallelThreadCount * 5; // Total range for threads
-    const spacing = maxThreadDistance / (props.parallelThreadCount - 1); // Calculate spacing dynamically
+    if (parallelThreadCount > 10) {
+      parallelThreadCount = 10
+    }
+
+    if (concurrencyThreadCount > 10) {
+      concurrencyThreadCount = 10
+    }
+    
+    const maxThreadDistance = concurrencyThreadCount * 5;
+    const spacing = maxThreadDistance / (concurrencyThreadCount - 1);
     let counter = 0;
   
     const newNodes = [];
-    if (props.parallelThreadCount == 1) {
+    if (props.concurrencyThreadCount == 1) {
       newNodes.push({
         group: 'nodes',
-        position: { x: 175, y: 0 },
+        position: { x: 87.5, y: 0 },
         data: { id: 'n' + counter, type: 'parallel' },
       });
       newNodes.push({
+        group: 'nodes',
+        position: { x: 262.5, y: 0 },
+        data: { id: 'd' + counter, type: 'parallel' },
+      });
+      newNodes.push({
         group: 'edges',
-        data: {source: 'Node A', target: 'n' + counter }
+        data: {source: 'Source', target: 'n' + counter }
+      });
+      newNodes.push({
+        group: 'edges',
+        data: {source: 'd' + counter, target: 'Destination' }
       });
     }
-    for (let i = 0; i < props.parallelThreadCount; i++) {
-      const yPosition = -(maxThreadDistance / 2) + i * spacing; // Calculate y position for each node
+    for (let i = 0; i < concurrencyThreadCount; i++) {
+      const yPosition = -(maxThreadDistance / 2) + i * spacing;
       newNodes.push({
         group: 'nodes',
-        position: { x: 175, y: yPosition },
+        position: { x: 87.5, y: yPosition },
         data: { id: 'n' + counter, type: 'parallel' },
       });
       newNodes.push({
+        group: 'nodes',
+        position: { x: 262.5, y: yPosition },
+        data: { id: 'd' + counter, type: 'parallel' },
+      });
+      newNodes.push({
         group: 'edges',
-        data: {source: 'Node A', target: 'n' + counter }
+        data: {source: 'Source', target: 'n' + counter }
+      });
+      newNodes.push({
+        group: 'edges',
+        data: {source: 'd' + counter, target: 'Destination'}
       });
 
-      for (let j = 0; j < props.concurrencyThreadCount; j++) {
+      for (let j = 0; j < parallelThreadCount; j++) {
         newNodes.push({
           group: 'edges',
-          data: { source: 'n' + counter, target: 'Node B', type:"concurrent"},
+          data: { source: 'n' + counter, target: 'Transfer Node', type:"concurrent"},
+        });
+        newNodes.push({
+          group: 'edges',
+          data: { source: 'd' + counter, target: 'Transfer Node', type:"concurrent"},
         });
       }
       counter += 1;
     }
   
-    // Add new elements to Cytoscape
     cy.add(newNodes);
 
-    // Cleanup Cytoscape instance when component unmounts
     return () => {
       cy.destroy();
     };
-  }, [props]);
+  }
 
   return (
     <div

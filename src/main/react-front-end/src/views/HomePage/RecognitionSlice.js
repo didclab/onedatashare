@@ -35,8 +35,8 @@ export default class RecognitionSlice extends Component {
                   alignItems='center'
                   className='RecognitionSlice'>
 
-                <img width={'100px'} src={nsfImage} style={{float: 'left'}} alt="NSF Logo"/>
-                <img width={'100px'} src={ubImage} style={{float: 'left'}} alt="UB Logo"/>
+                <img id="nsf_logo" src={nsfImage} alt="NSF Logo"/>
+                <img id="ub_logo" src={ubImage} alt="UB Logo"/>
 
             </Grid>
         );

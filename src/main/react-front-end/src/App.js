@@ -57,8 +57,8 @@ class App extends Component {
 
 
   handleOpen = (errormsg) => {
-    console.log(errormsg);
     this.setState({ open: true, vertical: 'top', horizontal: 'center', error: JSON.stringify(errormsg) });
+    console.error(errormsg);
     setTimeout(this.handleClose, 4000);
   };
 
@@ -69,7 +69,6 @@ class App extends Component {
   componentDidMount(){
     this.setState({loaded: true});
     eventEmitter.on("errorOccured", this.handleOpen);
-    // console.log(process.env);
   }
 
   
@@ -77,7 +76,7 @@ class App extends Component {
     const { vertical,horizontal, error, open } = this.state;
 
     return (
-      <div>
+      <div className='root-container'>
         <Snackbar
           anchorOrigin={{ vertical, horizontal }}
           style={{marginTop: "20px", zIndex: 1500}}

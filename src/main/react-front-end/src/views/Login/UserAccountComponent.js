@@ -101,7 +101,7 @@ export default class UserAccountComponent extends Component {
 		}, (resp) => {
 			//failed
 			this.setState({ loading: false });
-			console.log('Error encountered in getUser request to API layer');
+			console.error('Error encountered in getUser request to API layer');
 		});
 		updateGAPageView();
 	}
@@ -397,7 +397,7 @@ export default class UserAccountComponent extends Component {
 					display: "flex",
 					justifyContent: "center",
 					alignItems: "center",
-					marginBottom: '5%'
+					marginBottom: '5%',
 				}}
 			>
 				<div
