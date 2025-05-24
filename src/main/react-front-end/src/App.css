@@ -10,7 +10,7 @@
 /************************************/
 
 * {
-  font-family: "Lexend Deca", sans-serif;
+  font-family: "Roboto", sans-serif;
 }
 
 .root-container {
@@ -390,7 +390,6 @@ button.defaultButton {
   background-color: white;
   font-size: 1.2em;
   font-weight: normal;
-  font-family: "Roboto", sans-serif;
   color: #172753;
   white-space: nowrap;
 }
@@ -703,7 +702,6 @@ button.defaultButton {
 
 .TitleSlice h2 {
   color: #ffffff;
-  font-family: "Roboto", sans-serif;
   font-size: 5rem;
   font-weight: 400;
   white-space: nowrap;
@@ -743,7 +741,6 @@ button.defaultButton {
 @media screen and (max-width: 768px) {
   .TitleSlice h2 {
     color: #ffffff;
-    font-family: "Roboto", sans-serif;
     font-size: 5rem;
     font-weight: 400;
     white-space: nowrap;
@@ -793,7 +790,6 @@ button.defaultButton {
 @media screen and (max-width: 480px) {
   .TitleSlice h2 {
     color: #ffffff;
-    font-family: "Roboto", sans-serif;
     font-size: 4rem;
     font-weight: 400;
     white-space: nowrap;
@@ -813,7 +809,6 @@ button.defaultButton {
 @media screen and (max-width: 380px) {
   .TitleSlice h2 {
     color: #ffffff;
-    font-family: "Roboto", sans-serif;
     font-size: 3.5rem;
     font-weight: 400;
     white-space: nowrap;
@@ -1020,7 +1015,6 @@ button.defaultButton {
   overflow: auto; /* Enable scrolling if needed */
   /* You can adjust these properties as needed */
   font-size: 14px;
-  font-family: "Lexend Deca", sans-serif;
   /* Ensure text wraps within the box */
   white-space: normal;
   word-wrap: break-word;
@@ -1387,7 +1381,6 @@ button.defaultButton {
   padding-top: 5px;
   background-color: black;
   color:white;
-  font-family: "Lexend Deca", sans-serif;
   overflow: scroll;
 }
 
