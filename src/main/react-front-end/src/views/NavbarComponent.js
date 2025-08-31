@@ -253,6 +253,9 @@ class NavbarComponent extends Component {
 							<HistoryIcon className="icon"/>
 							{"History"}
 						</Link>
+						<Link to={siteURLS.scheduleVisualization} id="NavScheduleVisualization" className={`navbarButton${window.location.pathname === siteURLS.scheduleVisualization ? "-active": ""}`} onClick={() => {this.closeUserMenu()}} style={{ textDecoration: 'none' }}>
+							{"Schedule"}
+						</Link>
 					</React.Fragment>
 				}
 			</Box>

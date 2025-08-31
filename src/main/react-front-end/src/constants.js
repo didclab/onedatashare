@@ -68,7 +68,8 @@ export const siteURLS = {
   historyPageUrl: "/history",
   termsUrl: "/terms",
   policyUrl: "/policy",
-  oauthRedirectUrl: "/oauth2/redirect"
+  oauthRedirectUrl: "/oauth2/redirect",
+  scheduleVisualization: "/scheduleVisualization"
 };
 
 export const s3Regions = [
@@ -110,6 +111,8 @@ export const EMAIL_VERIFICATION_ENDPOINT = "/verify-email";
 export const RESEND_ACC_ACT_CODE_ENDPOINT = "/resend-acc-act-code";
 
 export const GET_SEARCH_JOBS_ENDPOINT = "q/search-jobs";
+export const GET_PREVIOUS_JOBS = "/api/metadata/all/jobs/range";
+export const GET_QUEUED_JOBS = "/api/job/list";
 
 // module types
 export const DROPBOX_TYPE = "dropbox:///";

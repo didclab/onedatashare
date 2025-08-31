@@ -532,6 +532,48 @@ div.homePage {
   align-items: center;
 }
 
+/************************************/
+/*                                  */
+/*   For VisualizationComponent.js  */
+/*                                  */
+/************************************/
+
+.scheduleVisualization {
+  margin-top: 5vh;
+  margin-left: 10vh;
+  margin-right: 10vh;
+  background-color: white;
+  height: 80vh;
+}
+
+.scheduleVisualization__container {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  z-index: 1000;
+  padding: 2vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.scheduleVisualization__form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scheduleVisualization__chart {
+  overflow: scroll;
+  flex: 1;
+}
+
+.scheduleVisualization__chart::-webkit-scrollbar {
+  width: 8px;  /* Vertical scrollbar width */
+  height: 8px; /* Horizontal scrollbar height */
+}
+
+/* VisualizationComponent.js ends here */
+
 .QueueView {
   display: flex;
   width: 100%;

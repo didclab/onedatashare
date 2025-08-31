@@ -26,12 +26,14 @@
 	UPDATE_PASSWD_ENDPOINT,
 	GET_SEARCH_JOBS_ENDPOINT,
 	LOGOUT_ENDPOINT,
-	apiCredUrl,transferJobUrl} from '../constants';
+	apiCredUrl,transferJobUrl,
+	GET_PREVIOUS_JOBS, GET_QUEUED_JOBS} from '../constants';
 import { logoutAction } from "../model/actions.js";
 import { store } from "../App.js";
 import Axios from "axios";
 import { getType, getTypeFromUri } from '../constants.js';
 import { getMapFromEndpoint } from '../views/Transfer/initialize_dnd.js';
+import { getRandomJobs, parseVisualizationData } from '../utils.js';
 
 const FETCH_TIMEOUT = 10000*2;
 
@@ -678,4 +680,43 @@ export async function verifyRegistraionCode(emailId, code) {
           console.error("Error while verifying the registration code")
           return {status : 500}
         });
+}
+
+// this queries Hazelcast
+export async function getQueuedJobs(accept, fail) {
+	let callback = accept;
+	// axios.get(GET_QUEUED_JOBS)
+	getRandomJobs(false)
+	.then((response) => {
+		if (response.status !== 200) {
+			callback = fail;
+		} else {
+			response.data = parseVisualizationData(response.data, false);
+		}
+		statusHandle(response, callback)
+	})
+	.catch((error)=> {
+		handleRequestFailure(error, fail);
+	})
+}
+
+// this queries the CockroachDB
+export async function getPreviousJobs(startDateTime, endDateTime, accept, fail) {
+	let callback = accept;
+	// axios.get(GET_PREVIOUS_JOBS, {
+	// 	start: startDateTime.toISOString(),
+	// 	end: endDateTime.toISOString()
+	// })
+	getRandomJobs(true, startDateTime.toISOString(), endDateTime.toISOString())
+	.then((response)=> {
+		if (response.status !== 200) {
+			callback = fail
+		} else {
+			response.data = parseVisualizationData(response.data, true);
+		}
+		statusHandle(response, callback);
+	})
+	.catch((error)=> {
+		handleRequestFailure(error, fail);
+	})
 }
